@@ -1,6 +1,7 @@
 div.A1
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
@@ -10,7 +11,7 @@ div.A1
   margin-left: 126pt;
   margin-right: 0pt;
   margin-top: 30.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -126pt;
   text-transform: none;
   vertical-align: baseline;
@@ -26,12 +27,13 @@ div.A1
 .A1_inner
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -47,6 +49,7 @@ div.A1
 div.A2
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 14.0pt;
   font-style: normal;
@@ -56,7 +59,7 @@ div.A2
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 17.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -72,12 +75,13 @@ div.A2
 .A2_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 14.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -93,6 +97,7 @@ div.A2
 div.A3
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 12.0pt;
   font-style: normal;
@@ -102,7 +107,7 @@ div.A3
   margin-left: 54pt;
   margin-right: 0pt;
   margin-top: 10.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -54pt;
   text-transform: none;
   vertical-align: baseline;
@@ -118,12 +123,13 @@ div.A3
 .A3_inner
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 12.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -139,6 +145,7 @@ div.A3
 div.alphastep
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -148,7 +155,7 @@ div.alphastep
   margin-left: 36pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -164,12 +171,13 @@ div.alphastep
 .alphastep_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -185,6 +193,7 @@ div.alphastep
 div.alphastep1
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -194,7 +203,7 @@ div.alphastep1
   margin-left: 36pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -210,12 +219,13 @@ div.alphastep1
 .alphastep1_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -231,6 +241,7 @@ div.alphastep1
 div.Bigbody
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 12.0pt;
   font-style: normal;
@@ -240,7 +251,7 @@ div.Bigbody
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 9.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -256,12 +267,13 @@ div.Bigbody
 .Bigbody_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 12.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -277,6 +289,7 @@ div.Bigbody
 div.Blank_Line
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 3.0pt;
   font-style: normal;
@@ -286,7 +299,7 @@ div.Blank_Line
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 1.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -302,12 +315,13 @@ div.Blank_Line
 .Blank_Line_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 3.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -323,6 +337,7 @@ div.Blank_Line
 div.Body
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -332,7 +347,7 @@ div.Body
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -348,12 +363,13 @@ div.Body
 .Body_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -369,6 +385,7 @@ div.Body
 div.body_sm
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 9.0pt;
   font-style: normal;
@@ -378,7 +395,7 @@ div.body_sm
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 6.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -394,12 +411,13 @@ div.body_sm
 .body_sm_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 9.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -415,6 +433,7 @@ div.body_sm
 div.Bullet
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10pt;
   font-style: normal;
@@ -424,7 +443,7 @@ div.Bullet
   margin-left: 18pt;
   margin-right: 0pt;
   margin-top: 8.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -440,12 +459,13 @@ div.Bullet
 .Bullet_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -461,6 +481,7 @@ div.Bullet
 div.bullet_ind
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10pt;
   font-style: normal;
@@ -470,7 +491,7 @@ div.bullet_ind
   margin-left: 36pt;
   margin-right: 0pt;
   margin-top: 6.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -486,12 +507,13 @@ div.bullet_ind
 .bullet_ind_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -507,6 +529,7 @@ div.bullet_ind
 div.bullet_ind5
 {
   color: #000000;
+  direction: ltr;
   font-family: "Times New Roman";
   font-size: 10.0pt;
   font-style: normal;
@@ -516,7 +539,7 @@ div.bullet_ind5
   margin-left: 54pt;
   margin-right: 0pt;
   margin-top: 6.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -532,12 +555,13 @@ div.bullet_ind5
 .bullet_ind5_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: "Times New Roman";
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -553,6 +577,7 @@ div.bullet_ind5
 div.bullet_table
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -562,7 +587,7 @@ div.bullet_table
   margin-left: 18pt;
   margin-right: 0pt;
   margin-top: 6.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -578,12 +603,13 @@ div.bullet_table
 .bullet_table_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -599,6 +625,7 @@ div.bullet_table
 div.Bullet_Table
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10pt;
   font-style: normal;
@@ -608,7 +635,7 @@ div.Bullet_Table
   margin-left: 14.4pt;
   margin-right: 0pt;
   margin-top: 3.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -14.4pt;
   text-transform: none;
   vertical-align: baseline;
@@ -624,12 +651,13 @@ div.Bullet_Table
 .Bullet_Table_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -645,6 +673,7 @@ div.Bullet_Table
 div.CellBody
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 9pt;
   font-style: normal;
@@ -654,7 +683,7 @@ div.CellBody
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 3.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -670,12 +699,13 @@ div.CellBody
 .CellBody_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 9pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -691,6 +721,7 @@ div.CellBody
 div.CellHeading
 {
   color: #ffffff;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -700,7 +731,7 @@ div.CellHeading
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 0.0pt;
-  text-align: Center;
+  text-align: center;
   text-indent: 0pt;
   text-transform: uppercase;
   vertical-align: baseline;
@@ -716,12 +747,13 @@ div.CellHeading
 .CellHeading_inner
 {
   color: #ffffff;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Center;
+  text-align: center;
   text-transform: uppercase;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -737,6 +769,7 @@ div.CellHeading
 div.code_rep
 {
   color: #000000;
+  direction: ltr;
   font-family: "Microsoft Sans Serif";
   font-size: 8.0pt;
   font-style: normal;
@@ -746,7 +779,7 @@ div.code_rep
   margin-left: 27pt;
   margin-right: 0pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -27pt;
   text-transform: none;
   vertical-align: baseline;
@@ -762,12 +795,13 @@ div.code_rep
 .code_rep_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: "Microsoft Sans Serif";
   font-size: 8.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -783,6 +817,7 @@ div.code_rep
 div.CodeTitle
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -792,7 +827,7 @@ div.CodeTitle
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -808,12 +843,13 @@ div.CodeTitle
 .CodeTitle_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -829,6 +865,7 @@ div.CodeTitle
 div.command
 {
   color: #666666;
+  direction: ltr;
   font-family: 'Lucida Console', 'Courier New';
   font-size: 9.0pt;
   font-style: normal;
@@ -838,7 +875,7 @@ div.command
   margin-left: 18pt;
   margin-right: 0pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -855,12 +892,13 @@ div.command
 .command_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: 'Lucida Console', 'Courier New';
   font-size: 9.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   white-space: pre;
@@ -877,6 +915,7 @@ div.command
 div.command_allTabs
 {
   color: #666666;
+  direction: ltr;
   font-family: 'Lucida Console', 'Courier New';
   font-size: 10.0pt;
   font-style: normal;
@@ -886,7 +925,7 @@ div.command_allTabs
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 1.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -903,12 +942,13 @@ div.command_allTabs
 .command_allTabs_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: 'Lucida Console', 'Courier New';
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   white-space: pre;
@@ -925,6 +965,7 @@ div.command_allTabs
 div.command_MidTab
 {
   color: #666666;
+  direction: ltr;
   font-family: 'Lucida Console', 'Courier New';
   font-size: 10.0pt;
   font-style: normal;
@@ -934,7 +975,7 @@ div.command_MidTab
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 1.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -951,12 +992,13 @@ div.command_MidTab
 .command_MidTab_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: 'Lucida Console', 'Courier New';
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   white-space: pre;
@@ -973,6 +1015,7 @@ div.command_MidTab
 div.dash
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -982,7 +1025,7 @@ div.dash
   margin-left: 54pt;
   margin-right: 0pt;
   margin-top: 3.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -998,12 +1041,13 @@ div.dash
 .dash_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1019,6 +1063,7 @@ div.dash
 div.FigTitle
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1028,7 +1073,7 @@ div.FigTitle
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1044,12 +1089,13 @@ div.FigTitle
 .FigTitle_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1065,6 +1111,7 @@ div.FigTitle
 div.Figure
 {
   color: #000000;
+  direction: ltr;
   font-family: "Times New Roman";
   font-size: 14.0pt;
   font-style: normal;
@@ -1074,7 +1121,7 @@ div.Figure
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 8.0pt;
-  text-align: Center;
+  text-align: center;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1090,12 +1137,13 @@ div.Figure
 .Figure_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: "Times New Roman";
   font-size: 14.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Center;
+  text-align: center;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1111,6 +1159,7 @@ div.Figure
 div.Footer
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 8.0pt;
   font-style: normal;
@@ -1136,6 +1185,7 @@ div.Footer
 .Footer_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 8.0pt;
   font-style: normal;
@@ -1157,6 +1207,7 @@ div.Footer
 div.Footnote
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 8.0pt;
   font-style: normal;
@@ -1166,7 +1217,7 @@ div.Footnote
   margin-left: 18pt;
   margin-right: 7.2pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1183,12 +1234,13 @@ div.Footnote
 .Footnote_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 8.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   white-space: pre;
@@ -1205,6 +1257,7 @@ div.Footnote
 div.H1
 {
   color: #FF9100;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
@@ -1214,7 +1267,7 @@ div.H1
   margin-left: 99pt;
   margin-right: 0pt;
   margin-top: 30.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -99pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1230,12 +1283,13 @@ div.H1
 .H1_inner
 {
   color: #FF9100;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1251,6 +1305,7 @@ div.H1
 div.H2
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 14.0pt;
   font-style: normal;
@@ -1260,7 +1315,7 @@ div.H2
   margin-left: 54pt;
   margin-right: 0pt;
   margin-top: 17.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -54pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1276,12 +1331,13 @@ div.H2
 .H2_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 14.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1297,6 +1353,7 @@ div.H2
 div.H3
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 12.0pt;
   font-style: normal;
@@ -1306,7 +1363,7 @@ div.H3
   margin-left: 54pt;
   margin-right: 0pt;
   margin-top: 10.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -54pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1322,12 +1379,13 @@ div.H3
 .H3_inner
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 12.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1343,6 +1401,7 @@ div.H3
 div.H4
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 11.0pt;
   font-style: normal;
@@ -1352,7 +1411,7 @@ div.H4
   margin-left: 54pt;
   margin-right: 0pt;
   margin-top: 9.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -54pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1368,12 +1427,13 @@ div.H4
 .H4_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 11.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1389,6 +1449,7 @@ div.H4
 div.Header
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 8.0pt;
   font-style: normal;
@@ -1398,7 +1459,7 @@ div.Header
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1414,12 +1475,13 @@ div.Header
 .Header_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 8.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1435,6 +1497,7 @@ div.Header
 div.indent_25
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1444,7 +1507,7 @@ div.indent_25
   margin-left: 18pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1460,12 +1523,13 @@ div.indent_25
 .indent_25_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1481,6 +1545,7 @@ div.indent_25
 div.indent_5
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1490,7 +1555,7 @@ div.indent_5
   margin-left: 36pt;
   margin-right: 0pt;
   margin-top: 3.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1506,12 +1571,13 @@ div.indent_5
 .indent_5_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1529,6 +1595,7 @@ div.Note
   border-bottom-color: #FF9100;
   border-top-color: #FF9100;
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1538,7 +1605,7 @@ div.Note
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1556,12 +1623,13 @@ div.Note
 .Note_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1577,6 +1645,7 @@ div.Note
 div.Note_Body
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1586,7 +1655,7 @@ div.Note_Body
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1602,12 +1671,13 @@ div.Note_Body
 .Note_Body_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1623,6 +1693,7 @@ div.Note_Body
 div.Note_Bullet
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1632,7 +1703,7 @@ div.Note_Bullet
   margin-left: 36pt;
   margin-right: 0pt;
   margin-top: 6.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1648,12 +1719,13 @@ div.Note_Bullet
 .Note_Bullet_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1669,6 +1741,7 @@ div.Note_Bullet
 div.Note_Command
 {
   color: #000000;
+  direction: ltr;
   font-family: "Microsoft Sans Serif";
   font-size: 10.0pt;
   font-style: normal;
@@ -1678,7 +1751,7 @@ div.Note_Command
   margin-left: 18pt;
   margin-right: 0pt;
   margin-top: 3.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1694,12 +1767,13 @@ div.Note_Command
 .Note_Command_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: "Microsoft Sans Serif";
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1715,6 +1789,7 @@ div.Note_Command
 div.Note_Dash
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1724,7 +1799,7 @@ div.Note_Dash
   margin-left: 54pt;
   margin-right: 0pt;
   margin-top: 3.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1740,12 +1815,13 @@ div.Note_Dash
 .Note_Dash_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1761,6 +1837,7 @@ div.Note_Dash
 div.Pop_Open_End
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 3.0pt;
   font-style: normal;
@@ -1770,7 +1847,7 @@ div.Pop_Open_End
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 1.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1786,12 +1863,13 @@ div.Pop_Open_End
 .Pop_Open_End_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 3.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1807,6 +1885,7 @@ div.Pop_Open_End
 div.Pop_Open_Start
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1816,7 +1895,7 @@ div.Pop_Open_Start
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-decoration: underline;
   text-indent: 0pt;
   text-transform: none;
@@ -1833,12 +1912,13 @@ div.Pop_Open_Start
 .Pop_Open_Start_inner
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-decoration: underline;
   text-transform: none;
   vertical-align: baseline;
@@ -1855,6 +1935,7 @@ div.Pop_Open_Start
 div.Procedure_Heading
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1864,7 +1945,7 @@ div.Procedure_Heading
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1880,12 +1961,13 @@ div.Procedure_Heading
 .Procedure_Heading_inner
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1901,6 +1983,7 @@ div.Procedure_Heading
 div.Step1
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1910,7 +1993,7 @@ div.Step1
   margin-left: 18pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1926,12 +2009,13 @@ div.Step1
 .Step1_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1947,6 +2031,7 @@ div.Step1
 div.Stepnext
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -1956,7 +2041,7 @@ div.Stepnext
   margin-left: 18pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: -18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -1972,12 +2057,13 @@ div.Stepnext
 .Stepnext_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -1993,6 +2079,7 @@ div.Stepnext
 div.Subtitle
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
@@ -2001,7 +2088,7 @@ div.Subtitle
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 6.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2017,11 +2104,12 @@ div.Subtitle
 .Subtitle_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 18.0pt;
   font-style: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2037,6 +2125,7 @@ div.Subtitle
 div.syntax
 {
   color: #000000;
+  direction: ltr;
   font-family: "Microsoft Sans Serif";
   font-size: 11.0pt;
   font-style: normal;
@@ -2046,7 +2135,7 @@ div.syntax
   margin-left: 36pt;
   margin-right: 0pt;
   margin-top: 8.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2062,12 +2151,13 @@ div.syntax
 .syntax_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: "Microsoft Sans Serif";
   font-size: 11.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2083,6 +2173,7 @@ div.syntax
 div.TableFootnote
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 9.0pt;
   font-style: normal;
@@ -2092,7 +2183,7 @@ div.TableFootnote
   margin-left: 18pt;
   margin-right: 18pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2108,12 +2199,13 @@ div.TableFootnote
 .TableFootnote_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 9.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2129,6 +2221,7 @@ div.TableFootnote
 div.TableHdg
 {
   color: #000000;
+  direction: ltr;
   font-family: "Times New Roman";
   font-size: 11.0pt;
   font-style: normal;
@@ -2138,7 +2231,7 @@ div.TableHdg
   margin-left: 54pt;
   margin-right: 0pt;
   margin-top: 12.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2154,12 +2247,13 @@ div.TableHdg
 .TableHdg_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: "Times New Roman";
   font-size: 11.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2175,6 +2269,7 @@ div.TableHdg
 div.TableTabs
 {
   color: #000000;
+  direction: ltr;
   font-family: "Times New Roman";
   font-size: 11.0pt;
   font-style: normal;
@@ -2184,7 +2279,7 @@ div.TableTabs
   margin-left: 54pt;
   margin-right: 0pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2200,12 +2295,13 @@ div.TableTabs
 .TableTabs_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: "Times New Roman";
   font-size: 11.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2221,6 +2317,7 @@ div.TableTabs
 div.TableTitle
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -2230,7 +2327,7 @@ div.TableTitle
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 6pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 18pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2246,12 +2343,13 @@ div.TableTitle
 .TableTitle_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2267,6 +2365,7 @@ div.TableTitle
 div.TableTitle__5
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -2276,7 +2375,7 @@ div.TableTitle__5
   margin-left: 36pt;
   margin-right: 0pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2292,12 +2391,13 @@ div.TableTitle__5
 .TableTitle__5_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2313,6 +2413,7 @@ div.TableTitle__5
 div.TableTitle_Indent_25
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -2322,7 +2423,7 @@ div.TableTitle_Indent_25
   margin-left: 18pt;
   margin-right: 0pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2338,12 +2439,13 @@ div.TableTitle_Indent_25
 .TableTitle_Indent_25_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: bold;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2359,6 +2461,7 @@ div.TableTitle_Indent_25
 div.Tip
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -2368,7 +2471,7 @@ div.Tip
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2384,12 +2487,13 @@ div.Tip
 .Tip_inner
 {
   color: #000000;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2405,6 +2509,7 @@ div.Tip
 div.Title
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 24.0pt;
   font-style: normal;
@@ -2414,7 +2519,7 @@ div.Title
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 0.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: uppercase;
   vertical-align: baseline;
@@ -2430,12 +2535,13 @@ div.Title
 .Title_inner
 {
   color: #f2960c;
+  direction: ltr;
   font-family: Arial;
   font-size: 24.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: uppercase;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2451,6 +2557,7 @@ div.Title
 div.vi_window
 {
   color: #666666;
+  direction: ltr;
   font-family: "Microsoft Sans Serif";
   font-size: 9.0pt;
   font-style: normal;
@@ -2460,7 +2567,7 @@ div.vi_window
   margin-left: 18pt;
   margin-right: 0pt;
   margin-top: 5.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2476,12 +2583,13 @@ div.vi_window
 .vi_window_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: "Microsoft Sans Serif";
   font-size: 9.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2501,6 +2609,7 @@ div.Warning
   border-right-style: none;
   border-top-color: #FF9100;
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
@@ -2510,7 +2619,7 @@ div.Warning
   margin-left: 0pt;
   margin-right: 0pt;
   margin-top: 7.0pt;
-  text-align: Left;
+  text-align: left;
   text-indent: 0pt;
   text-transform: none;
   vertical-align: baseline;
@@ -2530,12 +2639,13 @@ div.Warning
 .Warning_inner
 {
   color: #666666;
+  direction: ltr;
   font-family: Arial;
   font-size: 10.0pt;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  text-align: Left;
+  text-align: left;
   text-transform: none;
   vertical-align: baseline;
   margin-left: 0pt;
@@ -2729,6 +2839,7 @@ span.VariableValue
 table.UnstructMasterPageMaps
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 6.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2744,6 +2855,7 @@ table.UnstructMasterPageMaps
 table.DBtable
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 8.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2759,6 +2871,7 @@ table.DBtable
 table.DBfig
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2774,6 +2887,7 @@ table.DBfig
 table.N2_Column_SoloInSection
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 24.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2789,6 +2903,7 @@ table.N2_Column_SoloInSection
 table.N3-col
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2804,6 +2919,7 @@ table.N3-col
 table.Commands_Indent_75
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 15.0pt;
   margin-left: 54pt;
   margin-right: 0pt;
@@ -2819,6 +2935,7 @@ table.Commands_Indent_75
 table.Warning_Ident_25
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 18pt;
   margin-right: 0pt;
@@ -2834,6 +2951,7 @@ table.Warning_Ident_25
 table.Format_B
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2850,6 +2968,7 @@ table.Format_A
 {
   border-collapse: collapse;
   caption-side: bottom;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2865,6 +2984,7 @@ table.Format_A
 table.Note_Indent_25
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 18pt;
   margin-right: 0pt;
@@ -2880,6 +3000,7 @@ table.Note_Indent_25
 table.Note_Indent_5
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 36pt;
   margin-right: 0pt;
@@ -2895,6 +3016,7 @@ table.Note_Indent_5
 table.Warning_Indent_5
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 36pt;
   margin-right: 0pt;
@@ -2910,6 +3032,7 @@ table.Warning_Indent_5
 table.Tip_Indent_25
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 18pt;
   margin-right: 0pt;
@@ -2925,6 +3048,7 @@ table.Tip_Indent_25
 table.Note_Indent_75
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 54pt;
   margin-right: 0pt;
@@ -2940,6 +3064,7 @@ table.Note_Indent_75
 table.Note
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2955,6 +3080,7 @@ table.Note
 table.Commands
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 15.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -2970,6 +3096,7 @@ table.Commands
 table.Commands__75
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 15.0pt;
   margin-left: 54pt;
   margin-right: 0pt;
@@ -2985,6 +3112,7 @@ table.Commands__75
 table.Commands__5
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 15.0pt;
   margin-left: 36pt;
   margin-right: 0pt;
@@ -3000,6 +3128,7 @@ table.Commands__5
 table.Commands__25
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 15.0pt;
   margin-left: 18pt;
   margin-right: 0pt;
@@ -3015,6 +3144,7 @@ table.Commands__25
 table.Tip
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -3030,6 +3160,7 @@ table.Tip
 table.Warning
 {
   border-collapse: collapse;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;
@@ -3046,6 +3177,7 @@ table.Two_Column
 {
   border-collapse: collapse;
   caption-side: bottom;
+  direction: ltr;
   margin-bottom: 12.0pt;
   margin-left: 0pt;
   margin-right: 0pt;

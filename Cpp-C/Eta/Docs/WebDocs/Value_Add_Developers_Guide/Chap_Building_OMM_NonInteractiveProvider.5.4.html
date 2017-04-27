@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1219598">Implement Callbacks and Populate Role</a></div>
-      <div class="Body"><a name="1219599">Before creating the OMM Non-Interactive Provider connection, the application needs to specify callback functions to use for all inbound content. The callback functions are specified on a per </a><span class="CodeOrCommand">RsslReactorChannel</span> basis so each channel can have its own unique callback functions or existing callback functions can be specified and shared across multiple <span class="CodeOrCommand">RsslReactorChannel</span>s.</div>
-      <div class="Body"><a name="1219600">Several of the callback functions are required for use with an </a><span class="CodeOrCommand">RsslReactor</span>. The application must have an:</div>
+      <div class="Body"><a name="1225747">Before creating the OMM non-interactive provider connection, the application needs to specify callback functions to use for all inbound content. Callback functions are specified on a per </a><span class="CodeOrCommand">RsslReactorChannel</span> basis so each channel can have its own unique callback functions or existing callback functions can be specified and shared across multiple <span class="CodeOrCommand">RsslReactorChannel</span>s.</div>
+      <div class="Body"><a name="1225769">A</a>n <span class="CodeOrCommand">RsslReactor</span> requires the use of the following callback functions:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1219601">RsslReactorChannelEventCallback</a></span>, which returns information about the <span class="CodeOrCommand">RsslReactorChannel</span> and its state (e.g., connection up)</div>
+              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1225776">RsslReactorChannelEventCallback</a></span>, which returns information about the <span class="CodeOrCommand">RsslReactorChannel</span> and its state (e.g., connection up)</div>
             </td>
           </tr>
         </table>
@@ -81,7 +81,23 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1219602">RsslDefaultMsgCallback</a></span>, which processes all data not handled by other optional callbacks.</div>
+              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1225780">RsslDefaultMsgCallback</a></span>, which processes all data not handled by other optional callbacks.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1225784">Additionally, an OMM non-interactive provider can specify the administrative domain-specific callback function </a><span class="CodeOrCommand">RsslRDMLoginMsgCallback</span>, which processes all data for the RDM Login domain.</div>
+      <div class="Body"><a name="1225794">The </a><span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span> structure should be populated with all callback information for the <span class="CodeOrCommand">RsslReactorChannel</span>. <span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span> allows the application to provide login request and initial directory refresh information. This can be initialized with default information. Callback functions are specified on the <span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span> structure or with specific information according to the application and user. The <span class="CodeOrCommand">RsslReactor</span> will use this information when starting up the <span class="CodeOrCommand">RsslReactorChannel</span>. </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1225825">For detailed information on the </a><span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span>, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.016.html', '');" title="6.3.1 Reactor Channel Roles">Section 6.3.1</a>.</div>
             </td>
           </tr>
         </table>
@@ -95,14 +111,11 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1219603">In addition to the required callbacks, an OMM Non-Interactive Provider can specify administrative domain specific callback functions. The available domain specific callback is </a><span class="CodeOrCommand">RsslRDMLoginMsgCallback</span>, which processes all data for the RDM Login domain.</div>
+              <div class="Bullet_inner"><a name="1225835">For information on the various callback functions and their specifications, refer to</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1219604">The </a><span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span> structure should be populated with all callback information for the <span class="CodeOrCommand">RsslReactorChannel</span>.</div>
-      <div class="Body"><a name="1219605">The </a><span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span> allows the application to provide login request and initial directory refresh information. This can be initialized with default information. The callback functions are specified on the <span class="CodeOrCommand">RsslReactorOMMConsumerRole</span> structure or with specific information according to the application and user. The <span class="CodeOrCommand">RsslReactor</span> will use this information when starting up the <span class="CodeOrCommand">RsslReactorChannel</span>. </div>
-      <div class="Body"><a name="1219606">Detailed information about the </a><span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span> is in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.016.html', '');" title="6.3.1 Reactor Channel Roles">Section 6.3.1</a>. Information about the various callback functions and their specifications are available in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

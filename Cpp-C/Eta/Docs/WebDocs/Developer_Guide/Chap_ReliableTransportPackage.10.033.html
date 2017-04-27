@@ -57,8 +57,8 @@
     <blockquote>
       <div class="H2"><a name="1006011">Server Creation and Accepting Connections</a></div>
       <div class="H3"><a name="1006013">Creating a Listening Socket</a></div>
-      <div class="Body"><a name="1220887">The Transport Package allows you to establish and manage listening sockets, typically associated with a server. Listening sockets can be leveraged to create an application that accepts connections created through the use of </a><span class="CodeOrCommand">rsslConnect</span>. Listening sockets are used mainly by OMM Interactive Provider applications and are typically established on a well-known port number (known by other connecting applications).</div>
-      <div class="Body"><a name="1220894"><img class="Default" src="images/ServerCreation.jpg" width="353" height="68" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> </a></div>
+      <div class="Body"><a name="1245618">The Transport Package allows you to establish and manage listening sockets, typically associated with a server. Listening sockets can be leveraged to create an application that accepts connections created through the use of </a><span class="CodeOrCommand">rsslConnect</span>. Listening sockets are used mainly by OMM Interactive Provider applications and are typically established on a well-known port number (known by other connecting applications).</div>
+      <div class="Body"><a name="1245625"><img class="Default" src="images/ServerCreation.jpg" width="353" height="68" style="display: inline; left: 0.0; top: 0.0" alt="" /> </a></div>
       <div class="FigTitle_outer" style="margin-left: 21.6pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,33 +66,33 @@
               <div class="FigTitle_inner" style="width: 46.800000000000004pt; white-space: nowrap">Figure 35.  </div>
             </td>
             <td width="100%">
-              <div class="FigTitle_inner"><a name="1220896">Transport API Server Creation</a></div>
+              <div class="FigTitle_inner"><a name="1245627">Transport API Server Creation</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1220903">An application can create a listening socket connection by using the </a><span class="CodeOrCommand">rsslBind</span> function, described in the following table.</div>
-      <div class="Blank_Line"><a name="1220961">&nbsp;</a></div>
+      <div class="Body"><a name="1245634">An application can create a listening socket connection by using the </a><span class="CodeOrCommand">rsslBind</span> function, described in the following table.</div>
+      <div class="Blank_Line"><a name="1245692">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 28: <span class="CodeOrCommand"><a name="1220958">rsslBind</a></span> Function &nbsp;</div>
+          <div class="TableTitle">Table 28: <span class="LucidaConsole"><a name="1245689">rsslBind</a></span> Function &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1220909">function </a>NAME</div>
+            <div class="CellHeading"><a name="1245640">function </a>NAME</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1220911">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1245642">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220916">rsslBind</a></div>
+            <div class="CellBody"><a name="1245647">rsslBind</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220918">Establishes a listening socket connection, which supports connections from standard socket and HTTP </a><span class="CodeOrCommand">rsslConnect</span> users. Returns an <span class="CodeOrCommand">RsslServer</span> that represents the listening socket connection to the user. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">RsslError</span> structure.</div>
-            <div class="CellBody"><a name="1220936">Options are passed in via a</a>n <span class="CodeOrCommand">RsslBindOptions</span> structure described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.034.html', '');" title="10.4.1.1 RsslBindOptions Structure Members">Section 10.4.1.1</a>.</div>
-            <div class="CellBody"><a name="1220944">Once a listening socket is established, this </a><span class="CodeOrCommand">RsslServer</span> can begin accepting connections. For more information, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.038.html', '');" title="10.4.2 Accepting Connection Requests">Section 10.4.2</a>.</div>
+            <div class="CellBody"><a name="1245649">Establishes a listening socket connection, which supports connections from standard socket and HTTP </a><span class="CodeOrCommand">rsslConnect</span> users. Returns an <span class="CodeOrCommand">RsslServer</span> that represents the listening socket connection to the user. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">RsslError</span> structure.</div>
+            <div class="CellBody"><a name="1245667">Options are passed in via a</a>n <span class="CodeOrCommand">RsslBindOptions</span> structure described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.034.html', '');" title="10.4.1.1 RsslBindOptions Structure Members">Section 10.4.1.1</a>.</div>
+            <div class="CellBody"><a name="1245675">Once a listening socket is established, this </a><span class="CodeOrCommand">RsslServer</span> can begin accepting connections. For more information, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.038.html', '');" title="10.4.2 Accepting Connection Requests">Section 10.4.2</a>.</div>
           </td>
         </tr>
       </table>

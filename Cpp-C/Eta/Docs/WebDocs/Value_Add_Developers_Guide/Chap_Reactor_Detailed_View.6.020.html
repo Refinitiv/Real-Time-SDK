@@ -56,58 +56,42 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1225734">OMM Consumer Role</a></div>
-      <div class="Body"><a name="1226123">When creating an </a><span class="CodeOrCommand">RsslReactorChannel</span>, this information can be specified with the <span class="CodeOrCommand">RsslReactorOMMConsumerRole</span> structure, as defined below.</div>
-      <div class="Blank_Line"><a name="1226150">&nbsp;</a></div>
+      <div class="Body"><a name="1527468">When creating a</a>n <span class="CodeOrCommand">RsslReactorChannel</span>, this information can be specified with the <span class="CodeOrCommand">RsslReactorOMMConsumerRole</span> structure as follows:</div>
+      <div class="Blank_Line"><a name="1527635">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 13: <span class="LucidaConsole"><a name="1226178">RsslReactorOMMConsumerRole</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 13: <span class="LucidaConsole"><a name="1527632">RsslReactorOMMConsumerRole</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1226162">STRUCTURE MEMBER</a></div>
+            <div class="CellHeading"><a name="1527474">Structure MEMBER</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1226164">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1527476">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226166">base</a></div>
+            <div class="CellBody"><a name="1527478">base</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226486">The role base structure, as defined in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.017.html#1225319', '');" title="6.3.1.1 RsslReactorChannelRoleBase Structure">Table 11</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226170">pLoginRequest</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226172">The </a><span class="CodeOrCommand">RsslRDMLoginRequest</span>, defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>, to be sent during the connection establishment process. This can be populated with a user’s specific information or invoke the <span class="CodeOrCommand">rsslInitDefaultRDMLoginRequest</span> function to populate with default information. If this parameter is left empty no login will be sent to the system; useful for systems that do not require a login.</div>
+            <div class="CellBody"><a name="1527483">The role base structure, as defined in</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.017.html', '');" title="6.3.1.1 RsslReactorChannelRoleBase Structure">Section 6.3.1.1</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226174">pDirectoryRequest</a></div>
+            <div class="CellBody"><a name="1527485">dictionaryDownloadMode</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226176">The </a><span class="CodeOrCommand">RsslRDMDirectoryRequest</span>, defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>, to be sent during the connection establishment process. This can be populated with specific source directory request information or invoke the <span class="CodeOrCommand">rsslInitDefaultRDMDirectoryRequest</span> function to populate with default information. If this parameter is specified, a <span class="CodeOrCommand">pLoginRequest</span> is required. If this parameter is left empty, no directory request will be sent to the system.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226266">dictionaryDownloadMode</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226443">Informs the </a><span class="CodeOrCommand">RsslReactorChannel</span> on the method to use when requesting dictionaries. The allowable modes are defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.021.html#1226622', '');" title="6.3.2.2 OMM Consumer Role Dictionary Download Modes">Table 14</a>.</div>
+            <div class="CellBody"><a name="1527490">Informs the </a><span class="CodeOrCommand">RsslReactorChannel</span> of the method to use when requesting dictionaries. Allowable modes are defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.021.html', '');" title="6.3.2.2 OMM Consumer Role Dictionary Download Modes">Section 6.3.2.2</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226270">loginMsgCallback</a></div>
+            <div class="CellBody"><a name="1527498">dictionaryMsgCallback</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226423">This </a><span class="CodeOrCommand">RsslReactorChannel</span>‘s user-defined callback function to handle login message content. If not specified, all received login messages will be passed to the <span class="CodeOrCommand">defaultMsgCallback</span>.</div>
+            <div class="CellBody"><a name="1527506">This </a><span class="CodeOrCommand">RsslReactorChannel</span>‘s user-defined callback function to handle dictionary message content. If not specified, all received dictionary messages will be passed to the <span class="CodeOrCommand">defaultMsgCallback</span>.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -117,7 +101,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1226424">This callback is defined in more detail in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1527513">For more details on this callback, refer to </a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -131,7 +115,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1226425">The login messages are described in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.007.html', '');" title="7.3 RDM Login Domain">Section 7.3</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1527520">Dictionary messages are described in</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.109.html', '');" title="7.5 Dictionary Domain">Section 7.5</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -140,10 +124,10 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226274">directoryMsgCallback</a></div>
+            <div class="CellBody"><a name="1527522">directoryMsgCallback</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226396">This </a><span class="CodeOrCommand">RsslReactorChannel</span>‘s user-defined callback function to handle directory message content. If not specified, all received directory messages will be passed to the <span class="CodeOrCommand">defaultMsgCallback</span>.</div>
+            <div class="CellBody"><a name="1527530">This </a><span class="CodeOrCommand">RsslReactorChannel</span>‘s user-defined callback function to handle directory message content. If not specified, all received directory messages will be passed to the <span class="CodeOrCommand">defaultMsgCallback</span>.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -153,7 +137,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1226397">This callback is defined in more detail in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1527537">For more details on this callback, refer to </a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -167,43 +151,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1226398">The directory messages are described in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.042.html', '');" title="7.4 Source Directory Domain">Section 7.4</a>.</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226278">dictionaryMsgCallback</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226376">This </a><span class="CodeOrCommand">RsslReactorChannel</span>‘s user-defined callback function to handle dictionary message content. If not specified, all received dictionary messages will be passed to the <span class="CodeOrCommand">defaultMsgCallback</span>.</div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1226377">This callback is defined in more detail in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>.</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1226378">The dictionary messages are described in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.110.html', '');" title="7.5 Dictionary Domain">Section 7.5</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1527544">Directory messages are described in</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.042.html', '');" title="7.4 Source Directory Domain">Section 7.4</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -212,10 +160,90 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226282">watchlistOptions</a></div>
+            <div class="CellBody"><a name="1527546">loginMsgCallback</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1226284">Configurable options for the consumer watchlist. The options are described in more detail in </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.022.html', '');" title="6.3.2.3 OMM Consumer Role Watchlist Options">Section 6.3.2.3</a>.</div>
+            <div class="CellBody"><a name="1527554">This </a><span class="CodeOrCommand">RsslReactorChannel</span>‘s user-defined callback function to handle login message content. If not specified, all received login messages will be passed to the <span class="CodeOrCommand">defaultMsgCallback</span>.</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1527561">For more details on this callback, refer to</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.050.html', '');" title="6.5.2 Reactor Callback Functions">Section 6.5.2</a>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1527568">Login messages are described in</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.007.html', '');" title="7.3 RDM Login Domain">Section 7.3</a>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527570">p</a>DirectoryRequest</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527581">The </a><span class="CodeOrCommand">RsslRDMDirectoryRequest</span> (defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.043.html', '');" title="7.4.1 RSSL RDM Directory Request">Section 7.4.1</a>) sent during the connection establishment process. This can be populated with specific source directory request information or invoke the <span class="CodeOrCommand">rsslInitDefaultRDMDirectoryRequest</span> function to populate with default information.</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1527588">If this parameter is specified, a </a><span class="CodeOrCommand">p</span><span class="CodeOrCommand">DirectoryRequest</span> is required.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1527589">If this parameter is empty, a directory request is not sent to the system.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527594">pLoginRequest</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527605">The </a><span class="CodeOrCommand">RsslRDMLoginRequest</span> (defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.008.html', '');" title="7.3.1 RSSL RDM Login Request">Section 7.3.1</a>) sent during the connection establishment process. This can be populated with a user’s specific information or invoke the <span class="CodeOrCommand">rsslInitDefaultRDMLoginRequest</span> function to populate with default information. If this parameter is empty, a login is not sent to the system; useful for systems that do not require a login.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527613">watchlistOptions</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527615">Configurable options for the consumer watchlist. Options are described in more detail in</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.022.html', '');" title="6.3.2.3 OMM Consumer Role Watchlist Options">Section 6.3.2.3</a>.</div>
           </td>
         </tr>
       </table>
@@ -231,7 +259,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.015.html">6.3	Reactor Channels</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.019.html">6.3.2	Reactor Channel Role: OMM Consumer</a> : 6.3.2.1	OMM Consumer Role</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.015.html">6.3	Reactor Channel Use</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.019.html">6.3.2	Reactor Channel Role: OMM Consumer</a> : 6.3.2.1	OMM Consumer Role</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

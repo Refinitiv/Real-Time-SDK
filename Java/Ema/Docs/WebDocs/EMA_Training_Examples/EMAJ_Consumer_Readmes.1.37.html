@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>420__MarketPrice__AdminDomainConfig</title>
+    <title>410__MarketPrice__HorizontalScaling</title>
     <link rel="StyleSheet" href="css/EMAJ_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,54 +55,52 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1019298">420__MarketPrice__AdminDomainConfig</a></div>
-      <div class="Body"><a name="1038236">Summary</a></div>
-      <div class="Body"><a name="1038237">=======</a></div>
-      <div class="Body"><a name="1038238">&nbsp;</a></div>
-      <div class="Body"><a name="1038239">The example420__MarketPrice__AdminDomainConfig application is provided as</a></div>
-      <div class="Body"><a name="1038240">an example of OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1038241">&nbsp;</a></div>
-      <div class="Body"><a name="1038242">This application demonstrates basic usage of the EMA library while specifying</a></div>
-      <div class="Body"><a name="1038243">Administrative domain messages to override default EMA behaviour, for accessing</a></div>
-      <div class="Body"><a name="1038244">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1038245">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1038246">Distribution Server.</a></div>
-      <div class="Body"><a name="1038247">&nbsp;</a></div>
-      <div class="Body"><a name="1038248">example420__MarketPrice__AdminDomainConfig showcases customization of the default EMA</a></div>
-      <div class="Body"><a name="1038249">behaviour with respect to the administrative domains. EMA defaults login request</a></div>
-      <div class="Body"><a name="1038250">as well as directory and dictionary request. Using the addAdminMsg() method, users</a></div>
-      <div class="Body"><a name="1038251">are able to modify the EMA to suite their needs and preferences.</a></div>
-      <div class="Body"><a name="1038252">&nbsp;</a></div>
-      <div class="Body"><a name="1038253">&nbsp;</a></div>
-      <div class="Body"><a name="1038254">Detailed Description</a></div>
-      <div class="Body"><a name="1038255">====================</a></div>
-      <div class="Body"><a name="1038256">&nbsp;</a></div>
-      <div class="Body"><a name="1038257">example420__MarketPrice__AdminDomainConfig implements the following high level steps:</a></div>
-      <div class="Body"><a name="1038258">&nbsp;</a></div>
-      <div class="Body"><a name="1038259">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1038260">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1038261">  - provides own methods as needed</a></div>
-      <div class="Body"><a name="1038262">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1038263">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1038264">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1038265">  - sets request message for Login domain to override default</a></div>
-      <div class="Body"><a name="1038266">  - sets request message for Directory domain to override default</a></div>
-      <div class="Body"><a name="1038267">  - sets request message for Dictionary domain to override default</a></div>
-      <div class="Body"><a name="1038268">  - sets operationModel to OperationModel.USER_DISPATCH</a></div>
-      <div class="Body"><a name="1038269">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
-      <div class="Body"><a name="1038270">  the specified server</a></div>
-      <div class="Body"><a name="1038271">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1038272">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1038273">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1038274">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1038275">+ Exits</a></div>
-      <div class="Body"><a name="1038276">&nbsp;</a></div>
-      <div class="Body"><a name="1038277">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1038278">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1038279">	  </a></div>
-      <div class="Body"><a name="1038280">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1038281">      standard configuration.</a></div>
-      <div class="Body"><a name="1032245">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1019302">410__MarketPrice__HorizontalScaling</a></div>
+      <div class="Body"><a name="1040219">Summary</a></div>
+      <div class="Body"><a name="1040220">=======</a></div>
+      <div class="Body"><a name="1040221">&nbsp;</a></div>
+      <div class="Body"><a name="1040222">The example410__MarketPrice__HorizontalScaling application is provided as an example</a></div>
+      <div class="Body"><a name="1040223">of OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1040224">&nbsp;</a></div>
+      <div class="Body"><a name="1040225">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1040226">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1040227">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1040228">Distribution Server.</a></div>
+      <div class="Body"><a name="1040229">&nbsp;</a></div>
+      <div class="Body"><a name="1040230">example410__MarketPrice__HorizontalScaling showcases horizontal scaling capability</a></div>
+      <div class="Body"><a name="1040231">of OMM Consumer to take advantage of multiple core processors.</a></div>
+      <div class="Body"><a name="1040232">&nbsp;</a></div>
+      <div class="Body"><a name="1040233">&nbsp;</a></div>
+      <div class="Body"><a name="1040234">Detailed Description</a></div>
+      <div class="Body"><a name="1040235">====================</a></div>
+      <div class="Body"><a name="1040236">&nbsp;</a></div>
+      <div class="Body"><a name="1040237">example410__MarketPrice__HorizontalScaling implements the following high level steps:</a></div>
+      <div class="Body"><a name="1040238">&nbsp;</a></div>
+      <div class="Body"><a name="1040239">+ Implements ConsumerManager to manage OmmConsumer and control user dispatch thread</a></div>
+      <div class="Body"><a name="1040240">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1040241">  - provides own methods as needed</a></div>
+      <div class="Body"><a name="1040242">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1040243">+ Instantiates two ConsumerManager to create OmmConsumer and user threads with the </a></div>
+      <div class="Body"><a name="1040244">  following configuration</a></div>
+      <div class="Body"><a name="1040245">  - sets user name to “user1” and “user2” for each ConsumerManager respectively</a></div>
+      <div class="Body"><a name="1040246">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1040247">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1040248">+ ConsumerInstance instantiates OmmConsumer object which</a></div>
+      <div class="Body"><a name="1040249">  - initializes connection and logins into specified server</a></div>
+      <div class="Body"><a name="1040250">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1040251">+ Opens streaming item interests from each ConsumerManager </a></div>
+      <div class="Body"><a name="1040252">  - MarketPrice IBM.N item from DIRECT_FEED service for first ConsumerManager</a></div>
+      <div class="Body"><a name="1040253">  - MarketPrice TRI.N item from DIRECT_FEED service for second ConsumerManager</a></div>
+      <div class="Body"><a name="1040254">+ Processes data received from user thread in ConsumerInstance for 60 seconds</a></div>
+      <div class="Body"><a name="1040255">  - all received messages are processed on user thread of control  </a></div>
+      <div class="Body"><a name="1040256">+ Exits</a></div>
+      <div class="Body"><a name="1040257">&nbsp;</a></div>
+      <div class="Body"><a name="1040258">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1040259">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1040260">	  </a></div>
+      <div class="Body"><a name="1040261">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1040262">      standard configuration.</a></div>
+      <div class="Body"><a name="1038689">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -115,7 +113,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.34.html">400 Series Examples</a> : 420__MarketPrice__AdminDomainConfig</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.35.html">400 Series Examples</a> : 410__MarketPrice__HorizontalScaling</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

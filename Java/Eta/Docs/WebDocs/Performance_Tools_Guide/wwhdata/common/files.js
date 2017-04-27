@@ -113,5 +113,4 @@ P.fA("11.2.9 Compression","Chap_Perf_Best_Practices.11.14.html");
 P.fA("11.3 Encoder and Decoder Best Practice: Single-Pass Encoding","Chap_Perf_Best_Practices.11.15.html");
 P.fA("11.4 Other Practices: JVM Priming","Chap_Perf_Best_Practices.11.16.html");
 P.fA("Appendix A Troubleshooting","Appendix_Troubleshooting.html");
-P.fA("\u00a9 2016 Thomson Reuters. All rights reserved.","lastpage.html");
 }

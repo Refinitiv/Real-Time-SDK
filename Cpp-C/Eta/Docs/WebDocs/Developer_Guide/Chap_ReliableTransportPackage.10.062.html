@@ -56,60 +56,60 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1025415">Buffer Management Functions</a></div>
-      <div class="Blank_Line"><a name="1222490">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1247221">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 45: <a name="1222487">Buffer Management</a> Functions &nbsp;</div>
+          <div class="TableTitle">Table 45: <a name="1247218">Buffer Management</a> Functions &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1222404">FUNCTION NAME</a></div>
+            <div class="CellHeading"><a name="1247135">FUNCTION NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1222406">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1247137">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top" rowspan="2">
-            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1222408">rsslG</a>etBuffer</div>
+            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1247139">rsslG</a>etBuffer</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222413">Obtains a </a><span class="CodeOrCommand">RsslBuffer</span> of the requested size from the guaranteed or shared buffer pool. When the <span class="CodeOrCommand">RsslBuffer</span> is returned, the <span class="CodeOrCommand">length</span> member indicates the number of bytes available in the buffer (this should match the amount the application requested). When populating, it is required that the application set <span class="CodeOrCommand">length</span> to the number of bytes actually used. This ensures that only the required bytes are written to the network.</div>
-            <div class="CellBody"><a name="1222414">If the requested size is larger than the </a><span class="CodeOrCommand">maxFragmentSize</span>, the transport will create and return the buffer to the user. When written, this buffer will be fragmented by the <span class="CodeOrCommand">rsslWrite</span> function (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.064.html', '');" title="10.9 Writing Data to a Buffer">Section 10.9</a>).</div>
-            <div class="CellBody"><a name="1222427">Because of some additional book keeping required when packing, the application must specify whether a buffer should be ‘packable’ when calling </a><span class="CodeOrCommand">rsslGetBuffer</span>. For more information on packing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.082.html', '');" title="10.11 Packing Additional Data into a Buffer">Section 10.11</a>.</div>
-            <div class="CellBody"><a name="1222437">For performance purposes, an application is not permitted to request a buffer larger than </a><span class="CodeOrCommand">maxFragmentSize</span> and have the buffer be ‘packable.’</div>
-            <div class="CellBody"><a name="1222441">If the buffer is not used or the </a><span class="CodeOrCommand">rsslWrite</span> call fails, the buffer must be returned to the pool using <span class="CodeOrCommand">rsslReleaseBuffer</span>. If the <span class="CodeOrCommand">rsslWrite</span> call is successful, the buffer will be returned to the correct pool by the transport.</div>
-            <div class="CellBody"><a name="1222448">Return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.063.html#1222395', '');" title="10.8.2 rsslGetBuffer Return Values">Table 46</a>.</div>
+            <div class="CellBody"><a name="1247144">Obtains a </a><span class="CodeOrCommand">RsslBuffer</span> of the requested size from the guaranteed or shared buffer pool. When the <span class="CodeOrCommand">RsslBuffer</span> is returned, the <span class="CodeOrCommand">length</span> member indicates the number of bytes available in the buffer (this should match the amount the application requested). When populating, it is required that the application set <span class="CodeOrCommand">length</span> to the number of bytes actually used. This ensures that only the required bytes are written to the network.</div>
+            <div class="CellBody"><a name="1247145">If the requested size is larger than the </a><span class="CodeOrCommand">maxFragmentSize</span>, the transport will create and return the buffer to the user. When written, this buffer will be fragmented by the <span class="CodeOrCommand">rsslWrite</span> function (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.064.html', '');" title="10.9 Writing Data to a Buffer">Section 10.9</a>).</div>
+            <div class="CellBody"><a name="1247158">Because of some additional book keeping required when packing, the application must specify whether a buffer should be ‘packable’ when calling </a><span class="CodeOrCommand">rsslGetBuffer</span>. For more information on packing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.082.html', '');" title="10.11 Packing Additional Data into a Buffer">Section 10.11</a>.</div>
+            <div class="CellBody"><a name="1247168">For performance purposes, an application is not permitted to request a buffer larger than </a><span class="CodeOrCommand">maxFragmentSize</span> and have the buffer be ‘packable.’</div>
+            <div class="CellBody"><a name="1247172">If the buffer is not used or the </a><span class="CodeOrCommand">rsslWrite</span> call fails, the buffer must be returned to the pool using <span class="CodeOrCommand">rsslReleaseBuffer</span>. If the <span class="CodeOrCommand">rsslWrite</span> call is successful, the buffer will be returned to the correct pool by the transport.</div>
+            <div class="CellBody"><a name="1247179">Return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.063.html#1247126', '');" title="10.8.2 rsslGetBuffer Return Values">Table 46</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1222458">For shared memory connection types (</a><span class="Parameter">RSSL_CONN_TYPE_</span><span class="Parameter">UNIDIR_SHMEM</span>) only one buffer can be obtained at a time. The application must release or write the buffer it has before the application can obtain another buffer.</div>
+              <span class="Bold">Note: </span><a name="1247189">For shared memory connection types (</a><span class="Parameter">RSSL_CONN_TYPE_</span><span class="Parameter">UNIDIR_SHMEM</span>) only one buffer can be obtained at a time. The application must release or write the buffer it has before the application can obtain another buffer.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1222460">rsslR</a>eleaseBuffer</div>
+            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1247191">rsslR</a>eleaseBuffer</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222465">Releases a </a><span class="CodeOrCommand">RsslBuffer</span> back to the correct pool. This should only be called with buffers that originate from <span class="CodeOrCommand">rsslGetBuffer</span> and are not successfully passed to <span class="CodeOrCommand">rsslWrite</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1222473">rsslB</a>ufferUsage</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222478">Returns the number of buffers currently in use by the </a><span class="CodeOrCommand">RsslChannel</span>, this includes buffers that the application holds and buffers internally queued and waiting to be flushed to the connection.</div>
+            <div class="CellBody"><a name="1247196">Releases a </a><span class="CodeOrCommand">RsslBuffer</span> back to the correct pool. This should only be called with buffers that originate from <span class="CodeOrCommand">rsslGetBuffer</span> and are not successfully passed to <span class="CodeOrCommand">rsslWrite</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1222480">rsslServerBufferUsage</a></div>
+            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1247204">rsslB</a>ufferUsage</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222482">Returns the number of shared pool buffers currently in use by all channels connected to the </a><span class="CodeOrCommand">RsslServer</span>, this includes shared pool buffers that the application holds and shared pool buffers internally queued and waiting to be flushed.</div>
+            <div class="CellBody"><a name="1247209">Returns the number of buffers currently in use by the </a><span class="CodeOrCommand">RsslChannel</span>, this includes buffers that the application holds and buffers internally queued and waiting to be flushed to the connection.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1247211">rsslServerBufferUsage</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247213">Returns the number of shared pool buffers currently in use by all channels connected to the </a><span class="CodeOrCommand">RsslServer</span>, this includes shared pool buffers that the application holds and shared pool buffers internally queued and waiting to be flushed.</div>
           </td>
         </tr>
       </table>

@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1219674">Provide Source Directory Information</a></div>
-      <div class="Body"><a name="1219675">The Source Directory domain model conveys information about all available services in the system. An OMM consumer typically requests a Source Directory to retrieve information about available services and their capabilities. This includes information about supported domain types, the service’s state, the QoS, and any item group information associated with the service. Thomson Reuters recommends that at a minimum, an Interactive Provider supply the Info, State, and Group filters for the Source Directory.</a></div>
+      <div class="Body"><a name="1230590">The Source Directory domain model conveys information about all available services in the system. An OMM consumer typically requests a Source Directory to retrieve information about available services and their capabilities. This includes information about supported domain types, the service’s state, the QoS, and any item group information associated with the service. Thomson Reuters recommends that at a minimum, an interactive provider supply the Info, State, and Group filters for the Source Directory.</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1219676">The Source Directory Info filter contains the name and </a><span class="CodeOrCommand">serviceId</span> for each available service. The Interactive Provider should populate the filter with information specific to the services it provides.</div>
+              <div class="Bullet_inner"><a name="1230591">The Source Directory Info filter contains the name and </a><span class="CodeOrCommand">serviceId</span> for each available service. The interactive provider should populate the filter with information specific to the services it provides.</div>
             </td>
           </tr>
         </table>
@@ -80,7 +80,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1219677">The Source Directory State filter contains status information for the service informing the consumer whether the service is Up (available), or Down (unavailable).</a></div>
+              <div class="Bullet_inner"><a name="1230592">The Source Directory State filter contains status information for the service informing the consumer whether the service is Up (available), or Down (unavailable).</a></div>
             </td>
           </tr>
         </table>
@@ -94,14 +94,14 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1219678">The Source Directory Group filter conveys item group status information, including information about group states, as well as the merging of groups. If a provider determines that a group of items is no longer available, it can convey this information by sending either individual item status messages (for each affected stream) or a Directory message containing the item group status information. Additional information about item groups is available in the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
+              <div class="Bullet_inner"><a name="1230593">The Source Directory Group filter conveys item group status information, including information about group states, as well as the merging of groups. If a provider determines that a group of items is no longer available, it can convey this information by sending either individual item status messages (for each affected stream) or a Directory message containing the item group status information. Additional information about item groups is available in the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1219679">Source Directory messages can be encoded and decoded using the </a><span class="CodeOrCommand">RsslRDMDirectoryMsg</span>. More details and code examples are in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.042.html', '');" title="7.4 Source Directory Domain">Section 7.4</a>.</div>
-      <div class="Body"><a name="1219680">All content requested, received, or posted is encoded and decoded using the Transport API Message Package and the Transport API Data Package described in the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
-      <div class="Body"><a name="1219681">Information about the Source Directory domain and expected content formatting is available in the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCRDMG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition RDM Usage Guide</a></span>.</div>
+      <div class="Body"><a name="1230595">Source Directory messages can be encoded and decoded using the</a> <span class="CodeOrCommand">RsslRDMDirectoryMsg</span>. More details and code examples are in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.042.html', '');" title="7.4 Source Directory Domain">Section 7.4</a>.</div>
+      <div class="Body"><a name="1230608">All content requested, received, or posted is encoded and decoded using the Transport API</a> Message Package and the Transport API Data Package described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>.</div>
+      <div class="Body"><a name="1230614">Information about the Source Directory domain and expected content formatting is available in the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition RDM Usage Guide</a></span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

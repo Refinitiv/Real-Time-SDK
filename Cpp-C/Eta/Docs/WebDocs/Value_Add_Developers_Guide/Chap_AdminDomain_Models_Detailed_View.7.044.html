@@ -56,77 +56,134 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1220278">RSSL RDM Directory Request Structure Members</a></div>
-      <div class="Blank_Line"><a name="1233235">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1386683">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 107: <span class="LucidaConsole"><a name="1233306">RsslRDMDirectoryRequest</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 108: <span class="LucidaConsole"><a name="1386680">RsslRDMDirectoryRequest</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 126pt">
-            <div class="CellHeading"><a name="1233294">STRUCTURE MEMBER</a></div>
+            <div class="CellHeading"><a name="1386564">STRUCTURE </a>MEMBER</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 429.75pt">
-            <div class="CellHeading"><a name="1233296">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1386566">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1233298">rdmMsgBase</a></div>
+            <div class="CellBody"><a name="1386568">filter</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1233300">Required</a></span>. Contains general message information like streamId and domainType.</div>
+            <div class="CellBody"><span class="Bold"><a name="1386570">Required</a></span>. Indicates the service information in which the consumer is interested. The available flags are:</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1386580">RDM_DIRECTORY_SERVICE_INFO_FILTER == 0x01</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1386590">RDM_DIRECTORY_SERVICE_STATE_FILTER == 0x02</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1386600">RDM_DIRECTORY_SERVICE_GROUP_FILTER == 0x04</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1386610">RDM_DIRECTORY_SERVICE_LOAD_FILTER == 0x08</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1386620">RDM_DIRECTORY_SERVICE_DATA_FILTER == 0x10</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1386630">RDM_DIRECTORY_SERVICE_LINK_FILTER == 0x20</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="CellBody"><a name="1386639">In most cases, you should set the </a><span class="Parameter">RDM_DIRECTORY_SERVICE_INFO_FILTER</span>, <span class="Parameter">RDM_DIRECTORY_SERVICE_STATE_FILTER</span>, and <span class="Parameter">RDM_DIRECTORY_SERVICE_GROUP_FILTER</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1233620">flags</a></div>
+            <div class="CellBody"><a name="1386651">flags</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1233678">Required</a></span>. Indicate presence of optional directory request members. For details, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.045.html', '');" title="7.4.1.2 RSSL RDM Directory Request Flag Enumeration Values">Section 7.4.1.2</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1233624">serviceId</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1233697">If present, </a><span class="CodeOrCommand">flags</span> value of <span class="Parameter">RDM_DR_RQF_HAS_SERVICE_ID</span> should be specified.</div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1233698">If not present, this indicates the consumer wants information about all available services.</a></div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1233699">If present, this indicates the consumer only wants information about the service that has this ID.</a></div>
-                  </td>
-                </tr>
-              </table>
-            </div>
+            <div class="CellBody"><span class="Bold"><a name="1386653">Required</a></span>. Indicates the presence of optional directory request members. For details, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.045.html', '');" title="7.4.1.2 RSSL RDM Directory Request Flag Enumeration Values">Section 7.4.1.2</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1233302">filter</a></div>
+            <div class="CellBody"><a name="1386661">rdmMsgBase</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1233717">Required</a></span>. Should be populated with flags indicating what information about the service the consumer is interested in. The available flags are:</div>
+            <div class="CellBody"><span class="Bold"><a name="1386663">Required</a></span>. Contains general message information like <span class="CodeOrCommand">streamId</span> and <span class="CodeOrCommand">domainType</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1386665">serviceId</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Parameter"><a name="1386667">Optional</a></span>.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -136,7 +193,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1233718">RDM_DIRECTORY_SERVICE_INFO_FILTER == 0x01</a></span> </div>
+                    <div class="Bullet_Table_inner"><a name="1386668">If not present, this indicates the consumer wants information about all available services.</a></div>
                   </td>
                 </tr>
               </table>
@@ -150,68 +207,11 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1233719">RDM_DIRECTORY_SERVICE_STATE_FILTER == 0x02</a></span> </div>
+                    <div class="Bullet_Table_inner"><a name="1386669">If present, this indicates the ID of the service about which the consumer wants information. Additionally, a </a><span class="CodeOrCommand">flags</span> value of <span class="Parameter">RDM_DR_RQF_HAS_SERVICE_ID</span> should be specified.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1233720">RDM_DIRECTORY_SERVICE_GROUP_FILTER == 0x04</a></span> </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1233721">RDM_DIRECTORY_SERVICE_LOAD_FILTER == 0x08</a></span> </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1233722">RDM_DIRECTORY_SERVICE_DATA_FILTER == 0x10</a></span> </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1233723">RDM_DIRECTORY_SERVICE_LINK_FILTER == 0x20</a></span> </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="CellBody"><a name="1233724">In most cases, the </a><span class="Parameter">RDM_DIRECTORY_SERVICE_INFO_FILTER</span>, <span class="Parameter">RDM_DIRECTORY_SERVICE_STATE_FILTER</span>, and <span class="Parameter">RDM_DIRECTORY_SERVICE_GROUP_FILTER</span> should be set.</div>
           </td>
         </tr>
       </table>

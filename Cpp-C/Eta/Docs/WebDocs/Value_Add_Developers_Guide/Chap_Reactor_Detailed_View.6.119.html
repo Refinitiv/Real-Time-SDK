@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>6.7.8.3 RsslTunnelStreamSubmitOptions</title>
+    <title>6.7.8.2 Tunnel Stream Submit</title>
     <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,70 +55,36 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1221312">RsslTunnelStreamSubmitOptions</a></div>
-      <div class="Body"><a name="1255303">When calling </a><span class="CodeOrCommand">rsslTunnelStreamSubmit</span>, you can use <span class="CodeOrCommand">RsslTunnelStreamSubmitOptions</span> to provide the <span class="CodeOrCommand">containerType</span> option.</div>
-      <div class="Blank_Line"><a name="1255322">&nbsp;</a></div>
+      <div class="H4"><a name="1221293">Tunnel Stream Submit</a></div>
+      <div class="Body"><a name="1532608">The submit method is used to write content to the </a><span class="CodeOrCommand">RsslTunnelStream</span>. This method also enforces any specified behaviors on submitted content (e.g., if guaranteed messaging is specified, this content follows all configured persistence options).</div>
+      <div class="Blank_Line"><a name="1532662">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 75: <span class="LucidaConsole"><a name="1255336">RsslTunnelStreamSubmitOptions</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 75: <a name="1532659">Tunnel Stream Submit Method &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 175.5pt">
-            <div class="CellHeading"><a name="1255328">MEMBER</a></div>
+            <div class="CellHeading"><a name="1532611">METHOD NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 380.25pt">
-            <div class="CellHeading"><a name="1255330">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1532613">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1255332">containerType</a></div>
+            <div class="CellBody"><a name="1532615">rsslTunnelStreamSubmitMsg</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1255425">Specifies the type of data in the buffer being submitted. </a></div>
-            <div class="CellBody"><a name="1255426">For example:</a></div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1255427">If the submitted buffer contains an </a><span class="CodeOrCommand">RsslMsg</span>, set <span class="CodeOrCommand">containerType</span> <span class="Parameter">RSSL_DT_MSG</span>.</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1255428">If non-RWF data is sent, this should be set to a non-RWF type such as </a><span class="Parameter">RSSL_DT_OPAQUE</span>.</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1255429">For more information on possible container types, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
+            <div class="CellBody"><a name="1532617">Allows the user to pass in RDM Message content, including Queue Messages, that will be processed and sent over the </a><span class="CodeOrCommand">RsslTunnelStream</span>.</div>
+            <div class="CellBody"><a name="1532621">This method has additional options that can be specified via the </a><span class="CodeOrCommand">RsslTunnelStreamSubmitOptions</span>. Currently, the only available members of the option structure allow the user to pass in an RDM Message or an <span class="CodeOrCommand">RsslMsg</span> structure containing their content.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1532635">rsslTunnelStreamSubmit</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1532637">Allows the user to pass in a buffer populated with content that will be processed and sent over the </a><span class="CodeOrCommand">RsslTunnelStream</span>.</div>
           </td>
         </tr>
       </table>
@@ -134,7 +100,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.116.html">6.7.8	Sending Content on a TunnelStream</a> : 6.7.8.3	RsslTunnelStreamSubmitOptions</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.117.html">6.7.8	Sending Content on a TunnelStream</a> : 6.7.8.2	Tunnel Stream Submit</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

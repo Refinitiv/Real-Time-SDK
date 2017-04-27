@@ -234,15 +234,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00236"></a>00236 {
 <a name="l00237"></a>00237     pGenericMsg-&gt;<a class="code" href="structRsslGenericMsg.html#a1562427db03f905376716e2c89eb476c" title="Flag values used to indicate optional member presence and/or stream behavior. The available options a...">flags</a> |= <a class="code" href="group__GenericMsgStruct.html#gga9e4a8ecda049011d10eba2cdf5869f93a1718fa8dcf7b9db915cd83c577bf1db1">RSSL_GNMF_HAS_SECONDARY_SEQ_NUM</a>;
 <a name="l00238"></a>00238 }
-<a name="l00239"></a>00239 <span class="preprocessor">#define rsslGenericMsgApplyHasSecSeqNum rsslGenericMsgApplyHasSecondarySeqNum</span>
-<a name="l00240"></a>00240 <span class="preprocessor"></span>
-<a name="l00247"></a>00247 <span class="preprocessor">#ifdef __cplusplus</span>
-<a name="l00248"></a>00248 <span class="preprocessor"></span>}
-<a name="l00249"></a>00249 <span class="preprocessor">#endif</span>
-<a name="l00250"></a>00250 <span class="preprocessor"></span>
+<a name="l00239"></a>00239 
+<a name="l00244"></a>00244 RSSL_API <a class="code" href="group__RSSLRetCodes.html#ga3060c657278b3f4c40db2c8b5a8b4a6c" title="Rssl Return Code type.">RsslRet</a> <a class="code" href="group__GenericMsgHelpers.html#ga8a4413628c6cc3e0bcfae4589628892b" title="Set the RSSL_GNMF_MESSAGE_COMPLETE flag on an encoded RsslGenericMsg buffer.">rsslSetGenericCompleteFlag</a>(<a class="code" href="structRsslEncIterator.html" title="Iterator used for RWF encoding.">RsslEncodeIterator</a>      *pIter);
+<a name="l00245"></a>00245 
+<a name="l00250"></a>00250 RSSL_API <a class="code" href="group__RSSLRetCodes.html#ga3060c657278b3f4c40db2c8b5a8b4a6c" title="Rssl Return Code type.">RsslRet</a> <a class="code" href="group__GenericMsgHelpers.html#ga52d120d5f0e954de42396e383c61c67b" title="Unset the RSSL_GNMF_MESSAGE_COMPLETE flag on an encoded RsslGenericMsg buffer.">rsslUnsetGenericCompleteFlag</a>(<a class="code" href="structRsslEncIterator.html" title="Iterator used for RWF encoding.">RsslEncodeIterator</a>        *pIter);
 <a name="l00251"></a>00251 
-<a name="l00252"></a>00252 <span class="preprocessor">#endif</span>
+<a name="l00252"></a>00252 <span class="preprocessor">#define rsslGenericMsgApplyHasSecSeqNum rsslGenericMsgApplyHasSecondarySeqNum</span>
 <a name="l00253"></a>00253 <span class="preprocessor"></span>
+<a name="l00260"></a>00260 <span class="preprocessor">#ifdef __cplusplus</span>
+<a name="l00261"></a>00261 <span class="preprocessor"></span>}
+<a name="l00262"></a>00262 <span class="preprocessor">#endif</span>
+<a name="l00263"></a>00263 <span class="preprocessor"></span>
+<a name="l00264"></a>00264 
+<a name="l00265"></a>00265 <span class="preprocessor">#endif</span>
+<a name="l00266"></a>00266 <span class="preprocessor"></span>
 </pre></div></div><!-- contents -->
 <hr class="footer"/><address class="footer"><small>
     <table cellSpacing="0" cellPadding="0" width="100%" border="0">
@@ -259,7 +264,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-            <td><p class="smallfont">Fri Sep 16 2016</td>
+            <td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         <p class="smallfont">&nbsp;</td>

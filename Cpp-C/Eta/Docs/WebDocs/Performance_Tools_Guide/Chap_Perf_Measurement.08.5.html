@@ -56,39 +56,39 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1223486">Consumer Posting on the TREP</a></div>
-      <div class="Body"><a name="1223841">To measure posting performance on the TREP, connect the </a><span class="ToolOrUtility_Name">upacConsPerf</span> to an ADS, the ADS to an ADH,<sup><a name="wwfootnote_inline_61" href="#61">1</a></sup> and finally the <span class="ToolOrUtility_Name">upacNIProvPerf</span> to the ADH. The ADH must have caching enabled, because it acts as the cache of record in this scenario. As the posted messages return from the TREP, the consumer can distinguish them via the presence of their <span class="Parameter">RsslPostUserInfo</span>. When configured to do so, <span class="ToolOrUtility_Name">upacConsPerf</span> embeds timestamps in some of its posts which it uses to measure their round-trip latency.</div>
-      <div class="Body"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt"><a name="1223931"><img class="Default" src="images/Chap_Perf_Measurement.08.5.1.jpg" width="421" height="281" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 21.  <a name="1223933">Consumer Posting to TREP</a></div>
-      <div class="Body"><a name="1223984">If you want to test posting without updates, configure upacNIProvPerf by specifying </a><span class="CodeOrCommand">-updateRate 0 -latencyUpdateRate 0</span> in the command line. </div>
-      <div class="Body"><a name="1223985">Additionally, if you want only posting traffic, you do not need to run a provider application. You can configure the TREP to provide the necessary service information and refresh content. For more details on this configuration, refer to the </a><span class="DocumentTitle">ADH Software Installation Manual</span>.</div>
-      <div class="Procedure_Heading"><a name="1223935"><img class="Default" src="images/Chap_Perf_Measurement.08.5.2.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To run a basic performance measurement:</a></div>
-      <div class="Body"><a name="1223929">To run a basic performance measurement using a setup like the one pictured in Figure 21, run </a><span class="ToolOrUtility_Name">upacNIProvPerf</span> and <span class="ToolOrUtility_Name">upacConsPerf</span> with the following command-line options:<sup><a name="wwfootnote_inline_62" href="#62">2</a></sup></div>
-      <div class="Blank_Line"><a name="1224061">&nbsp;</a></div>
+      <div class="Body"><a name="1229248">To measure posting performance on the TREP, connect the </a><span class="ToolOrUtility_Name">upacConsPerf</span> to an ADS, the ADS to an ADH,<sup><a name="wwfootnote_inline_70" href="#70">1</a></sup> and finally the <span class="ToolOrUtility_Name">upacNIProvPerf</span> to the ADH. The ADH must have caching enabled, because it acts as the cache of record in this scenario. As the posted messages return from the TREP, the consumer can distinguish them via the presence of their <span class="Parameter">RsslPostUserInfo</span>. When configured to do so, <span class="ToolOrUtility_Name">upacConsPerf</span> embeds timestamps in some of its posts which it uses to measure round-trip latency.</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><a name="1229264"><img class="Default" src="images/Chap_Perf_Measurement.08.5.1.jpg" width="421" height="281" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 21.  <a name="1229272">Consumer Posting to TREP</a></div>
+      <div class="Body"><a name="1229276">Update traffic is optional. If you want to test posting without updates, configure </a><span class="ToolOrUtility_Name">upacNIProvPerf</span> by specifying <span class="CodeOrCommand">-updateRate 0 -latencyUpdateRate 0</span> in the command line. </div>
+      <div class="Body"><a name="1229283">Additionally, if you want only posting traffic, you do not need to run a provider application. You can configure the TREP to provide the necessary service information and refresh content. For more details on this configuration, refer to the </a><span class="DocumentTitle">ADH Software Installation Manual</span>.</div>
+      <div class="Procedure_Heading"><a name="1229287"><img class="Default" src="images/Chap_Perf_Measurement.08.5.2.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> To run a basic performance measurement:</a></div>
+      <div class="Body"><a name="1229294">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.5.html#1229272', '');" title="8.4 Consumer Posting on the TREP">Figure 21</a>, run <span class="ToolOrUtility_Name">upacNIProvPerf</span> and <span class="ToolOrUtility_Name">upacConsPerf</span> as follows:<sup><a name="wwfootnote_inline_71" href="#71">2</a></sup></div>
+      <div class="Blank_Line"><a name="1229326">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1224120">&nbsp;</a></div>
+            <div class="command"><a name="1229303">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224122">upacNIProvPerf -h adhhost -p 14003 -serviceName TEST_FEED</a></div>
+            <div class="command"><a name="1229308">upacNIProvPerf -h adhhost -p 14003 -serviceName TEST_FEED</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224132">&nbsp;</a></div>
+            <div class="command"><a name="1229314">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224134">upacConsPerf -h adshost -p 14002 -serviceName TEST_FEED -postingRate 10000 -postingLatencyRate 10</a></div>
+            <div class="command"><a name="1229319">upacConsPerf -h adshost -p 14002 -serviceName TEST_FEED -postingRate 10000 -postingLatencyRate 10</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224138">&nbsp;</a></div>
+            <div class="command"><a name="1229325">&nbsp;</a></div>
           </td>
         </tr>
       </table>
@@ -103,14 +103,14 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="61" href="#wwfootnote_inline_61">1</a>
+        <a name="70" href="#wwfootnote_inline_70">1</a>
       </div>
-      <div class="Footnote"><a name="1223892">Via the RRCP backbone.</a></div>
+      <div class="Footnote"><a name="1229247">Via the RRCP backbone.</a></div>
       <br style="clear: both;" />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="62" href="#wwfootnote_inline_62">2</a>
+        <a name="71" href="#wwfootnote_inline_71">2</a>
       </div>
-      <div class="Footnote"><a name="1224074">These options assume TEST_FEED is the service being provided. Modify the example values as necessary.</a></div>
+      <div class="Footnote"><a name="1229300">These options assume TEST_FEED is the service being provided. Modify the example values as necessary.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>6.7.8.2 Tunnel Stream Submit</title>
+    <title>6.7.8.1 Tunnel Stream Buffer Methods</title>
     <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,36 +55,40 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1221293">Tunnel Stream Submit</a></div>
-      <div class="Body"><a name="1251892">The submit method is used to write content to the </a><span class="CodeOrCommand">RsslTunnelStream</span>. This method will ensure that any specified behaviors are enforced on the content that is submitted, for example if guaranteed messaging is specified this content will follow the persistence options that were configured by the user.</div>
-      <div class="Blank_Line"><a name="1255159">&nbsp;</a></div>
+      <div class="H4"><a name="1221274">Tunnel Stream Buffer Methods</a></div>
+      <div class="Blank_Line"><a name="1532601">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 74: <a name="1255177">Tunnel Stream Submit Message &nbsp;</a></div>
+          <div class="TableTitle">Table 74: <a name="1532598">Tunnel Stream Buffer Methods &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 175.5pt">
-            <div class="CellHeading"><a name="1255165">METHOD NAME</a></div>
+            <div class="CellHeading"><a name="1532567">METHOD NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 380.25pt">
-            <div class="CellHeading"><a name="1255167">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1532569">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1255169">rsslTunnelStreamSubmitMsg</a></div>
+            <div class="CellBody"><a name="1532571">rsslTunnelStreamGetBuffer </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1255239">Allows the user to pass in RDM Message content, including Queue Messages, that will be processed and sent over the </a><span class="CodeOrCommand">RsslTunnelStream</span>.</div>
-            <div class="CellBody"><a name="1255240">This method has additional options that can be specified via the </a><span class="CodeOrCommand">RsslTunnelStreamSubmitOptions</span>. Currently, the only available members of the option structure allow the user to pass in an RDM Message or an RsslMsg structure containing their content.</div>
+            <div class="CellBody"><a name="1532576">Obtains a buffer from the </a><span class="CodeOrCommand">RsslTunnelStream</span>. To properly enforce negotiated behaviors on content in the buffer, the Transport API associates the buffer with the tunnel stream from which it is obtained.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1255173">rsslTunnelStreamSubmit</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top" rowspan="2">
+            <div class="CellBody"><a name="1532581">rsslTunnelStreamReleaseBuffer </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1255175">Allows the user to pass in a buffer populated with content that will be processed and sent over the </a><span class="CodeOrCommand">RsslTunnelStream</span>.</div>
+            <div class="CellBody"><a name="1532586">Releases a buffer back to the </a><span class="CodeOrCommand">RsslTunnelStream</span> from which it came. You should release any buffer that you do not submit. Releasing the buffer ensures it is properly recycled and can be reused.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1532590">If you submit a buffer properly, you do not need to release it, because the submit method automatically releases it after sending the content on the </a><span class="CodeOrCommand">RsslTunnelStream</span>.</div>
           </td>
         </tr>
       </table>
@@ -100,7 +104,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.116.html">6.7.8	Sending Content on a TunnelStream</a> : 6.7.8.2	Tunnel Stream Submit</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.117.html">6.7.8	Sending Content on a TunnelStream</a> : 6.7.8.1	Tunnel Stream Buffer Methods</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

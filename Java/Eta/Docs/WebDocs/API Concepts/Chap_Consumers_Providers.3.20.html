@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.3.1.2 Posts</title>
+    <title>3.3.1.1 Request /Response</title>
     <link rel="StyleSheet" href="css/Chap_Consumers_Providers.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,8 +55,9 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1042844">Posts</a></div>
-      <div class="Body"><a name="1042848">The interactive provider can receive post messages via TREP. Post messages will state whether an acknowledgment is required. If required, TREP will expect the interactive provider to provide a response, in the form of a positive or negative acknowledgment. Post behavior is supported in all domains, not simply Market-Data-based domains. Whenever an interactive provider connects to TREP and publishes the supported domains, the provider states whether it supports post messages.</a></div>
+      <div class="H4"><a name="1054224">Request /Response</a></div>
+      <div class="Body"><a name="1054228">In a standard request/response scenario, the interactive provider receives requests from consumers on TREP (e.g., “Provide data for item TRI”). The consumer then expects the interactive provider to provide a response, status, and possible updates whenever the information changes. If the item cannot be provided by the interactive provider, the consumer expects the provider to reject the request by providing an appropriate response - commonly a status message with state and text information describing the reason. Request and response behavior is supported in all domains, not simply Market-Data-based domains.</a></div>
+      <div class="Body"><a name="1054229">Interactive providers can receive any consumer-style request described in the consumer section of this document, including batch requests, views, symbol lists, pause/resume, etc. Provider applications should respond with a negative acknowledgment or response if the interactive application cannot provide the expected response to a request.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -69,7 +70,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.01.html">Chapter 3	Consumers and Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.17.html">3.3	Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.18.html">3.3.1	Interactive Providers</a> : 3.3.1.2	Posts</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.01.html">Chapter 3	Consumers and Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.18.html">3.3	Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.19.html">3.3.1	Interactive Providers</a> : 3.3.1.1	Request /Response</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

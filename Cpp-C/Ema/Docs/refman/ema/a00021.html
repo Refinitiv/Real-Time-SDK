@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: thomsonreuters::ema::access::FilterList Class Reference</title>
+<title>EMA: thomsonreuters::ema::access::FilterEntry Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -104,259 +104,194 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="a00164.html">thomsonreuters</a>      </li>
+      <li class="navelem"><a class="el" href="a00178.html">thomsonreuters</a>      </li>
       <li class="navelem"><b>ema</b>      </li>
       <li class="navelem"><b>access</b>      </li>
-      <li class="navelem"><a class="el" href="a00021.html">FilterList</a>      </li>
+      <li class="navelem"><a class="el" href="a00021.html">FilterEntry</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::ema::access::FilterList Class Reference</div>  </div>
+<div class="title">thomsonreuters::ema::access::FilterEntry Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a> is a heterogeneous container of complex data type entries.  
+<p><a class="el" href="a00021.html" title="FilterEntry represents an entry of FilterList.">FilterEntry</a> represents an entry of <a class="el" href="a00022.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>.  
  <a href="a00021.html#details">More...</a></p>
-<div class="dynheader">
-Inheritance diagram for thomsonreuters::ema::access::FilterList:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="a00021.png" usemap="#thomsonreuters::ema::access::FilterList_map" alt=""/>
-  <map id="thomsonreuters::ema::access::FilterList_map" name="thomsonreuters::ema::access::FilterList_map">
-<area href="a00005.html" title="ComplexType class is a parent class from whom all complex data types inherit." alt="thomsonreuters::ema::access::ComplexType" shape="rect" coords="0,56,255,80"/>
-<area href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes..." alt="thomsonreuters::ema::access::Data" shape="rect" coords="0,0,255,24"/>
-</map>
- </div></div>
 
-<p><a href="a00188.html">List of all members.</a></p>
+<p><a href="a00204.html">List of all members.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a645249a0fb27deb0afca94d639e071a4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a645249a0fb27deb0afca94d639e071a4">FilterAction</a> { <br/>
+&#160;&#160;<a class="el" href="a00021.html#a645249a0fb27deb0afca94d639e071a4a4a8559fb0fbd18f49166733c73f8222a">UpdateEnum</a> =  1, 
+<br/>
+&#160;&#160;<a class="el" href="a00021.html#a645249a0fb27deb0afca94d639e071a4a10fcbfb7d4fdcb78278e0e17c3c796e5">SetEnum</a> =  2, 
+<br/>
+&#160;&#160;<a class="el" href="a00021.html#a645249a0fb27deb0afca94d639e071a4ac5c7e687ff3221d5bb04a2b6038d2716">ClearEnum</a> =  3
+<br/>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Constructor</div></td></tr>
-<tr class="memitem:afc94b22245758fc7898a88b63356db8a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#afc94b22245758fc7898a88b63356db8a">FilterList</a> ()</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
-<tr class="memitem:a563b3dd70d072ae785dada9839106359"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a563b3dd70d072ae785dada9839106359">~FilterList</a> ()</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a84c10e4eb5d18d05941ba95de3c15ee2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a84c10e4eb5d18d05941ba95de3c15ee2">getDataType</a> () const </td></tr>
-<tr class="memitem:a8de050875f858fee5ef704ed23d538ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a8de050875f858fee5ef704ed23d538ae">getCode</a> () const </td></tr>
-<tr class="memitem:a594c41408973081e5df65dba11cb7ee3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a594c41408973081e5df65dba11cb7ee3">getAsHex</a> () const </td></tr>
-<tr class="memitem:ac8dee6321082b184b953f6ca6d12ec32"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#ac8dee6321082b184b953f6ca6d12ec32">toString</a> () const </td></tr>
-<tr class="memitem:a057007a0bbb9a0434ff390356354f47d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a057007a0bbb9a0434ff390356354f47d">hasTotalCountHint</a> () const </td></tr>
-<tr class="memitem:aca7baabe729854d67620a374754093a5"><td class="memItemLeft" align="right" valign="top">UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#aca7baabe729854d67620a374754093a5">getTotalCountHint</a> () const </td></tr>
-<tr class="memitem:a271b2b531a6a2a1140263895391ec484"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a271b2b531a6a2a1140263895391ec484">forth</a> () const </td></tr>
-<tr class="memitem:aec7dbd2c9adaf73a7aa489f89ee21f40"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#aec7dbd2c9adaf73a7aa489f89ee21f40">forth</a> (UInt8 filterId) const </td></tr>
-<tr class="memitem:a1904fb4ebd13f5675e34214f4da4a536"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00020.html">FilterEntry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a1904fb4ebd13f5675e34214f4da4a536">getEntry</a> () const </td></tr>
-<tr class="memitem:a3524fb3186b07bae9dcb38d4eda198d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a3524fb3186b07bae9dcb38d4eda198d1">reset</a> () const </td></tr>
-<tr><td colspan="2"><div class="groupHeader">Operations</div></td></tr>
-<tr class="memitem:adf9ecb2a6d0e1ad66fe90f8d7051b3e2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00021.html">FilterList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#adf9ecb2a6d0e1ad66fe90f8d7051b3e2">clear</a> ()</td></tr>
-<tr class="memitem:a819b73b3c45cb49c8e592026aab69cd9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00021.html">FilterList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a819b73b3c45cb49c8e592026aab69cd9">totalCountHint</a> (UInt32 <a class="el" href="a00021.html#a819b73b3c45cb49c8e592026aab69cd9">totalCountHint</a>)</td></tr>
-<tr class="memitem:ae35110e5af69559278eb8f5a59a8606e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00021.html">FilterList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#ae35110e5af69559278eb8f5a59a8606e">add</a> (UInt8 filterId, <a class="el" href="a00020.html#a645249a0fb27deb0afca94d639e071a4">FilterEntry::FilterAction</a> action, const <a class="el" href="a00005.html">ComplexType</a> &amp;value, const <a class="el" href="a00015.html">EmaBuffer</a> &amp;permissionData=<a class="el" href="a00015.html">EmaBuffer</a>())</td></tr>
-<tr class="memitem:ab7c778d81eccaed3ce3ace226b6368a8"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00021.html">FilterList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#ab7c778d81eccaed3ce3ace226b6368a8">complete</a> ()</td></tr>
+<tr class="memitem:aadd0c0e60e6b370e5f717d8d7b1517cc"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#aadd0c0e60e6b370e5f717d8d7b1517cc">getFilterActionAsString</a> () const </td></tr>
+<tr class="memitem:a5bfc1dfc8a5b69e37736c23492581d86"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a5bfc1dfc8a5b69e37736c23492581d86">getLoadType</a> () const </td></tr>
+<tr class="memitem:a606ec91bace278f55331c81fed6317ca"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a606ec91bace278f55331c81fed6317ca">toString</a> () const </td></tr>
+<tr class="memitem:a7b4e9965b750d0faaad20275cc7e521b"><td class="memItemLeft" align="right" valign="top">UInt8&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a7b4e9965b750d0faaad20275cc7e521b">getFilterId</a> () const </td></tr>
+<tr class="memitem:a20503bed6a189aac43363ce07c2cd897"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a20503bed6a189aac43363ce07c2cd897">hasPermissionData</a> () const </td></tr>
+<tr class="memitem:a0e57c4a207535f62610a6905e5e14815"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00075.html">ReqMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a0e57c4a207535f62610a6905e5e14815">getReqMsg</a> () const </td></tr>
+<tr class="memitem:a97b382896ee0d4dbb599be05de8bb6fb"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00074.html">RefreshMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a97b382896ee0d4dbb599be05de8bb6fb">getRefreshMsg</a> () const </td></tr>
+<tr class="memitem:a17ab989de7a6fc25658cf822f176efb5"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00082.html">UpdateMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a17ab989de7a6fc25658cf822f176efb5">getUpdateMsg</a> () const </td></tr>
+<tr class="memitem:a09fd43f13d31a4744322e181f0f7df20"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00079.html">StatusMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a09fd43f13d31a4744322e181f0f7df20">getStatusMsg</a> () const </td></tr>
+<tr class="memitem:a243315dbf3ee3619626549b00984720f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00072.html">PostMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a243315dbf3ee3619626549b00984720f">getPostMsg</a> () const </td></tr>
+<tr class="memitem:a28c4dbffd11aab75c633d0fa912b8889"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00002.html">AckMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a28c4dbffd11aab75c633d0fa912b8889">getAckMsg</a> () const </td></tr>
+<tr class="memitem:a21389e1b387dcb9220cba8bf264f4be6"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00024.html">GenericMsg</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a21389e1b387dcb9220cba8bf264f4be6">getGenericMsg</a> () const </td></tr>
+<tr class="memitem:a97ef875a4a1d228f9599cee5f628d4f7"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00020.html">FieldList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a97ef875a4a1d228f9599cee5f628d4f7">getFieldList</a> () const </td></tr>
+<tr class="memitem:ad881b118b80c4d8aef08552d8c68e0cd"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00014.html">ElementList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#ad881b118b80c4d8aef08552d8c68e0cd">getElementList</a> () const </td></tr>
+<tr class="memitem:aabb5e4fc1580a3e11c5332a19c6b40c2"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00026.html">Map</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#aabb5e4fc1580a3e11c5332a19c6b40c2">getMap</a> () const </td></tr>
+<tr class="memitem:af9bc978c67eb1c286299753b068cc25f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00083.html">Vector</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#af9bc978c67eb1c286299753b068cc25f">getVector</a> () const </td></tr>
+<tr class="memitem:a16a86464dd19d860a65b8bdc79a7df26"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00077.html">Series</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a16a86464dd19d860a65b8bdc79a7df26">getSeries</a> () const </td></tr>
+<tr class="memitem:aa58796b720ee28bae7910b6110f7e38c"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00022.html">FilterList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#aa58796b720ee28bae7910b6110f7e38c">getFilterList</a> () const </td></tr>
+<tr class="memitem:a7c9ba98994f361ee4e3d8d8432b5216e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00054.html">OmmOpaque</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a7c9ba98994f361ee4e3d8d8432b5216e">getOpaque</a> () const </td></tr>
+<tr class="memitem:af7e87c1c6dfec2d3466f723b0cafc746"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00070.html">OmmXml</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#af7e87c1c6dfec2d3466f723b0cafc746">getXml</a> () const </td></tr>
+<tr class="memitem:a0a95598899c4be2a459b3eca7fc7c296"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00029.html">OmmAnsiPage</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a0a95598899c4be2a459b3eca7fc7c296">getAnsiPage</a> () const </td></tr>
+<tr class="memitem:ab38f3b3b790950f56787b4960ba950d8"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00011.html">Data</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#ab38f3b3b790950f56787b4960ba950d8">getLoad</a> () const </td></tr>
+<tr class="memitem:a9dc3f6e72b078510502da349179abfb0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="a00021.html#a645249a0fb27deb0afca94d639e071a4">FilterAction</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a9dc3f6e72b078510502da349179abfb0">getAction</a> () const </td></tr>
+<tr class="memitem:a093e7a0fe72206992d20fd11a83383f3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a093e7a0fe72206992d20fd11a83383f3">getPermissionData</a> () const </td></tr>
+<tr class="memitem:a6a7be27229cb654f86a6f128d3dca728"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="a00043.html">OmmError</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00021.html#a6a7be27229cb654f86a6f128d3dca728">getError</a> () const </td></tr>
+<tr><td colspan="2"><h2><a name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a9703ea8185ef54442b6469bd2b48e205"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9703ea8185ef54442b6469bd2b48e205"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>FilterList</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a> entries are identified by Filter Id. For the source directory information, the Filter Ids are defined in the RDM (see also <a class="el" href="a00160.html" title="EmaRdm.h file contains RDM constants and definitions.">EmaRdm.h</a> file).</p>
-<p><a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a> supports two methods of adding containers; they are:</p>
-<ul>
-<li>adding of already populated containers, (e.g. <a class="el" href="a00021.html#ab7c778d81eccaed3ce3ace226b6368a8">complete()</a> was called) and</li>
-<li>adding of clear containers (e.g. <a class="el" href="a00021.html#adf9ecb2a6d0e1ad66fe90f8d7051b3e2">clear()</a> was called) which would be populated after that.</li>
-</ul>
-<p>The first method of adding of already populated containers allows for easy data manipulation but incurs additional memory copy. This method is useful in applications extracting data containers from some messages or containers and then setting them on other containers.</p>
-<p>The second method allows for fast container population since it avoids additional memory copy incurred by the first method. This method is useful in source applications setting OMM data from native data formats.</p>
-<p>The following code snippet shows addition of pre populated containers to <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>.</p>
-<div class="fragment"><pre class="fragment">    FieldList fieldList;
-    Map map;
-
-    <span class="comment">// first step - populate Map with the fieldList</span>
-    map.addKeyBuffer( EmaBuffer( <span class="stringliteral">&quot;1234321&quot;</span> ), <a class="code" href="a00026.html#aed8b40ab1ed01424b963661b1ba99287a4b2610b00ac0555ba587548e72fcf3e5">MapEntry::AddEnum</a>, fieldList ).complete();
-
-    <span class="comment">// second step - add already populated Map to FilterList</span>
-    <a class="code" href="a00021.html#afc94b22245758fc7898a88b63356db8a">FilterList</a> filterList;
-    filterList.add( 2, <a class="code" href="a00020.html#a645249a0fb27deb0afca94d639e071a4a10fcbfb7d4fdcb78278e0e17c3c796e5">FilterEntry::SetEnum</a>; map );
-    
-    <span class="comment">// third step - complete FilterList</span>
-    filterList.complete();
-</pre></div><p>The following code snippet shows addition of clear containers to <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>. The added containers are populated right after addition.</p>
-<div class="fragment"><pre class="fragment">    <a class="code" href="a00021.html#afc94b22245758fc7898a88b63356db8a">FilterList</a> fList;
-    Map map;
-
-    <span class="comment">// first step - add clear map to filterList</span>
-    fList.add( 2, <a class="code" href="a00020.html#a645249a0fb27deb0afca94d639e071a4a10fcbfb7d4fdcb78278e0e17c3c796e5">FilterEntry::SetEnum</a>; map )
-
-    <span class="comment">// second step - populate Map</span>
-    map.addKeyBuffer( EmaBuffer( <span class="stringliteral">&quot;1234321&quot;</span> ), <a class="code" href="a00026.html#aed8b40ab1ed01424b963661b1ba99287a4b2610b00ac0555ba587548e72fcf3e5">MapEntry::AddEnum</a>, fieldList ).complete();
-
-    <span class="comment">// third step - complete FilterList</span>
-    fList.complete()
-</pre></div><p>The following code snippet shows extracting data from <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>.</p>
-<div class="fragment"><pre class="fragment">    <span class="keywordflow">while</span> ( filterList.forth() )
+<div class="textblock"><p><a class="el" href="a00021.html" title="FilterEntry represents an entry of FilterList.">FilterEntry</a> associates entry's id, action, permission info, data and its data type.</p>
+<div class="fragment"><pre class="fragment">    decodeFilterList( <span class="keyword">const</span> FilterList&amp; fList )
     {
-        <span class="keyword">const</span> FilterEntry&amp; entry = filterList.getEntry();
-        <span class="keywordflow">switch</span> ( entry.getLoadType() )
+        <span class="keywordflow">while</span> ( fList.forth() )
         {
-        <span class="keywordflow">case</span> <a class="code" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0a5c10d50d7951bee1dc75ec59ef6c4278">DataType::MapEnum</a> :
-            cout &lt;&lt; <span class="stringliteral">&quot;filter id = &quot;</span> &lt;&lt; (UInt32)entry.getFilterId() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;
-            cout &lt;&lt; <span class="stringliteral">&quot;action    = &quot;</span> &lt;&lt; entry.getFilterActionAsString() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;
-            decode( entry.getMap() );
-            <span class="keywordflow">break</span>;
+            <span class="keyword">const</span> FilterEntry&amp; filterEntry = fList.getEntry();
 
             ...
         }
     }
-</pre></div><dl class="section remark"><dt>Remarks:</dt><dd>These two methods apply to containers only: <a class="el" href="a00014.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a>, <a class="el" href="a00019.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>, <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>, <a class="el" href="a00025.html" title="Map is a homogeneous container of complex data type entries.">Map</a>, <a class="el" href="a00076.html" title="Series is a homogeneous container of complex data type entries.">Series</a>, and <a class="el" href="a00082.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>. </dd>
+</pre></div><dl class="section remark"><dt>Remarks:</dt><dd>Objects of this class are intended to be short lived or rather transitional. </dd>
 <dd>
-Objects of this class are intended to be short lived or rather transitional. </dd>
-<dd>
-This class is designed to efficiently perform setting and extracting of <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a> and its content. </dd>
+This class is designed to efficiently perform extracting of data from entry. </dd>
 <dd>
 Objects of this class are not cache-able. </dd>
 <dd>
 All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00020.html" title="FilterEntry represents an entry of FilterList.">FilterEntry</a>, <a class="el" href="a00074.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>, <a class="el" href="a00073.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>, <a class="el" href="a00081.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a>, <a class="el" href="a00078.html" title="StatusMsg conveys item state information.">StatusMsg</a>, <a class="el" href="a00023.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a>, <a class="el" href="a00071.html" title="PostMsg allows consumer applications to contribute content.">PostMsg</a>, <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a>, <a class="el" href="a00014.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a>, <a class="el" href="a00025.html" title="Map is a homogeneous container of complex data type entries.">Map</a>, <a class="el" href="a00082.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>, <a class="el" href="a00076.html" title="Series is a homogeneous container of complex data type entries.">Series</a>, <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>, <a class="el" href="a00053.html" title="OmmOpaque represents Opaque data format in Omm.">OmmOpaque</a>, <a class="el" href="a00069.html" title="OmmXml represents XML data format in Omm.">OmmXml</a>, <a class="el" href="a00028.html" title="OmmAnsiPage represents AnsiPage data format in Omm.">OmmAnsiPage</a>, <a class="el" href="a00042.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a>, <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>, <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> </dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>, <a class="el" href="a00005.html" title="ComplexType class is a parent class from whom all complex data types inherit.">ComplexType</a> <a class="el" href="a00075.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a>, <a class="el" href="a00074.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a>, <a class="el" href="a00082.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a>, <a class="el" href="a00079.html" title="StatusMsg conveys item state information.">StatusMsg</a>, <a class="el" href="a00024.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a>, <a class="el" href="a00072.html" title="PostMsg allows consumer applications to contribute content.">PostMsg</a>, <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a>, <a class="el" href="a00020.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a>, <a class="el" href="a00014.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a>, <a class="el" href="a00026.html" title="Map is a homogeneous container of complex data type entries.">Map</a>, <a class="el" href="a00083.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a>, <a class="el" href="a00077.html" title="Series is a homogeneous container of complex data type entries.">Series</a>, <a class="el" href="a00022.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>, <a class="el" href="a00054.html" title="OmmOpaque represents Opaque data format in Omm.">OmmOpaque</a>, <a class="el" href="a00070.html" title="OmmXml represents XML data format in Omm.">OmmXml</a>, <a class="el" href="a00029.html" title="OmmAnsiPage represents AnsiPage data format in Omm.">OmmAnsiPage</a>, <a class="el" href="a00043.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a>, <a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>, <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00098_source.html#l00132">132</a> of file <a class="el" href="a00098_source.html">FilterList.h</a>.</p>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="afc94b22245758fc7898a88b63356db8a"></a>
+<p>Definition at line <a class="el" href="a00105_source.html#l00088">88</a> of file <a class="el" href="a00105_source.html">FilterEntry.h</a>.</p>
+</div><hr/><h2>Member Enumeration Documentation</h2>
+<a class="anchor" id="a645249a0fb27deb0afca94d639e071a4"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00021.html#afc94b22245758fc7898a88b63356db8a">thomsonreuters::ema::access::FilterList::FilterList</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td class="memname">enum <a class="el" href="a00021.html#a645249a0fb27deb0afca94d639e071a4">thomsonreuters::ema::access::FilterEntry::FilterAction</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Constructs <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>. </p>
+<p>An enumeration representing filter entry action. </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a645249a0fb27deb0afca94d639e071a4a4a8559fb0fbd18f49166733c73f8222a"></a>UpdateEnum</em>&nbsp;</td><td>
+<p>Indicates a partial change of the current Omm data. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a645249a0fb27deb0afca94d639e071a4a10fcbfb7d4fdcb78278e0e17c3c796e5"></a>SetEnum</em>&nbsp;</td><td>
+<p>Indicates to specify or replace the current Omm data. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a645249a0fb27deb0afca94d639e071a4ac5c7e687ff3221d5bb04a2b6038d2716"></a>ClearEnum</em>&nbsp;</td><td>
+<p>Indicates to unset the current Omm data. </p>
+</td></tr>
+</table>
+</dd>
+</dl>
 
-</div>
-</div>
-<a class="anchor" id="a563b3dd70d072ae785dada9839106359"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="a00021.html#a563b3dd70d072ae785dada9839106359">thomsonreuters::ema::access::FilterList::~FilterList</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td><code> [virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Destructor. </p>
+<p>Definition at line <a class="el" href="a00105_source.html#l00095">95</a> of file <a class="el" href="a00105_source.html">FilterEntry.h</a>.</p>
 
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="ae35110e5af69559278eb8f5a59a8606e"></a>
+<a class="anchor" id="a28c4dbffd11aab75c633d0fa912b8889"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00021.html">FilterList</a>&amp; <a class="el" href="a00021.html#ae35110e5af69559278eb8f5a59a8606e">thomsonreuters::ema::access::FilterList::add</a> </td>
+          <td class="memname">const <a class="el" href="a00002.html">AckMsg</a>&amp; <a class="el" href="a00021.html#a28c4dbffd11aab75c633d0fa912b8889">thomsonreuters::ema::access::FilterEntry::getAckMsg</a> </td>
           <td>(</td>
-          <td class="paramtype">UInt8&#160;</td>
-          <td class="paramname"><em>filterId</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="a00020.html#a645249a0fb27deb0afca94d639e071a4">FilterEntry::FilterAction</a>&#160;</td>
-          <td class="paramname"><em>action</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="a00005.html">ComplexType</a> &amp;&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="a00015.html">EmaBuffer</a> &amp;&#160;</td>
-          <td class="paramname"><em>permissionData</em> = <code><a class="el" href="a00015.html">EmaBuffer</a>()</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Adds a complex type of OMM data to the <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>. </p>
+<p>Returns the current OMM data represented as a specific complex type. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if an error is detected (exception will specify the cause of the error) </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a> </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">filterId</td><td>specifies filter id for the added <a class="el" href="a00020.html" title="FilterEntry represents an entry of FilterList.">FilterEntry</a> </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">action</td><td>specifies action for the added <a class="el" href="a00020.html" title="FilterEntry represents an entry of FilterList.">FilterEntry</a> </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>specifies load for the added <a class="el" href="a00020.html" title="FilterEntry represents an entry of FilterList.">FilterEntry</a> </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">permissionData</td><td>specifies permissions for the added <a class="el" href="a00020.html" title="FilterEntry represents an entry of FilterList.">FilterEntry</a> </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00002.html" title="AckMsg indicates success or failure of PostMsg.">AckMsg</a> class reference to contained object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="adf9ecb2a6d0e1ad66fe90f8d7051b3e2"></a>
+<a class="anchor" id="a9dc3f6e72b078510502da349179abfb0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="a00021.html">FilterList</a>&amp; <a class="el" href="a00021.html#adf9ecb2a6d0e1ad66fe90f8d7051b3e2">thomsonreuters::ema::access::FilterList::clear</a> </td>
+          <td class="memname"><a class="el" href="a00021.html#a645249a0fb27deb0afca94d639e071a4">FilterAction</a> <a class="el" href="a00021.html#a9dc3f6e72b078510502da349179abfb0">thomsonreuters::ema::access::FilterEntry::getAction</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Clears the <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>. </p>
-<dl class="section remark"><dt>Remarks:</dt><dd>Invoking <a class="el" href="a00021.html#adf9ecb2a6d0e1ad66fe90f8d7051b3e2">clear()</a> method clears all the values and resets all the defaults </dd></dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
+<p>Returns the current action on the OMM data. </p>
+<dl class="section return"><dt>Returns:</dt><dd>FilterAction </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="ab7c778d81eccaed3ce3ace226b6368a8"></a>
+<a class="anchor" id="a0a95598899c4be2a459b3eca7fc7c296"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00021.html">FilterList</a>&amp; <a class="el" href="a00021.html#ab7c778d81eccaed3ce3ace226b6368a8">thomsonreuters::ema::access::FilterList::complete</a> </td>
+          <td class="memname">const <a class="el" href="a00029.html">OmmAnsiPage</a>&amp; <a class="el" href="a00021.html#a0a95598899c4be2a459b3eca7fc7c296">thomsonreuters::ema::access::FilterEntry::getAnsiPage</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Completes encoding of <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>. </p>
+<p>Returns the current OMM data represented as a specific complex type. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if an error is detected (exception will specify the cause of the error) </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00029.html" title="OmmAnsiPage represents AnsiPage data format in Omm.">OmmAnsiPage</a> </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>const reference to this object </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00029.html" title="OmmAnsiPage represents AnsiPage data format in Omm.">OmmAnsiPage</a> class reference to contained object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a271b2b531a6a2a1140263895391ec484"></a>
+<a class="anchor" id="ad881b118b80c4d8aef08552d8c68e0cd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00021.html#a271b2b531a6a2a1140263895391ec484">thomsonreuters::ema::access::FilterList::forth</a> </td>
+          <td class="memname">const <a class="el" href="a00014.html">ElementList</a>&amp; <a class="el" href="a00021.html#ad881b118b80c4d8aef08552d8c68e0cd">thomsonreuters::ema::access::FilterEntry::getElementList</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -364,126 +299,23 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Iterates through a list of <a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a> of any <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. Typical usage is to extract the entry during each iteration via <a class="el" href="a00021.html#a1904fb4ebd13f5675e34214f4da4a536">getEntry()</a>. </p>
-<dl class="section return"><dt>Returns:</dt><dd>false at the end of <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>; true otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="aec7dbd2c9adaf73a7aa489f89ee21f40"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="a00021.html#a271b2b531a6a2a1140263895391ec484">thomsonreuters::ema::access::FilterList::forth</a> </td>
-          <td>(</td>
-          <td class="paramtype">UInt8&#160;</td>
-          <td class="paramname"><em>filterId</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Iterates through a list of <a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a> having matched actual filterId with the one passed in. Typical usage is to extract the entry during each iteration via <a class="el" href="a00021.html#a1904fb4ebd13f5675e34214f4da4a536">getEntry()</a>. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">filterId</td><td>looked up filter id </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>false at the end of <a class="el" href="a00021.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a>; true otherwise </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a594c41408973081e5df65dba11cb7ee3"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00021.html#a594c41408973081e5df65dba11cb7ee3">thomsonreuters::ema::access::FilterList::getAsHex</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const<code> [virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns a buffer that in turn provides an alphanumeric null-terminated hexadecimal string representation. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> with the message hex information </dd></dl>
-
-<p>Implements <a class="el" href="a00011.html#ad354334439d238097b04c5f644667dbf">thomsonreuters::ema::access::Data</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a8de050875f858fee5ef704ed23d538ae"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> <a class="el" href="a00021.html#a8de050875f858fee5ef704ed23d538ae">thomsonreuters::ema::access::FilterList::getCode</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const<code> [virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the Code, which indicates a special state of a <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4a88c2bb1c2e8f901631aa5ad9a0d1dc14">Data::NoCodeEnum</a> </dd></dl>
-
-<p>Implements <a class="el" href="a00011.html#a8510d00b7a009f32c9c6de8adcb45d96">thomsonreuters::ema::access::Data</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a84c10e4eb5d18d05941ba95de3c15ee2"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> <a class="el" href="a00021.html#a84c10e4eb5d18d05941ba95de3c15ee2">thomsonreuters::ema::access::FilterList::getDataType</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const<code> [virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns the <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>, which is the type of Omm data. Results in this class type. </p>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0a0bfb6b6d519b3904620330396d588e07">DataType::FilterListEnum</a> </dd></dl>
-
-<p>Implements <a class="el" href="a00011.html#a361e280aecab30c47386a3e08ce325da">thomsonreuters::ema::access::Data</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a1904fb4ebd13f5675e34214f4da4a536"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="a00020.html">FilterEntry</a>&amp; <a class="el" href="a00021.html#a1904fb4ebd13f5675e34214f4da4a536">thomsonreuters::ema::access::FilterList::getEntry</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Returns Entry. </p>
+<p>Returns the current OMM data represented as a specific complex type. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00021.html#a271b2b531a6a2a1140263895391ec484">forth()</a> was not called first </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00014.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a> </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00020.html" title="FilterEntry represents an entry of FilterList.">FilterEntry</a> </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00014.html" title="ElementList is a heterogeneous container of complex and primitive data type entries.">ElementList</a> class reference to contained object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="aca7baabe729854d67620a374754093a5"></a>
+<a class="anchor" id="a6a7be27229cb654f86a6f128d3dca728"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt32 <a class="el" href="a00021.html#aca7baabe729854d67620a374754093a5">thomsonreuters::ema::access::FilterList::getTotalCountHint</a> </td>
+          <td class="memname">const <a class="el" href="a00043.html">OmmError</a>&amp; <a class="el" href="a00021.html#a6a7be27229cb654f86a6f128d3dca728">thomsonreuters::ema::access::FilterEntry::getError</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -491,23 +323,23 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Returns TotalCountHint. </p>
+<p>Returns Error. </p>
 <dl class="exception"><dt><b>Exceptions:</b></dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="a00049.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00021.html#a057007a0bbb9a0434ff390356354f47d">hasTotalCountHint()</a> returns false </td></tr>
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00043.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a> </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns:</dt><dd>total count hint </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00043.html" title="OmmError represents received Omm data who fails to process properly.">OmmError</a> class reference to contained object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a057007a0bbb9a0434ff390356354f47d"></a>
+<a class="anchor" id="a97ef875a4a1d228f9599cee5f628d4f7"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="a00021.html#a057007a0bbb9a0434ff390356354f47d">thomsonreuters::ema::access::FilterList::hasTotalCountHint</a> </td>
+          <td class="memname">const <a class="el" href="a00020.html">FieldList</a>&amp; <a class="el" href="a00021.html#a97ef875a4a1d228f9599cee5f628d4f7">thomsonreuters::ema::access::FilterEntry::getFieldList</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -515,17 +347,23 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Indicates presence of TotalCountHint. </p>
-<dl class="section return"><dt>Returns:</dt><dd>true if total count hint is set; false otherwise </dd></dl>
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00020.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00020.html" title="FieldList is a heterogeneous container of complex and primitive data type entries.">FieldList</a> class reference to contained object </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a3524fb3186b07bae9dcb38d4eda198d1"></a>
+<a class="anchor" id="aadd0c0e60e6b370e5f717d8d7b1517cc"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="a00021.html#a3524fb3186b07bae9dcb38d4eda198d1">thomsonreuters::ema::access::FilterList::reset</a> </td>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00021.html#aadd0c0e60e6b370e5f717d8d7b1517cc">thomsonreuters::ema::access::FilterEntry::getFilterActionAsString</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -533,52 +371,413 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
       </table>
 </div>
 <div class="memdoc">
-<p>Resets iteration to start of container. </p>
+<p>Returns the FilterAction value as a string format. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> containing string representation of FilterAction </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="ac8dee6321082b184b953f6ca6d12ec32"></a>
+<a class="anchor" id="a7b4e9965b750d0faaad20275cc7e521b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00021.html#ac8dee6321082b184b953f6ca6d12ec32">thomsonreuters::ema::access::FilterList::toString</a> </td>
+          <td class="memname">UInt8 <a class="el" href="a00021.html#a7b4e9965b750d0faaad20275cc7e521b">thomsonreuters::ema::access::FilterEntry::getFilterId</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const<code> [virtual]</code></td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns FilterId. </p>
+<dl class="section return"><dt>Returns:</dt><dd>filter id </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa58796b720ee28bae7910b6110f7e38c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00022.html">FilterList</a>&amp; <a class="el" href="a00021.html#aa58796b720ee28bae7910b6110f7e38c">thomsonreuters::ema::access::FilterEntry::getFilterList</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00022.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00022.html" title="FilterList is a heterogeneous container of complex data type entries.">FilterList</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a21389e1b387dcb9220cba8bf264f4be6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00024.html">GenericMsg</a>&amp; <a class="el" href="a00021.html#a21389e1b387dcb9220cba8bf264f4be6">thomsonreuters::ema::access::FilterEntry::getGenericMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00024.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00024.html" title="GenericMsg allows applications to bidirectionally send messages without any implied message semantics...">GenericMsg</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab38f3b3b790950f56787b4960ba950d8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00011.html">Data</a>&amp; <a class="el" href="a00021.html#ab38f3b3b790950f56787b4960ba950d8">thomsonreuters::ema::access::FilterEntry::getLoad</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the contained <a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a> based on the <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a>. </p>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5bfc1dfc8a5b69e37736c23492581d86"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> <a class="el" href="a00021.html#a5bfc1dfc8a5b69e37736c23492581d86">thomsonreuters::ema::access::FilterEntry::getLoadType</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the <a class="el" href="a00012.html" title="DataType class provides enumeration representing Omm data types.">DataType</a> of the entry's load. </p>
+<dl class="section remark"><dt>Remarks:</dt><dd>return of <a class="el" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0ae1fc1137764a910645a904928e322107">DataType::NoDataEnum</a> signifies no data present in load </dd>
+<dd>
+return of DataType::OmmErrorEnum signifies error while extracting content of load </dd></dl>
+<dl class="section return"><dt>Returns:</dt><dd>data type of the contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aabb5e4fc1580a3e11c5332a19c6b40c2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00026.html">Map</a>&amp; <a class="el" href="a00021.html#aabb5e4fc1580a3e11c5332a19c6b40c2">thomsonreuters::ema::access::FilterEntry::getMap</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00026.html" title="Map is a homogeneous container of complex data type entries.">Map</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00026.html" title="Map is a homogeneous container of complex data type entries.">Map</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7c9ba98994f361ee4e3d8d8432b5216e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00054.html">OmmOpaque</a>&amp; <a class="el" href="a00021.html#a7c9ba98994f361ee4e3d8d8432b5216e">thomsonreuters::ema::access::FilterEntry::getOpaque</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00054.html" title="OmmOpaque represents Opaque data format in Omm.">OmmOpaque</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00054.html" title="OmmOpaque represents Opaque data format in Omm.">OmmOpaque</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a093e7a0fe72206992d20fd11a83383f3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00015.html">EmaBuffer</a>&amp; <a class="el" href="a00021.html#a093e7a0fe72206992d20fd11a83383f3">thomsonreuters::ema::access::FilterEntry::getPermissionData</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns PermissionData. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if <a class="el" href="a00021.html#a20503bed6a189aac43363ce07c2cd897">hasPermissionData()</a> returns false </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a> containing permission information </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a243315dbf3ee3619626549b00984720f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00072.html">PostMsg</a>&amp; <a class="el" href="a00021.html#a243315dbf3ee3619626549b00984720f">thomsonreuters::ema::access::FilterEntry::getPostMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00072.html" title="PostMsg allows consumer applications to contribute content.">PostMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00072.html" title="PostMsg allows consumer applications to contribute content.">PostMsg</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a97b382896ee0d4dbb599be05de8bb6fb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00074.html">RefreshMsg</a>&amp; <a class="el" href="a00021.html#a97b382896ee0d4dbb599be05de8bb6fb">thomsonreuters::ema::access::FilterEntry::getRefreshMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00074.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00074.html" title="RefreshMsg conveys item image, state, permission and group information.">RefreshMsg</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0e57c4a207535f62610a6905e5e14815"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00075.html">ReqMsg</a>&amp; <a class="el" href="a00021.html#a0e57c4a207535f62610a6905e5e14815">thomsonreuters::ema::access::FilterEntry::getReqMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00075.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00075.html" title="ReqMsg allows consumer application to express its interest in an item.">ReqMsg</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a16a86464dd19d860a65b8bdc79a7df26"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00077.html">Series</a>&amp; <a class="el" href="a00021.html#a16a86464dd19d860a65b8bdc79a7df26">thomsonreuters::ema::access::FilterEntry::getSeries</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00077.html" title="Series is a homogeneous container of complex data type entries.">Series</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00077.html" title="Series is a homogeneous container of complex data type entries.">Series</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a09fd43f13d31a4744322e181f0f7df20"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00079.html">StatusMsg</a>&amp; <a class="el" href="a00021.html#a09fd43f13d31a4744322e181f0f7df20">thomsonreuters::ema::access::FilterEntry::getStatusMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00079.html" title="StatusMsg conveys item state information.">StatusMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00079.html" title="StatusMsg conveys item state information.">StatusMsg</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a17ab989de7a6fc25658cf822f176efb5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00082.html">UpdateMsg</a>&amp; <a class="el" href="a00021.html#a17ab989de7a6fc25658cf822f176efb5">thomsonreuters::ema::access::FilterEntry::getUpdateMsg</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00082.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00082.html" title="UpdateMsg conveys changes to item data.">UpdateMsg</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af9bc978c67eb1c286299753b068cc25f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00083.html">Vector</a>&amp; <a class="el" href="a00021.html#af9bc978c67eb1c286299753b068cc25f">thomsonreuters::ema::access::FilterEntry::getVector</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00083.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00083.html" title="Vector is a homogeneous container of complex data type entries.">Vector</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af7e87c1c6dfec2d3466f723b0cafc746"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00070.html">OmmXml</a>&amp; <a class="el" href="a00021.html#af7e87c1c6dfec2d3466f723b0cafc746">thomsonreuters::ema::access::FilterEntry::getXml</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Returns the current OMM data represented as a specific complex type. </p>
+<dl class="exception"><dt><b>Exceptions:</b></dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a></td><td>if contained object is not <a class="el" href="a00070.html" title="OmmXml represents XML data format in Omm.">OmmXml</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd><a class="el" href="a00070.html" title="OmmXml represents XML data format in Omm.">OmmXml</a> class reference to contained object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a20503bed6a189aac43363ce07c2cd897"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00021.html#a20503bed6a189aac43363ce07c2cd897">thomsonreuters::ema::access::FilterEntry::hasPermissionData</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indicates presence of PermissionData. </p>
+<dl class="section return"><dt>Returns:</dt><dd>true if permission data is set; false otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a606ec91bace278f55331c81fed6317ca"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="a00017.html">EmaString</a>&amp; <a class="el" href="a00021.html#a606ec91bace278f55331c81fed6317ca">thomsonreuters::ema::access::FilterEntry::toString</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 <p>Returns a string representation of the class instance. </p>
 <dl class="section return"><dt>Returns:</dt><dd>string representation of the class instance </dd></dl>
-
-<p>Implements <a class="el" href="a00011.html#a971a83a435b8d8f34978b72821a661a3">thomsonreuters::ema::access::Data</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a819b73b3c45cb49c8e592026aab69cd9"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="a00021.html">FilterList</a>&amp; <a class="el" href="a00021.html#a819b73b3c45cb49c8e592026aab69cd9">thomsonreuters::ema::access::FilterList::totalCountHint</a> </td>
-          <td>(</td>
-          <td class="paramtype">UInt32&#160;</td>
-          <td class="paramname"><em>totalCountHint</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Specifies TotalCountHint. </p>
-<dl class="params"><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">totalCountHint</td><td>specifies estimated total number of entries </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns:</dt><dd>reference to this object </dd></dl>
 
 </div>
 </div>
@@ -599,7 +798,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Dec 9 2016</td>
+			<td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         </td>

@@ -56,37 +56,37 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1219583">rsslReactorDispatch Function</a></div>
-      <div class="Blank_Line"><a name="1232767">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1528728">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1232787">Applications should not call </a><span class="CodeOrCommand">rsslDestroyReactor</span> or <span class="CodeOrCommand">rsslReactorDispatch</span> from within a callback function. All other RsslReactor functionality is safe to use from within a callback. </div>
+              <span class="Bold">Note: </span><a name="1528724">Applications should not call </a><span class="CodeOrCommand">rsslDestroyReactor</span> or <span class="CodeOrCommand">rsslReactorDispatch</span> from within a callback function. All other <span class="CodeOrCommand">RsslReactor</span> functionality is safe to use from within a callback. </div>
           </td>
         </tr>
       </table>
-      <div class="Body"><a name="1232768">Events received in callback functions should be assumed to be invalid once the callback function returns. For callbacks that provide </a><span class="CodeOrCommand">RsslMsg</span> or <span class="CodeOrCommand">RsslRDMMsg</span> structures, a deep copy of the object should be made if the application wishes to preserve it. To copy an <span class="CodeOrCommand">RsslMsg</span>, see the <span class="CodeOrCommand">rsslCopyMsg</span> function in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>; for copying an <span class="CodeOrCommand">RsslRDMMsg</span>, see the copy utility function for the appropriate <span class="CodeOrCommand">RsslRDMMsg</span> structure.</div>
-      <div class="Blank_Line"><a name="1232244">&nbsp;</a></div>
+      <div class="Body"><a name="1528735">Events received in callback functions should be assumed to be invalid when the callback function returns. For callbacks that provide </a><span class="CodeOrCommand">RsslMsg</span> or<span class="CodeOrCommand"> RsslRDMMsg</span> structures, a deep copy of the object should be made if the application wishes to preserve it. To copy an <span class="CodeOrCommand">RsslMsg</span>, refer to the <span class="CodeOrCommand">rsslCopyMsg</span> function in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>; for copying an <span class="CodeOrCommand">RsslRDMMsg</span>, refer to the copy utility function for the appropriate <span class="CodeOrCommand">RsslRDMMsg</span> structure.</div>
+      <div class="Blank_Line"><a name="1528849">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 30: <span class="LucidaConsole"><a name="1232241">rsslReactorDispatch</a></span> Function &nbsp;</div>
+          <div class="TableTitle">Table 30: <span class="LucidaConsole"><a name="1528846">rsslReactorDispatch</a></span> Function &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1232233">FUNCTION NAME</a></div>
+            <div class="CellHeading"><a name="1528760">Function NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1232235">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1528762">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1232237">rsslReactorDispatch</a></div>
+            <div class="CellBody"><a name="1528767">rsslReactorDispatch</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1232703">This function process events and messages across the provided </a><span class="CodeOrCommand">RsslReactor</span> and all of its associated <span class="CodeOrCommand">RsslReactorChannel</span>. When channel information or data is available for an <span class="CodeOrCommand">RsslReactorChannel</span>, the channels user-defined callback function will be invoked.</div>
-            <div class="CellBody"><a name="1232704">The application can dispatch on a specified channel or over all channels associated with the </a><span class="CodeOrCommand">RsslReactor</span>. The application can also control the maximum number of messages dispatched with a single call to <span class="CodeOrCommand">rsslReactorDispatch</span>. This can be controlled through the passed in <span class="CodeOrCommand">RsslReactorDispatchOptions</span>, as described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.047.html', '');" title="6.5.1.1 Reactor Dispatch Options">Section 6.5.1.1</a>.</div>
+            <div class="CellBody"><a name="1528775">This function processes events and messages across the provided </a><span class="CodeOrCommand">RsslReactor</span> and all of its associated <span class="CodeOrCommand">RsslReactorChannel</span>s. When channel information or data is available for an <span class="CodeOrCommand">RsslReactorChannel</span>, the channel’s user-defined callback function is invoked.</div>
+            <div class="CellBody"><a name="1528785">The application can dispatch on a specified channel or over all channels associated with the </a><span class="CodeOrCommand">RsslReactor</span>. The application can also control the maximum number of messages dispatched with a single call to <span class="CodeOrCommand">rsslReactorDispatch</span>. This can be controlled through passed-in <span class="CodeOrCommand">RsslReactorDispatchOptions</span>, as described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.047.html', '');" title="6.5.1.1 Reactor Dispatch Options">Section 6.5.1.1</a>.</div>
           </td>
         </tr>
       </table>

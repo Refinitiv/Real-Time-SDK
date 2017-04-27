@@ -59,7 +59,7 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><span class="Parameter"><a name="1062831">Host</a></span> and <span class="Parameter">Port</span> parameters both have global default values. Thus, if either an <span class="CodeOrCommand">OmmConsumerConfig</span> or <span class="CodeOrCommand">OmmNiProviderConfig</span> object exists, its <span class="Parameter">Host</span> and <span class="Parameter">Port</span> will always have values (either the default value or some other value as specified in <span class="FileOrDirectory">EmaConfig.xml</span>).</div>
+      <div class="Body"><span class="Parameter"><a name="1064160">Host</a></span> and <span class="Parameter">Port</span> parameters both have global default values. Thus, if either an <span class="CodeOrCommand">OmmConsumerConfig</span> or <span class="CodeOrCommand">OmmNiProviderConfig</span> object exists, its <span class="Parameter">Host</span> and <span class="Parameter">Port</span> will always have values (either the default value or some other value as specified in <span class="FileOrDirectory">EmaConfig.xml</span>).</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -69,7 +69,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1062832">The default </a><span class="VariableValue" style="font-weight: bold">Host</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">Port</span> value for <span class="CodeOrCommand">OmmConsumerConfig</span> is <span class="Parameter">localhost:14002</span>.</div>
+              <div class="bullet_ind_inner"><a name="1064161">The default </a><span class="VariableValue" style="font-weight: bold">Host</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">Port</span> value for <span class="CodeOrCommand">OmmConsumerConfig</span> is <span class="Parameter">localhost:14002</span>.</div>
             </td>
           </tr>
         </table>
@@ -83,23 +83,23 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1062833">The default </a><span class="VariableValue" style="font-weight: bold">Host</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">Port</span> value for <span class="CodeOrCommand">OmmNiProviderConfig</span> is <span class="Parameter">localhost:14003</span>.</div>
+              <div class="bullet_ind_inner"><a name="1064162">The default </a><span class="VariableValue" style="font-weight: bold">Host</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">Port</span> value for <span class="CodeOrCommand">OmmNiProviderConfig</span> is <span class="Parameter">localhost:14003</span>.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1062837">If needed, you can have the application reset both host and port values by calling the </a><span class="CodeOrCommand">host( </span><span class="CodeOrCommand">const </span><span class="CodeOrCommand">EmaString</span><span class="CodeOrCommand">&amp;</span><span class="CodeOrCommand"> )</span> method on the object using the syntax: <span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
-      <div class="Blank_Line"><a name="1062847">&nbsp;</a></div>
+      <div class="Body"><a name="1064166">If needed, you can have the application reset both host and port values by calling the </a><span class="CodeOrCommand">host( </span><span class="CodeOrCommand">const </span><span class="CodeOrCommand">EmaString</span><span class="CodeOrCommand">&amp;</span><span class="CodeOrCommand"> )</span> method on the object using the syntax: <span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
+      <div class="Blank_Line"><a name="1064176">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1062846">Calling the </a><span class="CodeOrCommand" style="font-size: 9.0pt">host()</span> function results in the <span class="Parameter">channelType</span> (refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.13.html', '');" title="3.3.2 Universal Channel Entry Parameters">Section 3.3.2</a>) being set to <span class="Parameter">RSSL_SOCKET</span>, regardless of any previous setting for that configuration element.</div>
+              <span class="Bold">Note: </span><a name="1064175">Calling the </a><span class="CodeOrCommand" style="font-size: 9.0pt">host()</span> function results in the <span class="Parameter">channelType</span> (refer to <a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.13.html', '');" title="3.3.2 Universal Channel Entry Parameters">Section 3.3.2</a>) being set to <span class="Parameter">RSSL_SOCKET</span>, regardless of any previous setting for that configuration element.</div>
           </td>
         </tr>
       </table>
-      <div class="Body"><span class="Parameter"><a name="1062851">Host</a></span> and <span class="Parameter">Port</span> values observe the following rules when updating due to the <span class="CodeOrCommand">host( </span><span class="CodeOrCommand">const </span><span class="CodeOrCommand">EmaString</span><span class="CodeOrCommand">&amp;</span><span class="CodeOrCommand"> )</span> method:</div>
+      <div class="Body"><span class="Parameter"><a name="1064180">Host</a></span> and <span class="Parameter">Port</span> values observe the following rules when updating due to the <span class="CodeOrCommand">host( </span><span class="CodeOrCommand">const </span><span class="CodeOrCommand">EmaString</span><span class="CodeOrCommand">&amp;</span><span class="CodeOrCommand"> )</span> method:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -109,7 +109,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1062852">If the host parameter is missing or empty, then host and port reset to their global default values.</a></div>
+              <div class="bullet_ind_inner"><a name="1064181">If the host parameter is missing or empty, then host and port reset to their global default values.</a></div>
             </td>
           </tr>
         </table>
@@ -123,7 +123,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1062853">If the host parameter is set to the string </a><span class="Parameter">“:”</span>, then host and port reset to their global default values.</div>
+              <div class="bullet_ind_inner"><a name="1064182">If the host parameter is set to the string </a><span class="Parameter">“:”</span>, then host and port reset to their global default values.</div>
             </td>
           </tr>
         </table>
@@ -137,7 +137,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1062854">If the host parameter is a string (not containing a </a><span class="Parameter">:</span>), then host is set to that string and port resets to its default value.</div>
+              <div class="bullet_ind_inner"><a name="1064183">If the host parameter is a string (not containing a </a><span class="Parameter">:</span>), then host is set to that string and port resets to its default value.</div>
             </td>
           </tr>
         </table>
@@ -151,7 +151,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1062855">If the parameter begins with a </a><span class="Parameter">:</span> and is followed by some text, then host is set to its global default value and port is set to that text.</div>
+              <div class="bullet_ind_inner"><a name="1064184">If the parameter begins with a </a><span class="Parameter">:</span> and is followed by some text, then host is set to its global default value and port is set to that text.</div>
             </td>
           </tr>
         </table>
@@ -165,7 +165,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1062856">If the parameter is </a><span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>, where both <span class="VariableValue" style="font-weight: bold">HostValue</span> and <span class="VariableValue" style="font-weight: bold">PortValue</span> have values, then host is set to <span class="VariableValue" style="font-weight: bold">HostValue</span> and port is set to <span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
+              <div class="bullet_ind_inner"><a name="1064185">If the parameter is </a><span class="VariableValue" style="font-weight: bold">HostValue</span><span class="Parameter" style="font-style: normal">:</span><span class="VariableValue" style="font-weight: bold">PortValue</span>, where both <span class="VariableValue" style="font-weight: bold">HostValue</span> and <span class="VariableValue" style="font-weight: bold">PortValue</span> have values, then host is set to <span class="VariableValue" style="font-weight: bold">HostValue</span> and port is set to <span class="VariableValue" style="font-weight: bold">PortValue</span>.</div>
             </td>
           </tr>
         </table>

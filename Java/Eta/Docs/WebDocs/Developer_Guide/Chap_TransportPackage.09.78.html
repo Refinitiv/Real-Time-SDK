@@ -57,41 +57,41 @@
     <blockquote>
       <div class="H2"><a name="1019808">Closing Connections</a></div>
       <div class="H3"><a name="1037673">Functions for Closing Connections</a></div>
-      <div class="Body"><a name="1474982">When an error occurs on a connection or a </a><span class="CodeOrCommand">Channel</span> is being disconnected, the <span class="CodeOrCommand">Channel.close</span> method should be called to perform any necessary cleanup and to shutdown the underlying socket. This will release any pool-based resources back to their respective pools. If the application is holding any buffers obtained from <span class="CodeOrCommand">Channel.getBuffer</span>, they should be released using <span class="CodeOrCommand">Channel.releaseBuffer</span> prior to closing the channel.</div>
-      <div class="Body"><a name="1474995">If a server is being shut down, use the </a><span class="CodeOrCommand">Server.close</span> method to close the listening socket and perform any necessary cleanup. All currently connected <span class="CodeOrCommand">Channel</span>s will remain open. This allows applications to continue sending and receiving data, while preventing new applications from connecting. The server has the option of calling <span class="CodeOrCommand">Channel.close</span> to shut down any currently connected applications.</div>
-      <div class="Blank_Line"><a name="1475050">&nbsp;</a></div>
+      <div class="Body"><a name="1528723">When an error occurs on a connection or a </a><span class="CodeOrCommand">Channel</span> is being disconnected, the <span class="CodeOrCommand">Channel.close</span> method should be called to perform any necessary cleanup and to shutdown the underlying socket. This will release any pool-based resources back to their respective pools. If the application is holding any buffers obtained from <span class="CodeOrCommand">Channel.getBuffer</span>, they should be released using <span class="CodeOrCommand">Channel.releaseBuffer</span> prior to closing the channel.</div>
+      <div class="Body"><a name="1528736">If a server is being shut down, use the </a><span class="CodeOrCommand">Server.close</span> method to close the listening socket and perform any necessary cleanup. All currently connected <span class="CodeOrCommand">Channel</span>s will remain open. This allows applications to continue sending and receiving data, while preventing new applications from connecting. The server has the option of calling <span class="CodeOrCommand">Channel.close</span> to shut down any currently connected applications.</div>
+      <div class="Blank_Line"><a name="1528791">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 44: <a name="1475047">Connection Closing Functionality &nbsp;</a></div>
+          <div class="TableTitle">Table 44: <a name="1528788">Connection Closing Functionality &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1475007">method</a></div>
+            <div class="CellHeading"><a name="1528748">method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1475009">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1528750">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1475014">Channel.close</a></div>
+            <div class="CellBody"><a name="1528755">Channel.close</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475019">Closes a client- or server-based </a><span class="CodeOrCommand">Channel</span>. This releases any pool-based resources back to their respective pools, closes the connection, and performs any additional necessary cleanup.</div>
+            <div class="CellBody"><a name="1528760">Closes a client- or server-based </a><span class="CodeOrCommand">Channel</span>. This releases any pool-based resources back to their respective pools, closes the connection, and performs any additional necessary cleanup.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1475023">If an application is multi-threaded, all other threads that depend on the closed channel should complete their use prior to calling </a><span class="CodeOrCommand">Channel.close</span>.</div>
+              <span class="Bold">Note: </span><a name="1528764">If an application is multi-threaded, all other threads that depend on the closed channel should complete their use prior to calling </a><span class="CodeOrCommand">Channel.close</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475031">Server.close</a></div>
+            <div class="CellBody"><a name="1528772">Server.close</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475039">Closes a listening socket associated with a </a><span class="CodeOrCommand">Server</span>. <span class="CodeOrCommand">Server.close</span> releases any pool-based resources back to their respective pools, closes the listening socket, and performs any additional necessary cleanup. Established connections remain open, allowing for continued exchange of data. If needed, the server can use <span class="CodeOrCommand">Channel.close</span> to shutdown any remaining connections.</div>
+            <div class="CellBody"><a name="1528780">Closes a listening socket associated with a </a><span class="CodeOrCommand">Server</span>. <span class="CodeOrCommand">Server.close</span> releases any pool-based resources back to their respective pools, closes the listening socket, and performs any additional necessary cleanup. Established connections remain open, allowing for continued exchange of data. If needed, the server can use <span class="CodeOrCommand">Channel.close</span> to shutdown any remaining connections.</div>
           </td>
         </tr>
       </table>

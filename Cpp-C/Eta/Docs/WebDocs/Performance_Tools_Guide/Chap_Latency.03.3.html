@@ -56,18 +56,18 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1222964">Latency</a></div>
-      <div class="Body"><a name="1223977">Latency is measured using timestamps embedded in the messages sent by each application. The receiving application compares this timestamp against the current time to determine the latency.</a></div>
-      <div class="Body"><a name="1223978">Each tool sends messages in bursts. To send timestamps, a message is randomly chosen from the message burst and the timestamp is embedded. When this message is received, the receiving application compares it to the current time to determine the latency.</a></div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1223982"><img class="Default" src="images/Chap_Latency.03.3.1.jpg" width="649" height="100" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 8.  <a name="1223983">Latency RICs within a Tick</a></div>
-      <div class="Body"><a name="1223984">Timestamps are high-resolution and non-decreasing. Because the source of this time varies across platforms and might not be synchronized between multiple machines, update and generic message latency measurements require that the provider and consumer run on the same machine. Posting latency measurements do not require this, as </a><span class="ToolOrUtility_Name">upacConsPerf</span> generates both sending and receiving timestamps.</div>
-      <div class="Blank_Line"><a name="1223997">&nbsp;</a></div>
+      <div class="Body"><a name="1224121">Latency is measured using timestamps embedded in the messages sent by each application. The receiving application compares this timestamp against the current time to determine the latency.</a></div>
+      <div class="Body"><a name="1224122">Each tool sends messages in bursts. To send timestamps, a message is randomly chosen from the message burst and the timestamp is embedded. When this message is received, the receiving application compares it to the current time to determine the latency.</a></div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1224126"><img class="Default" src="images/Chap_Latency.03.3.1.jpg" width="649" height="100" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 8.  <a name="1224127">Latency RICs within a Tick</a></div>
+      <div class="Body"><a name="1224128">Timestamps are high-resolution and non-decreasing. Because the source of this time varies across platforms and might not be synchronized between multiple machines, update and generic message latency measurements require that the provider and consumer run on the same machine. Posting latency measurements do not require this, as </a><span class="ToolOrUtility_Name">upacConsPerf</span> generates both sending and receiving timestamps.</div>
+      <div class="Blank_Line"><a name="1224141">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1223993"><!--o--></a>OMM performance tool timestamp information contains the number of microseconds since an epoch.<sup><a name="wwfootnote_inline_14" href="#14">1</a></sup> <span class="ToolOrUtility_Name">upacTransportPerf</span> timestamps are provided with nanosecond granularity.</div>
+              <span class="Bold">Note: </span><a name="1224137"><!--o--></a>OMM performance tool timestamp information contains the number of microseconds since an epoch.<sup><a name="wwfootnote_inline_14" href="#14">1</a></sup> <span class="ToolOrUtility_Name">upacTransportPerf</span> timestamps are provided with nanosecond granularity.</div>
           </td>
         </tr>
       </table>
@@ -75,12 +75,11 @@
       <div style="font-size: smaller; float: left; padding-right: 10px;">
         <a name="14" href="#wwfootnote_inline_14">1</a>
       </div>
-      <div class="TableFootnote"><a name="1223992">Windows uses </a><span class="CodeOrCommand">QueryPerformanceCounter()</span>, Solaris uses <span class="CodeOrCommand">gethrtime()</span>, Linux uses <span class="CodeOrCommand">clock_gettime()</span> with the monotonic clock. </div>
+      <div class="TableFootnote"><a name="1224136">Windows uses </a><span class="CodeOrCommand">QueryPerformanceCounter()</span>, Solaris uses <span class="CodeOrCommand">gethrtime()</span>, Linux uses <span class="CodeOrCommand">clock_gettime()</span> with the monotonic clock. </div>
       <br style="clear: both;" />
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><a name="1224004"><img class="Default" src="images/Chap_Latency.03.3.2.jpg" width="171" height="246" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
-      <div class="FigTitle">Figure 9.  <a name="1224005">Timing Diagram for Latency Measurements</a></div>
-      <div class="Body"><a name="1224006">The standard latency measurement is initiated by the provider, which encodes a starting time into an update. This timestamp is included as a piece of data in the payload using a pre-determined latency FID. On the consumer side, the application processes incoming updates and generic messages, decodes the payload, and looks for updates or generic messages which include the latency FID (known as latency updates). After decoding a latency update or generic message, the consumer takes a second timestamp and compares the two, outputting the difference as the measured latency for that particular update or generic message.</a></div>
-      <div class="Blank_Line"><a name="1223693">&nbsp;</a></div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><a name="1224148"><img class="Default" src="images/Chap_Latency.03.3.2.jpg" width="171" height="246" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 9.  <a name="1224149">Timing Diagram for Latency Measurements</a></div>
+      <div class="Body"><a name="1224150">The standard latency measurement is initiated by the provider, which encodes a starting time into an update. This timestamp is included as a piece of data in the payload using a pre-determined latency FID. On the consumer side, the application processes incoming updates and generic messages, decodes the payload, and looks for updates or generic messages which include the latency FID (known as latency updates). After decoding a latency update or generic message, the consumer takes a second timestamp and compares the two, outputting the difference as the measured latency for that particular update or generic message.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

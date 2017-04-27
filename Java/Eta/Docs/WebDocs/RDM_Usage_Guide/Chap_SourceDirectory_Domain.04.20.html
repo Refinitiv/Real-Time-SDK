@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>4.5 Source Directory Sample XML</title>
+    <title>4.4.3.1 Service Status</title>
     <link rel="StyleSheet" href="css/Chap_SourceDirectory_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,53 +55,8 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2"><a name="999040">Source Directory Sample XML</a></div>
-      <div class="H3"><a name="999487">Source Directory Request Message Sample XML</a></div>
-      <div class="Blank_Line"><a name="1020703">&nbsp;</a></div>
-      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
-        <caption></caption>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1020688">&nbsp;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020690">&lt;REQUEST domainType="SOURCE" streamId="2" containerType="NO_DATA" flags="0x04 (STREAMING)" </a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020692">		dataSize="0"&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020694">	&lt;key flags="0x08 (HAS_FILTER)" filter="63"/&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020696">	&lt;dataBody&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020698">	&lt;/dataBody&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020700">&lt;/REQUEST&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020702">&nbsp;</a></div>
-          </td>
-        </tr>
-      </table>
-      <div class="CodeTitle">Code Example 3: <a name="999332">Source Directory Request Message Sample XML Message Layout</a></div>
+      <div class="H4"><a name="1022700">Service Status</a></div>
+      <div class="Body"><a name="1022702">Providers can use a directory’s </a><span class="Parameter">ServiceState.Status</span> element to efficiently change the state of all of a service’s existing streams with a single message. The <span class="Parameter">ServiceState.Status</span> does not apply to requests that are currently pending a first refresh or status response message. EMA consumer implementation normally fans out state from the Status Element to all items associated with the service. When EMA does this, it will not forward this Element to the application. Instead, the application receives a <span class="CodeOrCommand">StatusMsg</span> for each item from the service. The other elements from the ServiceState FilterEntry will still be sent to the application.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -114,7 +69,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_SourceDirectory_Domain.04.01.html">Chapter 4	Source Directory Domain</a> : 4.5	Source Directory Sample XML</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_SourceDirectory_Domain.04.01.html">Chapter 4	Source Directory Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_SourceDirectory_Domain.04.17.html">4.4	Special Semantics</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_SourceDirectory_Domain.04.19.html">4.4.3	Service and Group Status Values</a> : 4.4.3.1	Service Status</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

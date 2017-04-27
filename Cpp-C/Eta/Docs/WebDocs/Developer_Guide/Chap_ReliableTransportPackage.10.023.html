@@ -56,28 +56,28 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1006325">Creating the Outbound Connection: rsslConnect</a></div>
-      <div class="Body"><a name="1220815">An application can create an outbound connection by using the </a><span class="CodeOrCommand">rsslConnect</span> function.</div>
-      <div class="Blank_Line"><a name="1220867">&nbsp;</a></div>
+      <div class="Body"><a name="1245546">An application can create an outbound connection by using the </a><span class="CodeOrCommand">rsslConnect</span> function.</div>
+      <div class="Blank_Line"><a name="1245598">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 20: <span class="LucidaConsole"><a name="1220864">rsslConnect</a></span> Function &nbsp;</div>
+          <div class="TableTitle">Table 20: <span class="LucidaConsole"><a name="1245595">rsslConnect</a></span> Function &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1220821">function</a> NAME</div>
+            <div class="CellHeading"><a name="1245552">function</a> NAME</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1220823">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1245554">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220828">rsslConnect</a></div>
+            <div class="CellBody"><a name="1245559">rsslConnect</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220830">Establishes an outbound connection, which can leverage standard sockets, HTTP, or HTTPS. Returns an </a><span class="CodeOrCommand">RsslChannel</span> that represents the connection to the user. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">RsslError</span> structure.</div>
-            <div class="CellBody"><a name="1220840">Connection options are passed in via an </a><span class="CodeOrCommand">RsslConnectOptions</span> structure described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.024.html#1003091', '');" title="10.3.2.1 RsslConnectOptions Structure Members">Table 21</a>.</div>
-            <div class="CellBody"><a name="1220847">Once a connection is established and transitions to the </a><span class="Parameter">RSSL_CH_STATE_ACTIVE</span> state, this <span class="CodeOrCommand">RsslChannel</span> can be used for other transport operations. For more information about channel initialization, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.046.html', '');" title="10.5 Channel Initialization">Section 10.5</a>.</div>
+            <div class="CellBody"><a name="1245561">Establishes an outbound connection, which can leverage standard sockets, HTTP, or HTTPS. Returns an </a><span class="CodeOrCommand">RsslChannel</span> that represents the connection to the user. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">RsslError</span> structure.</div>
+            <div class="CellBody"><a name="1245571">Connection options are passed in via an </a><span class="CodeOrCommand">RsslConnectOptions</span> structure described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.024.html#1003091', '');" title="10.3.2.1 RsslConnectOptions Structure Members">Table 21</a>.</div>
+            <div class="CellBody"><a name="1245578">Once a connection is established and transitions to the </a><span class="Parameter">RSSL_CH_STATE_ACTIVE</span> state, this <span class="CodeOrCommand">RsslChannel</span> can be used for other transport operations. For more information about channel initialization, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.046.html', '');" title="10.5 Channel Initialization">Section 10.5</a>.</div>
           </td>
         </tr>
       </table>

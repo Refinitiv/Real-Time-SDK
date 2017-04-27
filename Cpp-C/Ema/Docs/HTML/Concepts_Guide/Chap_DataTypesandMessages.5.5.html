@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.5 Summary Data</title>
+    <title>5.5 Messaging Concepts</title>
     <link rel="StyleSheet" href="css/Chap_DataTypesandMessages.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -54,13 +54,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="999169">Summary Data</a></div>
+              <div class="H2_inner"><a name="1000970">Messaging Concepts</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1177874">Some container types allow summary data. </a><span class="Concept">Summary data</span> conveys information that applies to every entry housed in the container. Using summary data ensures data is sent only once, instead of repetitively including data in each entry. An example of summary data is the currency type because it is likely that all entries in the container share the same currency. Summary data is optional and applications can determine when to employ it.</div>
-      <div class="Body"><a name="1177875">Specific domain model definitions typically indicate whether summary data should be present, along with information on its content. When included, the </a><span class="CodeOrCommand">containerType</span> of the summary data is expected to match the <span class="CodeOrCommand">containerType</span> of the payload information (e.g., if summary data is present on a <span class="CodeOrCommand">Vector</span>, the <span class="CodeOrCommand">Vector.containerType</span> defines the type of summary data and <span class="CodeOrCommand">VectorEntry</span> payload).</div>
+      <div class="Body"><a name="1214584">Messages communicate data between system components: to exchange information, indicate status, permission users and access, and for a variety of other purposes. Many messages have associated semantics for efficient use in market data systems to request information, respond to information, or provide updated information. Other messages have relatively loose semantics, allowing for a more dynamic use either inside or outside market data systems.</a></div>
+      <div class="Body"><a name="1214595">An individual flow of related messages within a connection is typically referred to as a </a><span class="Concept">stream</span>, and the message package allows multiple simultaneous streams to coexist in a connection. An information stream is instantiated between a consuming application and a providing application when the consumer issues an <span class="CodeOrCommand">RequestMsg</span> followed by the provider responding with an <span class="CodeOrCommand">RefreshMsg</span> or <span class="CodeOrCommand">StatusMsg</span>. At this point the stream is established and allows other messages to flow within the stream. The remainder of this chapter discusses streams, stream identification, and stream uniqueness..</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -72,7 +72,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 5	Data Types and Messaging Concepts : 5.5	Summary Data</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 5	Data Types and Messaging Concepts : 5.5	Messaging Concepts</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

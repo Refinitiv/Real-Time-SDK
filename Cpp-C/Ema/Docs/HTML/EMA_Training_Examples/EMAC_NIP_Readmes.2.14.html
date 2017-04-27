@@ -46,48 +46,48 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020344">340__Login__Streaming</a></div>
-      <div class="Body"><a name="1031780">Summary</a></div>
-      <div class="Body"><a name="1031781">=======</a></div>
-      <div class="Body"><a name="1031782">&nbsp;</a></div>
-      <div class="Body"><a name="1031783">340__Login__Streaming is an example of an OMM NiProvider application written</a></div>
-      <div class="Body"><a name="1031784">to the EMA library.</a></div>
-      <div class="Body"><a name="1031785">&nbsp;</a></div>
-      <div class="Body"><a name="1031786">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1031787">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1031788">&nbsp;</a></div>
-      <div class="Body"><a name="1031789">340__Login__Streaming illustrates how to create and publish one OMM streaming item</a></div>
-      <div class="Body"><a name="1031790">and register for and process received login messages. This application uses source</a></div>
-      <div class="Body"><a name="1031791">directory configured in the EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1031792">&nbsp;</a></div>
-      <div class="Body"><a name="1031793">&nbsp;</a></div>
-      <div class="Body"><a name="1031794">Detailed Description</a></div>
-      <div class="Body"><a name="1031795">====================</a></div>
-      <div class="Body"><a name="1031796">&nbsp;</a></div>
-      <div class="Body"><a name="1031797">340__Login__Streaming implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1031798">&nbsp;</a></div>
-      <div class="Body"><a name="1031799">+ Implements OmmProviderClient class in AppClient</a></div>
-      <div class="Body"><a name="1031800">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031801">+ Instantiates AppClient object that receives and processes login messages</a></div>
-      <div class="Body"><a name="1031802">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
-      <div class="Body"><a name="1031803">  - which reads in the EmaConfig.xml file with:</a></div>
-      <div class="Body"><a name="1031804">    - specified SourceDirectory of TEST_NI_PUB</a></div>
-      <div class="Body"><a name="1031805">	- specified Channel’s host and port</a></div>
-      <div class="Body"><a name="1031806">  - Sets the username to “user”</a></div>
-      <div class="Body"><a name="1031807">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1031808">  - initializes the connection and logs into the configured ADH</a></div>
-      <div class="Body"><a name="1031809">  - sends down the source directory refresh message with TEST_NI_PUB service info</a></div>
-      <div class="Body"><a name="1031810">+ Registers for login stream</a></div>
-      <div class="Body"><a name="1031811">+ Creates streaming item (refresh and updates) and publishes it</a></div>
-      <div class="Body"><a name="1031812">  - MarketPrice IBM.N item on the TEST_NI_PUB service</a></div>
-      <div class="Body"><a name="1031813">+ Publishes updates 1 per second</a></div>
-      <div class="Body"><a name="1031814">+ Processes login messages received from the API for 60 seconds</a></div>
-      <div class="Body"><a name="1031815">  - all received messages are processed on the API thread of control</a></div>
-      <div class="Body"><a name="1031816">+ Exits</a></div>
-      <div class="Body"><a name="1031817">&nbsp;</a></div>
-      <div class="Body"><a name="1031818">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1031819">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1031820">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1028704">&nbsp;</a></div>
+      <div class="Body"><a name="1032392">Summary</a></div>
+      <div class="Body"><a name="1032393">=======</a></div>
+      <div class="Body"><a name="1032394">&nbsp;</a></div>
+      <div class="Body"><a name="1032395">340__Login__Streaming is an example of an OMM NiProvider application written</a></div>
+      <div class="Body"><a name="1032396">to the EMA library.</a></div>
+      <div class="Body"><a name="1032397">&nbsp;</a></div>
+      <div class="Body"><a name="1032398">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1032399">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1032400">&nbsp;</a></div>
+      <div class="Body"><a name="1032401">340__Login__Streaming illustrates how to create and publish one OMM streaming item</a></div>
+      <div class="Body"><a name="1032402">and register for and process received login messages. This application uses source</a></div>
+      <div class="Body"><a name="1032403">directory configured in the EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1032404">&nbsp;</a></div>
+      <div class="Body"><a name="1032405">&nbsp;</a></div>
+      <div class="Body"><a name="1032406">Detailed Description</a></div>
+      <div class="Body"><a name="1032407">====================</a></div>
+      <div class="Body"><a name="1032408">&nbsp;</a></div>
+      <div class="Body"><a name="1032409">340__Login__Streaming implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1032410">&nbsp;</a></div>
+      <div class="Body"><a name="1032411">+ Implements OmmProviderClient class in AppClient</a></div>
+      <div class="Body"><a name="1032412">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1032413">+ Instantiates AppClient object that receives and processes login messages</a></div>
+      <div class="Body"><a name="1032414">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
+      <div class="Body"><a name="1032415">  - which reads in the EmaConfig.xml file with:</a></div>
+      <div class="Body"><a name="1032416">    - specified SourceDirectory of TEST_NI_PUB</a></div>
+      <div class="Body"><a name="1032417">	- specified Channel’s host and port</a></div>
+      <div class="Body"><a name="1032418">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1032419">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1032420">  - initializes the connection and logs into the configured ADH</a></div>
+      <div class="Body"><a name="1032421">  - sends down the source directory refresh message with TEST_NI_PUB service info</a></div>
+      <div class="Body"><a name="1032422">+ Registers for login stream</a></div>
+      <div class="Body"><a name="1032423">+ Creates streaming item (refresh and updates) and publishes it</a></div>
+      <div class="Body"><a name="1032424">  - MarketPrice IBM.N item on the TEST_NI_PUB service</a></div>
+      <div class="Body"><a name="1032425">+ Publishes updates 1 per second</a></div>
+      <div class="Body"><a name="1032426">+ Processes login messages received from the API for 60 seconds</a></div>
+      <div class="Body"><a name="1032427">  - all received messages are processed on the API thread of control</a></div>
+      <div class="Body"><a name="1032428">+ Exits</a></div>
+      <div class="Body"><a name="1032429">&nbsp;</a></div>
+      <div class="Body"><a name="1032430">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1032431">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1032432">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1031826">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

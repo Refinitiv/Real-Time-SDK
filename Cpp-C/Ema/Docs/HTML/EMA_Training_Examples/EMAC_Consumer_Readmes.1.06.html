@@ -46,46 +46,46 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1017944">110__MarketPrice__FileConfig</a></div>
-      <div class="Body"><a name="1040254">Summary</a></div>
-      <div class="Body"><a name="1040255">=======</a></div>
-      <div class="Body"><a name="1040256">&nbsp;</a></div>
-      <div class="Body"><a name="1040257">110__MarketPrice__FileConfig is an OMM Consumer application example</a></div>
-      <div class="Body"><a name="1040258">that demonstrates basic usage of the EMA library in accessing</a></div>
-      <div class="Body"><a name="1040259">and parsing OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1040260">directly from an OMM Provider application, or from an Advanced</a></div>
-      <div class="Body"><a name="1040261">Distribution Server.</a></div>
-      <div class="Body"><a name="1040262">&nbsp;</a></div>
-      <div class="Body"><a name="1040263">110__MarketPrice__FileConfig illustrates an implicit dependence of the </a></div>
-      <div class="Body"><a name="1040264">OMM Consumer on the EmaConfig.xml file located in the application’s</a></div>
-      <div class="Body"><a name="1040265">working directory. Unlike other training examples, this application depends </a></div>
-      <div class="Body"><a name="1040266">on EmaConfig.xml to determine its connectivity parameters.</a></div>
-      <div class="Body"><a name="1040267">&nbsp;</a></div>
-      <div class="Body"><a name="1040268">&nbsp;</a></div>
-      <div class="Body"><a name="1040269">Detailed Description</a></div>
-      <div class="Body"><a name="1040270">====================</a></div>
-      <div class="Body"><a name="1040271">&nbsp;</a></div>
-      <div class="Body"><a name="1040272">110__MarketPrice__FileConfig implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1040273">&nbsp;</a></div>
-      <div class="Body"><a name="1040274">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1040275">  - Overrides desired methods</a></div>
-      <div class="Body"><a name="1040276">+ Instantiates an AppClient object to receive and process item messages</a></div>
-      <div class="Body"><a name="1040277">+ Instantiates and modifies an OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1040278">  - Sets the consumer name to “Consumer_2”</a></div>
-      <div class="Body"><a name="1040279">  - Loads configuration information for the specified consumer name</a></div>
-      <div class="Body"><a name="1040280">    from the EmaConfig.xml file in the application’s working folder</a></div>
-      <div class="Body"><a name="1040281">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1040282">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1040283">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1040284">  - MarketPrice IBM.N item from the DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1040285">+ Processes data received from the API for 60 seconds</a></div>
-      <div class="Body"><a name="1040286">  - All received messages are processed on the API’s thread of control</a></div>
-      <div class="Body"><a name="1040287">+ Exits</a></div>
-      <div class="Body"><a name="1040288">&nbsp;</a></div>
-      <div class="Body"><a name="1040289">Note: If needed, you can modify these and other details to fit your local</a></div>
-      <div class="Body"><a name="1040290">      environment using the EmaConfig.xml file. For details on the standard </a></div>
-      <div class="Body"><a name="1040291">      configuration, refer to the EMA library ReadMe.txt file or the EMA </a></div>
-      <div class="Body"><a name="1040292">      Configuration Guide.</a></div>
-      <div class="Body"><a name="1027615">&nbsp;</a></div>
+      <div class="Body"><a name="1042419">Summary</a></div>
+      <div class="Body"><a name="1042420">=======</a></div>
+      <div class="Body"><a name="1042421">&nbsp;</a></div>
+      <div class="Body"><a name="1042422">110__MarketPrice__FileConfig is an OMM Consumer application example</a></div>
+      <div class="Body"><a name="1042423">that demonstrates basic usage of the EMA library in accessing</a></div>
+      <div class="Body"><a name="1042424">and parsing OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1042425">directly from an OMM Provider application, or from an Advanced</a></div>
+      <div class="Body"><a name="1042426">Distribution Server.</a></div>
+      <div class="Body"><a name="1042427">&nbsp;</a></div>
+      <div class="Body"><a name="1042428">110__MarketPrice__FileConfig illustrates an implicit dependence of the </a></div>
+      <div class="Body"><a name="1042429">OMM Consumer on the EmaConfig.xml file located in the application’s</a></div>
+      <div class="Body"><a name="1042430">working directory. Unlike other training examples, this application depends </a></div>
+      <div class="Body"><a name="1042431">on EmaConfig.xml to determine its connectivity parameters.</a></div>
+      <div class="Body"><a name="1042432">&nbsp;</a></div>
+      <div class="Body"><a name="1042433">&nbsp;</a></div>
+      <div class="Body"><a name="1042434">Detailed Description</a></div>
+      <div class="Body"><a name="1042435">====================</a></div>
+      <div class="Body"><a name="1042436">&nbsp;</a></div>
+      <div class="Body"><a name="1042437">110__MarketPrice__FileConfig implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1042438">&nbsp;</a></div>
+      <div class="Body"><a name="1042439">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1042440">  - Overrides desired methods</a></div>
+      <div class="Body"><a name="1042441">+ Instantiates an AppClient object to receive and process item messages</a></div>
+      <div class="Body"><a name="1042442">+ Instantiates and modifies an OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1042443">  - Sets the consumer name to “Consumer_2”</a></div>
+      <div class="Body"><a name="1042444">  - Loads configuration information for the specified consumer name</a></div>
+      <div class="Body"><a name="1042445">    from the EmaConfig.xml file in the application’s working folder</a></div>
+      <div class="Body"><a name="1042446">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1042447">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1042448">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1042449">  - MarketPrice IBM.N item from the DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1042450">+ Processes data received from the API for 60 seconds</a></div>
+      <div class="Body"><a name="1042451">  - All received messages are processed on the API’s thread of control</a></div>
+      <div class="Body"><a name="1042452">+ Exits</a></div>
+      <div class="Body"><a name="1042453">&nbsp;</a></div>
+      <div class="Body"><a name="1042454">Note: If needed, you can modify these and other details to fit your local</a></div>
+      <div class="Body"><a name="1042455">      environment using the EmaConfig.xml file. For details on the standard </a></div>
+      <div class="Body"><a name="1042456">      configuration, refer to the EMA library ReadMe.txt file or the EMA </a></div>
+      <div class="Body"><a name="1042457">      Configuration Guide.</a></div>
+      <div class="Body"><a name="1040643">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>200 Series Examples</title>
+    <title>161__Login__AcceptDeny__DomainRepresentation</title>
     <link rel="StyleSheet" href="css/EMAJ_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,27 +55,42 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2_NoNum"><a name="1031560">200 Series Examples</a></div>
-      <div class="WebWorks_MiniTOC">
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.10.html">200__MarketPrice__Streaming</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.11.html">210__MarketByPrice__Streaming</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.12.html">240__SourceDirectory__Fanout</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.13.html">250__GroupStatus__Fanout</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.14.html">260__Custom__NestedMsg</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.15.html">280__MarketPrice__Performance</a>
-        </div>
-      </div>
+      <div class="H3_NoNum"><a name="1033284">161__Login__AcceptDeny__DomainRepresentation</a></div>
+      <div class="Body"><a name="1034099">Summary</a></div>
+      <div class="Body"><a name="1034100">=======</a></div>
+      <div class="Body"><a name="1034101">&nbsp;</a></div>
+      <div class="Body"><a name="1034102">example161__Login__AcceptDeny__DomainRepresentations is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1034103">written to the EMA library.</a></div>
+      <div class="Body"><a name="1034104">&nbsp;</a></div>
+      <div class="Body"><a name="1034105">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1034106">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1034107">&nbsp;</a></div>
+      <div class="Body"><a name="1034108">example161__Login__AcceptDeny__DomainRepresentations illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1034109">streaming item. This application uses hardcoded source directory configuration.</a></div>
+      <div class="Body"><a name="1034110">&nbsp;</a></div>
+      <div class="Body"><a name="1034111">This application is the Domain Representation version of example160__Login__AcceptDeny. It demonstrates the</a></div>
+      <div class="Body"><a name="1034112">ease-of-use Domain Representation functionality.</a></div>
+      <div class="Body"><a name="1034113">&nbsp;</a></div>
+      <div class="Body"><a name="1034114">&nbsp;</a></div>
+      <div class="Body"><a name="1034115">Detailed Description</a></div>
+      <div class="Body"><a name="1034116">====================</a></div>
+      <div class="Body"><a name="1034117">&nbsp;</a></div>
+      <div class="Body"><a name="1034118">example161__Login__AcceptDeny__DomainRepresentations implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1034119">&nbsp;</a></div>
+      <div class="Body"><a name="1034120">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
+      <div class="Body"><a name="1034121">  - Sets the listening  port to “14002”</a></div>
+      <div class="Body"><a name="1034122">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1034123">  - listens on the above port</a></div>
+      <div class="Body"><a name="1034124">+ Checks if login request nameType is USER_NAME.</a></div>
+      <div class="Body"><a name="1034125">  - If yes, it accepts request using OMM constructs</a></div>
+      <div class="Body"><a name="1034126">  - Otherwise, rejects request</a></div>
+      <div class="Body"><a name="1034127">+ Exits</a></div>
+      <div class="Body"><a name="1034128">&nbsp;</a></div>
+      <div class="Body"><a name="1034129">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1034130">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1034131">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1033343">&nbsp;</a></div>
+      <div class="Body"><a name="1032836">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -88,7 +103,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : 200 Series Examples</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.02.html">100 Series Examples</a> : 161__Login__AcceptDeny__DomainRepresentation</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

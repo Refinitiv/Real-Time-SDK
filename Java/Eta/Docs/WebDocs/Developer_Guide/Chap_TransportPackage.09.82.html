@@ -56,70 +56,70 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1048008">ChannelInfo Methods</a></div>
-      <div class="Body"><a name="1475079">The following table describes the values available to the user through using the </a><span class="CodeOrCommand">Channel.info</span> method. This information is returned as part of the <span class="CodeOrCommand">ChannelInfo</span> object.</div>
-      <div class="Blank_Line"><a name="1475317">&nbsp;</a></div>
+      <div class="Body"><a name="1528820">The following table describes the values available to the user through using the </a><span class="CodeOrCommand">Channel.info</span> method. This information is returned as part of the <span class="CodeOrCommand">ChannelInfo</span> object.</div>
+      <div class="Blank_Line"><a name="1529058">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 46: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1475314">ChannelInfo</a></span> Methods &nbsp;</div>
+          <div class="TableTitle">Table 46: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1529055">ChannelInfo</a></span> Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 126.74952pt">
-            <div class="CellHeading"><a name="1475091">Method</a></div>
+            <div class="CellHeading"><a name="1528832">Method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 429.00048pt">
-            <div class="CellHeading"><a name="1475093">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1528834">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475095">maxFragmentSize</a></div>
+            <div class="CellBody"><a name="1528836">maxFragmentSize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475097">The maximum allowed buffer size which can be written to the network. If a larger buffer is required, the Transport will internally fragment the larger buffer into smaller buffers whose size is set to </a><span class="CodeOrCommand">maxFragmentSize</span>.</div>
-            <div class="CellBody"><a name="1475098">This is the largest size a user can request while still being ‘packable.’</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475100">numInputBuffers</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475105">The number of sequential input buffers into which the </a><span class="CodeOrCommand">Channel</span> reads data. This controls the maximum number of bytes that can be handled with a single network read operation on each channel. Each input buffer can contain <span class="CodeOrCommand">maxFragmentSize</span> bytes. Input buffers are allocated at initialization time.</div>
+            <div class="CellBody"><a name="1528838">The maximum allowed buffer size which can be written to the network. If a larger buffer is required, the Transport will internally fragment the larger buffer into smaller buffers whose size is set to </a><span class="CodeOrCommand">maxFragmentSize</span>.</div>
+            <div class="CellBody"><a name="1528839">This is the largest size a user can request while still being ‘packable.’</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475107">guaranteedOutputBuffers</a></div>
+            <div class="CellBody"><a name="1528841">numInputBuffers</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475112">The guaranteed number of buffers which this </a><span class="CodeOrCommand">Channel</span> can use while writing data. Each buffer can contain <span class="CodeOrCommand">maxFragmentSize</span> bytes. Guaranteed output buffers are allocated at initialization time. For more details on obtaining a buffer, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.52.html', '');" title="9.8 Writing Data: Obtaining a Buffer">Section 9.8</a>.</div>
-            <div class="CellBody"><a name="1475124">You can configure </a><span class="CodeOrCommand">guaranteedOutputBuffers</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475130">maxOutputBuffers</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475135">The maximum number of output buffers which this </a><span class="CodeOrCommand">Channel</span> can use. (<span class="CodeOrCommand">maxOutputBuffers</span> - <span class="CodeOrCommand">guaranteedOutputBuffers</span>) is equal to the number of shared pool buffers that this <span class="CodeOrCommand">Channel</span> can use. Shared pool buffers are only used if all <span class="CodeOrCommand">guaranteedOutputBuffers</span> are unavailable. If <span class="CodeOrCommand">maxOutputBuffers</span> is equal to the <span class="CodeOrCommand">guaranteedOutputBuffers</span> value, shared pool buffers are unavailable.</div>
-            <div class="CellBody"><a name="1475144">You can configure </a><span class="CodeOrCommand">maxOutputBuffers</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
+            <div class="CellBody"><a name="1528846">The number of sequential input buffers into which the </a><span class="CodeOrCommand">Channel</span> reads data. This controls the maximum number of bytes that can be handled with a single network read operation on each channel. Each input buffer can contain <span class="CodeOrCommand">maxFragmentSize</span> bytes. Input buffers are allocated at initialization time.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475150">pingTimeout</a></div>
+            <div class="CellBody"><a name="1528848">guaranteedOutputBuffers</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475152">The negotiated ping timeout value. Typically, the rule of thumb in handling heartbeats is to send a heartbeat every </a><span class="CodeOrCommand">pingTimeout</span>/3 seconds.</div>
-            <div class="CellBody"><a name="1475159">For more details on </a><span class="CodeOrCommand">pingTimeout</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.74.html', '');" title="9.12.1 Ping Timeout">Section 9.12.1</a>.</div>
+            <div class="CellBody"><a name="1528853">The guaranteed number of buffers which this </a><span class="CodeOrCommand">Channel</span> can use while writing data. Each buffer can contain <span class="CodeOrCommand">maxFragmentSize</span> bytes. Guaranteed output buffers are allocated at initialization time. For more details on obtaining a buffer, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.52.html', '');" title="9.8 Writing Data: Obtaining a Buffer">Section 9.8</a>.</div>
+            <div class="CellBody"><a name="1528865">You can configure </a><span class="CodeOrCommand">guaranteedOutputBuffers</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475161">serverToClientPings</a></div>
+            <div class="CellBody"><a name="1528871">maxOutputBuffers</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475163">Sets whether server is expected to send heartbeat messages:</a></div>
+            <div class="CellBody"><a name="1528876">The maximum number of output buffers which this </a><span class="CodeOrCommand">Channel</span> can use. (<span class="CodeOrCommand">maxOutputBuffers</span> - <span class="CodeOrCommand">guaranteedOutputBuffers</span>) is equal to the number of shared pool buffers that this <span class="CodeOrCommand">Channel</span> can use. Shared pool buffers are only used if all <span class="CodeOrCommand">guaranteedOutputBuffers</span> are unavailable. If <span class="CodeOrCommand">maxOutputBuffers</span> is equal to the <span class="CodeOrCommand">guaranteedOutputBuffers</span> value, shared pool buffers are unavailable.</div>
+            <div class="CellBody"><a name="1528885">You can configure </a><span class="CodeOrCommand">maxOutputBuffers</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1528891">pingTimeout</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1528893">The negotiated ping timeout value. Typically, the rule of thumb in handling heartbeats is to send a heartbeat every </a><span class="CodeOrCommand">pingTimeout</span>/3 seconds.</div>
+            <div class="CellBody"><a name="1528900">For more details on </a><span class="CodeOrCommand">pingTimeout</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.74.html', '');" title="9.12.1 Ping Timeout">Section 9.12.1</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1528902">serverToClientPings</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1528904">Sets whether server is expected to send heartbeat messages:</a></div>
             <div class="bullet_ind_outer" style="margin-left: 18pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -129,7 +129,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1475167">If set to </a><span class="Parameter">true</span>, heartbeat messages must flow from server to client.</div>
+                    <div class="bullet_ind_inner"><a name="1528908">If set to </a><span class="Parameter">true</span>, heartbeat messages must flow from server to client.</div>
                   </td>
                 </tr>
               </table>
@@ -143,20 +143,20 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1475171">If set to </a><span class="Parameter">false</span>, the server is not required to send heartbeats.</div>
+                    <div class="bullet_ind_inner"><a name="1528912">If set to </a><span class="Parameter">false</span>, the server is not required to send heartbeats.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1475178">TREP and other Thomson Reuters components typically require this value to be set to </a><span class="Parameter">true</span>.</div>
+            <div class="CellBody"><a name="1528919">TREP and other Thomson Reuters components typically require this value to be set to </a><span class="Parameter">true</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475180">clientToServerPings</a></div>
+            <div class="CellBody"><a name="1528921">clientToServerPings</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475182">Sets whether the client is expected to send heartbeat messages:</a></div>
+            <div class="CellBody"><a name="1528923">Sets whether the client is expected to send heartbeat messages:</a></div>
             <div class="bullet_ind_outer" style="margin-left: 18pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -166,7 +166,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1475186">If set to </a><span class="Parameter">true</span>, heartbeat messages must flow from client to server.</div>
+                    <div class="bullet_ind_inner"><a name="1528927">If set to </a><span class="Parameter">true</span>, heartbeat messages must flow from client to server.</div>
                   </td>
                 </tr>
               </table>
@@ -180,87 +180,87 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1475190">If set to </a><span class="Parameter">false</span>, the client is not required to send heartbeats.</div>
+                    <div class="bullet_ind_inner"><a name="1528931">If set to </a><span class="Parameter">false</span>, the client is not required to send heartbeats.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1475197">TREP and other Thomson Reuters components typically require this value to be set to </a><span class="Parameter">true</span>.</div>
+            <div class="CellBody"><a name="1528938">TREP and other Thomson Reuters components typically require this value to be set to </a><span class="Parameter">true</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475203">sysSendBufSize</a></div>
+            <div class="CellBody"><a name="1528944">sysSendBufSize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475205">Sets the size of the send or output buffer associated with the underlying transport. The Transport has additional output buffers, controlled by </a><span class="CodeOrCommand">maxOutputBuffers</span> and <span class="CodeOrCommand">guaranteedOutputBuffers</span>. For some connection types, you can configure <span class="CodeOrCommand">sysSendBufSize</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475220">sysRecvBufSize</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475222">Sets the size of the receive or input buffer associated with the underlying transport. The Transport has an additional input buffer controlled by </a><span class="CodeOrCommand">numInputBuffers</span>.</div>
-            <div class="CellBody"><a name="1475226">For some connection types, you can configure </a><span class="CodeOrCommand">sysRecvBufSize</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
+            <div class="CellBody"><a name="1528946">Sets the size of the send or output buffer associated with the underlying transport. The Transport has additional output buffers, controlled by </a><span class="CodeOrCommand">maxOutputBuffers</span> and <span class="CodeOrCommand">guaranteedOutputBuffers</span>. For some connection types, you can configure <span class="CodeOrCommand">sysSendBufSize</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475234">compressionType</a></div>
+            <div class="CellBody"><a name="1528961">sysRecvBufSize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475236">Sets the type of compression to use on this connection.</a></div>
-            <div class="CellBody"><a name="1475243">Refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.39.html', '');" title="9.4.3 Compression Support">Section 9.4.3</a> for more information about supported compression types.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475245">compressionThreshold</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475247">Sets the compression threshold. Messages smaller than the threshold are not compressed; messages larger than the threshold are compressed.</a></div>
+            <div class="CellBody"><a name="1528963">Sets the size of the receive or input buffer associated with the underlying transport. The Transport has an additional input buffer controlled by </a><span class="CodeOrCommand">numInputBuffers</span>.</div>
+            <div class="CellBody"><a name="1528967">For some connection types, you can configure </a><span class="CodeOrCommand">sysRecvBufSize</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475252"><!--o--></a>priorityFlushStrategy<sup><a name="wwfootnote_inline_78" href="#78">1</a></sup></div>
+            <div class="CellBody"><a name="1528975">compressionType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475254">The currently priority level order used when flushing buffers to the connection, where </a><span class="Parameter">H</span> = High priority, <span class="Parameter">M</span> = Medium priority, and <span class="Parameter">L</span> = Low priority. When passed to <span class="CodeOrCommand">Channel.write</span>, each buffer is associated with the priority level at which it should be written. The default <span class="CodeOrCommand">priorityFlushStrategy</span> writes buffers in the order: High, Medium, High, Low, High, Medium. This provides a slight advantage to the medium-priority level and a greater advantage to high-priority data. Data order is preserved within each priority level and if all buffers are written with the same priority, the order of data does not change.</div>
-            <div class="CellBody"><a name="1475263">You can configure </a><span class="CodeOrCommand">priorityFlushStrategy</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475269">clientHostname</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475271">The host name of the connecting client. Valid only for </a><span class="CodeOrCommand">Channel</span>s that were accepted (i.e., returned from <span class="CodeOrCommand">Transport.accept</span>) and whose <span class="CodeOrCommand">ChannelState</span> is <span class="CodeOrCommand">ACTIVE</span>.</div>
+            <div class="CellBody"><a name="1528977">Sets the type of compression to use on this connection.</a></div>
+            <div class="CellBody"><a name="1528984">Refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.39.html', '');" title="9.4.3 Compression Support">Section 9.4.3</a> for more information about supported compression types.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475273">clientIP</a></div>
+            <div class="CellBody"><a name="1528986">compressionThreshold</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475275">The IP address of the connecting client. Valid only for Channels that were accepted (i.e., returned from </a><span class="CodeOrCommand">Transport.accept</span>) and whose <span class="CodeOrCommand">ChannelState</span> is <span class="CodeOrCommand">ACTIVE</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475277">multicastStats</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475279">If using a connection type of</a><span class="Parameter"> </span><span class="CodeOrCommand">ConnectionTypes.RELIABLE_MCAST</span>, this substructure reports information about sent and received packets, including any gap or retransmission information. For details on options used with <span class="CodeOrCommand">multicastStats</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.83.html', '');" title="9.14.3 multicastStats Methods">Section 9.14.3</a>.</div>
+            <div class="CellBody"><a name="1528988">Sets the compression threshold. Messages smaller than the threshold are not compressed; messages larger than the threshold are compressed.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475291">componentInfo</a></div>
+            <div class="CellBody"><a name="1528993"><!--o--></a>priorityFlushStrategy<sup><a name="wwfootnote_inline_78" href="#78">1</a></sup></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1475293">Retrieves a Java </a><span class="CodeOrCommand">List</span> of <span class="CodeOrCommand">ComponentInfo</span>s. One <span class="CodeOrCommand">ComponentInfo</span> object will be present for each connected device that supports connected component versioning. For more detailed information on the <span class="CodeOrCommand">ComponentInfo</span> structure, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.84.html', '');" title="9.14.4 componentInfo Method">Section 9.14.4</a>.</div>
+            <div class="CellBody"><a name="1528995">The currently priority level order used when flushing buffers to the connection, where </a><span class="Parameter">H</span> = High priority, <span class="Parameter">M</span> = Medium priority, and <span class="Parameter">L</span> = Low priority. When passed to <span class="CodeOrCommand">Channel.write</span>, each buffer is associated with the priority level at which it should be written. The default <span class="CodeOrCommand">priorityFlushStrategy</span> writes buffers in the order: High, Medium, High, Low, High, Medium. This provides a slight advantage to the medium-priority level and a greater advantage to high-priority data. Data order is preserved within each priority level and if all buffers are written with the same priority, the order of data does not change.</div>
+            <div class="CellBody"><a name="1529004">You can configure </a><span class="CodeOrCommand">priorityFlushStrategy</span> using <span class="CodeOrCommand">Channel.ioctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.86.html', '');" title="9.14.6 Channel.ioctl IoctlCodes">Section 9.14.6</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1529010">clientHostname</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1529012">The host name of the connecting client. Valid only for </a><span class="CodeOrCommand">Channel</span>s that were accepted (i.e., returned from <span class="CodeOrCommand">Transport.accept</span>) and whose <span class="CodeOrCommand">ChannelState</span> is <span class="CodeOrCommand">ACTIVE</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1529014">clientIP</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1529016">The IP address of the connecting client. Valid only for Channels that were accepted (i.e., returned from </a><span class="CodeOrCommand">Transport.accept</span>) and whose <span class="CodeOrCommand">ChannelState</span> is <span class="CodeOrCommand">ACTIVE</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1529018">multicastStats</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1529020">If using a connection type of</a><span class="Parameter"> </span><span class="CodeOrCommand">ConnectionTypes.RELIABLE_MCAST</span>, this substructure reports information about sent and received packets, including any gap or retransmission information. For details on options used with <span class="CodeOrCommand">multicastStats</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.83.html', '');" title="9.14.3 multicastStats Methods">Section 9.14.3</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1529032">componentInfo</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1529034">Retrieves a Java </a><span class="CodeOrCommand">List</span> of <span class="CodeOrCommand">ComponentInfo</span>s. One <span class="CodeOrCommand">ComponentInfo</span> object will be present for each connected device that supports connected component versioning. For more detailed information on the <span class="CodeOrCommand">ComponentInfo</span> structure, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.84.html', '');" title="9.14.4 componentInfo Method">Section 9.14.4</a>.</div>
           </td>
         </tr>
       </table>
@@ -268,7 +268,7 @@
       <div style="font-size: smaller; float: left; padding-right: 10px;">
         <a name="78" href="#wwfootnote_inline_78">1</a>
       </div>
-      <div class="TableFootnote"><a name="1475251">Allows for up to 32 one-byte characters to be represented. ‘</a><span style="font-weight: bold">H</span>’ = high priority, ‘<span style="font-weight: bold">M</span>’ = medium priority, and ‘<span style="font-weight: bold">L</span>’ = low priority.</div>
+      <div class="TableFootnote"><a name="1528992">Allows for up to 32 one-byte characters to be represented. ‘</a><span style="font-weight: bold">H</span>’ = high priority, ‘<span style="font-weight: bold">M</span>’ = medium priority, and ‘<span style="font-weight: bold">L</span>’ = low priority.</div>
       <br style="clear: both;" />
       <script type="text/javascript" language="JavaScript1.2">
         <!--

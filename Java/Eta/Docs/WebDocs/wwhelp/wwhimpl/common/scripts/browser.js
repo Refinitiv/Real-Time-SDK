@@ -324,7 +324,7 @@ function  WWHBrowser_ValidateFrameReference(ParamFrameReference, ParamAction)
         //
         window.setTimeout(function () {
           WWHFrame.WWHBrowser.fValidateFrameReference(ParamFrameReference, ParamAction);
-        }, 10);
+        }, 1000);
       }
     }
     catch (err)
@@ -333,7 +333,7 @@ function  WWHBrowser_ValidateFrameReference(ParamFrameReference, ParamAction)
       //
       window.setTimeout(function () {
         WWHFrame.WWHBrowser.fValidateFrameReference(ParamFrameReference, ParamAction);
-      }, 10);
+      }, 1000);
     }
   }
 }

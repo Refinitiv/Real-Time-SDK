@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1222770">Consumer Lifecycle</a></div>
-      <div class="Body"><a name="1229393">The lifecycle of </a><span class="ToolOrUtility_Name">upacConsPerf</span> is divided into the following sections:</div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1229397"><img class="Default" src="images/Chap_upacConsPerf.04.04.1.jpg" width="442" height="231" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 10.  <a name="1229401">upacConsPerf Lifecycle</a></div>
+      <div class="Body"><a name="1230082">The lifecycle of </a><span class="ToolOrUtility_Name">upacConsPerf</span> is divided into the following sections:</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1230086"><img class="Default" src="images/Chap_upacConsPerf.04.04.1.jpg" width="442" height="231" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 10.  <a name="1230090">upacConsPerf Lifecycle</a></div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -68,12 +68,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1229405">Application and Transport API Initialization. </a></div>
+              <div class="Step1_inner"><a name="1230094">Application and Transport API Initialization. </a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><span class="ToolOrUtility_Name"><a name="1229412">upacConsPerf</a></span> loads its configuration, initializes the Transport API, loads its item list using the specified file, and starts the thread(s) which connect to the provider to perform the test.</div>
+      <div class="indent_25"><span class="ToolOrUtility_Name"><a name="1230101">upacConsPerf</a></span> loads its configuration, initializes the Transport API, loads its item list using the specified file, and starts the thread(s) which connect to the provider to perform the test.</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -83,21 +83,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229413">The main thread periodically collects and writes statistics from the connection thread(s) until the test is over. All subsequent steps are performed by each thread.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229414">Connection: the connection thread connects to the provider. If the connection fails, it continually attempts to reconnect until the connection succeeds. When the connection succeeds, the test begins and any subsequent disconnection ends the test.</a></div>
+              <div class="bullet_ind_inner"><a name="1230102">The main thread periodically collects and writes statistics from the connection thread(s) until the test is over. All subsequent steps are performed by each thread.</a></div>
             </td>
           </tr>
         </table>
@@ -111,7 +97,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229415">Login: the connection thread provides its login requests and waits for the provider’s response.</a></div>
+              <div class="bullet_ind_inner"><a name="1230103">Connection: the connection thread connects to the provider. If the connection fails, it continually attempts to reconnect until the connection succeeds. When the connection succeeds, the test begins and any subsequent disconnection ends the test.</a></div>
             </td>
           </tr>
         </table>
@@ -125,7 +111,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229416">Directory: the connection thread opens a directory stream and searches for the configured service name. </a></div>
+              <div class="bullet_ind_inner"><a name="1230104">Login: the connection thread provides its login requests and waits for the provider’s response.</a></div>
             </td>
           </tr>
         </table>
@@ -139,7 +125,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229417">Startup state: when the service is available, the “startup” phase of the performance measurement begins. During this phase, the connection thread continually performs the following actions:</a></div>
+              <div class="bullet_ind_inner"><a name="1230105">Directory: the connection thread opens a directory stream and searches for the configured service name. </a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1230106">Startup state: when the service is available, the “startup” phase of the performance measurement begins. During this phase, the connection thread continually performs the following actions:</a></div>
             </td>
           </tr>
         </table>
@@ -151,7 +151,7 @@
               <div class="dash_inner" style="width: 18pt; white-space: nowrap">-	</div>
             </td>
             <td width="100%">
-              <div class="dash_inner"><a name="1229418">Sends bursts of requests, until all desired items have been requested.</a></div>
+              <div class="dash_inner"><a name="1230107">Sends bursts of requests, until all desired items have been requested.</a></div>
             </td>
           </tr>
         </table>
@@ -163,12 +163,12 @@
               <div class="dash_inner" style="width: 18pt; white-space: nowrap">-	</div>
             </td>
             <td width="100%">
-              <div class="dash_inner"><a name="1229419">Reads from the transport, processing refresh, update, and generic message traffic from the provider.</a></div>
+              <div class="dash_inner"><a name="1230108">Reads from the transport, processing refresh, update, and generic message traffic from the provider.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1229420">The “startup” phase continues until all items receive a refresh containing an Open/OK state. All latency statistics recorded up to this point are reported as “startup” statistics.</a></div>
+      <div class="indent_25"><a name="1230109">The “startup” phase continues until all items receive a refresh containing an Open/OK state. All latency statistics recorded up to this point are reported as “startup” statistics.</a></div>
       <div class="Stepnext_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -178,12 +178,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1229421">Steady state.</a></div>
+              <div class="Stepnext_inner"><a name="1230110">Steady state.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1229422">The connection thread continually performs the following actions:</a></div>
+      <div class="indent_25"><a name="1230111">The connection thread continually performs the following actions:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -193,21 +193,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229423">If configured for posting, the thread sends a burst of post messages.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229424">Reads from the transport, processing updates from the provider.</a></div>
+              <div class="bullet_ind_inner"><a name="1230112">If configured for posting, the thread sends a burst of post messages.</a></div>
             </td>
           </tr>
         </table>
@@ -221,12 +207,26 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229425">If configured to do so, sends a burst of generic messages.</a></div>
+              <div class="bullet_ind_inner"><a name="1230113">Reads from the transport, processing updates from the provider.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1229426">The “steady state” phase continues for the period of time specified in the command line. Latency statistics recorded during this phase are reported as “steady state” statistics.</a></div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1230114">If configured to do so, sends a burst of generic messages.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="indent_25"><a name="1230115">The “steady state” phase continues for the period of time specified in the command line. Latency statistics recorded during this phase are reported as “steady state” statistics.</a></div>
       <div class="Stepnext_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -236,12 +236,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1229427">Application shutdown and cleanup.</a></div>
+              <div class="Stepnext_inner"><a name="1230116">Application shutdown and cleanup.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1229428">The connection thread disconnects and stops. The main thread collects all remaining information from the connection threads, cleans them up, and writes the final summary statistics. The main thread then uninitializes the Transport API, any remaining resources, and exits.</a></div>
+      <div class="indent_25"><a name="1230117">The connection thread disconnects and stops. The main thread collects all remaining information from the connection threads, cleans them up, and writes the final summary statistics. The main thread then uninitializes the Transport API, any remaining resources, and exits.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -56,35 +56,35 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1238975">Reactor RDM Dictionary Message Event</a></div>
-      <div class="Body"><a name="1238977">The </a><span class="CodeOrCommand">RsslRDMDictionaryMsgEvent</span> is returned to the application via the <span class="CodeOrCommand">RsslRDMDictionaryMsgCallback</span>.</div>
-      <div class="Blank_Line"><a name="1239079">&nbsp;</a></div>
+      <div class="Body"><a name="1529769">The </a><span class="CodeOrCommand">RsslRDMDictionaryMsgEvent</span> is returned to the application via the <span class="CodeOrCommand">RsslRDMDictionaryMsgCallback</span>.</div>
+      <div class="Blank_Line"><a name="1529824">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 43: <span class="LucidaConsole"><a name="1239103">RsslRDMDictionaryMsgEvent</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 43: <span class="LucidaConsole"><a name="1529821">RsslRDMDictionaryMsgEvent</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 175.5pt">
-            <div class="CellHeading"><a name="1239091">STRUCTURE MEMBER</a></div>
+            <div class="CellHeading"><a name="1529775">Structure MEMBER</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 380.25pt">
-            <div class="CellHeading"><a name="1239093">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1529777">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1239095">baseMsgEvent</a></div>
+            <div class="CellBody"><a name="1529779">baseMsgEvent</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1240444">An </a><span class="CodeOrCommand">RsslMsgEvent</span> populated with the raw buffer, <span class="CodeOrCommand">RsslMsg</span>, and any error information. This structure is defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.057.html', '');" title="6.5.4.1 Reactor Message Event">Section 6.5.4.1</a>.</div>
+            <div class="CellBody"><a name="1529787">An </a><span class="CodeOrCommand">RsslMsgEvent</span> populated with the raw buffer (<span class="CodeOrCommand">RsslMsg</span>) and any error information. This structure is defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.057.html', '');" title="6.5.4.1 Reactor Message Event">Section 6.5.4.1</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1239099">pRDMDictionaryMsg</a></div>
+            <div class="CellBody"><a name="1529798">pRDMDictionaryMsg </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1240463">The RDM representation of the decoded Dictionary message. If not present, an error was encountered while processing the information. </a></div>
-            <div class="CellBody"><a name="1240464">This message is presented as the </a><span class="CodeOrCommand">RsslRDMDictionaryMsg</span>, described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.110.html', '');" title="7.5 Dictionary Domain">Section 7.5</a>. </div>
+            <div class="CellBody"><a name="1529800">The RDM representation of the decoded Dictionary message. If not present, an error was encountered while processing the information. </a></div>
+            <div class="CellBody"><a name="1529807">This message is presented as the </a><span class="CodeOrCommand">RsslRDMDictionaryMsg</span>, described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.109.html', '');" title="7.5 Dictionary Domain">Section 7.5</a>.</div>
           </td>
         </tr>
       </table>

@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1220860">Negotiating Stream Behaviors: Class of Service</a></div>
-      <div class="Body"><a name="1245047">The </a><span class="CodeOrCommand">RsslClassOfService</span> is used to negotiate behaviors of an <span class="CodeOrCommand">RsslTunnelStream</span>. Negotiated behaviors are divided into five categories: common, authentication, flow control, data integrity, and guarantee.</div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1531188">RsslClassOfService</a></span> is used to negotiate <span class="CodeOrCommand">RsslTunnelStream</span> behaviors. Negotiated behaviors are divided into five categories: common, authentication, flow control, data integrity, and guarantee.</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1245048">When an OMM Consumer application calls </a><span class="CodeOrCommand">rsslReactorOpenTunnelStream</span>, it sets the <span class="CodeOrCommand">RsslTunnelStreamOpenOptions.classOfService</span> members to manage and control tunnel stream behaviors. The consumer passes these settings to the connected OMM Provider.</div>
+              <div class="bullet_ind_inner"><a name="1531192">When an OMM consumer application calls </a><span class="CodeOrCommand">rsslReactorOpenTunnelStream</span>, it sets the <span class="CodeOrCommand">RsslTunnelStreamOpenOptions.classOfService</span> members to manage and control tunnel stream behaviors. The consumer passes these settings to the connected OMM provider.</div>
             </td>
           </tr>
         </table>
@@ -80,23 +80,23 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1245049">When the OMM Provider application receives an </a><span class="CodeOrCommand">RsslTunnelStreamRequestEvent</span>, the provider calls <span class="CodeOrCommand">rsslTunnelStreamRequestGetCos</span> to retrieve the behaviors requested by the consumer. </div>
+              <div class="bullet_ind_inner"><a name="1531199">When the OMM provider application receives an </a><span class="CodeOrCommand">RsslTunnelStreamRequestEvent</span>, the provider calls <span class="CodeOrCommand">rsslTunnelStreamRequestGetCos</span> to retrieve the behaviors requested by the consumer. </div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1245050">After tunnel stream negotiation is complete, the provider and consumer each receives an </a><span class="CodeOrCommand">RsslTunnelStreamStatusEvent</span> where each can view the negotiated behaviors on the <span class="CodeOrCommand">RsslTunnelStream</span> structure.</div>
-      <div class="Blank_Line"><a name="1245062">&nbsp;</a></div>
+      <div class="Body"><a name="1531206">After tunnel stream negotiation is complete, the provider and consumer each receive a</a>n <span class="CodeOrCommand">RsslTunnelStreamStatusEvent</span> where each can view the negotiated behaviors on the <span class="CodeOrCommand">RsslTunnelStream</span> structure.</div>
+      <div class="Blank_Line"><a name="1531222">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1245068">Do not modify the </a><span class="CodeOrCommand">RsslClassOfService</span> member of the <span class="CodeOrCommand">RsslTunnelStream</span>.</div>
+              <span class="Bold">Note: </span><a name="1531221">Do not modify the </a><span class="CodeOrCommand">RsslClassOfService</span> member of the <span class="CodeOrCommand">RsslTunnelStream</span>.</div>
           </td>
         </tr>
       </table>
-      <div class="Body"><a name="1226058">The enumerations given for members described in this section can be found in </a><span class="FileOrDirectory">rsslRDM.h</span>.</div>
+      <div class="Body"><a name="1531226">The enumerations given for members described in this section can be found in </a><span class="FileOrDirectory">rsslRDM.h</span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.9 Special Semantics</title>
+    <title>5.6.2.3 Reference Fields Section</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,11 +55,38 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2"><a name="1002062">Special Semantics</a></div>
-      <div class="H3"><a name="1002064">DictionaryId</a></div>
-      <div class="Body"><a name="1008831">A </a><span class="CodeOrCommand">dictionaryId</span> can be included with <span class="CodeOrCommand">RsslFieldList</span> and <span class="CodeOrCommand">RsslElementList</span> payload information. The <span class="CodeOrCommand">dictionaryId</span> contained in the payload should match the Id of the dictionaries required to encode or decode the content. (e.g. Field Dictionary, Enumerated Types Dictionary). Dictionaries used together to decode a field list should all have a matching Id.</div>
-      <div class="Body"><span class="CodeOrCommand"><a name="1008832">dictionaryId</a></span> values are globally scoped and can have a range of values from -16383 to 16383. Values 0 through 16383 are reserved for Thomson Reuters use. Customers can provide their own dictionaries by selecting a <span class="CodeOrCommand">dictionaryId</span> between -1 and -16383.</div>
-      <div class="Body"><a name="1008833"> A </a><span class="CodeOrCommand">dictionaryId</span> can be changed in two ways. If a <span class="CodeOrCommand">dictionaryId</span> is provided on a solicited or unsolicited refresh message, this dictionary is used across all messages on the stream until a different <span class="CodeOrCommand">dictionaryId</span> is provided in a subsequent solicited or unsolicited refresh. If an <span class="CodeOrCommand">RsslFieldEntry</span> contains a <span class="CodeOrCommand">fieldId</span> of zero, this reserved value indicates a temporary dictionary change. In this situation, this entry’s value is the new dictionaryId, encoded or decoded as an <span class="CodeOrCommand">RsslInt</span>. When a <span class="CodeOrCommand">dictionaryId</span> is changed in this manner, the change is only in effect on the remaining entries in the field list or until another <span class="CodeOrCommand">fieldId</span> of zero is encountered. Any other <span class="CodeOrCommand">containerType</span> housed inside of a remaining entry also adopts the temporarily changed dictionary. After the end of the field list is reached, the dictionaryId from the refresh takes precedence once again.</div>
+      <div class="H4"><a name="1008733">Reference Fields Section</a></div>
+      <div class="Body"><a name="1008724">The first section lists all fields that use the table. These fields should have the type  in their corresponding Field Dictionary and have matching names.</a></div>
+      <div class="Blank_Line"><a name="1010198">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 47: <a name="1010216">RWF EnumType Dictionary File Format Reference Fields </a></div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
+            <div class="CellHeading" style="text-align: center"><a name="1010204">NAME</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
+            <div class="CellHeading" style="text-align: center"><a name="1010206">RWF ELEMENT NAME</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010208">ACRONYM</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010210">n/a (The name of the field is not sent with the dictionary payload).</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010212">FID</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010214">FIDS</a></div>
+          </td>
+        </tr>
+      </table>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -72,7 +99,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : 5.9	Special Semantics</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.19.html">5.6	Enumerated Types Dictionary</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.20.html">5.6.2	Enumerated Types Dictionary File Format</a> : 5.6.2.3	Reference Fields Section</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

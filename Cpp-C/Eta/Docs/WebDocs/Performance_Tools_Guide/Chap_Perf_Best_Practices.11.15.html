@@ -57,9 +57,9 @@
     <blockquote>
       <div class="H2"><a name="1223263">Encoder and Decoder Best Practices</a></div>
       <div class="H3"><a name="1223264">Single-Pass Encoding</a></div>
-      <div class="Body"><a name="1223265">Transport API Performance Tools encode data so as to minimize copying. Thus, the application encoding process begins by starting with the top-level container and working down in a linear fashion.</a></div>
-      <div class="Body"><a name="1223266">For example, when encoding a Market Price message, the message header is encoded (</a><span class="CodeOrCommand">rsslEncodeMsgInit</span>), followed by the field list payload (<span class="CodeOrCommand">rsslEncodeFieldListInit</span> … <span class="CodeOrCommand">rsslEncodeFieldListComplete</span>). After the payload is encoded, message encoding is completed (<span class="CodeOrCommand">rsslEncodeMsgComplete</span>). </div>
-      <div class="Body"><a name="1223267">Encoding the field list prior to the message header would require it to be encoded into a temporary buffer which would then be passed to the message encoder (</a><span class="CodeOrCommand">rsslEncodeMsg</span>). This approach would incur multiple buffer allocations and copies to complete encoding.</div>
+      <div class="Body"><a name="1226454">Transport API Performance Tools encode data so as to minimize copying. Thus, the application encoding process begins by starting with the top-level container and working down in a linear fashion.</a></div>
+      <div class="Body"><a name="1226458">For example, when encoding a Market Price message, the message header is encoded (</a><span class="CodeOrCommand">rsslEncodeMsgInit</span>), followed by the field list payload (<span class="CodeOrCommand">rsslEncodeFieldListInit</span> … <span class="CodeOrCommand">rsslEncodeFieldListComplete</span>). After the payload is encoded, message encoding is completed (<span class="CodeOrCommand">rsslEncodeMsgComplete</span>). </div>
+      <div class="Body"><a name="1226468">Encoding the field list prior to the message header would require it to be encoded into a temporary buffer which would then be passed to the message encoder (</a><span class="CodeOrCommand">rsslEncodeMsg</span>). This approach would incur multiple buffer allocations and copies to complete encoding.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -1,14 +1,16 @@
 function  WWHBookData_Files(P)
 {
-P.fA("Chapter 1 Transport API Developers Guide Introduction","Chap_API_Intro.01.1.html");
-P.fA("1.1 About this Manual","Chap_API_Intro.01.2.html");
-P.fA("1.2 Audience","Chap_API_Intro.01.3.html");
-P.fA("1.3 Programming Language","Chap_API_Intro.01.4.html");
-P.fA("1.4 Acronyms and Abbreviations","Chap_API_Intro.01.5.html");
-P.fA("1.5 References","Chap_API_Intro.01.6.html");
-P.fA("1.6 Document Conventions","Chap_API_Intro.01.7.html");
-P.fA("1.6.1 Typographic","Chap_API_Intro.01.8.html");
-P.fA("1.6.2 Diagrams","Chap_API_Intro.01.9.html");
+P.fA("Chapter 1 Transport API Developers Guide Introduction","Chap_API_Intro.01.01.html");
+P.fA("1.1 About this Manual","Chap_API_Intro.01.02.html");
+P.fA("1.2 Audience","Chap_API_Intro.01.03.html");
+P.fA("1.3 Programming Language","Chap_API_Intro.01.04.html");
+P.fA("1.4 Acronyms and Abbreviations","Chap_API_Intro.01.05.html");
+P.fA("1.5 References","Chap_API_Intro.01.06.html");
+P.fA("1.6 Documentation Feedback","Chap_API_Intro.01.07.html");
+P.fA("1.7 Document Conventions","Chap_API_Intro.01.08.html");
+P.fA("1.7.1 Typographic","Chap_API_Intro.01.09.html");
+P.fA("1.7.2 Diagrams","Chap_API_Intro.01.10.html");
+P.fA("1.8 What\u2019s New","Chap_API_Intro.01.11.html");
 P.fA("Chapter 2 Product Description","Chap_ProductDescription.02.01.html");
 P.fA("2.1 What is the Transport API?","Chap_ProductDescription.02.02.html");
 P.fA("2.2 Transport API Features","Chap_ProductDescription.02.03.html");
@@ -43,7 +45,8 @@ P.fA("3.3.1.1 Request /Response","Chap_ConsumersProviders.03.20.html");
 P.fA("3.3.1.2 Posts","Chap_ConsumersProviders.03.21.html");
 P.fA("3.3.1.3 Generic Messages","Chap_ConsumersProviders.03.22.html");
 P.fA("3.3.1.4 Private Streams","Chap_ConsumersProviders.03.23.html");
-P.fA("3.3.2 Non-Interactive Providers","Chap_ConsumersProviders.03.24.html");
+P.fA("3.3.1.5 Tunnel Streams (Available Only in ETA Reactor and EMA)","Chap_ConsumersProviders.03.24.html");
+P.fA("3.3.2 Non-Interactive Providers","Chap_ConsumersProviders.03.25.html");
 P.fA("Chapter 4 System View","Chap_SystemView.04.1.html");
 P.fA("4.1 System Architecture Overview","Chap_SystemView.04.2.html");
 P.fA("4.2 Advanced Distribution Server (ADS)","Chap_SystemView.04.3.html");
@@ -198,7 +201,7 @@ P.fA("10.2.2.2 EncodeIterator: Basic Use Example","Chap_EncodingDecoding.10.09.h
 P.fA("10.2.3 Content Roll Back with Example","Chap_EncodingDecoding.10.10.html");
 P.fA("10.3 Decoding Semantics","Chap_EncodingDecoding.10.11.html");
 P.fA("10.3.1 The Decode Iterator: DecodeIterator","Chap_EncodingDecoding.10.12.html");
-P.fA("10.3.2 Functions for use with DecodeIterator","Chap_EncodingDecoding.10.13.html");
+P.fA("10.3.2 Functions for Use with DecodeIterator","Chap_EncodingDecoding.10.13.html");
 P.fA("10.3.3 DecodeIterator: Basic Use Example","Chap_EncodingDecoding.10.14.html");
 P.fA("10.4 Return Code Values","Chap_EncodingDecoding.10.15.html");
 P.fA("10.4.1 CodecReturnCodes Methods","Chap_EncodingDecoding.10.16.html");
@@ -376,7 +379,8 @@ P.fA("13.8.2 Dynamic View RequestMsg Encoding Example","Chap_MessagesAdvancedCon
 P.fA("13.9 Posting","Chap_MessagesAdvancedConcepts.13.18.html");
 P.fA("13.9.1 Post Message Encoding Example","Chap_MessagesAdvancedConcepts.13.19.html");
 P.fA("13.9.2 Post Acknowledgement Encoding Example","Chap_MessagesAdvancedConcepts.13.20.html");
-P.fA("13.10 Private Streams","Chap_MessagesAdvancedConcepts.13.21.html");
+P.fA("13.10 Visible Publisher Identifier (VPI)","Chap_MessagesAdvancedConcepts.13.21.html");
+P.fA("13.11 TREP Authentication","Chap_MessagesAdvancedConcepts.13.22.html");
+P.fA("13.12 Private Streams","Chap_MessagesAdvancedConcepts.13.23.html");
 P.fA("Appendix A Item and Group State Decision Table","Appendix_Item_Grp_StateDecisionTable.html");
-P.fA("\u00a9 2015, 2016 Thomson Reuters. All rights reserved.","lastpage.html");
 }

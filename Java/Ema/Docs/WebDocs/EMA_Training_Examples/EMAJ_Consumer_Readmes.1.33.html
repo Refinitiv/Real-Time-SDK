@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>370__MarketPrice__Batch</title>
+    <title>360__MarketPrice__View</title>
     <link rel="StyleSheet" href="css/EMAJ_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,49 +55,48 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1030237">370__MarketPrice__Batch</a></div>
-      <div class="Body"><a name="1038098">Summary</a></div>
-      <div class="Body"><a name="1038099">=======</a></div>
-      <div class="Body"><a name="1038100">&nbsp;</a></div>
-      <div class="Body"><a name="1038101">The example370__MarketPrice__Batch application is provided as an example of OMM</a></div>
-      <div class="Body"><a name="1038102">Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1038103">&nbsp;</a></div>
-      <div class="Body"><a name="1038104">This application demonstrates basic usage of the EMA library while opening</a></div>
-      <div class="Body"><a name="1038105">multiple item stream via a single request (a.k.a., batch request) and parsing</a></div>
-      <div class="Body"><a name="1038106">of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from</a></div>
-      <div class="Body"><a name="1038107">an OMM Provider application, or from Thomson Reuters Advanced Distribution</a></div>
-      <div class="Body"><a name="1038108">Server.</a></div>
-      <div class="Body"><a name="1038109">&nbsp;</a></div>
-      <div class="Body"><a name="1038110">example370__MarketPrice__Batch showcases usage of batch request feature of OMM</a></div>
-      <div class="Body"><a name="1038111">Consumer.</a></div>
-      <div class="Body"><a name="1038112">&nbsp;</a></div>
-      <div class="Body"><a name="1038113">Detailed Description</a></div>
-      <div class="Body"><a name="1038114">====================</a></div>
-      <div class="Body"><a name="1038115">&nbsp;</a></div>
-      <div class="Body"><a name="1038116">example370__MarketPrice__Batch implements the following high level steps:</a></div>
-      <div class="Body"><a name="1038117">&nbsp;</a></div>
-      <div class="Body"><a name="1038118">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1038119">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1038120">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
-      <div class="Body"><a name="1038121">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1038122">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1038123">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1038124">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1038125">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1038126">+ Opens a batch of streaming item interests</a></div>
-      <div class="Body"><a name="1038127">  - MarketPrice Domain batch request from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1038128">  - the batch (a list of item names) definition is added to the request</a></div>
-      <div class="Body"><a name="1038129">	using the payload() method</a></div>
-      <div class="Body"><a name="1038130">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1038131">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1038132">+ Exits</a></div>
-      <div class="Body"><a name="1038133">&nbsp;</a></div>
-      <div class="Body"><a name="1038134">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1038135">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1038136">	  </a></div>
-      <div class="Body"><a name="1038137">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1038138">      standard configuration.</a></div>
-      <div class="Body"><a name="1032096">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1020430">360__MarketPrice__View</a></div>
+      <div class="Body"><a name="1040085">Summary</a></div>
+      <div class="Body"><a name="1040086">=======</a></div>
+      <div class="Body"><a name="1040087">&nbsp;</a></div>
+      <div class="Body"><a name="1040088">The example360__MarketPrice__View application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1040089">application written to the EMA library.</a></div>
+      <div class="Body"><a name="1040090">&nbsp;</a></div>
+      <div class="Body"><a name="1040091">This application demonstrates basic usage of the EMA library for opening item</a></div>
+      <div class="Body"><a name="1040092">stream with a list of field IDs called “View” and parsing of OMM MarketPrice</a></div>
+      <div class="Body"><a name="1040093">data from Reuters Data Feed Direct (RDF-D), directly from an OMM Provider</a></div>
+      <div class="Body"><a name="1040094">application, or from Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1040095">&nbsp;</a></div>
+      <div class="Body"><a name="1040096">example360__MarketPrice__View showcases usage of view request feature supported</a></div>
+      <div class="Body"><a name="1040097">by OMM Consumer and server.</a></div>
+      <div class="Body"><a name="1040098">&nbsp;</a></div>
+      <div class="Body"><a name="1040099">&nbsp;</a></div>
+      <div class="Body"><a name="1040100">Detailed Description</a></div>
+      <div class="Body"><a name="1040101">====================</a></div>
+      <div class="Body"><a name="1040102">&nbsp;</a></div>
+      <div class="Body"><a name="1040103">example360__MarketPrice__View implements the following high level steps:</a></div>
+      <div class="Body"><a name="1040104">&nbsp;</a></div>
+      <div class="Body"><a name="1040105">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1040106">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1040107">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1040108">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1040109">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1040110">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1040111">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1040112">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1040113">+ Opens one streaming item interest</a></div>
+      <div class="Body"><a name="1040114">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1040115">  - the view definition is added to the request with the payload() method</a></div>
+      <div class="Body"><a name="1040116">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1040117">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1040118">+ Exits</a></div>
+      <div class="Body"><a name="1040119">&nbsp;</a></div>
+      <div class="Body"><a name="1040120">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1040121">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1040122">	  </a></div>
+      <div class="Body"><a name="1040123">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1040124">      standard configuration.</a></div>
+      <div class="Body"><a name="1038545">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -110,7 +109,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.21.html">300 Series Examples</a> : 370__MarketPrice__Batch</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.21.html">300 Series Examples</a> : 360__MarketPrice__View</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

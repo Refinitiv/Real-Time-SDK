@@ -32,6 +32,7 @@ var searchData=
   ['supportommpost',['supportOMMPost',['../structRsslRDMLoginRefresh.html#a3f575263b84650e9175236455a57b9f1',1,'RsslRDMLoginRefresh']]],
   ['supportoptimizedpauseresume',['supportOptimizedPauseResume',['../structRsslRDMLoginRefresh.html#ac89e8651968b6a226d9bb090c89aa253',1,'RsslRDMLoginRefresh']]],
   ['supportproviderdictionarydownload',['supportProviderDictionaryDownload',['../structRsslRDMLoginRequest.html#a90c6766bf11c1edea91bdccd0c46e219',1,'RsslRDMLoginRequest::supportProviderDictionaryDownload()'],['../structRsslRDMLoginRefresh.html#ab9d3a027271025157a187c0554cb22c4',1,'RsslRDMLoginRefresh::supportProviderDictionaryDownload()']]],
+  ['supportsfragmentation',['supportsFragmentation',['../structRsslClassOfServiceCommon.html#a433ca5dc6d7ee8dc373afefe817341d3',1,'RsslClassOfServiceCommon']]],
   ['supportsoutofbandsnapshots',['supportsOutOfBandSnapshots',['../structRsslRDMServiceInfo.html#a4322599a1c3709cb4099b8c2a01a408e',1,'RsslRDMServiceInfo']]],
   ['supportsqosrange',['supportsQosRange',['../structRsslRDMServiceInfo.html#a760b3188dc3e646c3b6089505131f17c',1,'RsslRDMServiceInfo']]],
   ['supportstandby',['supportStandby',['../structRsslRDMLoginRefresh.html#ae170560883da26d9eb81bffe12dd9250',1,'RsslRDMLoginRefresh']]],

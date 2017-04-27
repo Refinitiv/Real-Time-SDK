@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1222777">Threading and Scaling</a></div>
-      <div class="Body"><a name="1231672">The Transport API is designed to allow calls from multiple threads, such that applications can scale their work across multiple cores. Applications can leverage this feature by creating multiple threads to handle multiple connections through the Transport API. As such, each application enables global locking when calling</a> <span class="CodeOrCommand">Transport.initialize()</span>.</div>
-      <div class="Body"><a name="1231679">Configure </a><span class="ToolOrUtility_Name">upajConsPerf</span> for multiple threads using the <span class="CodeOrCommand">-threads</span> command-line option. When multiple threads are configured, each thread opens its own connection to the provider. <span class="ToolOrUtility_Name">upajConsPerf</span> divides its list of items among the threads (you can use the command line option, <span class="CodeOrCommand">-commonItemCount</span>, to request the same type and number of items on all connections).</div>
-      <div class="Body"><a name="1231683">The main thread monitors the other threads and collects and reports statistics from them.</a></div>
+      <div class="Body"><a name="1233572">The Transport API is designed to allow calls from multiple threads, such that applications can scale their work across multiple cores. Applications can leverage this feature by creating multiple threads to handle multiple connections through the Transport API. As such, each application enables global locking when calling</a> <span class="CodeOrCommand">Transport.initialize()</span>.</div>
+      <div class="Body"><a name="1233579">Configure </a><span class="ToolOrUtility_Name">upajConsPerf</span> for multiple threads using the <span class="CodeOrCommand">-threads</span> command-line option. When multiple threads are configured, each thread opens its own connection to the provider. <span class="ToolOrUtility_Name">upajConsPerf</span> divides its list of items among the threads (you can use the command line option, <span class="CodeOrCommand">-commonItemCount</span>, to request the same type and number of items on all connections).</div>
+      <div class="Body"><a name="1233583">The main thread monitors the other threads and collects and reports statistics from them.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

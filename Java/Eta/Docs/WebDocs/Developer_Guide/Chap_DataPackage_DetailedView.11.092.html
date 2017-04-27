@@ -56,34 +56,34 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1019724">FieldSetDefEntry Structure Members</a></div>
-      <div class="Blank_Line"><a name="1533933">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1692209">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 113: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1533930">FieldSetDefEntry</a></span> Methods &nbsp;</div>
+          <div class="TableTitle">Table 113: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1692206">FieldSetDefEntry</a></span> Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1533863">Method</a></div>
+            <div class="CellHeading"><a name="1692139">Method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1533865">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1692141">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533867">fieldId</a></div>
+            <div class="CellBody"><a name="1692143">fieldId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533872">Set or get the </a><span class="CodeOrCommand">fieldId</span> value that corresponds to this entry in the set-defined <span class="CodeOrCommand">FieldList</span> content. <span class="CodeOrCommand">fieldId</span> is a signed, two-byte value that refers to specific name and type information defined by an external field dictionary, such as the <span class="FileOrDirectory">RDMFieldDictionary</span>. Negative <span class="CodeOrCommand">fieldId</span> values typically refer to user-defined values while positive <span class="CodeOrCommand">fieldId</span> values typically refer to Thomson Reuters-defined values. When encoding, the <span class="CodeOrCommand">FieldEntry.fieldId</span> should match the value that the set definition expects. When decoding, the <span class="CodeOrCommand">FieldEntry.fieldId</span> is populated with the <span class="CodeOrCommand">fieldId</span> value indicated in the set definition.</div>
-            <div class="CellBody"><span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold"><a name="1533879">fieldId</a></span> has an allowable range of -32,768 to 32,767 where positive values are Thomson Reuters-defined and negative values are user-defined. The <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">fieldId</span> value of <span style="font-weight: bold">0</span> is reserved to indicate <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">dictionaryId</span> changes, where the type of <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">fieldId</span> <span style="font-weight: bold">0</span> is an <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">Int</span>.</div>
+            <div class="CellBody"><a name="1692148">Set or get the </a><span class="CodeOrCommand">fieldId</span> value that corresponds to this entry in the set-defined <span class="CodeOrCommand">FieldList</span> content. <span class="CodeOrCommand">fieldId</span> is a signed, two-byte value that refers to specific name and type information defined by an external field dictionary, such as the <span class="FileOrDirectory">RDMFieldDictionary</span>. Negative <span class="CodeOrCommand">fieldId</span> values typically refer to user-defined values while positive <span class="CodeOrCommand">fieldId</span> values typically refer to Thomson Reuters-defined values. When encoding, the <span class="CodeOrCommand">FieldEntry.fieldId</span> should match the value that the set definition expects. When decoding, the <span class="CodeOrCommand">FieldEntry.fieldId</span> is populated with the <span class="CodeOrCommand">fieldId</span> value indicated in the set definition.</div>
+            <div class="CellBody"><span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold"><a name="1692155">fieldId</a></span> has an allowable range of -32,768 to 32,767 where positive values are Thomson Reuters-defined and negative values are user-defined. The <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">fieldId</span> value of <span style="font-weight: bold">0</span> is reserved to indicate <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">dictionaryId</span> changes, where the type of <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">fieldId</span> <span style="font-weight: bold">0</span> is an <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">Int</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533881">dataType</a></div>
+            <div class="CellBody"><a name="1692157">dataType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533886">Set or get the </a><span class="CodeOrCommand">dataType</span>, which defines the <span class="CodeOrCommand">DataTypes</span> value of the entry as it encodes or decodes when using this set definition. This can be a base primitive type, a set-defined primitive type, or a container type.</div>
+            <div class="CellBody"><a name="1692162">Set or get the </a><span class="CodeOrCommand">dataType</span>, which defines the <span class="CodeOrCommand">DataTypes</span> value of the entry as it encodes or decodes when using this set definition. This can be a base primitive type, a set-defined primitive type, or a container type.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -93,7 +93,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1533890">While encoding, populate the </a><span class="CodeOrCommand">FieldEntry.dataType</span> with the base primitive type or container type value that corresponds to the type contained in this definition.</div>
+                    <div class="Bullet_Table_inner"><a name="1692166">While encoding, populate the </a><span class="CodeOrCommand">FieldEntry.dataType</span> with the base primitive type or container type value that corresponds to the type contained in this definition.</div>
                   </td>
                 </tr>
               </table>
@@ -107,26 +107,26 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1533897">While decoding, </a><span class="CodeOrCommand">FieldEntry.dataType</span> is populated with the specific <span class="CodeOrCommand">DataTypes</span> information as indicated by the Set Definition, where any set-defined primitive type is converted to the corresponding base primitive type.</div>
+                    <div class="Bullet_Table_inner"><a name="1692173">While decoding, </a><span class="CodeOrCommand">FieldEntry.dataType</span> is populated with the specific <span class="CodeOrCommand">DataTypes</span> information as indicated by the Set Definition, where any set-defined primitive type is converted to the corresponding base primitive type.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1533898">For a map of set-defined primitive types and their corresponding base primitive types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.089.html', '');" title="11.6.1 Set-Defined Primitive Types">Section 11.6.1</a>.</div>
+            <div class="CellBody"><a name="1692174">For a map of set-defined primitive types and their corresponding base primitive types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.089.html', '');" title="11.6.1 Set-Defined Primitive Types">Section 11.6.1</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1533906">clear</a></div>
+            <div class="CellBody"><a name="1692182">clear</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533908">Clears this object, so that you can reuse it.</a></div>
+            <div class="CellBody"><a name="1692184">Clears this object, so that you can reuse it.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="Tip">
-              <span class="Bold">Tip: </span><a name="1533918"><img class="Tip" src="images/Chap_DataPackage_DetailedView.11.092.1.jpg" width="18" height="23" style="display: block; left: 0.0; top: 0.0" alt="" />When decoding, you can reuse </a><span class="CodeOrCommand">FieldSetDefEntry</span> without using <span class="CodeOrCommand">clear</span>.</div>
+              <span class="Bold">Tip: </span><a name="1692194"><img class="Tip" src="images/Chap_DataPackage_DetailedView.11.092.1.jpg" width="18" height="23" style="display: block; left: 0.0; top: 0.0" alt="" />When decoding, you can reuse </a><span class="CodeOrCommand">FieldSetDefEntry</span> without using <span class="CodeOrCommand">clear</span>.</div>
           </td>
         </tr>
       </table>

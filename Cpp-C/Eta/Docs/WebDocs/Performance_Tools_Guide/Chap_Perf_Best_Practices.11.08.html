@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1223237">Nagle’s Algorithm</a></div>
-      <div class="Body"><a name="1223238">For TCP socket connection types, you can set the underlying transport to use Nagle’s Algorithm to combine small content fragments into larger network frames. While this algorithm reduces transport overhead (optimizing bandwidth usage), it also increases latency, especially when sending small messages at lower data rates.</a></div>
-      <div class="Body"><a name="1223239">To minimize latency, the Transport API Performance Tools use </a><span class="CodeOrCommand">tcp_nodelay</span>, which disables Nagle’s Algorithm. However, you can reenable this feature using the <span class="CodeOrCommand">-tcpDelay</span> option. For further details, refer to each tool’s list of available options.</div>
+      <div class="Body"><a name="1226313">For TCP socket connection types, you can set the underlying transport to use Nagle’s Algorithm to combine small content fragments into larger network frames. While this algorithm reduces transport overhead (optimizing bandwidth usage), it also increases latency, especially when sending small messages at lower data rates.</a></div>
+      <div class="Body"><a name="1226317">To minimize latency, the Performance Tools use </a><span class="Parameter">tcp_nodelay </span>(an <span class="Parameter">RsslConnectOptions</span> parameter), which disables Nagle’s Algorithm. However, you can reenable this feature using the <span class="CodeOrCommand">-tcpDelay</span> option. For further details, refer to each tool’s list of available options.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

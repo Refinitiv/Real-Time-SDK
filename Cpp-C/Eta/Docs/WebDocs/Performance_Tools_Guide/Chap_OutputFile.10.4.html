@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>10.3 File Import</title>
+    <title>10.3 Latency File</title>
     <link rel="StyleSheet" href="css/Chap_OutputFile.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,12 +55,79 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2"><a name="1223256">File Import</a></div>
-      <div class="Body"><a name="1223522">You can import output </a><span class="FileOrDirectory">.csv</span> files into data analysis software. For example, you can use Microsoft Excel and Microsoft Access to import and quickly analyze your test results. Shown below are graphs created in Excel after importing a statistics <span class="FileOrDirectory">.csv</span> file for a test run. Note that these are sample graphs and do not imply the real performance results of the tool suite.</div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1223563"><img class="Default" src="images/Chap_OutputFile.10.4.1.jpg" width="483" height="256" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 26.  <a name="1223565">Sample Excel Graph from ConsStats1.csv</a></div>
-      <div class="Body"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt"><a name="1223567"><img class="Default" src="images/Chap_OutputFile.10.4.2.jpg" width="482" height="291" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 27.  <a name="1223543">Sample Excel Graph of Latencies Over a 15-second Steady State Interval from ConsLatency1.csv</a></div>
+      <div class="H2"><a name="1222687">Latency File</a></div>
+      <div class="Body"><a name="1224396">The latency file is a comma-separated value file containing individual latencies, in microseconds, for timestamps received during the test. It is only created by </a><span class="ToolOrUtility_Name">upacConsPerf</span> and <span class="ToolOrUtility_Name">upacTransportPerf</span>.</div>
+      <div class="Blank_Line"><a name="1224406">&nbsp;</a></div>
+      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1224405">Due to the potentially large amount of output in scenarios that use a high latency message rate, this file is not produced by default.</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Body"><a name="1224407">The interval in seconds that statistics are written to the file is controlled by the </a><span class="Parameter">writeStatsInterval</span> configuration parameter, which defaults to <span class="Parameter">5</span>.</div>
+      <div class="Blank_Line"><a name="1224431">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1224410">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224412">Message type, Send time, Receive time, Latency (usec)</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224414">Upd, 353725032296, 353725032521, 225</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224416">Upd, 353725045319, 353725045569, 250</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224418">Upd, 353725092300, 353725092521, 221</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224420">Pst, 353724892323, 353724894740, 2417</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224422">Pst, 353724925257, 353724926441, 1184</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224424">Pst, 353725105324, 353725106762, 1438</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224426">Upd, 353725359645, 353725359859, 214</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224428">Upd, 353725610354, 353725610619, 265</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224430">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="CodeTitle">Code Example 17: <a name="1224432">Sample ConsLatency.csv Showing Update and Post latencies during a Test Run</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -73,7 +140,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_OutputFile.10.1.html">Chapter 10	Output File Details</a> : 10.3	File Import</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_OutputFile.10.1.html">Chapter 10	Output File Details</a> : 10.3	Latency File</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

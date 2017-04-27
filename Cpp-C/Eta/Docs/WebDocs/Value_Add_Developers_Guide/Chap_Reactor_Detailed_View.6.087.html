@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>6.6.2.7 Writing Data: RsslReactorSubmitOptions Utility Function</title>
+    <title>6.6.2.7 Writing Data: rsslReactorSubmit Return Codes</title>
     <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,27 +55,46 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1249088">Writing Data: RsslReactorSubmitOptions Utility Function</a></div>
-      <div class="Body"><a name="1251476">The Transport API provides the following utility function for use with the </a><span class="CodeOrCommand">RsslReactorDispatchOptions</span>.</div>
-      <div class="Blank_Line"><a name="1251496">&nbsp;</a></div>
+      <div class="H4"><a name="1249115">Writing Data: rsslReactorSubmit Return Codes</a></div>
+      <div class="Body"><a name="1530650">The following table defines the return codes that can occur when using </a><span class="CodeOrCommand">rsslReactorSubmit</span>.</div>
+      <div class="Blank_Line"><a name="1530720">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 54: <span class="LucidaConsole"><a name="1251516">RsslReactorSubmitOptions</a></span> Utility Function &nbsp;</div>
+          <div class="TableTitle">Table 54: <span class="LucidaConsole"><a name="1530717">rsslReactorSubmit</a></span> Return Codes &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 175.5pt">
-            <div class="CellHeading"><a name="1251508">FUNCTION NAME</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 203.99976pt">
+            <div class="CellHeading"><a name="1530653">RETURN CODE</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 380.25pt">
-            <div class="CellHeading"><a name="1251510">DESCRIPTION</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 351.75024pt">
+            <div class="CellHeading"><a name="1530655">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1251512">rsslClearReactorSubmitOptions</a></div>
+            <div class="CellBody"><a name="1530657">RSSL_RET_SUCCESS </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1251514">Clears the </a><span class="CodeOrCommand">RsslReactorSubmitOptions</span> structure. Useful for structure reuse.</div>
+            <div class="CellBody"><a name="1530665">Indicates that the </a><span class="CodeOrCommand">rsslReactorSubmit</span> function has succeeded. </div>
+            <div class="CellBody"><a name="1530672">The </a><span class="CodeOrCommand">RsslBuffer</span> will be released by the Transport API Reactor.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1530674">RSSL_RET_WRITE_CALL_AGAIN </a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1530676">Indicates that a large buffer could not be fully written with this </a><span class="CodeOrCommand">rsslReactorSubmit</span> call. This is typically due to all pool buffers being unavailable. The <span class="CodeOrCommand">RsslReactor</span> will flush for the user to free up buffers. The application can optionally use <span class="CodeOrCommand">rsslReactorChannelIoctl</span> to increase the number of available pool buffers. After pool buffers become available again, the same buffer should be used to call <span class="CodeOrCommand">rsslReactorSubmit</span> an additional time (using the same priority level for proper ordering of each fragment). This will continue the fragmentation process from where it left off. </div>
+            <div class="CellBody"><a name="1530689">If the application does not subsequently pass the buffer to </a><span class="CodeOrCommand">rsslReactorSubmit</span>, the application should release it by calling <span class="CodeOrCommand">rsslReactorReleaseBuffer</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1530697">RSSL_RET_FAILURE </a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1530702">Indicates that a general write failure has occurred. The </a><span class="CodeOrCommand">RsslReactorChannel</span> should be closed. </div>
+            <div class="CellBody"><a name="1530706">The application should release the </a><span class="CodeOrCommand">RsslBuffer</span> by calling <span class="CodeOrCommand">rsslReactorReleaseBuffer</span>.</div>
           </td>
         </tr>
       </table>
@@ -91,7 +110,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.072.html">6.6	Writing Data</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.080.html">6.6.2	Writing data using rsslReactorSubmit()</a> : 6.6.2.7	Writing Data: RsslReactorSubmitOptions Utility Function</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.072.html">6.6	Writing Data</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.080.html">6.6.2	Writing data using rsslReactorSubmit()</a> : 6.6.2.7	Writing Data: rsslReactorSubmit Return Codes</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

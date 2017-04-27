@@ -57,96 +57,118 @@
     <blockquote>
       <div class="H4"><a name="999841">Source Directory Group Filter Entry</a></div>
       <div class="Body"><a name="1007012">The Group filter entry (</a><span class="Parameter">RDM_DIRECTORY_SERVICE_GROUP_FILTER</span>, <span class="Parameter">RDM_DIRECTORY_SERVICE_GROUP_ID</span>) conveys item group status and item group merge information. Every item stream is associated with an item group as defined by the <span class="CodeOrCommand">groupId</span> provided with the item’s <span class="CodeOrCommand">RsslRefreshMsg</span> or <span class="CodeOrCommand">RsslStatusMsg</span>. If some kind of change impacts all items within the same group, only a single group status message need be provided. For more information on item group use and handling, see the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
-      <div class="Body"><a name="1007013">If multiple Group </a><span class="CodeOrCommand">RsslFilterEntry</span>s are received in a single <span class="CodeOrCommand">RsslFilterList</span>, then they should be applied in the order in which they were received.</div>
+      <div class="Body"><a name="1007013">If multiple group </a><span class="CodeOrCommand">RsslFilterEntry</span>s are received in a single <span class="CodeOrCommand">RsslFilterList</span>, then they should be applied in the order in which they were received.</div>
+      <div class="Body"><a name="1032380">Any default behavior is explained in the Element’s description.</a></div>
       <div class="Blank_Line"><a name="1006054">&nbsp;</a></div>
-      <table class="Two_Column" style="width: 675.00072pt" cellspacing="0" summary="">
+      <table class="Two_Column" style="width: 555.75072pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 24: <a name="1006043">Source Directory Group Filter Entry Elements &nbsp;</a></div>
+          <div class="TableTitle">Table 25: <a name="1032367">Source Directory Group </a><span class="LucidaConsole">RsslFilterEntry</span> Elements &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 99pt">
-            <div class="CellHeading"><a name="1005944">ELEMENT NAME</a></div>
+            <div class="CellHeading"><a name="1032287">ELEMENT NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 93.74976pt">
-            <div class="CellHeading"><a name="1005946">TYPE</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 60.75pt">
-            <div class="CellHeading"><a name="1005948">REQUIRED</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 63pt">
-            <div class="CellHeading"><a name="1005950">DEFAULT</a></div>
+            <div class="CellHeading"><a name="1032289">TYPE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 116.25048pt">
-            <div class="CellHeading"><a name="1005952">RANGE/EXAMPLE</a></div>
+            <div class="CellHeading"><a name="1032291">RANGE/EXAMPLE</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 242.25048pt">
-            <div class="CellHeading"><a name="1005954">DESCRIPTION</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005956">Group</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005958">RSSL_DT_BUFFER</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005960">Yes</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1007215">None</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1007208">e.g., 1.26.102</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1007230">The </a><span class="CodeOrCommand">groupId</span> with which this information is associated.</div>
-            <div class="CellBody_9pt"><a name="1007231">This is typically represented as a series of 2-byte unsigned integers (i.e. two-byte unsigned integers written directly next to each other in the buffer). The example provided in the </a><span class="Parameter">RANGE</span> / <span class="Parameter">EXAMPLE</span> column of this table shows such a series, with inserted dots to help indicate two-byte value. When encoded into a buffer, do not include dots.</div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 246.75048pt">
+            <div class="CellHeading"><a name="1032293">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005968">MergedToGroup</a></div>
+            <div class="CellBody_9pt"><a name="1032295">Group</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005970">RSSL_DT_BUFFER</a></div>
+            <div class="CellBody_9pt"><a name="1032300">RSSL_DT_BUFFER</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005972">No</a></div>
+            <div class="CellBody_9pt"><a name="1032302">e.g., 1.26.102</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1007217">N/A</a></div>
+            <div class="CellBody_9pt"><span class="Color_003aRequired"><a name="1032307">Required</a></span>. Specifies the <span class="CodeOrCommand">groupId</span> with which this information is associated.</div>
+            <div class="CellBody_9pt"><a name="1032308">This is typically represented as a series of 2-byte unsigned integers (i.e., two-byte unsigned integers written directly next to each other in the buffer). The example provided in the </a><span class="Parameter">RANGE</span> / <span class="Parameter">EXAMPLE</span> column of this table shows such a series, with inserted dots to help indicate two-byte value. When encoded into a buffer, do not include these dots.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
+            <div class="CellBody_9pt"><a name="1032310">MergedToGroup</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
+            <div class="CellBody_9pt"><a name="1032315">RSSL_DT_BUFFER</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
+            <div class="CellBody_9pt"><a name="1032317">e.g., 1.26.110</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1007210">e.g., 1.26.110</a></div>
+            <div class="CellBody_9pt"><a name="1032322">Changes all items whose group currently matches the </a><span class="Parameter">Group</span> element to the specified <span class="CodeOrCommand">MergedToGroup</span>.</div>
           </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005978">Indicates a change of </a><span class="CodeOrCommand">groupId</span> for all items whose group currently matches the <span class="Parameter">Group</span> element. The consumer should change the <span class="CodeOrCommand">groupId</span> of those items to match this element.</div>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1032492">The consumer should change the </a><span class="CodeOrCommand">groupId</span> of those items to match this element.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005980">Status</a></div>
+            <div class="CellBody_9pt"><a name="1032327">Status</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005982">RSSL_DT_STATE</a></div>
+            <div class="CellBody_9pt"><a name="1032332">RSSL_DT_STATE </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1005984">No</a></div>
+            <div class="CellBody_9pt"><a name="1032340">e.g., </a>[RSSL_STREAM_OPEN, RSSL_DATA_OK, RSSL_SC_NONE, ]</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1007219">N/A</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1007212">e.g. </a></div>
-            <div class="CellBody_9pt"><a name="1007213">[RSSL_STREAM_OPEN, RSSL_DATA_OK, RSSL_SC_NONE]</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1007265">A status change to be applied to all items whose </a><span class="CodeOrCommand">groupId</span> matches the <span class="Parameter">Group</span> element. It is equivalent to sending an <span class="CodeOrCommand">RsslStatusMsg</span> to each item.</div>
-            <div class="CellBody_9pt"><a name="1007266">The </a><span class="CodeOrCommand">streamState</span> is only allowed to be <span class="Parameter">RSSL_STREAM_OPEN</span> or <span class="Parameter">RSSL_STREAM_CLOSED_RECOVER</span>.</div>
-            <div class="CellBody_9pt"><a name="1007267">If you need to convey group status </a><span class="CodeOrCommand">text</span> or <span class="CodeOrCommand">code</span> information without changing the data state, use the value <span class="Parameter">RSSL_DATA_NO_CHANGE</span>.</div>
-            <div class="CellBody_9pt"><a name="1007268">If present in the same message as a </a><span class="Parameter">MergedToGroup</span> element, this change should be applied before the merge.</div>
-            <div class="CellBody_9pt"><a name="1007269">This change only applies to item streams that have received a refresh or status with a state of </a><span class="Parameter">OPEN</span>/<span class="Parameter">OK</span>.</div>
+            <div class="CellBody_9pt"><a name="1032346">A status change to be applied to all items whose </a><span class="CodeOrCommand">groupId</span> matches the <span class="Parameter">Group</span> element. It is equivalent to sending a<span style="font-size: 10.0pt">n</span> <span class="CodeOrCommand">RsslStatusMsg</span> to each item.</div>
+            <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_9PT_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_9PT_inner"><a name="1032353">The </a><span class="CodeOrCommand">streamState</span> is only allowed to be <span class="Parameter">RSSL_STREAM_OPEN</span> or <span class="Parameter">RSSL_STREAM_CLOSED_RECOVER</span>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_9PT_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_9PT_inner"><a name="1032357">If you need to convey group status </a><span class="CodeOrCommand">text</span> or <span class="CodeOrCommand">code</span> information without changing the data state, use the value <span class="Parameter">RSSL_DATA_NO_CHANGE</span>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_9PT_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_9PT_inner"><a name="1032361">If present in the same message as a </a><span class="Parameter">MergedToGroup</span> element, this change should be applied before the merge.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="CellBody_9pt"><a name="1032362">This change only applies to item streams that have received a refresh or status with a state of </a><span class="Parameter">OPEN</span>/<span class="Parameter">OK</span>.</div>
+            <div class="CellBody_9pt"><a name="1032564">Refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_SourceDirectory_Domain.04.21.html', '');" title="4.4.3.2 Group Status">Section 4.4.3.2</a>.</div>
           </td>
         </tr>
       </table>

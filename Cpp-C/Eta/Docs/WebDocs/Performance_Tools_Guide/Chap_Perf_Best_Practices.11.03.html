@@ -57,8 +57,8 @@
     <blockquote>
       <div class="H2"><a name="1222758">Transport Best Practices</a></div>
       <div class="H3"><a name="1222760">rsslRead</a></div>
-      <div class="Body"><a name="1222927">When calling </a><span class="CodeOrCommand">rsslRead</span>, the <span class="Parameter">readret</span> parameter indicates whether more content is available for immediate processing. Because this content might have already been read from the underlying transport, an I/O notifier might not inform an application that this content is available. When the value is greater than <span class="Parameter">RSSL_RET_SUCCESS</span> (<span class="Parameter">0</span>), the application should call <span class="CodeOrCommand">rsslRead</span> again without waiting for further notification. Even if no message was returned, <span class="CodeOrCommand">rsslRead</span> can return a value greater than <span class="Parameter">RSSL_RET_SUCCESS</span>.</div>
-      <div class="Body"><a name="1222928">All applications follow a reading model that leverages the Transport API’s queuing and notification mechanisms to read quickly without making unnecessary function calls:</a></div>
+      <div class="Body"><a name="1226058">When calling </a><span class="CodeOrCommand">rsslRead</span>, the <span class="Parameter">readret</span> parameter indicates whether more content is available for immediate processing. Because this content might have already been read from the underlying transport, an I/O notifier might not inform an application that this content is available. When the value is greater than <span class="Parameter">RSSL_RET_SUCCESS</span> (<span class="Parameter">0</span>), the application should call <span class="CodeOrCommand">rsslRead</span> again without waiting for further notification. Even if no message was returned, <span class="CodeOrCommand">rsslRead</span> can return a value greater than <span class="Parameter">RSSL_RET_SUCCESS</span>.</div>
+      <div class="Body"><a name="1226074">All applications follow a reading model that leverages the Transport API’s queuing and notification mechanisms to read quickly without making unnecessary function calls:</a></div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -68,7 +68,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1222929">Wait for notification on the descriptors associated with a channel using its preferred I/O notifier. The application will only call </a><span class="CodeOrCommand">rsslRead</span> on channels that indicate the presence of readable data.</div>
+              <div class="Step1_inner"><a name="1226075">Wait for notification on the descriptors associated with a channel using its preferred I/O notifier. The application will only call </a><span class="CodeOrCommand">rsslRead</span> on channels that indicate the presence of readable data.</div>
             </td>
           </tr>
         </table>
@@ -82,7 +82,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1222930">Keep calling </a><span class="CodeOrCommand">rsslRead</span> as long as the return value is greater than <span class="Parameter">RSSL_RET_SUCCESS</span>. Such return values indicate that there is still data to process in the Transport API’s input buffer.</div>
+              <div class="Stepnext_inner"><a name="1226085">Keep calling </a><span class="CodeOrCommand">rsslRead</span> as long as the return value is greater than <span class="Parameter">RSSL_RET_SUCCESS</span>. Such return values indicate that there is still data to process in the Transport API’s input buffer.</div>
             </td>
           </tr>
         </table>

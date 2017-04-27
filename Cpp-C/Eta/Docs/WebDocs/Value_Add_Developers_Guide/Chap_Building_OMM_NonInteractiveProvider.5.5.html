@@ -56,10 +56,37 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1219607">Establish Connection using rsslReactorConnect</a></div>
-      <div class="Body"><a name="1219608">Once the </a><span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span> is populated, the application can use <span class="CodeOrCommand">rsslReactorConnect</span> to create a new outbound connection. <span class="CodeOrCommand">rsslReactorConnect</span> will create an OMM Non-Interactive Provider type connection using the provided configuration and role information. </div>
-      <div class="Body"><a name="1219609">Once the underlying connection is established a channel event will be returned to the application’s </a><span class="CodeOrCommand">RsslReactorChannelEventCallback</span>; this will provide the <span class="CodeOrCommand">RsslReactorChannel</span> and to indicate the current connection state. At this point, the application can begin using the <span class="CodeOrCommand">rsslReactorDispatch</span> function to dispatch directly on this <span class="CodeOrCommand">RsslReactorChannel</span>, or continue using <span class="CodeOrCommand">rsslReactorDispatch</span> to dispatch across all channels associated with the <span class="CodeOrCommand">RsslReactor</span>.</div>
-      <div class="Body"><a name="1219610">The </a><span class="CodeOrCommand">RsslReactor</span> will use the login and directory information specified on the <span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span> to perform all channel initialization for the user. After the user is logged in and has sent a source directory response, a channel event is returned to inform the application that the connection is ready. </div>
-      <div class="Body"><a name="1219611">The </a><span class="CodeOrCommand">rsslReactorConnect</span> function is described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.034.html', '');" title="6.4.1.1 Reactor Connect">Section 6.4.1.1</a>. Dispatching is described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.045.html', '');" title="6.5 Dispatching Data">Section 6.5</a>.</div>
+      <div class="Body"><a name="1225845">After populating the </a><span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span>, the application can use <span class="CodeOrCommand">rsslReactorConnect</span> to create a new outbound connection. <span class="CodeOrCommand">rsslReactorConnect</span> will create an OMM non-interactive provider type connection using the provided configuration and role information. </div>
+      <div class="Body"><a name="1225849">When the underlying connection is established, a channel event will be returned to the application’s </a><span class="CodeOrCommand">RsslReactorChannelEventCallback</span>, which provides the <span class="CodeOrCommand">RsslReactorChannel</span> and indicates the current connection state. At this point, the application can begin using the <span class="CodeOrCommand">rsslReactorDispatch</span> function to dispatch directly on this <span class="CodeOrCommand">RsslReactorChannel</span>, or continue using <span class="CodeOrCommand">rsslReactorDispatch</span> to dispatch across all channels associated with the <span class="CodeOrCommand">RsslReactor</span>.</div>
+      <div class="Body"><a name="1225877">The </a><span class="CodeOrCommand">RsslReactor</span> will use the login and directory information specified on the <span class="CodeOrCommand">RsslReactorOMMNIProviderRole</span> to perform all channel initialization for the user. After the user is logged in and has sent a source directory response, a channel event is returned to inform the application that the connection is ready. </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1225890">For further details on the </a><span class="CodeOrCommand">rsslReactorConnect</span> function, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.034.html', '');" title="6.4.1.1 Reactor Connect">Section 6.4.1.1</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1225897">For further details on dispatching, refer to</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.045.html', '');" title="6.5 Dispatching Data">Section 6.5</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

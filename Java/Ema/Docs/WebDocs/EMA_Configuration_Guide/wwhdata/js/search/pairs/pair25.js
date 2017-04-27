@@ -1,14 +1,12 @@
 function FileData_Pairs(x)
 {
-x.t("example","channelset");
 x.t("example","xml");
+x.t("channelset","consumergroup");
 x.t("channelset","function");
 x.t("channelset","specifies");
-x.t("channelset","configuration");
 x.t("channelset","following");
 x.t("channelset","value=");
 x.t("m.parentnode.insertbefore","window");
-x.t("within","xml");
 x.t(".l=1","new");
 x.t("create","ua-55718642-4");
 x.t("time","previous");
@@ -42,11 +40,9 @@ x.t("xml","schema");
 x.t("consumer","channelset");
 x.t("groups","3.3");
 x.t("schema","configuring");
-x.t("schema","consumergroup");
 x.t("message","api");
 x.t("previous","fails");
 x.t("java","edition");
-x.t("configuration","within");
 x.t("configuration","groups");
 x.t("send","pageview");
 x.t("(arguments)","[r]");

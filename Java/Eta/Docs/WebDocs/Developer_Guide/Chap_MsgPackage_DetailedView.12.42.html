@@ -56,27 +56,27 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1019219">Msg Encoding Interfaces</a></div>
-      <div class="Body"><a name="1159029">When encoding, any message interfaces can call </a><span class="CodeOrCommand">Msg</span> encoding methods without the need to explicitly cast to the <span class="CodeOrCommand">Msg</span> interface. For simplicity, this encoding section will refer to the <span class="CodeOrCommand">Msg</span> interface.</div>
-      <div class="Body"><span class="CodeOrCommand"><a name="1159048">Msg</a></span> can be encoded from pre-encoded data or by encoding individual pieces of data as they are provided.</div>
-      <div class="Blank_Line"><a name="1159122">&nbsp;</a></div>
+      <div class="Body"><a name="1216861">When encoding, any message interfaces can call </a><span class="CodeOrCommand">Msg</span> encoding methods without the need to explicitly cast to the <span class="CodeOrCommand">Msg</span> interface. For simplicity, this encoding section will refer to the <span class="CodeOrCommand">Msg</span> interface.</div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1216880">Msg</a></span> can be encoded from pre-encoded data or by encoding individual pieces of data as they are provided.</div>
+      <div class="Blank_Line"><a name="1216954">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 144: <span class="LucidaConsole"><a name="1159119">Msg</a></span> Encode Methods &nbsp;</div>
+          <div class="TableTitle">Table 144: <span class="LucidaConsole"><a name="1216951">Msg</a></span> Encode Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 181.49976pt">
-            <div class="CellHeading" style="color: #ffffff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><span style="color: #ffffff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="1159051">ENCODE INTERFACE</a></span></div>
+            <div class="CellHeading" style="color: #ffffff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><span style="color: #ffffff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="1216883">ENCODE INTERFACE</a></span></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 374.25024pt">
-            <div class="CellHeading" style="color: #ffffff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><span style="color: #ffffff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="1159053">DESCRIPTION</a></span></div>
+            <div class="CellHeading" style="color: #ffffff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><span style="color: #ffffff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none; vertical-align: baseline"><a name="1216885">DESCRIPTION</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159055">encode</a></div>
+            <div class="CellBody"><a name="1216887">encode</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159057">Encodes a message where all message content is pre-encoded. </a></div>
+            <div class="CellBody"><a name="1216889">Encodes a message where all message content is pre-encoded. </a></div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -86,7 +86,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1159058">msgKey</a></span> attribute information should be encoded and populated on <span class="CodeOrCommand">msgKey.enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">Attrib</span> prior to this call. </div>
+                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1216890">msgKey</a></span> attribute information should be encoded and populated on <span class="CodeOrCommand">msgKey.enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">Attrib</span> prior to this call. </div>
                   </td>
                 </tr>
               </table>
@@ -100,7 +100,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1159059">extendedHeader</a></span> information should be encoded and populated on the message’s <span class="CodeOrCommand">extendedHeader</span> member prior to this call. </div>
+                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1216891">extendedHeader</a></span> information should be encoded and populated on the message’s <span class="CodeOrCommand">extendedHeader</span> member prior to this call. </div>
                   </td>
                 </tr>
               </table>
@@ -114,44 +114,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1159060">Message payload information should be encoded and populated on the </a><span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">DataBody</span> member prior to this call. </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159062">encodeInit</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159067">Begins encoding of an </a><span class="CodeOrCommand">Msg</span>. </div>
-            <div class="CellBody"><a name="1159068">All message header elements should be properly populated. The </a><span class="CodeOrCommand">containerType</span> member should be populated with the specific type of message payload.</div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1159069">If encoding </a><span class="CodeOrCommand">msgKey</span> attribute information: pre-encoded <span class="CodeOrCommand">msgKey</span> attribute information should be populated in <span class="CodeOrCommand">msgKey.enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">Attrib</span>. Unencoded <span class="CodeOrCommand">msgKey</span> attribute information should be encoded after <span class="CodeOrCommand">encodeInit</span> returns, followed by <span class="CodeOrCommand">encodeKeyAttribComplete</span>.</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1159070">If encoding </a><span class="CodeOrCommand">extendedHeader</span> information: pre-encoded <span class="CodeOrCommand">extendedHeader</span> information should be populated in the <span class="CodeOrCommand">extendedHeader</span> member of the message. Unencoded <span class="CodeOrCommand">extendedHeader</span> information should be encoded after the call to <span class="CodeOrCommand">encodeInit</span> and after <span class="CodeOrCommand">msgKey</span> attribute information is encoded. When <span class="CodeOrCommand">extendedHeader</span> encoding is completed, call <span class="CodeOrCommand">encodeExtendedHeaderComplete</span>.</div>
+                    <div class="Bullet_Table_inner"><a name="1216892">Message payload information should be encoded and populated on the </a><span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">DataBody</span> member prior to this call. </div>
                   </td>
                 </tr>
               </table>
@@ -160,11 +123,11 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159072">encodeComplete</a></div>
+            <div class="CellBody"><a name="1216894">encodeInit</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159077">Completes encoding of an </a><span class="CodeOrCommand">Msg</span>.</div>
-            <div class="CellBody"><a name="1159078">All message content should be encoded prior to this call. This function expects the same </a><span class="CodeOrCommand">EncodeIterator</span> that was used with <span class="CodeOrCommand">encodeInit</span>.</div>
+            <div class="CellBody"><a name="1216899">Begins encoding of an </a><span class="CodeOrCommand">Msg</span>. </div>
+            <div class="CellBody"><a name="1216900">All message header elements should be properly populated. The </a><span class="CodeOrCommand">containerType</span> member should be populated with the specific type of message payload.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -174,7 +137,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1159082">If the content (i.e., payload, </a><span class="CodeOrCommand">msgKey</span> attrib, and <span class="CodeOrCommand">extendedHeader</span>) encodes successfully, the <span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish encoding.</div>
+                    <div class="Bullet_Table_inner"><a name="1216901">If encoding </a><span class="CodeOrCommand">msgKey</span> attribute information: pre-encoded <span class="CodeOrCommand">msgKey</span> attribute information should be populated in <span class="CodeOrCommand">msgKey.enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">Attrib</span>. Unencoded <span class="CodeOrCommand">msgKey</span> attribute information should be encoded after <span class="CodeOrCommand">encodeInit</span> returns, followed by <span class="CodeOrCommand">encodeKeyAttribComplete</span>.</div>
                   </td>
                 </tr>
               </table>
@@ -188,7 +151,44 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1159083">If any of the content fails to encode, the </a><span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back the encoding of the message.</div>
+                    <div class="Bullet_Table_inner"><a name="1216902">If encoding </a><span class="CodeOrCommand">extendedHeader</span> information: pre-encoded <span class="CodeOrCommand">extendedHeader</span> information should be populated in the <span class="CodeOrCommand">extendedHeader</span> member of the message. Unencoded <span class="CodeOrCommand">extendedHeader</span> information should be encoded after the call to <span class="CodeOrCommand">encodeInit</span> and after <span class="CodeOrCommand">msgKey</span> attribute information is encoded. When <span class="CodeOrCommand">extendedHeader</span> encoding is completed, call <span class="CodeOrCommand">encodeExtendedHeaderComplete</span>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1216904">encodeComplete</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1216909">Completes encoding of an </a><span class="CodeOrCommand">Msg</span>.</div>
+            <div class="CellBody"><a name="1216910">All message content should be encoded prior to this call. This function expects the same </a><span class="CodeOrCommand">EncodeIterator</span> that was used with <span class="CodeOrCommand">encodeInit</span>.</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1216914">If the content (i.e., payload, </a><span class="CodeOrCommand">msgKey</span> attrib, and <span class="CodeOrCommand">extendedHeader</span>) encodes successfully, the <span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish encoding.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1216915">If any of the content fails to encode, the </a><span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back the encoding of the message.</div>
                   </td>
                 </tr>
               </table>
@@ -197,11 +197,11 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159085">encodeKeyAttribComplete</a></div>
+            <div class="CellBody"><a name="1216917">encodeKeyAttribComplete</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159087">Completes encoding of any non-pre-encoded </a><span class="CodeOrCommand">msgKey</span> attribute information.</div>
-            <div class="CellBody"><a name="1159088">Can be used only when message encoding leverages </a><span class="CodeOrCommand">encodeInit</span>. If the <span class="CodeOrCommand">MsgKeyFlags.HAS_ATTRIB</span> flag is set and <span class="CodeOrCommand">msgKey.enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">Attrib</span> is not populated, <span class="CodeOrCommand">msgKey</span> attribute information is expected after <span class="CodeOrCommand">encodeInit</span> returns, with the specific <span class="CodeOrCommand">attribContainerType</span> methods being used to encode it. This method expects the same <span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">encodeInit</span>.</div>
+            <div class="CellBody"><a name="1216919">Completes encoding of any non-pre-encoded </a><span class="CodeOrCommand">msgKey</span> attribute information.</div>
+            <div class="CellBody"><a name="1216920">Can be used only when message encoding leverages </a><span class="CodeOrCommand">encodeInit</span>. If the <span class="CodeOrCommand">MsgKeyFlags.HAS_ATTRIB</span> flag is set and <span class="CodeOrCommand">msgKey.enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">Attrib</span> is not populated, <span class="CodeOrCommand">msgKey</span> attribute information is expected after <span class="CodeOrCommand">encodeInit</span> returns, with the specific <span class="CodeOrCommand">attribContainerType</span> methods being used to encode it. This method expects the same <span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">encodeInit</span>.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -211,7 +211,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1159098">If encoding of the </a><span class="CodeOrCommand">msgKey</span> attribute information succeeds, the <span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish attribute encoding. </div>
+                    <div class="Bullet_Table_inner"><a name="1216930">If encoding of the </a><span class="CodeOrCommand">msgKey</span> attribute information succeeds, the <span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish attribute encoding. </div>
                   </td>
                 </tr>
               </table>
@@ -225,21 +225,21 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1159099">If encoding of attributes fails, the </a><span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back encoding prior to <span class="CodeOrCommand">msgKey</span> attributes. </div>
+                    <div class="Bullet_Table_inner"><a name="1216931">If encoding of attributes fails, the </a><span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back encoding prior to <span class="CodeOrCommand">msgKey</span> attributes. </div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1159100">If both </a><span class="CodeOrCommand">msgKey</span> attributes and <span class="CodeOrCommand">extendedHeader</span> information are being encoded, <span class="CodeOrCommand">msgKey</span> attributes are expected first with <span class="CodeOrCommand">extendedHeader</span> being encoded after the call to <span class="CodeOrCommand">encodeKeyAttribComplete</span>.</div>
+            <div class="CellBody"><a name="1216932">If both </a><span class="CodeOrCommand">msgKey</span> attributes and <span class="CodeOrCommand">extendedHeader</span> information are being encoded, <span class="CodeOrCommand">msgKey</span> attributes are expected first with <span class="CodeOrCommand">extendedHeader</span> being encoded after the call to <span class="CodeOrCommand">encodeKeyAttribComplete</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159102">encodeExtendedHeaderComplete</a></div>
+            <div class="CellBody"><a name="1216934">encodeExtendedHeaderComplete</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1159104">Completes encoding of any non-pre-encoded </a><span class="CodeOrCommand">extendedHeader</span> information. </div>
-            <div class="CellBody"><a name="1159105">Can be used only when the message encoding leverages </a><span class="CodeOrCommand">encodeInit</span>. If the specific message’s <span class="Parameter">HAS_EXTENDED_HEADER</span> flag is set and <span class="CodeOrCommand">extendedHeader</span> is not populated, this information is expected after <span class="CodeOrCommand">encodeInit</span> (and <span class="CodeOrCommand">encodeKeyAttribComplete</span> if encoding <span class="CodeOrCommand">msgKey</span> attributes) returns. This function expects the same <span class="CodeOrCommand">EncodeIterator</span> used with previous message encoding functions.</div>
+            <div class="CellBody"><a name="1216936">Completes encoding of any non-pre-encoded </a><span class="CodeOrCommand">extendedHeader</span> information. </div>
+            <div class="CellBody"><a name="1216937">Can be used only when the message encoding leverages </a><span class="CodeOrCommand">encodeInit</span>. If the specific message’s <span class="Parameter">HAS_EXTENDED_HEADER</span> flag is set and <span class="CodeOrCommand">extendedHeader</span> is not populated, this information is expected after <span class="CodeOrCommand">encodeInit</span> (and <span class="CodeOrCommand">encodeKeyAttribComplete</span> if encoding <span class="CodeOrCommand">msgKey</span> attributes) returns. This function expects the same <span class="CodeOrCommand">EncodeIterator</span> used with previous message encoding functions.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -249,7 +249,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1159109">If encoding of </a><span class="CodeOrCommand">extendedHeader</span> succeeds, the <span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish encoding.</div>
+                    <div class="Bullet_Table_inner"><a name="1216941">If encoding of </a><span class="CodeOrCommand">extendedHeader</span> succeeds, the <span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish encoding.</div>
                   </td>
                 </tr>
               </table>
@@ -263,12 +263,12 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1159110">If encoding of </a><span class="CodeOrCommand">extendedHeader</span> fails, the <span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back to encoding prior to <span class="CodeOrCommand">extendedHeader</span>.</div>
+                    <div class="Bullet_Table_inner"><a name="1216942">If encoding of </a><span class="CodeOrCommand">extendedHeader</span> fails, the <span class="CodeOrCommand">Boolean</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back to encoding prior to <span class="CodeOrCommand">extendedHeader</span>.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1159111">If both </a><span class="CodeOrCommand">msgKey</span> attributes and <span class="CodeOrCommand">extendedHeader</span> information are being encoded, <span class="CodeOrCommand">msgKey</span> attributes are expected first, while <span class="CodeOrCommand">extendedHeader</span> should be encoded after the call to <span class="CodeOrCommand">encodeKeyAttribComplete</span>.</div>
+            <div class="CellBody"><a name="1216943">If both </a><span class="CodeOrCommand">msgKey</span> attributes and <span class="CodeOrCommand">extendedHeader</span> information are being encoded, <span class="CodeOrCommand">msgKey</span> attributes are expected first, while <span class="CodeOrCommand">extendedHeader</span> should be encoded after the call to <span class="CodeOrCommand">encodeKeyAttribComplete</span>.</div>
           </td>
         </tr>
       </table>

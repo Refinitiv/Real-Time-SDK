@@ -37,5 +37,4 @@ P.fA("3.10 Miscellaneous Sequences","Anside_user3.3.17.html");
 P.fA("3.10.1 Control Characters","Anside_user3.3.18.html");
 P.fA("3.10.2 Controls","Anside_user3.3.19.html");
 P.fA("Appendix A Programming Hints and Tips","Ansidec_AppA.html");
-P.fA("\u00a9 2016 Thomson Reuters. All rights reserved.","lastpg.html");
 }

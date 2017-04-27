@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.3.2.2 Building a Non-Interactive Provider</title>
+    <title>3.3.1.6 Building an Interactive Provider</title>
     <link rel="StyleSheet" href="css/Chap_Consumers_Providers.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -50,17 +50,17 @@
           <tr style="vertical-align: baseline">
             <td>
               <div class="H4_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">3.3.2.2	</span>
+                <span class="bold">3.3.1.6	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H4_inner"><a name="1006052">Building a Non-Interactive Provider</a></div>
+              <div class="H4_inner"><a name="999377">Building an Interactive Provider</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1046482">An </a>OMM NIP can publish information into the ADH cache without needing to handle requests for the information. The ADH can cache the information and along with other Enterprise Platform components, provide the information to any OMM consumer applications that indicate interest.</div>
-      <div class="Body"><a name="1046486">The general process can be summarized by the following steps:</a><sup><a name="wwfootnote_inline_66" href="#66">1</a></sup></div>
+      <div class="Body"><a name="1054264">An OMM interactive provider application opens a listening socket on a well-known port allowing OMM consumer applications to connect. After connecting, consumers can request data from the interactive provider.</a></div>
+      <div class="Body"><a name="1054268">The following steps summarize this process</a><sup><a name="wwfootnote_inline_67" href="#67">1</a></sup>:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -70,21 +70,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1046487">Establish network communication</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1046488">Perform Login process</a></div>
+              <div class="Bullet_inner"><a name="1054269">Establish network communication</a></div>
             </td>
           </tr>
         </table>
@@ -98,7 +84,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1046489">Perform Dictionary Download</a></div>
+              <div class="Bullet_inner"><a name="1054270">Accept incoming connections</a></div>
             </td>
           </tr>
         </table>
@@ -112,7 +98,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1046490">Provide Source Directory information</a></div>
+              <div class="Bullet_inner"><a name="1054271">Handle login requests</a></div>
             </td>
           </tr>
         </table>
@@ -126,7 +112,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1046491">Provide content</a></div>
+              <div class="Bullet_inner"><a name="1054272">Provide source directory information</a></div>
             </td>
           </tr>
         </table>
@@ -140,14 +126,40 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1046492">Log out and shut down</a></div>
+              <div class="Bullet_inner"><a name="1054273">Provide or download necessary dictionaries</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1046496">Included with the Elektron API package, the </a>NIP example application provides an implementation of an NIP written with simplicity in mind and demonstrates the use of the appropriate Elektron API. Portions of the functionality are abstracted for easy reuse, though you might need to modify it to achieve your own performance and functionality goals.</div>
-      <div class="Body"><a name="1046500">Content is encoded and decoded </a>depending on the API that you use.</div>
-      <div class="Body"><a name="1041675">&nbsp;</a></div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1054274">Handle requests and post messages</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1054275">Disconnect consumers and shut down</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1054279">The </a>interactive provider example application included with the API package provides one way of implementing an OMM interactive provider. The application is written with simplicity in mind and demonstrates the use of the appropriate . Portions of the functionality are abstracted for easy reuse, though you might need to customize it to achieve your own unique performance and functionality goals.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -159,13 +171,13 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="66" href="#wwfootnote_inline_66">1</a>
+        <a name="67" href="#wwfootnote_inline_67">1</a>
       </div>
-      <div class="Footnote"><a name="1046485">Specific APIs might automatically rely on defaults unless overridden by the user.</a></div>
+      <div class="Footnote"><a name="1054267">Specific APIs might automatically rely on defaults unless overridden by the user.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Consumers and Providers : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.16.html">3.3	Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.23.html">3.3.2	Non-Interactive Providers</a> : 3.3.2.2	Building a Non-Interactive Provider</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Consumers and Providers : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.17.html">3.3	Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.18.html">3.3.1	Interactive Providers</a> : 3.3.1.6	Building an Interactive Provider</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

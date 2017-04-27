@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1223257">Compression</a></div>
-      <div class="Body"><a name="1223258">The Transport API supports the use of data compression. Generally, compressing data reduces the amount of data passed to the underlying transport. But compression has some drawbacks to consider:</a></div>
+      <div class="Body"><a name="1226435">The Transport API supports the use of data compression. Generally, compressing data reduces the amount of data passed to the underlying transport. But compression has some drawbacks to consider:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1223259"><!--o--></a>Compression requires additional processing.<sup><a name="wwfootnote_inline_35" href="#35">1</a></sup></div>
+              <div class="bullet_ind_inner"><a name="1226439"><!--o--></a>Compression requires additional processing.<sup><a name="wwfootnote_inline_36" href="#36">1</a></sup></div>
             </td>
           </tr>
         </table>
@@ -80,12 +80,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1223260">Compression copies data: as the user-provided buffer is read by the compression algorithm, output data is compressed into a different buffer. Compression will generally require more buffers from the Transport API’s buffer pool as a result. </a></div>
+              <div class="bullet_ind_inner"><a name="1226440">Compression copies data: as the user-provided buffer is read by the compression algorithm, output data is compressed into a different buffer. As a result, compression will generally require more buffers from the Transport API’s buffer pool. </a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><span class="ToolOrUtility_Name"><a name="1223261">upacTransportPerf</a></span> exposes the option to enable compression using <span class="CodeOrCommand">-compressionType</span> and <span class="CodeOrCommand">-compressionLevel</span>.</div>
+      <div class="Body"><span class="ToolOrUtility_Name"><a name="1226447">upacTransportPerf</a></span> exposes the option to enable compression using <span class="CodeOrCommand">-compressionType</span> and <span class="CodeOrCommand">-compressionLevel</span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -97,9 +97,9 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="35" href="#wwfootnote_inline_35">1</a>
+        <a name="36" href="#wwfootnote_inline_36">1</a>
       </div>
-      <div class="Footnote"><a name="1223779">Additional overhead will vary based on the type of compression used and the level of compression being applied.</a></div>
+      <div class="Footnote"><a name="1226438">Overhead will vary based on the type of compression used and the level of compression applied.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

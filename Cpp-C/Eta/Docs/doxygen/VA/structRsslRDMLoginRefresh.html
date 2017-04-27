@@ -139,6 +139,10 @@ Data Fields</h2></td></tr>
 <tr class="memitem:ac4fdafef71a2c927f526f6710fb1fade"><td class="memItemLeft" align="right" valign="top">RsslUInt&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginRefresh.html#ac4fdafef71a2c927f526f6710fb1fade">sequenceRetryInterval</a></td></tr>
 <tr class="memitem:aad8aca4503ee3f7593557b31cf3be294"><td class="memItemLeft" align="right" valign="top">RsslUInt&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginRefresh.html#aad8aca4503ee3f7593557b31cf3be294">updateBufferLimit</a></td></tr>
 <tr class="memitem:a00ab69a260f7d1bfc64db7f96043bc08"><td class="memItemLeft" align="right" valign="top">RsslUInt&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginRefresh.html#a00ab69a260f7d1bfc64db7f96043bc08">sequenceNumberRecovery</a></td></tr>
+<tr class="memitem:ae46fc89d9fc4b4d7e0ddb6594cc97446"><td class="memItemLeft" align="right" valign="top">RsslUInt&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginRefresh.html#ae46fc89d9fc4b4d7e0ddb6594cc97446">authenticationTTReissue</a></td></tr>
+<tr class="memitem:af1bcf893f3520701ba4060de9bb2bc7e"><td class="memItemLeft" align="right" valign="top">RsslBuffer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginRefresh.html#af1bcf893f3520701ba4060de9bb2bc7e">authenticationExtendedResp</a></td></tr>
+<tr class="memitem:aad2351a4dd732962e44f7b1172013e98"><td class="memItemLeft" align="right" valign="top">RsslUInt&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginRefresh.html#aad2351a4dd732962e44f7b1172013e98">authenticationErrorCode</a></td></tr>
+<tr class="memitem:a2e6e10b160d5d0a6ae77afc52ce647cd"><td class="memItemLeft" align="right" valign="top">RsslBuffer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginRefresh.html#a2e6e10b160d5d0a6ae77afc52ce647cd">authenticationErrorText</a></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><dl class="section see"><dt>See also:</dt><dd><a class="el" href="structRsslRDMMsgBase.html" title="This message structure contains the information that is common across all RDM Message formats...">RsslRDMMsgBase</a>, <a class="el" href="unionRsslRDMMsg.html" title="RSSL Message Union contains all messages. This includes constructs, functions, and values...">RsslRDMMsg</a>, <a class="el" href="structRsslRDMServerInfo.html" title="Information about an available Server. A list of RsslRDMServerInfo is used by an RsslRDMLoginRefresh ...">RsslRDMServerInfo</a>, <a class="el" href="group__VARDMLogin.html#gacabbdc99f08b523b032071ad0e2d171e" title="Clears an RsslRDMLoginRefresh.">rsslClearRDMLoginRefresh</a> </dd></dl>
@@ -186,6 +190,70 @@ Data Fields</h2></td></tr>
 </div>
 <div class="memdoc">
 <p>The ApplicationName. </p>
+
+<p>Referenced by <a class="el" href="group__VARDMLogin.html#gacabbdc99f08b523b032071ad0e2d171e">rsslClearRDMLoginRefresh()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aad2351a4dd732962e44f7b1172013e98"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RsslUInt <a class="el" href="structRsslRDMLoginRefresh.html#aad2351a4dd732962e44f7b1172013e98">RsslRDMLoginRefresh::authenticationErrorCode</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>For TREP Authentication, this is any error information from the token generator </p>
+
+<p>Referenced by <a class="el" href="group__VARDMLogin.html#gacabbdc99f08b523b032071ad0e2d171e">rsslClearRDMLoginRefresh()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a2e6e10b160d5d0a6ae77afc52ce647cd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RsslBuffer <a class="el" href="structRsslRDMLoginRefresh.html#a2e6e10b160d5d0a6ae77afc52ce647cd">RsslRDMLoginRefresh::authenticationErrorText</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>For Trep Authentication, this is the text associated with the authentication error code </p>
+
+<p>Referenced by <a class="el" href="group__VARDMLogin.html#gacabbdc99f08b523b032071ad0e2d171e">rsslClearRDMLoginRefresh()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af1bcf893f3520701ba4060de9bb2bc7e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RsslBuffer <a class="el" href="structRsslRDMLoginRefresh.html#af1bcf893f3520701ba4060de9bb2bc7e">RsslRDMLoginRefresh::authenticationExtendedResp</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>For TREP Authentication, this is extra data that may need to be used by the client application from the token generator </p>
+
+<p>Referenced by <a class="el" href="group__VARDMLogin.html#gacabbdc99f08b523b032071ad0e2d171e">rsslClearRDMLoginRefresh()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ae46fc89d9fc4b4d7e0ddb6594cc97446"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RsslUInt <a class="el" href="structRsslRDMLoginRefresh.html#ae46fc89d9fc4b4d7e0ddb6594cc97446">RsslRDMLoginRefresh::authenticationTTReissue</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>For TREP Authentication, this indicates the time(in epoch) that the token expires on </p>
 
 <p>Referenced by <a class="el" href="group__VARDMLogin.html#gacabbdc99f08b523b032071ad0e2d171e">rsslClearRDMLoginRefresh()</a>.</p>
 
@@ -578,7 +646,7 @@ Data Fields</h2></td></tr>
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-            <td><p class="smallfont">Fri Sep 16 2016</td>
+            <td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         <p class="smallfont">&nbsp;</td>

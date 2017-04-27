@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1001210">RSSL Channel Structure</a></div>
-      <div class="Body"><a name="1220218">The </a>channel structure represents a connection that can send or receive information across a network, regardless of whether the connection is outbound or accepted by a listening socket. The Transport Package internally manages any memory associated with an <span class="CodeOrCommand">RsslChannel</span> structure, and the application does not need to create nor destroy memory (associated with the channel). The <span class="CodeOrCommand">RsslChannel</span> is typically used to perform any action on the connection that it represents (e.g. reading, writing, disconnecting, etc). See the subsequent sections for more information about <span class="CodeOrCommand">RsslChannel</span> use within the transport.</div>
-      <div class="Body"><a name="1220234">The following table describes the </a>members of the <span class="CodeOrCommand">RsslChannel</span> structure.</div>
+      <div class="Body"><a name="1244946">The </a>channel structure represents a connection that can send or receive information across a network, regardless of whether the connection is outbound or accepted by a listening socket. The Transport Package internally manages any memory associated with an <span class="CodeOrCommand">RsslChannel</span> structure, and the application does not need to create nor destroy memory (associated with the channel). The <span class="CodeOrCommand">RsslChannel</span> is typically used to perform any action on the connection that it represents (e.g. reading, writing, disconnecting, etc). See the subsequent sections for more information about <span class="CodeOrCommand">RsslChannel</span> use within the transport.</div>
+      <div class="Body"><a name="1244962">The following table describes the </a>members of the <span class="CodeOrCommand">RsslChannel</span> structure.</div>
       <div class="Blank_Line"><a name="1001966">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
@@ -92,7 +92,7 @@
             <div class="CellBody"><a name="1001554">state</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1001556">The state associated with the </a><span class="CodeOrCommand">RsslChannel</span>. Until the channel has completed its initialization handshake and has transitioned to an active state, no reading or writing can be performed. <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.008.html#1220285', '');" title="10.1.2.1 RsslChannel Enumerated Name Values">Table 13</a> describes channel state values.</div>
+            <div class="CellBody"><a name="1001556">The state associated with the </a><span class="CodeOrCommand">RsslChannel</span>. Until the channel has completed its initialization handshake and has transitioned to an active state, no reading or writing can be performed. <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.008.html#1245013', '');" title="10.1.2.1 RsslChannel Enumerated Name Values">Table 13</a> describes channel state values.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -100,7 +100,7 @@
             <div class="CellBody"><a name="1001558">connectionType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1001873">An enumerated value that indicates the type of underlying connection being used. For more information, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.009.html#1220421', '');" title="10.1.2.2 RSSL Connection Enumerated Names Values">Table 14</a>.</div>
+            <div class="CellBody"><a name="1001873">An enumerated value that indicates the type of underlying connection being used. For more information, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.009.html#1245149', '');" title="10.1.2.2 RSSL Connection Enumerated Names Values">Table 14</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">

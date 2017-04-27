@@ -57,18 +57,18 @@
     <blockquote>
       <div class="H3"><a name="999365">Market By Order Refresh Message Use</a></div>
       <div class="Body"><a name="1000026">A Market By Order refresh message is encoded and sent by OMM interactive provider and OMM non-interactive provider applications. A Market By Order refresh may be sent in multiple parts. It is possible for update and status messages to be delivered between parts of a refresh message, regardless of whether the request is streaming or non-streaming.</a></div>
-      <div class="Body"><a name="1000027">Providers must set the </a><span class="CodeOrCommand">RefreshMsgFlags.CLEAR_CACHE</span> flag on the solicited <span class="CodeOrCommand">RefreshMsg</span>. For multi-part refreshes, the <span class="CodeOrCommand">RefreshMsgFlags.CLEAR_CACHE</span> flag must be set on the first part only.</div>
+      <div class="Body"><a name="1059113">Providers must set the </a><span class="CodeOrCommand">RefreshMsgFlags.CLEAR_CACHE</span> flag on the solicited <span class="CodeOrCommand">RefreshMsg</span>. For multi-part refreshes, the <span class="CodeOrCommand">RefreshMsgFlags.CLEAR_CACHE</span> flag must be set on the first part only.</div>
       <div class="Blank_Line"><a name="999369">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 53: <a name="1000135">Market By Order Refresh Message Member Use &nbsp;</a></div>
+          <div class="TableTitle">Table 55: <a name="1000135">Market By Order Refresh Message</a> Member Use &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading" style="text-align: Center"><a name="1000071">COMPONENT</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="1000071">COMPONENT</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading" style="text-align: Center"><a name="1000073">DESCRIPTION / VALUE</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="1000073">DESCRIPTION / VALUE</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -76,7 +76,7 @@
             <div class="CellBody"><a name="1000075">msgClass</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="1000077">Required</a></span>. <span class="Parameter">MsgClasses.REFRESH == 2</span></div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000077">Required.</a></span> <span class="Parameter">MsgClasses.REFRESH == 2</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -108,7 +108,7 @@
             <div class="CellBody"><a name="1000091">qos</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000093">Optional. If sent, this is the QoS at which the stream is provided.</a></div>
+            <div class="CellBody"><a name="1000093">Optional. Specifies the QoS at which the stream is provided.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -132,7 +132,7 @@
             <div class="CellBody"><a name="1000103">permData</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000105">Optional. If present, this is the permission information associated with content on this stream.</a></div>
+            <div class="CellBody"><a name="1000105">Optional. Specifies permission information associated with content on this stream.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -144,27 +144,27 @@
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="1">
             <div class="CellBody"><a name="1000111">msgKey.serviceId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="1000113">Required</a></span>. The Id of the service that provides the item.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000113">Required</a></span>. Specifies the ID of the service that provides the item.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000115">msgKey.nameType</a></div>
+            <div class="CellBody"><a name="1007973">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000117">Optional. Should match the </a><span class="CodeOrCommand">nameType</span> specified in the request. If absent, <span class="CodeOrCommand">msgKey.nameType</span> is assumed to be <span class="Parameter">InstrumentNameTypes.RIC</span>.</div>
+            <div class="CellBody"><a name="1000117">Optional. </a><span class="CodeOrCommand">nameType</span> should match the <span class="CodeOrCommand">nameType</span> specified in the request. If absent, <span class="CodeOrCommand">msgKey.nameType</span> is assumed to be <span class="Parameter">InstrumentNameTypes.RIC</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000119">msgKey.name</a></div>
+            <div class="CellBody"><a name="1007978">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000121">Optional. </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_NAME</span> should be specified and the contents of <span class="CodeOrCommand">name</span> should match the requested name.</div>
+            <div class="CellBody"><a name="1000121">Optional. </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_NAME</span> should be specified and the contents of <span class="CodeOrCommand">name</span> should match the requested item’s name.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">

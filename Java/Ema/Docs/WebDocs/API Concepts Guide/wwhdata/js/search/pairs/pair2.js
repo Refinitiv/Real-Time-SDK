@@ -3,7 +3,6 @@ function FileData_Pairs(x)
 x.t("example","example");
 x.t("example","applications");
 x.t("m.parentnode.insertbefore","window");
-x.t("rfa","elektron");
 x.t(".l=1","new");
 x.t("create","ua-55718642-4");
 x.t("provided","specific");
@@ -42,8 +41,8 @@ x.t("java","chapter");
 x.t("java","edition");
 x.t("architecture","specific");
 x.t("send","pageview");
-x.t("specific","rfa");
 x.t("specific","api");
+x.t("specific","elektron");
 x.t("suite","code");
 x.t("programming","languages");
 x.t("(arguments)","[r]");

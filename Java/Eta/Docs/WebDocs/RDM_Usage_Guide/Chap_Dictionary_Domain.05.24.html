@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.9.2 DictionariesProvided and DictionariesUsed</title>
+    <title>5.9.3 Version Information</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,75 +55,47 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1002068">DictionariesProvided and DictionariesUsed</a></div>
-      <div class="Body"><a name="1002070">The Source Directory’s Info filter entry (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_SourceDirectory_Domain.04.09.html', '');" title="4.3.1.1 Source Directory Info Filter Entry">Section 4.3.1.1</a>) includes two Elements related to Dictionaries: <span class="Parameter">DictionariesProvided</span> and <span class="Parameter">DictionariesUsed</span>. Both elements contain an <span class="CodeOrCommand">Array</span> of <span class="Parameter">DataTypes.ASCII_STRING</span> dictionary names. These names can be used in <span class="CodeOrCommand">msgKey.name</span> to request the dictionaries.</div>
-      <div class="Procedure_Heading"><a name="1011440"><img class="Default" src="images/Chap_Dictionary_Domain.05.24.1.jpg" width="13" height="15" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To dynamically discover dictionaries while minimizing the amount of data downloaded:</a></div>
-      <div class="Step1_outer" style="margin-left: 0pt">
+      <div class="H3"><a name="1002072">Version Information</a></div>
+      <div class="Body"><a name="1002098">The version of a dictionary is normally available in Summary Data in the payload of a </a><span class="CodeOrCommand">RefreshMsg</span>. All available verbosities are expected to include this information. The verbosity <span class="Parameter">Dictionary.VerbosityValues.INFO</span> can be used to request only the version information (as the many fields in dictionaries tend to result in large messages).</div>
+      <div class="Body"><a name="1002099">This information normally comes in the form of a </a><span class="Parameter">DataTypes.ASCII_STRING</span> containing a dotted-decimal version number, indicating first the major version, followed by the minor version, and possibly followed by a third (informational) micro-version. For example, in the string <span class="CodeOrCommand">1.2.3</span>:</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="Step1_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">1.	</span>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1011459">Parse the “DictionariesUsed” from each desired service in the Source Directory.</a></div>
+              <div class="bullet_ind_inner"><span class="CodeOrCommand"><a name="1002100">1</a></span> is the major version</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Stepnext_outer" style="margin-left: 0pt">
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">2.	</span>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1011431">Parse the “DictionariesProvided” from every service in the Source Directory.</a></div>
+              <div class="bullet_ind_inner"><span class="CodeOrCommand"><a name="1002101">2</a></span> is the minor version</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Stepnext_outer" style="margin-left: 0pt">
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">3.	</span>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1011519">Make a streaming request for each Dictionary Name listed in </a><span class="Parameter">DictionariesUsed</span> from the service that lists the <span class="Parameter">DictionaryName</span> in <span class="Parameter">DictionariesProvided</span>. The <span class="CodeOrCommand">msgKey.filter</span> of each <span class="CodeOrCommand">RequestMsg</span> should be set to <span class="Parameter">Dictionary.VerbosityValues.INFO</span> to request only the dictionary’s basic information (because dictionaries tend to be large, this setting prevents unnecessary network traffic).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Stepnext_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">4.	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Stepnext_inner"><a name="1011537">For each Dictionary response, parse the </a><span class="CodeOrCommand">summaryData</span> in the payload to obtain the Dictionary’s Type and Version. If a dictionary is of an unneeded Type, that dictionary stream can be closed.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Stepnext_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">5.	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Stepnext_inner"><a name="1011535">Version information can be used to determine if the consumer needs to update its dictionary. If a dictionary is needed, a reissue request can be made where the </a><span class="CodeOrCommand">msgKey.filter</span> requests a higher verbosity (e.g. <span class="Parameter">Dictionary.VerbosityValues.NORMAL</span>).</div>
+              <div class="bullet_ind_inner"><span class="CodeOrCommand"><a name="1002102">3</a></span> is the micro-version</div>
             </td>
           </tr>
         </table>
@@ -140,7 +112,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.23.html">5.9	Special Semantics</a> : 5.9.2	DictionariesProvided and DictionariesUsed</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.22.html">5.9	Special Semantics</a> : 5.9.3	Version Information</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

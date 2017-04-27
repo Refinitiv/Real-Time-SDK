@@ -57,41 +57,41 @@
     <blockquote>
       <div class="H2"><a name="1019808">Closing Connections</a></div>
       <div class="H3"><a name="1037673">Functions for Closing Connections</a></div>
-      <div class="Body"><a name="1223429">When an error occurs on a connection or a</a>n <span class="CodeOrCommand">RsslChannel</span> is being disconnected, the <span class="CodeOrCommand">rsslCloseChannel</span> function should be called to perform any necessary cleanup and to shutdown the underlying socket. This will release any pool-based resources back to their respective pools. If the application is holding any buffers obtained from <span class="CodeOrCommand">rsslGetBuffer</span>, they should be released using <span class="CodeOrCommand">rsslReleaseBuffer</span> prior to closing the channel.</div>
-      <div class="Body"><a name="1223442">If a server is being shut down, use the </a><span class="CodeOrCommand">rsslCloseServer</span> function to close the listening socket and perform any necessary cleanup. All currently connected <span class="CodeOrCommand">RsslChannel</span>s will remain open. This allows applications to continue sending and receiving data, while preventing new applications from connecting. The server has the option of calling <span class="CodeOrCommand">rsslCloseChannel</span> to shut down any currently connected applications.</div>
-      <div class="Blank_Line"><a name="1223497">&nbsp;</a></div>
+      <div class="Body"><a name="1248160">When an error occurs on a connection or a</a>n <span class="CodeOrCommand">RsslChannel</span> is being disconnected, the <span class="CodeOrCommand">rsslCloseChannel</span> function should be called to perform any necessary cleanup and to shutdown the underlying socket. This will release any pool-based resources back to their respective pools. If the application is holding any buffers obtained from <span class="CodeOrCommand">rsslGetBuffer</span>, they should be released using <span class="CodeOrCommand">rsslReleaseBuffer</span> prior to closing the channel.</div>
+      <div class="Body"><a name="1248173">If a server is being shut down, use the </a><span class="CodeOrCommand">rsslCloseServer</span> function to close the listening socket and perform any necessary cleanup. All currently connected <span class="CodeOrCommand">RsslChannel</span>s will remain open. This allows applications to continue sending and receiving data, while preventing new applications from connecting. The server has the option of calling <span class="CodeOrCommand">rsslCloseChannel</span> to shut down any currently connected applications.</div>
+      <div class="Blank_Line"><a name="1248228">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 61: <a name="1223494">RSSL </a>Connection Closing Functionality &nbsp;</div>
+          <div class="TableTitle">Table 61: <a name="1248225">RSSL </a>Connection Closing Functionality &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1223454">function</a> NAME</div>
+            <div class="CellHeading"><a name="1248185">function</a> NAME</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1223456">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1248187">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1223461">rsslCloseChannel</a></div>
+            <div class="CellBody"><a name="1248192">rsslCloseChannel</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223466">Closes a client- or server-based </a><span class="CodeOrCommand">RsslChannel</span>. This releases any pool-based resources back to their respective pools, closes the connection, and performs any additional necessary cleanup.</div>
+            <div class="CellBody"><a name="1248197">Closes a client- or server-based </a><span class="CodeOrCommand">RsslChannel</span>. This releases any pool-based resources back to their respective pools, closes the connection, and performs any additional necessary cleanup.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1223470">If an application is multi-threaded, all other threads that depend on the closed channel should complete their use prior to calling </a><span class="CodeOrCommand">rsslCloseChannel</span>.</div>
+              <span class="Bold">Note: </span><a name="1248201">If an application is multi-threaded, all other threads that depend on the closed channel should complete their use prior to calling </a><span class="CodeOrCommand">rsslCloseChannel</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223478">rsslCloseServer</a></div>
+            <div class="CellBody"><a name="1248209">rsslCloseServer</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223486">Closes a listening socket associated with a</a>n <span class="CodeOrCommand">RsslServer</span>. <span class="CodeOrCommand">rsslCloseServer</span> releases any pool-based resources back to their respective pools, closes the listening socket, and performs any additional necessary cleanup. Established connections remain open, allowing for continued exchange of data. If needed, the server can use <span class="CodeOrCommand">rsslCloseChannel</span> to shutdown any remaining connections.</div>
+            <div class="CellBody"><a name="1248217">Closes a listening socket associated with a</a>n <span class="CodeOrCommand">RsslServer</span>. <span class="CodeOrCommand">rsslCloseServer</span> releases any pool-based resources back to their respective pools, closes the listening socket, and performs any additional necessary cleanup. Established connections remain open, allowing for continued exchange of data. If needed, the server can use <span class="CodeOrCommand">rsslCloseChannel</span> to shutdown any remaining connections.</div>
           </td>
         </tr>
       </table>

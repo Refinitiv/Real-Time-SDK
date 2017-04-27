@@ -1,6 +1,5 @@
 function FileData_Pairs(x)
 {
-x.t("2.8","general");
 x.t("m.parentnode.insertbefore","window");
 x.t(".l=1","new");
 x.t("create","ua-55718642-4");
@@ -29,7 +28,7 @@ x.t("api","edition");
 x.t("api","concepts");
 x.t("requested","batch");
 x.t("guide","chapter");
-x.t("overview","2.8");
+x.t("overview","2.6");
 x.t("via","supportbatchrequests");
 x.t("requesting","leveraged");
 x.t("leveraged","across");
@@ -38,7 +37,6 @@ x.t("window","document");
 x.t("indicate","interest");
 x.t("developers","guide");
 x.t("allows","consumer");
-x.t("2.8.6","batch");
 x.t("(o)","m=s.getelementsbytagname");
 x.t("(o)","[0]");
 x.t("stream","itself");
@@ -62,6 +60,7 @@ x.t("interest","multiple");
 x.t("consumer","application");
 x.t("like-item","streams");
 x.t("login","attribute");
+x.t("2.6.6","batch");
 x.t("java","edition");
 x.t("send","pageview");
 x.t("(arguments)","[r]");
@@ -93,10 +92,11 @@ x.t("general","transport");
 x.t("a.async=1","a.src=g");
 x.t("across","non-administrative");
 x.t("googleanalyticsobject","[r]");
+x.t("2.6","general");
 x.t("a.src=g","m.parentnode.insertbefore");
 x.t("streams","single");
 x.t("streams","item");
 x.t("item","requested");
 x.t("item","streams");
-x.t("concepts","2.8.6");
+x.t("concepts","2.6.6");
 }

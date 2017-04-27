@@ -56,80 +56,80 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1030386">rsslWrite Return Codes</a></div>
-      <div class="Body"><a name="1222596">The following table lists all</a> return codes that can occur when using the <span class="CodeOrCommand">rsslWrite</span> function.</div>
-      <div class="Blank_Line"><a name="1222773">&nbsp;</a></div>
+      <div class="Body"><a name="1247327">The following table lists all</a> return codes that can occur when using the <span class="CodeOrCommand">rsslWrite</span> function.</div>
+      <div class="Blank_Line"><a name="1247504">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 53: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1222770">rsslWrite</a></span> Return Codes &nbsp;</div>
+          <div class="TableTitle">Table 53: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1247501">rsslWrite</a></span> Return Codes &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 182.25pt">
-            <div class="CellHeading"><a name="1222599">Return Code</a></div>
+            <div class="CellHeading"><a name="1247330">Return Code</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 373.5pt">
-            <div class="CellHeading"><a name="1222601">Description</a></div>
+            <div class="CellHeading"><a name="1247332">Description</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222603">RSSL_RET_</a>SUCCESS</div>
+            <div class="CellBody"><a name="1247334">RSSL_RET_</a>SUCCESS</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222611">Indicates that the </a><span class="CodeOrCommand">rsslWrite</span> function was successful and additional bytes have not been internally queued. The <span class="CodeOrCommand">rsslFlush</span> function does not need to be called.</div>
-            <div class="CellBody"><a name="1222624">The application should not release the </a><span class="CodeOrCommand">RsslBuffer</span>; the Transport API will release it.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222626">Any positive value &gt; 0</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222634">Indicates that the </a><span class="CodeOrCommand">rsslWrite</span> function has succeeded and there is information internally queued by the transport. To pass internally queued information to the connection, the <span class="CodeOrCommand">rsslFlush</span> function must be called. This information can be queued because there is not sufficient space in the connections output buffer. An <br />I/O notification mechanism can be used to indicate when the socketId has write availability.</div>
-            <div class="CellBody"><a name="1222647">The application should not release the </a><span class="CodeOrCommand">RsslBuffer</span>; the Transport API will release it.</div>
+            <div class="CellBody"><a name="1247342">Indicates that the </a><span class="CodeOrCommand">rsslWrite</span> function was successful and additional bytes have not been internally queued. The <span class="CodeOrCommand">rsslFlush</span> function does not need to be called.</div>
+            <div class="CellBody"><a name="1247355">The application should not release the </a><span class="CodeOrCommand">RsslBuffer</span>; the Transport API will release it.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222649">RSSL_RET_</a>WRITE_FLUSH_FAILED</div>
+            <div class="CellBody"><a name="1247357">Any positive value &gt; 0</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222657">Indicates that the </a><span class="CodeOrCommand">rsslWrite</span> function has succeeded, however an internal attempt to flush data to the socket has failed - the channel’s state should be inspected. This might not be a failure condition and can occur if there is no available socket output buffer space. If the flush failure is unrecoverable, the <span class="CodeOrCommand">RsslChannel.state</span> will transition to <span class="CodeOrCommand">RSSL_CH_STATE_CLOSED</span>. If the connection closes, <span class="CodeOrCommand">RsslError</span> information will be populated.</div>
-            <div class="CellBody"><a name="1222673">The application should not release the </a><span class="CodeOrCommand">RsslBuffer</span>; the Transport API will release it.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222675">RSSL_RET_</a>WRITE_CALL_AGAIN</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222680">Indicates that a large buffer could not be fully fragmented with this </a><span class="CodeOrCommand">rsslWrite</span> call. This is typically due to all pool buffers being unavailable. An application can use <span class="CodeOrCommand">rsslFlush</span> to free up pool buffers or use <span class="CodeOrCommand">rsslIoctl</span> to increase the number of available pool buffers. After pool buffers become available again, the same buffer should be used to call <span class="CodeOrCommand">rsslWrite</span> an additional time (the same priority level must be used to ensure fragments are ordered properly). This will continue the fragmentation process from where it left off.</div>
-            <div class="CellBody"><a name="1222696">If the application does not subsequently pass the </a><span class="CodeOrCommand">RsslBuffer</span> to <span class="CodeOrCommand">rsslWrite</span>, the buffer should be released by calling <span class="CodeOrCommand">rsslReleaseBuffer</span>.</div>
+            <div class="CellBody"><a name="1247365">Indicates that the </a><span class="CodeOrCommand">rsslWrite</span> function has succeeded and there is information internally queued by the transport. To pass internally queued information to the connection, the <span class="CodeOrCommand">rsslFlush</span> function must be called. This information can be queued because there is not sufficient space in the connections output buffer. An <br />I/O notification mechanism can be used to indicate when the socketId has write availability.</div>
+            <div class="CellBody"><a name="1247378">The application should not release the </a><span class="CodeOrCommand">RsslBuffer</span>; the Transport API will release it.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222701">RSSL_RET_</a>FAILURE</div>
+            <div class="CellBody"><a name="1247380">RSSL_RET_</a>WRITE_FLUSH_FAILED</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222706">Indicates that a general write failure has occurred. The </a><span class="CodeOrCommand">RsslChannel</span> should be closed (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.090.html', '');" title="10.13 Closing Connections">Section 10.13</a>). For more details, refer to any <span class="CodeOrCommand">RsslError</span> content.</div>
-            <div class="CellBody"><a name="1222722">The application should release the </a><span class="CodeOrCommand">RsslBuffer</span> by calling <span class="CodeOrCommand">rsslReleaseBuffer</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222724">RSSL_RET_</a>BUFFER_TOO_SMALL</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222726">Indicates that either the buffer has been corrupted, possibly by exceeding the allowable length, or it is not a valid pool buffer. For more details, refer to any </a><span class="CodeOrCommand">RsslError</span> content.</div>
-            <div class="CellBody"><a name="1222736">If this </a><span class="CodeOrCommand">RsslBuffer</span> was obtained from <span class="CodeOrCommand">rsslGetBuffer</span>, the application should release it by calling <span class="CodeOrCommand">rsslReleaseBuffer</span>.</div>
+            <div class="CellBody"><a name="1247388">Indicates that the </a><span class="CodeOrCommand">rsslWrite</span> function has succeeded, however an internal attempt to flush data to the socket has failed - the channel’s state should be inspected. This might not be a failure condition and can occur if there is no available socket output buffer space. If the flush failure is unrecoverable, the <span class="CodeOrCommand">RsslChannel.state</span> will transition to <span class="CodeOrCommand">RSSL_CH_STATE_CLOSED</span>. If the connection closes, <span class="CodeOrCommand">RsslError</span> information will be populated.</div>
+            <div class="CellBody"><a name="1247404">The application should not release the </a><span class="CodeOrCommand">RsslBuffer</span>; the Transport API will release it.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222741">RSSL_RET_</a>INIT_NOT_INITIALIZED</div>
+            <div class="CellBody"><a name="1247406">RSSL_RET_</a>WRITE_CALL_AGAIN</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222743">Indicates that the</a> RSSL Transport has not been initialized.</div>
+            <div class="CellBody"><a name="1247411">Indicates that a large buffer could not be fully fragmented with this </a><span class="CodeOrCommand">rsslWrite</span> call. This is typically due to all pool buffers being unavailable. An application can use <span class="CodeOrCommand">rsslFlush</span> to free up pool buffers or use <span class="CodeOrCommand">rsslIoctl</span> to increase the number of available pool buffers. After pool buffers become available again, the same buffer should be used to call <span class="CodeOrCommand">rsslWrite</span> an additional time (the same priority level must be used to ensure fragments are ordered properly). This will continue the fragmentation process from where it left off.</div>
+            <div class="CellBody"><a name="1247427">If the application does not subsequently pass the </a><span class="CodeOrCommand">RsslBuffer</span> to <span class="CodeOrCommand">rsslWrite</span>, the buffer should be released by calling <span class="CodeOrCommand">rsslReleaseBuffer</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247432">RSSL_RET_</a>FAILURE</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247437">Indicates that a general write failure has occurred. The </a><span class="CodeOrCommand">RsslChannel</span> should be closed (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.090.html', '');" title="10.13 Closing Connections">Section 10.13</a>). For more details, refer to any <span class="CodeOrCommand">RsslError</span> content.</div>
+            <div class="CellBody"><a name="1247453">The application should release the </a><span class="CodeOrCommand">RsslBuffer</span> by calling <span class="CodeOrCommand">rsslReleaseBuffer</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247455">RSSL_RET_</a>BUFFER_TOO_SMALL</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247457">Indicates that either the buffer has been corrupted, possibly by exceeding the allowable length, or it is not a valid pool buffer. For more details, refer to any </a><span class="CodeOrCommand">RsslError</span> content.</div>
+            <div class="CellBody"><a name="1247467">If this </a><span class="CodeOrCommand">RsslBuffer</span> was obtained from <span class="CodeOrCommand">rsslGetBuffer</span>, the application should release it by calling <span class="CodeOrCommand">rsslReleaseBuffer</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247472">RSSL_RET_</a>INIT_NOT_INITIALIZED</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247474">Indicates that the</a> RSSL Transport has not been initialized.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -139,7 +139,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1222747">For more details, refer to any </a><span class="CodeOrCommand">RsslError</span> content.</div>
+                    <div class="Bullet_Table_inner"><a name="1247478">For more details, refer to any </a><span class="CodeOrCommand">RsslError</span> content.</div>
                   </td>
                 </tr>
               </table>
@@ -153,12 +153,12 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1222754">For information on initializing, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.014.html', '');" title="10.2 Initializing and Uninitializing the Transport">Section 10.2</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1247485">For information on initializing, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.014.html', '');" title="10.2 Initializing and Uninitializing the Transport">Section 10.2</a>.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1222758">The application’s attempt to call </a><span class="CodeOrCommand">rsslGetBuffer</span> should have failed for the same reason, so an <span class="CodeOrCommand">RsslBuffer</span> should not be present.</div>
+            <div class="CellBody"><a name="1247489">The application’s attempt to call </a><span class="CodeOrCommand">rsslGetBuffer</span> should have failed for the same reason, so an <span class="CodeOrCommand">RsslBuffer</span> should not be present.</div>
           </td>
         </tr>
       </table>

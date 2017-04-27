@@ -56,40 +56,40 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1001313">Container Types</a></div>
-      <div class="Body"><span class="Concept"><a name="1356923">Container Types</a></span> can model m<span class="Body">ore complex data representations and have their contents modified at a more granular level than primitive types. Some container types leverage simple entry replacement when changes occur, while other container types offer entry-specific actions to handle changes to individual entries. </span><span class="Body">The </span><span class="Body">Transport API offers several uniform (i.e., homogeneous) container types, meaning that all entries house the same type of data. Additionally, there are several non-uniform (i.e., heterogeneous) container types in which different entries can hold varying types of data.</span></div>
-      <div class="Body"><span class="Body"><a name="1356930">The </a></span><span class="CodeOrCommand">RsslDataTypes</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal"> enumeration exposes values that define the type of a container. For example, when a </span><span class="CodeOrCommand">containerType</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal"> is housed in an </span><span class="CodeOrCommand">RsslMsg</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal">, the message would indicate the </span><span class="CodeOrCommand">containerType</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal">’s enumerated value. Values ranging from 128 to 224 represent container types. Transport API messages and container types can house other Transport API container types. Only the </span><span class="CodeOrCommand">RsslFieldList</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal"> and </span><span class="CodeOrCommand">RsslElementList</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal"> container types can house both primitive types and other container types.</span></div>
-      <div class="Body"><span class="Body"><a name="1356946">The following table provides a </a></span>brief description of each container type and its housed entries.</div>
-      <div class="Blank_Line"><a name="1357376">&nbsp;</a></div>
+      <div class="Body"><span class="Concept"><a name="1471091">Container Types</a></span> can model m<span class="Body">ore complex data representations and have their contents modified at a more granular level than primitive types. Some container types leverage simple entry replacement when changes occur, while other container types offer entry-specific actions to handle changes to individual entries. </span><span class="Body">The </span><span class="Body">Transport API offers several uniform (i.e., homogeneous) container types, meaning that all entries house the same type of data. Additionally, there are several non-uniform (i.e., heterogeneous) container types in which different entries can hold varying types of data.</span></div>
+      <div class="Body"><span class="Body"><a name="1471098">The </a></span><span class="CodeOrCommand">RsslDataTypes</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal"> enumeration exposes values that define the type of a container. For example, when a </span><span class="CodeOrCommand">containerType</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal"> is housed in an </span><span class="CodeOrCommand">RsslMsg</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal">, the message would indicate the </span><span class="CodeOrCommand">containerType</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal">’s enumerated value. Values ranging from 128 to 224 represent container types. Transport API messages and container types can house other Transport API container types. Only the </span><span class="CodeOrCommand">RsslFieldList</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal"> and </span><span class="CodeOrCommand">RsslElementList</span><span class="Body" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-weight: normal"> container types can house both primitive types and other container types.</span></div>
+      <div class="Body"><span class="Body"><a name="1471114">The following table provides a </a></span>brief description of each container type and its housed entries.</div>
+      <div class="Blank_Line"><a name="1471544">&nbsp;</a></div>
       <table class="Two_Column" style="width: 674.99928pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 101: <a name="1357369">Transport API Container Types &nbsp;</a></div>
+          <div class="TableTitle">Table 101: <a name="1471537">Transport API Container Types &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 144.56304pt">
-            <div class="CellHeading"><a name="1356949">ENUM TYPE Name</a></div>
+            <div class="CellHeading"><a name="1471117">ENUM TYPE Name</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 95.436pt">
-            <div class="CellHeading"><a name="1356951">Container TYPE</a></div>
+            <div class="CellHeading"><a name="1471119">Container TYPE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 255.75048pt">
-            <div class="CellHeading"><a name="1356953">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1471121">DESCRIPTION</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 179.24976pt">
-            <div class="CellHeading"><a name="1356955">Entry Type Information</a></div>
+            <div class="CellHeading"><a name="1471123">Entry Type Information</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1356957">RSSL_DT_</a>FIELD_LIST</div>
+            <div class="CellBody"><a name="1471125">RSSL_DT_</a>FIELD_LIST</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1356962">RsslFieldList</a></span></div>
+            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1471130">RsslFieldList</a></span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1356980">A highly optimized, non-uniform type, that contains field identifier-value paired entries. </a><span class="CodeOrCommand">fieldId</span> refers to specific name and type information as defined in an external field dictionary (such as <span class="FileOrDirectory">RDMFieldDictionary</span>). You can further optimize this type by using set-defined data as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>. For more details on this container, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.050.html', '');" title="11.3.1 RsslFieldList">Section 11.3.1</a>.</div>
+            <div class="CellBody"><a name="1471148">A highly optimized, non-uniform type, that contains field identifier-value paired entries. </a><span class="CodeOrCommand">fieldId</span> refers to specific name and type information as defined in an external field dictionary (such as <span class="FileOrDirectory">RDMFieldDictionary</span>). You can further optimize this type by using set-defined data as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>. For more details on this container, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.050.html', '');" title="11.3.1 RsslFieldList">Section 11.3.1</a>.</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357794">Entry type is </a><span class="CodeOrCommand">RsslFieldEntry</span>, which can house any <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">DataType</span>, including set-defined data (<a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>), base primitive types (<a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>), and container types.</div>
+            <div class="CellBody"><a name="1471962">Entry type is </a><span class="CodeOrCommand">RsslFieldEntry</span>, which can house any <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">DataType</span>, including set-defined data (<a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>), base primitive types (<a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>), and container types.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -99,7 +99,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357811">If the information and entry being updated contains a primitive type, previously stored or displayed data is replaced.</a></div>
+                    <div class="Bullet_Table_inner"><a name="1471979">If the information and entry being updated contains a primitive type, previously stored or displayed data is replaced.</a></div>
                   </td>
                 </tr>
               </table>
@@ -113,7 +113,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357006">If the entry contains another container type, action values associated with that type specify how to update the information.</a></div>
+                    <div class="Bullet_Table_inner"><a name="1471174">If the entry contains another container type, action values associated with that type specify how to update the information.</a></div>
                   </td>
                 </tr>
               </table>
@@ -122,16 +122,16 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357008">RSSL_DT_</a>ELEMENT_LIST</div>
+            <div class="CellBody"><a name="1471176">RSSL_DT_</a>ELEMENT_LIST</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1357013">RsslElementList</a></span></div>
+            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1471181">RsslElementList</a></span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357034">A self-describing, non-uniform type, with each entry containing </a><span class="CodeOrCommand">name</span>, <span class="CodeOrCommand">dataType</span>, and a value. This type is equivalent to <span class="CodeOrCommand">RsslFieldList</span>, but without the optimizations provided through <span class="CodeOrCommand">fieldId</span> use. Use of set-defined data allows for further optimization, as discussed in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>. For more details on this container, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.2 RsslElementList">Section 11.3.2</a>.</div>
+            <div class="CellBody"><a name="1471202">A self-describing, non-uniform type, with each entry containing </a><span class="CodeOrCommand">name</span>, <span class="CodeOrCommand">dataType</span>, and a value. This type is equivalent to <span class="CodeOrCommand">RsslFieldList</span>, but without the optimizations provided through <span class="CodeOrCommand">fieldId</span> use. Use of set-defined data allows for further optimization, as discussed in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>. For more details on this container, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.2 RsslElementList">Section 11.3.2</a>.</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357838">Entry type is </a><span class="CodeOrCommand">RsslElementEntry</span>, which can house any <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">DataType</span>, including set-defined data (<a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>), base primitive types (<a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>), and container types.</div>
+            <div class="CellBody"><a name="1472006">Entry type is </a><span class="CodeOrCommand">RsslElementEntry</span>, which can house any <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">DataType</span>, including set-defined data (<a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>), base primitive types (<a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>), and container types.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -141,46 +141,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357855">If the updating information and entry contain a primitive type, any previously stored or displayed data is replaced.</a></div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357060">If the entry contains another container type, action values associated with that type specify how to update the information.</a></div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357062">RSSL_DT_</a>MAP </div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1357067">RsslMap</a></span></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357863">A container of key-value paired entries. </a><span class="CodeOrCommand">RsslMap</span> is a uniform type, where the base primitive type of each entry’s key and the <span class="CodeOrCommand">containerType</span> of each entry’s payload are specified on the <span class="CodeOrCommand">RsslMap</span>.</div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357868">For more information on base primitive types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1472023">If the updating information and entry contain a primitive type, any previously stored or displayed data is replaced.</a></div>
                   </td>
                 </tr>
               </table>
@@ -194,53 +155,22 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357093">For more details on this container, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.069.html', '');" title="11.3.3 RsslMap">Section 11.3.3</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1471228">If the entry contains another container type, action values associated with that type specify how to update the information.</a></div>
                   </td>
                 </tr>
               </table>
             </div>
           </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357108">Entry type is </a><span class="CodeOrCommand">RsslMapEntry</span>, which can include only container types, as specified on the <span class="CodeOrCommand">RsslMap</span>. Each entry’s key is a base primitive type, as specified on the <span class="CodeOrCommand">RsslMap</span>. Each entry has an associated action, which informs the user of how to apply the information stored in the entry.</div>
-          </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357110">RSSL_DT_</a>SERIES</div>
+            <div class="CellBody"><a name="1471230">RSSL_DT_</a>MAP </div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1357115">RsslSeries</a></span></div>
+            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1471235">RsslMap</a></span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357130">A uniform type, where the </a><span class="CodeOrCommand">containerType</span> of each entry is specified on the <span class="CodeOrCommand">RsslSeries</span>. This container is often used to represent table-based information, where no explicit indexing is present or required. As entries are received, the user should append them to any previously-received entries. For more details on this container, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.080.html', '');" title="11.3.4 RsslSeries">Section 11.3.4</a>.</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357145">Entry type is </a><span class="CodeOrCommand">RsslSeriesEntry</span>, which can include only container types, as specified on the <span class="CodeOrCommand">RsslSeries</span>. <span class="CodeOrCommand">RsslSeriesEntry</span> types do not contain explicit actions; though as entries are received, the user should append them to any previously received entries.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357147">RSSL_DT_</a>VECTOR</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1357152">RsslVector</a></span></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357167">A container of position index-value paired entries. This container is a uniform type, where the </a><span class="CodeOrCommand">containerType</span> of each entry’s payload is specified on the <span class="CodeOrCommand">RsslVector</span>. Each entry’s <span class="CodeOrCommand">index</span> is represented by an unsigned integer. For more details on this container, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.089.html', '');" title="11.3.5 RsslVector">Section 11.3.5</a>.</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357179">Entry type is </a><span class="CodeOrCommand">RsslVectorEntry</span>, which can house only container types, as specified on the <span class="CodeOrCommand">RsslVector</span>. Each entry’s <span class="CodeOrCommand">index</span> is an unsigned integer. Each entry has an associated action, which informs the user on how to apply the information stored in the entry.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357181">RSSL_DT_</a>FILTER_LIST</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1357186">RsslFilterList</a></span></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357948">A non-uniform container of </a><span class="CodeOrCommand">filterId</span>-value paired entries. A <span class="CodeOrCommand">filterId</span> corresponds to one of 32 possible bit-value identifiers, typically defined by a domain model specification. <span class="CodeOrCommand">FilterId</span>’s can be used to indicate interest or presence of specific entries through the inclusion of the <span class="CodeOrCommand">filterId</span> in the message key’s <span class="CodeOrCommand">filter</span> member.</div>
+            <div class="CellBody"><a name="1472031">A container of key-value paired entries. </a><span class="CodeOrCommand">RsslMap</span> is a uniform type, where the base primitive type of each entry’s key and the <span class="CodeOrCommand">containerType</span> of each entry’s payload are specified on the <span class="CodeOrCommand">RsslMap</span>.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -250,7 +180,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357949">For more information about the message key, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.06.html', '');" title="12.1.2 Message Key">Section 12.1.2</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1472036">For more information on base primitive types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -264,39 +194,53 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357206">For more details on this container, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.100.html', '');" title="11.3.6 RsslFilterList">Section 11.3.6</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1471261">For more details on this container, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.069.html', '');" title="11.3.3 RsslMap">Section 11.3.3</a>.</div>
                   </td>
                 </tr>
               </table>
             </div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357218">Entry type is </a><span class="CodeOrCommand">RsslFilterEntry</span>, which can house only container types. Though the <span class="CodeOrCommand">RsslFilterList</span> can specify a <span class="CodeOrCommand">containerType</span>, each entry can override this specification to house a different type. Each entry has an associated action, which informs the user of how to apply the information stored in the entry.</div>
+            <div class="CellBody"><a name="1471276">Entry type is </a><span class="CodeOrCommand">RsslMapEntry</span>, which can include only container types, as specified on the <span class="CodeOrCommand">RsslMap</span>. Each entry’s key is a base primitive type, as specified on the <span class="CodeOrCommand">RsslMap</span>. Each entry has an associated action, which informs the user of how to apply the information stored in the entry.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357220">RSSL_DT_</a>MSG</div>
+            <div class="CellBody"><a name="1471278">RSSL_DT_</a>SERIES</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1357225">RsslMsg</a></span></div>
+            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1471283">RsslSeries</a></span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357243">Indicates that the contents are another message. This allows the application to house a message within a message or a message within another container’s entries. This type is typically used with posting</a> (described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.22.html', '');" title="13.9 Posting">Section 13.9</a>). For more details on message encoding and decoding, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.01.html', '');" title="Chapter 12 Message Package Detailed View">Chapter 12, Message Package Detailed View</a>.</div>
+            <div class="CellBody"><a name="1471298">A uniform type, where the </a><span class="CodeOrCommand">containerType</span> of each entry is specified on the <span class="CodeOrCommand">RsslSeries</span>. This container is often used to represent table-based information, where no explicit indexing is present or required. As entries are received, the user should append them to any previously-received entries. For more details on this container, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.080.html', '');" title="11.3.4 RsslSeries">Section 11.3.4</a>.</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357249">None</a></div>
+            <div class="CellBody"><a name="1471313">Entry type is </a><span class="CodeOrCommand">RsslSeriesEntry</span>, which can include only container types, as specified on the <span class="CodeOrCommand">RsslSeries</span>. <span class="CodeOrCommand">RsslSeriesEntry</span> types do not contain explicit actions; though as entries are received, the user should append them to any previously received entries.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357251">RSSL_DT_</a>NO_DATA</div>
+            <div class="CellBody"><a name="1471315">RSSL_DT_</a>VECTOR</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357253">None</a></div>
+            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1471320">RsslVector</a></span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357997">Indicates there are no contents.</a></div>
+            <div class="CellBody"><a name="1471335">A container of position index-value paired entries. This container is a uniform type, where the </a><span class="CodeOrCommand">containerType</span> of each entry’s payload is specified on the <span class="CodeOrCommand">RsslVector</span>. Each entry’s <span class="CodeOrCommand">index</span> is represented by an unsigned integer. For more details on this container, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.089.html', '');" title="11.3.5 RsslVector">Section 11.3.5</a>.</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471347">Entry type is </a><span class="CodeOrCommand">RsslVectorEntry</span>, which can house only container types, as specified on the <span class="CodeOrCommand">RsslVector</span>. Each entry’s <span class="CodeOrCommand">index</span> is an unsigned integer. Each entry has an associated action, which informs the user on how to apply the information stored in the entry.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471349">RSSL_DT_</a>FILTER_LIST</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1471354">RsslFilterList</a></span></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1472116">A non-uniform container of </a><span class="CodeOrCommand">filterId</span>-value paired entries. A <span class="CodeOrCommand">filterId</span> corresponds to one of 32 possible bit-value identifiers, typically defined by a domain model specification. <span class="CodeOrCommand">FilterId</span>’s can be used to indicate interest or presence of specific entries through the inclusion of the <span class="CodeOrCommand">filterId</span> in the message key’s <span class="CodeOrCommand">filter</span> member.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -306,7 +250,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357998">When </a><span class="Parameter">RSSL_</span><span class="Parameter">DT_NO_DATA</span> is housed in a message, the message has no payload.</div>
+                    <div class="Bullet_Table_inner"><a name="1472117">For more information about the message key, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.06.html', '');" title="12.1.2 Message Key">Section 12.1.2</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -320,56 +264,112 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1357270">If </a><span class="Parameter">RSSL_</span><span class="Parameter">DT_NO_DATA</span> is housed in a container type, each container entry has no payload.<sup><a name="wwfootnote_inline_75" href="#75">1</a></sup></div>
+                    <div class="Bullet_Table_inner"><a name="1471374">For more details on this container, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.100.html', '');" title="11.3.6 RsslFilterList">Section 11.3.6</a>.</div>
                   </td>
                 </tr>
               </table>
             </div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357276">None</a></div>
+            <div class="CellBody"><a name="1471386">Entry type is </a><span class="CodeOrCommand">RsslFilterEntry</span>, which can house only container types. Though the <span class="CodeOrCommand">RsslFilterList</span> can specify a <span class="CodeOrCommand">containerType</span>, each entry can override this specification to house a different type. Each entry has an associated action, which informs the user of how to apply the information stored in the entry.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357278">RSSL_DT_</a>ANSI_PAGE</div>
+            <div class="CellBody"><a name="1471388">RSSL_DT_</a>MSG</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357280">None</a></div>
+            <div class="CellBody" style="color: #f2960c; font-family: &quot;Courier New&quot;; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 2.0pt; margin-top: 2.0pt; text-transform: none; vertical-align: baseline"><span class="CodeOrCommand"><a name="1471393">RsslMsg</a></span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357302">Indicates that contents are ANSI Page format. Though the Transport API does not natively support encoding and decoding for the ANSI Page format, the Transport API supports the use of a separate ANSI Page encoder/decoder. For further details, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCANSI&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API ANSI Library Manual</a></span>. For more details on housing non-RWF types inside of container types, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.111.html', '');" title="11.3.7 Non-RWF Container Types">Section 11.3.7</a>.</div>
+            <div class="CellBody"><a name="1471411">Indicates that the contents are another message. This allows the application to house a message within a message or a message within another container’s entries. This type is typically used with posting</a> (described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.22.html', '');" title="13.9 Posting">Section 13.9</a>). For more details on message encoding and decoding, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.01.html', '');" title="Chapter 12 Message Package Detailed View">Chapter 12, Message Package Detailed View</a>.</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357308">None</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357310">RSSL_DT_</a>XML</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357312">None</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357330">Indicates that contents are XML-formatted data. Though the Transport API does not natively support encoding and decoding XML, the Transport API supports the use of a separate XML encoder/decoder. For more details on housing non-RWF types inside of container types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.111.html', '');" title="11.3.7 Non-RWF Container Types">Section 11.3.7</a>.</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357336">None</a></div>
+            <div class="CellBody"><a name="1471417">None</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357338">RSSL_DT_</a>OPAQUE</div>
+            <div class="CellBody"><a name="1471419">RSSL_DT_</a>NO_DATA</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357340">None</a></div>
+            <div class="CellBody"><a name="1471421">None</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357355">Indicates that the contents are opaque and additional details are not provided through the Transport API. Any specific information about the concrete type housed in the opaque payload should be defined in the specific domain model associated with the message. For more details on housing non-RWF types inside of container types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.111.html', '');" title="11.3.7 Non-RWF Container Types">Section 11.3.7</a>.</div>
+            <div class="CellBody"><a name="1472165">Indicates there are no contents.</a></div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1472166">When </a><span class="Parameter">RSSL_</span><span class="Parameter">DT_NO_DATA</span> is housed in a message, the message has no payload.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1471438">If </a><span class="Parameter">RSSL_</span><span class="Parameter">DT_NO_DATA</span> is housed in a container type, each container entry has no payload.<sup><a name="wwfootnote_inline_75" href="#75">1</a></sup></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1357361">None</a></div>
+            <div class="CellBody"><a name="1471444">None</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471446">RSSL_DT_</a>ANSI_PAGE</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471448">None</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471470">Indicates that contents are ANSI Page format. Though the Transport API does not natively support encoding and decoding for the ANSI Page format, the Transport API supports the use of a separate ANSI Page encoder/decoder. For further details, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCANSI&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API ANSI Library Manual</a></span>. For more details on housing non-RWF types inside of container types, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.111.html', '');" title="11.3.7 Non-RWF Container Types">Section 11.3.7</a>.</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471476">None</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471478">RSSL_DT_</a>XML</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471480">None</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471498">Indicates that contents are XML-formatted data. Though the Transport API does not natively support encoding and decoding XML, the Transport API supports the use of a separate XML encoder/decoder. For more details on housing non-RWF types inside of container types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.111.html', '');" title="11.3.7 Non-RWF Container Types">Section 11.3.7</a>.</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471504">None</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471506">RSSL_DT_</a>OPAQUE</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471508">None</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471523">Indicates that the contents are opaque and additional details are not provided through the Transport API. Any specific information about the concrete type housed in the opaque payload should be defined in the specific domain model associated with the message. For more details on housing non-RWF types inside of container types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.111.html', '');" title="11.3.7 Non-RWF Container Types">Section 11.3.7</a>.</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1471529">None</a></div>
           </td>
         </tr>
       </table>
@@ -377,7 +377,7 @@
       <div style="font-size: smaller; float: left; padding-right: 10px;">
         <a name="75" href="#wwfootnote_inline_75">1</a>
       </div>
-      <div class="TableFootnote"><a name="1358004">A</a>n <span class="LucidaConsole">RsslFilterList</span> can indicate a type of <span class="Parameter">RSSL_</span><span class="Parameter">DT_NO_DATA</span>, however an individual <span class="LucidaConsole">RsslFilterEntry</span> can override using the entry-specific <span class="LucidaConsole">containerType</span>.</div>
+      <div class="TableFootnote"><a name="1472172">A</a>n <span class="LucidaConsole">RsslFilterList</span> can indicate a type of <span class="Parameter">RSSL_</span><span class="Parameter">DT_NO_DATA</span>, however an individual <span class="LucidaConsole">RsslFilterEntry</span> can override using the entry-specific <span class="LucidaConsole">containerType</span>.</div>
       <br style="clear: both;" />
       <script type="text/javascript" language="JavaScript1.2">
         <!--

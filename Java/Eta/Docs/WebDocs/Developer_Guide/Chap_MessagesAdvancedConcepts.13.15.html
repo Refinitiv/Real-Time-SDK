@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="999701">Dynamic View Use</a></div>
-      <div class="Body"><a name="1041957">Applications can use the Transport API to send or receive requests for a dynamic view of a stream’s content. A consumer application uses a </a><span class="Concept">dynamic view</span> to specify a subset of data in which the application has interest. A provider can choose to supply only this requested subset of content across all response messages. Filtering content in this manner can reduce the volume of data that flows across the connection. View use can be leveraged across all non-administrative<sup><a name="wwfootnote_inline_54" href="#54">1</a></sup> domain model types, where the model definition should specify associated usage and support. Though a consumer might request a specific view, the provider might still send additional content and/or content might be unavailable (and not provided).</div>
-      <div class="Body"><a name="1041964">A consumer application can request a view through an </a><span class="CodeOrCommand">RequestMsg</span> with the <span class="CodeOrCommand">RequestMsgFlags.HAS_VIEW</span> flag set and by including a specially-formatted payload. The payload should contain an <span class="CodeOrCommand">ElementList</span> along with:</div>
+      <div class="Body"><a name="1057587">Applications can use the Transport API to send or receive requests for a dynamic view of a stream’s content. A consumer application uses a </a><span class="Concept">dynamic view</span> to specify a subset of data in which the application has interest. A provider can choose to supply only this requested subset of content across all response messages. Filtering content in this manner can reduce the volume of data that flows across the connection. View use can be leveraged across all non-administrative<sup><a name="wwfootnote_inline_56" href="#56">1</a></sup> domain model types, where the model definition should specify associated usage and support. Though a consumer might request a specific view, the provider might still send additional content and/or content might be unavailable (and not provided).</div>
+      <div class="Body"><a name="1057594">A consumer application can request a view through an </a><span class="CodeOrCommand">RequestMsg</span> with the <span class="CodeOrCommand">RequestMsgFlags.HAS_VIEW</span> flag set and by including a specially-formatted payload. The payload should contain an <span class="CodeOrCommand">ElementList</span> along with:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1041971">An </a><span class="CodeOrCommand">ElementEntry</span> for <span class="CodeOrCommand">:ViewType</span> which contains a <span class="CodeOrCommand">DataTypes.UINT</span> value indicating the specific type of view requested. <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.16.html', '');" title="13.8.1 RDM ViewTypes Names">Section 13.8.1</a> describes the currently defined <span class="CodeOrCommand">:ViewType</span> values.</div>
+              <div class="Bullet_inner"><a name="1057601">An </a><span class="CodeOrCommand">ElementEntry</span> for <span class="CodeOrCommand">:ViewType</span> which contains a <span class="CodeOrCommand">DataTypes.UINT</span> value indicating the specific type of view requested. <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.16.html', '');" title="13.8.1 RDM ViewTypes Names">Section 13.8.1</a> describes the currently defined <span class="CodeOrCommand">:ViewType</span> values.</div>
             </td>
           </tr>
         </table>
@@ -81,15 +81,15 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1041984">An </a><span class="CodeOrCommand">ElementEntry</span> for <span class="CodeOrCommand">:ViewData</span> which contains an <span class="CodeOrCommand">Array</span> populated with the content being requested. For instance, when specifying a <span class="CodeOrCommand">fieldId</span> list, the array would contain two-byte fixed length <span class="CodeOrCommand">DataTypes.INT</span> entries. The specific contents of the <span class="CodeOrCommand">:ViewData</span> are indicated in the definition of the <span class="CodeOrCommand">:ViewType</span>.</div>
+              <div class="Bullet_inner"><a name="1057614">An </a><span class="CodeOrCommand">ElementEntry</span> for <span class="CodeOrCommand">:ViewData</span> which contains an <span class="CodeOrCommand">Array</span> populated with the content being requested. For instance, when specifying a <span class="CodeOrCommand">fieldId</span> list, the array would contain two-byte fixed length <span class="CodeOrCommand">DataTypes.INT</span> entries. The specific contents of the <span class="CodeOrCommand">:ViewData</span> are indicated in the definition of the <span class="CodeOrCommand">:ViewType</span>.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1041988">Because payload content can include customer-defined portions and Thomson Reuters-defined portions, the Transport API uses a name-spacing scheme. Any content in the </a><span class="CodeOrCommand">name</span> member prior to the colon (<span class="CodeOrCommand">:</span>) is used as name space information (e.g., <span class="CodeOrCommand">Customer:Element</span>). Thomson Reuters reserves the empty name space (e.g., <span class="CodeOrCommand">:Element</span>). View-related enumerations and element name string constants are defined <span class="CodeOrCommand">com.thomsonreuters.upa.rdm.ElementNames</span>.</div>
-      <div class="Body"><a name="1041989">If a consumer application wishes to change a previously-specified view, the same process can be followed by issuing a subsequent </a><span class="CodeOrCommand">RequestMsg</span> using the same <span class="CodeOrCommand">streamId</span> (a reissue). In this case, <span class="CodeOrCommand">:ViewData</span> would contain the newly desired view. If a reissue is required and the consumer wants to continue using the same view, the <span class="CodeOrCommand">RequestMsg</span> should continue to include the <span class="CodeOrCommand">RequestMsgFlags.HAS_VIEW</span> flag,<span class="CodeOrCommand">:ViewType</span> or <span class="CodeOrCommand">:ViewData</span> are not required. Sending a <span class="CodeOrCommand">RequestMsg</span> without the <span class="CodeOrCommand">RequestMsgFlags.HAS_VIEW</span> flag removes any view associated with a stream.</div>
-      <div class="Body"><a name="1041999">A provider application can receive a view request and determine an appropriate way to respond. Response content can be filtered to abide by the view specification, or the provider can send full/additional content. Several </a><span class="CodeOrCommand">State.code</span> values are available to convey view-related status. If a view’s possible content changes (e.g., a previously requested field becomes available), a <span class="CodeOrCommand">RefreshMsg</span> should be provided to convey such a change to the data. This refresh should follow the rules associated with solicited or unsolicited refresh messages.</div>
-      <div class="Body"><a name="1042006">A provider application can indicate support for dynamic view handling by sending the </a><span class="CodeOrCommand">msgKey</span> attribute <span class="CodeOrCommand">supportViewRequests</span> in the Login domain <span class="CodeOrCommand">RefreshMsg</span>.</div>
+      <div class="Body"><a name="1057618">Because payload content can include customer-defined portions and Thomson Reuters-defined portions, the Transport API uses a name-spacing scheme. Any content in the </a><span class="CodeOrCommand">name</span> member prior to the colon (<span class="CodeOrCommand">:</span>) is used as name space information (e.g., <span class="CodeOrCommand">Customer:Element</span>). Thomson Reuters reserves the empty name space (e.g., <span class="CodeOrCommand">:Element</span>). View-related enumerations and element name string constants are defined <span class="CodeOrCommand">com.thomsonreuters.upa.rdm.ElementNames</span>.</div>
+      <div class="Body"><a name="1057619">If a consumer application wishes to change a previously-specified view, the same process can be followed by issuing a subsequent </a><span class="CodeOrCommand">RequestMsg</span> using the same <span class="CodeOrCommand">streamId</span> (a reissue). In this case, <span class="CodeOrCommand">:ViewData</span> would contain the newly desired view. If a reissue is required and the consumer wants to continue using the same view, the <span class="CodeOrCommand">RequestMsg</span> should continue to include the <span class="CodeOrCommand">RequestMsgFlags.HAS_VIEW</span> flag,<span class="CodeOrCommand">:ViewType</span> or <span class="CodeOrCommand">:ViewData</span> are not required. Sending a <span class="CodeOrCommand">RequestMsg</span> without the <span class="CodeOrCommand">RequestMsgFlags.HAS_VIEW</span> flag removes any view associated with a stream.</div>
+      <div class="Body"><a name="1057629">A provider application can receive a view request and determine an appropriate way to respond. Response content can be filtered to abide by the view specification, or the provider can send full/additional content. Several </a><span class="CodeOrCommand">State.code</span> values are available to convey view-related status. If a view’s possible content changes (e.g., a previously requested field becomes available), a <span class="CodeOrCommand">RefreshMsg</span> should be provided to convey such a change to the data. This refresh should follow the rules associated with solicited or unsolicited refresh messages.</div>
+      <div class="Body"><a name="1057636">A provider application can indicate support for dynamic view handling by sending the </a><span class="CodeOrCommand">msgKey</span> attribute <span class="CodeOrCommand">supportViewRequests</span> in the Login domain <span class="CodeOrCommand">RefreshMsg</span>.</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -99,21 +99,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1042019">For details on </a><span class="CodeOrCommand">State.code</span> values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.022.html', '');" title="11.2.6.6 StateCodes Values">Section 11.2.6.6</a>.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1042025">For details on the </a><span class="CodeOrCommand">RequestMsg</span> and <span class="CodeOrCommand">RequestMsgFlags.HAS_VIEW</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.14.html#1001278', '');" title="12.2 Messages">Section 12.2.1</a>.</div>
+              <div class="Bullet_inner"><a name="1057649">For details on </a><span class="CodeOrCommand">State.code</span> values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.022.html', '');" title="11.2.6.6 StateCodes Values">Section 11.2.6.6</a>.</div>
             </td>
           </tr>
         </table>
@@ -127,7 +113,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1042039">For details on the </a><span class="CodeOrCommand">ElementList</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.046.html', '');" title="11.3.2 ElementList">Section 11.3.2</a>.</div>
+              <div class="Bullet_inner"><a name="1057655">For details on the </a><span class="CodeOrCommand">RequestMsg</span> and <span class="CodeOrCommand">RequestMsgFlags.HAS_VIEW</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.14.html#1001278', '');" title="12.2 Messages">Section 12.2.1</a>.</div>
             </td>
           </tr>
         </table>
@@ -141,7 +127,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1042046">For rules associated with refresh messages, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.17.html', '');" title="12.2.2 Refresh Message Interface">Section 12.2.2</a>.</div>
+              <div class="Bullet_inner"><a name="1057669">For details on the </a><span class="CodeOrCommand">ElementList</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.046.html', '');" title="11.3.2 ElementList">Section 11.3.2</a>.</div>
             </td>
           </tr>
         </table>
@@ -155,7 +141,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1042047">For details on the Login </a><span class="CodeOrCommand">domainType</span> (<span class="CodeOrCommand">DomainTypes.LOGIN</span>) and general view use, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API RDM Usage Guide</a></span>.</div>
+              <div class="Bullet_inner"><a name="1057676">For rules associated with refresh messages, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.17.html', '');" title="12.2.2 Refresh Message Interface">Section 12.2.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1057677">For details on the Login </a><span class="CodeOrCommand">domainType</span> (<span class="CodeOrCommand">DomainTypes.LOGIN</span>) and general view use, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API RDM Usage Guide</a></span>.</div>
             </td>
           </tr>
         </table>
@@ -171,9 +171,9 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="54" href="#wwfootnote_inline_54">1</a>
+        <a name="56" href="#wwfootnote_inline_56">1</a>
       </div>
-      <div class="Footnote"><a name="1041960">Administrative domain types are considered to be the Login, Directory, and Dictionary domain models. Other domains are considered non-administrative.</a></div>
+      <div class="Footnote"><a name="1057590">Administrative domain types are considered to be the Login, Directory, and Dictionary domain models. Other domains are considered non-administrative.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

@@ -56,35 +56,35 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1019098">RsslElementEntry Structure Members</a></div>
-      <div class="Body"><a name="1359248">Each </a><span class="CodeOrCommand">RsslElementList</span> can contain multiple <span class="CodeOrCommand">RsslElementEntry</span>s and each <span class="CodeOrCommand">RsslElementEntry</span> can house any <span class="CodeOrCommand">RsslDataType</span>, including primitive types (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>), set-defined types (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>), or container types. If an <span class="CodeOrCommand">RsslElementEntry</span> is a part of updating information and contains a primitive type, any previously stored or displayed data is replaced. If an <span class="CodeOrCommand">RsslElementEntry</span> contains another container type, action values associated with that type indicate how to modify data.</div>
-      <div class="Blank_Line"><a name="1359473">&nbsp;</a></div>
+      <div class="Body"><a name="1473677">Each </a><span class="CodeOrCommand">RsslElementList</span> can contain multiple <span class="CodeOrCommand">RsslElementEntry</span>s and each <span class="CodeOrCommand">RsslElementEntry</span> can house any <span class="CodeOrCommand">RsslDataType</span>, including primitive types (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>), set-defined types (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.117.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>), or container types. If an <span class="CodeOrCommand">RsslElementEntry</span> is a part of updating information and contains a primitive type, any previously stored or displayed data is replaced. If an <span class="CodeOrCommand">RsslElementEntry</span> contains another container type, action values associated with that type indicate how to modify data.</div>
+      <div class="Blank_Line"><a name="1473902">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 110: <span class="LucidaConsole"><a name="1359470">RsslElementEntry</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 110: <span class="LucidaConsole"><a name="1473899">RsslElementEntry</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 99.74952pt">
-            <div class="CellHeading"><a name="1359275">Structure Member</a></div>
+            <div class="CellHeading"><a name="1473704">Structure Member</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 456.00048pt">
-            <div class="CellHeading"><a name="1359277">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1473706">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359279">name</a></div>
+            <div class="CellBody"><a name="1473708">name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359287">An </a><span class="CodeOrCommand">RsslBuffer</span> containing the <span class="CodeOrCommand">name</span> associated with this <span class="CodeOrCommand">RsslElementEntry</span>. Element names are defined outside of the Transport API, typically as part of a domain model specification or dictionary. A <span class="CodeOrCommand">name</span> can be empty; however this provides no identifying information for the element.</div>
-            <div class="CellBody"><a name="1359291">The </a><span class="CodeOrCommand">name</span> buffer allows for content length ranging from 0 bytes to 32,767 bytes. </div>
+            <div class="CellBody"><a name="1473716">An </a><span class="CodeOrCommand">RsslBuffer</span> containing the <span class="CodeOrCommand">name</span> associated with this <span class="CodeOrCommand">RsslElementEntry</span>. Element names are defined outside of the Transport API, typically as part of a domain model specification or dictionary. A <span class="CodeOrCommand">name</span> can be empty; however this provides no identifying information for the element.</div>
+            <div class="CellBody"><a name="1473720">The </a><span class="CodeOrCommand">name</span> buffer allows for content length ranging from 0 bytes to 32,767 bytes. </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359293">dataType</a></div>
+            <div class="CellBody"><a name="1473722">dataType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359301">Defines </a>the <span class="CodeOrCommand">RsslDataType</span> of this <span class="CodeOrCommand">RsslElementEntry</span>’s contents.</div>
+            <div class="CellBody"><a name="1473730">Defines </a>the <span class="CodeOrCommand">RsslDataType</span> of this <span class="CodeOrCommand">RsslElementEntry</span>’s contents.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -94,7 +94,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1359302">While encoding, set this to the enumerated value of the target type.</a></div>
+                    <div class="Bullet_Table_inner"><a name="1473731">While encoding, set this to the enumerated value of the target type.</a></div>
                   </td>
                 </tr>
               </table>
@@ -108,20 +108,20 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1359303">While decoding, </a><span class="CodeOrCommand">dataType</span> describes the type of contained data so that the correct decoder can be used.</div>
+                    <div class="Bullet_Table_inner"><a name="1473732">While decoding, </a><span class="CodeOrCommand">dataType</span> describes the type of contained data so that the correct decoder can be used.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1359307">If set-defined data is used, </a><span class="CodeOrCommand">dataType</span> will indicate any specific <span class="CodeOrCommand">RsslDataType</span> information as defined in the set definition.</div>
+            <div class="CellBody"><a name="1473736">If set-defined data is used, </a><span class="CodeOrCommand">dataType</span> will indicate any specific <span class="CodeOrCommand">RsslDataType</span> information as defined in the set definition.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359309">encData</a></div>
+            <div class="CellBody"><a name="1473738">encData</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359314">Length and pointer to </a>the encoded content of this <span class="CodeOrCommand">RsslElementEntry</span>. If populated on encode functions, this indicates that data is pre-encoded and <span class="CodeOrCommand">encData</span> copies while encoding. While decoding, this refers to the encoded <span class="CodeOrCommand">RsslElementEntry</span>’s payload and length data.</div>
+            <div class="CellBody"><a name="1473743">Length and pointer to </a>the encoded content of this <span class="CodeOrCommand">RsslElementEntry</span>. If populated on encode functions, this indicates that data is pre-encoded and <span class="CodeOrCommand">encData</span> copies while encoding. While decoding, this refers to the encoded <span class="CodeOrCommand">RsslElementEntry</span>’s payload and length data.</div>
           </td>
         </tr>
       </table>

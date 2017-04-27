@@ -56,28 +56,28 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1020597">InProgInfo Object</a></div>
-      <div class="Body"><a name="1473074">Use the </a><span class="CodeOrCommand">InProgInfo</span> object with the <span class="CodeOrCommand">Channel.init</span> method to initialize a channel.</div>
-      <div class="Body"><a name="1473075">In certain circumstances, the initialization process might need to create new or additional underlying connections. If this occurs, the application must unregister the previous </a><span class="CodeOrCommand">SelectableChannel</span> and register the new <span class="CodeOrCommand">SelectableChannel</span> with the I/O notification mechanism in use with associated information being conveyed by <span class="CodeOrCommand">InProgInfo</span> and <span class="CodeOrCommand">InProgFlags</span>.</div>
-      <div class="Blank_Line"><a name="1473182">&nbsp;</a></div>
+      <div class="Body"><a name="1526815">Use the </a><span class="CodeOrCommand">InProgInfo</span> object with the <span class="CodeOrCommand">Channel.init</span> method to initialize a channel.</div>
+      <div class="Body"><a name="1526816">In certain circumstances, the initialization process might need to create new or additional underlying connections. If this occurs, the application must unregister the previous </a><span class="CodeOrCommand">SelectableChannel</span> and register the new <span class="CodeOrCommand">SelectableChannel</span> with the I/O notification mechanism in use with associated information being conveyed by <span class="CodeOrCommand">InProgInfo</span> and <span class="CodeOrCommand">InProgFlags</span>.</div>
+      <div class="Blank_Line"><a name="1526923">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 26: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1473179">InProgInfo</a></span> Methods &nbsp;</div>
+          <div class="TableTitle">Table 26: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1526920">InProgInfo</a></span> Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1473093">Method</a></div>
+            <div class="CellHeading"><a name="1526834">Method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1473095">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1526836">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473097">flags</a></div>
+            <div class="CellBody"><a name="1526838">flags</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473102">Combination of bit values to indicate special behaviors and presence of optional </a><span class="CodeOrCommand">InProgInfo</span> content.</div>
-            <div class="CellBody"><span class="CodeOrCommand"><a name="1473103">flags</a></span> uses the following enumeration values:</div>
+            <div class="CellBody"><a name="1526843">Combination of bit values to indicate special behaviors and presence of optional </a><span class="CodeOrCommand">InProgInfo</span> content.</div>
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1526844">flags</a></span> uses the following enumeration values:</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -87,7 +87,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1473104">NONE</a></span>: Indicates that channel initialization is still in progress and subsequent calls to <span class="CodeOrCommand">Channel.init</span> are needed for completion. The call did not change the <span class="CodeOrCommand">SelectableChannel</span>.</div>
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1526845">NONE</a></span>: Indicates that channel initialization is still in progress and subsequent calls to <span class="CodeOrCommand">Channel.init</span> are needed for completion. The call did not change the <span class="CodeOrCommand">SelectableChannel</span>.</div>
                   </td>
                 </tr>
               </table>
@@ -101,7 +101,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1473111">SCKT_CHNL_</a></span><span class="Parameter">CHANGE</span>: Indicates that the call changed the <span class="CodeOrCommand">SelectableChannel</span>. The previous <span class="CodeOrCommand">SelectableChannel</span> is now stored in <span class="CodeOrCommand">InProgInfo.oldSelectableChannel</span> so it can be unregistered with the I/O notification mechanism. The new <span class="CodeOrCommand">SelectableChannel</span> is stored in <span class="CodeOrCommand">InProgInfo.newSelectableChannel</span> so it can be registered with the I/O notification mechanism. However, channel initialization is still in progress and subsequent calls to <span class="CodeOrCommand">Channel.init</span> are needed to complete it.</div>
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1526852">SCKT_CHNL_</a></span><span class="Parameter">CHANGE</span>: Indicates that the call changed the <span class="CodeOrCommand">SelectableChannel</span>. The previous <span class="CodeOrCommand">SelectableChannel</span> is now stored in <span class="CodeOrCommand">InProgInfo.oldSelectableChannel</span> so it can be unregistered with the I/O notification mechanism. The new <span class="CodeOrCommand">SelectableChannel</span> is stored in <span class="CodeOrCommand">InProgInfo.newSelectableChannel</span> so it can be registered with the I/O notification mechanism. However, channel initialization is still in progress and subsequent calls to <span class="CodeOrCommand">Channel.init</span> are needed to complete it.</div>
                   </td>
                 </tr>
               </table>
@@ -110,18 +110,18 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473140">oldSelectableChannel</a></div>
+            <div class="CellBody"><a name="1526881">oldSelectableChannel</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473145">Populated if flags indicate that </a><span class="CodeOrCommand">Channel.init</span> needs to perform a socket change. If this occurs, the <span class="CodeOrCommand">oldSelectableChannel</span> contains the <span class="CodeOrCommand">java.nio.channels.</span><span class="CodeOrCommand">SelectableChannel</span> associated with the previous connection so the application can unregister this with the I/O notification mechanism.</div>
+            <div class="CellBody"><a name="1526886">Populated if flags indicate that </a><span class="CodeOrCommand">Channel.init</span> needs to perform a socket change. If this occurs, the <span class="CodeOrCommand">oldSelectableChannel</span> contains the <span class="CodeOrCommand">java.nio.channels.</span><span class="CodeOrCommand">SelectableChannel</span> associated with the previous connection so the application can unregister this with the I/O notification mechanism.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473156">newSelectableChannel</a></div>
+            <div class="CellBody"><a name="1526897">newSelectableChannel</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473161">Populated if flags indicate that </a><span class="CodeOrCommand">Channel.init</span> needs to perform a socket change. If this occurs, the <span class="CodeOrCommand">newSelectableChannel</span> contains the <span class="CodeOrCommand">java.nio.channels.</span><span class="CodeOrCommand">SelectableChannel</span> associated with the new connection so the application can register this with the I/O notification mechanism.</div>
+            <div class="CellBody"><a name="1526902">Populated if flags indicate that </a><span class="CodeOrCommand">Channel.init</span> needs to perform a socket change. If this occurs, the <span class="CodeOrCommand">newSelectableChannel</span> contains the <span class="CodeOrCommand">java.nio.channels.</span><span class="CodeOrCommand">SelectableChannel</span> associated with the new connection so the application can register this with the I/O notification mechanism.</div>
           </td>
         </tr>
       </table>

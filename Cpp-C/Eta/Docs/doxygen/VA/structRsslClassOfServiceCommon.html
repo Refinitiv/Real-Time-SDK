@@ -114,11 +114,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr><td colspan="2"><h2><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
 <tr class="memitem:a4614988219f86d84f5fd7ef2f1150634"><td class="memItemLeft" align="right" valign="top">RsslUInt&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslClassOfServiceCommon.html#a4614988219f86d84f5fd7ef2f1150634">maxMsgSize</a></td></tr>
+<tr class="memitem:ab22dcb9a273ae34fa6546705f069e7a6"><td class="memItemLeft" align="right" valign="top">RsslUInt&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslClassOfServiceCommon.html#ab22dcb9a273ae34fa6546705f069e7a6">maxFragmentSize</a></td></tr>
+<tr class="memitem:a433ca5dc6d7ee8dc373afefe817341d3"><td class="memItemLeft" align="right" valign="top">RsslUInt&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslClassOfServiceCommon.html#a433ca5dc6d7ee8dc373afefe817341d3">supportsFragmentation</a></td></tr>
 <tr class="memitem:adc8fd9c6d20e3b5839b225bfe5308f9f"><td class="memItemLeft" align="right" valign="top">RsslUInt8&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslClassOfServiceCommon.html#adc8fd9c6d20e3b5839b225bfe5308f9f">protocolType</a></td></tr>
 <tr class="memitem:a39a23f7802e85bba1d81e415785f2a15"><td class="memItemLeft" align="right" valign="top">RsslUInt8&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslClassOfServiceCommon.html#a39a23f7802e85bba1d81e415785f2a15">protocolMajorVersion</a></td></tr>
 <tr class="memitem:ae430187ad7e4343b8e3224e714f28f6f"><td class="memItemLeft" align="right" valign="top">RsslUInt8&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslClassOfServiceCommon.html#ae430187ad7e4343b8e3224e714f28f6f">protocolMinorVersion</a></td></tr>
 </table>
 <hr/><h2>Field Documentation</h2>
+<a class="anchor" id="ab22dcb9a273ae34fa6546705f069e7a6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RsslUInt <a class="el" href="structRsslClassOfServiceCommon.html#ab22dcb9a273ae34fa6546705f069e7a6">RsslClassOfServiceCommon::maxFragmentSize</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>The maximum fragment size to be used on the qualified stream if supported. This value is sent only by providers -- consumers do not need to configure it. </p>
+
+<p>Referenced by <a class="el" href="rsslClassOfService_8h.html#a142851d62ae257f2e6c7da5ddd157def">rsslClearClassOfService()</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a4614988219f86d84f5fd7ef2f1150634"></a>
 <div class="memitem">
 <div class="memproto">
@@ -183,6 +201,22 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a433ca5dc6d7ee8dc373afefe817341d3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RsslUInt <a class="el" href="structRsslClassOfServiceCommon.html#a433ca5dc6d7ee8dc373afefe817341d3">RsslClassOfServiceCommon::supportsFragmentation</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Indication of support message fragmentation </p>
+
+<p>Referenced by <a class="el" href="rsslClassOfService_8h.html#a142851d62ae257f2e6c7da5ddd157def">rsslClearClassOfService()</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="rsslClassOfService_8h_source.html">rsslClassOfService.h</a></li>
 </ul>
@@ -202,7 +236,7 @@ Data Fields</h2></td></tr>
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-            <td><p class="smallfont">Fri Sep 16 2016</td>
+            <td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         <p class="smallfont">&nbsp;</td>

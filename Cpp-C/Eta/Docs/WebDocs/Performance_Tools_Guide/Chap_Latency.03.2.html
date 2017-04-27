@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1221390">Time-slicing</a></div>
-      <div class="Body"><a name="1223950">All applications follow a similar model for controlling time: time is divided into small intervals, referred to as “ticks.” During a run, each application has a main loop that runs an iteration once per tick. In this loop, the application performs some periodic action, and then waits until the next tick before starting the loop again.</a></div>
-      <div class="Body"><a name="1223951">For example, an application might observe the following loop:</a></div>
+      <div class="Body"><a name="1224094">All applications follow a similar model for controlling time: time is divided into small intervals, referred to as “ticks.” During a run, each application has a main loop that runs an iteration once per tick. In this loop, the application performs some periodic action, and then waits until the next tick before starting the loop again.</a></div>
+      <div class="Body"><a name="1224095">For example, an application might observe the following loop:</a></div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1223952">Send out a burst of messages.</a></div>
+              <div class="Step1_inner"><a name="1224096">Send out a burst of messages.</a></div>
             </td>
           </tr>
         </table>
@@ -81,19 +81,19 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1223953">Wait until the time of the next tick. If network notification indicates that any connections have messages available, read them and continue waiting.</a></div>
+              <div class="Stepnext_inner"><a name="1224097">Wait until the time of the next tick. If network notification indicates that any connections have messages available, read them and continue waiting.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1223954">Applications can configure this rate using their respective </a><span class="CodeOrCommand">-tickRate</span> option. This determines how many ticks occur per second. For example, if you set the tick rate to 100, ticks occur at 10-millisecond intervals.</div>
-      <div class="Body"><a name="1223955">Applications adjust the message rate to fit the tick rate. For example, if an application wants to send 100,000 messages per second with a tick rate of 100 ticks per second, the application will send 1,000 messages per tick. Adjusting the tick rate affects the smoothness of message traffic by defining the amount of time between bursts:</a></div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1223959"><img class="Default" src="images/Chap_Latency.03.2.1.jpg" width="632" height="104" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 6.  <a name="1223960">Time Slicing Algorithm</a></div>
-      <div class="Body"><a name="1223964">Depending on the tool, spare time in the tick might be used to perform other actions. For example, after </a><span class="ToolOrUtility_Name">upacProvPerf</span> or <span class="ToolOrUtility_Name">upacNIProvPerf</span> sends an update burst, the remaining time is used to send outstanding refreshes:</div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1223971"><img class="Default" src="images/Chap_Latency.03.2.2.jpg" width="559" height="107" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 7.  <a name="1223972">Refresh Publishing Algorithm</a></div>
-      <div class="Body"><a name="1223973">Applications always set tick times at fixed intervals as they progress, regardless of what the application does during the interval. For example, if the tick rate is 100 (i.e., 10 ms intervals), and the time of the previous tick was 40ms, then the times of the next ticks are 50 ms, 60 ms, etc... This helps maintain constant overall messaging rates: any irregularities in the timing of the current tick are corrected in subsequent ticks.</a></div>
+      <div class="Body"><a name="1224098">Applications can configure this rate using their respective </a><span class="CodeOrCommand">-tickRate</span> option. This determines how many ticks occur per second. For example, if you set the tick rate to 100, ticks occur at 10-millisecond intervals.</div>
+      <div class="Body"><a name="1224099">Applications adjust the message rate to fit the tick rate. For example, if an application wants to send 100,000 messages per second with a tick rate of 100 ticks per second, the application will send 1,000 messages per tick. Adjusting the tick rate affects the smoothness of message traffic by defining the amount of time between bursts:</a></div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1224103"><img class="Default" src="images/Chap_Latency.03.2.1.jpg" width="632" height="104" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 6.  <a name="1224104">Time Slicing Algorithm</a></div>
+      <div class="Body"><a name="1224108">Depending on the tool, spare time in the tick might be used to perform other actions. For example, after </a><span class="ToolOrUtility_Name">upacProvPerf</span> or <span class="ToolOrUtility_Name">upacNIProvPerf</span> sends an update burst, the remaining time is used to send outstanding refreshes:</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1224115"><img class="Default" src="images/Chap_Latency.03.2.2.jpg" width="559" height="107" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 7.  <a name="1224116">Refresh Publishing Algorithm</a></div>
+      <div class="Body"><a name="1224117">Applications always set tick times at fixed intervals as they progress, regardless of what the application does during the interval. For example, if the tick rate is 100 (i.e., 10 ms intervals), and the time of the previous tick was 40ms, then the times of the next ticks are 50 ms, 60 ms, etc... This helps maintain constant overall messaging rates: any irregularities in the timing of the current tick are corrected in subsequent ticks.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

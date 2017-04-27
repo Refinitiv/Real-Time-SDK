@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>9.3.3 RsslMapEntry Contents</title>
+    <title>9.3.2 Summary Data</title>
     <link rel="StyleSheet" href="css/Chap_MarketMaker_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,9 +55,8 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1000074">RsslMapEntry Contents</a></div>
-      <div class="Body"><a name="1002346">Each </a><span class="CodeOrCommand">RsslMapEntry</span> key is an <span class="CodeOrCommand">RsslBuffer</span> that contains the market maker’s Id (which should be unique).</div>
-      <div class="Body"><a name="1002347">Each </a><span class="CodeOrCommand">RsslMapEntry</span> houses an <span class="CodeOrCommand">RsslFieldList</span> that contains information about the market maker. The field list should be decoded using its associated Field Dictionary, indicated by the <span class="CodeOrCommand">dictionaryId</span> present in the field list. </div>
+      <div class="H3"><a name="1000070">Summary Data</a></div>
+      <div class="Body"><a name="1002302">The </a><span class="CodeOrCommand">summaryData</span> of the <span class="CodeOrCommand">RsslMap</span> only needs to be present in the first refresh part. Typical fields in the <span class="CodeOrCommand">summaryData</span> include:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002348">For more information on dictionary use, refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.03.html', '');" title="5.2 Decoding Field List Contents with Field and Enumerated Types Dictionaries">Section 5.2</a>.</div>
+              <div class="bullet_ind_inner"><a name="1002303">Permission information (</a><span class="Parameter">PROD_PERM</span>)</div>
             </td>
           </tr>
         </table>
@@ -81,22 +80,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002349">For more information about use of the </a><span class="CodeOrCommand">RsslMap</span> and <span class="CodeOrCommand">RsslFieldList</span> container types, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1002350">The field list typically includes:</a></div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002351">Bid (</a><span class="Parameter">BID</span>)</div>
+              <div class="bullet_ind_inner"><a name="1002304">Currency of the orders (</a><span class="Parameter">CURRENCY</span>)</div>
             </td>
           </tr>
         </table>
@@ -110,7 +94,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002352">Ask (</a><span class="Parameter">ASK</span>)</div>
+              <div class="bullet_ind_inner"><a name="1002305">Trade Units for the precision at which order prices are set (</a><span class="Parameter">TRD_UNITS</span>)</div>
             </td>
           </tr>
         </table>
@@ -124,7 +108,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002353">Bid Size (</a><span class="Parameter">BIDSIZE</span>)</div>
+              <div class="bullet_ind_inner"><a name="1002306">Identifier of the exchange on which the orders were placed (</a><span class="Parameter">RDN_EXCHD2</span>)</div>
             </td>
           </tr>
         </table>
@@ -138,7 +122,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002354">Ask Size (</a><span class="Parameter">ASKSIZE</span>)</div>
+              <div class="bullet_ind_inner"><a name="1002307">Market State indicating the state of the market (</a><span class="Parameter">MKT_ST_IND</span>)</div>
             </td>
           </tr>
         </table>
@@ -152,7 +136,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002355">Market Source (</a><span class="Parameter">MKT_SOURCE</span>)</div>
+              <div class="bullet_ind_inner"><a name="1002308">Price ranking rules (</a><span class="Parameter">PR_RNK_RUL</span>)</div>
             </td>
           </tr>
         </table>
@@ -166,35 +150,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002356">Market Maker Name (</a><span class="Parameter">MKT_MKR_NM</span>)</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002357">Price Qualifiers (</a><span class="Parameter">PRC_QL_CD</span> and <span class="Parameter">PRC_QL2</span>)</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002358">Quote Time (</a><span class="Parameter">QUOTIM_MS</span>)</div>
+              <div class="bullet_ind_inner"><a name="1002309">Quote Date (</a><span class="Parameter">QUOTE_DATE</span>)</div>
             </td>
           </tr>
         </table>
@@ -211,7 +167,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketMaker_Domain.09.01.html">Chapter 9	Market Maker Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketMaker_Domain.09.07.html">9.3	Data</a> : 9.3.3	RsslMapEntry Contents</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketMaker_Domain.09.01.html">Chapter 9	Market Maker Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketMaker_Domain.09.08.html">9.3	Data</a> : 9.3.2	Summary Data</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

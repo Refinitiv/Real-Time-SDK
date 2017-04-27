@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="999028">Stream Priority</a></div>
-      <div class="Body"><a name="1027495">Consumers use </a><span class="CodeOrCommand">RsslRequestMsg</span> to indicate the stream’s level of importance, conveyed by the priority information. When a consumer is aggregating streams on behalf of multiple users, the priority typically corresponds to the number of users interested in the particular stream. A consumer can increase or decrease a stream’s associated priority information by issuing a subsequent request message on an already open stream.</div>
-      <div class="Body"><a name="1027496">A Provider application tracks the priority of each of its open streams. If the consumer reaches some kind of item count limitation (i.e., the maximum allowable number of streams), the provider can employ a preemption algorithm. Specific details must be defined by the provider application. The ADH uses the combination of </a><span class="CodeOrCommand">priorityCount</span> and <span class="CodeOrCommand">priorityClass</span> to preempt items when the user’s allowable cache list size is exceeded. ADH always preempts the item with the lowest <span class="CodeOrCommand">priorityCount</span> within the <span class="CodeOrCommand">priorityClass</span> and then provides an <span class="CodeOrCommand">RsslStatusMsg</span> with a <span class="CodeOrCommand">streamState</span> of <span class="Parameter">RSSL_STREAM_</span><span class="Parameter">CLOSED_RECOVER</span> for the item.</div>
-      <div class="Body"><a name="1027500">Priority is represented by a </a><span class="CodeOrCommand">priorityClass</span> value and a <span class="CodeOrCommand">priorityCount</span> value.</div>
+      <div class="Body"><a name="1036433">Consumers use </a><span class="CodeOrCommand">RsslRequestMsg</span> to indicate the stream’s level of importance, conveyed by the priority information. When a consumer is aggregating streams on behalf of multiple users, the priority typically corresponds to the number of users interested in the particular stream. A consumer can increase or decrease a stream’s associated priority information by issuing a subsequent request message on an already open stream.</div>
+      <div class="Body"><a name="1036434">A Provider application tracks the priority of each of its open streams. If the consumer reaches some kind of item count limitation (i.e., the maximum allowable number of streams), the provider can employ a preemption algorithm. Specific details must be defined by the provider application. The ADH uses the combination of </a><span class="CodeOrCommand">priorityCount</span> and <span class="CodeOrCommand">priorityClass</span> to preempt items when the user’s allowable cache list size is exceeded. ADH always preempts the item with the lowest <span class="CodeOrCommand">priorityCount</span> within the <span class="CodeOrCommand">priorityClass</span> and then provides an <span class="CodeOrCommand">RsslStatusMsg</span> with a <span class="CodeOrCommand">streamState</span> of <span class="Parameter">RSSL_STREAM_</span><span class="Parameter">CLOSED_RECOVER</span> for the item.</div>
+      <div class="Body"><a name="1036438">Priority is represented by a </a><span class="CodeOrCommand">priorityClass</span> value and a <span class="CodeOrCommand">priorityCount</span> value.</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -68,7 +68,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1027501">The </a><span class="Concept">priority class</span> indicates the general importance of the stream to the consumer.</div>
+              <div class="Bullet_inner"><a name="1036439">The </a><span class="Concept">priority class</span> indicates the general importance of the stream to the consumer.</div>
             </td>
           </tr>
         </table>
@@ -82,13 +82,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1027502">The </a><span class="Concept">priority count</span> indicates the stream’s specific importance within the priority class.</div>
+              <div class="Bullet_inner"><a name="1036440">The </a><span class="Concept">priority count</span> indicates the stream’s specific importance within the priority class.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1027503">The </a><span class="CodeOrCommand">priorityClass</span> value takes precedence over any <span class="CodeOrCommand">priorityCount</span> value. For example, a stream with a <span class="CodeOrCommand">priorityClass</span> of 5 and <span class="CodeOrCommand">priorityCount</span> of 1 has a higher overall priority than a stream with a <span class="CodeOrCommand">priorityClass</span> of 3 and a <span class="CodeOrCommand">priorityCount</span> of 10,000.</div>
-      <div class="Body"><a name="1027507">Because priority information is optional on a</a>n <span class="CodeOrCommand">RsslRequestMsg</span>:</div>
+      <div class="Body"><a name="1036441">The </a><span class="CodeOrCommand">priorityClass</span> value takes precedence over any <span class="CodeOrCommand">priorityCount</span> value. For example, a stream with a <span class="CodeOrCommand">priorityClass</span> of 5 and <span class="CodeOrCommand">priorityCount</span> of 1 has a higher overall priority than a stream with a <span class="CodeOrCommand">priorityClass</span> of 3 and a <span class="CodeOrCommand">priorityCount</span> of 10,000.</div>
+      <div class="Body"><a name="1036445">Because priority information is optional on a</a>n <span class="CodeOrCommand">RsslRequestMsg</span>:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -98,37 +98,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1027508">If priority information is not present on an initial request to open a stream, it is assumed that the stream has a </a><span class="CodeOrCommand">priorityClass</span> and a <span class="CodeOrCommand">priorityCount</span> of 1. </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1027509">If priority information is not present on a subsequent request message on an open stream, this means that the priority has not changed and previously stored priority information continues to apply.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1027510">If a consumer aggregates identical streams, the consumer should use the highest </a><span class="CodeOrCommand">priorityClass</span> value. Individual <span class="CodeOrCommand">priorityCount</span> values are always combined on a per-<span class="CodeOrCommand">priorityClass</span> basis.</div>
-      <div class="Body"><a name="1027511">For example, if a consumer application combines three identical streams:</a></div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1027512">One with </a><span class="CodeOrCommand">priorityClass</span> 3 and <span class="CodeOrCommand">priorityCount</span> 5</div>
+              <div class="Bullet_inner"><a name="1036446">If priority information is not present on an initial request to open a stream, it is assumed that the stream has a </a><span class="CodeOrCommand">priorityClass</span> and a <span class="CodeOrCommand">priorityCount</span> of 1. </div>
             </td>
           </tr>
         </table>
@@ -142,7 +112,23 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1027513">One with </a><span class="CodeOrCommand">priorityClass</span> 2 and <span class="CodeOrCommand">priorityCount</span> 10</div>
+              <div class="Bullet_inner"><a name="1036447">If priority information is not present on a subsequent request message on an open stream, this means that the priority has not changed and previously stored priority information continues to apply.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1036448">If a consumer aggregates identical streams, the consumer should use the highest </a><span class="CodeOrCommand">priorityClass</span> value. Individual <span class="CodeOrCommand">priorityCount</span> values are always combined on a per-<span class="CodeOrCommand">priorityClass</span> basis.</div>
+      <div class="Body"><a name="1036449">For example, if a consumer application combines three identical streams:</a></div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1036450">One with </a><span class="CodeOrCommand">priorityClass</span> 3 and <span class="CodeOrCommand">priorityCount</span> 5</div>
             </td>
           </tr>
         </table>
@@ -156,12 +142,26 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1027514">One with </a><span class="CodeOrCommand">priorityClass</span> 3 and <span class="CodeOrCommand">priorityCount</span> of 1</div>
+              <div class="Bullet_inner"><a name="1036451">One with </a><span class="CodeOrCommand">priorityClass</span> 2 and <span class="CodeOrCommand">priorityCount</span> 10</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1027515">In this case, the aggregate priority information would be </a><span class="CodeOrCommand">priorityClass</span> 3 (i.e., the highest <span class="CodeOrCommand">priorityClass</span>) and <span class="CodeOrCommand">priorityCount</span> of 6 (the combined <span class="CodeOrCommand">priorityCount</span> values for that class level).</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1036452">One with </a><span class="CodeOrCommand">priorityClass</span> 3 and <span class="CodeOrCommand">priorityCount</span> of 1</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1036453">In this case, the aggregate priority information would be </a><span class="CodeOrCommand">priorityClass</span> 3 (i.e., the highest <span class="CodeOrCommand">priorityClass</span>) and <span class="CodeOrCommand">priorityCount</span> of 6 (the combined <span class="CodeOrCommand">priorityCount</span> values for that class level).</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -118,10 +118,44 @@ Data Fields</h2></td></tr>
 <tr class="memitem:adc7f4e1f25728e8d3e881f244b03786e"><td class="memItemLeft" align="right" valign="top">RsslState&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginStatus.html#adc7f4e1f25728e8d3e881f244b03786e">state</a></td></tr>
 <tr class="memitem:ac7d8abf7035f97627d145effd6a9799e"><td class="memItemLeft" align="right" valign="top">RsslBuffer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginStatus.html#ac7d8abf7035f97627d145effd6a9799e">userName</a></td></tr>
 <tr class="memitem:a3a3c610b7cd29dace4040a6e913dbe43"><td class="memItemLeft" align="right" valign="top">RsslUInt8&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginStatus.html#a3a3c610b7cd29dace4040a6e913dbe43">userNameType</a></td></tr>
+<tr class="memitem:ad7b5a063705d4db89370b87ce272b8d3"><td class="memItemLeft" align="right" valign="top">RsslUInt&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginStatus.html#ad7b5a063705d4db89370b87ce272b8d3">authenticationErrorCode</a></td></tr>
+<tr class="memitem:af4aee67ec66259e5992e757ebac1054e"><td class="memItemLeft" align="right" valign="top">RsslBuffer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structRsslRDMLoginStatus.html#af4aee67ec66259e5992e757ebac1054e">authenticationErrorText</a></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><dl class="section see"><dt>See also:</dt><dd><a class="el" href="structRsslRDMMsgBase.html" title="This message structure contains the information that is common across all RDM Message formats...">RsslRDMMsgBase</a>, <a class="el" href="unionRsslRDMMsg.html" title="RSSL Message Union contains all messages. This includes constructs, functions, and values...">RsslRDMMsg</a>, <a class="el" href="group__VARDMLogin.html#ga31508586fb06021e42a6b1038b72e4b3" title="Clears an RsslRDMLoginStatus.">rsslClearRDMLoginStatus</a> </dd></dl>
 </div><hr/><h2>Field Documentation</h2>
+<a class="anchor" id="ad7b5a063705d4db89370b87ce272b8d3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RsslUInt <a class="el" href="structRsslRDMLoginStatus.html#ad7b5a063705d4db89370b87ce272b8d3">RsslRDMLoginStatus::authenticationErrorCode</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>For TREP Authentication, this is any error information from the token generator </p>
+
+<p>Referenced by <a class="el" href="group__VARDMLogin.html#ga31508586fb06021e42a6b1038b72e4b3">rsslClearRDMLoginStatus()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="af4aee67ec66259e5992e757ebac1054e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RsslBuffer <a class="el" href="structRsslRDMLoginStatus.html#af4aee67ec66259e5992e757ebac1054e">RsslRDMLoginStatus::authenticationErrorText</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>For Trep Authentication, this is the text associated with the authentication error code </p>
+
+<p>Referenced by <a class="el" href="group__VARDMLogin.html#ga31508586fb06021e42a6b1038b72e4b3">rsslClearRDMLoginStatus()</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a69ea17785dff5544b3207cf8e25007b9"></a>
 <div class="memitem">
 <div class="memproto">
@@ -221,7 +255,7 @@ Data Fields</h2></td></tr>
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-            <td><p class="smallfont">Fri Sep 16 2016</td>
+            <td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         <p class="smallfont">&nbsp;</td>

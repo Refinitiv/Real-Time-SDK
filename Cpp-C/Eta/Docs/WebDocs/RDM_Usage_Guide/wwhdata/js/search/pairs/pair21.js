@@ -1,6 +1,5 @@
 function FileData_Pairs(x)
 {
-x.t("2.8","general");
 x.t("m.parentnode.insertbefore","window");
 x.t("possible","provider");
 x.t("possible","application");
@@ -36,7 +35,7 @@ x.t("guide","chapter");
 x.t("domains","support");
 x.t("large","rsslrefreshmsg");
 x.t("large","messages");
-x.t("overview","2.8");
+x.t("overview","2.6");
 x.t("delivered","addition");
 x.t("wait","parts");
 x.t("multi-part","support");
@@ -44,7 +43,6 @@ x.t("multi-part","messages");
 x.t("part","continuation");
 x.t("part","denoted");
 x.t("provider","indicate");
-x.t("2.8.2","multi-part");
 x.t("window","document");
 x.t("indicate","expected");
 x.t("developers","guide");
@@ -78,6 +76,7 @@ x.t("receive","process");
 x.t("chapter","domain");
 x.t("transport","api");
 x.t("transport","package");
+x.t("2.6.2","multi-part");
 x.t("expected","number");
 x.t("thomson","reuters");
 x.t("previous","parts");
@@ -121,9 +120,10 @@ x.t("googleanalyticsobject","[r]");
 x.t("without","needing");
 x.t("including","rssl_rfmf_refresh_complete");
 x.t("entries","across");
+x.t("2.6","general");
 x.t("a.src=g","m.parentnode.insertbefore");
 x.t("content","large");
 x.t("denoted","including");
 x.t("consuming","applications");
-x.t("concepts","2.8.2");
+x.t("concepts","2.6.2");
 }

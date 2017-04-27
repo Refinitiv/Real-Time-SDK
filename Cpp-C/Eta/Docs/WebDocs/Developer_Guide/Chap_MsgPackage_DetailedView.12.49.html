@@ -56,26 +56,26 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1019219">RsslMsg Encoding Interfaces</a></div>
-      <div class="Body"><a name="1135748">All message encoding and decoding functions expect the </a><span class="CodeOrCommand">RsslMsg</span> type. Any specific message class can be cast to the <span class="CodeOrCommand">RsslMsg</span>, and an <span class="CodeOrCommand">RsslMsg</span> can be cast to any specific message class. An <span class="CodeOrCommand">RsslMsg</span> can be encoded from pre-encoded data or by encoding individual pieces of data as they are provided. </div>
-      <div class="Blank_Line"><a name="1135844">&nbsp;</a></div>
+      <div class="Body"><a name="1166420">All message encoding and decoding functions expect the </a><span class="CodeOrCommand">RsslMsg</span> type. Any specific message class can be cast to the <span class="CodeOrCommand">RsslMsg</span>, and an <span class="CodeOrCommand">RsslMsg</span> can be cast to any specific message class. An <span class="CodeOrCommand">RsslMsg</span> can be encoded from pre-encoded data or by encoding individual pieces of data as they are provided. </div>
+      <div class="Blank_Line"><a name="1166516">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 186: <span class="LucidaConsole"><a name="1135841">RsslMsg</a></span> Encode Functions &nbsp;</div>
+          <div class="TableTitle">Table 186: <span class="LucidaConsole"><a name="1166513">RsslMsg</a></span> Encode Functions &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 181.49976pt">
-            <div class="CellHeading"><a name="1135773">ENCODE INTERFACE</a></div>
+            <div class="CellHeading"><a name="1166445">ENCODE INTERFACE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 374.25024pt">
-            <div class="CellHeading"><a name="1135775">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1166447">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135777">rsslEncodeMsg </a></div>
+            <div class="CellBody"><a name="1166449">rsslEncodeMsg </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135779">Encodes a message where all message content is pre-encoded. </a></div>
+            <div class="CellBody"><a name="1166451">Encodes a message where all message content is pre-encoded. </a></div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -85,7 +85,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1135780">msgKey</a></span> attribute information should be encoded and populated on <span class="CodeOrCommand">msgKey.encAttrib</span> prior to this call. </div>
+                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1166452">msgKey</a></span> attribute information should be encoded and populated on <span class="CodeOrCommand">msgKey.encAttrib</span> prior to this call. </div>
                   </td>
                 </tr>
               </table>
@@ -99,7 +99,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1135781">extendedHeader</a></span> information should be encoded and populated on the message’s <span class="CodeOrCommand">extendedHeader</span> member prior to this call. </div>
+                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1166453">extendedHeader</a></span> information should be encoded and populated on the message’s <span class="CodeOrCommand">extendedHeader</span> member prior to this call. </div>
                   </td>
                 </tr>
               </table>
@@ -113,44 +113,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1135782">Message payload information should be encoded and populated on the </a><span class="CodeOrCommand">encDataBody</span> member prior to this call. </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135784">rsslEncodeMsgInit </a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135789">Begins encoding of an </a><span class="CodeOrCommand">RsslMsg</span>. </div>
-            <div class="CellBody"><a name="1135790">All message header elements should be properly populated. The </a><span class="CodeOrCommand">containerType</span> member should be populated with the specific type of message payload.</div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1135791">If encoding </a><span class="CodeOrCommand">msgKey</span> attribute information: pre-encoded <span class="CodeOrCommand">msgKey</span> attribute information should be populated in <span class="CodeOrCommand">msgKey.encAttrib</span>. Unencoded <span class="CodeOrCommand">msgKey</span> attribute information should be encoded after <span class="CodeOrCommand">rsslEncodeMsgInit</span> returns, followed by <span class="CodeOrCommand">rsslEncodeMsgKeyAttribComplete</span>.</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="Bullet_Table_outer" style="margin-left: 0pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1135792">If encoding </a><span class="CodeOrCommand">extendedHeader</span> information: pre-encoded <span class="CodeOrCommand">extendedHeader</span> information should be populated in the <span class="CodeOrCommand">extendedHeader</span> member of the message. Unencoded <span class="CodeOrCommand">extendedHeader</span> information should be encoded after the call to <span class="CodeOrCommand">rsslEncodeMsgInit</span> and after <span class="CodeOrCommand">msgKey</span> attribute information is encoded. When <span class="CodeOrCommand">extendedHeader</span> encoding is completed, call <span class="CodeOrCommand">rsslEncodeExtendedHeaderComplete</span>.</div>
+                    <div class="Bullet_Table_inner"><a name="1166454">Message payload information should be encoded and populated on the </a><span class="CodeOrCommand">encDataBody</span> member prior to this call. </div>
                   </td>
                 </tr>
               </table>
@@ -159,11 +122,11 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135794">rsslEncodeMsgComplete </a></div>
+            <div class="CellBody"><a name="1166456">rsslEncodeMsgInit </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135799">Completes encoding of an </a><span class="CodeOrCommand">RsslMsg</span>.</div>
-            <div class="CellBody"><a name="1135800">All message content should be encoded prior to this call. This function expects the same </a><span class="CodeOrCommand">RsslEncodeIterator</span> that was used with <span class="CodeOrCommand">rsslEncodeMsgInit</span>.</div>
+            <div class="CellBody"><a name="1166461">Begins encoding of an </a><span class="CodeOrCommand">RsslMsg</span>. </div>
+            <div class="CellBody"><a name="1166462">All message header elements should be properly populated. The </a><span class="CodeOrCommand">containerType</span> member should be populated with the specific type of message payload.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -173,7 +136,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1135804">If the content (i.e., payload, </a><span class="CodeOrCommand">msgKey</span> attrib, and <span class="CodeOrCommand">extendedHeader</span>) encodes successfully, the <span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish encoding.</div>
+                    <div class="Bullet_Table_inner"><a name="1166463">If encoding </a><span class="CodeOrCommand">msgKey</span> attribute information: pre-encoded <span class="CodeOrCommand">msgKey</span> attribute information should be populated in <span class="CodeOrCommand">msgKey.encAttrib</span>. Unencoded <span class="CodeOrCommand">msgKey</span> attribute information should be encoded after <span class="CodeOrCommand">rsslEncodeMsgInit</span> returns, followed by <span class="CodeOrCommand">rsslEncodeMsgKeyAttribComplete</span>.</div>
                   </td>
                 </tr>
               </table>
@@ -187,7 +150,44 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1135805">If any of the content fails to encode, the </a><span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back the encoding of the message.</div>
+                    <div class="Bullet_Table_inner"><a name="1166464">If encoding </a><span class="CodeOrCommand">extendedHeader</span> information: pre-encoded <span class="CodeOrCommand">extendedHeader</span> information should be populated in the <span class="CodeOrCommand">extendedHeader</span> member of the message. Unencoded <span class="CodeOrCommand">extendedHeader</span> information should be encoded after the call to <span class="CodeOrCommand">rsslEncodeMsgInit</span> and after <span class="CodeOrCommand">msgKey</span> attribute information is encoded. When <span class="CodeOrCommand">extendedHeader</span> encoding is completed, call <span class="CodeOrCommand">rsslEncodeExtendedHeaderComplete</span>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1166466">rsslEncodeMsgComplete </a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1166471">Completes encoding of an </a><span class="CodeOrCommand">RsslMsg</span>.</div>
+            <div class="CellBody"><a name="1166472">All message content should be encoded prior to this call. This function expects the same </a><span class="CodeOrCommand">RsslEncodeIterator</span> that was used with <span class="CodeOrCommand">rsslEncodeMsgInit</span>.</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1166476">If the content (i.e., payload, </a><span class="CodeOrCommand">msgKey</span> attrib, and <span class="CodeOrCommand">extendedHeader</span>) encodes successfully, the <span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish encoding.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1166477">If any of the content fails to encode, the </a><span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back the encoding of the message.</div>
                   </td>
                 </tr>
               </table>
@@ -196,11 +196,11 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135807">rsslEncodeMsgKeyAttribComplete </a></div>
+            <div class="CellBody"><a name="1166479">rsslEncodeMsgKeyAttribComplete </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135809">Completes encoding of any non-pre-encoded </a><span class="CodeOrCommand">msgKey</span> attribute information.</div>
-            <div class="CellBody"><a name="1135810">Can be used only when message encoding leverages </a><span class="CodeOrCommand">rsslEncodeMsgInit</span>. If the <span class="Parameter">RSSL_MKF_HAS_ATTRIB</span> flag is set and <span class="CodeOrCommand">msgKey.encAttrib</span> is not populated, <span class="CodeOrCommand">msgKey</span> attribute information is expected after <span class="CodeOrCommand">rsslEncodeMsgInit</span> returns, with the specific <span class="CodeOrCommand">attribContainerType</span> functions being used to encode it. This function expects the same <span class="CodeOrCommand">RsslEncodeIterator</span> used with <span class="CodeOrCommand">rsslEncodeMsgInit</span>.</div>
+            <div class="CellBody"><a name="1166481">Completes encoding of any non-pre-encoded </a><span class="CodeOrCommand">msgKey</span> attribute information.</div>
+            <div class="CellBody"><a name="1166482">Can be used only when message encoding leverages </a><span class="CodeOrCommand">rsslEncodeMsgInit</span>. If the <span class="Parameter">RSSL_MKF_HAS_ATTRIB</span> flag is set and <span class="CodeOrCommand">msgKey.encAttrib</span> is not populated, <span class="CodeOrCommand">msgKey</span> attribute information is expected after <span class="CodeOrCommand">rsslEncodeMsgInit</span> returns, with the specific <span class="CodeOrCommand">attribContainerType</span> functions being used to encode it. This function expects the same <span class="CodeOrCommand">RsslEncodeIterator</span> used with <span class="CodeOrCommand">rsslEncodeMsgInit</span>.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -210,7 +210,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1135820">If encoding of the </a><span class="CodeOrCommand">msgKey</span> attribute information succeeds, the <span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish attribute encoding. </div>
+                    <div class="Bullet_Table_inner"><a name="1166492">If encoding of the </a><span class="CodeOrCommand">msgKey</span> attribute information succeeds, the <span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish attribute encoding. </div>
                   </td>
                 </tr>
               </table>
@@ -224,21 +224,21 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1135821">If encoding of attributes fails, the </a><span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back encoding prior to <span class="CodeOrCommand">msgKey</span> attributes. </div>
+                    <div class="Bullet_Table_inner"><a name="1166493">If encoding of attributes fails, the </a><span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back encoding prior to <span class="CodeOrCommand">msgKey</span> attributes. </div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1135822">If both </a><span class="CodeOrCommand">msgKey</span> attributes and <span class="CodeOrCommand">extendedHeader</span> information are being encoded, <span class="CodeOrCommand">msgKey</span> attributes are expected first with <span class="CodeOrCommand">extendedHeader</span> being encoded after the call to <span class="CodeOrCommand">rsslEncodeMsgKeyAttribComplete</span>.</div>
+            <div class="CellBody"><a name="1166494">If both </a><span class="CodeOrCommand">msgKey</span> attributes and <span class="CodeOrCommand">extendedHeader</span> information are being encoded, <span class="CodeOrCommand">msgKey</span> attributes are expected first with <span class="CodeOrCommand">extendedHeader</span> being encoded after the call to <span class="CodeOrCommand">rsslEncodeMsgKeyAttribComplete</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135824">rsslEncodeExtendedHeaderComplete </a></div>
+            <div class="CellBody"><a name="1166496">rsslEncodeExtendedHeaderComplete </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1135826">Completes encoding of any non-pre-encoded </a><span class="CodeOrCommand">extendedHeader</span> information. </div>
-            <div class="CellBody"><a name="1135827">Can be used only when the message encoding leverages </a><span class="CodeOrCommand">rsslEncodeMsgInit</span>. If the specific message’s <span class="Parameter">HAS_EXTENDED_HEADER</span> flag is set and <span class="CodeOrCommand">extendedHeader</span> is not populated, this information is expected after <span class="CodeOrCommand">rsslEncodeMsgInit</span> (and <span class="CodeOrCommand">rsslEncodeMsgKeyAttribComplete</span> if encoding <span class="CodeOrCommand">msgKey</span> attributes) returns. This function expects the same <span class="CodeOrCommand">RsslEncodeIterator</span> used with previous message encoding functions.</div>
+            <div class="CellBody"><a name="1166498">Completes encoding of any non-pre-encoded </a><span class="CodeOrCommand">extendedHeader</span> information. </div>
+            <div class="CellBody"><a name="1166499">Can be used only when the message encoding leverages </a><span class="CodeOrCommand">rsslEncodeMsgInit</span>. If the specific message’s <span class="Parameter">HAS_EXTENDED_HEADER</span> flag is set and <span class="CodeOrCommand">extendedHeader</span> is not populated, this information is expected after <span class="CodeOrCommand">rsslEncodeMsgInit</span> (and <span class="CodeOrCommand">rsslEncodeMsgKeyAttribComplete</span> if encoding <span class="CodeOrCommand">msgKey</span> attributes) returns. This function expects the same <span class="CodeOrCommand">RsslEncodeIterator</span> used with previous message encoding functions.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -248,7 +248,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1135831">If encoding of </a><span class="CodeOrCommand">extendedHeader</span> succeeds, the <span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish encoding.</div>
+                    <div class="Bullet_Table_inner"><a name="1166503">If encoding of </a><span class="CodeOrCommand">extendedHeader</span> succeeds, the <span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">true</span> to finish encoding.</div>
                   </td>
                 </tr>
               </table>
@@ -262,12 +262,12 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1135832">If encoding of </a><span class="CodeOrCommand">extendedHeader</span> fails, the <span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back to encoding prior to <span class="CodeOrCommand">extendedHeader</span>.</div>
+                    <div class="Bullet_Table_inner"><a name="1166504">If encoding of </a><span class="CodeOrCommand">extendedHeader</span> fails, the <span class="CodeOrCommand">RsslBool</span> <span class="Parameter">success</span> parameter should be set to <span class="Parameter">false</span> to roll back to encoding prior to <span class="CodeOrCommand">extendedHeader</span>.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1135833">If both </a><span class="CodeOrCommand">msgKey</span> attributes and <span class="CodeOrCommand">extendedHeader</span> information are being encoded, <span class="CodeOrCommand">msgKey</span> attributes are expected first, while <span class="CodeOrCommand">extendedHeader</span> should be encoded after the call to <span class="CodeOrCommand">rsslEncodeMsgKeyAttribComplete</span>.</div>
+            <div class="CellBody"><a name="1166505">If both </a><span class="CodeOrCommand">msgKey</span> attributes and <span class="CodeOrCommand">extendedHeader</span> information are being encoded, <span class="CodeOrCommand">msgKey</span> attributes are expected first, while <span class="CodeOrCommand">extendedHeader</span> should be encoded after the call to <span class="CodeOrCommand">rsslEncodeMsgKeyAttribComplete</span>.</div>
           </td>
         </tr>
       </table>

@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: OmmDateTime.h Source File</title>
+<title>EMA: OmmAscii.h Source File</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -102,7 +102,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">OmmDateTime.h</div>  </div>
+<div class="title">OmmAscii.h</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">/*|-----------------------------------------------------------------------------</span>
@@ -113,80 +113,64 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00006"></a>00006 <span class="comment"> *|-----------------------------------------------------------------------------</span>
 <a name="l00007"></a>00007 <span class="comment"> */</span>
 <a name="l00008"></a>00008 
-<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_ema_access_OmmDateTime_h</span>
-<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_ema_access_OmmDateTime_h</span>
+<a name="l00009"></a>00009 <span class="preprocessor">#ifndef __thomsonreuters_ema_access_OmmAscii_h</span>
+<a name="l00010"></a>00010 <span class="preprocessor"></span><span class="preprocessor">#define __thomsonreuters_ema_access_OmmAscii_h</span>
 <a name="l00011"></a>00011 <span class="preprocessor"></span>
-<a name="l00053"></a>00053 <span class="preprocessor">#include &quot;Access/Include/Data.h&quot;</span>
-<a name="l00054"></a>00054 
-<a name="l00055"></a>00055 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00040"></a>00040 <span class="preprocessor">#include &quot;Access/Include/Data.h&quot;</span>
+<a name="l00041"></a>00041 
+<a name="l00042"></a>00042 <span class="keyword">namespace </span>thomsonreuters {
+<a name="l00043"></a>00043 
+<a name="l00044"></a>00044 <span class="keyword">namespace </span>ema {
+<a name="l00045"></a>00045 
+<a name="l00046"></a>00046 <span class="keyword">namespace </span>access {
+<a name="l00047"></a>00047 
+<a name="l00048"></a>00048 <span class="keyword">class </span>OmmAsciiDecoder;
+<a name="l00049"></a>00049 
+<a name="l00050"></a><a class="code" href="a00032.html">00050</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00032.html" title="OmmAscii represents Ascii string value in Omm.">OmmAscii</a> : <span class="keyword">public</span> <a class="code" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>
+<a name="l00051"></a>00051 {
+<a name="l00052"></a>00052 <span class="keyword">public</span> :
+<a name="l00053"></a>00053 
+<a name="l00055"></a>00055 
 <a name="l00056"></a>00056 
-<a name="l00057"></a>00057 <span class="keyword">namespace </span>ema {
-<a name="l00058"></a>00058 
-<a name="l00059"></a>00059 <span class="keyword">namespace </span>access {
+<a name="l00059"></a>00059     <a class="code" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> getDataType() <span class="keyword">const</span>;
 <a name="l00060"></a>00060 
-<a name="l00061"></a>00061 <span class="keyword">class </span>OmmDateTimeDecoder;
-<a name="l00062"></a>00062 
-<a name="l00063"></a><a class="code" href="a00039.html">00063</a> <span class="keyword">class </span>EMA_ACCESS_API <a class="code" href="a00039.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a> : <span class="keyword">public</span> <a class="code" href="a00011.html" title="Data class is a parent abstract class defining common interfaces for all Data type classes...">Data</a>
-<a name="l00064"></a>00064 {
-<a name="l00065"></a>00065 <span class="keyword">public</span> :
-<a name="l00066"></a>00066 
-<a name="l00068"></a>00068 
-<a name="l00069"></a>00069 
-<a name="l00072"></a>00072     <a class="code" href="a00012.html#a00b6b8b97b2425aa6d71a100ad70c0f0">DataType::DataTypeEnum</a> getDataType() <span class="keyword">const</span>;
-<a name="l00073"></a>00073 
-<a name="l00077"></a>00077     <a class="code" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> getCode() <span class="keyword">const</span>;
-<a name="l00078"></a>00078 
-<a name="l00082"></a>00082     <span class="keyword">const</span> <a class="code" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; getAsHex() <span class="keyword">const</span>;
+<a name="l00064"></a>00064     <a class="code" href="a00011.html#abe4fa6d2527b42396246aad6aa66d8b4">Data::DataCode</a> getCode() <span class="keyword">const</span>;
+<a name="l00065"></a>00065 
+<a name="l00069"></a>00069     <span class="keyword">const</span> <a class="code" href="a00015.html" title="EmaBuffer represents a general use binary buffer.">EmaBuffer</a>&amp; getAsHex() <span class="keyword">const</span>;
+<a name="l00070"></a>00070 
+<a name="l00074"></a>00074     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString() <span class="keyword">const</span>;
+<a name="l00075"></a>00075 
+<a name="l00079"></a>00079     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; getAscii() <span class="keyword">const</span>;
+<a name="l00081"></a>00081 
+<a name="l00082"></a>00082 <span class="keyword">private</span> :
 <a name="l00083"></a>00083 
-<a name="l00087"></a>00087     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString() <span class="keyword">const</span>;
-<a name="l00088"></a>00088 
-<a name="l00092"></a>00092     UInt16 getYear() <span class="keyword">const</span>;
-<a name="l00093"></a>00093 
-<a name="l00097"></a>00097     UInt8 getMonth() <span class="keyword">const</span>;
-<a name="l00098"></a>00098 
-<a name="l00102"></a>00102     UInt8 getDay() <span class="keyword">const</span>;
+<a name="l00084"></a>00084     <span class="keyword">friend</span> <span class="keyword">class </span>Decoder;
+<a name="l00085"></a>00085     <span class="keyword">friend</span> <span class="keyword">class </span>StaticDecoder;
+<a name="l00086"></a>00086 
+<a name="l00087"></a>00087     Decoder&amp; getDecoder();
+<a name="l00088"></a>00088     <span class="keywordtype">bool</span> hasDecoder() <span class="keyword">const</span>;
+<a name="l00089"></a>00089 
+<a name="l00090"></a>00090     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString( UInt64 indent ) <span class="keyword">const</span>;
+<a name="l00091"></a>00091 
+<a name="l00092"></a>00092     <span class="keyword">const</span> Encoder&amp; getEncoder() <span class="keyword">const</span>;
+<a name="l00093"></a>00093     <span class="keywordtype">bool</span> hasEncoder() <span class="keyword">const</span>;
+<a name="l00094"></a>00094 
+<a name="l00095"></a>00095     <a class="code" href="a00032.html" title="OmmAscii represents Ascii string value in Omm.">OmmAscii</a>();
+<a name="l00096"></a>00096     <span class="keyword">virtual</span> ~<a class="code" href="a00032.html" title="OmmAscii represents Ascii string value in Omm.">OmmAscii</a>();
+<a name="l00097"></a>00097     <a class="code" href="a00032.html" title="OmmAscii represents Ascii string value in Omm.">OmmAscii</a>( <span class="keyword">const</span> <a class="code" href="a00032.html" title="OmmAscii represents Ascii string value in Omm.">OmmAscii</a>&amp; );
+<a name="l00098"></a>00098     <a class="code" href="a00032.html" title="OmmAscii represents Ascii string value in Omm.">OmmAscii</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00032.html" title="OmmAscii represents Ascii string value in Omm.">OmmAscii</a>&amp; );
+<a name="l00099"></a>00099 
+<a name="l00100"></a>00100     OmmAsciiDecoder*        _pDecoder;
+<a name="l00101"></a>00101     UInt64                  _space[13];
+<a name="l00102"></a>00102 };
 <a name="l00103"></a>00103 
-<a name="l00107"></a>00107     UInt8 getHour() <span class="keyword">const</span>;
-<a name="l00108"></a>00108 
-<a name="l00112"></a>00112     UInt8 getMinute() <span class="keyword">const</span>;
-<a name="l00113"></a>00113 
-<a name="l00117"></a>00117     UInt8 getSecond() <span class="keyword">const</span>;
-<a name="l00118"></a>00118 
-<a name="l00122"></a>00122     UInt16 getMillisecond() <span class="keyword">const</span>;
-<a name="l00123"></a>00123 
-<a name="l00127"></a>00127     UInt16 getMicrosecond() <span class="keyword">const</span>;
-<a name="l00128"></a>00128 
-<a name="l00132"></a>00132     UInt16 getNanosecond() <span class="keyword">const</span>;
-<a name="l00134"></a>00134 
-<a name="l00135"></a>00135 <span class="keyword">private</span> :
-<a name="l00136"></a>00136 
-<a name="l00137"></a>00137     <span class="keyword">friend</span> <span class="keyword">class </span>Decoder;
-<a name="l00138"></a>00138     <span class="keyword">friend</span> <span class="keyword">class </span>StaticDecoder;
-<a name="l00139"></a>00139 
-<a name="l00140"></a>00140     Decoder&amp; getDecoder();
-<a name="l00141"></a>00141     <span class="keywordtype">bool</span> hasDecoder() <span class="keyword">const</span>;
-<a name="l00142"></a>00142 
-<a name="l00143"></a>00143     <span class="keyword">const</span> <a class="code" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a>&amp; toString( UInt64 ) <span class="keyword">const</span>;
-<a name="l00144"></a>00144 
-<a name="l00145"></a>00145     <span class="keyword">const</span> Encoder&amp; getEncoder() <span class="keyword">const</span>;
-<a name="l00146"></a>00146     <span class="keywordtype">bool</span> hasEncoder() <span class="keyword">const</span>;
-<a name="l00147"></a>00147 
-<a name="l00148"></a>00148     <a class="code" href="a00039.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>();
-<a name="l00149"></a>00149     <span class="keyword">virtual</span> ~<a class="code" href="a00039.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>();
-<a name="l00150"></a>00150     <a class="code" href="a00039.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>( <span class="keyword">const</span> <a class="code" href="a00039.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>&amp; );
-<a name="l00151"></a>00151     <a class="code" href="a00039.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>&amp; operator=( <span class="keyword">const</span> <a class="code" href="a00039.html" title="OmmDateTime represents DateTime info in Omm.">OmmDateTime</a>&amp; );
-<a name="l00152"></a>00152 
-<a name="l00153"></a>00153     OmmDateTimeDecoder*         _pDecoder;
-<a name="l00154"></a>00154     UInt64                      _space[13];
-<a name="l00155"></a>00155 };
-<a name="l00156"></a>00156 
-<a name="l00157"></a>00157 }
-<a name="l00158"></a>00158 
-<a name="l00159"></a>00159 }
-<a name="l00160"></a>00160 
-<a name="l00161"></a>00161 }
-<a name="l00162"></a>00162 
-<a name="l00163"></a>00163 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmDateTime_h</span>
+<a name="l00104"></a>00104 }
+<a name="l00105"></a>00105 
+<a name="l00106"></a>00106 }
+<a name="l00107"></a>00107 
+<a name="l00108"></a>00108 }
+<a name="l00109"></a>00109 
+<a name="l00110"></a>00110 <span class="preprocessor">#endif // __thomsonreuters_ema_access_OmmAscii_h</span>
 </pre></div></div><!-- contents -->
 
 <hr class="footer"/><address class="footer"><small>
@@ -204,7 +188,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Dec 9 2016</td>
+			<td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         </td>

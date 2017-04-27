@@ -6,11 +6,11 @@
     <i t="1.3 Definitions" l="2" />
     <i t="1.4 Acronyms and Abbreviations" l="3" />
     <i t="1.5 References" l="4" />
-    <i t="1.6 Documentation Feedback" l="5" />
-    <i t="1.7 Document Conventions" l="6">
-      <i t="1.7.1 Typographic" l="7" />
-      <i t="1.7.2 Data Types" l="8" />
-      <i t="1.7.3 Field and Text Values" l="9" />
+    <i t="1.6 Document Conventions" l="5">
+      <i t="1.6.1 Typographic" l="6" />
+      <i t="1.6.2 Data Types" l="7" />
+      <i t="1.6.3 Field and Text Values" l="8" />
+      <i t="1.6.4 Boolean Values" l="9" />
     </i>
   </i>
   <i t="Chapter 2 EMA Configuration General Overview">

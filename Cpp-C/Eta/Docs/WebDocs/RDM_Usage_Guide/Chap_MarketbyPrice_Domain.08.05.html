@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>8.2.3 Market By Price Update Message Use</title>
+    <title>8.2.3 Market By Price Update Message</title>
     <link rel="StyleSheet" href="css/Chap_MarketbyPrice_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,19 +55,19 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="999269">Market By Price Update Message Use</a></div>
+      <div class="H3"><a name="999269">Market By Price Update Message</a></div>
       <div class="Body"><a name="999271">A Market By Price update message is encoded and sent by OMM interactive provider and OMM non-interactive provider applications. The provider can send an update message to add, update, or remove price point information.</a></div>
       <div class="Blank_Line"><a name="1000758">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 59: <a name="1000828">Market By Price Update Message Member Use &nbsp;</a></div>
+          <div class="TableTitle">Table 61: <a name="1000828">Market By Price Update Message</a> Member Use &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading" style="text-align: Center"><a name="1000764">COMPONENT</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="1000764">COMPONENT</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading" style="text-align: Center"><a name="1000766">DESCRIPTION / VALUE</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="1000766">DESCRIPTION / VALUE</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -135,8 +135,8 @@
             <div class="CellBody"><a name="1000784">conflationCount</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1001880">Optional. If a provider sends a conflated update, specifies to the consumer how many updates were included in the conflation.</a></div>
-            <div class="CellBody"><a name="1001881">The consumer indicates interest in this information by setting the </a><span class="Parameter">RSSL_RQMF_CONF_INFO_IN_UPDATES</span> flag in the request.</div>
+            <div class="CellBody"><a name="1001880">Optional. If a provider sends a conflated update, </a><span class="CodeOrCommand">conflationCount</span> specifies how many updates were included in the conflation.</div>
+            <div class="CellBody"><a name="1001881">The consumer indicates interest in this information by setting the </a><span class="Parameter">RSSL_RQMF_CONF_INFO_IN_UPDATES</span> to <span class="Parameter">true</span> in the request.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -144,8 +144,8 @@
             <div class="CellBody"><a name="1000788">conflationTime</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1001864">Optional. If a provider sends a conflated update, specifies to the consumer the time interval (in milliseconds) over which data is conflated.</a></div>
-            <div class="CellBody"><a name="1001865">The consumer indicates interest in this information by setting the </a><span class="Parameter">RSSL_RQMF_CONF_INFO_IN_UPDATES</span> flag in the request.</div>
+            <div class="CellBody"><a name="1001864">Optional. If a provider sends a conflated update, </a><span class="CodeOrCommand">conflationTime</span> specifies the time interval (in milliseconds) over which data is conflated.</div>
+            <div class="CellBody"><a name="1001865">The consumer indicates interest in this information by setting the </a><span class="Parameter">RSSL_RQMF_CONF_INFO_IN_UPDATES</span> to <span class="Parameter">true</span> in the request.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -153,7 +153,7 @@
             <div class="CellBody"><a name="1000792">permData</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000794">Optional. If present, specifies permissioning information for the update’s content.</a></div>
+            <div class="CellBody"><a name="1000794">Optional. Specifies permissioning information for the update’s content.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -165,27 +165,27 @@
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="1">
             <div class="CellBody"><a name="1000800">msgKey.serviceId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000802">Optional (</a><span class="Color_003aRequired">Required</span> if <span class="Parameter">RSSL_RQMF_MSG_KEY_IN_UPDATES</span> was set on the request). Specifies the ID of the service providing the data.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000802">Conditional</a></span>. <span class="CodeOrCommand">msgKey.serviceId</span> is required if <span class="Parameter">RSSL_RQMF_MSG_KEY_IN_UPDATES</span> was set<span class="Parameter"> </span>on the request. Specifies the ID of the service providing the data.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000804">msgKey.nameType</a></div>
+            <div class="CellBody"><a name="1006848">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000806">Optional (</a><span class="Color_003aRequired">Required</span> if <span class="Parameter">RSSL_RQMF_MSG_KEY_IN_UPDATES</span> was set on the request). Should match the <span class="CodeOrCommand">nameType</span> specified in the item’s request message (typically <span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span>).</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000806">Conditional</a></span>. <span class="CodeOrCommand">msgKey.nameType</span> is required if <span class="Parameter">RSSL_RQMF_MSG_KEY_IN_UPDATES</span> was set on the request. <span class="CodeOrCommand">msgKey.nameType</span> should match the <span class="CodeOrCommand">msgKey.nameType</span> specified in the item’s request message. If <span class="CodeOrCommand">msgKey.nameType</span> is not specified, it uses the default <span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000808">msgKey.name</a></div>
+            <div class="CellBody"><a name="1006853">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000810">Optional (</a><span class="Color_003aRequired">Required</span> if <span class="Parameter">RSSL_RQMF_MSG_KEY_IN_UPDATES</span> was set on the request). Specifies the name of the item being provided.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000810">Conditional</a></span>. <span class="CodeOrCommand">msgKey.name</span> is required if <span class="Parameter">RSSL_RQMF_MSG_KEY_IN_UPDATES</span> was set on the request) Specifies the name of the item being provided.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -217,7 +217,7 @@
             <div class="CellBody"><a name="1000824">Payload</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000826">Required. The order book is represented by an </a><span class="CodeOrCommand">RsslMap</span>, where each entry contains an <span class="CodeOrCommand">RsslFieldList</span> containing information about a price point.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000826">Required</a></span>. The order book is represented by an <span class="CodeOrCommand">RsslMap</span>, where each entry contains an <span class="CodeOrCommand">RsslFieldList</span> containing information about a price point.</div>
           </td>
         </tr>
       </table>
@@ -233,7 +233,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketbyPrice_Domain.08.01.html">Chapter 8	Market By Price Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketbyPrice_Domain.08.03.html">8.2	Usage</a> : 8.2.3	Market By Price Update Message Use</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketbyPrice_Domain.08.01.html">Chapter 8	Market By Price Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketbyPrice_Domain.08.03.html">8.2	Usage</a> : 8.2.3	Market By Price Update Message</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

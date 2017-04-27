@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1002027">Data</a></div>
-      <div class="H3"><a name="1002040">Yield Curve Refresh/Update Payload</a></div>
-      <div class="Body"><a name="1002071">The payload of a Yield Curve Refresh or Update is an </a><span class="CodeOrCommand">FieldList</span>. Some <span class="CodeOrCommand">FieldEntry</span> contents contain primitive type information to help describe the curve. Examples include the Curve Type (<span class="Parameter">CRV_TYPE</span>), the Algorithm (<span class="Parameter">CRV_ALGTHM</span>) used to calculate the curve, and the Interpolation (<span class="Parameter">INTER_MTHD</span>) and Extrapolation (<span class="Parameter">EXTRP_MTHD</span>) methods.</div>
+      <div class="H3"><a name="1002040">Yield Curve Refresh/Update </a>Payload</div>
+      <div class="Body"><a name="1002071">The payload of a Yield Curve Refresh or Update is a </a><span class="CodeOrCommand">FieldList</span>. Some <span class="CodeOrCommand">FieldEntry</span> contents contain primitive type information to help describe the curve. Examples include the Curve Type (<span class="Parameter">CRV_TYPE</span>), the Algorithm used to calculate the curve (<span class="Parameter">CRV_ALGTHM</span>), and the Interpolation (<span class="Parameter">INTER_MTHD</span>) and Extrapolation (<span class="Parameter">EXTRP_MTHD</span>) methods.</div>
       <div class="Body"><a name="1002072">Other </a><span class="CodeOrCommand">FieldEntry</span>’s contain more complex information. The more complex entries are broken down into:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
@@ -96,11 +96,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1002129">Extra Meta Data (</a><span class="Parameter">EX_MET_DAT</span>) which provides general data about the yield curve. This is represented using an <span class="CodeOrCommand">ElementList</span> type. Extra meta data allows users to provide additional curve descriptions without needing to define new fields. Some examples of meta data would be curve creation time or the curve’s owner.</div>
+              <div class="bullet_ind_inner"><a name="1002129">Extra Meta Data (</a><span class="Parameter">EX_MET_DAT</span>) which provides general data about the yield curve. This is represented using a <span class="CodeOrCommand">ElementList</span> type. Extra meta data allows users to provide additional curve descriptions without needing to define new fields. Some examples of meta data would be curve creation time or the curve’s owner.</div>
             </td>
           </tr>
         </table>
       </div>
+      <div class="Body"><a name="1065247"><img class="Default" src="images/yieldCurvePayload.jpg" width="477" height="525" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 23.  <a name="1029557">Yield Curve Payload Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

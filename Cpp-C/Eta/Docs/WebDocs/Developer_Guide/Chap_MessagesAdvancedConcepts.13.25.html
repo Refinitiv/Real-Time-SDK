@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>13.10 Private Streams</title>
+    <title>13.10 Visible Publisher Identifier (VPI)</title>
     <link rel="StyleSheet" href="css/Chap_MessagesAdvancedConcepts.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,67 +55,9 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2"><a name="1000094">Private Streams</a></div>
-      <div class="Body"><a name="1028580">The Transport API provides </a><span class="Concept">private stream</span> functionality, an easy way to ensure delivery of content only between a stream’s two endpoints. Private streams behave in a manner similar to standard streams, with the following exceptions:</div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1028581">All data on a private stream flow between the end provider and the end consumer of the stream.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1028582">Intermediate components do not fan out content (i.e., do not distribute it to other consumers).</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1028583">Intermediate components should not cache content.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1028584">In the event of connection or data loss, intermediate components do not recover content. All private stream recovery is the responsibility of the consumer application.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1028585">These behaviors ensure that only the two endpoints of the private stream send or receive content associated with the stream. As a result, a private stream can exchange identifying information so the provider can validate the consumer, even through multiple intermediate components (such as might exist in a TREP deployment). After a private stream is established, content can flow freely within the stream, following either existing market data semantics (i.e., private Market Price domain) or any other user-defined semantics (i.e., bidirectional exchange of </a><span class="CodeOrCommand">RsslGenericMsg</span>s).</div>
-      <div class="Body"><a name="1028430">In standard streams, if an application attempts to open the same stream using multiple, unique </a><span class="CodeOrCommand">streamId</span> values, provider applications reject subsequent requests. With private streams, even if the streams’ identifying information (<span class="CodeOrCommand">msgKey</span>, domain type, etc.) matches, multiple private stream instances can be opened, allowing for the possibility of different user data contained in each private stream.</div>
-      <div class="Body"><a name="1028431">To establish a private stream, an OMM consumer observes the following general process:</a></div>
+      <div class="H2"><a name="1026303">Visible Publisher Identifier (VPI)</a></div>
+      <div class="Body"><a name="1037445">The Transport API offers the </a><span class="Concept">Visible Publisher Identifer (VPI)</span> feature, which inserts originating publisher information into both RSSL and SSL message payloads. You can use VPI to identify the user ID and user address for users who post, insert, or publish to an interactive service or to a non-interactive service cache on the ADH.</div>
+      <div class="Body"><a name="1037449">VPI is present on Post, Refresh, Update, and Status Messages and is carried in </a><span class="CodeOrCommand">RsslPostMsg.postUserInfo</span>, which consists of:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -125,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1028435">The OMM consumer application issues a request for the item data it wants on a private stream. This </a><span class="CodeOrCommand">RsslRequestMsg</span> should include the <span class="CodeOrCommand">RSSL_RQMF_PRIVATE_STREAM</span> flag. If user-identifying information is required, it should be described in the respective domain message model definition. </div>
+              <div class="Bullet_inner"><a name="1037450">Post user ID (i.e., publisher ID)</a></div>
             </td>
           </tr>
         </table>
@@ -139,49 +81,23 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1028436">When a capable OMM provider application receives a request for a private stream, if it can honor the request, the provider application should acknowledge that the stream is established and is private by sending:</a></div>
+              <div class="Bullet_inner"><a name="1037451">Post user address (i.e., publisher address)</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
+      <div class="Body"><a name="1037452">They can both contain values assigned by and specific to the application.</a></div>
+      <div class="Body"><a name="1037459">A</a>n <span class="CodeOrCommand">RsslPostMsg</span> contains data (in <span class="CodeOrCommand">RsslPostMsg.postUserInfo</span>) that identifies the user who posts content. For this reason, <span class="CodeOrCommand">RsslPostMsg.postUserInfo</span> must be populated with a:</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><span class="CodeOrCommand"><a name="1028440">RsslRefreshMsg</a></span> with the <span class="CodeOrCommand">RSSL_RFMF_PRIVATE_STREAM</span> flag; typically sent when there is immediate content to provide in the response.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><span class="CodeOrCommand"><a name="1028444">RsslStatusMsg</a></span> with the <span class="CodeOrCommand">RSSL_STMF_PRIVATE_STREAM</span> flag; typically sent when there is no immediate content to provide in the response but the provider wants to acknowledge the establishment of the private stream.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><span class="CodeOrCommand"><a name="1028448">RsslAckMsg</a></span> with the <span class="CodeOrCommand">RSSL_AKMF_PRIVATE_STREAM</span> flag; can be used as an alternative to the <span class="CodeOrCommand">RsslStatusMsg</span>.</div>
+              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1037463">postUserId</a></span>: An ID associated with the posting user. The application should determine what information to put into this field (e.g., a DACS user ID).</div>
             </td>
           </tr>
         </table>
@@ -195,150 +111,15 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1028452">When the consumer application receives the above acknowledgment, the private stream is established and content can be exchanged. The </a><span class="CodeOrCommand">PRIVATE_STREAM</span> flag is no longer required on any messages exchanged within the stream.</div>
+              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1037464">postUserAddr</a></span> The address of the posting user’s application that posted the contents. The application should decide what information to put into this field (e.g., an IP address<sup><a name="wwfootnote_inline_75" href="#75">1</a></sup>).</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1028453">If the consumer application receives any other message, or the above messages without their respective </a><span class="CodeOrCommand">PRIVATE_STREAM</span> flag, the private stream is not established and the consumer should close the stream if it does not want to consume a standard stream.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1028454">Some content might be available as both standard stream and private stream delivery mechanisms. In the standard stream case, all users see the same stream content. Because private streams can support user identification, each private stream instance can contain modified or additional content tailored for the specific user.</a></div>
-      <div class="Body"><a name="1028455">Some content might be available only as standard streams, in which case the private stream request is ignored or rejected by sending an </a><span class="CodeOrCommand">RsslStatusMsg</span> with a <span class="CodeOrCommand">streamState</span> of <span class="CodeOrCommand">RSSL_STREAM_CLOSED</span> or <span class="CodeOrCommand">RSSL_STREAM_CLOSED_RECOVER</span>, or by responding to the request with a standard stream (e.g., no <span class="CodeOrCommand">PRIVATE_STREAM</span> flag).</div>
-      <div class="Body"><a name="1028459">Some content might be available only as a private stream (e.g., some kind of restricted data set where users must be validated). If an OMM provider has private-only content, the provider can indicate to downstream applications that its content is private by redirecting standard stream requests.</a></div>
-      <div class="Body"><a name="1028463">If a standard stream </a><span class="CodeOrCommand">RsslRequestMsg</span> is received for private-only content, a provider can:</div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1028464">Inform downstream applications that its content is private by sending a message (including the </a><span class="CodeOrCommand">msgKey</span>), with a <span class="CodeOrCommand">streamState</span> of <span class="CodeOrCommand">RSSL_STREAM_REDIRECTED</span> in an:</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><span class="CodeOrCommand"><a name="1028468">RsslStatusMsg</a></span> including the <span class="CodeOrCommand">RSSL_STMF_PRIVATE_STREAM</span> flag; typically sent when there is not any content to provide as part of the redirect.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><span class="CodeOrCommand"><a name="1028472">RsslRefreshMsg</a></span> including the <span class="CodeOrCommand">RSSL_RFMF_PRIVATE_STREAM</span> flag; typically sent when there is some kind of content to provide as part of the redirect.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1028473">If the consumer application sees a </a><span class="CodeOrCommand">streamState</span> of <span class="CodeOrCommand">RSSL_STREAM_REDIRECTED</span> and a <span class="Parameter">PRIVATE_STREAM</span> flag, it can issue a new <span class="CodeOrCommand">RsslRequestMsg</span> and use the <span class="CodeOrCommand">RSSL_RQMF_PRIVATE_STREAM</span> flag. This process follows standard stream redirect logic and the private stream establishment protocol described above.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1023557">Visible Publisher Identifier (VPI)</a></div>
-      <div class="Body"><a name="1028483">The Transport API offers the </a><span class="Concept">Visible Publisher Identifer (VPI)</span> feature, which inserts originating publisher information into both RSSL and SSL message payloads. You can use VPI to identify the user ID and user address for users who post, insert, or publish to an interactive service or to a non-interactive service cache on the ADH.</div>
-      <div class="Body"><a name="1028487">VPI is present on Post, Refresh, Update, and Status Messages and is carried in </a><span class="CodeOrCommand">RsslPostMsg.postUserInfo</span>, which consists of:</div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1028488">Post user ID (i.e., publisher ID)</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1028489">Post user address (i.e., publisher address)</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1028490">They can both contain values assigned by and specific to the application.</a></div>
-      <div class="Body"><a name="1028497">A</a>n <span class="CodeOrCommand">RsslPostMsg</span> contains data (in <span class="CodeOrCommand">RsslPostMsg.postUserInfo</span>) that identifies the user who posts content. For this reason, <span class="CodeOrCommand">RsslPostMsg.postUserInfo</span> must be populated with a:</div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1028501">postUserId</a></span>: An ID associated with the posting user. The application should determine what information to put into this field (e.g., a DACS user ID).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><span class="CodeOrCommand"><a name="1028502">postUserAddr</a></span> The address of the posting user’s application that posted the contents. The application should decide what information to put into this field (e.g., an IP address<sup><a name="wwfootnote_inline_74" href="#74">1</a></sup>).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1028518">Optionally, this data can be republished by the provider in a </a><span class="CodeOrCommand">RsslRefreshMsg</span>s, <span class="CodeOrCommand">RsslUpdateMsg</span>s, or <span class="CodeOrCommand">RsslStatusMsg</span>s so that receiving consumers can identify the posting user.</div>
-      <div class="Body"><a name="1028522">The Transport API allows the VPI to be populated on Post messages submitted by an OMM Consumer application before the post is sent over the network.</a></div>
-      <div class="Body"><a name="1028523">Provider applications receive VPI in Post Messages. Additionally, OMM providers can optionally set VPI in their response messages. If the upstream provider is an intermediary device getting data from an upstream source, then the intermediary device will route the VPI as set in the </a><span class="CodeOrCommand">RsslPostMsg</span> to the upstream source. The final publisher in the upward chain decides whether to set the VPI in its published responses.</div>
-      <div class="Body"><a name="1028527">VPI information can also be communicated using FIDs defined in the publisher component. For further details refer to the publishing component’s documentation.</a></div>
+      <div class="Body"><a name="1037480">Optionally, this data can be republished by the provider in a </a><span class="CodeOrCommand">RsslRefreshMsg</span>s, <span class="CodeOrCommand">RsslUpdateMsg</span>s, or <span class="CodeOrCommand">RsslStatusMsg</span>s so that receiving consumers can identify the posting user.</div>
+      <div class="Body"><a name="1037484">The Transport API allows the VPI to be populated on Post messages submitted by an OMM Consumer application before the post is sent over the network.</a></div>
+      <div class="Body"><a name="1037485">Provider applications receive VPI in Post Messages. Additionally, OMM providers can optionally set VPI in their response messages. If the upstream provider is an intermediary device getting data from an upstream source, then the intermediary device will route the VPI as set in the </a><span class="CodeOrCommand">RsslPostMsg</span> to the upstream source. The final publisher in the upward chain decides whether to set the VPI in its published responses.</div>
+      <div class="Body"><a name="1037489">VPI information can also be communicated using FIDs defined in the publisher component. For further details refer to the publishing component’s documentation.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -350,14 +131,14 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="74" href="#wwfootnote_inline_74">1</a>
+        <a name="75" href="#wwfootnote_inline_75">1</a>
       </div>
-      <div class="Footnote"><a name="1028508">You can use the </a><span class="LucidaConsole">rsslHostByName</span> function to help obtain the IP address of the application. Refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.092.html', '');" title="10.14 Utility Functions">Section 10.14</a>.</div>
+      <div class="Footnote"><a name="1037470">You can use the </a><span class="LucidaConsole">rsslHostByName</span> function to help obtain the IP address of the application. Refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.092.html', '');" title="10.14 Utility Functions">Section 10.14</a>.</div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_MessagesAdvancedConcepts.13.01.html">Chapter 13	Advanced Messaging Concepts</a> : 13.10	Private Streams</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_MessagesAdvancedConcepts.13.01.html">Chapter 13	Advanced Messaging Concepts</a> : 13.10	Visible Publisher Identifier (VPI)</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

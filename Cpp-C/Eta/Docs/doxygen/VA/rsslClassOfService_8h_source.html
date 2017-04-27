@@ -140,66 +140,70 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00030"></a><a class="code" href="structRsslClassOfServiceCommon.html">00030</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
 <a name="l00031"></a>00031 {
 <a name="l00032"></a><a class="code" href="structRsslClassOfServiceCommon.html#a4614988219f86d84f5fd7ef2f1150634">00032</a>     RsslUInt    <a class="code" href="structRsslClassOfServiceCommon.html#a4614988219f86d84f5fd7ef2f1150634">maxMsgSize</a>;             
-<a name="l00033"></a><a class="code" href="structRsslClassOfServiceCommon.html#adc8fd9c6d20e3b5839b225bfe5308f9f">00033</a>     RsslUInt8   <a class="code" href="structRsslClassOfServiceCommon.html#adc8fd9c6d20e3b5839b225bfe5308f9f">protocolType</a>;           
-<a name="l00034"></a><a class="code" href="structRsslClassOfServiceCommon.html#a39a23f7802e85bba1d81e415785f2a15">00034</a>     RsslUInt8   <a class="code" href="structRsslClassOfServiceCommon.html#a39a23f7802e85bba1d81e415785f2a15">protocolMajorVersion</a>;   
-<a name="l00035"></a><a class="code" href="structRsslClassOfServiceCommon.html#ae430187ad7e4343b8e3224e714f28f6f">00035</a>     RsslUInt8   <a class="code" href="structRsslClassOfServiceCommon.html#ae430187ad7e4343b8e3224e714f28f6f">protocolMinorVersion</a>;   
-<a name="l00036"></a>00036 } <a class="code" href="structRsslClassOfServiceCommon.html" title="Represents Common class of service properties used within a qualified stream.">RsslClassOfServiceCommon</a>;
-<a name="l00037"></a>00037 
-<a name="l00041"></a><a class="code" href="structRsslClassOfServiceAuthentication.html">00041</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00042"></a>00042 {
-<a name="l00043"></a><a class="code" href="structRsslClassOfServiceAuthentication.html#a706049730eec03f1dbbebb9469e83b48">00043</a>     RDMClassOfServiceAuthenticationType <a class="code" href="structRsslClassOfServiceAuthentication.html#a706049730eec03f1dbbebb9469e83b48">type</a>;   
-<a name="l00044"></a>00044 } <a class="code" href="structRsslClassOfServiceAuthentication.html" title="Represents Authentication class of service properties used within a qualified stream.">RsslClassOfServiceAuthentication</a>;
-<a name="l00045"></a>00045 
-<a name="l00049"></a><a class="code" href="structRsslClassOfServiceFlowControl.html">00049</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00050"></a>00050 {
-<a name="l00051"></a><a class="code" href="structRsslClassOfServiceFlowControl.html#a91427adbc9f377aa476a3de80f2b9fbc">00051</a>     RsslUInt    <a class="code" href="structRsslClassOfServiceFlowControl.html#a91427adbc9f377aa476a3de80f2b9fbc">type</a>;           
-<a name="l00052"></a><a class="code" href="structRsslClassOfServiceFlowControl.html#ac88cf8402a6dfd21ed42454d951119cf">00052</a>     RsslInt     <a class="code" href="structRsslClassOfServiceFlowControl.html#ac88cf8402a6dfd21ed42454d951119cf">recvWindowSize</a>; 
-<a name="l00053"></a><a class="code" href="structRsslClassOfServiceFlowControl.html#a3b696e860525e84d16cabd8928b6976b">00053</a>     RsslInt     <a class="code" href="structRsslClassOfServiceFlowControl.html#a3b696e860525e84d16cabd8928b6976b">sendWindowSize</a>; 
-<a name="l00054"></a>00054 } <a class="code" href="structRsslClassOfServiceFlowControl.html" title="Represents Flow Control class of service properties used within a qualified stream.">RsslClassOfServiceFlowControl</a>;
-<a name="l00055"></a>00055 
-<a name="l00059"></a><a class="code" href="structRsslClassOfServiceDataIntegrity.html">00059</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00060"></a>00060 {
-<a name="l00061"></a><a class="code" href="structRsslClassOfServiceDataIntegrity.html#afcdd753d3f3949b0622d5b078cd69018">00061</a>     RsslUInt    <a class="code" href="structRsslClassOfServiceDataIntegrity.html#afcdd753d3f3949b0622d5b078cd69018">type</a>;   
-<a name="l00062"></a>00062 } <a class="code" href="structRsslClassOfServiceDataIntegrity.html" title="Represents Data Integrity class of service properties used within a qualified stream.">RsslClassOfServiceDataIntegrity</a>;
-<a name="l00063"></a>00063 
-<a name="l00067"></a><a class="code" href="structRsslClassOfServiceGuarantee.html">00067</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00068"></a>00068 {
-<a name="l00069"></a><a class="code" href="structRsslClassOfServiceGuarantee.html#a49b3f4144f30e3c41c2b957988dafd91">00069</a>     RsslUInt    <a class="code" href="structRsslClassOfServiceGuarantee.html#a49b3f4144f30e3c41c2b957988dafd91">type</a>;                   
-<a name="l00070"></a><a class="code" href="structRsslClassOfServiceGuarantee.html#a14c2d8209048fa0d1cd59d0f962c95df">00070</a>     RsslBool    <a class="code" href="structRsslClassOfServiceGuarantee.html#a14c2d8209048fa0d1cd59d0f962c95df">persistLocally</a>;         
-<a name="l00071"></a><a class="code" href="structRsslClassOfServiceGuarantee.html#a4b391efd56206a933705ed8c896cee81">00071</a>     <span class="keywordtype">char</span>        *<a class="code" href="structRsslClassOfServiceGuarantee.html#a4b391efd56206a933705ed8c896cee81">persistenceFilePath</a>;   
-<a name="l00072"></a>00072 } <a class="code" href="structRsslClassOfServiceGuarantee.html" title="Represents Guarantee class of service properties used within a qualified stream.">RsslClassOfServiceGuarantee</a>;
-<a name="l00073"></a>00073 
-<a name="l00074"></a>00074 
-<a name="l00078"></a><a class="code" href="structRsslClassOfService.html">00078</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00079"></a>00079 {
-<a name="l00080"></a><a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">00080</a>     <a class="code" href="structRsslClassOfServiceCommon.html" title="Represents Common class of service properties used within a qualified stream.">RsslClassOfServiceCommon</a>            <a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>;         
-<a name="l00081"></a><a class="code" href="structRsslClassOfService.html#a80ab9c4f8573d31f8c070b0d533b6330">00081</a>     <a class="code" href="structRsslClassOfServiceAuthentication.html" title="Represents Authentication class of service properties used within a qualified stream.">RsslClassOfServiceAuthentication</a>    <a class="code" href="structRsslClassOfService.html#a80ab9c4f8573d31f8c070b0d533b6330">authentication</a>; 
-<a name="l00082"></a><a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">00082</a>     <a class="code" href="structRsslClassOfServiceFlowControl.html" title="Represents Flow Control class of service properties used within a qualified stream.">RsslClassOfServiceFlowControl</a>       <a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">flowControl</a>;    
-<a name="l00083"></a><a class="code" href="structRsslClassOfService.html#a0c8f8448adf91f8dea8f095ce2b653d0">00083</a>     <a class="code" href="structRsslClassOfServiceDataIntegrity.html" title="Represents Data Integrity class of service properties used within a qualified stream.">RsslClassOfServiceDataIntegrity</a>     <a class="code" href="structRsslClassOfService.html#a0c8f8448adf91f8dea8f095ce2b653d0">dataIntegrity</a>;  
-<a name="l00084"></a><a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">00084</a>     <a class="code" href="structRsslClassOfServiceGuarantee.html" title="Represents Guarantee class of service properties used within a qualified stream.">RsslClassOfServiceGuarantee</a>         <a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">guarantee</a>;      
-<a name="l00085"></a>00085 } <a class="code" href="structRsslClassOfService.html" title="Used to configure and indicate negotiated parameters of a qualified stream.">RsslClassOfService</a>;
-<a name="l00086"></a>00086 
-<a name="l00091"></a><a class="code" href="rsslClassOfService_8h.html#a142851d62ae257f2e6c7da5ddd157def">00091</a> RTR_C_INLINE <span class="keywordtype">void</span> <a class="code" href="rsslClassOfService_8h.html#a142851d62ae257f2e6c7da5ddd157def" title="Clears an RsslClassOfService object.">rsslClearClassOfService</a>(<a class="code" href="structRsslClassOfService.html" title="Used to configure and indicate negotiated parameters of a qualified stream.">RsslClassOfService</a> *pClass)
-<a name="l00092"></a>00092 {
-<a name="l00093"></a>00093     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#a4614988219f86d84f5fd7ef2f1150634">maxMsgSize</a> = 6144;
-<a name="l00094"></a>00094     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#adc8fd9c6d20e3b5839b225bfe5308f9f">protocolType</a> = RSSL_RWF_PROTOCOL_TYPE;
-<a name="l00095"></a>00095     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#a39a23f7802e85bba1d81e415785f2a15">protocolMajorVersion</a> = RSSL_RWF_MAJOR_VERSION;
-<a name="l00096"></a>00096     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#ae430187ad7e4343b8e3224e714f28f6f">protocolMinorVersion</a> = RSSL_RWF_MINOR_VERSION;
-<a name="l00097"></a>00097     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a80ab9c4f8573d31f8c070b0d533b6330">authentication</a>.<a class="code" href="structRsslClassOfServiceAuthentication.html#a706049730eec03f1dbbebb9469e83b48">type</a> = RDM_COS_AU_NOT_REQUIRED;
-<a name="l00098"></a>00098     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">flowControl</a>.<a class="code" href="structRsslClassOfServiceFlowControl.html#a91427adbc9f377aa476a3de80f2b9fbc">type</a> = RDM_COS_FC_NONE;
-<a name="l00099"></a>00099     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">flowControl</a>.<a class="code" href="structRsslClassOfServiceFlowControl.html#ac88cf8402a6dfd21ed42454d951119cf">recvWindowSize</a> = -1;
-<a name="l00100"></a>00100     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">flowControl</a>.<a class="code" href="structRsslClassOfServiceFlowControl.html#a3b696e860525e84d16cabd8928b6976b">sendWindowSize</a> = -1;
-<a name="l00101"></a>00101     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a0c8f8448adf91f8dea8f095ce2b653d0">dataIntegrity</a>.<a class="code" href="structRsslClassOfServiceDataIntegrity.html#afcdd753d3f3949b0622d5b078cd69018">type</a> = RDM_COS_DI_BEST_EFFORT;
-<a name="l00102"></a>00102     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">guarantee</a>.<a class="code" href="structRsslClassOfServiceGuarantee.html#a49b3f4144f30e3c41c2b957988dafd91">type</a> = RDM_COS_GU_NONE;
-<a name="l00103"></a>00103     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">guarantee</a>.<a class="code" href="structRsslClassOfServiceGuarantee.html#a14c2d8209048fa0d1cd59d0f962c95df">persistLocally</a> = RSSL_TRUE;
-<a name="l00104"></a>00104     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">guarantee</a>.<a class="code" href="structRsslClassOfServiceGuarantee.html#a4b391efd56206a933705ed8c896cee81">persistenceFilePath</a> = NULL;
-<a name="l00105"></a>00105 }
-<a name="l00106"></a>00106 
-<a name="l00107"></a>00107 <span class="preprocessor">#ifdef __cplusplus</span>
-<a name="l00108"></a>00108 <span class="preprocessor"></span>};
-<a name="l00109"></a>00109 <span class="preprocessor">#endif</span>
-<a name="l00110"></a>00110 <span class="preprocessor"></span>
-<a name="l00111"></a>00111 <span class="preprocessor">#endif</span>
+<a name="l00033"></a><a class="code" href="structRsslClassOfServiceCommon.html#ab22dcb9a273ae34fa6546705f069e7a6">00033</a>     RsslUInt    <a class="code" href="structRsslClassOfServiceCommon.html#ab22dcb9a273ae34fa6546705f069e7a6">maxFragmentSize</a>;        
+<a name="l00034"></a><a class="code" href="structRsslClassOfServiceCommon.html#a433ca5dc6d7ee8dc373afefe817341d3">00034</a>     RsslUInt    <a class="code" href="structRsslClassOfServiceCommon.html#a433ca5dc6d7ee8dc373afefe817341d3">supportsFragmentation</a>;  
+<a name="l00035"></a><a class="code" href="structRsslClassOfServiceCommon.html#adc8fd9c6d20e3b5839b225bfe5308f9f">00035</a>     RsslUInt8   <a class="code" href="structRsslClassOfServiceCommon.html#adc8fd9c6d20e3b5839b225bfe5308f9f">protocolType</a>;           
+<a name="l00036"></a><a class="code" href="structRsslClassOfServiceCommon.html#a39a23f7802e85bba1d81e415785f2a15">00036</a>     RsslUInt8   <a class="code" href="structRsslClassOfServiceCommon.html#a39a23f7802e85bba1d81e415785f2a15">protocolMajorVersion</a>;   
+<a name="l00037"></a><a class="code" href="structRsslClassOfServiceCommon.html#ae430187ad7e4343b8e3224e714f28f6f">00037</a>     RsslUInt8   <a class="code" href="structRsslClassOfServiceCommon.html#ae430187ad7e4343b8e3224e714f28f6f">protocolMinorVersion</a>;   
+<a name="l00038"></a>00038 } <a class="code" href="structRsslClassOfServiceCommon.html" title="Represents Common class of service properties used within a qualified stream.">RsslClassOfServiceCommon</a>;
+<a name="l00039"></a>00039 
+<a name="l00043"></a><a class="code" href="structRsslClassOfServiceAuthentication.html">00043</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00044"></a>00044 {
+<a name="l00045"></a><a class="code" href="structRsslClassOfServiceAuthentication.html#a706049730eec03f1dbbebb9469e83b48">00045</a>     RDMClassOfServiceAuthenticationType <a class="code" href="structRsslClassOfServiceAuthentication.html#a706049730eec03f1dbbebb9469e83b48">type</a>;   
+<a name="l00046"></a>00046 } <a class="code" href="structRsslClassOfServiceAuthentication.html" title="Represents Authentication class of service properties used within a qualified stream.">RsslClassOfServiceAuthentication</a>;
+<a name="l00047"></a>00047 
+<a name="l00051"></a><a class="code" href="structRsslClassOfServiceFlowControl.html">00051</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00052"></a>00052 {
+<a name="l00053"></a><a class="code" href="structRsslClassOfServiceFlowControl.html#a91427adbc9f377aa476a3de80f2b9fbc">00053</a>     RsslUInt    <a class="code" href="structRsslClassOfServiceFlowControl.html#a91427adbc9f377aa476a3de80f2b9fbc">type</a>;           
+<a name="l00054"></a><a class="code" href="structRsslClassOfServiceFlowControl.html#ac88cf8402a6dfd21ed42454d951119cf">00054</a>     RsslInt     <a class="code" href="structRsslClassOfServiceFlowControl.html#ac88cf8402a6dfd21ed42454d951119cf">recvWindowSize</a>; 
+<a name="l00055"></a><a class="code" href="structRsslClassOfServiceFlowControl.html#a3b696e860525e84d16cabd8928b6976b">00055</a>     RsslInt     <a class="code" href="structRsslClassOfServiceFlowControl.html#a3b696e860525e84d16cabd8928b6976b">sendWindowSize</a>; 
+<a name="l00056"></a>00056 } <a class="code" href="structRsslClassOfServiceFlowControl.html" title="Represents Flow Control class of service properties used within a qualified stream.">RsslClassOfServiceFlowControl</a>;
+<a name="l00057"></a>00057 
+<a name="l00061"></a><a class="code" href="structRsslClassOfServiceDataIntegrity.html">00061</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00062"></a>00062 {
+<a name="l00063"></a><a class="code" href="structRsslClassOfServiceDataIntegrity.html#afcdd753d3f3949b0622d5b078cd69018">00063</a>     RsslUInt    <a class="code" href="structRsslClassOfServiceDataIntegrity.html#afcdd753d3f3949b0622d5b078cd69018">type</a>;   
+<a name="l00064"></a>00064 } <a class="code" href="structRsslClassOfServiceDataIntegrity.html" title="Represents Data Integrity class of service properties used within a qualified stream.">RsslClassOfServiceDataIntegrity</a>;
+<a name="l00065"></a>00065 
+<a name="l00069"></a><a class="code" href="structRsslClassOfServiceGuarantee.html">00069</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00070"></a>00070 {
+<a name="l00071"></a><a class="code" href="structRsslClassOfServiceGuarantee.html#a49b3f4144f30e3c41c2b957988dafd91">00071</a>     RsslUInt    <a class="code" href="structRsslClassOfServiceGuarantee.html#a49b3f4144f30e3c41c2b957988dafd91">type</a>;                   
+<a name="l00072"></a><a class="code" href="structRsslClassOfServiceGuarantee.html#a14c2d8209048fa0d1cd59d0f962c95df">00072</a>     RsslBool    <a class="code" href="structRsslClassOfServiceGuarantee.html#a14c2d8209048fa0d1cd59d0f962c95df">persistLocally</a>;         
+<a name="l00073"></a><a class="code" href="structRsslClassOfServiceGuarantee.html#a4b391efd56206a933705ed8c896cee81">00073</a>     <span class="keywordtype">char</span>        *<a class="code" href="structRsslClassOfServiceGuarantee.html#a4b391efd56206a933705ed8c896cee81">persistenceFilePath</a>;   
+<a name="l00074"></a>00074 } <a class="code" href="structRsslClassOfServiceGuarantee.html" title="Represents Guarantee class of service properties used within a qualified stream.">RsslClassOfServiceGuarantee</a>;
+<a name="l00075"></a>00075 
+<a name="l00076"></a>00076 
+<a name="l00080"></a><a class="code" href="structRsslClassOfService.html">00080</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00081"></a>00081 {
+<a name="l00082"></a><a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">00082</a>     <a class="code" href="structRsslClassOfServiceCommon.html" title="Represents Common class of service properties used within a qualified stream.">RsslClassOfServiceCommon</a>            <a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>;         
+<a name="l00083"></a><a class="code" href="structRsslClassOfService.html#a80ab9c4f8573d31f8c070b0d533b6330">00083</a>     <a class="code" href="structRsslClassOfServiceAuthentication.html" title="Represents Authentication class of service properties used within a qualified stream.">RsslClassOfServiceAuthentication</a>    <a class="code" href="structRsslClassOfService.html#a80ab9c4f8573d31f8c070b0d533b6330">authentication</a>; 
+<a name="l00084"></a><a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">00084</a>     <a class="code" href="structRsslClassOfServiceFlowControl.html" title="Represents Flow Control class of service properties used within a qualified stream.">RsslClassOfServiceFlowControl</a>       <a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">flowControl</a>;    
+<a name="l00085"></a><a class="code" href="structRsslClassOfService.html#a0c8f8448adf91f8dea8f095ce2b653d0">00085</a>     <a class="code" href="structRsslClassOfServiceDataIntegrity.html" title="Represents Data Integrity class of service properties used within a qualified stream.">RsslClassOfServiceDataIntegrity</a>     <a class="code" href="structRsslClassOfService.html#a0c8f8448adf91f8dea8f095ce2b653d0">dataIntegrity</a>;  
+<a name="l00086"></a><a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">00086</a>     <a class="code" href="structRsslClassOfServiceGuarantee.html" title="Represents Guarantee class of service properties used within a qualified stream.">RsslClassOfServiceGuarantee</a>         <a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">guarantee</a>;      
+<a name="l00087"></a>00087 } <a class="code" href="structRsslClassOfService.html" title="Used to configure and indicate negotiated parameters of a qualified stream.">RsslClassOfService</a>;
+<a name="l00088"></a>00088 
+<a name="l00093"></a><a class="code" href="rsslClassOfService_8h.html#a142851d62ae257f2e6c7da5ddd157def">00093</a> RTR_C_INLINE <span class="keywordtype">void</span> <a class="code" href="rsslClassOfService_8h.html#a142851d62ae257f2e6c7da5ddd157def" title="Clears an RsslClassOfService object.">rsslClearClassOfService</a>(<a class="code" href="structRsslClassOfService.html" title="Used to configure and indicate negotiated parameters of a qualified stream.">RsslClassOfService</a> *pClass)
+<a name="l00094"></a>00094 {
+<a name="l00095"></a>00095     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#a4614988219f86d84f5fd7ef2f1150634">maxMsgSize</a> = 614400;
+<a name="l00096"></a>00096     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#ab22dcb9a273ae34fa6546705f069e7a6">maxFragmentSize</a> = 6144;
+<a name="l00097"></a>00097     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#a433ca5dc6d7ee8dc373afefe817341d3">supportsFragmentation</a> = 1;
+<a name="l00098"></a>00098     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#adc8fd9c6d20e3b5839b225bfe5308f9f">protocolType</a> = RSSL_RWF_PROTOCOL_TYPE;
+<a name="l00099"></a>00099     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#a39a23f7802e85bba1d81e415785f2a15">protocolMajorVersion</a> = RSSL_RWF_MAJOR_VERSION;
+<a name="l00100"></a>00100     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a152a6f0e5b0b41499349d017f5306210">common</a>.<a class="code" href="structRsslClassOfServiceCommon.html#ae430187ad7e4343b8e3224e714f28f6f">protocolMinorVersion</a> = RSSL_RWF_MINOR_VERSION;
+<a name="l00101"></a>00101     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a80ab9c4f8573d31f8c070b0d533b6330">authentication</a>.<a class="code" href="structRsslClassOfServiceAuthentication.html#a706049730eec03f1dbbebb9469e83b48">type</a> = RDM_COS_AU_NOT_REQUIRED;
+<a name="l00102"></a>00102     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">flowControl</a>.<a class="code" href="structRsslClassOfServiceFlowControl.html#a91427adbc9f377aa476a3de80f2b9fbc">type</a> = RDM_COS_FC_NONE;
+<a name="l00103"></a>00103     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">flowControl</a>.<a class="code" href="structRsslClassOfServiceFlowControl.html#ac88cf8402a6dfd21ed42454d951119cf">recvWindowSize</a> = -1;
+<a name="l00104"></a>00104     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a881d37db6edabe1958059801cfbd151e">flowControl</a>.<a class="code" href="structRsslClassOfServiceFlowControl.html#a3b696e860525e84d16cabd8928b6976b">sendWindowSize</a> = -1;
+<a name="l00105"></a>00105     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a0c8f8448adf91f8dea8f095ce2b653d0">dataIntegrity</a>.<a class="code" href="structRsslClassOfServiceDataIntegrity.html#afcdd753d3f3949b0622d5b078cd69018">type</a> = RDM_COS_DI_BEST_EFFORT;
+<a name="l00106"></a>00106     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">guarantee</a>.<a class="code" href="structRsslClassOfServiceGuarantee.html#a49b3f4144f30e3c41c2b957988dafd91">type</a> = RDM_COS_GU_NONE;
+<a name="l00107"></a>00107     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">guarantee</a>.<a class="code" href="structRsslClassOfServiceGuarantee.html#a14c2d8209048fa0d1cd59d0f962c95df">persistLocally</a> = RSSL_TRUE;
+<a name="l00108"></a>00108     pClass-&gt;<a class="code" href="structRsslClassOfService.html#a9ec3163fbb82ef0f730283d6b2220981">guarantee</a>.<a class="code" href="structRsslClassOfServiceGuarantee.html#a4b391efd56206a933705ed8c896cee81">persistenceFilePath</a> = NULL;
+<a name="l00109"></a>00109 }
+<a name="l00110"></a>00110 
+<a name="l00111"></a>00111 <span class="preprocessor">#ifdef __cplusplus</span>
+<a name="l00112"></a>00112 <span class="preprocessor"></span>};
+<a name="l00113"></a>00113 <span class="preprocessor">#endif</span>
+<a name="l00114"></a>00114 <span class="preprocessor"></span>
+<a name="l00115"></a>00115 <span class="preprocessor">#endif</span>
 </pre></div></div><!-- contents -->
 <hr class="footer"/><address class="footer"><small>
     <table cellSpacing="0" cellPadding="0" width="100%" border="0">
@@ -216,7 +220,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-            <td><p class="smallfont">Fri Sep 16 2016</td>
+            <td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         <p class="smallfont">&nbsp;</td>

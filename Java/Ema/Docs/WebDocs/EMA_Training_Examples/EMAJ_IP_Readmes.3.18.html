@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>301__MarketPrice__PriorityChange</title>
+    <title>300__MarketPrice__Close</title>
     <link rel="StyleSheet" href="css/EMAJ_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,44 +55,43 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1031576">301__MarketPrice__PriorityChange</a></div>
-      <div class="Body"><a name="1033102">Summary</a></div>
-      <div class="Body"><a name="1033103">=======</a></div>
-      <div class="Body"><a name="1033104">&nbsp;</a></div>
-      <div class="Body"><a name="1033105">301__MarketPrice__PriorityChange is an example of an OMM Interactive Provider application </a></div>
-      <div class="Body"><a name="1033106">written to the EMA library.</a></div>
+      <div class="H3_NoNum"><a name="1031574">300__MarketPrice__Close</a></div>
+      <div class="Body"><a name="1033909">Summary</a></div>
+      <div class="Body"><a name="1033910">=======</a></div>
+      <div class="Body"><a name="1033911">&nbsp;</a></div>
+      <div class="Body"><a name="1033912">300__MarketPrice__Close is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1033913">written to the EMA library.</a></div>
+      <div class="Body"><a name="1033914">&nbsp;</a></div>
+      <div class="Body"><a name="1033915">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1033916">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1033917">&nbsp;</a></div>
+      <div class="Body"><a name="1033918">300__MarketPrice__Close illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1033919">streaming item. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1033920">file.</a></div>
+      <div class="Body"><a name="1033921">&nbsp;</a></div>
+      <div class="Body"><a name="1033922">&nbsp;</a></div>
+      <div class="Body"><a name="1033923">Detailed Description</a></div>
+      <div class="Body"><a name="1033924">====================</a></div>
+      <div class="Body"><a name="1033925">&nbsp;</a></div>
+      <div class="Body"><a name="1033926">300__MarketPrice__Close implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1033927">&nbsp;</a></div>
+      <div class="Body"><a name="1033928">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
+      <div class="Body"><a name="1033929">+ Instantiates an OmmProvider object which.</a></div>
+      <div class="Body"><a name="1033930">  - listens on the port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1033931">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1033932">+ Processes an item request for MarketPrice domain.</a></div>
+      <div class="Body"><a name="1033933"> - Creates streaming item (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1033934"> - Publishes updates 1 per second.</a></div>
+      <div class="Body"><a name="1033935">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1033936">+ Processes an item close request for MarkerPrice domain.</a></div>
+      <div class="Body"><a name="1033937"> - reset item handle to 0</a></div>
+      <div class="Body"><a name="1033938"> - stop publishing updates after receiving the item close request.</a></div>
+      <div class="Body"><a name="1033939">+ Exits</a></div>
+      <div class="Body"><a name="1033940">&nbsp;</a></div>
+      <div class="Body"><a name="1033941">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1033942">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1033943">      ReadMe.txt file and EMA Configuration Guide.</a></div>
       <div class="Body"><a name="1033107">&nbsp;</a></div>
-      <div class="Body"><a name="1033108">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1033109">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1033110">&nbsp;</a></div>
-      <div class="Body"><a name="1033111">301__MarketPrice__PriorityChange illustrates how to create and publish a single OMM</a></div>
-      <div class="Body"><a name="1033112">streaming item. This application uses source directory configured in the EmaConfig.xml</a></div>
-      <div class="Body"><a name="1033113">file.</a></div>
-      <div class="Body"><a name="1033114">&nbsp;</a></div>
-      <div class="Body"><a name="1033115">&nbsp;</a></div>
-      <div class="Body"><a name="1033116">Detailed Description</a></div>
-      <div class="Body"><a name="1033117">====================</a></div>
-      <div class="Body"><a name="1033118">&nbsp;</a></div>
-      <div class="Body"><a name="1033119">301__MarketPrice__PriorityChange implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1033120">&nbsp;</a></div>
-      <div class="Body"><a name="1033121">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
-      <div class="Body"><a name="1033122"> - Set the operation model to use user dispatch</a></div>
-      <div class="Body"><a name="1033123">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1033124">  - listens on the port from the EmaConfig.xml file</a></div>
-      <div class="Body"><a name="1033125">+ Accepts a login request</a></div>
-      <div class="Body"><a name="1033126">+ Processes an item request for MarketPrice domain.</a></div>
-      <div class="Body"><a name="1033127"> - Creates streaming item (refresh and updates) and publishes them</a></div>
-      <div class="Body"><a name="1033128"> - Publishes updates 1 per second for total 60 updates</a></div>
-      <div class="Body"><a name="1033129"> - Updates are published with a user dispatch loop</a></div>
-      <div class="Body"><a name="1033130">+ Rejects subsequent item requests.</a></div>
-      <div class="Body"><a name="1033131">+ Receive the item reissue request with priority change.</a></div>
-      <div class="Body"><a name="1033132"> - store and print priority information to console.</a></div>
-      <div class="Body"><a name="1033133">+ Exits</a></div>
-      <div class="Body"><a name="1033134">&nbsp;</a></div>
-      <div class="Body"><a name="1033135">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1033136">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1033137">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1032418">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -105,7 +104,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.16.html">300 Series Examples</a> : 301__MarketPrice__PriorityChange</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.17.html">300 Series Examples</a> : 300__MarketPrice__Close</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1221238">Buffer Management</a></div>
-      <div class="Body"><a name="1221364">In multi-part usage, the size of the buffer used in the calls to </a><span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> will affect how many fragments are required to retrieve the entire image of the cache entry. The retrieve function will continue to encode OMM entries from the cache container until it runs out of room in the buffer to encode the next entry. To progress during a multi-part retrieval, the buffer size must be at least large enough to encode a single OMM entry from the payload container. For example, if retrieving a Map in multiple parts, the buffer must be large enough to encode at least one MapEntry on each retrieval.</div>
-      <div class="Body"><a name="1221365">There are three general outcomes when using the </a><span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> function:</div>
+      <div class="Body"><a name="1240504">In multi-part usage, the size of the buffer used in the calls to </a><span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> will affect how many fragments are required to retrieve the entire image of the cache entry. The retrieve function will continue to encode OMM entries from the cache container until it runs out of room in the buffer to encode the next entry. To progress during a multi-part retrieval, the buffer size must be at least large enough to encode a single OMM entry from the payload container. For example, if retrieving a map in multiple parts, the buffer must be large enough to encode at least one <span class="CodeOrCommand">MapEntry</span> on each retrieval.</div>
+      <div class="Body"><a name="1240514">There are three general outcomes when using the </a><span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> function:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1221381">Full cache container is encoded into the buffer. This can occur with or without the use of the optional </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span>. If used in this scenario, the cursor state would indicate the retrieval is complete. </div>
+              <div class="bullet_ind_inner"><a name="1240515">Full cache container is encoded into the buffer. This can occur with or without the use of the optional </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span>. If used in this scenario, the cursor state would indicate the retrieval is complete. </div>
             </td>
           </tr>
         </table>
@@ -81,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1221382">Partial container encoded into the buffer. This is only possible when using the </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span> for container types that support fragmentation. The application must check the cursor to test if this is the final part.</div>
+              <div class="bullet_ind_inner"><a name="1240522">Partial container encoded into the buffer. This is only possible when using the </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span> for container types that support fragmentation. The application must check the cursor to test whether this is the final part.</div>
             </td>
           </tr>
         </table>
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1221383">No data encoded into container due to insufficient buffer size. This can occur with or without the use of the optional </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span>. The application may retrieve again with a larger buffer.</div>
+              <div class="bullet_ind_inner"><a name="1240523">No data encoded into container due to insufficient buffer size. This can occur with or without the use of the optional </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span>. The application may retrieve again with a larger buffer.</div>
             </td>
           </tr>
         </table>

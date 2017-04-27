@@ -56,9 +56,36 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1219619">Log Out and Shut Down</a></div>
-      <div class="Body"><a name="1219620">When the Consumer application is done retrieving or posting content, it can close the </a><span class="CodeOrCommand">RsslReactorChannel</span> by calling <span class="CodeOrCommand">rsslReactorCloseChannel</span>. This will close all item streams and log out the user. Prior to closing the <span class="CodeOrCommand">RsslReactorChannel</span>, the application should release any unwritten pool buffers to ensure proper memory cleanup. </div>
-      <div class="Body"><a name="1219621">If the application is done with the </a><span class="CodeOrCommand">RsslReactor</span>, the <span class="CodeOrCommand">rsslDestroyReactor</span> function can be used to shutdown and cleanup any <span class="CodeOrCommand">RsslReactor</span> resources.</div>
-      <div class="Body"><a name="1219622">Closing an </a><span class="CodeOrCommand">RsslReactorChannel</span> is described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.043.html', '');" title="6.4.2 Removing Reactor Channels">Section 6.4.2</a>. Shutting down an <span class="CodeOrCommand">RsslReactor</span> is described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.012.html', '');" title="6.2.2 Destroying a Reactor">Section 6.2.2</a>.</div>
+      <div class="Body"><a name="1225935">When the Consumer application is done retrieving or posting content, it can close the </a><span class="CodeOrCommand">RsslReactorChannel</span> by calling <span class="CodeOrCommand">rsslReactorCloseChannel</span>. This will close all item streams and log out the user. Prior to closing the <span class="CodeOrCommand">RsslReactorChannel</span>, the application should release any unwritten pool buffers to ensure proper memory cleanup. </div>
+      <div class="Body"><a name="1225951">If the application is done with the </a><span class="CodeOrCommand">RsslReactor</span>, the <span class="CodeOrCommand">rsslDestroyReactor</span> function can be used to shutdown and cleanup any <span class="CodeOrCommand">RsslReactor</span> resources.</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1225964">For details on closing a</a>n <span class="CodeOrCommand">RsslReactorChannel</span>, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.043.html', '');" title="6.4.2 Removing Reactor Channels">Section 6.4.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1225974">Shutting down a</a>n <span class="CodeOrCommand">RsslReactor</span> is described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.012.html', '');" title="6.2.2 Destroying a Reactor">Section 6.2.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

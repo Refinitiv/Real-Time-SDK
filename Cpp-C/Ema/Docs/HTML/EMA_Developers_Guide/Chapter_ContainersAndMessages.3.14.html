@@ -59,343 +59,343 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1035859">The following example illustrates how to extract information from a </a><span class="CodeOrCommand" style="font-size: 10.0pt">FieldList</span> object using the down-cast operation.</div>
-      <div class="Blank_Line"><a name="1035995">&nbsp;</a></div>
+      <div class="Body"><a name="1036829">The following example illustrates how to extract information from a </a><span class="CodeOrCommand" style="font-size: 10.0pt">FieldList</span> object using the down-cast operation.</div>
+      <div class="Blank_Line"><a name="1036965">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1035862">&nbsp;</a></div>
+            <div class="command"><a name="1036832">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><span class="Color_003aBlue"><a name="1035864">void</a></span> <span class="Color_003aLight_Blue">AppClient</span>::decodeFieldList( <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">FieldList</span>&amp; fl )</div>
+            <div class="command"><span class="Color_003aBlue"><a name="1036834">void</a></span> <span class="Color_003aLight_Blue">AppClient</span>::decodeFieldList( <span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">FieldList</span>&amp; fl )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035866">{</a></div>
+            <div class="command"><a name="1036836">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035868">	</a><span class="Color_003aBlue">if</span> ( fl.hasInfo() )</div>
+            <div class="command"><a name="1036838">	</a><span class="Color_003aBlue">if</span> ( fl.hasInfo() )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035870">		cout &lt;&lt; </a><span class="Color_003aRed">"FieldListNum: "</span> &lt;&lt; fl.getInfoFieldListNum() &lt;&lt; <span class="Color_003aRed">" DictionaryId: "</span> &lt;&lt; fl</div>
+            <div class="command"><a name="1036840">		cout &lt;&lt; </a><span class="Color_003aRed">"FieldListNum: "</span> &lt;&lt; fl.getInfoFieldListNum() &lt;&lt; <span class="Color_003aRed">" DictionaryId: "</span> &lt;&lt; fl</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035872">fl.getInfoDictionaryId() &lt;&lt; endl;</a></div>
+            <div class="command"><a name="1036842">fl.getInfoDictionaryId() &lt;&lt; endl;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035874">&nbsp;</a></div>
+            <div class="command"><a name="1036844">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035876">	</a><span class="Color_003aBlue">while</span> ( fl.forth() )</div>
+            <div class="command"><a name="1036846">	</a><span class="Color_003aBlue">while</span> ( fl.forth() )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035878">	}</a></div>
+            <div class="command"><a name="1036848">	}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035880">		cout &lt;&lt; </a><span class="Color_003aRed">"Load"</span> &lt;&lt; endl;</div>
+            <div class="command"><a name="1036850">		cout &lt;&lt; </a><span class="Color_003aRed">"Load"</span> &lt;&lt; endl;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035882">		decode( fl.getEntry().getLoad() );</a></div>
+            <div class="command"><a name="1036852">		decode( fl.getEntry().getLoad() );</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035884">	}</a></div>
+            <div class="command"><a name="1036854">	}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035886">}</a></div>
+            <div class="command"><a name="1036856">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035888">&nbsp;</a></div>
+            <div class="command"><a name="1036858">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><span class="Color_003aBlue"><a name="1035890">void</a></span> AppClient::decode( <span class="Color_003aBlue">const</span> Data&amp; data )</div>
+            <div class="command"><span class="Color_003aBlue"><a name="1036860">void</a></span> AppClient::decode( <span class="Color_003aBlue">const</span> Data&amp; data )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035892">{</a></div>
+            <div class="command"><a name="1036862">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035894">	</a><span class="Color_003aBlue">if</span> ( data.getCode() == <span class="Color_003aLight_Blue">Data</span>::BlankEnum )</div>
+            <div class="command"><a name="1036864">	</a><span class="Color_003aBlue">if</span> ( data.getCode() == <span class="Color_003aLight_Blue">Data</span>::BlankEnum )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035896">		cout &lt;&lt; </a><span class="Color_003aRed">"Blank data" </span>&lt;&lt; endl;</div>
+            <div class="command"><a name="1036866">		cout &lt;&lt; </a><span class="Color_003aRed">"Blank data" </span>&lt;&lt; endl;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035898">	</a><span class="Color_003aBlue">else</span></div>
+            <div class="command"><a name="1036868">	</a><span class="Color_003aBlue">else</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035900">		</a><span class="Color_003aBlue">switch</span> ( data.getDataType() )</div>
+            <div class="command"><a name="1036870">		</a><span class="Color_003aBlue">switch</span> ( data.getDataType() )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035902">		{</a></div>
+            <div class="command"><a name="1036872">		{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035904">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::RefreshMsgEnum :</div>
+            <div class="command"><a name="1036874">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::RefreshMsgEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035906">			decodeRefreshMsg( </a><span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">RefreshMsg</span>&amp;&gt;( data ) );</div>
+            <div class="command"><a name="1036876">			decodeRefreshMsg( </a><span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">RefreshMsg</span>&amp;&gt;( data ) );</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035908">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036878">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035910">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::UpdateMsgEnum :</div>
+            <div class="command"><a name="1036880">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::UpdateMsgEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035912">			decodeUpdateMsg( </a><span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">UpdateMsg</span>&amp;&gt;( data ) );</div>
+            <div class="command"><a name="1036882">			decodeUpdateMsg( </a><span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">UpdateMsg</span>&amp;&gt;( data ) );</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035914">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036884">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035916">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::FieldListEnum :</div>
+            <div class="command"><a name="1036886">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::FieldListEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035918">			decodeFieldList( </a><span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">FieldList</span>&amp;&gt;( data ) );</div>
+            <div class="command"><a name="1036888">			decodeFieldList( </a><span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">FieldList</span>&amp;&gt;( data ) );</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035920">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036890">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035922">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::MapEnum :</div>
+            <div class="command"><a name="1036892">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::MapEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035924">			decodeMap( </a><span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">Map</span>&amp;&gt;( data ) );</div>
+            <div class="command"><a name="1036894">			decodeMap( </a><span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">Map</span>&amp;&gt;( data ) );</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035926">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036896">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035928">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::NoDataEnum :</div>
+            <div class="command"><a name="1036898">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::NoDataEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035930">			cout &lt;&lt; </a><span class="Color_003aRed">"NoData"</span> &lt;&lt; endl;</div>
+            <div class="command"><a name="1036900">			cout &lt;&lt; </a><span class="Color_003aRed">"NoData"</span> &lt;&lt; endl;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035932">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036902">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035934">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::TimeEnum :</div>
+            <div class="command"><a name="1036904">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::TimeEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035936">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmTime: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmTime</span>&amp;&gt;( data ).toString() &lt;&lt; endl;</div>
+            <div class="command"><a name="1036906">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmTime: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmTime</span>&amp;&gt;( data ).toString() &lt;&lt; endl;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035938">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036908">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035940">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::DateEnum :</div>
+            <div class="command"><a name="1036910">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::DateEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035942">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmDate: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmDate</span>&amp;&gt;( data ).toString() &lt;&lt; endl;</div>
+            <div class="command"><a name="1036912">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmDate: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmDate</span>&amp;&gt;( data ).toString() &lt;&lt; endl;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035944">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036914">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035946">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::RealEnum :</div>
+            <div class="command"><a name="1036916">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::RealEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035948">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmReal::getAsDouble: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmReal</span>&amp;&gt;( data </div>
+            <div class="command"><a name="1036918">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmReal::getAsDouble: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmReal</span>&amp;&gt;( data </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035950">					).getAsDouble() &lt;&lt; endl;</a></div>
+            <div class="command"><a name="1036920">					).getAsDouble() &lt;&lt; endl;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035952">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036922">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035954">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::IntEnum :</div>
+            <div class="command"><a name="1036924">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::IntEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035956">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmInt: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmInt</span>&amp;&gt;( data ).getInt() &lt;&lt; endl;</div>
+            <div class="command"><a name="1036926">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmInt: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmInt</span>&amp;&gt;( data ).getInt() &lt;&lt; endl;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035958">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036928">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035960">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::UIntEnum :</div>
+            <div class="command"><a name="1036930">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::UIntEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035962">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmUInt: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmUInt</span>&amp;&gt;( data ).getUInt() &lt;&lt; endl;</div>
+            <div class="command"><a name="1036932">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmUInt: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmUInt</span>&amp;&gt;( data ).getUInt() &lt;&lt; endl;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035964">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036934">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035966">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::EnumEnum :</div>
+            <div class="command"><a name="1036936">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::EnumEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035968">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmEnum: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmEnum</span>&amp;&gt;( data ).getEnum() &lt;&lt; endl;</div>
+            <div class="command"><a name="1036938">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmEnum: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmEnum</span>&amp;&gt;( data ).getEnum() &lt;&lt; endl;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035970">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036940">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035972">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::AsciiEnum :</div>
+            <div class="command"><a name="1036942">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::AsciiEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035974">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmAscii: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmAscii</span>&amp;&gt;( data ).toString() &lt;&lt; endl;</div>
+            <div class="command"><a name="1036944">			cout &lt;&lt; </a><span class="Color_003aRed">"OmmAscii: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmAscii</span>&amp;&gt;( data ).toString() &lt;&lt; endl;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035976">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036946">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035978">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::ErrorEnum :</div>
+            <div class="command"><a name="1036948">		</a><span class="Color_003aBlue">case</span> <span class="Color_003aLight_Blue">DataType</span>::ErrorEnum :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035980">			cout &lt;&lt; </a><span class="Color_003aRed">"Decoding error: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmError</span>&amp;&gt;( data </div>
+            <div class="command"><a name="1036950">			cout &lt;&lt; </a><span class="Color_003aRed">"Decoding error: "</span> &lt;&lt; <span class="Color_003aBlue">static_cast</span>&lt;<span class="Color_003aBlue">const</span> <span class="Color_003aLight_Blue">OmmError</span>&amp;&gt;( data </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035982">					).getErrorCodeAsString() &lt;&lt; endl;</a></div>
+            <div class="command"><a name="1036952">					).getErrorCodeAsString() &lt;&lt; endl;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035984">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036954">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035986">		</a><span class="Color_003aBlue">default</span> :</div>
+            <div class="command"><a name="1036956">		</a><span class="Color_003aBlue">default</span> :</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035988">			</a><span class="Color_003aBlue">break</span>;</div>
+            <div class="command"><a name="1036958">			</a><span class="Color_003aBlue">break</span>;</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035990">		}</a></div>
+            <div class="command"><a name="1036960">		}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035992">}</a></div>
+            <div class="command"><a name="1036962">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1035994">&nbsp;</a></div>
+            <div class="command"><a name="1036964">&nbsp;</a></div>
           </td>
         </tr>
       </table>

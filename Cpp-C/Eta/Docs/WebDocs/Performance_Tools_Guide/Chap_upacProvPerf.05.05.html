@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1223271">Latency Measurement</a></div>
-      <div class="Body"><span class="ToolOrUtility_Name"><a name="1230396">upacProvPerf</a></span> encodes the timestamp as part of its message payload. The timestamp is taken at the start of encoding and added as field TIM_TRK_1 (<span class="Parameter">3902</span>). Latency is measured after <span class="ToolOrUtility_Name">upacConsPerf</span> completes decoding.</div>
-      <div class="Procedure_Heading"><a name="1230403"><img class="Default" src="images/Chap_upacProvPerf.05.05.1.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> Interactive Provider Latency Measurement Sequence:</a></div>
+      <div class="Body"><span class="ToolOrUtility_Name"><a name="1231395">upacProvPerf</a></span> encodes the timestamp as part of its message payload. The timestamp is taken at the start of encoding and added as field TIM_TRK_1 (<span class="Parameter">3902</span>). Latency is measured after <span class="ToolOrUtility_Name">upacConsPerf</span> completes decoding.</div>
+      <div class="Procedure_Heading"><a name="1231402"><img class="Default" src="images/Chap_upacProvPerf.05.05.1.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> Interactive Provider Latency Measurement Sequence:</a></div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1230404">Get the current time (</a><span class="Parameter">t1</span>).</div>
+              <div class="Step1_inner"><a name="1231403">Get the current time (</a><span class="Parameter">t1</span>).</div>
             </td>
           </tr>
         </table>
@@ -81,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1230408">Obtain an output buffer using </a><span class="CodeOrCommand">rsslGetBuffer()</span>.</div>
+              <div class="Stepnext_inner"><a name="1231407">Obtain an output buffer using </a><span class="CodeOrCommand">rsslGetBuffer</span>.</div>
             </td>
           </tr>
         </table>
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1230409">Encode the message, including time </a><span class="Parameter">t1</span>.</div>
+              <div class="Stepnext_inner"><a name="1231408">Encode the message, including time </a><span class="Parameter">t1</span>.</div>
             </td>
           </tr>
         </table>
@@ -109,7 +109,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1230410">Pass the message to the API, which passes it to the underlying transport.</a></div>
+              <div class="Stepnext_inner"><a name="1231409">Pass the message to the API, which passes it to the underlying transport.</a></div>
             </td>
           </tr>
         </table>
@@ -123,7 +123,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1230411">The consuming application receives the timestamp in the payload and compares it against the current time to calculate latency.</a></div>
+              <div class="Stepnext_inner"><a name="1231410">The consuming application receives the timestamp in the payload and compares it against the current time to calculate latency.</a></div>
             </td>
           </tr>
         </table>

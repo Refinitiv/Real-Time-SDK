@@ -128,6 +128,7 @@ Elektron Message API Documentation is also available online at https://customers
       - Microsoft Windows 7 Professional 64-bit
       - Microsoft Windows 8 Professional 64-bit
       - Microsoft Windows 8.1 Professional 64-bit 
+	  - Microsoft Windows 10 Professional 64-bit
 
 
 
@@ -143,6 +144,7 @@ Elektron Message API Documentation is also available online at https://customers
       - Microsoft Visual C++ 10.0 64-bit (visual Studio 2010)
       - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
       - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
+	  - Microsoft Visual C++ 14.0 64-bit (Visual Studio 2015)
 	  
       ---------------------------------------------------------
       Enterprise Platform for Real-Time - RSSL/RWF connections

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.4.2 Negotiating MsgKey.Attrib Parameters</title>
+    <title>3.4 Special Semantics</title>
     <link rel="StyleSheet" href="css/Chap_Login_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,19 +55,79 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1001857">Negotiating MsgKey.Attrib Parameters</a></div>
-      <div class="Blank_Line"><a name="1001927">&nbsp;</a></div>
-      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
-        <caption></caption>
-        <tr style="vertical-align: top">
-          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
-            <div class="Note">
-              <span class="Bold">Note: </span><a name="1001978">The consumer must support all parameters specified by the provider in its Login response.</a></div>
-          </td>
-        </tr>
-      </table>
-      <div class="Body"><a name="1001960">Several </a><span class="CodeOrCommand">ReqMsg.MsgKey.Attrib</span> parameters indicate how the provider should handle a connection including: <span class="Parameter">ProvidePermissionProfile</span>, <span class="Parameter">ProvidePermissionExpressions</span>, <span class="Parameter">SingleOpen</span>, <span class="Parameter">AllowSuspectData</span>, <span class="Parameter">InstanceId</span>, and <span class="Parameter">Role</span>. If the provider cannot support a specified value, it can change the value in the <span class="CodeOrCommand">RespMsg.MsgKey.Attrib</span> ElementList in its response to the consumer.</div>
-      <div class="Body"><a name="1001961">If the </a><span class="CodeOrCommand">RespMsg.MsgKey.Attrib</span> includes an <span class="CodeOrCommand">ElementList</span>, then the Elements should be checked to verify that the parameters have been accepted. If a request parameters differs from the response parameter, the consumer must support the parameters that the server provided in the <span class="CodeOrCommand">RespMsg</span>.</div>
+      <div class="H2"><a name="999040">Special Semantics</a></div>
+      <div class="H3"><a name="999201">Authentication</a> and Login Handling</div>
+      <div class="Body"><a name="1017389">Whether or not a user is authenticated depends on how the provider is implemented. However, providers are required to respond to Login Request Messages in the following manner:</a></div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1008424">If the Login is accepted, the provider should send a Refresh message with </a><span class="Parameter">streamState = RSSL_STREAM_OPEN</span>, <span class="Parameter">dataState = RSSL_DATA_OK</span>, and <span class="Parameter">stateCode = RSSL_SC_NONE</span>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1008425">A login</a> request can be rejected or closed by sending a Status message with <span class="Parameter">streamState = RSSL_STREAM_CLOSED</span> (or <span class="Parameter">RSSL_STREAM_CLOSED_RECOVER</span> if the user is allowed to attempt another login), <span class="Parameter">dataState = RSSL_DATA_SUSPECT</span>, and a <span class="Parameter">stateCode</span> that best describes the reason for the stream closure.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1008426">If the provider closes the login stream, all other streams related to that login are implicitly closed without sending any item status messages to the consumer.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1142076">If the consumer application closes the login stream using a close message, all streams related to that login are automatically closed without sending any item close messages to the provider.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1142077">If a login stream is not open or was closed by either the consumer or the provider, the consumer must open a new Login stream before sending any other request messages. If the consumer application attempts to request data without an open Login stream, it will receive a status message indicating failure.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -80,7 +140,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.15.html">3.4	Special Semantics</a> : 3.4.2	Negotiating MsgKey.Attrib Parameters</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : 3.4	Special Semantics</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

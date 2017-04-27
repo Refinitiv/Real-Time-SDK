@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><span class="LucidaConsole"><a name="1005765">hint</a></span> Use Case: Converting Double or Float to an <span class="LucidaConsole">RsslReal</span></div>
-      <div class="Body"><a name="1355471">To convert a </a><span class="CodeOrCommand">double</span> or <span class="CodeOrCommand">float</span> type to an <span class="CodeOrCommand">RsslReal</span> type (typically done to prepare for transmission), the user must determine which hint value to use based on the type of value used:</div>
+      <div class="Body"><a name="1469639">To convert a </a><span class="CodeOrCommand">double</span> or <span class="CodeOrCommand">float</span> type to an <span class="CodeOrCommand">RsslReal</span> type (typically done to prepare for transmission), the user must determine which hint value to use based on the type of value used:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1355472">When converting a decimal value, the chosen hint value must be less than</a> <span class="Parameter">RSSL_RH_FRACTION_1</span>.</div>
+              <div class="bullet_ind_inner"><a name="1469640">When converting a decimal value, the chosen hint value must be less than</a> <span class="Parameter">RSSL_RH_FRACTION_1</span>.</div>
             </td>
           </tr>
         </table>
@@ -80,12 +80,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1355473">When converting a fractional value, the chosen hint value must be greater than or equal to</a> <span class="Parameter">RSSL_RH_FRACTION_1</span>.</div>
+              <div class="bullet_ind_inner"><a name="1469641">When converting a fractional value, the chosen hint value must be greater than or equal to</a> <span class="Parameter">RSSL_RH_FRACTION_1</span>.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1355474">You can use the following example to perform the conversion, where </a><span class="CodeOrCommand">inputValue</span> is the unmodified input <span class="CodeOrCommand">float</span> or <span class="CodeOrCommand">double</span> value and <span class="CodeOrCommand">inputHint</span> is the hint chosen by the user:</div>
+      <div class="Body"><a name="1469642">You can use the following example to perform the conversion, where </a><span class="CodeOrCommand">inputValue</span> is the unmodified input <span class="CodeOrCommand">float</span> or <span class="CodeOrCommand">double</span> value and <span class="CodeOrCommand">inputHint</span> is the hint chosen by the user:</div>
       <div class="Blank_Line"><a name="1006107">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
@@ -176,7 +176,7 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1005846">	RsslReal.value = floor(((inputValue)/(pow(2,(inputHint - RSSL_RH_FRACTION_1)))) + 0.5);</a></div>
+            <div class="command"><a name="1005846">	RsslReal.value = floor(((inputValue)*(pow(2,(inputHint - RSSL_RH_FRACTION_1)))) + 0.5);</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">

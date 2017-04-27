@@ -56,43 +56,43 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1016401">RsslRmtesCacheBuffer: Structure</a></div>
-      <div class="Body"><a name="1016489">The </a><span class="CodeOrCommand">RsslRmtesCacheBuffer</span> is a simple structure used to store initial RMTES content and when applying partial updates.  Any character set conversions should be performed on the content stored in the <span class="CodeOrCommand">RsslRmtesCacheBuffer</span>.</div>
-      <div class="Body"><span class="CodeOrCommand"><a name="1016490">RsslRmtesCacheBuffer</a></span> includes the following members:</div>
-      <div class="Blank_Line"><a name="1016403">&nbsp;</a></div>
+      <div class="Body"><a name="1473023">The </a><span class="CodeOrCommand">RsslRmtesCacheBuffer</span> is a simple structure used to store initial RMTES content and when applying partial updates. Any character set conversions should be performed on the content stored in the <span class="CodeOrCommand">RsslRmtesCacheBuffer</span>.</div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1473033">RsslRmtesCacheBuffer</a></span> includes the following members:</div>
+      <div class="Blank_Line"><a name="1473079">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 95: <span class="LucidaConsole"><a name="1016429">RsslRmtesCacheBuffer</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 95: <span class="LucidaConsole"><a name="1473076">RsslRmtesCacheBuffer</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1016417">STRUCTURE MEMBER</a></div>
+            <div class="CellHeading"><a name="1473036">STRUCTURE MEMBER</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1016419">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1473038">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1016421">length</a></div>
+            <div class="CellBody"><a name="1473040">length</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1016423">The length (in bytes) of the content pointed to by </a><span class="CodeOrCommand">data</span>; it represents the number of bytes used in the cache. For example, if <span class="CodeOrCommand">data</span> refers to 100 bytes and nothing is cached, <span class="CodeOrCommand">length</span> should be set to 0. If <span class="CodeOrCommand">data</span> refers to 100 bytes, and 50 bytes are currently in cache, <span class="CodeOrCommand">length</span> should be set to 50.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1016425">data</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1016427">Points to the RMTES content. The </a><span class="CodeOrCommand">length</span> member should be set to the number of bytes pointed to by <span class="CodeOrCommand">data</span>.</div>
+            <div class="CellBody"><a name="1473042">Returns the length</a> (in bytes) of the content pointed to by <span class="CodeOrCommand">data</span>; it represents the number of bytes used in the cache. For example, if <span class="CodeOrCommand">data</span> refers to 100 bytes and nothing is cached, <span class="CodeOrCommand">length</span> should be set to 0. If <span class="CodeOrCommand">data</span> refers to 100 bytes, and 50 bytes are currently in cache, <span class="CodeOrCommand">length</span> should be set to 50.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1016544">allocatedLength</a></div>
+            <div class="CellBody"><a name="1473048">data</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1016546">The length (in bytes) allocated when creating </a><span class="CodeOrCommand">data</span>. This is typically larger than <span class="CodeOrCommand">length</span> to allow for the growth of <span class="CodeOrCommand">data</span> when applying future partial updates. </div>
+            <div class="CellBody"><a name="1473050">Points to the RMTES content. The </a><span class="CodeOrCommand">length</span> member should be set to the number of bytes pointed to by <span class="CodeOrCommand">data</span>. </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1473059">allocatedLength</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1473061">Returns the length (in bytes) allocated when creating </a><span class="CodeOrCommand">data</span>. This is typically larger than <span class="CodeOrCommand">length</span> to allow for the growth of <span class="CodeOrCommand">data</span> when applying future partial updates.</div>
           </td>
         </tr>
       </table>

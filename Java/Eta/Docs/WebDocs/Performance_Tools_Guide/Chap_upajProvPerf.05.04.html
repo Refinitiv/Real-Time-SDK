@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1222795">Provider Lifecycle</a></div>
-      <div class="Body"><a name="1230703">The lifecycle of </a><span class="ToolOrUtility_Name">upajProvPerf</span> is divided into the following sections:</div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1230707"><img class="Default" src="images/Chap_upajProvPerf.05.04.1.jpg" width="505" height="230" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 12.  <a name="1230711">upajProvPerf Lifecycle</a></div>
+      <div class="Body"><a name="1231977">The lifecycle of </a><span class="ToolOrUtility_Name">upajProvPerf</span> is divided into the following sections:</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1231981"><img class="Default" src="images/Chap_upajProvPerf.05.04.1.jpg" width="505" height="230" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 12.  <a name="1231985">upajProvPerf Lifecycle</a></div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -68,13 +68,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1230715">Application and Transport API Initialization.</a></div>
+              <div class="Step1_inner"><a name="1231989">Application and Transport API Initialization.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><span class="ToolOrUtility_Name"><a name="1230722">upajProvPerf</a></span> loads its configuration, initializes the Transport API, loads its dictionary and sample message data using specified files, and starts one or more threads (as configured) to provide data to consumers.</div>
-      <div class="indent_25"><a name="1230723">The main thread has two roles:</a></div>
+      <div class="indent_25"><span class="ToolOrUtility_Name"><a name="1231996">upajProvPerf</a></span> loads its configuration, initializes the Transport API, loads its dictionary and sample message data using specified files, and starts one or more threads (as configured) to provide data to consumers.</div>
+      <div class="indent_25"><a name="1231997">The main thread has two roles:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -84,7 +84,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1230724">Accept consumer connections and pass them to one of the provider threads.</a></div>
+              <div class="bullet_ind_inner"><a name="1231998">Accept consumer connections and pass them to one of the provider threads.</a></div>
             </td>
           </tr>
         </table>
@@ -98,7 +98,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1230725">Periodically collect and write statistics from the connection thread(s) until the test is over.</a></div>
+              <div class="bullet_ind_inner"><a name="1231999">Periodically collect and write statistics from the connection thread(s) until the test is over.</a></div>
             </td>
           </tr>
         </table>
@@ -112,12 +112,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1230726">Handle Login, Directory, and Item Requests; Provide Updates.</a></div>
+              <div class="Stepnext_inner"><a name="1232000">Handle Login, Directory, and Item Requests; Provide Updates.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1230727">The provider thread performs the following actions continually until its run time expires:</a></div>
+      <div class="indent_25"><a name="1232001">The provider thread performs the following actions continually until its run time expires:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -127,21 +127,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1230728">Add new connections passed from the main thread.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1230729">Send a burst of updates for items currently open on existing connections.</a></div>
+              <div class="bullet_ind_inner"><a name="1232002">Add new connections passed from the main thread.</a></div>
             </td>
           </tr>
         </table>
@@ -155,7 +141,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1230730">Send a burst of generic messages (if configured to do so). </a></div>
+              <div class="bullet_ind_inner"><a name="1232003">Send a burst of updates for items currently open on existing connections.</a></div>
             </td>
           </tr>
         </table>
@@ -169,7 +155,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1230731">Use available spare time to provide images for items that need them.</a></div>
+              <div class="bullet_ind_inner"><a name="1232004">Send a burst of generic messages (if configured to do so). </a></div>
             </td>
           </tr>
         </table>
@@ -183,7 +169,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1230732">Use available spare time to read from the transport, processing any Login, Directory, or Item requests.</a></div>
+              <div class="bullet_ind_inner"><a name="1232005">Use available spare time to provide images for items that need them.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1232006">Use available spare time to read from the transport, processing any Login, Directory, or Item requests.</a></div>
             </td>
           </tr>
         </table>
@@ -197,15 +197,15 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1230733">Shutdown and cleanup.</a></div>
+              <div class="Stepnext_inner"><a name="1232007">Shutdown and cleanup.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1230734">The provider thread stops. The main thread collects any remaining data from the connection threads, cleans them up, and writes the final summary statistics. The main thread then cleans up the Transport API and remaining resources, and exits.</a></div>
-      <div class="indent_25"><span class="ToolOrUtility_Name"><a name="1230741">upajProvPerf</a></span> should run long enough to allow connected consumers to complete their measurements.</div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1230745"><img class="Default" src="images/Chap_upajProvPerf.05.04.2.jpg" width="266" height="356" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 13.  <a name="1230749">upajProvPerf Application Flow</a></div>
+      <div class="indent_25"><a name="1232008">The provider thread stops. The main thread collects any remaining data from the connection threads, cleans them up, and writes the final summary statistics. The main thread then cleans up the Transport API and remaining resources, and exits.</a></div>
+      <div class="indent_25"><span class="ToolOrUtility_Name"><a name="1232015">upajProvPerf</a></span> should run long enough to allow connected consumers to complete their measurements.</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1232019"><img class="Default" src="images/Chap_upajProvPerf.05.04.2.jpg" width="266" height="356" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 13.  <a name="1232023">upajProvPerf Application Flow</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

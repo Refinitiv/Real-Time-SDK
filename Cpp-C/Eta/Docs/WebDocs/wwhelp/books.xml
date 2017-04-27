@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WebWorksHelpBooks version="5.0" name="Transport API HTML Library" expandalltopentries="false" showbooks="true" xmlns="urn:WebWorks-Help-Books-Schema">
   <Book directory="TransportAPI_Documentation_Portal" />
-  <Book directory="API%20Concepts" />
+  <Book directory="API_Concepts" />
   <Book directory="Developer_Guide" />
   <Book directory="Reference_Guides" />
   <Book directory="RDM_Usage_Guide" />

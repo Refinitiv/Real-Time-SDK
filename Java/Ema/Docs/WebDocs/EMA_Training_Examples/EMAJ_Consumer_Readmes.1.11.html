@@ -56,54 +56,54 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019284">200__MarketPrice__Streaming</a></div>
-      <div class="Body"><a name="1037099">Summary</a></div>
-      <div class="Body"><a name="1037100">=======</a></div>
-      <div class="Body"><a name="1037101">&nbsp;</a></div>
-      <div class="Body"><a name="1037102">The example200__MarketPrice__Streaming application is provided as an example of</a></div>
-      <div class="Body"><a name="1037103">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1037104">&nbsp;</a></div>
-      <div class="Body"><a name="1037105">This application demonstrates basic usage of the EMA library for accessing</a></div>
-      <div class="Body"><a name="1037106">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
-      <div class="Body"><a name="1037107">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
-      <div class="Body"><a name="1037108">Distribution Server.</a></div>
-      <div class="Body"><a name="1037109">&nbsp;</a></div>
-      <div class="Body"><a name="1037110">example200__MarketPrice__Streaming showcases native or RWF decoding of received</a></div>
-      <div class="Body"><a name="1037111">FieldList. This application iterates through the received FieldList and calls</a></div>
-      <div class="Body"><a name="1037112">respective (based on the data type) accessor methods to extract data in native</a></div>
-      <div class="Body"><a name="1037113">format.</a></div>
-      <div class="Body"><a name="1037114">&nbsp;</a></div>
-      <div class="Body"><a name="1037115">&nbsp;</a></div>
-      <div class="Body"><a name="1037116">Detailed Description</a></div>
-      <div class="Body"><a name="1037117">====================</a></div>
-      <div class="Body"><a name="1037118">&nbsp;</a></div>
-      <div class="Body"><a name="1037119">example200__MarketPrice__Streaming implements the following high level steps:</a></div>
-      <div class="Body"><a name="1037120">&nbsp;</a></div>
-      <div class="Body"><a name="1037121">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1037122">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1037123">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
-      <div class="Body"><a name="1037124">    - the decode( FieldList ) iterates through the received FieldList,</a></div>
-      <div class="Body"><a name="1037125">	  extracts each FieldEntry reference from the current position on the</a></div>
-      <div class="Body"><a name="1037126">	  FieldList, and extracts field id, name and load of the FieldEntry.</a></div>
-      <div class="Body"><a name="1037127">	  The load extraction is done using native or RWF data formats</a></div>
-      <div class="Body"><a name="1037128">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1037129">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1037130">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1037131">  - sets host name on the preconfigured connection to “localhost”</a></div>
-      <div class="Body"><a name="1037132">  - sets port on the preconfigured connection to “14002”</a></div>
-      <div class="Body"><a name="1037133">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1037134">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1037135">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1037136">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1037137">+ Processes data received with user dispatch loop for 60 seconds</a></div>
-      <div class="Body"><a name="1037138">  - all received messages are processed on main application thread of control</a></div>
-      <div class="Body"><a name="1037139">+ Exits</a></div>
-      <div class="Body"><a name="1037140">&nbsp;</a></div>
-      <div class="Body"><a name="1037141">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1037142">      environment.</a></div>
-      <div class="Body"><a name="1037143">	  </a></div>
-      <div class="Body"><a name="1037144">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1037145">      standard configuration.</a></div>
-      <div class="Body"><a name="1031061">&nbsp;</a></div>
+      <div class="Body"><a name="1039129">Summary</a></div>
+      <div class="Body"><a name="1039130">=======</a></div>
+      <div class="Body"><a name="1039131">&nbsp;</a></div>
+      <div class="Body"><a name="1039132">The example200__MarketPrice__Streaming application is provided as an example of</a></div>
+      <div class="Body"><a name="1039133">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1039134">&nbsp;</a></div>
+      <div class="Body"><a name="1039135">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1039136">and parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D),</a></div>
+      <div class="Body"><a name="1039137">directly from an OMM Provider application, or from Thomson Reuters Advanced</a></div>
+      <div class="Body"><a name="1039138">Distribution Server.</a></div>
+      <div class="Body"><a name="1039139">&nbsp;</a></div>
+      <div class="Body"><a name="1039140">example200__MarketPrice__Streaming showcases native or RWF decoding of received</a></div>
+      <div class="Body"><a name="1039141">FieldList. This application iterates through the received FieldList and calls</a></div>
+      <div class="Body"><a name="1039142">respective (based on the data type) accessor methods to extract data in native</a></div>
+      <div class="Body"><a name="1039143">format.</a></div>
+      <div class="Body"><a name="1039144">&nbsp;</a></div>
+      <div class="Body"><a name="1039145">&nbsp;</a></div>
+      <div class="Body"><a name="1039146">Detailed Description</a></div>
+      <div class="Body"><a name="1039147">====================</a></div>
+      <div class="Body"><a name="1039148">&nbsp;</a></div>
+      <div class="Body"><a name="1039149">example200__MarketPrice__Streaming implements the following high level steps:</a></div>
+      <div class="Body"><a name="1039150">&nbsp;</a></div>
+      <div class="Body"><a name="1039151">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1039152">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1039153">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1039154">    - the decode( FieldList ) iterates through the received FieldList,</a></div>
+      <div class="Body"><a name="1039155">	  extracts each FieldEntry reference from the current position on the</a></div>
+      <div class="Body"><a name="1039156">	  FieldList, and extracts field id, name and load of the FieldEntry.</a></div>
+      <div class="Body"><a name="1039157">	  The load extraction is done using native or RWF data formats</a></div>
+      <div class="Body"><a name="1039158">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1039159">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1039160">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1039161">  - sets host name on the preconfigured connection to “localhost”</a></div>
+      <div class="Body"><a name="1039162">  - sets port on the preconfigured connection to “14002”</a></div>
+      <div class="Body"><a name="1039163">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1039164">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1039165">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1039166">  - MarketPrice IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1039167">+ Processes data received with user dispatch loop for 60 seconds</a></div>
+      <div class="Body"><a name="1039168">  - all received messages are processed on main application thread of control</a></div>
+      <div class="Body"><a name="1039169">+ Exits</a></div>
+      <div class="Body"><a name="1039170">&nbsp;</a></div>
+      <div class="Body"><a name="1039171">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1039172">      environment.</a></div>
+      <div class="Body"><a name="1039173">	  </a></div>
+      <div class="Body"><a name="1039174">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1039175">      standard configuration.</a></div>
+      <div class="Body"><a name="1037556">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

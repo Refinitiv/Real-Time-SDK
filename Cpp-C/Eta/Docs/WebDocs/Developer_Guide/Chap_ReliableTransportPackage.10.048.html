@@ -56,28 +56,28 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1020597">RsslInProgInfo Structure</a></div>
-      <div class="Body"><a name="1221600">Use the </a><span class="CodeOrCommand">RsslInProgInfo</span> structure with the <span class="CodeOrCommand">rsslInitChannel</span> function to initialize a channel.</div>
-      <div class="Body"><a name="1221601">In certain circumstances, the initialization process might need to create new or additional underlying connections. If this occurs, the application must unregister the previous </a><span class="CodeOrCommand">socketId</span> and register the new <span class="CodeOrCommand">socketId</span> with the I/O notification mechanism in use with associated information being conveyed by <span class="CodeOrCommand">RsslInProgInfo</span> and <span class="CodeOrCommand">RsslInProgFlags</span>.</div>
-      <div class="Blank_Line"><a name="1221708">&nbsp;</a></div>
+      <div class="Body"><a name="1246331">Use the </a><span class="CodeOrCommand">RsslInProgInfo</span> structure with the <span class="CodeOrCommand">rsslInitChannel</span> function to initialize a channel.</div>
+      <div class="Body"><a name="1246332">In certain circumstances, the initialization process might need to create new or additional underlying connections. If this occurs, the application must unregister the previous </a><span class="CodeOrCommand">socketId</span> and register the new <span class="CodeOrCommand">socketId</span> with the I/O notification mechanism in use with associated information being conveyed by <span class="CodeOrCommand">RsslInProgInfo</span> and <span class="CodeOrCommand">RsslInProgFlags</span>.</div>
+      <div class="Blank_Line"><a name="1246439">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 37: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1221705">RsslInProgInfo</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 37: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1246436">RsslInProgInfo</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1221619">Structure Member</a></div>
+            <div class="CellHeading"><a name="1246350">Structure Member</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1221621">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1246352">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221623">flags</a></div>
+            <div class="CellBody"><a name="1246354">flags</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221625">Combination of bit values to indicate special behaviors and presence of optional </a><span class="CodeOrCommand">RsslInProgInfo</span> content.</div>
-            <div class="CellBody"><span class="CodeOrCommand"><a name="1221629">flags</a></span> uses the following enumeration values:</div>
+            <div class="CellBody"><a name="1246356">Combination of bit values to indicate special behaviors and presence of optional </a><span class="CodeOrCommand">RsslInProgInfo</span> content.</div>
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1246360">flags</a></span> uses the following enumeration values:</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -87,7 +87,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1221630">RSSL_IP_</a></span><span class="Parameter">NONE</span>: Indicates that channel initialization is still in progress and subsequent calls to <span class="CodeOrCommand">rsslInitChannel</span> are needed for completion. The call did not change the <span class="CodeOrCommand">socketId</span>.</div>
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1246361">RSSL_IP_</a></span><span class="Parameter">NONE</span>: Indicates that channel initialization is still in progress and subsequent calls to <span class="CodeOrCommand">rsslInitChannel</span> are needed for completion. The call did not change the <span class="CodeOrCommand">socketId</span>.</div>
                   </td>
                 </tr>
               </table>
@@ -101,7 +101,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1221640">RSSL_IP_FD_</a></span><span class="Parameter">CHANGE</span>: Indicates that the call changed the <span class="CodeOrCommand">socketId</span>. The previous <span class="CodeOrCommand">socketId</span> is now stored in <span class="CodeOrCommand">RsslInProgInfo.oldSocket</span> so it can be unregistered with the I/O notification mechanism. The new <span class="CodeOrCommand">socketId</span> is stored in <span class="CodeOrCommand">RsslInProgInfo.newSocket</span> so it can be registered with the I/O notification mechanism. However, channel initialization is still in progress and subsequent calls to <span class="CodeOrCommand">rsslInitChannel</span> are needed to complete it.</div>
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1246371">RSSL_IP_FD_</a></span><span class="Parameter">CHANGE</span>: Indicates that the call changed the <span class="CodeOrCommand">socketId</span>. The previous <span class="CodeOrCommand">socketId</span> is now stored in <span class="CodeOrCommand">RsslInProgInfo.oldSocket</span> so it can be unregistered with the I/O notification mechanism. The new <span class="CodeOrCommand">socketId</span> is stored in <span class="CodeOrCommand">RsslInProgInfo.newSocket</span> so it can be registered with the I/O notification mechanism. However, channel initialization is still in progress and subsequent calls to <span class="CodeOrCommand">rsslInitChannel</span> are needed to complete it.</div>
                   </td>
                 </tr>
               </table>
@@ -110,18 +110,18 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221666">oldSocket</a></div>
+            <div class="CellBody"><a name="1246397">oldSocket</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221671">Populated if flags indicate that </a><span class="CodeOrCommand">rsslInitChannel</span> needs to perform a file descriptor change. If this occurs, the <span class="CodeOrCommand">oldSocket</span> contains the <span class="CodeOrCommand">socketId</span>associated with the previous connection so the application can unregister this with the I/O notification mechanism.</div>
+            <div class="CellBody"><a name="1246402">Populated if flags indicate that </a><span class="CodeOrCommand">rsslInitChannel</span> needs to perform a file descriptor change. If this occurs, the <span class="CodeOrCommand">oldSocket</span> contains the <span class="CodeOrCommand">socketId</span>associated with the previous connection so the application can unregister this with the I/O notification mechanism.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221682">newSocket</a></div>
+            <div class="CellBody"><a name="1246413">newSocket</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221687">Populated if flags indicate that </a><span class="CodeOrCommand">rsslInitChannel</span> needs to perform a file descriptor change. If this occurs, the <span class="CodeOrCommand">newSocket</span> contains the <span class="CodeOrCommand">socketId</span>associated with the new connection so the application can register this with the I/O notification mechanism.</div>
+            <div class="CellBody"><a name="1246418">Populated if flags indicate that </a><span class="CodeOrCommand">rsslInitChannel</span> needs to perform a file descriptor change. If this occurs, the <span class="CodeOrCommand">newSocket</span> contains the <span class="CodeOrCommand">socketId</span>associated with the new connection so the application can register this with the I/O notification mechanism.</div>
           </td>
         </tr>
       </table>

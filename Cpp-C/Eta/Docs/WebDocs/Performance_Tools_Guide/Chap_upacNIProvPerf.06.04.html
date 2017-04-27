@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1222858">Non-Interactive Provider Lifecycle</a></div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1229524"><img class="Default" src="images/NIPProvPerf_Lifecycle.jpg" width="444" height="225" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 14.  <a name="1229528">upacNIProvPerf Lifecycle</a></div>
-      <div class="Body"><a name="1229532">The lifecycle of </a><span class="ToolOrUtility_Name">upacNIProvPerf</span> is divided into the following sections:</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1230922"><img class="Default" src="images/NIPProvPerf_Lifecycle.jpg" width="444" height="225" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 14.  <a name="1230926">upacNIProvPerf Lifecycle</a></div>
+      <div class="Body"><a name="1230930">The lifecycle of </a><span class="ToolOrUtility_Name">upacNIProvPerf</span> is divided into the following sections:</div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -68,12 +68,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1229536">Application and Transport API Initialization.</a></div>
+              <div class="Step1_inner"><a name="1230934">Application and Transport API Initialization.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1229540">In this phase </a><span class="ToolOrUtility_Name">upacNIProvPerf</span>:</div>
+      <div class="indent_25"><a name="1230938">In this phase </a><span class="ToolOrUtility_Name">upacNIProvPerf</span>:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -83,21 +83,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229541">Loads its configuration.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229545">Initializes the Transport API.</a></div>
+              <div class="bullet_ind_inner"><a name="1230939">Loads its configuration.</a></div>
             </td>
           </tr>
         </table>
@@ -111,7 +97,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229546">Loads its dictionary, item list, and sample message data using the specified files.</a></div>
+              <div class="bullet_ind_inner"><a name="1230943">Initializes the Transport API.</a></div>
             </td>
           </tr>
         </table>
@@ -125,7 +111,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229547">Starts the thread(s) that will connect to the ADH to perform the test. </a></div>
+              <div class="bullet_ind_inner"><a name="1230944">Loads its dictionary, item list, and sample message data using the specified files.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1230945">Starts the thread(s) that will connect to the ADH to perform the test. </a></div>
             </td>
           </tr>
         </table>
@@ -137,7 +137,7 @@
               <div class="dash_inner" style="width: 18pt; white-space: nowrap">-	</div>
             </td>
             <td width="100%">
-              <div class="dash_inner"><a name="1229548">The main thread begins cycling: periodically collecting and writing statistics from the connection thread(s). </a></div>
+              <div class="dash_inner"><a name="1230946">The main thread begins cycling: periodically collecting and writing statistics from the connection thread(s). </a></div>
             </td>
           </tr>
         </table>
@@ -149,7 +149,7 @@
               <div class="dash_inner" style="width: 18pt; white-space: nowrap">-	</div>
             </td>
             <td width="100%">
-              <div class="dash_inner"><a name="1229549">Connection threads connect to the ADH. If a connection fails, the thread continually attempts to reconnect until the connection succeeds. Once the connection succeeds, the test begins and any subsequent disconnection ends the test.</a></div>
+              <div class="dash_inner"><a name="1230947">Connection threads connect to the ADH. If a connection fails, the thread continually attempts to reconnect until the connection succeeds. Once the connection succeeds, the test begins and any subsequent disconnection ends the test.</a></div>
             </td>
           </tr>
         </table>
@@ -163,12 +163,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1229550">ADH Login and Directory.</a></div>
+              <div class="Stepnext_inner"><a name="1230948">ADH Login and Directory.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1229551">The connection thread sends login requests and waits for the ADH response. After a successful login, the connection thread publishes its service, followed by an item image to begin the publishing phase.</a></div>
+      <div class="indent_25"><a name="1230949">The connection thread sends login requests and waits for the ADH response. After a successful login, the connection thread publishes its service, followed by an item image to begin the publishing phase.</a></div>
       <div class="Stepnext_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -178,12 +178,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1229552">Provide OMM content.</a></div>
+              <div class="Stepnext_inner"><a name="1230950">Provide OMM content.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1229553">The connection thread begins providing the items specified in its item list, continually performing the following actions:</a></div>
+      <div class="indent_25"><a name="1230951">The connection thread begins providing the items specified in its item list, continually performing the following actions:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -193,21 +193,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229554">Send a burst of updates for open items.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229555">If refreshes are needed, use spare time in the tick to send them.</a></div>
+              <div class="bullet_ind_inner"><a name="1230952">Send a burst of updates for open items.</a></div>
             </td>
           </tr>
         </table>
@@ -221,7 +207,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1229556">Using any spare time left, read from the transport and process incoming messages.</a></div>
+              <div class="bullet_ind_inner"><a name="1230953">If refreshes are needed, use spare time in the tick to send them.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1230954">Using any spare time left, read from the transport and process incoming messages.</a></div>
             </td>
           </tr>
         </table>
@@ -235,15 +235,15 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1229557">Application shutdown and cleanup.</a></div>
+              <div class="Stepnext_inner"><a name="1230955">Application shutdown and cleanup.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1229558">The connection thread disconnects and stops. The main thread collects any remaining information from the connection threads, cleans them up, and writes the final summary statistics. The main thread then cleans up the Transport API and any remaining resources and then exits.</a></div>
-      <div class="indent_25"><a name="1229565">Run </a><span class="ToolOrUtility_Name">upacNIProvPerf</span> for a long enough period of time to allow for connected consumers to complete their measurements.</div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1229569"><img class="Default" src="images/Chap_upacNIProvPerf.06.04.2.jpg" width="237" height="286" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 15.  <a name="1229573">upacNIProvPerf Application Flow</a></div>
+      <div class="indent_25"><a name="1230956">The connection thread disconnects and stops. The main thread collects any remaining information from the connection threads, cleans them up, and writes the final summary statistics. The main thread then cleans up the Transport API and any remaining resources and then exits.</a></div>
+      <div class="indent_25"><a name="1230963">Run </a><span class="ToolOrUtility_Name">upacNIProvPerf</span> for a long enough period of time to allow for connected consumers to complete their measurements.</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1230967"><img class="Default" src="images/Chap_upacNIProvPerf.06.04.2.jpg" width="237" height="286" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 15.  <a name="1230971">upacNIProvPerf Application Flow</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

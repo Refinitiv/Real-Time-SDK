@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1228583">Threading and Scaling</a></div>
-      <div class="Body"><a name="1231077">The Transport API allows calls from multiple threads, such that applications can scale their work across multiple cores (via multi-threading) to handle multiple connections. To support multi-threading, each application must enable global locking when calling </a><span class="CodeOrCommand">Transport.initialize()</span> to ensure that shared resources in the Transport API are protected.</div>
-      <div class="Body"><a name="1231087">You can configure </a><span class="ToolOrUtility_Name">upajTransportPerf</span> for multiple threads by using the <span class="CodeOrCommand">-threads</span> option. The result depends on whether the application is run as a server or client. </div>
+      <div class="Body"><a name="1232566">The Transport API allows calls from multiple threads, such that applications can scale their work across multiple cores (via multi-threading) to handle multiple connections. To support multi-threading, each application must enable global locking when calling </a><span class="CodeOrCommand">Transport.initialize()</span> to ensure that shared resources in the Transport API are protected.</div>
+      <div class="Body"><a name="1232576">You can configure </a><span class="ToolOrUtility_Name">upajTransportPerf</span> for multiple threads by using the <span class="CodeOrCommand">-threads</span> option. The result depends on whether the application is run as a server or client. </div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1231091">When running as a server, each thread is used to balance </a>incoming connections (similar to <span class="ToolOrUtility_Name">upajProvPerf</span>).</div>
+              <div class="Bullet_inner"><a name="1232580">When running as a server, each thread is used to balance </a>incoming connections (similar to <span class="ToolOrUtility_Name">upajProvPerf</span>).</div>
             </td>
           </tr>
         </table>
@@ -81,12 +81,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1231095">When running as a client, each thread creates its own connection (similar to </a><span class="ToolOrUtility_Name">upajConsPerf</span>).</div>
+              <div class="Bullet_inner"><a name="1232584">When running as a client, each thread creates its own connection (similar to </a><span class="ToolOrUtility_Name">upajConsPerf</span>).</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1231096">The main thread monitors the other threads and collects and reports their statistics.</a></div>
+      <div class="Body"><a name="1232585">The main thread monitors the other threads and collects and reports their statistics.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

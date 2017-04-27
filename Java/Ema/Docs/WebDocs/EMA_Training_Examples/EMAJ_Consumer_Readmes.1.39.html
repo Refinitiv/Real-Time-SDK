@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>422__MarketPrice__ErrorClient</title>
+    <link rel="StyleSheet" href="css/EMAJ_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1021535">422__MarketPrice__ErrorClient</a></div>
+      <div class="Body"><a name="1040315">Summary</a></div>
+      <div class="Body"><a name="1040316">=======</a></div>
+      <div class="Body"><a name="1040317">&nbsp;</a></div>
+      <div class="Body"><a name="1040318">The example422__MarketPrice__ErrorClient application is provided as an example of</a></div>
+      <div class="Body"><a name="1040319">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1040320">&nbsp;</a></div>
+      <div class="Body"><a name="1040321">This application demonstrates basic usage of the EMA for accessing and parsing</a></div>
+      <div class="Body"><a name="1040322">of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from</a></div>
+      <div class="Body"><a name="1040323">an OMM Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1040324">&nbsp;</a></div>
+      <div class="Body"><a name="1040325">example422__MarketPrice__ErrorClient showcases usage of the OmmConsumerErrorClient</a></div>
+      <div class="Body"><a name="1040326">functionality. OMM Consumer provides two ways of notifying application about</a></div>
+      <div class="Body"><a name="1040327">encountered user errors. By default OMM Consumer throws a respective exception</a></div>
+      <div class="Body"><a name="1040328">when an error is encountered. Users may specify to receive a respective callback</a></div>
+      <div class="Body"><a name="1040329">instead of exception.</a></div>
+      <div class="Body"><a name="1040330">&nbsp;</a></div>
+      <div class="Body"><a name="1040331">&nbsp;</a></div>
+      <div class="Body"><a name="1040332">Detailed Description</a></div>
+      <div class="Body"><a name="1040333">====================</a></div>
+      <div class="Body"><a name="1040334">&nbsp;</a></div>
+      <div class="Body"><a name="1040335">example422__MarketPrice__ErrorClient implements the following high level steps:</a></div>
+      <div class="Body"><a name="1040336">&nbsp;</a></div>
+      <div class="Body"><a name="1040337">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1040338">+ Implements OmmConsumerErrorClient class in AppErrorClient</a></div>
+      <div class="Body"><a name="1040339">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1040340">+ Instantiates AppErrorClient object that receives error messages</a></div>
+      <div class="Body"><a name="1040341">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1040342">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1040343">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1040344">+ Instantiates OmmConsumer object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1040345">  specified server</a></div>
+      <div class="Body"><a name="1040346">  - handles errors with AppErrorClient</a></div>
+      <div class="Body"><a name="1040347">+ Performs the following functionalities (this error scenarios are done on purpose</a></div>
+      <div class="Body"><a name="1040348">  to demonstrate the OmmConsumerErrorClient functionality)</a></div>
+      <div class="Body"><a name="1040349">  - Invalid handle to send reissue request </a></div>
+      <div class="Body"><a name="1040350">  - Invalid handle to submit GenericMsg</a></div>
+      <div class="Body"><a name="1040351">  - Invalid handle to submit PostMsg</a></div>
+      <div class="Body"><a name="1040352">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1040353">+ Processes data received from main thread for 60 seconds</a></div>
+      <div class="Body"><a name="1040354">  - all received messages and errors are processed on user thread of control</a></div>
+      <div class="Body"><a name="1040355">+ Exits</a></div>
+      <div class="Body"><a name="1040356">&nbsp;</a></div>
+      <div class="Body"><a name="1040357">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1040358">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1040359">	  </a></div>
+      <div class="Body"><a name="1040360">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1040361">      standard configuration.</a></div>
+      <div class="Body"><a name="1038792">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.35.html">400 Series Examples</a> : 422__MarketPrice__ErrorClient</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

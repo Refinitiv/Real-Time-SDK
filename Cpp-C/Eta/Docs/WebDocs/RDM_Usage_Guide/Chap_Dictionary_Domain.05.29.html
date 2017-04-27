@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.10.1 RecordTemplate DictionaryType</title>
+    <title>5.9.2 DictionariesProvided and DictionariesUsed</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,9 +55,107 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1011747">RecordTemplate DictionaryType</a></div>
-      <div class="Body"><a name="1011918">A RecordTemplate dictionary contains multiple record templates. Each record template contains a list of all of the fields present in a FieldList. Historically, RecordTemplates have been used for QForms. While they can be used for Marketfeed records and FieldLists, they typically are not used for those data formats. Templates for Marketfeed records and FieldLists are dynamically generated when an image is received.</a></div>
-      <div class="Body"><a name="1011919">Examples of external file representations for a RecordTemplate dictionary include </a><span class="FileOrDirectory">tss_records.cf</span> and <span class="FileOrDirectory">appendix_d</span>.</div>
+      <div class="H3"><a name="1002068">DictionariesProvided and DictionariesUsed</a></div>
+      <div class="Body"><a name="1002070">The</a> Source Directory’s DirectoryInfo filter entry  (refer to <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_SourceDirectory_Domain.04.09.html', '');" title="4.3.1.1 Source Directory Info Filter Entry">Section 4.3.1.1</a>) includes two elements related to Dictionaries: <span class="Parameter">DictionariesProvided</span> and <span class="Parameter">DictionariesUsed</span>. Both elements contain an  of  dictionary names. These names can be used in  to request the dictionaries.</div>
+      <div class="Procedure_Heading"><a name="1011440"><img class="Default" src="images/Chap_Dictionary_Domain.05.29.1.jpg" width="13" height="15" style="display: inline; left: 0.0; top: 0.0" alt="" /> To dynamically discover dictionaries while minimizing the amount of data downloaded:</a></div>
+      <div class="Step1_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Step1_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">1.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Step1_inner"><a name="1011459">Parse the “DictionariesUsed” from each desired service in the</a> Source Directory.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">2.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1011431">Parse the “DictionariesProvided” from every service in the</a> Source Directory.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">3.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1011519">Make a streaming request for each Dictionary Name listed in </a><span class="Parameter">DictionariesUsed</span> from the service that lists the <span class="Parameter">DictionaryName</span> in <span class="Parameter">DictionariesProvided</span>. The  of each  should be set to  so as to request only the dictionary’s basic information (because dictionaries tend to be large, this setting prevents unnecessary network traffic).</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Stepnext_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bold">4.	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Stepnext_inner"><a name="1011537">For each Dictionary response, parse the </a><span class="CodeOrCommand">summaryData</span> in the payload to obtain the dictionary’s Type and Version.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1048054">If a dictionary is of an unneeded type, that dictionary stream can be closed.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1048028">If a dictionary is needed, a reissue request can be made where the  requests a higher verbosity (e.g. ).</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1011535">Version information can be used to determine if the consumer needs to update its dictionary.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -70,7 +168,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.28.html">5.10	Other Dictionary Types</a> : 5.10.1	RecordTemplate DictionaryType</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.28.html">5.9	Special Semantics</a> : 5.9.2	DictionariesProvided and DictionariesUsed</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

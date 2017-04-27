@@ -56,47 +56,47 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1224063">Transport Performance, Direct Connect with TCP</a></div>
-      <div class="Body"><a name="1224059"><!--o--></a>You can measure the performance of the transport<sup><a name="wwfootnote_inline_63" href="#63">1</a></sup> in a direct connect scenario. This test can determine achievable throughput and latency using different transport types supported in the Transport API. This scenario shows the TCP Socket transport type.</div>
-      <div class="Body"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt"><a name="1224243"><img class="Default" src="images/Chap_Perf_Measurement.08.6.1.jpg" width="212" height="258" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 22.  <a name="1224245">Transport Performance, TCP Direct Connect</a></div>
-      <div class="Procedure_Heading"><a name="1224241"><img class="Default" src="images/Chap_Perf_Measurement.08.6.2.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To run a basic performance measurement:</a></div>
-      <div class="Body"><a name="1224340">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.6.html#1224245', '');" title="8.5 Transport Performance, Direct Connect with TCP">Figure 22</a>, run two instances of <span class="ToolOrUtility_Name">upacTransportPerf</span> with the following command-line options:</div>
-      <div class="Blank_Line"><a name="1224342">&nbsp;</a></div>
+      <div class="Body"><a name="1229333"><!--o--></a>You can measure the performance of the transport<sup><a name="wwfootnote_inline_72" href="#72">1</a></sup> in a direct connect scenario. This test can determine the throughput and latency you can achieve using different transport types supported in the Transport API. This scenario shows the TCP Socket transport type.</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><a name="1229343"><img class="Default" src="images/Chap_Perf_Measurement.08.6.1.jpg" width="212" height="258" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 22.  <a name="1229345">Transport Performance, TCP Direct Connect</a></div>
+      <div class="Procedure_Heading"><a name="1229349"><img class="Default" src="images/Chap_Perf_Measurement.08.6.2.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> To run a basic performance measurement:</a></div>
+      <div class="Body"><a name="1229356">To run a basic performance measurement using the setup pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.6.html#1229345', '');" title="8.5 Transport Performance, Direct Connect with TCP">Figure 22</a>, run two instances of <span class="ToolOrUtility_Name">upacTransportPerf</span> as follows:</div>
+      <div class="Blank_Line"><a name="1229392">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1224372">&nbsp;</a></div>
+            <div class="command"><a name="1229359">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224374">upacTransportPerf -p 15000 -runTime 900 -connType socket -msgRate 100000 -latencyMsgRate 1000</a></div>
+            <div class="command"><a name="1229364">upacTransportPerf -p 15000 -runTime 900 -connType socket -msgRate 100000 -latencyMsgRate 1000</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224376">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-tickRate 1000 -appType server</a></div>
+            <div class="command"><a name="1229366">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-tickRate 1000 -appType server</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224378">&nbsp;</a></div>
+            <div class="command"><a name="1229375">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224380">upacTransportPerf -p 15000 -connType socket -runTime 60 -latencyMsgRate 0 -msgRate 0 -tickRate 1000</a></div>
+            <div class="command"><a name="1229380">upacTransportPerf -p 15000 -connType socket -runTime 60 -latencyMsgRate 0 -msgRate 0 -tickRate 1000</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224382">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-appType client</a></div>
+            <div class="command"><a name="1229382">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-appType client</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224384">&nbsp;</a></div>
+            <div class="command"><a name="1229391">&nbsp;</a></div>
           </td>
         </tr>
       </table>
@@ -111,9 +111,9 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="63" href="#wwfootnote_inline_63">1</a>
+        <a name="72" href="#wwfootnote_inline_72">1</a>
       </div>
-      <div class="Footnote"><a name="1224221">Other than timestamp and sequence number encoding and decoding, no other content operations or inspections are performed in this application.</a></div>
+      <div class="Footnote"><a name="1229332">Other than timestamp and sequence number encoding and decoding, this application does not perform other content operations or inspections.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

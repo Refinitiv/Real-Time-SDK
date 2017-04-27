@@ -56,52 +56,52 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1025415">Transport Buffer Management Channel Methods</a></div>
-      <div class="Blank_Line"><a name="1473871">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1527612">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 31: <a name="1473868">Buffer Management</a> Channel Methods &nbsp;</div>
+          <div class="TableTitle">Table 31: <a name="1527609">Buffer Management</a> Channel Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1473785">FUNCTION NAME</a></div>
+            <div class="CellHeading"><a name="1527526">FUNCTION NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1473787">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1527528">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top" rowspan="2">
-            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1473789">g</a>etBuffer</div>
+            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1527530">g</a>etBuffer</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473794">Obtains a </a><span class="CodeOrCommand">TransportBuffer</span> of the requested size from the guaranteed or shared buffer pool. After populating the buffer, the <span class="CodeOrCommand">length</span> method can be used to get the number of bytes encoded.</div>
-            <div class="CellBody"><a name="1473795">If the requested size is larger than the </a><span class="CodeOrCommand">maxFragmentSize</span>, the transport will create and return the buffer to the user. When written, this buffer will be fragmented by the <span class="CodeOrCommand">Channel.write</span> method (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.56.html', '');" title="9.9 Writing Data to a Buffer">Section 9.9</a>).</div>
-            <div class="CellBody"><a name="1473808">Because of some additional book keeping required when packing, the application must specify whether a buffer should be ‘packable’ when calling </a><span class="CodeOrCommand">Channel.getBuffer</span>. For more information on packing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.70.html', '');" title="9.11 Packing Additional Data into a Buffer">Section 9.11</a>.</div>
-            <div class="CellBody"><a name="1473818">For performance purposes, an application is not permitted to request a buffer larger than </a><span class="CodeOrCommand">maxFragmentSize</span> and have the buffer be ‘packable.’</div>
-            <div class="CellBody"><a name="1473822">If the buffer is not used or the </a><span class="CodeOrCommand">Channel.write</span> call fails, the buffer must be returned to the pool using <span class="CodeOrCommand">Channel.releaseBuffer</span>. If the <span class="CodeOrCommand">Channel.write</span> call is successful, the buffer will be returned to the correct pool by the transport.</div>
-            <div class="CellBody"><a name="1473829">An </a><span class="CodeOrCommand">Error</span> parameter passed into the method conveys error information if a buffer request cannot be satisfied. Return values are described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.55.html#1473961', '');" title="9.8.3 Channel.getBuffer Return Values">Table 33</a>.</div>
+            <div class="CellBody"><a name="1527535">Obtains a </a><span class="CodeOrCommand">TransportBuffer</span> of the requested size from the guaranteed or shared buffer pool. After populating the buffer, the <span class="CodeOrCommand">length</span> method can be used to get the number of bytes encoded.</div>
+            <div class="CellBody"><a name="1527536">If the requested size is larger than the </a><span class="CodeOrCommand">maxFragmentSize</span>, the transport will create and return the buffer to the user. When written, this buffer will be fragmented by the <span class="CodeOrCommand">Channel.write</span> method (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.56.html', '');" title="9.9 Writing Data to a Buffer">Section 9.9</a>).</div>
+            <div class="CellBody"><a name="1527549">Because of some additional book keeping required when packing, the application must specify whether a buffer should be ‘packable’ when calling </a><span class="CodeOrCommand">Channel.getBuffer</span>. For more information on packing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.70.html', '');" title="9.11 Packing Additional Data into a Buffer">Section 9.11</a>.</div>
+            <div class="CellBody"><a name="1527559">For performance purposes, an application is not permitted to request a buffer larger than </a><span class="CodeOrCommand">maxFragmentSize</span> and have the buffer be ‘packable.’</div>
+            <div class="CellBody"><a name="1527563">If the buffer is not used or the </a><span class="CodeOrCommand">Channel.write</span> call fails, the buffer must be returned to the pool using <span class="CodeOrCommand">Channel.releaseBuffer</span>. If the <span class="CodeOrCommand">Channel.write</span> call is successful, the buffer will be returned to the correct pool by the transport.</div>
+            <div class="CellBody"><a name="1527570">An </a><span class="CodeOrCommand">Error</span> parameter passed into the method conveys error information if a buffer request cannot be satisfied. Return values are described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.55.html#1527702', '');" title="9.8.3 Channel.getBuffer Return Values">Table 33</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1473839">For shared memory connection types (</a><span class="Parameter">UNIDIR_SHMEM</span>) only one buffer can be obtained at a time. The application must release or write the buffer it has before the application can obtain another buffer.</div>
+              <span class="Bold">Note: </span><a name="1527580">For shared memory connection types (</a><span class="Parameter">UNIDIR_SHMEM</span>) only one buffer can be obtained at a time. The application must release or write the buffer it has before the application can obtain another buffer.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1473841">r</a>eleaseBuffer</div>
+            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1527582">r</a>eleaseBuffer</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473846">Releases a </a><span class="CodeOrCommand">TransportBuffer</span> back to the correct pool. This should only be called with buffers that originate from <span class="CodeOrCommand">Channel.getBuffer</span> and are not successfully passed to <span class="CodeOrCommand">Channel.write</span>.</div>
+            <div class="CellBody"><a name="1527587">Releases a </a><span class="CodeOrCommand">TransportBuffer</span> back to the correct pool. This should only be called with buffers that originate from <span class="CodeOrCommand">Channel.getBuffer</span> and are not successfully passed to <span class="CodeOrCommand">Channel.write</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1473854">b</a>ufferUsage</div>
+            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1527595">b</a>ufferUsage</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473859">Returns the number of buffers currently in use by the </a><span class="CodeOrCommand">Channel</span>, this includes buffers that the application holds and buffers internally queued and waiting to be flushed to the connection.</div>
+            <div class="CellBody"><a name="1527600">Returns the number of buffers currently in use by the </a><span class="CodeOrCommand">Channel</span>, this includes buffers that the application holds and buffers internally queued and waiting to be flushed to the connection.</div>
           </td>
         </tr>
       </table>

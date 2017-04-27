@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.3.1 Interactive Providers</title>
+    <title>3.3 Providers</title>
     <link rel="StyleSheet" href="css/Chap_Consumers_Providers.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,25 +45,80 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_outer" style="margin-left: 0pt">
+      <div class="H2_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">3.3.1	</span>
+              <div class="H2_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">3.3	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H3_inner"><a name="1005863">Interactive Providers</a></div>
+              <div class="H2_inner"><a name="1005290">Providers</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1046400">An </a><span class="Concept">interactive provider</span> is one that communicates with the TREP, accepting and managing multiple connections with TREP components. The following diagram illustrates this concept.</div>
-      <div class="Body"><a name="1046404"><img class="Default" src="images/InteractProviders.jpg" width="713" height="318" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
-      <div class="FigTitle">Figure 15.  <a name="1046408">Interactive Providers</a></div>
-      <div class="Body"><a name="1046412">An interactive provider receives connection requests from the TREP. The Interactive Provider responds to requests for information as to what services, domains, and capabilities it can provide or for which it can receive requests. It may also receive and respond to requests for information about its data dictionary, describing the format of expected data types. After this is completed, its behavior is interactive.</a></div>
-      <div class="Body"><a name="1046416">For legacy Triarch users or early TREP adopters, the Interactive Provider is similar in concept to the legacy Sink-Driven Server or Managed Server Application. Interactive Providers act like servers in a client-server relationship. A</a>n interactive provider can accept and manage connections from multiple TREP components.</div>
+      <div class="Body"><span class="Concept"><a name="1054092">Providers</a></span> make their services available to consumers through TREP infrastructure components. Every provider-based application must attach to a provider access point to inter-operate with consumers. All provider access points are considered concrete and are implemented by an TREP infrastructure component (like the ADH). </div>
+      <div class="Body"><a name="1054096">Examples of providers include:</a></div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1054100">A user who receives a subscription request from TREP.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1054104">A user who publishes data into TREP, whether in response to a request or using a broadcast-publishing style.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1054108">A user who receives post data from TREP. Providers can handle such concepts as receiving requests for contributions/inserts, or receiving publication requests.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1054112">A user who sends and/or receives generic messages with TREP.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1054116"><img class="Default" src="images/ProviderAccessPoint.jpg" width="730" height="284" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 15.  <a name="1054120">Provider Access Point</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -75,7 +130,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Consumers and Providers : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.16.html">3.3	Providers</a> : 3.3.1	Interactive Providers</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Consumers and Providers : 3.3	Providers</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

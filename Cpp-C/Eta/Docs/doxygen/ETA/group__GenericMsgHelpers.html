@@ -144,6 +144,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga53c31e522597ee1eb50f575716364266"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks the presence of the <a class="el" href="group__GenericMsgStruct.html#gga9e4a8ecda049011d10eba2cdf5869f93afdacc80afb1b807de88787b59555e925">RSSL_GNMF_HAS_SEQ_NUM</a> flag on the given <a class="el" href="structRsslGenericMsg.html" title="The RsslGenericMsg allows applications to bidirectionally send messages without any implied interacti...">RsslGenericMsg</a>.  <a href="#ga53c31e522597ee1eb50f575716364266"></a><br/></td></tr>
 <tr class="memitem:ga338637c70249d3aaae8b4dff0ca3f6b8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__DataPrimitive.html#gad028d1db303880e76d2fcad34e919dd0">RsslBool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GenericMsgHelpers.html#ga338637c70249d3aaae8b4dff0ca3f6b8">rsslGenericMsgCheckMessageComplete</a> (<a class="el" href="structRsslGenericMsg.html">RsslGenericMsg</a> *pGenericMsg)</td></tr>
 <tr class="memdesc:ga338637c70249d3aaae8b4dff0ca3f6b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks the presence of the <a class="el" href="group__GenericMsgStruct.html#gga9e4a8ecda049011d10eba2cdf5869f93a2c54f6ae52590920f8095992baf67122">RSSL_GNMF_MESSAGE_COMPLETE</a> flag on the given <a class="el" href="structRsslGenericMsg.html" title="The RsslGenericMsg allows applications to bidirectionally send messages without any implied interacti...">RsslGenericMsg</a>.  <a href="#ga338637c70249d3aaae8b4dff0ca3f6b8"></a><br/></td></tr>
+<tr class="memitem:ga8a4413628c6cc3e0bcfae4589628892b"><td class="memItemLeft" align="right" valign="top">RSSL_API <a class="el" href="group__RSSLRetCodes.html#ga3060c657278b3f4c40db2c8b5a8b4a6c">RsslRet</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GenericMsgHelpers.html#ga8a4413628c6cc3e0bcfae4589628892b">rsslSetGenericCompleteFlag</a> (<a class="el" href="group__RsslEncodeIteratorType.html#ga4e9a334e850eb04f3b97f1cfb0b188df">RsslEncodeIterator</a> *pIter)</td></tr>
+<tr class="memdesc:ga8a4413628c6cc3e0bcfae4589628892b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the RSSL_GNMF_MESSAGE_COMPLETE flag on an encoded <a class="el" href="structRsslGenericMsg.html" title="The RsslGenericMsg allows applications to bidirectionally send messages without any implied interacti...">RsslGenericMsg</a> buffer.  <a href="#ga8a4413628c6cc3e0bcfae4589628892b"></a><br/></td></tr>
+<tr class="memitem:ga52d120d5f0e954de42396e383c61c67b"><td class="memItemLeft" align="right" valign="top">RSSL_API <a class="el" href="group__RSSLRetCodes.html#ga3060c657278b3f4c40db2c8b5a8b4a6c">RsslRet</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GenericMsgHelpers.html#ga52d120d5f0e954de42396e383c61c67b">rsslUnsetGenericCompleteFlag</a> (<a class="el" href="group__RsslEncodeIteratorType.html#ga4e9a334e850eb04f3b97f1cfb0b188df">RsslEncodeIterator</a> *pIter)</td></tr>
+<tr class="memdesc:ga52d120d5f0e954de42396e383c61c67b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unset the RSSL_GNMF_MESSAGE_COMPLETE flag on an encoded <a class="el" href="structRsslGenericMsg.html" title="The RsslGenericMsg allows applications to bidirectionally send messages without any implied interacti...">RsslGenericMsg</a> buffer.  <a href="#ga52d120d5f0e954de42396e383c61c67b"></a><br/></td></tr>
 </table>
 <hr/><h2>Function Documentation</h2>
 <a class="anchor" id="ga71edd7e306bf7591f060a4381b137429"></a>
@@ -503,6 +507,42 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ga8a4413628c6cc3e0bcfae4589628892b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RSSL_API <a class="el" href="group__RSSLRetCodes.html#ga3060c657278b3f4c40db2c8b5a8b4a6c">RsslRet</a> <a class="el" href="group__GenericMsgHelpers.html#ga8a4413628c6cc3e0bcfae4589628892b">rsslSetGenericCompleteFlag</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__RsslEncodeIteratorType.html#ga4e9a334e850eb04f3b97f1cfb0b188df">RsslEncodeIterator</a> *&#160;</td>
+          <td class="paramname"><em>pIter</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="group__GenericMsgStruct.html#ga9e4a8ecda049011d10eba2cdf5869f93" title="The Generic Message flags (GNMF = GenericMsg Flags)">RsslGenericFlags</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga52d120d5f0e954de42396e383c61c67b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">RSSL_API <a class="el" href="group__RSSLRetCodes.html#ga3060c657278b3f4c40db2c8b5a8b4a6c">RsslRet</a> <a class="el" href="group__GenericMsgHelpers.html#ga52d120d5f0e954de42396e383c61c67b">rsslUnsetGenericCompleteFlag</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__RsslEncodeIteratorType.html#ga4e9a334e850eb04f3b97f1cfb0b188df">RsslEncodeIterator</a> *&#160;</td>
+          <td class="paramname"><em>pIter</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="group__GenericMsgStruct.html#ga9e4a8ecda049011d10eba2cdf5869f93" title="The Generic Message flags (GNMF = GenericMsg Flags)">RsslGenericFlags</a> </dd></dl>
+
+</div>
+</div>
 </div><!-- contents -->
 <hr class="footer"/><address class="footer"><small>
     <table cellSpacing="0" cellPadding="0" width="100%" border="0">
@@ -519,7 +559,7 @@ Functions</h2></td></tr>
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-            <td><p class="smallfont">Fri Sep 16 2016</td>
+            <td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         <p class="smallfont">&nbsp;</td>

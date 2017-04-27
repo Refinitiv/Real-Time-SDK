@@ -9,6 +9,7 @@ var searchData=
   ['rsslheapbuffer_2eh',['rsslHeapBuffer.h',['../rsslHeapBuffer_8h.html',1,'']]],
   ['rsslmemorybuffer_2eh',['rsslMemoryBuffer.h',['../rsslMemoryBuffer_8h.html',1,'']]],
   ['rsslmemorypool_2eh',['rsslMemoryPool.h',['../rsslMemoryPool_8h.html',1,'']]],
+  ['rsslnotifier_2eh',['rsslNotifier.h',['../rsslNotifier_8h.html',1,'']]],
   ['rsslpayloadcache_2eh',['rsslPayloadCache.h',['../rsslPayloadCache_8h.html',1,'']]],
   ['rsslpayloadcacheconfig_2eh',['rsslPayloadCacheConfig.h',['../rsslPayloadCacheConfig_8h.html',1,'']]],
   ['rsslpayloadcursor_2eh',['rsslPayloadCursor.h',['../rsslPayloadCursor_8h.html',1,'']]],

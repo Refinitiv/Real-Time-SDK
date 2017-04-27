@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1222799">rsslWrite, rsslFlush</a></div>
-      <div class="Body"><a name="1223046">To make efficient use of underlying transport function calls, the </a><span class="CodeOrCommand">rsslWrite</span> function passes messages to an outbound queue of the specified priority, rather than immediately writing the message to the network. <span class="CodeOrCommand">rsslWrite</span> indicates that there is queued content by returning a value greater than <span class="Parameter">RSSL_RET_SUCCESS</span>.</div>
-      <div class="Body"><a name="1223047">The network write occurs if:</a></div>
+      <div class="Body"><a name="1226101">To make efficient use of underlying transport function calls, the </a><span class="CodeOrCommand">rsslWrite</span> function passes messages to an outbound queue of the specified priority, rather than immediately writing the message to the network. <span class="CodeOrCommand">rsslWrite</span> indicates that there is queued content by returning a value greater than <span class="Parameter">RSSL_RET_SUCCESS</span>.</div>
+      <div class="Body"><a name="1226108">The network write occurs if:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1223048">The application calls </a><span class="CodeOrCommand">rsslFlush</span>.</div>
+              <div class="bullet_ind_inner"><a name="1226112">The application calls </a><span class="CodeOrCommand">rsslFlush</span>.</div>
             </td>
           </tr>
         </table>
@@ -81,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1223049">The </a><span class="Parameter">RSSL_WRITE_DIRECT_SOCKET_WRITE</span> flag is passed in to the <span class="CodeOrCommand">rsslWrite</span> function.</div>
+              <div class="bullet_ind_inner"><a name="1226122">The </a><span class="Parameter">RSSL_WRITE_DIRECT_SOCKET_WRITE</span> flag is passed into the <span class="CodeOrCommand">rsslWrite</span> function.</div>
             </td>
           </tr>
         </table>
@@ -95,12 +95,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1223050">The amount of queued data reaches a configurable high-water mark (as defined below), which causes </a><span class="CodeOrCommand">rsslWrite</span> to pass queued content to the underlying transport.</div>
+              <div class="bullet_ind_inner"><a name="1226123">The amount of queued data reaches a configurable highwater mark (i.e., using the </a><span class="CodeOrCommand">-highWaterMark</span> option), which causes <span class="CodeOrCommand">rsslWrite</span> to pass queued content to the underlying transport.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1223051">You can use a simple algorithm to write large amounts of content efficiently while still maintaining low latency:</a></div>
+      <div class="Body"><a name="1226127">You can use a simple algorithm to write large amounts of content efficiently while still maintaining low latency:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -110,7 +110,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1223052">Write all currently desired content via </a><span class="CodeOrCommand">rsslWrite</span>, relying on the high-water mark to periodically flush.</div>
+              <div class="bullet_ind_inner"><a name="1226131">Write all currently desired content via </a><span class="CodeOrCommand">rsslWrite</span>, relying on the highwater mark to periodically flush.</div>
             </td>
           </tr>
         </table>
@@ -124,22 +124,22 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1223053">When there is no more content to write, call </a><span class="CodeOrCommand">rsslFlush</span> to flush any remaining data. When all data has been written to the network, <span class="CodeOrCommand">rsslFlush</span> returns <span class="Parameter">RSSL_RET_SUCCESS</span>.</div>
+              <div class="bullet_ind_inner"><a name="1226135">When there is no more content to write, call </a><span class="CodeOrCommand">rsslFlush</span> to flush any remaining data. After all data is written to the network, <span class="CodeOrCommand">rsslFlush</span> returns <span class="Parameter">RSSL_RET_SUCCESS</span>.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Blank_Line"><a name="1223065">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1226148">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1223095">A positive value returned from </a><span class="CodeOrCommand">rsslWrite()</span> means there is queued content. It is not passed to the underlying transport unless one of the above mentioned actions is taken by the application.</div>
+              <span class="Bold">Note: </span><a name="1226147">A positive value returned from </a><span class="CodeOrCommand">rsslWrite</span><span class="CodeOrCommand">()</span> means there is queued content. It is not passed to the underlying transport unless the application performs one of the previously mentioned actions.</div>
           </td>
         </tr>
       </table>
-      <div class="Body"><a name="1223069">Transport API Performance Tools observe the following model when writing message bursts:</a></div>
+      <div class="Body"><a name="1226152">Transport API Performance Tools observe the following model when writing message bursts:</a></div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -149,7 +149,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1223070">Write the entire burst of messages using </a><span class="CodeOrCommand">rsslWrite</span>.</div>
+              <div class="Step1_inner"><a name="1226156">Write the entire burst of messages using </a><span class="CodeOrCommand">rsslWrite</span>.</div>
             </td>
           </tr>
         </table>
@@ -163,7 +163,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1223071">After the burst finishes, check the return value from the last call to </a><span class="CodeOrCommand">rsslWrite</span>. If the value is greater than <span class="Parameter">RSSL_RET_SUCCESS</span>, data remains in the Transport API’s output queue. Use the channel’s file descriptor in conjunction with an I/O notifier to notify the application when it can flush remaining data.</div>
+              <div class="Stepnext_inner"><a name="1226160">After the burst finishes, check the return value from the last call to </a><span class="CodeOrCommand">rsslWrite</span>. If the value is greater than <span class="Parameter">RSSL_RET_SUCCESS</span>, data remains in the Transport API’s output queue. Use the channel’s file descriptor in conjunction with an I/O notifier to notify the application when it can flush remaining data.</div>
             </td>
           </tr>
         </table>
@@ -177,12 +177,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1223072">Call </a><span class="CodeOrCommand">rsslFlush</span> with those channels indicated by the notifier. Continue to invoke the notifier and <span class="CodeOrCommand">rsslFlush</span> until all data has been successfully provided to the underlying transport.</div>
+              <div class="Stepnext_inner"><a name="1226176">Call </a><span class="CodeOrCommand">rsslFlush</span> on channels indicated by the notifier. Continue to invoke the notifier and <span class="CodeOrCommand">rsslFlush</span> until all data is successfully provided to the underlying transport.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1223073">Each application has a command-line option (</a><span class="CodeOrCommand">-highWaterMark</span>) for adjusting the high-water mark.</div>
+      <div class="Body"><a name="1226177">Each application has a command-line option (</a><span class="CodeOrCommand">-highWaterMark</span>) for adjusting the high-water mark.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

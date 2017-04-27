@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1223263">Encoder and Decoder Best Practice: Single-Pass Encoding</a></div>
-      <div class="Body"><a name="1226649">Transport API Performance Tools encode data so as to minimize copying. Thus, the application encoding process begins by starting with the top-level container and working down in a linear fashion.</a></div>
-      <div class="Body"><a name="1226653">For example, when encoding a Market Price message, the message header is encoded (</a><span class="CodeOrCommand">Msg.encodeInit()</span>), followed by the field list payload (<span class="CodeOrCommand">FieldList.encodeInit()</span> … <span class="CodeOrCommand">FieldList.encodeComplete()</span>). After the payload is encoded, message encoding is completed (<span class="CodeOrCommand">Msg.encodeComplete()</span>). </div>
-      <div class="Body"><a name="1226663">Encoding the field list prior to the message header would require it to be encoded into a temporary buffer which would then be passed to the message encoder (</a><span class="CodeOrCommand">Msg.encode()</span>). This approach would incur multiple buffer allocations and copies to complete encoding.</div>
+      <div class="Body"><a name="1227529">Transport API Performance Tools encode data so as to minimize copying. Thus, the application encoding process begins by starting with the top-level container and working down in a linear fashion.</a></div>
+      <div class="Body"><a name="1227533">For example, when encoding a Market Price message, the message header is encoded (</a><span class="CodeOrCommand">Msg.encodeInit()</span>), followed by the field list payload (<span class="CodeOrCommand">FieldList.encodeInit()</span> … <span class="CodeOrCommand">FieldList.encodeComplete()</span>). After the payload is encoded, message encoding is completed (<span class="CodeOrCommand">Msg.encodeComplete()</span>). </div>
+      <div class="Body"><a name="1227543">Encoding the field list prior to the message header would require it to be encoded into a temporary buffer which would then be passed to the message encoder (</a><span class="CodeOrCommand">Msg.encode()</span>). This approach would incur multiple buffer allocations and copies to complete encoding.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

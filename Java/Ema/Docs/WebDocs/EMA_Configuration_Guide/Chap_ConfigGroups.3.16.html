@@ -69,7 +69,7 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1103020">In this example, the consumer uses the </a><span class="Parameter">Channel</span> parameters <span class="Parameter">ReconnectAttemptLimit</span>, <span class="Parameter">ReconnectMinDelay</span>, <span class="Parameter">ReconnectMaxDelay</span>, <span class="Parameter">XmlTraceToStdout</span>, and <span class="Parameter">MsgKeyInUpdates</span> of the last channel in the <span class="Parameter">ChannelSet</span>. Though each channel in the <span class="Parameter">ChannelSet</span> can have different values for these parameters, EMA uses parameter values as set for the last channel in the set (even if the consumer successfully connects to a different channel in the <span class="Parameter">ChannelSet</span>).</div>
+      <div class="Body"><a name="1103020">The following is an example of a specific ChannelSet configuration using the XML schema introduced in </a><a href="javascript:WWHClickedPopup('EMA_Configuration_Guide', 'Chap_ConfigGroups.3.15.html', '');" title="3.3.4 Example XML Schema for Configuring ChannelSet">Section 3.3.4</a>: </div>
       <div class="Blank_Line"><a name="1099920">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
@@ -111,6 +111,16 @@
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1099835">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ChannelSet value="Channel_1, Channel_2"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1115348">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ReconnectAttemptLimit value="10"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1115376">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;XmlTraceToStdout value="1"/&gt; </a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -165,16 +175,6 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1099857">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ReconnectAttemptLimit value="3"/&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1099859">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;XmlTraceToStdout value="0"/&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1099861">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Channel&gt;</a></div>
           </td>
         </tr>
@@ -201,16 +201,6 @@
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1099871">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Port value="14008"/&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1099873">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ReconnectAttemptLimit value="10"/&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1099875">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt; XmlTraceToStdout value="1"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">

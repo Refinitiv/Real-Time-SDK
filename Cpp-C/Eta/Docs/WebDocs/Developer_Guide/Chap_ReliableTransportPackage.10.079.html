@@ -56,38 +56,38 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1029745">rsslFlush Function</a></div>
-      <div class="Body"><a name="1222929">If all available output space is used for a connection, data might be queued as a result. An I/O notification mechanism can be used to alert the application when output space becomes available on a connection.</a></div>
-      <div class="Blank_Line"><a name="1222939">&nbsp;</a></div>
+      <div class="Body"><a name="1247660">If all available output space is used for a connection, data might be queued as a result. An I/O notification mechanism can be used to alert the application when output space becomes available on a connection.</a></div>
+      <div class="Blank_Line"><a name="1247670">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1222935">The return value from </a><span class="CodeOrCommand">rsslFlush</span> indicates whether there are any queued bytes left to pass to the connection. If this is a positive value (typical when operating system output buffers lack space), the application should continue to call <span class="CodeOrCommand">rsslFlush</span> until all bytes have been written.</div>
+              <span class="Bold">Note: </span><a name="1247666">The return value from </a><span class="CodeOrCommand">rsslFlush</span> indicates whether there are any queued bytes left to pass to the connection. If this is a positive value (typical when operating system output buffers lack space), the application should continue to call <span class="CodeOrCommand">rsslFlush</span> until all bytes have been written.</div>
           </td>
         </tr>
       </table>
-      <div class="Blank_Line"><a name="1222997">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1247728">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 55: <span class="LucidaConsole"><a name="1222994">rsslFlush</a></span> Function &nbsp;</div>
+          <div class="TableTitle">Table 55: <span class="LucidaConsole"><a name="1247725">rsslFlush</a></span> Function &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1222942">FUNCTION NAME</a></div>
+            <div class="CellHeading"><a name="1247673">FUNCTION NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1222944">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1247675">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1222949">rsslFlush</a></div>
+            <div class="CellBody" style="margin-bottom: 2.0pt; margin-top: 2.0pt"><a name="1247680">rsslFlush</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222957">Writes queued data to the connection. This function expects the </a><span class="CodeOrCommand">RsslChannel</span> to be in the active state. If data is not queued, the <span class="CodeOrCommand">rsslFlush</span> function is not required and should return immediately.</div>
-            <div class="CellBody"><a name="1222967">This function performs any buffer reordering that might occur due to priorities passed in on the </a><span class="CodeOrCommand">rsslWrite</span> function. For more information about priority writing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.076.html', '');" title="10.10.1 Ordering Queued Data: rsslWrite Priorities">Section 10.10.1</a>.</div>
-            <div class="CellBody"><a name="1222986">Return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.080.html#1223082', '');" title="10.10.3 rsslFlush Return Codes">Table 56</a>.</div>
+            <div class="CellBody"><a name="1247688">Writes queued data to the connection. This function expects the </a><span class="CodeOrCommand">RsslChannel</span> to be in the active state. If data is not queued, the <span class="CodeOrCommand">rsslFlush</span> function is not required and should return immediately.</div>
+            <div class="CellBody"><a name="1247698">This function performs any buffer reordering that might occur due to priorities passed in on the </a><span class="CodeOrCommand">rsslWrite</span> function. For more information about priority writing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.076.html', '');" title="10.10.1 Ordering Queued Data: rsslWrite Priorities">Section 10.10.1</a>.</div>
+            <div class="CellBody"><a name="1247717">Return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.080.html#1247813', '');" title="10.10.3 rsslFlush Return Codes">Table 56</a>.</div>
           </td>
         </tr>
       </table>

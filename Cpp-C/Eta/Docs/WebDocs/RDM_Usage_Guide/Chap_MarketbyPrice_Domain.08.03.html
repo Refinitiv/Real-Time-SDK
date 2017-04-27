@@ -56,21 +56,21 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="999261">Usage</a></div>
-      <div class="H3"><a name="999263">Market By Price Request Message Use</a></div>
+      <div class="H3"><a name="999263">Market By Price Request Message</a></div>
       <div class="Body"><a name="999561">A Market By Price request message is encoded and sent by OMM consumer applications. The request specifies the name of an item in which the consumer is interested.</a></div>
-      <div class="Body"><a name="999562">To receive updates, a consumer can make a “streaming” request by setting the </a><span class="Parameter">RSSL_RQMF_STREAMING</span> flag. If the flag is not set, the consumer is requesting a “snapshot,” and the final part of the refresh (i.e., the refresh has the <span class="Parameter">RSSL_RFMF_REFRESH_COMPLETE</span> flag set) indicates all responses have been received for the snapshot. Updates may be received in either case if the refresh has multiple parts.</div>
+      <div class="Body"><a name="999562">To receive updates, a consumer can make a “streaming” request by setting</a> the <span class="Parameter">RSSL_RQMF_STREAMING</span> flag. If the flag is not set, the consumer requests a “snapshot” and the refresh should end the request (updates may be received in either case if the refresh has multiple parts).</div>
       <div class="Body"><a name="999563">A consumer can pause an item to stop updates (if the provider supports such functionality). For more information, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
       <div class="Blank_Line"><a name="999385">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 57: <a name="999465">Market By Price Request Message Member Use &nbsp;</a></div>
+          <div class="TableTitle">Table 59: <a name="999465">Market By Price Request Message</a> Member Use &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading" style="text-align: Center"><a name="999401">COMPONENT</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="999401">COMPONENT</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading" style="text-align: Center"><a name="999403">DESCRIPTION / VALUE</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="999403">DESCRIPTION / VALUE</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -94,7 +94,7 @@
             <div class="CellBody"><a name="999413">qos</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999415">Optional. Indicates the QoS at which the consumer would like the stream serviced. If both </a><span class="CodeOrCommand">qos</span> and <span class="CodeOrCommand">worstQos</span> are specified, this request can be satisfied by a range of QoS.</div>
+            <div class="CellBody"><a name="999415">Optional. Indicates the QoS at which the consumer wants the stream serviced. If both </a><span class="CodeOrCommand">qos</span> and <span class="CodeOrCommand">worstQos</span> are specified, this request can be satisfied by a range of QoS.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -131,27 +131,27 @@
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="1">
             <div class="CellBody"><a name="999433">msgKey.serviceId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="999435">Required</a></span>. Specifies the Id associated with the service from which the consumer wishes to request the item.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="999435">Required</a></span>. Specifies the ID associated with the service from which the consumer wishes to request the item.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999437">msgKey.nameType</a></div>
+            <div class="CellBody"><a name="1006810">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999439">Optional. Typically set to </a><span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span> (the “Reuters Instrument Code”) when consuming from Thomson Reuters sources. If absent, its value is assumed to be <span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span>.</div>
+            <div class="CellBody"><a name="999439">Optional. Typically set to </a><span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span> (the “Reuters Instrument Code”) when consuming from Thomson Reuters sources. If absent, its default value is <span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999441">msgKey.name</a></div>
+            <div class="CellBody"><a name="1006815">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="999443">Required in initial request</a></span>, otherwise optional. The name of the requested item.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="999443">Required</a></span><span class="Color_003aRequired"> in initial request</span>, otherwise optional. Specifies the name of the requested item.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -183,7 +183,8 @@
             <div class="CellBody"><a name="999457">Payload</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000027">Optional. When features such as View (</a><span class="Parameter">RSSL_RQMF_HAS_VIEW</span>) or Batch (<span class="Parameter">RSSL_RQMF_HAS_BATCH</span>) are leveraged, the payload can contain information relevant to that feature. For further details, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
+            <div class="CellBody"><a name="1000027">Optional. When features such as View</a> (<span class="Parameter">RSSL_RQMF_HAS_VIEW</span>) or Batch (<span class="Parameter">RSSL_RQMF_HAS_BATCH</span>) are leveraged, the payload can contain information relevant to that feature. </div>
+            <div class="CellBody"><a name="1008827">For further details, refer to</a> the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
           </td>
         </tr>
       </table>

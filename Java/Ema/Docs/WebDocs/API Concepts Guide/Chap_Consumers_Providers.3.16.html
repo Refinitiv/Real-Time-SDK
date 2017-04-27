@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.3 Providers</title>
+    <title>3.2.10 Building an API Consumer</title>
     <link rel="StyleSheet" href="css/Chap_Consumers_Providers.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,22 +55,22 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2_outer" style="margin-left: 0pt">
+      <div class="H3_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
             <td>
-              <div class="H2_inner" style="width: 54pt; white-space: nowrap">
-                <span class="bold">3.3	</span>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">3.2.10	</span>
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1005290">Providers</a></div>
+              <div class="H3_inner"><a name="1046713">Building an API Consumer</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><span class="Concept"><a name="1046291">Providers</a></span> make their services available to consumers through TREP infrastructure components. Every provider-based application must attach to a provider access point to inter-operate with consumers. All provider access points are considered concrete and are implemented by an TREP infrastructure component (like the ADH). </div>
-      <div class="Body"><a name="1046295">Examples of providers include:</a></div>
+      <div class="Body"><a name="1054124">An OMM consumer application can establish a connection to other OMM interactive provider applications, including the TREP, Data Feed Direct, and Elektron. After connecting successfully, an OMM consumer can then consume (i.e., send data requests and receive responses) and publish data (i.e., post data). </a></div>
+      <div class="Body"><a name="1054131">The general process can be summarized by the following steps</a><sup><a name="wwfootnote_inline_66" href="#66">1</a></sup>:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -80,21 +80,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1046299">A user who receives a subscription request from TREP.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1046303">A user who publishes data into TREP, whether in response to a request or using a broadcast-publishing style.</a></div>
+              <div class="Bullet_inner"><a name="1054132">Establish network communication</a></div>
             </td>
           </tr>
         </table>
@@ -108,7 +94,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1046307">A user who receives post data from TREP. Providers can handle such concepts as receiving requests for contributions/inserts, or receiving publication requests.</a></div>
+              <div class="Bullet_inner"><a name="1054133">Log in</a></div>
             </td>
           </tr>
         </table>
@@ -122,13 +108,54 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1046311">A user who sends and/or receives generic messages with TREP.</a></div>
+              <div class="Bullet_inner"><a name="1054134">Obtain source directory information</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1046315"><img class="Default" src="images/ProviderAccessPoint.jpg" width="730" height="284" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
-      <div class="FigTitle">Figure 14.  <a name="1046319">Provider Access Point</a></div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1054135">Load or download all necessary dictionary information</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1054136">Issue requests, process responses, and/or post information</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1054137">Log out and shut down</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1054141">The example application included with </a>each Elektron API product, provides an example implementation of an OMM consumer application. The application is written with simplicity in mind and demonstrates various aspects and features relevant to the API you use. Portions of functionality have been abstracted and can easily be reused, though you might need to modify it to achieve your own unique performance and functionality goals.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -138,9 +165,15 @@
           document.writeln(WWHRelatedTopicsInlineHTML());
         // -->
       </script>
+      <hr />
+      <div style="font-size: smaller; float: left; padding-right: 10px;">
+        <a name="66" href="#wwfootnote_inline_66">1</a>
+      </div>
+      <div class="Footnote"><a name="1054130">Specific APIs might automatically rely on defaults unless overridden by the user.</a></div>
+      <br style="clear: both;" />
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Consumers and Providers : 3.3	Providers</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Consumers and Providers : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.02.html">3.2	Consumers</a> : 3.2.10	Building an API Consumer</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

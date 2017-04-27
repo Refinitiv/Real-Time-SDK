@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>280__MarketPrice__Performance</title>
+    <title>260__Custom__NestedMsg</title>
     <link rel="StyleSheet" href="css/EMAC_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,43 +45,41 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1031759">280__MarketPrice__Performance</a></div>
-      <div class="Body"><a name="1033321">Summary</a></div>
-      <div class="Body"><a name="1033322">=======</a></div>
-      <div class="Body"><a name="1033323">&nbsp;</a></div>
-      <div class="Body"><a name="1033324">280__MarketPrice__Performance is an example of an OMM Interactive Provider application </a></div>
-      <div class="Body"><a name="1033325">written to the EMA library.</a></div>
-      <div class="Body"><a name="1033326">&nbsp;</a></div>
-      <div class="Body"><a name="1033327">This application demonstrates the performance usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1033328">of OMM MarketPrice data a Consumer application.</a></div>
-      <div class="Body"><a name="1033329">&nbsp;</a></div>
-      <div class="Body"><a name="1033330">280__MarketPrice__Performance illustrates how to efficiently create and publish a number</a></div>
-      <div class="Body"><a name="1033331">of OMM streaming items. This application uses source directory configured in the EmaConfig.xml</a></div>
-      <div class="Body"><a name="1033332">file.</a></div>
-      <div class="Body"><a name="1033333">&nbsp;</a></div>
-      <div class="Body"><a name="1033334">&nbsp;</a></div>
-      <div class="Body"><a name="1033335">Detailed Description</a></div>
-      <div class="Body"><a name="1033336">====================</a></div>
-      <div class="Body"><a name="1033337">&nbsp;</a></div>
-      <div class="Body"><a name="1033338">280__MarketPrice__Performance implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1033339">&nbsp;</a></div>
-      <div class="Body"><a name="1033340">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
-      <div class="Body"><a name="1033341">  - which reads in the EmaConfig.xml file with:</a></div>
-      <div class="Body"><a name="1033342">    - specified SourceDirectory of DIRECT_FEED</a></div>
-      <div class="Body"><a name="1033343">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1033344">  - listens on a port from the EmaConfig.xml file</a></div>
-      <div class="Body"><a name="1033345">+ Accepts a login request</a></div>
-      <div class="Body"><a name="1033346">  - sends down the source directory refresh message with DIRECT_FEED service info</a></div>
-      <div class="Body"><a name="1033347">+ Processes a number of item requests.</a></div>
-      <div class="Body"><a name="1033348"> - Creates a number of streaming items (refresh and updates) and publishes them</a></div>
-      <div class="Body"><a name="1033349"> - Publishes a number of updates for 300 seconds.</a></div>
-      <div class="Body"><a name="1033350">+ Prints out approximate rates of refreshes and updates every second or so</a></div>
-      <div class="Body"><a name="1033351">+ Exits</a></div>
-      <div class="Body"><a name="1033352">&nbsp;</a></div>
-      <div class="Body"><a name="1033353">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1033354">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1033355">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1032590">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1019282">260__Custom__NestedMsg</a></div>
+      <div class="Body"><a name="1034125">Summary</a></div>
+      <div class="Body"><a name="1034126">=======</a></div>
+      <div class="Body"><a name="1034127">&nbsp;</a></div>
+      <div class="Body"><a name="1034128">260__Custom__NestedMsg is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1034129">written to the EMA library.</a></div>
+      <div class="Body"><a name="1034130">&nbsp;</a></div>
+      <div class="Body"><a name="1034131">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1034132">of OMM nested message with custom domain type(200) defined by user</a></div>
+      <div class="Body"><a name="1034133">&nbsp;</a></div>
+      <div class="Body"><a name="1034134">260__Custom__NestedMsg illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1034135">streaming item. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1034136">file.</a></div>
+      <div class="Body"><a name="1034137">&nbsp;</a></div>
+      <div class="Body"><a name="1034138">&nbsp;</a></div>
+      <div class="Body"><a name="1034139">Detailed Description</a></div>
+      <div class="Body"><a name="1034140">====================</a></div>
+      <div class="Body"><a name="1034141">&nbsp;</a></div>
+      <div class="Body"><a name="1034142">260__Custom__NestedMsg implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1034143">&nbsp;</a></div>
+      <div class="Body"><a name="1034144">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
+      <div class="Body"><a name="1034145">  - Set the operation model to use user dispatch</a></div>
+      <div class="Body"><a name="1034146">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1034147">  - listens on the port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1034148">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1034149">+ Processes an item request for Custom domain.</a></div>
+      <div class="Body"><a name="1034150"> - Publishes a generic message with a refresh message to the requesting stream.</a></div>
+      <div class="Body"><a name="1034151"> - Publishes generic messages with update messages 1 per second for 60 seconds.</a></div>
+      <div class="Body"><a name="1034152">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1034153">+ Exits</a></div>
+      <div class="Body"><a name="1034154">&nbsp;</a></div>
+      <div class="Body"><a name="1034155">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1034156">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1034157">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1033325">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -94,7 +92,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.09.html">200 Series Examples</a> : 280__MarketPrice__Performance</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.10.html">200 Series Examples</a> : 260__Custom__NestedMsg</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

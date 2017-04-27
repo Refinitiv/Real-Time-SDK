@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>341__MarketPrice__OffStreamPost</title>
+    <title>340__MarketPrice__OnStreamPost</title>
     <link rel="StyleSheet" href="css/EMAJ_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,52 +55,51 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1020342">341__MarketPrice__OffStreamPost</a></div>
-      <div class="Body"><a name="1037963">Summary</a></div>
-      <div class="Body"><a name="1037964">=======</a></div>
-      <div class="Body"><a name="1037965">&nbsp;</a></div>
-      <div class="Body"><a name="1037966">The example341__MarketPrice__OffStreamPost application is provided as an example of</a></div>
-      <div class="Body"><a name="1037967">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1037968">&nbsp;</a></div>
-      <div class="Body"><a name="1037969">This application demonstrates basic usage of the EMA library for accessing,</a></div>
-      <div class="Body"><a name="1037970">posting and parsing of MarketPrice data directly directly from and to an OMM</a></div>
-      <div class="Body"><a name="1037971">Provider application, or to Thomson Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1037972">&nbsp;</a></div>
-      <div class="Body"><a name="1037973">example341__MarketPrice__OffStreamPost showcases the usage of the off stream posting</a></div>
-      <div class="Body"><a name="1037974">feature in OMM Consumer. It submits OMM Data for the open item on the login</a></div>
-      <div class="Body"><a name="1037975">stream and processes a requested AckMsg when received.</a></div>
-      <div class="Body"><a name="1037976">&nbsp;</a></div>
-      <div class="Body"><a name="1037977">&nbsp;</a></div>
-      <div class="Body"><a name="1037978">Detailed Description</a></div>
-      <div class="Body"><a name="1037979">====================</a></div>
-      <div class="Body"><a name="1037980">&nbsp;</a></div>
-      <div class="Body"><a name="1037981">example341__MarketPrice__OffStreamPost implements the following high level steps:</a></div>
-      <div class="Body"><a name="1037982">&nbsp;</a></div>
-      <div class="Body"><a name="1037983">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1037984">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1037985">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
-      <div class="Body"><a name="1037986">  - each of the methods provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1037987">	data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1037988">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1037989">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1037990">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1037991">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1037992">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1037993">+ Opens two streaming item interests</a></div>
-      <div class="Body"><a name="1037994">  - Login Domain stream on which it will submit off stream post messages</a></div>
-      <div class="Body"><a name="1037995">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1037996">+ Sends a PostMsg with FieldList as payload on login stream</a></div>
-      <div class="Body"><a name="1037997">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1037998">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1037999">  - application may receive RespMsg as well as AckMsg</a></div>
-      <div class="Body"><a name="1038000">+ Exits</a></div>
-      <div class="Body"><a name="1038001">&nbsp;</a></div>
-      <div class="Body"><a name="1038002">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1038003">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1038004">	  </a></div>
-      <div class="Body"><a name="1038005">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1038006">      standard configuration.</a></div>
-      <div class="Body"><a name="1031958">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1020352">340__MarketPrice__OnStreamPost</a></div>
+      <div class="Body"><a name="1039947">Summary</a></div>
+      <div class="Body"><a name="1039948">=======</a></div>
+      <div class="Body"><a name="1039949">&nbsp;</a></div>
+      <div class="Body"><a name="1039950">The example340__MarketPrice__OnStreamPost application is provided as an example of</a></div>
+      <div class="Body"><a name="1039951">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1039952">&nbsp;</a></div>
+      <div class="Body"><a name="1039953">This application demonstrates basic usage of the EMA library for accessing,</a></div>
+      <div class="Body"><a name="1039954">posting and parsing of MarketPrice data directly directly from and to an OMM</a></div>
+      <div class="Body"><a name="1039955">Provider application, or to Thomson Reuters Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1039956">&nbsp;</a></div>
+      <div class="Body"><a name="1039957">example340__MarketPrice__OnStreamPost showcases the usage of on stream posting</a></div>
+      <div class="Body"><a name="1039958">feature in OMM Consumer. It submits OMM Data for the open item and processes</a></div>
+      <div class="Body"><a name="1039959">a requested AckMsg when received.</a></div>
+      <div class="Body"><a name="1039960">&nbsp;</a></div>
+      <div class="Body"><a name="1039961">&nbsp;</a></div>
+      <div class="Body"><a name="1039962">Detailed Description</a></div>
+      <div class="Body"><a name="1039963">====================</a></div>
+      <div class="Body"><a name="1039964">&nbsp;</a></div>
+      <div class="Body"><a name="1039965">example340__MarketPrice__OnStreamPost implements the following high level steps:</a></div>
+      <div class="Body"><a name="1039966">&nbsp;</a></div>
+      <div class="Body"><a name="1039967">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1039968">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1039969">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1039970">  - each of the methods provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1039971">    data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1039972">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1039973">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1039974">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1039975">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1039976">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1039977">+ Opens a streaming item interests</a></div>
+      <div class="Body"><a name="1039978">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1039979">+ Sends a PostMsg with FieldList as payload on this stream</a></div>
+      <div class="Body"><a name="1039980">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1039981">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1039982">  - application may receive RespMsg as well as AckMsg</a></div>
+      <div class="Body"><a name="1039983">+ Exits</a></div>
+      <div class="Body"><a name="1039984">&nbsp;</a></div>
+      <div class="Body"><a name="1039985">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1039986">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1039987">	  </a></div>
+      <div class="Body"><a name="1039988">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1039989">      standard configuration.</a></div>
+      <div class="Body"><a name="1038404">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -113,7 +112,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.21.html">300 Series Examples</a> : 341__MarketPrice__OffStreamPost</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.21.html">300 Series Examples</a> : 340__MarketPrice__OnStreamPost</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

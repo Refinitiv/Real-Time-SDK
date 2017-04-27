@@ -56,59 +56,59 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1027965">Channel.init Return Codes</a></div>
-      <div class="Body"><a name="1473208">The following table defines the </a><span class="CodeOrCommand">TransportReturnCodes</span> that can occur when using <span class="CodeOrCommand">Channel.init</span>.</div>
-      <div class="Blank_Line"><a name="1473285">&nbsp;</a></div>
+      <div class="Body"><a name="1526949">The following table defines the </a><span class="CodeOrCommand">TransportReturnCodes</span> that can occur when using <span class="CodeOrCommand">Channel.init</span>.</div>
+      <div class="Blank_Line"><a name="1527026">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 27: <span class="LucidaConsole" style="font-size: 9pt"><a name="1473282">Channel.init</a></span> <span class="LucidaConsole">TransportReturnCodes</span> &nbsp;</div>
+          <div class="TableTitle">Table 27: <span class="LucidaConsole" style="font-size: 9pt"><a name="1527023">Channel.init</a></span> <span class="LucidaConsole">TransportReturnCodes</span> &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 177.75pt">
-            <div class="CellHeading"><a name="1473211">RETURN CODE</a></div>
+            <div class="CellHeading"><a name="1526952">RETURN CODE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 378pt">
-            <div class="CellHeading"><a name="1473213">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1526954">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473215">SUCCESS</a></div>
+            <div class="CellBody"><a name="1526956">SUCCESS</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473220">Indicates the initialization process completed successfully. The </a><span class="CodeOrCommand">Channel.state</span> should be <span class="CodeOrCommand">ChannelState.ACTIVE</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473225">FAILURE</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473230">Indicates that initialization has failed and cannot progress. The </a><span class="CodeOrCommand">Channel.state</span> should be <span class="CodeOrCommand">ChannelState.CLOSED</span>, and the application should close the channel to clean up associated resources. For more details, refer to the <span class="CodeOrCommand">Error</span> content.</div>
+            <div class="CellBody"><a name="1526961">Indicates the initialization process completed successfully. The </a><span class="CodeOrCommand">Channel.state</span> should be <span class="CodeOrCommand">ChannelState.ACTIVE</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473238">CHAN_INIT_IN_PROGRESS</a></div>
+            <div class="CellBody"><a name="1526966">FAILURE</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473243">Indicates that initialization is still in progress. Check </a><span class="CodeOrCommand">InProgInfo.flags</span> to determine whether the <span class="CodeOrCommand">SelectableChannel</span> changed. The <span class="CodeOrCommand">Channel.state</span> should be <span class="CodeOrCommand">ChannelState.INITIALIZING</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473254">CHAN_INIT_REFUSED</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473259">Indicates the connection was rejected. For more details, refer to the </a><span class="CodeOrCommand">Error</span> content.</div>
+            <div class="CellBody"><a name="1526971">Indicates that initialization has failed and cannot progress. The </a><span class="CodeOrCommand">Channel.state</span> should be <span class="CodeOrCommand">ChannelState.CLOSED</span>, and the application should close the channel to clean up associated resources. For more details, refer to the <span class="CodeOrCommand">Error</span> content.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473261">INIT_NOT_INITIALIZED</a></div>
+            <div class="CellBody"><a name="1526979">CHAN_INIT_IN_PROGRESS</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473263">Indicates that the Transport is not initialized. For more details, refer to the </a><span class="CodeOrCommand">Error</span> content.</div>
-            <div class="CellBody"><a name="1473273">For information on initializing, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.14.html', '');" title="9.2 Initializing and Uninitializing the Transport">Section 9.2</a>.</div>
+            <div class="CellBody"><a name="1526984">Indicates that initialization is still in progress. Check </a><span class="CodeOrCommand">InProgInfo.flags</span> to determine whether the <span class="CodeOrCommand">SelectableChannel</span> changed. The <span class="CodeOrCommand">Channel.state</span> should be <span class="CodeOrCommand">ChannelState.INITIALIZING</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1526995">CHAN_INIT_REFUSED</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527000">Indicates the connection was rejected. For more details, refer to the </a><span class="CodeOrCommand">Error</span> content.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527002">INIT_NOT_INITIALIZED</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527004">Indicates that the Transport is not initialized. For more details, refer to the </a><span class="CodeOrCommand">Error</span> content.</div>
+            <div class="CellBody"><a name="1527014">For information on initializing, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.14.html', '');" title="9.2 Initializing and Uninitializing the Transport">Section 9.2</a>.</div>
           </td>
         </tr>
       </table>

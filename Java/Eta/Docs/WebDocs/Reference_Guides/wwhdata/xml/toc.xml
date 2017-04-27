@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WebWorksHelpTOC version="5.0" xmlns="urn:WebWorks-Help-TOC-Schema">
   <i t="Chapter 1 Transport API Java Reference Manual" l="0" />
-  <i t="Chapter 2 Transport API Value Added Components Reference Manual" l="1" />
-  <i t="Chapter 3 Transport API Performance Tools Reference Manual" l="2" />
+  <i t="Chapter 2 Transport API Performance Tools Reference Manual" l="1" />
+  <i t="Chapter 3 Transport API Examples Reference Manual" l="2" />
 </WebWorksHelpTOC>

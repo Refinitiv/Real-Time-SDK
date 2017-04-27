@@ -68,18 +68,21 @@
     <Document title="330__Login__Streaming" href="EMAC_Consumer_Readmes.1.28.html" />
     <Document title="331__Directory__Streaming" href="EMAC_Consumer_Readmes.1.29.html" />
     <Document title="332__Dictionary__Streaming" href="EMAC_Consumer_Readmes.1.30.html" />
-    <Document title="340__MarketPrice__OnStreamPost" href="EMAC_Consumer_Readmes.1.31.html" />
-    <Document title="341__MarketPrice__OffStreamPost" href="EMAC_Consumer_Readmes.1.32.html" />
-    <Document title="350__MarketPrice__PauseAll" href="EMAC_Consumer_Readmes.1.33.html" />
-    <Document title="360__MarketPrice__View" href="EMAC_Consumer_Readmes.1.34.html" />
-    <Document title="370__MarketPrice__Batch" href="EMAC_Consumer_Readmes.1.35.html" />
-    <Document title="400 Series Examples" href="EMAC_Consumer_Readmes.1.36.html" />
-    <Document title="400__Custom__NestedMessaging" href="EMAC_Consumer_Readmes.1.37.html" />
-    <Document title="410__MarketPrice__HorizontalScaling" href="EMAC_Consumer_Readmes.1.38.html" />
-    <Document title="420__MarketPrice__AdminDomainConfig" href="EMAC_Consumer_Readmes.1.39.html" />
-    <Document title="421__MarketPrice__ProgrammaticConfig" href="EMAC_Consumer_Readmes.1.40.html" />
-    <Document title="422__MarketPrice__ErrorClient" href="EMAC_Consumer_Readmes.1.41.html" />
-    <Document title="440__System__TunnelStream" href="EMAC_Consumer_Readmes.1.42.html" />
+    <Document title="333__Login__Streaming__DomainRepresentation" href="EMAC_Consumer_Readmes.1.31.html" />
+    <Document title="340__MarketPrice__OnStreamPost" href="EMAC_Consumer_Readmes.1.32.html" />
+    <Document title="341__MarketPrice__OffStreamPost" href="EMAC_Consumer_Readmes.1.33.html" />
+    <Document title="350__MarketPrice__PauseAll" href="EMAC_Consumer_Readmes.1.34.html" />
+    <Document title="360__MarketPrice__View" href="EMAC_Consumer_Readmes.1.35.html" />
+    <Document title="370__MarketPrice__Batch" href="EMAC_Consumer_Readmes.1.36.html" />
+    <Document title="400 Series Examples" href="EMAC_Consumer_Readmes.1.37.html" />
+    <Document title="400__Custom__NestedMessaging" href="EMAC_Consumer_Readmes.1.38.html" />
+    <Document title="410__MarketPrice__HorizontalScaling" href="EMAC_Consumer_Readmes.1.39.html" />
+    <Document title="420__MarketPrice__AdminDomainConfig" href="EMAC_Consumer_Readmes.1.40.html" />
+    <Document title="421__MarketPrice__ProgrammaticConfig" href="EMAC_Consumer_Readmes.1.41.html" />
+    <Document title="422__MarketPrice__ErrorClient" href="EMAC_Consumer_Readmes.1.42.html" />
+    <Document title="423__MarketPrice__AdminDomainConfig__DomainRepresentation" href="EMAC_Consumer_Readmes.1.43.html" />
+    <Document title="430__MarketPrice__TrepAuthentication" href="EMAC_Consumer_Readmes.1.44.html" />
+    <Document title="440__System__TunnelStream" href="EMAC_Consumer_Readmes.1.45.html" />
     <Document title="EMA C++ Non-interactive Provider Examples" href="EMAC_NIP_Readmes.2.01.html" />
     <Document title="100 Series Examples" href="EMAC_NIP_Readmes.2.02.html" />
     <Document title="100__MarketPrice__Streaming" href="EMAC_NIP_Readmes.2.03.html" />
@@ -95,6 +98,8 @@
     <Document title="320__MarketPrice__Streaming__StatusClosed" href="EMAC_NIP_Readmes.2.13.html" />
     <Document title="340__Login__Streaming" href="EMAC_NIP_Readmes.2.14.html" />
     <Document title="360__MarketPrice__ConnectionRecovery" href="EMAC_NIP_Readmes.2.15.html" />
+    <Document title="400 Series Examples" href="EMAC_NIP_Readmes.2.16.html" />
+    <Document title="430__MarketPrice__TrepAuthentication" href="EMAC_NIP_Readmes.2.17.html" />
     <Document title="EMA C++ Interactive Provider Examples" href="EMAC_IP_Readmes.3.01.html" />
     <Document title="100 Series Examples" href="EMAC_IP_Readmes.3.02.html" />
     <Document title="100__MarketPrice__Streaming" href="EMAC_IP_Readmes.3.03.html" />
@@ -103,19 +108,21 @@
     <Document title="140__MarketByOrder__Streaming" href="EMAC_IP_Readmes.3.06.html" />
     <Document title="150__MarketByOrder__Snapshot" href="EMAC_IP_Readmes.3.07.html" />
     <Document title="160__Login__AcceptDeny" href="EMAC_IP_Readmes.3.08.html" />
-    <Document title="200 Series Examples" href="EMAC_IP_Readmes.3.09.html" />
-    <Document title="200__MarketPrice__Streaming" href="EMAC_IP_Readmes.3.10.html" />
-    <Document title="210__MarketByPrice__Streaming" href="EMAC_IP_Readmes.3.11.html" />
-    <Document title="240__SourceDirectory__Fanout" href="EMAC_IP_Readmes.3.12.html" />
-    <Document title="250__GroupStatus__Fanout" href="EMAC_IP_Readmes.3.13.html" />
-    <Document title="260__Custom__NestedMsg" href="EMAC_IP_Readmes.3.14.html" />
-    <Document title="280__MarketPrice__Performance" href="EMAC_IP_Readmes.3.15.html" />
-    <Document title="300 Series Examples" href="EMAC_IP_Readmes.3.16.html" />
-    <Document title="300__MarketPrice__Close" href="EMAC_IP_Readmes.3.17.html" />
-    <Document title="301__MarketPrice__PriorityChange" href="EMAC_IP_Readmes.3.18.html" />
-    <Document title="320__Custom__GenericMsg" href="EMAC_IP_Readmes.3.19.html" />
-    <Document title="331__Directory__UserControl" href="EMAC_IP_Readmes.3.20.html" />
-    <Document title="380__MarketPrice__ConnectionLost" href="EMAC_IP_Readmes.3.21.html" />
+    <Document title="161__Login__AcceptDeny__DomainRepresentation" href="EMAC_IP_Readmes.3.09.html" />
+    <Document title="200 Series Examples" href="EMAC_IP_Readmes.3.10.html" />
+    <Document title="200__MarketPrice__Streaming" href="EMAC_IP_Readmes.3.11.html" />
+    <Document title="210__MarketByPrice__Streaming" href="EMAC_IP_Readmes.3.12.html" />
+    <Document title="240__SourceDirectory__Fanout" href="EMAC_IP_Readmes.3.13.html" />
+    <Document title="250__GroupStatus__Fanout" href="EMAC_IP_Readmes.3.14.html" />
+    <Document title="260__Custom__NestedMsg" href="EMAC_IP_Readmes.3.15.html" />
+    <Document title="280__MarketPrice__Performance" href="EMAC_IP_Readmes.3.16.html" />
+    <Document title="300 Series Examples" href="EMAC_IP_Readmes.3.17.html" />
+    <Document title="300__MarketPrice__Close" href="EMAC_IP_Readmes.3.18.html" />
+    <Document title="301__MarketPrice__PriorityChange" href="EMAC_IP_Readmes.3.19.html" />
+    <Document title="320__Custom__GenericMsg" href="EMAC_IP_Readmes.3.20.html" />
+    <Document title="331__Directory__UserControl" href="EMAC_IP_Readmes.3.21.html" />
+    <Document title="332__Dictionary__UserControl" href="EMAC_IP_Readmes.3.22.html" />
+    <Document title="380__MarketPrice__ConnectionLost" href="EMAC_IP_Readmes.3.23.html" />
     <Document title="EMA C++ Performance Tools Example" href="EMAC_PerfTools_Readmes.4.1.html" />
     <Document title="EmaCppConsPerf" href="EMAC_PerfTools_Readmes.4.2.html" />
   </DocumentInfo>

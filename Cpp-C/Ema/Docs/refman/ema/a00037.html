@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>EMA: thomsonreuters::ema::access::OmmConsumerEvent Class Reference</title>
+<title>EMA: thomsonreuters::ema::access::OmmConsumerErrorClient Class Reference</title>
 
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
@@ -104,97 +104,215 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="a00164.html">thomsonreuters</a>      </li>
+      <li class="navelem"><a class="el" href="a00178.html">thomsonreuters</a>      </li>
       <li class="navelem"><b>ema</b>      </li>
       <li class="navelem"><b>access</b>      </li>
-      <li class="navelem"><a class="el" href="a00037.html">OmmConsumerEvent</a>      </li>
+      <li class="navelem"><a class="el" href="a00037.html">OmmConsumerErrorClient</a>      </li>
     </ul>
   </div>
 </div>
 <div class="header">
-  <div class="summary">
-<a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<div class="title">thomsonreuters::ema::access::OmmConsumerEvent Class Reference</div>  </div>
+<div class="title">thomsonreuters::ema::access::OmmConsumerErrorClient Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a> encapsulates item identifiers.  
+<p>OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.  
  <a href="a00037.html#details">More...</a></p>
 
-<p><a href="a00203.html">List of all members.</a></p>
+<p><a href="a00219.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Accessors</div></td></tr>
-<tr class="memitem:a4130d728c74d18b743f5057e722d76f9"><td class="memItemLeft" align="right" valign="top">UInt64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a4130d728c74d18b743f5057e722d76f9">getHandle</a> () const </td></tr>
-<tr class="memitem:ad26d17df98245ed361f2d2e4fcf98831"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#ad26d17df98245ed361f2d2e4fcf98831">getClosure</a> () const </td></tr>
-<tr class="memitem:abaf053724f6144436e20721c35bcbc07"><td class="memItemLeft" align="right" valign="top">UInt64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#abaf053724f6144436e20721c35bcbc07">getParentHandle</a> () const </td></tr>
-<tr><td colspan="2"><h2><a name="friends"></a>
-Friends</h2></td></tr>
-<tr class="memitem:a53600f7f5780308aa52e0c883eeeac47"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a53600f7f5780308aa52e0c883eeeac47"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>ConsumerItem</b></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Callbacks</div></td></tr>
+<tr class="memitem:ad8bc65baddd83aa4d46cfd05827723a6"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#ad8bc65baddd83aa4d46cfd05827723a6">onInvalidHandle</a> (UInt64 handle, const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
+<tr class="memitem:a05821765547e440c985f12ec991197ff"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a05821765547e440c985f12ec991197ff">onInaccessibleLogFile</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;filename, const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
+<tr class="memitem:a6eac9a3accfc97bc3cdcf086a06a7f04"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a6eac9a3accfc97bc3cdcf086a06a7f04">onMemoryExhaustion</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
+<tr class="memitem:a0d049bf6d278ced6a4a50a82bcefe34b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a0d049bf6d278ced6a4a50a82bcefe34b">onInvalidUsage</a> (const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
+<tr class="memitem:a60c40e0e60963ab5db6e041fad9a9301"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a60c40e0e60963ab5db6e041fad9a9301">onSystemError</a> (Int64 code, void *ptr, const <a class="el" href="a00017.html">EmaString</a> &amp;text)</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr class="memitem:a8bb8ec70a112b540dcae6693879556ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8bb8ec70a112b540dcae6693879556ff"></a>
+virtual&#160;</td><td class="memItemRight" valign="bottom"><b>~OmmConsumerErrorClient</b> ()</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a> is used to convey item identifiers to application. <a class="el" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a> is returned through <a class="el" href="a00034.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a> callback methods.</p>
-<dl class="section remark"><dt>Remarks:</dt><dd><a class="el" href="a00037.html" title="OmmConsumerEvent encapsulates item identifiers.">OmmConsumerEvent</a> is a read only class. This class is used for item identification only. </dd>
-<dd>
-All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lock-free Method</a>.</dd></dl>
-<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00033.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a>, <a class="el" href="a00034.html" title="OmmConsumerClient class provides callback interfaces to pass received messages.">OmmConsumerClient</a> </dd></dl>
+<div class="textblock"><p>By default <a class="el" href="a00034.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> class throws exceptions if a usage error occurs. Specifying <a class="el" href="a00037.html" title="OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.">OmmConsumerErrorClient</a> on the constructor of <a class="el" href="a00034.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> overwrites this behaviour. Instead of throwing exceptions, respective callback method on <a class="el" href="a00037.html" title="OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.">OmmConsumerErrorClient</a> will be invoked.</p>
+<dl class="section remark"><dt>Remarks:</dt><dd>Thread safety of all the methods in this class depends on user's implementation</dd></dl>
+<dl class="section see"><dt>See also:</dt><dd><a class="el" href="a00034.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a>, <a class="el" href="a00044.html" title="OmmException is a parent class for all exception types thrown by EMA.">OmmException</a>, <a class="el" href="a00050.html" title="OmmInvalidUsageException is thrown when application violates usage of EMA interfaces.">OmmInvalidUsageException</a>, OmmInvalidHandleExeption, <a class="el" href="a00052.html" title="OmmMemoryExhaustionException represents out of memory exceptions.">OmmMemoryExhaustionException</a>, OmmInaccessibleLogFile, <a class="el" href="a00065.html" title="OmmSystemException represents exceptions thrown by operating system.">OmmSystemException</a>, <a class="el" href="a00017.html" title="EmaString class is a container of a null terminated Ascii character string.">EmaString</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="a00113_source.html#l00036">36</a> of file <a class="el" href="a00113_source.html">OmmConsumerEvent.h</a>.</p>
+<p>Definition at line <a class="el" href="a00120_source.html#l00042">42</a> of file <a class="el" href="a00120_source.html">OmmConsumerErrorClient.h</a>.</p>
 </div><hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="ad26d17df98245ed361f2d2e4fcf98831"></a>
+<a class="anchor" id="a05821765547e440c985f12ec991197ff"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void* <a class="el" href="a00037.html#ad26d17df98245ed361f2d2e4fcf98831">thomsonreuters::ema::access::OmmConsumerEvent::getClosure</a> </td>
+          <td class="memname">virtual void <a class="el" href="a00037.html#a05821765547e440c985f12ec991197ff">thomsonreuters::ema::access::OmmConsumerErrorClient::onInaccessibleLogFile</a> </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>text</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [inline, virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns an identifier (a.k.a., closure) associated with an open stream by consumer application Application associates the closure with an open item stream on <a class="el" href="a00033.html#a7f4994b6ff3194d90ce74a0a8ac323d6">OmmConsumer::registerClient</a>( ... , ... , void* closure, ... ) </p>
-<dl class="section return"><dt>Returns:</dt><dd>closure value </dd></dl>
+<p>Invoked when log file is inaccessible. Requires <a class="el" href="a00034.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> constructor to have an <a class="el" href="a00037.html" title="OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.">OmmConsumerErrorClient</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">filename</td><td>identifies file name that was not able to b open </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+
+<p>Definition at line <a class="el" href="a00120_source.html#l00060">60</a> of file <a class="el" href="a00120_source.html">OmmConsumerErrorClient.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a4130d728c74d18b743f5057e722d76f9"></a>
+<a class="anchor" id="ad8bc65baddd83aa4d46cfd05827723a6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt64 <a class="el" href="a00037.html#a4130d728c74d18b743f5057e722d76f9">thomsonreuters::ema::access::OmmConsumerEvent::getHandle</a> </td>
+          <td class="memname">virtual void <a class="el" href="a00037.html#ad8bc65baddd83aa4d46cfd05827723a6">thomsonreuters::ema::access::OmmConsumerErrorClient::onInvalidHandle</a> </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">UInt64&#160;</td>
+          <td class="paramname"><em>handle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>text</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [inline, virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns a unique item identifier (a.k.a., item handle) associated by EMA with an open item stream. Item identifier is returned from <a class="el" href="a00033.html#a7f4994b6ff3194d90ce74a0a8ac323d6">OmmConsumer::registerClient()</a>. </p>
-<dl class="section return"><dt>Returns:</dt><dd>item identifier or handle </dd></dl>
+<p>Invoked upon receiving an invalid handle. Requires <a class="el" href="a00034.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> constructor to have an <a class="el" href="a00037.html" title="OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.">OmmConsumerErrorClient</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">handle</td><td>value of the handle that is invalid </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+
+<p>Definition at line <a class="el" href="a00120_source.html#l00053">53</a> of file <a class="el" href="a00120_source.html">OmmConsumerErrorClient.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="abaf053724f6144436e20721c35bcbc07"></a>
+<a class="anchor" id="a0d049bf6d278ced6a4a50a82bcefe34b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">UInt64 <a class="el" href="a00037.html#abaf053724f6144436e20721c35bcbc07">thomsonreuters::ema::access::OmmConsumerEvent::getParentHandle</a> </td>
+          <td class="memname">virtual void <a class="el" href="a00037.html#a0d049bf6d278ced6a4a50a82bcefe34b">thomsonreuters::ema::access::OmmConsumerErrorClient::onInvalidUsage</a> </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>text</em></td><td>)</td>
+          <td><code> [inline, virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Returns current item's parent item identifier (a.k.a. parent item handle). Application specifies parent item identifier on <a class="el" href="a00033.html#a7f4994b6ff3194d90ce74a0a8ac323d6">OmmConsumer::registerClient</a>( ... , ... , ... , UInt64 parentHandle ) </p>
-<dl class="section return"><dt>Returns:</dt><dd>parent item identifier or parent handle </dd></dl>
+<p>Invoked in the case of invalid usage. Requires <a class="el" href="a00034.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> constructor to have an <a class="el" href="a00037.html" title="OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.">OmmConsumerErrorClient</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+
+<p>Definition at line <a class="el" href="a00120_source.html#l00072">72</a> of file <a class="el" href="a00120_source.html">OmmConsumerErrorClient.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a6eac9a3accfc97bc3cdcf086a06a7f04"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void <a class="el" href="a00037.html#a6eac9a3accfc97bc3cdcf086a06a7f04">thomsonreuters::ema::access::OmmConsumerErrorClient::onMemoryExhaustion</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>text</em></td><td>)</td>
+          <td><code> [inline, virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Invoked in the case of memory exhaustion. Requires <a class="el" href="a00034.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> constructor to have an <a class="el" href="a00037.html" title="OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.">OmmConsumerErrorClient</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+
+<p>Definition at line <a class="el" href="a00120_source.html#l00066">66</a> of file <a class="el" href="a00120_source.html">OmmConsumerErrorClient.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a60c40e0e60963ab5db6e041fad9a9301"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void <a class="el" href="a00037.html#a60c40e0e60963ab5db6e041fad9a9301">thomsonreuters::ema::access::OmmConsumerErrorClient::onSystemError</a> </td>
+          <td>(</td>
+          <td class="paramtype">Int64&#160;</td>
+          <td class="paramname"><em>code</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="a00017.html">EmaString</a> &amp;&#160;</td>
+          <td class="paramname"><em>text</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [inline, virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Invoked in the case of an underlying system error. Requires <a class="el" href="a00034.html" title="OmmConsumer class encapsulates functionality of an Omm consuming type application.">OmmConsumer</a> constructor to have an <a class="el" href="a00037.html" title="OmmConsumerErrorclient class provides callback mechanism used in place of exceptions.">OmmConsumerErrorClient</a>. </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">code</td><td>specifies system exception code </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">specifies</td><td>system exception pointer </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">text</td><td>specifies associated error text </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>void </dd></dl>
+
+<p>Definition at line <a class="el" href="a00120_source.html#l00080">80</a> of file <a class="el" href="a00120_source.html">OmmConsumerErrorClient.h</a>.</p>
 
 </div>
 </div>
@@ -215,7 +333,7 @@ All methods in this class are <a class="el" href="a00001.html#SingleThreaded">Lo
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-			<td><p class="smallfont">Fri Dec 9 2016</td>
+			<td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         </td>

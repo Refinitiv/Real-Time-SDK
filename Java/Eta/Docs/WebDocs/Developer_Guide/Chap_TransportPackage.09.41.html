@@ -56,28 +56,28 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1027844">Channel.init Method</a></div>
-      <div class="Blank_Line"><a name="1473058">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1526799">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 25: <span class="LucidaConsole"><a name="1473055">Channel.init</a></span> Method &nbsp;</div>
+          <div class="TableTitle">Table 25: <span class="LucidaConsole"><a name="1526796">Channel.init</a></span> Method &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1472984">method NAME</a></div>
+            <div class="CellHeading"><a name="1526725">method NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1472986">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1526727">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1472991">Channel.init</a></div>
+            <div class="CellBody"><a name="1526732">Channel.init</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1472999">Continues initialization of a </a><span class="CodeOrCommand">Channel</span>. This channel could originate from <span class="CodeOrCommand">Transport.connect</span> or <span class="CodeOrCommand">Server.accept</span>. This method exchanges various messages to perform necessary Transport API negotiations and handshakes to complete channel initialization. If using blocking I/O, this method is typically not used because <span class="CodeOrCommand">Transport.connect</span> and <span class="CodeOrCommand">Server.accept</span> return active channels.</div>
-            <div class="CellBody"><a name="1473030">Requires the use of the </a><span class="CodeOrCommand">InProgInfo</span> object, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.42.html', '');" title="9.5.2 InProgInfo Object">Section 9.5.2</a>.</div>
-            <div class="CellBody"><a name="1473034">The </a><span class="CodeOrCommand">Channel</span> can be used for all additional transport functionality (e.g. reading, writing) after the <span class="CodeOrCommand">state</span> transitions to <span class="CodeOrCommand">ChannelState.ACTIVE</span>. If a connection is rejected or initialization fails, the state transitions to <span class="CodeOrCommand">ChannelState.CLOSED</span>, and the application should close the channel to clean up any associated resources.</div>
-            <div class="CellBody"><a name="1473047">The return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.44.html', '');" title="9.5.4 Channel.init Return Codes">Section 9.5.4</a>.</div>
+            <div class="CellBody"><a name="1526740">Continues initialization of a </a><span class="CodeOrCommand">Channel</span>. This channel could originate from <span class="CodeOrCommand">Transport.connect</span> or <span class="CodeOrCommand">Server.accept</span>. This method exchanges various messages to perform necessary Transport API negotiations and handshakes to complete channel initialization. If using blocking I/O, this method is typically not used because <span class="CodeOrCommand">Transport.connect</span> and <span class="CodeOrCommand">Server.accept</span> return active channels.</div>
+            <div class="CellBody"><a name="1526771">Requires the use of the </a><span class="CodeOrCommand">InProgInfo</span> object, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.42.html', '');" title="9.5.2 InProgInfo Object">Section 9.5.2</a>.</div>
+            <div class="CellBody"><a name="1526775">The </a><span class="CodeOrCommand">Channel</span> can be used for all additional transport functionality (e.g. reading, writing) after the <span class="CodeOrCommand">state</span> transitions to <span class="CodeOrCommand">ChannelState.ACTIVE</span>. If a connection is rejected or initialization fails, the state transitions to <span class="CodeOrCommand">ChannelState.CLOSED</span>, and the application should close the channel to clean up any associated resources.</div>
+            <div class="CellBody"><a name="1526788">The return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.44.html', '');" title="9.5.4 Channel.init Return Codes">Section 9.5.4</a>.</div>
           </td>
         </tr>
       </table>

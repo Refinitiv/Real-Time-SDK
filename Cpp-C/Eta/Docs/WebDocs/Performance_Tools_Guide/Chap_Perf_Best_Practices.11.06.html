@@ -56,10 +56,10 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1223225">High-water Mark</a></div>
-      <div class="Body"><a name="1223226">Higher throughput is usually achieved by making a small number of large writes to the transport instead of doing a large number of small writes. For Example, writing one 6000-byte buffer is generally more efficient than writing 1000 six-byte buffers. To achieve higher efficiencies, the Transport API employs the concept of a high-water mark. When the application calls </a><span class="CodeOrCommand">rsslWrite</span>, the Transport API does not always immediately pass the buffer to the transport; instead, the Transport API passes data to the transport after the size of its buffer reaches the high-water mark.<sup><a name="wwfootnote_inline_32" href="#32">1</a></sup> Note that the high-water mark applies to actual written data and not to the number of bytes requested in the call to <span class="CodeOrCommand">rsslGetBuffer</span>.</div>
-      <div class="Body"><a name="1223227">For example, assume a high-water mark of 6144 bytes. If an application gets a buffer, encodes 500 bytes of content, and passes this to </a><span class="CodeOrCommand">rsslWrite</span>, the high-water mark will be triggered after thirteen buffers. At that point, the Transport API’s output queue will contain thirteen buffers, each with approximately 500 bytes that it can pass to the underlying transport, instead of passing one at a time.</div>
-      <div class="Body"><a name="1223228">You can configure each individual connection’s high-water mark. The application can also invoke data being passed to the underlying transport by using the </a><span class="CodeOrCommand">rsslFlush</span> routine or passing the <span class="Parameter">RSSL_WRITE_DIRECT_SOCKET_WRITE</span> flag to <span class="CodeOrCommand">rsslWrite</span>.</div>
-      <div class="Body"><a name="1223229">Note the throughput and latency implications, and balance the use of the high-water mark and </a><span class="CodeOrCommand">rsslFlush</span> accordingly:</div>
+      <div class="Body"><a name="1226225">Higher throughput is usually achieved by making a small number of large writes to the transport instead of doing a large number of small writes. For example, writing one 6000-byte buffer is generally more efficient than writing 1000 six-byte buffers. To achieve higher efficiencies, the Transport API employs the concept of a high-water mark. When the application calls </a><span class="CodeOrCommand">rsslWrite</span>, the Transport API does not always immediately pass the buffer to the transport; instead, the Transport API passes data to the transport after the size of its buffer reaches the high-water mark.<sup><a name="wwfootnote_inline_33" href="#33">1</a></sup> Note that the high-water mark applies to written data and not to the number of bytes requested in the call to <span class="CodeOrCommand">rsslGetBuffer</span>.</div>
+      <div class="Body"><a name="1226247">For example, assume a high-water mark of 6144 bytes. If an application gets a buffer, encodes 500 bytes of content, and passes this to </a><span class="CodeOrCommand">rsslWrite</span>, the high-water mark will be triggered after thirteen buffers. At that point, the Transport API’s output queue will contain thirteen buffers, each with approximately 500 bytes that it can pass to the underlying transport, instead of passing one at a time.</div>
+      <div class="Body"><a name="1226254">You can configure each individual connection’s high-water mark. The application can also invoke data being passed to the underlying transport by using the </a><span class="CodeOrCommand">rsslFlush</span> routine or passing the <span class="Parameter">RSSL_WRITE_DIRECT_SOCKET_WRITE</span> flag to <span class="CodeOrCommand">rsslWrite</span>.</div>
+      <div class="Body"><a name="1226267">Note the throughput and latency implications, and balance the use of the high-water mark and </a><span class="CodeOrCommand">rsslFlush</span> accordingly:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -69,7 +69,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1223230">In high-throughput situations, it is better to make large writes to achieve higher efficiencies (i.e., in this case use the high-water mark).</a></div>
+              <div class="bullet_ind_inner"><a name="1226268">In high-throughput situations, it is better to make large writes to achieve higher efficiencies (i.e., in this case use the high-water mark).</a></div>
             </td>
           </tr>
         </table>
@@ -83,7 +83,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1223231">In low-throughput situations, data might linger in Transport API queues for longer periods and thus incur latency (i.e., in this case, use </a><span class="CodeOrCommand">rsslFlush</span>).</div>
+              <div class="bullet_ind_inner"><a name="1226272">In low-throughput situations, data might linger in Transport API queues for longer periods and thus incur latency (i.e., in this case, use </a><span class="CodeOrCommand">rsslFlush</span>).</div>
             </td>
           </tr>
         </table>
@@ -99,9 +99,9 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="32" href="#wwfootnote_inline_32">1</a>
+        <a name="33" href="#wwfootnote_inline_33">1</a>
       </div>
-      <div class="Footnote"><a name="1223400">As previously noted, the application can invoke data being passed to the transport through the use of </a><span class="CodeOrCommand">rsslFlush()</span> or the <br /><span class="Parameter">RSSL_WRITE_DIRECT_SOCKET_WRITE</span> flag.</div>
+      <div class="Footnote"><a name="1226243">As previously noted, the application can invoke data being passed to the transport through the use of </a><span class="LucidaConsole">rsslFlush</span><span class="LucidaConsole">()</span><span class="LucidaConsole"> </span>or the <br /><span class="Parameter">RSSL_WRITE_DIRECT_SOCKET_WRITE</span> flag.</div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

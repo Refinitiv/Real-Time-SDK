@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.2.3 Login Refresh Message Use</title>
+    <title>3.2.3 Login Refresh Message</title>
     <link rel="StyleSheet" href="css/Chap_Login_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,13 +55,13 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1000670">Login Refresh Message Use</a></div>
-      <div class="Body"><a name="1002569">A Login refresh message is encoded and sent by OMM interactive provider applications. This message is used to respond to a Login Request message after the user’s Login is accepted. An OMM provider can use the Login request information to authenticate users with DACS. After authentication, a refresh message is sent to convey that the login was accepted. If the login is rejected, a Login status message should be sent as described in </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.07.html', '');" title="3.2.5 Login Status Message Use">Section 3.2.5</a>.</div>
-      <div class="Body"><a name="1002570">The content of a Login Refresh message is expected to be atomic and contained in a single part, therefore </a><span class="Parameter">RefreshMsgFlags.REFRESH_COMPLETE</span> should be set. If the login refresh is sent in response to a request, the <span class="Parameter">RefreshMsgFlags.SOLICITED</span> flag should be set to indicate that this is a solicited response.</div>
+      <div class="H3"><a name="1000670">Login Refresh Message</a></div>
+      <div class="Body"><a name="1002569">A Login refresh message is encoded and sent by OMM interactive provider applications. This message is used to respond to a Login Request message after the user’s Login is accepted. An OMM provider can use the Login request information to authenticate users with DACS. After authentication, a refresh message is sent to convey that the login was accepted. If the login is rejected, a Login status message should be sent as described in </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.07.html', '');" title="3.2.5 Login Status Message">Section 3.2.5</a>.</div>
+      <div class="Body"><a name="1141954">The content of a Login Refresh message is expected to be atomic and contained in a single part, therefore </a><span class="Parameter">RefreshMsgFlags.REFRESH_COMPLETE</span> should be set to <span class="Parameter">true</span>. If the login refresh is sent in response to a request, the <span class="Parameter">RefreshMsgFlags.SOLICITED</span> flag should be set to <span class="Parameter">true</span> to indicate that this is a solicited response.</div>
       <div class="Blank_Line"><a name="1004063">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 5: <a name="1004113">Login Refresh Message Member Use &nbsp;</a></div>
+          <div class="TableTitle">Table 5: <a name="1004113">Login Refresh Message</a> Member Use &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 105.75pt">
@@ -92,7 +92,7 @@
             <div class="CellBody"><a name="1004081">state</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1004683">When accepting Login:</a></div>
+            <div class="CellBody"><a name="1026980">When </a>accepting Login:</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -150,7 +150,8 @@
             <div class="CellBody"><a name="1004089">seqNum</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1004091">Optional. A user-specified, item-level sequence number which can be used by the application for sequencing messages within this stream.</a></div>
+            <div class="CellBody"><a name="1142342">Optional. </a></div>
+            <div class="CellBody"><a name="1016811">A user-specified, item-level sequence number which can be used by the application for sequencing messages within this stream.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -190,7 +191,8 @@
             <div class="CellBody"><a name="1004109">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1004776">Optional. If present, a </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_NAME_TYPE</span> should be specified. </div>
+            <div class="CellBody"><a name="1004776">Optional. </a></div>
+            <div class="CellBody"><a name="1142356">If present, a </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_NAME_TYPE</span> should be specified. </div>
             <div class="CellBody"><a name="1004777">Possible values:</a></div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt; vertical-align: baseline">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
@@ -201,7 +203,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004778">Login.UserIdTypes.NAME == 1</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004778">Login.UserIdTypes.NAME</a></span><span class="Parameter"> == 1</span></div>
                   </td>
                 </tr>
               </table>
@@ -215,7 +217,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004779">Login.UserIdTypes.EMAIL_ADDRESS == 2</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004779">Login.UserIdTypes.EMAIL_ADDRESS</a></span><span class="Parameter"> == 2</span></div>
                   </td>
                 </tr>
               </table>
@@ -229,7 +231,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004780">Login.UserIdTypes.TOKEN == 3</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004780">Login.UserIdTypes.TOKEN</a></span><span class="Parameter"> == 3</span></div>
                   </td>
                 </tr>
               </table>
@@ -243,13 +245,27 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004781">Login.UserIdTypes.COOKIE == 4</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1122823">Login.UserIdTypes.COOKIE == 4</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1126917">Login.UserIdTypes.USER_AUTHN_TOKEN</a></span><span class="Parameter"> == 5</span> </div>
                   </td>
                 </tr>
               </table>
             </div>
             <div class="CellBody"><a name="1004782">If </a><span class="CodeOrCommand">nameType</span> is not set then it is assumed to be a <span class="CodeOrCommand">nameType</span> of <span class="Parameter">Login.UserIdTypes.NAME</span>.</div>
-            <div class="CellBody"><a name="1004783">If present, the value should match the type specified in the Login request. </a></div>
+            <div class="CellBody"><a name="1004783">If present, the value should match the type specified in the Login request.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -257,7 +273,8 @@
             <div class="CellBody"><a name="1004560">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1004562">Optional. If present, a </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_NAME</span> should be specified. This should match the <span class="CodeOrCommand">name</span> specified in the Login request and should contain appropriate content corresponding to the <span class="CodeOrCommand">nameType</span> specification.</div>
+            <div class="CellBody"><a name="1004562">Optional. </a></div>
+            <div class="CellBody"><a name="1016805">A </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_NAME</span> should be specified, and <span class="CodeOrCommand">name</span> should match the <span class="CodeOrCommand">name</span> specified in the Login request and contain appropriate content corresponding to the <span class="CodeOrCommand">nameType</span> specification.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -281,7 +298,8 @@
             <div class="CellBody"><a name="1004572">msgKey.attrib</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1004574">Optional. If present </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_ATTRIB</span> should be specified and <span class="CodeOrCommand">msgKey.attribContainerType</span> should be <span class="Parameter">DataTypes.ELEMENT_LIST</span>. Attributes are specified in <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.06.html#1004379', '');" title="3.2.4 Login Refresh Elements">Table 6</a>.</div>
+            <div class="CellBody"><a name="1004574">Optional. </a></div>
+            <div class="CellBody"><a name="1016802">If present </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_ATTRIB</span> should be specified and <span class="CodeOrCommand">msgKey.attribContainerType</span> should be <span class="Parameter">DataTypes.ELEMENT_LIST</span>. Elements are specified in <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.06.html', '');" title="3.2.4 Login Refresh Elements">Section 3.2.4</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -289,7 +307,8 @@
             <div class="CellBody"><a name="1004576">Payload</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1004849">Optional. Typically present when login requests connection configuration or permission profile information. This is sent as an </a><span class="CodeOrCommand">ElementList</span>. For payload details, refer to <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.13.html#999139', '');" title="3.3 Data">Section 3.3.1</a>.</div>
+            <div class="CellBody"><a name="1004849">Optional. </a></div>
+            <div class="CellBody"><a name="1016799">Typically present when login requests connection configuration or permission profile information. The payload is sent as an </a><span class="CodeOrCommand">ElementList</span>. For payload details, refer to <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.14.html#999139', '');" title="3.3 Data">Section 3.3.1</a>.</div>
           </td>
         </tr>
       </table>
@@ -305,7 +324,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.03.html">3.2	Usage</a> : 3.2.3	Login Refresh Message Use</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.03.html">3.2	Usage</a> : 3.2.3	Login Refresh Message</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

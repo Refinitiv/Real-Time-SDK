@@ -56,50 +56,50 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1029988">RsslMapEntry Structure Members</a></div>
-      <div class="Body"><span class="CodeOrCommand"><a name="1359822">RsslMapEntry</a></span>s can house only other container types. <span class="CodeOrCommand">RsslMap</span> is a uniform type, where the <span class="CodeOrCommand">RsslMap.containerType</span> indicates the single type housed in each entry. Each entry has an associated action which informs the user of how to apply the information contained in the entry.</div>
-      <div class="Blank_Line"><a name="1360087">&nbsp;</a></div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1474251">RsslMapEntry</a></span>s can house only other container types. <span class="CodeOrCommand">RsslMap</span> is a uniform type, where the <span class="CodeOrCommand">RsslMap.containerType</span> indicates the single type housed in each entry. Each entry has an associated action which informs the user of how to apply the information contained in the entry.</div>
+      <div class="Blank_Line"><a name="1474516">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 116: <span class="LucidaConsole"><a name="1360084">RsslMapEntry </a></span>Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 116: <span class="LucidaConsole"><a name="1474513">RsslMapEntry </a></span>Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1359828">Structure Member</a></div>
+            <div class="CellHeading"><a name="1474257">Structure Member</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1359830">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1474259">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359832">flags</a></div>
+            <div class="CellBody"><a name="1474261">flags</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="Blank_Line"><span style="font-size: 10.0pt"><a name="1359855">Combination </a></span><span style="font-size: 10.0pt">of bit values to indicate the presence of any optional </span><span class="CodeOrCommand">RsslMapEntry</span><span style="font-size: 10.0pt"> content. For more information about </span><span style="font-size: 10.0pt">flag </span><span style="font-size: 10.0pt">values, refer to </span><span style="font-size: 10.0pt"><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.073.html', '');" title="11.3.3.4 RsslMapEntry Flag Enumeration Value">Table 11.3.3.4</a></span><span style="font-size: 10.0pt">.</span></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359857">action</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359859">The </a>entry <span class="CodeOrCommand">action</span> helps to manage change processing rules and tells the consumer how to apply the information contained in the entry. For specific information about possible <span class="CodeOrCommand">action</span>’s associated with an <span class="CodeOrCommand">RsslMapEntry</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.074.html', '');" title="11.3.3.5 RsslMapEntry Action Enumeration Values">Table 11.3.3.5</a>.</div>
+            <div class="Blank_Line"><span style="font-size: 10.0pt"><a name="1474284">Combination </a></span><span style="font-size: 10.0pt">of bit values to indicate the presence of any optional </span><span class="CodeOrCommand">RsslMapEntry</span><span style="font-size: 10.0pt"> content. For more information about </span><span style="font-size: 10.0pt">flag </span><span style="font-size: 10.0pt">values, refer to </span><span style="font-size: 10.0pt"><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.073.html', '');" title="11.3.3.4 RsslMapEntry Flag Enumeration Value">Table 11.3.3.4</a></span><span style="font-size: 10.0pt">.</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359870">encKey</a></div>
+            <div class="CellBody"><a name="1474286">action</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359872">Length and pointer to </a>the encoded map entry key information. The encoded type of the key corresponds to the <span class="CodeOrCommand">RsslMap</span>’s <span class="CodeOrCommand">keyPrimitiveType</span>. The key value must be a base primitive type and cannot be blank, <span class="Parameter">RSSL_DT_ARRAY</span>, or <span class="Parameter">RSSL_DT_UNKNOWN</span> primitive types. If populated on encode functions, this indicates that the key is pre-encoded and <span class="CodeOrCommand">encKey</span> will be copied while encoding. While decoding, this would contain only this encoded <span class="CodeOrCommand">RsslMapEntry</span> key’s payload and length information.</div>
+            <div class="CellBody"><a name="1474288">The </a>entry <span class="CodeOrCommand">action</span> helps to manage change processing rules and tells the consumer how to apply the information contained in the entry. For specific information about possible <span class="CodeOrCommand">action</span>’s associated with an <span class="CodeOrCommand">RsslMapEntry</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.074.html', '');" title="11.3.3.5 RsslMapEntry Action Enumeration Values">Table 11.3.3.5</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359880">permData</a></div>
+            <div class="CellBody"><a name="1474299">encKey</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359882">(Optional) </a>Specifies authorization information for this specific entry. If present, <span class="Parameter">RSSL_MPEF_HAS_PERM_DATA</span> should be set. <span class="CodeOrCommand">permData</span> has a maximum allowed length of 32,767 bytes.</div>
+            <div class="CellBody"><a name="1474301">Length and pointer to </a>the encoded map entry key information. The encoded type of the key corresponds to the <span class="CodeOrCommand">RsslMap</span>’s <span class="CodeOrCommand">keyPrimitiveType</span>. The key value must be a base primitive type and cannot be blank, <span class="Parameter">RSSL_DT_ARRAY</span>, or <span class="Parameter">RSSL_DT_UNKNOWN</span> primitive types. If populated on encode functions, this indicates that the key is pre-encoded and <span class="CodeOrCommand">encKey</span> will be copied while encoding. While decoding, this would contain only this encoded <span class="CodeOrCommand">RsslMapEntry</span> key’s payload and length information.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1474309">permData</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1474311">(Optional) </a>Specifies authorization information for this specific entry. If present, <span class="Parameter">RSSL_MPEF_HAS_PERM_DATA</span> should be set. <span class="CodeOrCommand">permData</span> has a maximum allowed length of 32,767 bytes.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -109,7 +109,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1359892">For more information on permissioning, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.115.html', '');" title="11.4 Permission Data">Section 11.4</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1474321">For more information on permissioning, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.115.html', '');" title="11.4 Permission Data">Section 11.4</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -123,7 +123,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1359901">For more information about </a><span class="CodeOrCommand">RsslMapEntry</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.073.html', '');" title="11.3.3.4 RsslMapEntry Flag Enumeration Value">Table 11.3.3.4</a>.</div>
+                    <div class="Bullet_Table_inner"><a name="1474330">For more information about </a><span class="CodeOrCommand">RsslMapEntry</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.073.html', '');" title="11.3.3.4 RsslMapEntry Flag Enumeration Value">Table 11.3.3.4</a>.</div>
                   </td>
                 </tr>
               </table>
@@ -132,10 +132,10 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359904">encData</a></div>
+            <div class="CellBody"><a name="1474333">encData</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1359906">Length and pointer to </a>the encoded content of this <span class="CodeOrCommand">RsslMapEntry</span>. If populated on encode functions, this indicates that data is pre-encoded, and <span class="CodeOrCommand">encData</span> will be copied while encoding. While decoding, this would refer to this encoded <span class="CodeOrCommand">RsslMapEntry</span>’s payload and length information.</div>
+            <div class="CellBody"><a name="1474335">Length and pointer to </a>the encoded content of this <span class="CodeOrCommand">RsslMapEntry</span>. If populated on encode functions, this indicates that data is pre-encoded, and <span class="CodeOrCommand">encData</span> will be copied while encoding. While decoding, this would refer to this encoded <span class="CodeOrCommand">RsslMapEntry</span>’s payload and length information.</div>
           </td>
         </tr>
       </table>

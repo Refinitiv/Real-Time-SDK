@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1221148">Applying Data</a></div>
-      <div class="Body"><a name="1222601">Data is applied to a cache entry from the payload of an OMM message by using the </a><span class="CodeOrCommand">rsslPayloadEntryApply</span> function. The decoded <span class="CodeOrCommand">RsslMsg</span> and an <span class="CodeOrCommand">RsslDecodeIterator</span> are passed to the apply function. The iterator (positioned at the start of the encoded payload data <span class="CodeOrCommand">RsslMsgBase.encDataBody</span>) will be used to decode the OMM data so that the cache entry data can be set or updated. </div>
-      <div class="Body"><a name="1222602">Some caching behaviors are controlled by flags in the </a><span class="CodeOrCommand">RsslMsg</span>. When an <span class="CodeOrCommand">RsslRefreshMsg</span> is applied to the cache entry, the following <span class="CodeOrCommand">RsslRefreshFlags</span> will be followed during the application:</div>
+      <div class="Body"><a name="1240262">Data is applied to a cache entry from the payload of an OMM message by using the </a><span class="CodeOrCommand">rsslPayloadEntryApply</span> function. The decoded <span class="CodeOrCommand">RsslMsg</span> and an <span class="CodeOrCommand">RsslDecodeIterator</span> are passed to the apply function. The iterator (positioned at the start of the encoded payload data <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">Msg</span><span class="CodeOrCommand">Base</span><span class="CodeOrCommand">.encDataBody</span>) will be used to decode the OMM data so that the cache entry data can be set or updated. </div>
+      <div class="Body"><a name="1240281">Some caching behaviors are controlled by flags in the </a><span class="CodeOrCommand">RsslMsg</span>. When an <span class="CodeOrCommand">RsslRefreshMsg</span> is applied to the cache entry, the following <span class="CodeOrCommand">RsslRefreshFlags</span> take effect:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><span class="Parameter"><a name="1222603">RSSL_RFMF_CLEAR_CACHE</a></span>: the cache entry data will be cleared prior to applying this message. </div>
+              <div class="bullet_ind_inner"><span class="Parameter"><a name="1240288">RSSL_RFMF_CLEAR_CACHE</a></span>: Cache entry data will be cleared prior to applying this message. </div>
             </td>
           </tr>
         </table>
@@ -81,12 +81,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><span class="Parameter"><a name="1222604">RSSL_RFMF_DO_NOT_CACHE</a></span>: the payload will not be applied to the cache entry.</div>
+              <div class="bullet_ind_inner"><span class="Parameter"><a name="1240292">RSSL_RFMF_DO_NOT_CACHE</a></span>: The payload will not be applied to the cache entry.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1222605">When an </a><span class="CodeOrCommand">RsslUpdateMsg</span> is applied to cache, the following <span class="CodeOrCommand">RsslUpdateFlags</span> will be followed:</div>
+      <div class="Body"><a name="1240299">When an </a><span class="CodeOrCommand">RsslUpdateMsg</span> is applied to cache, the following <span class="CodeOrCommand">RsslUpdateFlags</span> take effect:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -96,7 +96,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><span class="Parameter"><a name="1222606">RSSL_UPMF_DO_NOT_CACHE</a></span>: the payload data will not be applied to the cache entry.</div>
+              <div class="bullet_ind_inner"><span class="Parameter"><a name="1240303">RSSL_UPMF_DO_NOT_CACHE</a></span>: The payload data will not be applied to the cache entry.</div>
             </td>
           </tr>
         </table>
@@ -110,7 +110,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><span class="Parameter"><a name="1222607">RSSL_UPMF_DO_NOT_RIPPLE</a></span>: entry rippling will not be performed when this data is applied.</div>
+              <div class="bullet_ind_inner"><span class="Parameter"><a name="1240307">RSSL_UPMF_DO_NOT_RIPPLE</a></span>: When applying the data, entry rippling is not performed.</div>
             </td>
           </tr>
         </table>

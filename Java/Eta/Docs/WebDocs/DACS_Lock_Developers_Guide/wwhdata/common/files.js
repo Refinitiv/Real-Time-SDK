@@ -33,5 +33,4 @@ P.fA("4.3 Constant Definitions","Chap_DACSLockAPIComponents.4.6.html");
 P.fA("4.3.1 DacsReturnCodes Definitions","Chap_DACSLockAPIComponents.4.7.html");
 P.fA("4.3.2 DacsOperations Interface","Chap_DACSLockAPIComponents.4.8.html");
 P.fA("Appendix A Example Program","Appendix_Example.html");
-P.fA("\u00a9 2015, 2016 Thomson Reuters. All rights reserved.","lastpage.html");
 }

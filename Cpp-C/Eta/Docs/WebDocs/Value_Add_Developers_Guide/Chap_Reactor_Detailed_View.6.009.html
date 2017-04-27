@@ -56,37 +56,37 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1219887">Reactor Creation</a></div>
-      <div class="Body"><a name="1219939">The creation of an </a><span class="CodeOrCommand">RsslReactor</span> instance can be accomplished through the use of the following function.</div>
-      <div class="Blank_Line"><a name="1223718">&nbsp;</a></div>
+      <div class="Body"><a name="1526825">The creation of a</a>n <span class="CodeOrCommand">RsslReactor</span> instance can be accomplished through the use of the following function.</div>
+      <div class="Blank_Line"><a name="1526832">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1223721">Before the first use of any Transport API Reactor functionality, the application must ensure that </a><span class="CodeOrCommand">rsslInitialize</span> has been called with the <span class="Parameter">RSSL_LOCK_GLOBAL_AND_CHANNEL</span> option.</div>
+              <span class="Bold">Note: </span><a name="1526831">Before the first use of any Transport API Reactor functionality, the application must ensure that </a><span class="CodeOrCommand">rsslInitialize</span> has been called with the <span class="Parameter">RSSL_LOCK_GLOBAL_AND_CHANNEL</span> option.</div>
           </td>
         </tr>
       </table>
-      <div class="Blank_Line"><a name="1223715">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1526883">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 6: <span class="LucidaConsole"><a name="1223746">RsslReactor</a></span> Creation Function &nbsp;</div>
+          <div class="TableTitle">Table 6: <span class="LucidaConsole"><a name="1526880">RsslReactor</a></span> Creation Function &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1223738">FUNCTION NAME</a></div>
+            <div class="CellHeading"><a name="1526835">FUNCTION NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1223740">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1526837">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223742">rsslCreateReactor</a></div>
+            <div class="CellBody"><a name="1526842">rsslCreateReactor</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223829">Creates an </a><span class="CodeOrCommand">RsslReactor</span> instance, including all necessary internal memory and threads. After creating the <span class="CodeOrCommand">RsslReactor</span>, <span class="CodeOrCommand">RsslReactorChannel</span>s can be associated, as described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.015.html', '');" title="6.3 Reactor Channels">Section 6.3</a>.</div>
-            <div class="CellBody"><a name="1223830">Options are passed in via the </a><span class="CodeOrCommand">RsslCreateReactorOptions</span>, as defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.010.html#1223923', '');" title="6.2.1.2 RsslCreateReactorOptions Structure Members">Table 7</a>. </div>
+            <div class="CellBody"><a name="1526847">Creates a</a>n <span class="CodeOrCommand">RsslReactor</span> instance, including all necessary internal memory and threads. After creating the <span class="CodeOrCommand">RsslReactor</span>, <span class="CodeOrCommand">RsslReactorChannel</span>s can be associated, as described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.015.html', '');" title="6.3 Reactor Channel Use">Section 6.3</a>.</div>
+            <div class="CellBody"><a name="1526866">Options are passed in via the </a><span class="CodeOrCommand">RsslCreateReactorOptions</span>, as defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.010.html', '');" title="6.2.1.2 RsslCreateReactorOptions Structure Members">Section 6.2.1.2</a>.</div>
           </td>
         </tr>
       </table>

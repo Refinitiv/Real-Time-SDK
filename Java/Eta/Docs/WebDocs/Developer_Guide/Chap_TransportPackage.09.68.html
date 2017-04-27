@@ -56,50 +56,50 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1032973">Channel.flush Return Codes</a></div>
-      <div class="Body"><a name="1474557">The following table defines the return</a> <span class="CodeOrCommand">TransportReturnCodes</span> that can occur when using <span class="CodeOrCommand">Channel.flush</span>.</div>
-      <div class="Blank_Line"><a name="1474638">&nbsp;</a></div>
+      <div class="Body"><a name="1528298">The following table defines the return</a> <span class="CodeOrCommand">TransportReturnCodes</span> that can occur when using <span class="CodeOrCommand">Channel.flush</span>.</div>
+      <div class="Blank_Line"><a name="1528379">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 39: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1474635">Channel.flush</a></span> TransportReturnCodes &nbsp;</div>
+          <div class="TableTitle">Table 39: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1528376">Channel.flush</a></span> TransportReturnCodes &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 180pt">
-            <div class="CellHeading"><a name="1474560">RETURN CODE</a></div>
+            <div class="CellHeading"><a name="1528301">RETURN CODE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 375.75pt">
-            <div class="CellHeading"><a name="1474562">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1528303">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474564">SUCCESS</a></div>
+            <div class="CellBody"><a name="1528305">SUCCESS</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474572">Indicates that the </a><span class="CodeOrCommand">Channel.flush</span> method has succeeded and additional bytes are not internally queued. The <span class="CodeOrCommand">Channel.flush</span> method need not be called.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474580">Any positive value &gt; 0</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474588">Indicates that the </a><span class="CodeOrCommand">Channel.flush</span> method has succeeded, however data is still internally queued by the transport. The <span class="CodeOrCommand">Channel.flush</span> method must be called again. Data might still be queued because the connections output buffer does not have sufficient space. An I/O notification mechanism can indicate when the <span class="CodeOrCommand">SelectableChannel</span> has write availability.</div>
+            <div class="CellBody"><a name="1528313">Indicates that the </a><span class="CodeOrCommand">Channel.flush</span> method has succeeded and additional bytes are not internally queued. The <span class="CodeOrCommand">Channel.flush</span> method need not be called.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474599">FAILURE</a></div>
+            <div class="CellBody"><a name="1528321">Any positive value &gt; 0</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474601">Indicates that a general failure has occurred, often because the underlying connection is unavailable or closed. The </a><span class="CodeOrCommand">Channel</span> should be closed (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.78.html', '');" title="9.13 Closing Connections">Section 9.13</a>). For more details, refer to the <span class="CodeOrCommand">Error</span> content.</div>
+            <div class="CellBody"><a name="1528329">Indicates that the </a><span class="CodeOrCommand">Channel.flush</span> method has succeeded, however data is still internally queued by the transport. The <span class="CodeOrCommand">Channel.flush</span> method must be called again. Data might still be queued because the connections output buffer does not have sufficient space. An I/O notification mechanism can indicate when the <span class="CodeOrCommand">SelectableChannel</span> has write availability.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474615">INIT_NOT_INITIALIZED</a></div>
+            <div class="CellBody"><a name="1528340">FAILURE</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474617">Indicates that the Transport is not initialized. For more details, refer to the </a><span class="CodeOrCommand">Error</span> content. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.14.html', '');" title="9.2 Initializing and Uninitializing the Transport">Section 9.2</a>.</div>
+            <div class="CellBody"><a name="1528342">Indicates that a general failure has occurred, often because the underlying connection is unavailable or closed. The </a><span class="CodeOrCommand">Channel</span> should be closed (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.78.html', '');" title="9.13 Closing Connections">Section 9.13</a>). For more details, refer to the <span class="CodeOrCommand">Error</span> content.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1528356">INIT_NOT_INITIALIZED</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1528358">Indicates that the Transport is not initialized. For more details, refer to the </a><span class="CodeOrCommand">Error</span> content. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.14.html', '');" title="9.2 Initializing and Uninitializing the Transport">Section 9.2</a>.</div>
           </td>
         </tr>
       </table>

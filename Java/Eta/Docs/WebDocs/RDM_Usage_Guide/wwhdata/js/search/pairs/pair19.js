@@ -1,6 +1,5 @@
 function FileData_Pairs(x)
 {
-x.t("2.8","general");
 x.t("m.parentnode.insertbefore","window");
 x.t("defines","concepts");
 x.t(".l=1","new");
@@ -17,7 +16,7 @@ x.t("api","concepts");
 x.t("guide","describes");
 x.t("domains","share");
 x.t("domains","detailed");
-x.t("overview","2.8");
+x.t("overview","2.6");
 x.t("specified","domains");
 x.t("common","behaviors");
 x.t("window","document");
@@ -64,6 +63,7 @@ x.t("[r]","[r]");
 x.t("a.async=1","a.src=g");
 x.t("googleanalyticsobject","[r]");
 x.t("behavior","supported");
+x.t("2.6","general");
 x.t("concepts","domains");
 x.t("concepts","function");
 x.t("concepts","transport");

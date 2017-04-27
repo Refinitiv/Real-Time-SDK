@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>8.2.2 Market By Price Refresh Message Use</title>
+    <title>8.2.2 Market By Price Refresh Message</title>
     <link rel="StyleSheet" href="css/Chap_MarketbyPrice_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,21 +55,21 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="999387">Market By Price Refresh Message Use</a></div>
+      <div class="H3"><a name="999387">Market By Price Refresh Message</a></div>
       <div class="Body"><a name="1000157">A Market By Price refresh message is encoded and sent by OMM interactive provider and OMM non-interactive provider applications.</a></div>
-      <div class="Body"><a name="1000158">A Market By Price refresh may be sent in multiple parts. It is possible for update and status messages to be delivered between parts of a refresh message, regardless of streaming or non-streaming request.</a></div>
-      <div class="Body"><a name="1000159">Providers must set the </a><span class="CodeOrCommand">RefreshMsgFlags.CLEAR_CACHE</span> flag on the solicited <span class="CodeOrCommand">RefreshMsg</span>. For multi-part refreshes, the <span class="CodeOrCommand">RefreshMsgFlags.CLEAR_CACHE</span> flag must be set on the first part only.</div>
+      <div class="Body"><a name="1000158">A Market By Price refresh may be sent in multiple parts. Both update and status messages can be delivered between parts of a refresh message, regardless of streaming or non-streaming request.</a></div>
+      <div class="Body"><a name="1048990">Providers must set the </a><span class="CodeOrCommand">RefreshMsgFlags.CLEAR_CACHE</span> flag on the solicited <span class="CodeOrCommand">RefreshMsg</span>. For multi-part refreshes, the <span class="CodeOrCommand">RefreshMsgFlags.CLEAR_CACHE</span> flag must be set on the first part only.</div>
       <div class="Blank_Line"><a name="999381">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 58: <a name="999551">Market By Price Refresh Message Member Use &nbsp;</a></div>
+          <div class="TableTitle">Table 60: <a name="999551">Market By Price Refresh Message</a> Member Use &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading" style="text-align: Center"><a name="999487">COMPONENT</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="999487">COMPONENT</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading" style="text-align: Center"><a name="999489">DESCRIPTION / VALUE</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="999489">DESCRIPTION / VALUE</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -93,7 +93,7 @@
             <div class="CellBody"><a name="999499">state</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="999501">Required</a></span>. The state of the stream and data.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="999501">Required</a></span>. Indicates the state of the stream and data.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -109,7 +109,7 @@
             <div class="CellBody"><a name="999507">qos</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999509">Optional. If sent, this is the QoS that the stream is being provided at.</a></div>
+            <div class="CellBody"><a name="999509">Optional. Specifies the QoS at which the stream is provided.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -133,7 +133,7 @@
             <div class="CellBody"><a name="999519">permData</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999521">Optional. If present, specifies permission information regarding the stream’s content.</a></div>
+            <div class="CellBody"><a name="999521">Optional. If present, specifies permission information associate with the stream’s content.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -145,27 +145,27 @@
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="1">
             <div class="CellBody"><a name="999527">msgKey.serviceId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999529">Required. Specifies the Id of the service providing the item.</a></div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="999529">Required</a></span>. Specifies the ID of the service that provides the item.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999531">msgKey.nameType</a></div>
+            <div class="CellBody"><a name="1006820">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999533">Optional. Should match the </a><span class="CodeOrCommand">nameType</span> specified in the request. If absent, this value is assumed to be <span class="Parameter">InstrumentNameTypes.RIC</span>.</div>
+            <div class="CellBody"><a name="999533">Optional. </a><span class="CodeOrCommand">msgKey.nameType</span> should match the <span class="CodeOrCommand">msgKey.nameType</span> specified in the request. If absent, this value is assumed to be <span class="Parameter">InstrumentNameTypes.RIC</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999535">msgKey.name</a></div>
+            <div class="CellBody"><a name="1006825">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999537">Optional. </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_NAME</span> should be specified and the contents should match the name specified in the request.</div>
+            <div class="CellBody"><a name="999537">Optional. </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">MsgKeyFlags.HAS_NAME</span> should be specified, and <span class="CodeOrCommand">msgKey.name</span> should match the name specified in the request.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -197,7 +197,7 @@
             <div class="CellBody"><a name="1000414">Payload</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="1000416">Required</a></span>. The order book is represented by an <span class="CodeOrCommand">Map</span>, where each entry contains an <span class="CodeOrCommand">FieldList</span> which has information about a price point.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000416">Required</a></span>. The order book is represented by a <span class="CodeOrCommand">Map</span>, where each entry contains a <span class="CodeOrCommand">FieldList</span> which has information about a price point.</div>
           </td>
         </tr>
       </table>
@@ -213,7 +213,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketbyPrice_Domain.08.01.html">Chapter 8	Market By Price Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketbyPrice_Domain.08.03.html">8.2	Usage</a> : 8.2.2	Market By Price Refresh Message Use</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketbyPrice_Domain.08.01.html">Chapter 8	Market By Price Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketbyPrice_Domain.08.03.html">8.2	Usage</a> : 8.2.2	Market By Price Refresh Message</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

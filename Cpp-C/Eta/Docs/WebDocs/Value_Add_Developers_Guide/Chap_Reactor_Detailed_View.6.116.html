@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>6.7.8 Sending Content on a TunnelStream</title>
+    <title>6.7.7 Receiving Content on a TunnelStream</title>
     <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,8 +55,37 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1221255">Sending Content on a TunnelStream</a></div>
-      <div class="Body"><a name="1251886">When sending content on an </a><span class="CodeOrCommand">RsslTunnelStream</span>, the user should get a buffer from the <span class="CodeOrCommand">RsslTunnelStream</span>, encode their content into the buffer, and then use the <span class="CodeOrCommand">rsslTunnelStreamSubmitMsg</span> method to push the content out over the <span class="CodeOrCommand">RsslTunnelStream</span>. By obtaining a buffer from the <span class="CodeOrCommand">RsslTunnelStream</span>, the behaviors that were negotiated on the enhanced private stream can be properly handled by the Reactor, making this functionality appear nearly transparent to the user.</div>
+      <div class="H3"><a name="1221236">Receiving Content on a TunnelStream</a></div>
+      <div class="Body"><a name="1532518">Invoking the </a><span class="CodeOrCommand">RsslReactorChannel.dispatch</span> method reads and processes inbound content, where any information received on this <span class="CodeOrCommand">RsslTunnelStream</span> will be delivered to the application via the tunnel stream callback methods specified via <span class="CodeOrCommand">rsslReactorOpenTunnelStream</span> or <span class="CodeOrCommand">rsslReactorAcceptTunnelStream</span>.</div>
+      <div class="Body"><a name="1532528">Dispatching this content works in the same manner as dispatching any other content on the reactor.</a></div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1532535">Tunnel stream callback methods are described in</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.104.html', '');" title="6.7.4 Tunnel Stream Callback Functions and Event Types">Section 6.7.4</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1532542">Tunnel stream callback methods deliver the events described in</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.106.html', '');" title="6.7.4.2 Tunnel Stream Callback Event Types">Section 6.7.4.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -69,7 +98,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : 6.7.8	Sending Content on a TunnelStream</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : 6.7.7	Receiving Content on a TunnelStream</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

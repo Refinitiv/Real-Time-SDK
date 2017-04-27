@@ -56,10 +56,37 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1219661">Associate Incoming Connections Using rsslReactorAccept</a></div>
-      <div class="Body"><a name="1219662">Once the </a><span class="CodeOrCommand">RsslReactorOMMProviderRole</span> is populated, the application can use <span class="CodeOrCommand">rsslReactorAccept</span> to accept a new inbound connection. <span class="CodeOrCommand">rsslReactorAccept</span> will accept an OMM Provider connection from the passed in <span class="CodeOrCommand">RsslServer</span> using the provided configuration and role information. </div>
-      <div class="Body"><a name="1219663">Once the underlying connection is established a channel event will be returned to the application’s </a><span class="CodeOrCommand">RsslReactorChannelEventCallback</span>; this will provide the <span class="CodeOrCommand">RsslReactorChannel</span> and to indicate the current connection state. At this point, the application can begin using the <span class="CodeOrCommand">rsslReactorDispatch</span> function to dispatch directly on this <span class="CodeOrCommand">RsslReactorChannel</span>, or continue using <span class="CodeOrCommand">rsslReactorDispatch</span> to dispatch across all channels associated with the RsslReactor.</div>
-      <div class="Body"><a name="1219664">The </a><span class="CodeOrCommand">RsslReactor</span> will perform all channel initialization and pass any administrative domain information to the application via the callbacks specified with the <span class="CodeOrCommand">RsslReactorOMMProviderRole</span>. </div>
-      <div class="Body"><a name="1219665">The </a><span class="CodeOrCommand">rsslReactorAccept</span> function is described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.039.html', '');" title="6.4.1.6 Reactor Accept">Section 6.4.1.6</a>. Dispatching is described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.045.html', '');" title="6.5 Dispatching Data">Section 6.5</a>.</div>
+      <div class="Body"><a name="1230492">After the </a><span class="CodeOrCommand">RsslReactorOMMProviderRole</span> is populated, the application can use <span class="CodeOrCommand">rsslReactorAccept</span> to accept a new inbound connection. <span class="CodeOrCommand">rsslReactorAccept</span> will accept an OMM provider connection from the passed-in <span class="CodeOrCommand">RsslServer</span> using provided configuration and role information.</div>
+      <div class="Body"><a name="1230499">When the underlying connection is established, a channel event is returned to the application’s </a><span class="CodeOrCommand">RsslReactorChannelEventCallback</span>; this will provide the <span class="CodeOrCommand">RsslReactorChannel</span> and indicate the current connection state. At this point, the application can begin using the <span class="CodeOrCommand">rsslReactorDispatch</span> function to dispatch directly on this <span class="CodeOrCommand">RsslReactorChannel</span>, or continue using <span class="CodeOrCommand">rsslReactorDispatch</span> to dispatch across all channels associated with the <span class="CodeOrCommand">RsslReactor</span>.</div>
+      <div class="Body"><a name="1230524">The </a><span class="CodeOrCommand">RsslReactor</span> will perform all channel initialization and pass any administrative domain information to the application via the callbacks specified with the <span class="CodeOrCommand">RsslReactorOMMProviderRole</span>.</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1230540">For more details on the </a><span class="CodeOrCommand">rsslReactorAccept</span> function, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.039.html', '');" title="6.4.1.6 Reactor Accept">Section 6.4.1.6</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1230547">For more details on dispatching, refer to</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.045.html', '');" title="6.5 Dispatching Data">Section 6.5</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

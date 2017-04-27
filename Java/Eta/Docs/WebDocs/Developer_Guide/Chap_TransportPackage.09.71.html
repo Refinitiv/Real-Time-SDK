@@ -56,41 +56,41 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1002310">Channel.packBuffer Return Values</a></div>
-      <div class="Body"><a name="1474705">The following table defines return and error code values that can occur when using </a><span class="CodeOrCommand">Channel.packBuffer</span>.</div>
-      <div class="Blank_Line"><a name="1474774">&nbsp;</a></div>
+      <div class="Body"><a name="1528446">The following table defines return and error code values that can occur when using </a><span class="CodeOrCommand">Channel.packBuffer</span>.</div>
+      <div class="Blank_Line"><a name="1528515">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 41: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1474771">Channel.packBuffer</a></span> Return Values &nbsp;</div>
+          <div class="TableTitle">Table 41: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1528512">Channel.packBuffer</a></span> Return Values &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 177.75pt">
-            <div class="CellHeading"><a name="1474708">RETURN CODE</a></div>
+            <div class="CellHeading"><a name="1528449">RETURN CODE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 378pt">
-            <div class="CellHeading"><a name="1474710">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1528451">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474712">0 or greater</a></div>
-            <div class="CellBody"><a name="1474713">Success Case</a></div>
+            <div class="CellBody"><a name="1528453">0 or greater</a></div>
+            <div class="CellBody"><a name="1528454">Success Case</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474715">Indicates the amount of available bytes remaining in the buffer for packing.</a></div>
-            <div class="CellBody"><a name="1474716">Zero means that bytes are not available for packing.</a></div>
+            <div class="CellBody"><a name="1528456">Indicates the amount of available bytes remaining in the buffer for packing.</a></div>
+            <div class="CellBody"><a name="1528457">Zero means that bytes are not available for packing.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474733">Less than 0</a></div>
-            <div class="CellBody"><a name="1474734">Failure Case</a></div>
+            <div class="CellBody"><a name="1528474">Less than 0</a></div>
+            <div class="CellBody"><a name="1528475">Failure Case</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474736">This value indicates that some type of general failure has occurred. The </a><span class="CodeOrCommand">Channel</span> should be closed (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.78.html', '');" title="9.13 Closing Connections">Section 9.13</a>). For more details, refer to <span class="CodeOrCommand">Error</span> content.</div>
+            <div class="CellBody"><a name="1528477">This value indicates that some type of general failure has occurred. The </a><span class="CodeOrCommand">Channel</span> should be closed (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.78.html', '');" title="9.13 Closing Connections">Section 9.13</a>). For more details, refer to <span class="CodeOrCommand">Error</span> content.</div>
           </td>
         </tr>
       </table>
-      <div class="Blank_Line"><a name="1474775">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1528516">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

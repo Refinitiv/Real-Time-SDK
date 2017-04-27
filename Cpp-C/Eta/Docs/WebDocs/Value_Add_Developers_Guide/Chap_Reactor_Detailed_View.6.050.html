@@ -56,43 +56,43 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1053190">Reactor Callback Functions</a></div>
-      <div class="Body"><a name="1233300">Information about the state of the </a><span class="CodeOrCommand">RsslReactorChannel</span> connection as well as any messages for that channel are returned to the application via a series of callback functions. Each <span class="CodeOrCommand">RsslReactorChannel</span> can define its own unique callback functions or specify callback functions that can be shared across several or all channels.</div>
-      <div class="Body"><a name="1233301">There are several values that can be returned from a callback function implementation. These can trigger specific </a><span class="CodeOrCommand">RsslReactor</span> behavior based on the outcome of the callback function. The callback return values are described in the following table.</div>
-      <div class="Blank_Line"><a name="1232334">&nbsp;</a></div>
+      <div class="Body"><a name="1528978">A series of callback functions returns (to the application) any state information about the </a><span class="CodeOrCommand">RsslReactorChannel</span> connection as well as messages for that channel. Each <span class="CodeOrCommand">RsslReactorChannel</span> can define its own unique callback functions or specify callback functions that can be shared across channels.</div>
+      <div class="Body"><a name="1528991">There are several values that can be returned from a callback function implementation. These can trigger specific </a><span class="CodeOrCommand">RsslReactor</span> behaviors based on the outcome of the callback function. Callback return values are as follows:</div>
+      <div class="Blank_Line"><a name="1529034">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 33: <span class="LucidaConsole"><a name="1232331">RsslReactorCallbackRet</a></span> Callback Return Codes &nbsp;</div>
+          <div class="TableTitle">Table 33: <span class="LucidaConsole"><a name="1529031">Rssl</a></span><span class="LucidaConsole">ReactorCallbackRet</span> Callback Return Codes &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 145.49976pt">
-            <div class="CellHeading"><a name="1232323">Return Code</a></div>
+            <div class="CellHeading"><a name="1529000">Return Code</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 410.25024pt">
-            <div class="CellHeading"><a name="1232325">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1529002">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1232327">RSSL_RC_CRET_SUCCESS</a></div>
+            <div class="CellBody"><a name="1529004">RSSL_RC_CRET_</a>SUCCESS</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1232329">Indicates that the callback function was successful and the message or event has been handled.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1233358">RSSL_RC_CRET_FAILURE</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1233360">Indicates that the message or event has failed to be handled. Returning this code from any callback function will cause the </a><span class="CodeOrCommand">RsslReactor</span> to shutdown.</div>
+            <div class="CellBody"><a name="1529006">Indicates that the callback function was successful and the message or event has been handled.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1233362">RSSL_RC_CRET_RAISE</a></div>
+            <div class="CellBody"><a name="1529008">RSSL_RC_CRET_</a>FAILURE</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1233364">Can be returned from any domain-specific callback (e.g., </a><span class="CodeOrCommand">RsslRDMLoginMsgCallback</span>). This will cause the <span class="CodeOrCommand">RsslReactor</span> to invoke the <span class="CodeOrCommand">RsslDefaultMsgCallback</span> for this message upon the domain-specific callbacks return.</div>
+            <div class="CellBody"><a name="1529010">Indicates that the message or event has failed to be handled. Returning this code from any callback function will cause the </a><span class="CodeOrCommand">RsslReactor</span> to shutdown.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1529015">RSSL_RC_CRET_</a>RAISE</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1529020">Can be returned from any domain-specific callback (e.g., </a><span class="CodeOrCommand">RsslRDMLoginMsgCallback</span>). This will cause the <span class="CodeOrCommand">RsslReactor</span> to invoke the <span class="CodeOrCommand">RsslDefaultMsgCallback</span> for this message upon the domain-specific callbacks return.</div>
           </td>
         </tr>
       </table>

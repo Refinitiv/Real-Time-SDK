@@ -56,47 +56,47 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1224657">Transport Performance, Direct Connect with Shared Memory</a></div>
-      <div class="Body"><a name="1225032">The following example uses a small </a><span class="ToolOrUtility_Name">maxFragmentSize</span> to reduce the size of the shared memory segment. The use of the <br /><span class="CodeOrCommand">-threads</span> option is also shown here. The provider and consumer each uses one thread: the provider thread is bound to core 0, and the consumer thread is bound to core 1. Such a setup presumes the system has at least two cores.</div>
-      <div class="Body"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt"><a name="1225034"><img class="Default" src="images/Chap_Perf_Measurement.08.9.1.jpg" width="232" height="191" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 25.  <a name="1225036">TransportPerf, Shared Memory Direct Connect</a></div>
-      <div class="Procedure_Heading"><a name="1225038"><img class="Default" src="images/Chap_Perf_Measurement.08.9.2.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To run a basic performance measurement:</a></div>
-      <div class="Body"><a name="1225042">To run a basic performance measurement using a setup like the one pictured above, run two instances of </a><span class="ToolOrUtility_Name">upacTransportPerf</span> with the following command-line options:</div>
-      <div class="Blank_Line"><a name="1225030">&nbsp;</a></div>
+      <div class="Body"><a name="1229492">The following example uses a small </a><span class="ToolOrUtility_Name">maxFragmentSize</span> to reduce the size of the shared memory segment and uses the <br /><span class="CodeOrCommand">-threads</span> option. The provider and consumer each use one thread: the provider thread is bound to core 0, and the consumer thread is bound to core 1. Such a setup presumes the system has at least two cores.</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><a name="1229499"><img class="Default" src="images/Chap_Perf_Measurement.08.9.1.jpg" width="232" height="194" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 25.  <a name="1229501">TransportPerf, Shared Memory Direct Connect</a></div>
+      <div class="Procedure_Heading"><a name="1229505"><img class="Default" src="images/Chap_Perf_Measurement.08.9.2.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> To run a basic performance measurement:</a></div>
+      <div class="Body"><a name="1229509">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.9.html#1229501', '');" title="8.8 Transport Performance, Direct Connect with Shared Memory">Figure 25</a>, run two instances of <span class="ToolOrUtility_Name">upacTransportPerf</span> as follows:</div>
+      <div class="Blank_Line"><a name="1229534">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1225207">&nbsp;</a></div>
+            <div class="command"><a name="1229515">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1225209">upacTransportPerf -p 15000 -runTime 90 -connType shmem -msgRate 10000 -latencyMsgRate 1000</a></div>
+            <div class="command"><a name="1229520">upacTransportPerf -p 15000 -runTime 90 -connType shmem -msgRate 10000 -latencyMsgRate 1000</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1225211">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-tickRate 1000 -appType server -outputBufs 9000 -maxFragmentSize 256 –threads 0</a></div>
+            <div class="command"><a name="1229522">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-tickRate 1000 -appType server -outputBufs 9000 -maxFragmentSize 256 –threads 0</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1225213">&nbsp;</a></div>
+            <div class="command"><a name="1229524">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1225215">upacTransportPerf -p 15000 -connType shmem -runTime 60 -latencyMsgRate 0 -msgRate 0 -tickRate 1000</a></div>
+            <div class="command"><a name="1229529">upacTransportPerf -p 15000 -connType shmem -runTime 60 -latencyMsgRate 0 -msgRate 0 -tickRate 1000</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1225217">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-appType client –threads 1</a></div>
+            <div class="command"><a name="1229531">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-appType client –threads 1</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1225219">&nbsp;</a></div>
+            <div class="command"><a name="1229533">&nbsp;</a></div>
           </td>
         </tr>
       </table>

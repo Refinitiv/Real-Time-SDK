@@ -158,90 +158,100 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga701bb3b30efcc2d4d6cbf90a6587c86f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The types of RDM Login Messages. When the rdmMsgBase's domainType is RSSL_DMT_LOGIN, the rdmMsgType member may be set to one of these to indicate the specific <a class="el" href="unionRsslRDMLoginMsg.html" title="The RDM Login Msg. The Login Message encoder and decoder functions expect this type. It is a group of the classes of message that the Login domain supports. Any specific message class may be cast to an RsslRDMLoginMsg, and an RsslRDMLoginMsg may be cast to any specific message class. The RsslRDMMsgBase contains members common to each class that may be used to identify the class of message.">RsslRDMLoginMsg</a> class.  <a href="group__VARDMLogin.html#ga701bb3b30efcc2d4d6cbf90a6587c86f">More...</a><br/></td></tr>
 <tr class="memitem:ga44cc7070c7b80fe2623b427f9697f045"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__VARDMLogin.html#ga44cc7070c7b80fe2623b427f9697f045">RsslRDMLoginRequestFlags</a> { <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a9f0ab0f60236e5285bea632fb9fa1138">RDM_LG_RQF_NONE</a> =  0x0000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a9f0ab0f60236e5285bea632fb9fa1138">RDM_LG_RQF_NONE</a> =  0x000000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045abfbddabef0995424cd735f5c2ea78ad5">RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA</a> =  0x0001, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045abfbddabef0995424cd735f5c2ea78ad5">RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA</a> =  0x000001, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045ae2123baa09c64e17e08be769caa36e87">RDM_LG_RQF_HAS_APPLICATION_ID</a> =  0x0002, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045ae2123baa09c64e17e08be769caa36e87">RDM_LG_RQF_HAS_APPLICATION_ID</a> =  0x000002, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a70dc373d77d0f5371d3fd16573c8a4db">RDM_LG_RQF_HAS_APPLICATION_NAME</a> =  0x0004, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a70dc373d77d0f5371d3fd16573c8a4db">RDM_LG_RQF_HAS_APPLICATION_NAME</a> =  0x000004, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a241c6d438484d024b1bf1c50a8b86789">RDM_LG_RQF_HAS_DOWNLOAD_CONN_CONFIG</a> =  0x0008, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a241c6d438484d024b1bf1c50a8b86789">RDM_LG_RQF_HAS_DOWNLOAD_CONN_CONFIG</a> =  0x000008, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a423b0c180c813d8189524cd600902556">RDM_LG_RQF_HAS_INSTANCE_ID</a> =  0x0010, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a423b0c180c813d8189524cd600902556">RDM_LG_RQF_HAS_INSTANCE_ID</a> =  0x000010, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a4772b4a2b4077b005f8866fd87cedf89">RDM_LG_RQF_HAS_PASSWORD</a> =  0x0020, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a4772b4a2b4077b005f8866fd87cedf89">RDM_LG_RQF_HAS_PASSWORD</a> =  0x000020, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a30806483ab0ede5384d5208871fb7fa2">RDM_LG_RQF_HAS_POSITION</a> =  0x0040, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a30806483ab0ede5384d5208871fb7fa2">RDM_LG_RQF_HAS_POSITION</a> =  0x000040, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a6e285ea325107c7fe35215d053f7305f">RDM_LG_RQF_HAS_PROVIDE_PERM_EXPR</a> =  0x0080, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a6e285ea325107c7fe35215d053f7305f">RDM_LG_RQF_HAS_PROVIDE_PERM_EXPR</a> =  0x000080, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a824be3e892b933c97d124258630a587e">RDM_LG_RQF_HAS_PROVIDE_PERM_PROFILE</a> =  0x0100, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a824be3e892b933c97d124258630a587e">RDM_LG_RQF_HAS_PROVIDE_PERM_PROFILE</a> =  0x000100, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a291497500ac5bd3ed2aaf096107b9744">RDM_LG_RQF_HAS_ROLE</a> =  0x0200, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a291497500ac5bd3ed2aaf096107b9744">RDM_LG_RQF_HAS_ROLE</a> =  0x000200, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045aa28424a20a8ae41a5dbc2465954e32f6">RDM_LG_RQF_HAS_SINGLE_OPEN</a> =  0x0400, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045aa28424a20a8ae41a5dbc2465954e32f6">RDM_LG_RQF_HAS_SINGLE_OPEN</a> =  0x000400, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a07e3a2fd362bc62c74c384c15341f3fe">RDM_LG_RQF_HAS_USERNAME_TYPE</a> =  0x0800, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a07e3a2fd362bc62c74c384c15341f3fe">RDM_LG_RQF_HAS_USERNAME_TYPE</a> =  0x000800, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a17dbf45c028edf58eb3fcdd38aa54eac">RDM_LG_RQF_NO_REFRESH</a> =  0x1000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a17dbf45c028edf58eb3fcdd38aa54eac">RDM_LG_RQF_NO_REFRESH</a> =  0x001000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a3890e2524d085f5b15fe0c12ce4ceaf0">RDM_LG_RQF_PAUSE_ALL</a> =  0x2000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a3890e2524d085f5b15fe0c12ce4ceaf0">RDM_LG_RQF_PAUSE_ALL</a> =  0x002000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045ad838b078a51fe8d62c181231b0445104">RDM_LG_RQF_HAS_SUPPORT_PROV_DIC_DOWNLOAD</a> =  0x4000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045ad838b078a51fe8d62c181231b0445104">RDM_LG_RQF_HAS_SUPPORT_PROV_DIC_DOWNLOAD</a> =  0x004000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a8a8ebf2dd0116174c99806144fb833ef">RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN</a> =  0x8000
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a8a8ebf2dd0116174c99806144fb833ef">RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN</a> =  0x8000, 
+<br/>
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a10c81b4760c2b5e48b56137b4b9bc934">RDM_LG_RQF_HAS_AUTHN_EXTENDED</a> =  0x010000
 <br/>
  }</td></tr>
 <tr class="memdesc:ga44cc7070c7b80fe2623b427f9697f045"><td class="mdescLeft">&#160;</td><td class="mdescRight">The RDM Login Request Flags.  <a href="group__VARDMLogin.html#ga44cc7070c7b80fe2623b427f9697f045">More...</a><br/></td></tr>
 <tr class="memitem:ga93f483e04f8dd95551f3faf4f3b55772"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__VARDMLogin.html#ga93f483e04f8dd95551f3faf4f3b55772">RsslRDMLoginRefreshFlags</a> { <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4d94c158fd35c96d49ad5ec51ae6c258">RDM_LG_RFF_NONE</a> =  0x000000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4d94c158fd35c96d49ad5ec51ae6c258">RDM_LG_RFF_NONE</a> =  0x00000000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772ae53f492e72360f39de4d180278bf21fb">RDM_LG_RFF_CLEAR_CACHE</a> =  0x000001, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772ae53f492e72360f39de4d180278bf21fb">RDM_LG_RFF_CLEAR_CACHE</a> =  0x00000001, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a3193fa7ebb542c608c4144b762fc443a">RDM_LG_RFF_HAS_ALLOW_SUSPECT_DATA</a> =  0x000002, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a3193fa7ebb542c608c4144b762fc443a">RDM_LG_RFF_HAS_ALLOW_SUSPECT_DATA</a> =  0x00000002, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4c69abf01d1fd71022aed46f1ea291b3">RDM_LG_RFF_HAS_APPLICATION_ID</a> =  0x000004, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4c69abf01d1fd71022aed46f1ea291b3">RDM_LG_RFF_HAS_APPLICATION_ID</a> =  0x00000004, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772ae96f52ff0aeeff4c94181c3bb4e56dd7">RDM_LG_RFF_HAS_APPLICATION_NAME</a> =  0x000008, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772ae96f52ff0aeeff4c94181c3bb4e56dd7">RDM_LG_RFF_HAS_APPLICATION_NAME</a> =  0x00000008, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4db1f43056a909933ad30dfbb936a376">RDM_LG_RFF_HAS_CONN_CONFIG</a> =  0x000010, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4db1f43056a909933ad30dfbb936a376">RDM_LG_RFF_HAS_CONN_CONFIG</a> =  0x00000010, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a021430bc8b093606942d38cacbe36890">RDM_LG_RFF_HAS_POSITION</a> =  0x000020, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a021430bc8b093606942d38cacbe36890">RDM_LG_RFF_HAS_POSITION</a> =  0x00000020, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4441efc364675a654286882791337d6e">RDM_LG_RFF_HAS_PROVIDE_PERM_EXPR</a> =  0x000040, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4441efc364675a654286882791337d6e">RDM_LG_RFF_HAS_PROVIDE_PERM_EXPR</a> =  0x00000040, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a5c04b7351beee79529a84587ab2b16e9">RDM_LG_RFF_HAS_PROVIDE_PERM_PROFILE</a> =  0x000080, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a5c04b7351beee79529a84587ab2b16e9">RDM_LG_RFF_HAS_PROVIDE_PERM_PROFILE</a> =  0x00000080, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a43c85e61f9afec3a946ef7975124a6af">RDM_LG_RFF_HAS_SEQ_NUM</a> =  0x000100, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a43c85e61f9afec3a946ef7975124a6af">RDM_LG_RFF_HAS_SEQ_NUM</a> =  0x00000100, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772afcb12e67ecf81fc3340ca091d2f5a215">RDM_LG_RFF_HAS_SINGLE_OPEN</a> =  0x000200, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772afcb12e67ecf81fc3340ca091d2f5a215">RDM_LG_RFF_HAS_SINGLE_OPEN</a> =  0x00000200, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a0cf3115def0697d1209bb512f588ea54">RDM_LG_RFF_HAS_SUPPORT_BATCH</a> =  0x000400, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a0cf3115def0697d1209bb512f588ea54">RDM_LG_RFF_HAS_SUPPORT_BATCH</a> =  0x00000400, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772ade3837c8e4eed27ff4cb7b506ce0f3e3">RDM_LG_RFF_HAS_SUPPORT_POST</a> =  0x000800, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772ade3837c8e4eed27ff4cb7b506ce0f3e3">RDM_LG_RFF_HAS_SUPPORT_POST</a> =  0x00000800, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a635164cbc3bc97e0800f346c85c9bc34">RDM_LG_RFF_HAS_SUPPORT_OPT_PAUSE</a> =  0x001000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a635164cbc3bc97e0800f346c85c9bc34">RDM_LG_RFF_HAS_SUPPORT_OPT_PAUSE</a> =  0x00001000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772aec60f41fc4453074edf151aae9024ac7">RDM_LG_RFF_HAS_SUPPORT_STANDBY</a> =  0x002000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772aec60f41fc4453074edf151aae9024ac7">RDM_LG_RFF_HAS_SUPPORT_STANDBY</a> =  0x00002000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a3fa2b5bc7184ea731554e61be5565eea">RDM_LG_RFF_HAS_SUPPORT_VIEW</a> =  0x004000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a3fa2b5bc7184ea731554e61be5565eea">RDM_LG_RFF_HAS_SUPPORT_VIEW</a> =  0x00004000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772ae529f2c56104a30d68b24f09859843dc">RDM_LG_RFF_HAS_USERNAME</a> =  0x008000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772ae529f2c56104a30d68b24f09859843dc">RDM_LG_RFF_HAS_USERNAME</a> =  0x00008000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a0e9ec01391d32f04a12e39d61075c825">RDM_LG_RFF_HAS_USERNAME_TYPE</a> =  0x010000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a0e9ec01391d32f04a12e39d61075c825">RDM_LG_RFF_HAS_USERNAME_TYPE</a> =  0x00010000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a08c6ec728065323783ecce202c9429f8">RDM_LG_RFF_SOLICITED</a> =  0x020000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a08c6ec728065323783ecce202c9429f8">RDM_LG_RFF_SOLICITED</a> =  0x00020000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a8bc460a8566ed503118e036061caf6d5">RDM_LG_RFF_HAS_SUPPORT_ENH_SL</a> =  0x040000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a8bc460a8566ed503118e036061caf6d5">RDM_LG_RFF_HAS_SUPPORT_ENH_SL</a> =  0x00040000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a879e63f1e29625d5c3d7c3047db3d666">RDM_LG_RFF_HAS_SUPPORT_PROV_DIC_DOWNLOAD</a> =  0x080000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a879e63f1e29625d5c3d7c3047db3d666">RDM_LG_RFF_HAS_SUPPORT_PROV_DIC_DOWNLOAD</a> =  0x00080000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a497ad84a2a0d1645656a370dba172c44">RDM_LG_RFF_HAS_SEQ_RETRY_INTERVAL</a> =  0x100000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a497ad84a2a0d1645656a370dba172c44">RDM_LG_RFF_HAS_SEQ_RETRY_INTERVAL</a> =  0x00100000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a598dc901927725f76387d7c1186f0457">RDM_LG_RFF_HAS_UPDATE_BUF_LIMIT</a> =  0x200000, 
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a598dc901927725f76387d7c1186f0457">RDM_LG_RFF_HAS_UPDATE_BUF_LIMIT</a> =  0x00200000, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a228dd14f863d8a65ac093ae1831a2868">RDM_LG_RFF_HAS_SEQ_NUM_RECOVERY</a> =  0x400000
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a228dd14f863d8a65ac093ae1831a2868">RDM_LG_RFF_HAS_SEQ_NUM_RECOVERY</a> =  0x00400000, 
+<br/>
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772ab9b92821ec4d081a87208fa3e30653cf">RDM_LG_RFF_HAS_AUTHN_TT_REISSUE</a> =  0x00800000, 
+<br/>
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772abe974b09cd5a7baeecec241968a7dcc3">RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP</a> =  0x01000000, 
+<br/>
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772aed367552fa00d61bee4681b5c0396335">RDM_LG_RFF_HAS_AUTHN_ERROR_CODE</a> =  0x02000000, 
+<br/>
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a6d5b9b059a66fd8347533d281b70a320">RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT</a> =  0x04000000
 <br/>
  }</td></tr>
 <tr class="memdesc:ga93f483e04f8dd95551f3faf4f3b55772"><td class="mdescLeft">&#160;</td><td class="mdescRight">The RDM Login Refresh Flags.  <a href="group__VARDMLogin.html#ga93f483e04f8dd95551f3faf4f3b55772">More...</a><br/></td></tr>
@@ -252,7 +262,11 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="group__VARDMLogin.html#gga853c6b04bbcccb77a38d3ce669b1a762a54f36a8276f54c17951c3933bf74219d">RDM_LG_STF_HAS_USERNAME</a> =  0x02, 
 <br/>
-&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga853c6b04bbcccb77a38d3ce669b1a762a98c0c8fdd1b67e41649c1bd116918416">RDM_LG_STF_HAS_USERNAME_TYPE</a> =  0x04
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga853c6b04bbcccb77a38d3ce669b1a762a98c0c8fdd1b67e41649c1bd116918416">RDM_LG_STF_HAS_USERNAME_TYPE</a> =  0x04, 
+<br/>
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga853c6b04bbcccb77a38d3ce669b1a762ab18ab430660eeac917d6a9bfb02e01fc">RDM_LG_STF_HAS_AUTHN_ERROR_CODE</a> =  0x08, 
+<br/>
+&#160;&#160;<a class="el" href="group__VARDMLogin.html#gga853c6b04bbcccb77a38d3ce669b1a762af6a8ca7f92f0ca97e84525447f7ea5a2">RDM_LG_STF_HAS_AUTHN_ERROR_TEXT</a> =  0x10
 <br/>
  }</td></tr>
 <tr class="memdesc:ga853c6b04bbcccb77a38d3ce669b1a762"><td class="mdescLeft">&#160;</td><td class="mdescRight">The RDM Login Status Flags.  <a href="group__VARDMLogin.html#ga853c6b04bbcccb77a38d3ce669b1a762">More...</a><br/></td></tr>
@@ -368,76 +382,88 @@ Functions</h2></td></tr>
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="structRsslRDMLoginRefresh.html" title="The RDM Login Refresh. Used by an OMM Provider to accept or reject a login request and provide inform...">RsslRDMLoginRefresh</a> </dd></dl>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a4d94c158fd35c96d49ad5ec51ae6c258"></a>RDM_LG_RFF_NONE</em>&nbsp;</td><td>
-<p>(0x000000) No flags set. </p>
+<p>(0x00000000) No flags set. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772ae53f492e72360f39de4d180278bf21fb"></a>RDM_LG_RFF_CLEAR_CACHE</em>&nbsp;</td><td>
-<p>(0x000001) Indicates whether the receiver of the refresh should clear any associated cache information. </p>
+<p>(0x00000001) Indicates whether the receiver of the refresh should clear any associated cache information. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a3193fa7ebb542c608c4144b762fc443a"></a>RDM_LG_RFF_HAS_ALLOW_SUSPECT_DATA</em>&nbsp;</td><td>
-<p>(0x000002) Indicates presence of the allowSuspectData member. </p>
+<p>(0x00000002) Indicates presence of the allowSuspectData member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a4c69abf01d1fd71022aed46f1ea291b3"></a>RDM_LG_RFF_HAS_APPLICATION_ID</em>&nbsp;</td><td>
-<p>(0x000004) Indicates presence of the applicationId member. </p>
+<p>(0x00000004) Indicates presence of the applicationId member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772ae96f52ff0aeeff4c94181c3bb4e56dd7"></a>RDM_LG_RFF_HAS_APPLICATION_NAME</em>&nbsp;</td><td>
-<p>(0x000008) Indicates presence of the applicationName member. </p>
+<p>(0x00000008) Indicates presence of the applicationName member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a4db1f43056a909933ad30dfbb936a376"></a>RDM_LG_RFF_HAS_CONN_CONFIG</em>&nbsp;</td><td>
-<p>(0x000010) Indicates presence of the numStandbyServers and serverList members. </p>
+<p>(0x00000010) Indicates presence of the numStandbyServers and serverList members. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a021430bc8b093606942d38cacbe36890"></a>RDM_LG_RFF_HAS_POSITION</em>&nbsp;</td><td>
-<p>(0x000020) Indicates presence of the position member. </p>
+<p>(0x00000020) Indicates presence of the position member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a4441efc364675a654286882791337d6e"></a>RDM_LG_RFF_HAS_PROVIDE_PERM_EXPR</em>&nbsp;</td><td>
-<p>(0x000040) Indicates presence of the providePermissionExpressions member. </p>
+<p>(0x00000040) Indicates presence of the providePermissionExpressions member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a5c04b7351beee79529a84587ab2b16e9"></a>RDM_LG_RFF_HAS_PROVIDE_PERM_PROFILE</em>&nbsp;</td><td>
-<p>(0x000080) Indicates presence of the providePermissionProfile member. </p>
+<p>(0x00000080) Indicates presence of the providePermissionProfile member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a43c85e61f9afec3a946ef7975124a6af"></a>RDM_LG_RFF_HAS_SEQ_NUM</em>&nbsp;</td><td>
-<p>(0x000100) Indicates presence of the sequenceNumber member. </p>
+<p>(0x00000100) Indicates presence of the sequenceNumber member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772afcb12e67ecf81fc3340ca091d2f5a215"></a>RDM_LG_RFF_HAS_SINGLE_OPEN</em>&nbsp;</td><td>
-<p>(0x000200) Indicates presence of the singleOpen member. </p>
+<p>(0x00000200) Indicates presence of the singleOpen member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a0cf3115def0697d1209bb512f588ea54"></a>RDM_LG_RFF_HAS_SUPPORT_BATCH</em>&nbsp;</td><td>
-<p>(0x000400) Indicates presence of the supportBatchRequests member. </p>
+<p>(0x00000400) Indicates presence of the supportBatchRequests member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772ade3837c8e4eed27ff4cb7b506ce0f3e3"></a>RDM_LG_RFF_HAS_SUPPORT_POST</em>&nbsp;</td><td>
-<p>(0x000800) Indicates presence of the supportOMMPost member. </p>
+<p>(0x00000800) Indicates presence of the supportOMMPost member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a635164cbc3bc97e0800f346c85c9bc34"></a>RDM_LG_RFF_HAS_SUPPORT_OPT_PAUSE</em>&nbsp;</td><td>
-<p>(0x001000) Indicates presence of the supportOptimizedPauseResume member. </p>
+<p>(0x00001000) Indicates presence of the supportOptimizedPauseResume member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772aec60f41fc4453074edf151aae9024ac7"></a>RDM_LG_RFF_HAS_SUPPORT_STANDBY</em>&nbsp;</td><td>
-<p>(0x002000) Indicates presence of the supportStandby member. </p>
+<p>(0x00002000) Indicates presence of the supportStandby member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a3fa2b5bc7184ea731554e61be5565eea"></a>RDM_LG_RFF_HAS_SUPPORT_VIEW</em>&nbsp;</td><td>
-<p>(0x004000) Indicates presence of the supportViewRequests member. </p>
+<p>(0x00004000) Indicates presence of the supportViewRequests member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772ae529f2c56104a30d68b24f09859843dc"></a>RDM_LG_RFF_HAS_USERNAME</em>&nbsp;</td><td>
-<p>(0x008000) Indicates presence of the userName member. </p>
+<p>(0x00008000) Indicates presence of the userName member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a0e9ec01391d32f04a12e39d61075c825"></a>RDM_LG_RFF_HAS_USERNAME_TYPE</em>&nbsp;</td><td>
-<p>(0x010000) Indicates presence of the userNameType member. </p>
+<p>(0x00010000) Indicates presence of the userNameType member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a08c6ec728065323783ecce202c9429f8"></a>RDM_LG_RFF_SOLICITED</em>&nbsp;</td><td>
-<p>(0x020000) Indicates whether this refresh is being provided in response to a request. </p>
+<p>(0x00020000) Indicates whether this refresh is being provided in response to a request. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a8bc460a8566ed503118e036061caf6d5"></a>RDM_LG_RFF_HAS_SUPPORT_ENH_SL</em>&nbsp;</td><td>
-<p>(0x040000) Indicates presence of the supportEnhancedSymbolList member. </p>
+<p>(0x00040000) Indicates presence of the supportEnhancedSymbolList member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a879e63f1e29625d5c3d7c3047db3d666"></a>RDM_LG_RFF_HAS_SUPPORT_PROV_DIC_DOWNLOAD</em>&nbsp;</td><td>
-<p>(0x080000) Indicates presence of the supportProviderDictionaryDownload member. </p>
+<p>(0x00080000) Indicates presence of the supportProviderDictionaryDownload member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a497ad84a2a0d1645656a370dba172c44"></a>RDM_LG_RFF_HAS_SEQ_RETRY_INTERVAL</em>&nbsp;</td><td>
-<p>(0x100000) Indicates presence of the sequenceRetryInterval member. </p>
+<p>(0x00100000) Indicates presence of the sequenceRetryInterval member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a598dc901927725f76387d7c1186f0457"></a>RDM_LG_RFF_HAS_UPDATE_BUF_LIMIT</em>&nbsp;</td><td>
-<p>(0x200000) Indicates presence of the updateBufferLimit member. </p>
+<p>(0x00200000) Indicates presence of the updateBufferLimit member. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a228dd14f863d8a65ac093ae1831a2868"></a>RDM_LG_RFF_HAS_SEQ_NUM_RECOVERY</em>&nbsp;</td><td>
-<p>(0x400000) Indicates presence of the sequenceNumberRecovery member. </p>
+<p>(0x00400000) Indicates presence of the sequenceNumberRecovery member. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772ab9b92821ec4d081a87208fa3e30653cf"></a>RDM_LG_RFF_HAS_AUTHN_TT_REISSUE</em>&nbsp;</td><td>
+<p>(0x00800000) Indicates presence of the authentication time to reissue member </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772abe974b09cd5a7baeecec241968a7dcc3"></a>RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP</em>&nbsp;</td><td>
+<p>(0x01000000) Indicates presence of the authentication extended response buffer </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772aed367552fa00d61bee4681b5c0396335"></a>RDM_LG_RFF_HAS_AUTHN_ERROR_CODE</em>&nbsp;</td><td>
+<p>(0x02000000) Indicates presence of the authenication error code </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="gga93f483e04f8dd95551f3faf4f3b55772a6d5b9b059a66fd8347533d281b70a320"></a>RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT</em>&nbsp;</td><td>
+<p>(0x04000000) Indicates presence of the authentication error text member </p>
 </td></tr>
 </table>
 </dd>
@@ -508,6 +534,9 @@ Functions</h2></td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga44cc7070c7b80fe2623b427f9697f045a8a8ebf2dd0116174c99806144fb833ef"></a>RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN</em>&nbsp;</td><td>
 <p>(0x8000) Indicates presence of the applicationAuthenticationToken member </p>
 </td></tr>
+<tr><td valign="top"><em><a class="anchor" id="gga44cc7070c7b80fe2623b427f9697f045a10c81b4760c2b5e48b56137b4b9bc934"></a>RDM_LG_RQF_HAS_AUTHN_EXTENDED</em>&nbsp;</td><td>
+<p>(0x020000) Indicates presence of extended authentication data. </p>
+</td></tr>
 </table>
 </dd>
 </dl>
@@ -537,6 +566,12 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga853c6b04bbcccb77a38d3ce669b1a762a98c0c8fdd1b67e41649c1bd116918416"></a>RDM_LG_STF_HAS_USERNAME_TYPE</em>&nbsp;</td><td>
 <p>(0x04) Indicates presence of the userNameType member. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="gga853c6b04bbcccb77a38d3ce669b1a762ab18ab430660eeac917d6a9bfb02e01fc"></a>RDM_LG_STF_HAS_AUTHN_ERROR_CODE</em>&nbsp;</td><td>
+<p>(0x08) Indicates presence of the Authentication error code member </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="gga853c6b04bbcccb77a38d3ce669b1a762af6a8ca7f92f0ca97e84525447f7ea5a2"></a>RDM_LG_STF_HAS_AUTHN_ERROR_TEXT</em>&nbsp;</td><td>
+<p>(0x10) Indicates presence of the Authentication error text member </p>
 </td></tr>
 </table>
 </dd>
@@ -648,7 +683,7 @@ Functions</h2></td></tr>
 <div class="memdoc">
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="structRsslRDMLoginRefresh.html" title="The RDM Login Refresh. Used by an OMM Provider to accept or reject a login request and provide inform...">RsslRDMLoginRefresh</a> </dd></dl>
 
-<p>References <a class="el" href="structRsslRDMLoginRefresh.html#a3e802e3bb6f6d7148728614894510077">RsslRDMLoginRefresh::allowSuspectData</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ab5e5a1e4c77c33aa72402e047553581a">RsslRDMLoginRefresh::applicationId</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a0648a430fe1f1785ff3350da4a1f07e9">RsslRDMLoginRefresh::applicationName</a>, <a class="el" href="structRsslRDMMsgBase.html#a47bcd0240e11167d86d3e2a3f6bb2ce4">RsslRDMMsgBase::domainType</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ae95d0650865e469b01909c8371a55bdc">RsslRDMLoginRefresh::flags</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a8efa71f4b188b82c59f2fa10ea108149">RsslRDMLoginRefresh::numStandbyServers</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ae9c178841bbc91bbb9fdb9d6c9fdc0eb">RsslRDMLoginRefresh::position</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a76618bf4f9c61441bf0de901779d14be">RsslRDMLoginRefresh::providePermissionExpressions</a>, <a class="el" href="structRsslRDMLoginRefresh.html#af87018835dc7e88a85e3d303532dbb55">RsslRDMLoginRefresh::providePermissionProfile</a>, <a class="el" href="group__VARDMLogin.html#gga701bb3b30efcc2d4d6cbf90a6587c86fad9bb0d90738dca4b5e720ad076c188ae">RDM_LG_MT_REFRESH</a>, <a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4d94c158fd35c96d49ad5ec51ae6c258">RDM_LG_RFF_NONE</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a539dd659f8e67fdb29ab476e3e7f119c">RsslRDMLoginRefresh::rdmMsgBase</a>, <a class="el" href="structRsslRDMMsgBase.html#a0cbd412837724492242ac8219e9a4f9a">RsslRDMMsgBase::rdmMsgType</a>, <a class="el" href="group__VARDMCommonBase.html#ga45e429860df0d9ce837c3053f977f64e">rsslClearRDMMsgBase()</a>, <a class="el" href="structRsslRDMLoginRefresh.html#af4a53be01b6bd2c291e1b5ab340c9e6f">RsslRDMLoginRefresh::sequenceNumber</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a00ab69a260f7d1bfc64db7f96043bc08">RsslRDMLoginRefresh::sequenceNumberRecovery</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ac4fdafef71a2c927f526f6710fb1fade">RsslRDMLoginRefresh::sequenceRetryInterval</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ad3d64b06b3fb9c91f2318fc0f82a5456">RsslRDMLoginRefresh::serverCount</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a69ebd0fc3690662dcc4e76b612420c22">RsslRDMLoginRefresh::serverList</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a9f54a7e2ea5f3223985a86e1d38994ff">RsslRDMLoginRefresh::singleOpen</a>, <a class="el" href="structRsslRDMLoginRefresh.html#aa4b3d872a3c121caa5e5f072410795bd">RsslRDMLoginRefresh::state</a>, <a class="el" href="structRsslRDMLoginRefresh.html#aae98bccb00f9f51cafc85f61b85e9fbe">RsslRDMLoginRefresh::supportBatchRequests</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a9ecddb8f81bd8bc465ebaca6b953527d">RsslRDMLoginRefresh::supportEnhancedSymbolList</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a3f575263b84650e9175236455a57b9f1">RsslRDMLoginRefresh::supportOMMPost</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ac89e8651968b6a226d9bb090c89aa253">RsslRDMLoginRefresh::supportOptimizedPauseResume</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ab9d3a027271025157a187c0554cb22c4">RsslRDMLoginRefresh::supportProviderDictionaryDownload</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ae170560883da26d9eb81bffe12dd9250">RsslRDMLoginRefresh::supportStandby</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ada2e6cefd315716dc4cefe3268c1aee4">RsslRDMLoginRefresh::supportViewRequests</a>, <a class="el" href="structRsslRDMLoginRefresh.html#aad8aca4503ee3f7593557b31cf3be294">RsslRDMLoginRefresh::updateBufferLimit</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ad3871cb3ffd9c73a99150791e9497fde">RsslRDMLoginRefresh::userName</a>, and <a class="el" href="structRsslRDMLoginRefresh.html#a149f420cbeff50d5ca28daf5f7209255">RsslRDMLoginRefresh::userNameType</a>.</p>
+<p>References <a class="el" href="structRsslRDMLoginRefresh.html#a3e802e3bb6f6d7148728614894510077">RsslRDMLoginRefresh::allowSuspectData</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ab5e5a1e4c77c33aa72402e047553581a">RsslRDMLoginRefresh::applicationId</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a0648a430fe1f1785ff3350da4a1f07e9">RsslRDMLoginRefresh::applicationName</a>, <a class="el" href="structRsslRDMLoginRefresh.html#aad2351a4dd732962e44f7b1172013e98">RsslRDMLoginRefresh::authenticationErrorCode</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a2e6e10b160d5d0a6ae77afc52ce647cd">RsslRDMLoginRefresh::authenticationErrorText</a>, <a class="el" href="structRsslRDMLoginRefresh.html#af1bcf893f3520701ba4060de9bb2bc7e">RsslRDMLoginRefresh::authenticationExtendedResp</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ae46fc89d9fc4b4d7e0ddb6594cc97446">RsslRDMLoginRefresh::authenticationTTReissue</a>, <a class="el" href="structRsslRDMMsgBase.html#a47bcd0240e11167d86d3e2a3f6bb2ce4">RsslRDMMsgBase::domainType</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ae95d0650865e469b01909c8371a55bdc">RsslRDMLoginRefresh::flags</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a8efa71f4b188b82c59f2fa10ea108149">RsslRDMLoginRefresh::numStandbyServers</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ae9c178841bbc91bbb9fdb9d6c9fdc0eb">RsslRDMLoginRefresh::position</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a76618bf4f9c61441bf0de901779d14be">RsslRDMLoginRefresh::providePermissionExpressions</a>, <a class="el" href="structRsslRDMLoginRefresh.html#af87018835dc7e88a85e3d303532dbb55">RsslRDMLoginRefresh::providePermissionProfile</a>, <a class="el" href="group__VARDMLogin.html#gga701bb3b30efcc2d4d6cbf90a6587c86fad9bb0d90738dca4b5e720ad076c188ae">RDM_LG_MT_REFRESH</a>, <a class="el" href="group__VARDMLogin.html#gga93f483e04f8dd95551f3faf4f3b55772a4d94c158fd35c96d49ad5ec51ae6c258">RDM_LG_RFF_NONE</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a539dd659f8e67fdb29ab476e3e7f119c">RsslRDMLoginRefresh::rdmMsgBase</a>, <a class="el" href="structRsslRDMMsgBase.html#a0cbd412837724492242ac8219e9a4f9a">RsslRDMMsgBase::rdmMsgType</a>, <a class="el" href="group__VARDMCommonBase.html#ga45e429860df0d9ce837c3053f977f64e">rsslClearRDMMsgBase()</a>, <a class="el" href="structRsslRDMLoginRefresh.html#af4a53be01b6bd2c291e1b5ab340c9e6f">RsslRDMLoginRefresh::sequenceNumber</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a00ab69a260f7d1bfc64db7f96043bc08">RsslRDMLoginRefresh::sequenceNumberRecovery</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ac4fdafef71a2c927f526f6710fb1fade">RsslRDMLoginRefresh::sequenceRetryInterval</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ad3d64b06b3fb9c91f2318fc0f82a5456">RsslRDMLoginRefresh::serverCount</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a69ebd0fc3690662dcc4e76b612420c22">RsslRDMLoginRefresh::serverList</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a9f54a7e2ea5f3223985a86e1d38994ff">RsslRDMLoginRefresh::singleOpen</a>, <a class="el" href="structRsslRDMLoginRefresh.html#aa4b3d872a3c121caa5e5f072410795bd">RsslRDMLoginRefresh::state</a>, <a class="el" href="structRsslRDMLoginRefresh.html#aae98bccb00f9f51cafc85f61b85e9fbe">RsslRDMLoginRefresh::supportBatchRequests</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a9ecddb8f81bd8bc465ebaca6b953527d">RsslRDMLoginRefresh::supportEnhancedSymbolList</a>, <a class="el" href="structRsslRDMLoginRefresh.html#a3f575263b84650e9175236455a57b9f1">RsslRDMLoginRefresh::supportOMMPost</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ac89e8651968b6a226d9bb090c89aa253">RsslRDMLoginRefresh::supportOptimizedPauseResume</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ab9d3a027271025157a187c0554cb22c4">RsslRDMLoginRefresh::supportProviderDictionaryDownload</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ae170560883da26d9eb81bffe12dd9250">RsslRDMLoginRefresh::supportStandby</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ada2e6cefd315716dc4cefe3268c1aee4">RsslRDMLoginRefresh::supportViewRequests</a>, <a class="el" href="structRsslRDMLoginRefresh.html#aad8aca4503ee3f7593557b31cf3be294">RsslRDMLoginRefresh::updateBufferLimit</a>, <a class="el" href="structRsslRDMLoginRefresh.html#ad3871cb3ffd9c73a99150791e9497fde">RsslRDMLoginRefresh::userName</a>, and <a class="el" href="structRsslRDMLoginRefresh.html#a149f420cbeff50d5ca28daf5f7209255">RsslRDMLoginRefresh::userNameType</a>.</p>
 
 </div>
 </div>
@@ -668,7 +703,7 @@ Functions</h2></td></tr>
 <div class="memdoc">
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="structRsslRDMLoginRequest.html" title="The RDM Login Request. Used by an OMM Consumer or OMM Noninteractive Provider to request a login...">RsslRDMLoginRequest</a>, <a class="el" href="group__VARDMLogin.html#ga75cc8bade3b3615a917ea8020cbf3e3e" title="Initializes an RsslRDMLoginRequest, clearing it and filling in a typical userName, applicationName and position. NOTE: On Windows it is recommended that rsslInitialize() is called before calling this function to ensure that position is correctly set.">rsslInitDefaultRDMLoginRequest</a> </dd></dl>
 
-<p>References <a class="el" href="structRsslRDMLoginRequest.html#a623f6091360334342795f96ee7494deb">RsslRDMLoginRequest::allowSuspectData</a>, <a class="el" href="structRsslRDMLoginRequest.html#a44c8122c1bc1181b92a93168b539d68b">RsslRDMLoginRequest::applicationAuthorizationToken</a>, <a class="el" href="structRsslRDMLoginRequest.html#a6d5aea3c5572adaaef2af477d797c994">RsslRDMLoginRequest::applicationId</a>, <a class="el" href="structRsslRDMLoginRequest.html#a524edb970231f1a2eb10c695492d17e0">RsslRDMLoginRequest::applicationName</a>, <a class="el" href="structRsslRDMMsgBase.html#a47bcd0240e11167d86d3e2a3f6bb2ce4">RsslRDMMsgBase::domainType</a>, <a class="el" href="structRsslRDMLoginRequest.html#ad2f046c14f2259174b7e87fce67d9dff">RsslRDMLoginRequest::downloadConnectionConfig</a>, <a class="el" href="structRsslRDMLoginRequest.html#ad7b1cbb0755f0698fe0be0e186cbced5">RsslRDMLoginRequest::flags</a>, <a class="el" href="structRsslRDMLoginRequest.html#ae6e700f39f9c3fbeb45ed62bd5415a1d">RsslRDMLoginRequest::instanceId</a>, <a class="el" href="structRsslRDMLoginRequest.html#a33d2f1c0a9802c189ca64293b7d662cf">RsslRDMLoginRequest::password</a>, <a class="el" href="structRsslRDMLoginRequest.html#aa1d5dba447c1ebf755ec5daccb52e935">RsslRDMLoginRequest::position</a>, <a class="el" href="structRsslRDMLoginRequest.html#ab1708235a0f37781368675eb70a0cee8">RsslRDMLoginRequest::providePermissionExpressions</a>, <a class="el" href="structRsslRDMLoginRequest.html#a1a7bec6c6d72adb7297b90d1c658bbac">RsslRDMLoginRequest::providePermissionProfile</a>, <a class="el" href="group__VARDMLogin.html#gga701bb3b30efcc2d4d6cbf90a6587c86fac8aaf17c0ca4ffde113208670ab53985">RDM_LG_MT_REQUEST</a>, <a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a9f0ab0f60236e5285bea632fb9fa1138">RDM_LG_RQF_NONE</a>, <a class="el" href="structRsslRDMLoginRequest.html#a6bdb00ea58ebabd426568589032e48de">RsslRDMLoginRequest::rdmMsgBase</a>, <a class="el" href="structRsslRDMMsgBase.html#a0cbd412837724492242ac8219e9a4f9a">RsslRDMMsgBase::rdmMsgType</a>, <a class="el" href="structRsslRDMLoginRequest.html#a2a6b183d634545bb805eb2ea6533147b">RsslRDMLoginRequest::role</a>, <a class="el" href="group__VARDMCommonBase.html#ga45e429860df0d9ce837c3053f977f64e">rsslClearRDMMsgBase()</a>, <a class="el" href="structRsslRDMLoginRequest.html#a7f2b882e14419a5c3682f6c5605c9cb0">RsslRDMLoginRequest::singleOpen</a>, <a class="el" href="structRsslRDMLoginRequest.html#a90c6766bf11c1edea91bdccd0c46e219">RsslRDMLoginRequest::supportProviderDictionaryDownload</a>, <a class="el" href="structRsslRDMLoginRequest.html#a65bb7e1ec14f73f5ee7e91bfedd5b6d0">RsslRDMLoginRequest::userName</a>, and <a class="el" href="structRsslRDMLoginRequest.html#a6a03668dcd7c5470490baf58e8601eaf">RsslRDMLoginRequest::userNameType</a>.</p>
+<p>References <a class="el" href="structRsslRDMLoginRequest.html#a623f6091360334342795f96ee7494deb">RsslRDMLoginRequest::allowSuspectData</a>, <a class="el" href="structRsslRDMLoginRequest.html#a44c8122c1bc1181b92a93168b539d68b">RsslRDMLoginRequest::applicationAuthorizationToken</a>, <a class="el" href="structRsslRDMLoginRequest.html#a6d5aea3c5572adaaef2af477d797c994">RsslRDMLoginRequest::applicationId</a>, <a class="el" href="structRsslRDMLoginRequest.html#a524edb970231f1a2eb10c695492d17e0">RsslRDMLoginRequest::applicationName</a>, <a class="el" href="structRsslRDMLoginRequest.html#aa51326a5ad7a6fcecb39b1c4a474290f">RsslRDMLoginRequest::authenticationExtended</a>, <a class="el" href="structRsslRDMMsgBase.html#a47bcd0240e11167d86d3e2a3f6bb2ce4">RsslRDMMsgBase::domainType</a>, <a class="el" href="structRsslRDMLoginRequest.html#ad2f046c14f2259174b7e87fce67d9dff">RsslRDMLoginRequest::downloadConnectionConfig</a>, <a class="el" href="structRsslRDMLoginRequest.html#ad7b1cbb0755f0698fe0be0e186cbced5">RsslRDMLoginRequest::flags</a>, <a class="el" href="structRsslRDMLoginRequest.html#ae6e700f39f9c3fbeb45ed62bd5415a1d">RsslRDMLoginRequest::instanceId</a>, <a class="el" href="structRsslRDMLoginRequest.html#a33d2f1c0a9802c189ca64293b7d662cf">RsslRDMLoginRequest::password</a>, <a class="el" href="structRsslRDMLoginRequest.html#aa1d5dba447c1ebf755ec5daccb52e935">RsslRDMLoginRequest::position</a>, <a class="el" href="structRsslRDMLoginRequest.html#ab1708235a0f37781368675eb70a0cee8">RsslRDMLoginRequest::providePermissionExpressions</a>, <a class="el" href="structRsslRDMLoginRequest.html#a1a7bec6c6d72adb7297b90d1c658bbac">RsslRDMLoginRequest::providePermissionProfile</a>, <a class="el" href="group__VARDMLogin.html#gga701bb3b30efcc2d4d6cbf90a6587c86fac8aaf17c0ca4ffde113208670ab53985">RDM_LG_MT_REQUEST</a>, <a class="el" href="group__VARDMLogin.html#gga44cc7070c7b80fe2623b427f9697f045a9f0ab0f60236e5285bea632fb9fa1138">RDM_LG_RQF_NONE</a>, <a class="el" href="structRsslRDMLoginRequest.html#a6bdb00ea58ebabd426568589032e48de">RsslRDMLoginRequest::rdmMsgBase</a>, <a class="el" href="structRsslRDMMsgBase.html#a0cbd412837724492242ac8219e9a4f9a">RsslRDMMsgBase::rdmMsgType</a>, <a class="el" href="structRsslRDMLoginRequest.html#a2a6b183d634545bb805eb2ea6533147b">RsslRDMLoginRequest::role</a>, <a class="el" href="group__VARDMCommonBase.html#ga45e429860df0d9ce837c3053f977f64e">rsslClearRDMMsgBase()</a>, <a class="el" href="structRsslRDMLoginRequest.html#a7f2b882e14419a5c3682f6c5605c9cb0">RsslRDMLoginRequest::singleOpen</a>, <a class="el" href="structRsslRDMLoginRequest.html#a90c6766bf11c1edea91bdccd0c46e219">RsslRDMLoginRequest::supportProviderDictionaryDownload</a>, <a class="el" href="structRsslRDMLoginRequest.html#a65bb7e1ec14f73f5ee7e91bfedd5b6d0">RsslRDMLoginRequest::userName</a>, and <a class="el" href="structRsslRDMLoginRequest.html#a6a03668dcd7c5470490baf58e8601eaf">RsslRDMLoginRequest::userNameType</a>.</p>
 
 <p>Referenced by <a class="el" href="group__VARDMLogin.html#ga75cc8bade3b3615a917ea8020cbf3e3e">rsslInitDefaultRDMLoginRequest()</a>.</p>
 
@@ -690,7 +725,7 @@ Functions</h2></td></tr>
 <div class="memdoc">
 <dl class="section see"><dt>See also:</dt><dd><a class="el" href="structRsslRDMLoginStatus.html" title="The RDM Login Status. Used by an OMM Provider to indicate changes to the Login stream.">RsslRDMLoginStatus</a> </dd></dl>
 
-<p>References <a class="el" href="structRsslRDMMsgBase.html#a47bcd0240e11167d86d3e2a3f6bb2ce4">RsslRDMMsgBase::domainType</a>, <a class="el" href="structRsslRDMLoginStatus.html#a69ea17785dff5544b3207cf8e25007b9">RsslRDMLoginStatus::flags</a>, <a class="el" href="group__VARDMLogin.html#gga701bb3b30efcc2d4d6cbf90a6587c86fa318e0fb23e7aa77681a0e824eada1469">RDM_LG_MT_STATUS</a>, <a class="el" href="group__VARDMLogin.html#gga853c6b04bbcccb77a38d3ce669b1a762af263295a790919ec17e97f25111bff17">RDM_LG_STF_NONE</a>, <a class="el" href="structRsslRDMLoginStatus.html#af6ce55b6ff48ba1c68f1064ba8ea547e">RsslRDMLoginStatus::rdmMsgBase</a>, <a class="el" href="structRsslRDMMsgBase.html#a0cbd412837724492242ac8219e9a4f9a">RsslRDMMsgBase::rdmMsgType</a>, <a class="el" href="group__VARDMCommonBase.html#ga45e429860df0d9ce837c3053f977f64e">rsslClearRDMMsgBase()</a>, <a class="el" href="structRsslRDMLoginStatus.html#adc7f4e1f25728e8d3e881f244b03786e">RsslRDMLoginStatus::state</a>, <a class="el" href="structRsslRDMLoginStatus.html#ac7d8abf7035f97627d145effd6a9799e">RsslRDMLoginStatus::userName</a>, and <a class="el" href="structRsslRDMLoginStatus.html#a3a3c610b7cd29dace4040a6e913dbe43">RsslRDMLoginStatus::userNameType</a>.</p>
+<p>References <a class="el" href="structRsslRDMLoginStatus.html#ad7b5a063705d4db89370b87ce272b8d3">RsslRDMLoginStatus::authenticationErrorCode</a>, <a class="el" href="structRsslRDMLoginStatus.html#af4aee67ec66259e5992e757ebac1054e">RsslRDMLoginStatus::authenticationErrorText</a>, <a class="el" href="structRsslRDMMsgBase.html#a47bcd0240e11167d86d3e2a3f6bb2ce4">RsslRDMMsgBase::domainType</a>, <a class="el" href="structRsslRDMLoginStatus.html#a69ea17785dff5544b3207cf8e25007b9">RsslRDMLoginStatus::flags</a>, <a class="el" href="group__VARDMLogin.html#gga701bb3b30efcc2d4d6cbf90a6587c86fa318e0fb23e7aa77681a0e824eada1469">RDM_LG_MT_STATUS</a>, <a class="el" href="group__VARDMLogin.html#gga853c6b04bbcccb77a38d3ce669b1a762af263295a790919ec17e97f25111bff17">RDM_LG_STF_NONE</a>, <a class="el" href="structRsslRDMLoginStatus.html#af6ce55b6ff48ba1c68f1064ba8ea547e">RsslRDMLoginStatus::rdmMsgBase</a>, <a class="el" href="structRsslRDMMsgBase.html#a0cbd412837724492242ac8219e9a4f9a">RsslRDMMsgBase::rdmMsgType</a>, <a class="el" href="group__VARDMCommonBase.html#ga45e429860df0d9ce837c3053f977f64e">rsslClearRDMMsgBase()</a>, <a class="el" href="structRsslRDMLoginStatus.html#adc7f4e1f25728e8d3e881f244b03786e">RsslRDMLoginStatus::state</a>, <a class="el" href="structRsslRDMLoginStatus.html#ac7d8abf7035f97627d145effd6a9799e">RsslRDMLoginStatus::userName</a>, and <a class="el" href="structRsslRDMLoginStatus.html#a3a3c610b7cd29dace4040a6e913dbe43">RsslRDMLoginStatus::userNameType</a>.</p>
 
 </div>
 </div>
@@ -894,7 +929,7 @@ RSSL_RET_BUFFER_TOO_SMALL, if the size of pNewMemoryBuffer was not large enough 
             <td><p class="smallfont"><a href="../../portal/copyright.htm">Copyright Notice</a></td>
             <td><p class="smallfont"><font color="#FF6600">&nbsp;|&nbsp;</font> </td>
             <td><p class="smallfont">Last modified on:&nbsp;</td>
-            <td><p class="smallfont">Fri Sep 16 2016</td>
+            <td><p class="smallfont">Thu Apr 27 2017</td>
           </tr>
         </table>
         <p class="smallfont">&nbsp;</td>

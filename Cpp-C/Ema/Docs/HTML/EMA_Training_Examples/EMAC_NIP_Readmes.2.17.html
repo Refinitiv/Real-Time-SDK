@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>430__MarketPrice__TrepAuthentication</title>
+    <link rel="StyleSheet" href="css/EMAC_NIP_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1031894">430__MarketPrice__TrepAuthentication</a></div>
+      <div class="Body"><a name="1032489">OVERVIEW</a></div>
+      <div class="Body"><a name="1032490">========</a></div>
+      <div class="Body"><a name="1032491">&nbsp;</a></div>
+      <div class="Body"><a name="1032492">The 430_MarketPrice_TrepAuthentication application is a simple application written to demonstrate</a></div>
+      <div class="Body"><a name="1032493">usage of the TREP Authentication Feature.</a></div>
+      <div class="Body"><a name="1032494">&nbsp;</a></div>
+      <div class="Body"><a name="1032495">LIMITATIONS</a></div>
+      <div class="Body"><a name="1032496">===========</a></div>
+      <div class="Body"><a name="1032497">&nbsp;</a></div>
+      <div class="Body"><a name="1032498">To demonstrate the TREP Authentication Feature the 430_MarketPrice_TrepAuthentication application</a></div>
+      <div class="Body"><a name="1032499">must be connected to an ADH that supports the feature.</a></div>
+      <div class="Body"><a name="1032500">&nbsp;</a></div>
+      <div class="Body"><a name="1032501">USAGE</a></div>
+      <div class="Body"><a name="1032502">=====</a></div>
+      <div class="Body"><a name="1032503">&nbsp;</a></div>
+      <div class="Body"><a name="1032504">The 430_MarketPrice_TrepAuthentication utilizes command line options as well as the xml configuration.</a></div>
+      <div class="Body"><a name="1032505">&nbsp;</a></div>
+      <div class="Body"><a name="1032506">Options:</a></div>
+      <div class="Body"><a name="1032507">&nbsp;</a></div>
+      <div class="Body"><a name="1032508">-at &lt;authentication token&gt; 		Required authentication token.</a></div>
+      <div class="Body"><a name="1032509">-ax &lt;authentication extended&gt; 	Optional authentication extended information</a></div>
+      <div class="Body"><a name="1032510">-aid &lt;application Id&gt;			Optional application Id.  If not present, this defaults to “256”.</a></div>
+      <div class="Body"><a name="1032511">&nbsp;</a></div>
+      <div class="Body"><a name="1032512">To learn the command line options, please specify “-?” command line option so that the</a></div>
+      <div class="Body"><a name="1032513">usage help can be printed out.</a></div>
+      <div class="Body"><a name="1032514">&nbsp;</a></div>
+      <div class="Body"><a name="1032515">&nbsp;</a></div>
+      <div class="Body"><a name="1032516">Detailed Description</a></div>
+      <div class="Body"><a name="1032517">====================</a></div>
+      <div class="Body"><a name="1032518">&nbsp;</a></div>
+      <div class="Body"><a name="1032519">430_MarketPrice_TrepAuthentication implements the following high level steps:</a></div>
+      <div class="Body"><a name="1032520">&nbsp;</a></div>
+      <div class="Body"><a name="1032521">+ Implements OmmProviderClient class in AppLoginClient</a></div>
+      <div class="Body"><a name="1032522">  - overrides desired methods for the login domain</a></div>
+      <div class="Body"><a name="1032523">  - When the Login response message is received, the appLoginClient stores the </a></div>
+      <div class="Body"><a name="1032524">    handle and Authentication TTReissue.  This handle is used to reissue the </a></div>
+      <div class="Body"><a name="1032525">	token once the Authentication TTReissue time is reached.</a></div>
+      <div class="Body"><a name="1032526">  - provides own methods as needed  </a></div>
+      <div class="Body"><a name="1032527">+ Instantiates AppLoginClient object that receives and processes login item messages</a></div>
+      <div class="Body"><a name="1032528">+ Instantiates and modifies OmmProviderConfig object</a></div>
+      <div class="Body"><a name="1032529">  - sets request message for Login domain to override default</a></div>
+      <div class="Body"><a name="1032530">  - This request message contains the authentication token, the application </a></div>
+      <div class="Body"><a name="1032531">    Id, and the optional authentication extended information</a></div>
+      <div class="Body"><a name="1032532">+ Instantiates OmmProvider object which initializes connection and logins into</a></div>
+      <div class="Body"><a name="1032533">  the specified server</a></div>
+      <div class="Body"><a name="1032534">  - This also registers the interest in the Login stream using the AppLoginClient</a></div>
+      <div class="Body"><a name="1032535">+ Creates streaming item (refresh and updates) and publishes it</a></div>
+      <div class="Body"><a name="1032536">  - MarketPrice IBM.N item on the NI_PUB service</a></div>
+      <div class="Body"><a name="1032537">+ Publishes updates 1 per second for 60 seconds.</a></div>
+      <div class="Body"><a name="1032538">+ When the current time(in Unix Epoch) is equal to the Authentication TTReissue</a></div>
+      <div class="Body"><a name="1032539">  - Send a Login reissue on the login handle containing the authentication token </a></div>
+      <div class="Body"><a name="1032540">    and authentication extended information</a></div>
+      <div class="Body"><a name="1032541">+ Exits</a></div>
+      <div class="Body"><a name="1032542">&nbsp;</a></div>
+      <div class="Body"><a name="1032543">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1032544">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1031974">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1031881">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_NIP_Readmes.2.01.html">EMA C++ Non-interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_NIP_Readmes.2.16.html">400 Series Examples</a> : 430__MarketPrice__TrepAuthentication</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

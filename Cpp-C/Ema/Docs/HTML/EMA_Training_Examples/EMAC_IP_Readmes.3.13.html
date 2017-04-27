@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>250__GroupStatus__Fanout</title>
+    <title>240__SourceDirectory__Fanout</title>
     <link rel="StyleSheet" href="css/EMAC_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,42 +45,41 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1019288">250__GroupStatus__Fanout</a></div>
-      <div class="Body"><a name="1033248">Summary</a></div>
-      <div class="Body"><a name="1033249">=======</a></div>
-      <div class="Body"><a name="1033250">&nbsp;</a></div>
-      <div class="Body"><a name="1033251">250__GroupStatus__Fanout is an example of an OMM Interactive Provider application </a></div>
-      <div class="Body"><a name="1033252">written to the EMA library.</a></div>
-      <div class="Body"><a name="1033253">&nbsp;</a></div>
-      <div class="Body"><a name="1033254">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1033255">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1033256">&nbsp;</a></div>
-      <div class="Body"><a name="1033257">250__GroupStatus__Fanout illustrates how to create and publish a single OMM</a></div>
-      <div class="Body"><a name="1033258">streaming item. This application uses hardcoded source directory configuration.</a></div>
-      <div class="Body"><a name="1033259">&nbsp;</a></div>
-      <div class="Body"><a name="1033260">&nbsp;</a></div>
-      <div class="Body"><a name="1033261">Detailed Description</a></div>
-      <div class="Body"><a name="1033262">====================</a></div>
-      <div class="Body"><a name="1033263">&nbsp;</a></div>
-      <div class="Body"><a name="1033264">250__GroupStatus__Fanout implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1033265">&nbsp;</a></div>
-      <div class="Body"><a name="1033266">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
-      <div class="Body"><a name="1033267">  - Sets the listening  port to “14002”</a></div>
-      <div class="Body"><a name="1033268">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1033269">  - listens on the above port</a></div>
-      <div class="Body"><a name="1033270">+ Accepts a login request</a></div>
-      <div class="Body"><a name="1033271">+ Processes an item request (MarketPrice) and creates requested item (streaming refresh)</a></div>
-      <div class="Body"><a name="1033272">  and publishes it on requested service</a></div>
-      <div class="Body"><a name="1033273">+ After submitting refresh and 10 updates,</a></div>
-      <div class="Body"><a name="1033274">  sends a directory update with group status</a></div>
-      <div class="Body"><a name="1033275">- all other domains are status closed</a></div>
-      <div class="Body"><a name="1033276">  </a></div>
-      <div class="Body"><a name="1033277">+ Exits</a></div>
-      <div class="Body"><a name="1033278">&nbsp;</a></div>
-      <div class="Body"><a name="1033279">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1033280">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1033281">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1032470">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1019286">240__SourceDirectory__Fanout</a></div>
+      <div class="Body"><a name="1034052">Summary</a></div>
+      <div class="Body"><a name="1034053">=======</a></div>
+      <div class="Body"><a name="1034054">&nbsp;</a></div>
+      <div class="Body"><a name="1034055">240__SourceDirectory__Fanout is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1034056">written to the EMA library.</a></div>
+      <div class="Body"><a name="1034057">&nbsp;</a></div>
+      <div class="Body"><a name="1034058">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1034059">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1034060">&nbsp;</a></div>
+      <div class="Body"><a name="1034061">240__SourceDirectory__Fanout illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1034062">streaming item. This application uses hardcoded source directory configuration.</a></div>
+      <div class="Body"><a name="1034063">&nbsp;</a></div>
+      <div class="Body"><a name="1034064">&nbsp;</a></div>
+      <div class="Body"><a name="1034065">Detailed Description</a></div>
+      <div class="Body"><a name="1034066">====================</a></div>
+      <div class="Body"><a name="1034067">&nbsp;</a></div>
+      <div class="Body"><a name="1034068">240__SourceDirectory__Fanout implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1034069">&nbsp;</a></div>
+      <div class="Body"><a name="1034070">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
+      <div class="Body"><a name="1034071">  - Sets the listening  port to “14002”</a></div>
+      <div class="Body"><a name="1034072">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1034073">  - listens on the above port</a></div>
+      <div class="Body"><a name="1034074">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1034075">+ Processes an item request (MarketPrice) and creates requested item (streaming refresh)</a></div>
+      <div class="Body"><a name="1034076">  and publishes it on requested service</a></div>
+      <div class="Body"><a name="1034077">+ After submitting refresh and 10 updates,</a></div>
+      <div class="Body"><a name="1034078">  sends a directory update with service state change</a></div>
+      <div class="Body"><a name="1034079">+ All other domains are status closed</a></div>
+      <div class="Body"><a name="1034080">+ Exits</a></div>
+      <div class="Body"><a name="1034081">&nbsp;</a></div>
+      <div class="Body"><a name="1034082">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1034083">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1034084">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1033248">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -93,7 +92,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.09.html">200 Series Examples</a> : 250__GroupStatus__Fanout</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.10.html">200 Series Examples</a> : 240__SourceDirectory__Fanout</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

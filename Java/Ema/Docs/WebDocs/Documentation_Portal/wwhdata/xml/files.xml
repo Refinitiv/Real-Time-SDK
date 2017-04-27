@@ -41,7 +41,8 @@
     <Document title="1 Overview" href="EMAJ_Doc_Portal.1.1.html" />
     <Document title="2 Features" href="EMAJ_Doc_Portal.1.2.html" />
     <Document title="3 Developers Guides" href="EMAJ_Doc_Portal.1.3.html" />
-    <Document title="4 Reference Manuals" href="EMAJ_Doc_Portal.1.4.html" />
+    <Document title="4 Reference Manual" href="EMAJ_Doc_Portal.1.4.html" />
+    <Document title="5 Examples and Test Plans" href="EMAJ_Doc_Portal.1.5.html" />
   </DocumentInfo>
   <TopicMap />
 </WebWorksHelpBook>

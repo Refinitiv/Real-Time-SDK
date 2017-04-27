@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.4 Payload and Summary Data for the Refresh Message</title>
+    <title>5.4.2 Refresh Message Summary Data</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,75 +55,60 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2"><a name="999133">Payload and Summary Data for the Refresh Message</a></div>
-      <div class="Body"><a name="1002319">For example layouts of some dictionary messages, refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.34.html', '');" title="5.11 Dictionary Sample XML">Section 5.11</a>.</div>
-      <div class="Body"><a name="1002437">The payload varies depending on the type of dictionary being sent. The domain model layout for each type of dictionary is described in the following sections.</a></div>
-      <div class="Body"><a name="1002438">Although the structure varies for each type of dictionary, each uses an </a><span class="CodeOrCommand">RsslElementList</span> to identify its type, version, and <span class="CodeOrCommand">DictionaryId</span>. If sending the dictionary as a multi-part refresh, this data must be present only in the first part.</div>
-      <div class="Blank_Line"><a name="1002317">&nbsp;</a></div>
-      <table class="Two_Column" style="width: 675.00072pt" cellspacing="0" summary="">
+      <div class="H3"><a name="1170797">Refresh Message Summary Data</a></div>
+      <div class="Body"><a name="1167436">For example layouts of some dictionary messages, refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.35.html', '');" title="5.12 Dictionary Sample XML">Section 5.12</a>.</div>
+      <div class="Body"><a name="1167437">The payload varies depending on the type of dictionary being sent. The domain model layout for each type of dictionary is described in the following sections.</a></div>
+      <div class="Body"><a name="1167441">Although the structure varies for each type of dictionary, each uses an  to identify its type, version, and </a><span class="CodeOrCommand">DictionaryId</span>. If sending the dictionary as a multi-part refresh, this data must be present only in the first part. Any default behavior is included in the dictionary type’s description.</div>
+      <div class="Body"><a name="1170805">A dictionary’s SummaryData is an  that can be used by a consumer to find out if it needs an updated dictionary or if it needs the dictionary at all. SummaryData is extensible and can include other elements.</a></div>
+      <div class="Blank_Line"><a name="1031031">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75072pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 36: <a name="1002539">Dictionary </a><span class="LucidaConsole">summaryData</span> &nbsp;</div>
+          <div class="TableTitle">Table 38: <a name="1032386">Dictionary </a><span class="LucidaConsole">summaryData</span> </div>
         </caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 63.74952pt">
-            <div class="CellHeading"><a name="1002456">NAME</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 64.49976pt">
+            <div class="CellHeading"><a name="1032261">NAME</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 122.25024pt">
-            <div class="CellHeading"><a name="1002458">TYPE</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 116.24976pt">
+            <div class="CellHeading"><a name="1032263">TYPE</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 60.75pt">
-            <div class="CellHeading"><a name="1002460">REQUIRED</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 225.00072pt">
+            <div class="CellHeading"><a name="1032265">RANGE/EXAMPLE</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 53.24976pt">
-            <div class="CellHeading"><a name="1002462">DEFAULT</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 225.75096pt">
-            <div class="CellHeading"><a name="1002464">RANGE/EXAMPLE</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 149.25024pt">
-            <div class="CellHeading"><a name="1002466">DESCRIPTION</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 150.00048pt">
+            <div class="CellHeading"><a name="1032267">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
-            <div class="CellBody_9pt"><a name="1002468">Version</a></div>
+            <div class="CellBody_9pt"><a name="1032269">Version</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
-            <div class="CellBody_9pt"><a name="1002473">RSSL_DT_ASCII_STRING</a></div>
+            <div class="CellBody_9pt"><a name="1032274">&nbsp;</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
-            <div class="CellBody_9pt"><a name="1002475">Yes</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
-            <div class="CellBody_9pt"><a name="1002477">None</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
-            <div class="CellBody_9pt"><a name="1002479">“1.1”</a></div>
+            <div class="CellBody_9pt"><a name="1032276">“1.</a>0.1”</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002483">The version of the provided dictionary.</a></div>
+            <div class="CellBody_9pt"><span class="Color_003aRequired"><a name="1032278">Required</a></span>. Specifies the version of the provided dictionary.</div>
+            <div class="CellBody_9pt"><a name="1032821">For additional details on dictionary versions, refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.30.html', '');" title="5.9.3 Version Information">Section 5.9.3</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1002929">The Enumerated Types dictionaries populate the Version element using information from the </a><span class="Parameter">DT_Version</span> tag.</div>
+              <span class="Bold">Note: </span><a name="1032286">The Enumerated Types dictionaries populate the Version element using information from the </a><span class="Parameter">DT_Version</span> tag.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002485">Type</a></div>
+            <div class="CellBody_9pt"><a name="1032288">Type</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002490">RSSL_DT_UINT</a></div>
+            <div class="CellBody_9pt"><a name="1032293">&nbsp;</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002492">Yes</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002494">None</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody_9pt"><a name="1032897">Total range is from 0 to 255, where values 0 - 127 are reserved and values 28-255 are extensible.</a></div>
             <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -133,7 +118,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><a name="1002835">RDM_DICTIONARY_FIELD_DEFINITIONS == 1</a></div>
+                    <div class="Bullet_Table_9PT_inner"><a name="1032301">  1</a></div>
                   </td>
                 </tr>
               </table>
@@ -147,7 +132,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><a name="1002836">RDM_DICTIONARY_ENUM_TABLES == 2</a></div>
+                    <div class="Bullet_Table_9PT_inner"><a name="1032308">  2</a></div>
                   </td>
                 </tr>
               </table>
@@ -161,7 +146,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><a name="1002837">RDM_DICTIONARY_RECORD_TEMPLATES == 3</a></div>
+                    <div class="Bullet_Table_9PT_inner"><a name="1032315">  3</a></div>
                   </td>
                 </tr>
               </table>
@@ -175,7 +160,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><a name="1002838">RDM_DICTIONARY_DISPLAY_TEMPLATES == 4</a></div>
+                    <div class="Bullet_Table_9PT_inner"><a name="1032322">  4</a></div>
                   </td>
                 </tr>
               </table>
@@ -189,7 +174,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><a name="1002839">RDM_DICTIONARY_DATA_DEFINITIONS == 5</a></div>
+                    <div class="Bullet_Table_9PT_inner"><a name="1032329">  5</a></div>
                   </td>
                 </tr>
               </table>
@@ -203,7 +188,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><a name="1002840">RDM_DICTIONARY_STYLE_SHEET == 6</a></div>
+                    <div class="Bullet_Table_9PT_inner"><a name="1032336">  6</a></div>
                   </td>
                 </tr>
               </table>
@@ -217,76 +202,115 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><a name="1002841">RDM_DICTIONARY_REFERENCE == 7</a></div>
+                    <div class="Bullet_Table_9PT_inner"><a name="1032343">  7</a></div>
                   </td>
                 </tr>
               </table>
             </div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002500">Indicates the type of dictionary contained in the payload.</a></div>
+            <div class="CellBody_9pt"><span class="Color_003aRequired"><a name="1032345">Required</a></span>. Indicates the type of dictionary contained in the payload.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002502">DictionaryId</a></div>
+            <div class="CellBody_9pt"><a name="1032347">DictionaryId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002507">RSSL_DT_INT</a></div>
+            <div class="CellBody_9pt"><a name="1032352">&nbsp;</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002509">No</a></div>
+            <div class="CellBody_9pt"><a name="1032354">Total range is from -16383 to 16383, where:</a></div>
+            <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_9PT_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_9PT_inner"><a name="1032551">Values 0 to 16383 are reserved by Thomson Reuters</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_9PT_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_9PT_inner"><a name="1033163">The value </a><span class="Parameter">1</span> corresponds to the RDMFieldDictionary.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_9PT_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_9PT_inner"><a name="1171474">The value </a><span class="Parameter">0</span> signifies ‘Unspecified’</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_9PT_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_9PT_inner"><a name="1033126">Values -1 to -16383 are Extensible</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002511">0</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002856">Reserved: 0 to 16383</a></div>
-            <div class="CellBody_9pt"><a name="1002857">Extensible: -1 to -16383</a></div>
-            <div class="CellBody_9pt"><a name="1002858">DictionaryId 1 corresponds to the RDMFieldDictionary.</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002519">An ID that can indicate a relationship between dictionaries. For example, a Field Dictionary and EnumeratedTypes Dictionary may have the same </a><span class="Parameter">DictionaryId</span>, indicating that they can be used together.</div>
+            <div class="CellBody_9pt"><a name="1169101">An ID that can indicates a relationship between dictionaries.</a></div>
+            <div class="CellBody_9pt"><a name="1169102">For example, a Field Dictionary and EnumeratedTypes Dictionary may have the same </a><span class="Parameter">DictionaryId</span>, indicating that they can be used together.</div>
+            <div class="CellBody_9pt"><a name="1171479">EMA can use </a><span class="Parameter">DictionaryId</span> in field lists and series to associate fields with field definitions or enumerations. Refer to <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.10.html', '');" title="5.4.4 DictionaryId">Section 5.4.4</a>.</div>
+            <div class="CellBody_9pt"><span class="Parameter"><a name="1032423">DictionaryId</a></span> defaults to <span class="Parameter">0</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002521">RT_Version</a></div>
+            <div class="CellBody_9pt"><a name="1032361">RT_Version</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002526">RSSL_DT_ASCII_STRING</a></div>
+            <div class="CellBody_9pt"><a name="1032366">&nbsp;</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002528">No</a></div>
+            <div class="CellBody_9pt"><a name="1032368">“1.</a>0.1”</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002530">None</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002532">“1.1”</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002534">Optionally sent only with the enumerated type dictionary. This holds information about which field dictionary should be used with this enumerated type dictionary. </a></div>
+            <div class="CellBody_9pt"><a name="1032370">Optionally sent only with the enumerated type dictionary. </a><span class="Parameter">RT_Version</span> identifies which field dictionary should be used with this enumerated type dictionary. </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002608">DT_Version</a></div>
+            <div class="CellBody_9pt"><a name="1032372">DT_Version</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002610">RSSL_DT_ASCII_STRING</a></div>
+            <div class="CellBody_9pt"><a name="1032377">&nbsp;</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002612">No</a></div>
+            <div class="CellBody_9pt"><a name="1032379">“1.</a>0.1”</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002614">None</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002616">“1.1”</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1002618">Optionally sent only with the enumerated type dictionary. This holds indicates information about the display template’s version. </a></div>
+            <div class="CellBody_9pt"><a name="1032381">Optionally sent only with the enumerated type dictionary. </a><span class="Parameter">DT_Version</span> conveys the display template version. </div>
           </td>
         </tr>
       </table>
@@ -302,7 +326,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : 5.4	Payload and Summary Data for the Refresh Message</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.07.html">5.4	Payload and Summary Data for the Refresh Message</a> : 5.4.2	Refresh Message Summary Data</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

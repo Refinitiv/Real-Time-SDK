@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1002053">Private Streams</a></div>
-      <div class="Body"><a name="1133510">The Transport API provides </a><span class="Concept">private stream</span> functionality, an easy way to ensure delivery of content only between a stream’s two endpoints. Private streams behave in a manner similar to standard streams, with the following exceptions:</div>
+      <div class="Body"><a name="1164181">The Transport API provides </a><span class="Concept">private stream</span> functionality, an easy way to ensure delivery of content only between a stream’s two endpoints. Private streams behave in a manner similar to standard streams, with the following exceptions:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1133511">All data on a private stream flow between the end provider and the end consumer of the stream.</a></div>
+              <div class="bullet_ind_inner"><a name="1164182">All data on a private stream flow between the end provider and the end consumer of the stream.</a></div>
             </td>
           </tr>
         </table>
@@ -80,7 +80,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1133512">Intermediate components do not fan out content (i.e., do not distribute it to other consumers).</a></div>
+              <div class="bullet_ind_inner"><a name="1164183">Intermediate components do not fan out content (i.e., do not distribute it to other consumers).</a></div>
             </td>
           </tr>
         </table>
@@ -94,7 +94,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1133513">Intermediate components should not cache content.</a></div>
+              <div class="bullet_ind_inner"><a name="1164184">Intermediate components should not cache content.</a></div>
             </td>
           </tr>
         </table>
@@ -108,13 +108,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1133514">In the event of connection or data loss, intermediate components do not recover content. All private stream recovery is the responsibility of the consumer application.</a></div>
+              <div class="bullet_ind_inner"><a name="1164185">In the event of connection or data loss, intermediate components do not recover content. All private stream recovery is the responsibility of the consumer application.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1133515">These behaviors ensure that only the two endpoints of the private stream send or receive content associated with the stream. As a result, a private stream can exchange identifying information so the provider can validate the consumer, even through multiple intermediate components (such as might exist in a TREP deployment). After a private stream is established, content can flow freely within the stream, following either existing market data semantics (i.e., private Market Price domain) or any other user-defined semantics (i.e., bidirectional exchange of </a><span class="CodeOrCommand">RsslGenericMsg</span>s).</div>
-      <div class="Body"><a name="1070288">For more information about private stream instantiation, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.25.html', '');" title="13.10 Private Streams">Section 13.10</a>.</div>
+      <div class="Body"><a name="1164186">These behaviors ensure that only the two endpoints of the private stream send or receive content associated with the stream. As a result, a private stream can exchange identifying information so the provider can validate the consumer, even through multiple intermediate components (such as might exist in a TREP deployment). After a private stream is established, content can flow freely within the stream, following either existing market data semantics (i.e., private Market Price domain) or any other user-defined semantics (i.e., bidirectional exchange of </a><span class="CodeOrCommand">RsslGenericMsg</span>s).</div>
+      <div class="Body"><a name="1070288">For more information about private stream instantiation, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.30.html', '');" title="13.12 Private Streams">Section 13.12</a>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

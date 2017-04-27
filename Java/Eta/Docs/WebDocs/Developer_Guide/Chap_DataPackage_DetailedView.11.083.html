@@ -56,34 +56,34 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1019438">Non-RWF Encode Functions</a></div>
-      <div class="Body"><a name="1533296">The Transport API provides utility methods to help encode non-RWF types. These methods work in conjunction with </a><span class="CodeOrCommand">EncodeIterator</span> to provide appropriate encoding position and length data to the user, which can then be used with specific methods for the non-RWF type being encoded.</div>
-      <div class="Blank_Line"><a name="1533353">&nbsp;</a></div>
+      <div class="Body"><a name="1691572">The Transport API provides utility methods to help encode non-RWF types. These methods work in conjunction with </a><span class="CodeOrCommand">EncodeIterator</span> to provide appropriate encoding position and length data to the user, which can then be used with specific methods for the non-RWF type being encoded.</div>
+      <div class="Blank_Line"><a name="1691629">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 110: <a name="1533350">Non-RWF Type Encode </a>Methods &nbsp;</div>
+          <div class="TableTitle">Table 110: <a name="1691626">Non-RWF Type Encode </a>Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 198pt">
-            <div class="CellHeading"><a name="1533308">method</a></div>
+            <div class="CellHeading"><a name="1691584">method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 357.75pt">
-            <div class="CellHeading"><a name="1533310">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1691586">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533312">EncodeIterator.encodeNonRWFInit</a></div>
+            <div class="CellBody"><a name="1691588">EncodeIterator.encodeNonRWFInit</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533320">Uses the </a><span class="CodeOrCommand">EncodeIterator</span> to populate a <span class="CodeOrCommand">Buffer</span> with encoding information for the user. <span class="CodeOrCommand">Buffer.data</span> contains the backing <span class="CodeOrCommand">ByteBuffer</span>. <span class="CodeOrCommand">Buffer.position</span> contains the position where encoding begins and <span class="CodeOrCommand">Buffer.length</span> contains the number of available bytes for encoding. After this method returns successfully, you can populate this buffer using non-RWF encode methods.</div>
+            <div class="CellBody"><a name="1691596">Uses the </a><span class="CodeOrCommand">EncodeIterator</span> to populate a <span class="CodeOrCommand">Buffer</span> with encoding information for the user. <span class="CodeOrCommand">Buffer.data</span> contains the backing <span class="CodeOrCommand">ByteBuffer</span>. <span class="CodeOrCommand">Buffer.position</span> contains the position where encoding begins and <span class="CodeOrCommand">Buffer.length</span> contains the number of available bytes for encoding. After this method returns successfully, you can populate this buffer using non-RWF encode methods.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533334">EncodeIterator.encodeNonRWFComplete</a></div>
+            <div class="CellBody"><a name="1691610">EncodeIterator.encodeNonRWFComplete</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533339">Integrates content encoded into </a><span class="CodeOrCommand">Buffer</span> with other pre-encoded information. <span class="CodeOrCommand">Buffer.</span><span class="CodeOrCommand">data.position</span> should be set to the position of the last byte encoded prior to this method being called.</div>
+            <div class="CellBody"><a name="1691615">Integrates content encoded into </a><span class="CodeOrCommand">Buffer</span> with other pre-encoded information. <span class="CodeOrCommand">Buffer.</span><span class="CodeOrCommand">data.position</span> should be set to the position of the last byte encoded prior to this method being called.</div>
           </td>
         </tr>
       </table>

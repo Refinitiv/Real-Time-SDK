@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1001200">Perform Login Process</a></div>
-      <div class="Body"><a name="1008448">Applications authenticate with one another using the Login domain model. An OMM interactive provider must handle the consumer’s Login request messages and supply appropriate responses.</a></div>
-      <div class="Body"><a name="1008449">After receiving a Login request, the interactive provider can perform any necessary authentication and permissioning.</a></div>
+      <div class="Body"><a name="1010997">Applications authenticate with one another using the Login domain model. An OMM interactive provider must handle the consumer’s Login request messages and supply appropriate responses.</a></div>
+      <div class="Body"><a name="1010998">After receiving a Login request, the interactive provider can perform any necessary authentication and permissioning.</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1008450">If the Interactive Provider grants access, it should send an </a><span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">RefreshMsg</span> to convey that the user successfully connected. This message should indicate the feature set supported by the provider application.</div>
+              <div class="Bullet_inner"><a name="1010999">If the Interactive Provider grants access, it should send an </a><span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">RefreshMsg</span> to convey that the user successfully connected. This message should indicate the feature set supported by the provider application.</div>
             </td>
           </tr>
         </table>
@@ -81,12 +81,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1008451">If the Interactive Provider denies access, it should send an </a><span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">StatusMsg</span>, closing the connection and informing the user of the reason for denial.</div>
+              <div class="Bullet_inner"><a name="1011000">If the Interactive Provider denies access, it should send an </a><span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">StatusMsg</span>, closing the connection and informing the user of the reason for denial.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1008454">Content is encoded and decoded using the Transport API Message Package</a> (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.01.html', '');" title="Chapter 12 Message Package Detailed View">Chapter 12, Message Package Detailed View</a>) and the Transport API Data Package (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.001.html', '');" title="Chapter 11 Data Package Detailed View">Chapter 11, Data Package Detailed View</a>). For further information on Login domain usage and messaging, refer to the <span class="DocumentTitle">Transport API </span><span class="DocumentTitle">RDM Usage Guide</span>.</div>
+      <div class="Body"><a name="1011003">Content is encoded and decoded using the Transport API Message Package</a> (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.01.html', '');" title="Chapter 12 Message Package Detailed View">Chapter 12, Message Package Detailed View</a>) and the Transport API Data Package (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.001.html', '');" title="Chapter 11 Data Package Detailed View">Chapter 11, Data Package Detailed View</a>). For further information on Login domain usage and messaging, refer to the <span class="DocumentTitle">Transport API </span><span class="DocumentTitle">RDM Usage Guide</span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

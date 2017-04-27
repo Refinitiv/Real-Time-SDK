@@ -56,59 +56,59 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1027965">rsslInitChannel Return Codes</a></div>
-      <div class="Body"><a name="1221734">The following table defines the </a>return codes that can occur when using <span class="CodeOrCommand">rsslInitChannel</span>.</div>
-      <div class="Blank_Line"><a name="1221811">&nbsp;</a></div>
+      <div class="Body"><a name="1246465">The following table defines the </a>return codes that can occur when using <span class="CodeOrCommand">rsslInitChannel</span>.</div>
+      <div class="Blank_Line"><a name="1246542">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 38: <span class="LucidaConsole" style="font-size: 9pt"><a name="1221808">rsslInitChannel</a></span> Return Codes &nbsp;</div>
+          <div class="TableTitle">Table 38: <span class="LucidaConsole" style="font-size: 9pt"><a name="1246539">rsslInitChannel</a></span> Return Codes &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 177.75pt">
-            <div class="CellHeading"><a name="1221737">RETURN CODE</a></div>
+            <div class="CellHeading"><a name="1246468">RETURN CODE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 378pt">
-            <div class="CellHeading"><a name="1221739">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1246470">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221741">RSSL_RET_</a>SUCCESS</div>
+            <div class="CellBody"><a name="1246472">RSSL_RET_</a>SUCCESS</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221743">Indicates the initialization process completed successfully. The </a><span class="CodeOrCommand">RsslChannel.state</span> should be <span class="CodeOrCommand">RSSL_CH_STATE_ACTIVE</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221751">RSSL_RET_</a>FAILURE</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221753">Indicates that initialization has failed and cannot progress. The </a><span class="CodeOrCommand">RsslChannel.state</span> should be <span class="CodeOrCommand">RSSL_CH_STATE_CLOSED</span>, and the application should close the channel to clean up associated resources. For more details, refer to the <span class="CodeOrCommand">RsslError</span> content.</div>
+            <div class="CellBody"><a name="1246474">Indicates the initialization process completed successfully. The </a><span class="CodeOrCommand">RsslChannel.state</span> should be <span class="CodeOrCommand">RSSL_CH_STATE_ACTIVE</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221764">RSSL_RET_</a>CHAN_INIT_IN_PROGRESS</div>
+            <div class="CellBody"><a name="1246482">RSSL_RET_</a>FAILURE</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221769">Indicates that initialization is still in progress. Check </a><span class="CodeOrCommand">RsslInProgInfo.flags</span> to determine whether the <span class="CodeOrCommand">socketId</span> changed. The <span class="CodeOrCommand">RsslChannel.state</span> should be <span class="CodeOrCommand">RSSL_CH_STATE_INITIALIZING</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221780">RSSL_RET_</a>CHAN_INIT_REFUSED</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221785">Indicates the connection was rejected. For more details, refer to the </a><span class="CodeOrCommand">RsslError</span> content.</div>
+            <div class="CellBody"><a name="1246484">Indicates that initialization has failed and cannot progress. The </a><span class="CodeOrCommand">RsslChannel.state</span> should be <span class="CodeOrCommand">RSSL_CH_STATE_CLOSED</span>, and the application should close the channel to clean up associated resources. For more details, refer to the <span class="CodeOrCommand">RsslError</span> content.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221787">RSSL_RET_</a>INIT_NOT_INITIALIZED</div>
+            <div class="CellBody"><a name="1246495">RSSL_RET_</a>CHAN_INIT_IN_PROGRESS</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221789">Indicates that the </a>RSSL Transport is not initialized. For more details, refer to the <span class="CodeOrCommand">RsslError</span> content.</div>
-            <div class="CellBody"><a name="1221799">For information on initializing, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.014.html', '');" title="10.2 Initializing and Uninitializing the Transport">Section 10.2</a>.</div>
+            <div class="CellBody"><a name="1246500">Indicates that initialization is still in progress. Check </a><span class="CodeOrCommand">RsslInProgInfo.flags</span> to determine whether the <span class="CodeOrCommand">socketId</span> changed. The <span class="CodeOrCommand">RsslChannel.state</span> should be <span class="CodeOrCommand">RSSL_CH_STATE_INITIALIZING</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1246511">RSSL_RET_</a>CHAN_INIT_REFUSED</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1246516">Indicates the connection was rejected. For more details, refer to the </a><span class="CodeOrCommand">RsslError</span> content.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1246518">RSSL_RET_</a>INIT_NOT_INITIALIZED</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1246520">Indicates that the </a>RSSL Transport is not initialized. For more details, refer to the <span class="CodeOrCommand">RsslError</span> content.</div>
+            <div class="CellBody"><a name="1246530">For information on initializing, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.014.html', '');" title="10.2 Initializing and Uninitializing the Transport">Section 10.2</a>.</div>
           </td>
         </tr>
       </table>
