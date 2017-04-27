@@ -34,6 +34,7 @@
 			
 			<Logger value="Logger_2"/>
 			<Dictionary value="Dictionary_2"/>
+			<XmlTraceToStdout value="0"/>
 		</Consumer>
 		
 	</ConsumerList>
@@ -64,10 +65,10 @@
 			<!-- if desired the OmmNiProviderConfig::adminControlDirectory() to UserControlEnum			-->
 			<!-- which allows applications to specify and control the directory.						-->
 			<Directory value="Directory_1"/>
-
-			<XmlTraceToStdout value="0"/>
 			
 			<Logger value="Logger_1"/>
+
+			<XmlTraceToStdout value="0"/>
 		</NiProvider>
 		
 		<NiProvider>
@@ -78,6 +79,8 @@
 			<Directory value="Directory_2"/>
 			
 			<Logger value="Logger_1"/>
+
+			<XmlTraceToStdout value="0"/>
 		</NiProvider>
 		
 	</NiProviderList>
