@@ -42,10 +42,8 @@ $(OUTPUT_DIR)/$(EXAMPLE_NAME):		$(OBJ)
 	    if [ $(EXAMPLE_NUMBER) -ge 200 ];							\
 	     	then $(LNCMD) $(ROOTNODE)/Ema/Examples/EmaConfig.xml $(EXE_DIR);fi;fi
 
-createLinks:
-	@../../../../../Libs/createSharedLibraryLinks.sh
 
 optimizedStatic:	$(TARGETS)
 optimizedAssertStatic:	$(TARGETS)
-optimizedShared:	createLinks $(TARGETS)
-optimizedAssertShared:	createLinks $(TARGETS)
+optimizedShared:	$(TARGETS)
+optimizedAssertShared:	$(TARGETS)
