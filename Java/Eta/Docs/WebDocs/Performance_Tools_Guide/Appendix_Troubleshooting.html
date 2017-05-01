@@ -57,7 +57,7 @@
     <blockquote>
       <div class="A1"><a name="1020602">Troubleshooting</a></div>
       <div class="A2"><a name="1018101">Can’t Connect</a></div>
-      <div class="Body"><a name="1021469">There are many reasons why a consumer or provider might not be able to connect. Several common ones are listed below:</a></div>
+      <div class="Body"><a name="1021591">There are many reasons why a consumer or provider might not be able to connect. Several common ones are listed below:</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021470">Check the consumer’s and provider’s </a><span class="Parameter">serviceName</span> parameters. These must match. The consumer will wait until the service is available and accepting requests.</div>
+              <div class="Bullet_inner"><a name="1021592">Check the consumer’s and provider’s </a><span class="Parameter">serviceName</span> parameters. These must match. The consumer will wait until the service is available and accepting requests.</div>
             </td>
           </tr>
         </table>
@@ -81,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021471">Check the ADH (</a><span class="ToolOrUtility_Name">adhmon</span>) and ADS (<span class="ToolOrUtility_Name">adsmon</span>) to see whether the desired service is up.</div>
+              <div class="Bullet_inner"><a name="1021593">Check the ADH (</a><span class="ToolOrUtility_Name">adhmon</span>) and ADS (<span class="ToolOrUtility_Name">adsmon</span>) to see whether the desired service is up.</div>
             </td>
           </tr>
         </table>
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021472">Check the ADH’s configuration to make sure that the provider’s host is listed in the </a><span class="Parameter">hostList</span> configuration setting.</div>
+              <div class="Bullet_inner"><a name="1021594">Check the ADH’s configuration to make sure that the provider’s host is listed in the </a><span class="Parameter">hostList</span> configuration setting.</div>
             </td>
           </tr>
         </table>
@@ -109,7 +109,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021473">Check that the provider is listening on the correct TCP Port.</a></div>
+              <div class="Bullet_inner"><a name="1021595">Check that the provider is listening on the correct TCP Port.</a></div>
             </td>
           </tr>
         </table>
@@ -123,7 +123,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021474">Check that the consumer is connecting to the correct </a><span class="Parameter">hostName</span> and TCP Port.</div>
+              <div class="Bullet_inner"><a name="1021596">Check that the consumer is connecting to the correct </a><span class="Parameter">hostName</span> and TCP Port.</div>
             </td>
           </tr>
         </table>
@@ -137,7 +137,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021475">In direct-connect mode, start the provider first, then start the consumer. Starting the consumer first results in a connection timeout, which creates a (by default) 15 second delay until the client retries the connection attempt.</a></div>
+              <div class="Bullet_inner"><a name="1021597">In direct-connect mode, start the provider first, then start the consumer. Starting the consumer first results in a connection timeout, which creates a (by default) 15 second delay until the client retries the connection attempt.</a></div>
             </td>
           </tr>
         </table>
@@ -151,13 +151,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021479">When connecting through TREP, check that the desired service is up on both the ADH and ADS before starting the consumer (or wait the appropriate amount of time.) Starting the consumer too quickly results in a connection retry after (by default) 15 seconds.</a></div>
+              <div class="Bullet_inner"><a name="1021601">When connecting through TREP, check that the desired service is up on both the ADH and ADS before starting the consumer (or wait the appropriate amount of time.) Starting the consumer too quickly results in a connection retry after (by default) 15 seconds.</a></div>
             </td>
           </tr>
         </table>
       </div>
       <div class="A2"><a name="1020657">Not Achieving Steady State</a></div>
-      <div class="Body"><a name="1021483">There are several reasons why a consumer might not reach a steady state:</a></div>
+      <div class="Body"><a name="1021605">There are several reasons why a consumer might not reach a steady state:</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -167,7 +167,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021484">The </a><span class="Parameter">steadyStateTime</span> value may be too small. When publishing in latency mode or at high update rates, providers will take longer to process image requests. For example, if <span class="Parameter">steadyStateTime</span> is set to <span class="Parameter">30s</span> but the provider can publish only 2,500 images per second, the consumer times out before it receives its 100,000 images.</div>
+              <div class="Bullet_inner"><a name="1021606">The </a><span class="Parameter">steadyStateTime</span> value may be too small. When publishing in latency mode or at high update rates, providers will take longer to process image requests. For example, if <span class="Parameter">steadyStateTime</span> is set to <span class="Parameter">30s</span> but the provider can publish only 2,500 images per second, the consumer times out before it receives its 100,000 images.</div>
             </td>
           </tr>
         </table>
@@ -181,7 +181,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021485">The provider might be overloaded. If the provider is publishing at or near 100% CPU for its configured update rate, it will be either unable or barely able to service incoming image requests, which causes images to trickle back to the consumer.</a></div>
+              <div class="Bullet_inner"><a name="1021607">The provider might be overloaded. If the provider is publishing at or near 100% CPU for its configured update rate, it will be either unable or barely able to service incoming image requests, which causes images to trickle back to the consumer.</a></div>
             </td>
           </tr>
         </table>
@@ -195,7 +195,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021486">The consumer might be overloaded.</a></div>
+              <div class="Bullet_inner"><a name="1021608">The consumer might be overloaded.</a></div>
             </td>
           </tr>
         </table>
@@ -209,49 +209,49 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021487">If using a non-interactive provider application, the provider and consumer watch lists might not match, resulting in the consumer application requesting items that never appear in the ADH cache.</a></div>
+              <div class="Bullet_inner"><a name="1021609">If using a non-interactive provider application, the provider and consumer watch lists might not match, resulting in the consumer application requesting items that never appear in the ADH cache.</a></div>
             </td>
           </tr>
         </table>
       </div>
       <div class="A2"><a name="1020663">Consumer Tops Out but Not at 100% CPU</a></div>
-      <div class="Body"><a name="1021494">In some cases, when connecting to TREP, the consumer appears to be overloaded even though no thread is using the maximum CPU. Such a situation might be a symptom of a bottleneck on the ADS, which can be resolved by increasing the size of the </a><span class="Parameter">guaranteedOutputBuffers</span> and <span class="Parameter">maxOutputBuffers</span> to 5,000 in <span class="FileOrDirectory">rmds.cnf</span>:</div>
-      <div class="Blank_Line"><a name="1021508">&nbsp;</a></div>
+      <div class="Body"><a name="1021616">In some cases, when connecting to TREP, the consumer appears to be overloaded even though no thread is using the maximum CPU. Such a situation might be a symptom of a bottleneck on the ADS, which can be resolved by increasing the size of the </a><span class="Parameter">guaranteedOutputBuffers</span> and <span class="Parameter">maxOutputBuffers</span> to 5,000 in <span class="FileOrDirectory">rmds.cnf</span>:</div>
+      <div class="Blank_Line"><a name="1021630">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1021497">&nbsp;</a></div>
+            <div class="command"><a name="1021619">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021499">[...]</a></div>
+            <div class="command"><a name="1021621">[...]</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021501">*ads*maxOutputBuffers : 5000</a></div>
+            <div class="command"><a name="1021623">*ads*maxOutputBuffers : 5000</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021503">*ads*guaranteedOutputBuffers : 5000</a></div>
+            <div class="command"><a name="1021625">*ads*guaranteedOutputBuffers : 5000</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021505">[...]</a></div>
+            <div class="command"><a name="1021627">[...]</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021507">&nbsp;</a></div>
+            <div class="command"><a name="1021629">&nbsp;</a></div>
           </td>
         </tr>
       </table>
-      <div class="FigTitle">Figure 28.  <a name="1021509">ADS rmds.cnf</a></div>
-      <div class="Body"><a name="1021510">While this may increase the overall throughput, it can also increase message latency.</a></div>
+      <div class="FigTitle">Figure 28.  <a name="1021631">ADS rmds.cnf</a></div>
+      <div class="Body"><a name="1021632">While this may increase the overall throughput, it can also increase message latency.</a></div>
       <div class="A2"><a name="1020771">Initial Latencies Are High</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
@@ -262,7 +262,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021514">Initial latencies during startup and immediately following the transition to steady state might be high. At high update rates, the system processes its entire overhead for updates plus all refresh traffic, resulting in an increased workload and higher latency. It can take several seconds for the system to “settle” following the transition to steady state. Increasing the provider’s output buffers might help.</a></div>
+              <div class="Bullet_inner"><a name="1021636">Initial latencies during startup and immediately following the transition to steady state might be high. At high update rates, the system processes its entire overhead for updates plus all refresh traffic, resulting in an increased workload and higher latency. It can take several seconds for the system to “settle” following the transition to steady state. Increasing the provider’s output buffers might help.</a></div>
             </td>
           </tr>
         </table>
@@ -276,7 +276,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021516">The JVM performs just-in-time compilation and optimization of executing bytecode. This takes processing time and affects latency values during the start-up state of performance applications. JVM priming is used to reduce the impact of this start-up overhead. This feature can be enabled by using the </a><span class="CodeOrCommand">-primeJVM</span> option.</div>
+              <div class="Bullet_inner"><a name="1021638">The JVM performs just-in-time compilation and optimization of executing bytecode. This takes processing time and affects latency values during the start-up state of performance applications. JVM priming is used to reduce the impact of this start-up overhead. This feature can be enabled by using the </a><span class="CodeOrCommand">-primeJVM</span> option.</div>
             </td>
           </tr>
         </table>
@@ -291,7 +291,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021520">Run the applications on the same machine.</a></div>
+              <div class="Bullet_inner"><a name="1021642">Run the applications on the same machine.</a></div>
             </td>
           </tr>
         </table>
@@ -305,7 +305,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021521">Use a reliable clock to gather timestamp information.</a></div>
+              <div class="Bullet_inner"><a name="1021643">Use a reliable clock to gather timestamp information.</a></div>
             </td>
           </tr>
         </table>
@@ -319,7 +319,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021522">Perform appropriate system-wide tuning.</a></div>
+              <div class="Bullet_inner"><a name="1021644">Perform appropriate system-wide tuning.</a></div>
             </td>
           </tr>
         </table>
@@ -333,12 +333,25 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1021523">Consider packing messages into the same buffer. It is possible that the connection type cannot sustain the data rate when sent as individual messages.</a></div>
+              <div class="Bullet_inner"><a name="1021645">Consider packing messages into the same buffer. It is possible that the connection type cannot sustain the data rate when sent as individual messages.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Blank_Line"><a name="1021181">&nbsp;</a></div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1021343">&nbsp;</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

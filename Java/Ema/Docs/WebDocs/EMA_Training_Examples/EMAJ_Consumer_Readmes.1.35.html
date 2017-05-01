@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>400__Custom__NestedMessaging</title>
+    <title>400 Series Examples</title>
     <link rel="StyleSheet" href="css/EMAJ_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,52 +55,30 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1019300">400__Custom__NestedMessaging</a></div>
-      <div class="Body"><a name="1038142">Summary</a></div>
-      <div class="Body"><a name="1038143">=======</a></div>
-      <div class="Body"><a name="1038144">&nbsp;</a></div>
-      <div class="Body"><a name="1038145">The example400__Custom__NestedMessaging application is provided as an example of</a></div>
-      <div class="Body"><a name="1038146">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1038147">&nbsp;</a></div>
-      <div class="Body"><a name="1038148">This application demonstrates basic usage of the EMA library while using</a></div>
-      <div class="Body"><a name="1038149">nested messaging feature and parsing of custom OMM Data data from an OMM</a></div>
-      <div class="Body"><a name="1038150">Provider application, or from Thomson Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1038151">&nbsp;</a></div>
-      <div class="Body"><a name="1038152">example400__Custom__NestedMessaging opens up a parent stream on which, when </a></div>
-      <div class="Body"><a name="1038153">this stream is open / ok, it opens a sub stream. This is also known as nested</a></div>
-      <div class="Body"><a name="1038154">messaging feature.</a></div>
-      <div class="Body"><a name="1038155">&nbsp;</a></div>
-      <div class="Body"><a name="1038156">Note: effective use of the nested messaging feature requires support from an</a></div>
-      <div class="Body"><a name="1038157">	  OMM Provider application.</a></div>
-      <div class="Body"><a name="1038158">&nbsp;</a></div>
-      <div class="Body"><a name="1038159">&nbsp;</a></div>
-      <div class="Body"><a name="1038160">Detailed Description</a></div>
-      <div class="Body"><a name="1038161">====================</a></div>
-      <div class="Body"><a name="1038162">&nbsp;</a></div>
-      <div class="Body"><a name="1038163">example400__Custom__NestedMessaging implements the following high level steps:</a></div>
-      <div class="Body"><a name="1038164">&nbsp;</a></div>
-      <div class="Body"><a name="1038165">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1038166">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1038167">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
-      <div class="Body"><a name="1038168">  - each of the methods provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1038169">	data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1038170">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1038171">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1038172">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1038173">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1038174">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1038175">+ Opens a private streaming item interest</a></div>
-      <div class="Body"><a name="1038176">  - Custom Domain (200) IBM.XYZ item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1038177">  - when this item becomes open / ok this application requests</a></div>
-      <div class="Body"><a name="1038178">    a sub stream using a GenericMsg submitted on the handle of the </a></div>
-      <div class="Body"><a name="1038179">	IBM.XYZ stream</a></div>
-      <div class="Body"><a name="1038180">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1038181">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1038182">+ Exits</a></div>
-      <div class="Body"><a name="1038183">&nbsp;</a></div>
-      <div class="Body"><a name="1038184">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1038185">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1032145">&nbsp;</a></div>
+      <div class="H2_NoNum"><a name="1017958">400 Series Examples</a></div>
+      <div class="WebWorks_MiniTOC">
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.36.html">400__Custom__NestedMessaging</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.37.html">410__MarketPrice__HorizontalScaling</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.38.html">420__MarketPrice__AdminDomainConfig</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.39.html">422__MarketPrice__ErrorClient</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.40.html">423__MarketPrice__AdminDomainConfig__DomainRepresentation</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.41.html">430__MarketPrice__TrepAuthentication</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.42.html">440__System__TunnelStream</a>
+        </div>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -113,7 +91,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.34.html">400 Series Examples</a> : 400__Custom__NestedMessaging</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : 400 Series Examples</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

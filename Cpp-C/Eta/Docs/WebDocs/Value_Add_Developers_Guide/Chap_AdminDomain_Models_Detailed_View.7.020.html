@@ -56,42 +56,60 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1224007">RSSL RDM Login Status Structure Members</a></div>
-      <div class="Blank_Line"><a name="1224044">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1386211">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 94: <span class="LucidaConsole"><a name="1224088">RsslRDMLoginStatus</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 95: <span class="LucidaConsole"><a name="1386208">RsslRDMLoginStatus</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 175.5pt">
-            <div class="CellHeading"><a name="1224076">STRUCTURE MEMBER</a></div>
+            <div class="CellHeading"><a name="1386064">STRUCTURE </a>MEMBER</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 380.25pt">
-            <div class="CellHeading"><a name="1224078">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1386066">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224080">rdmMsgBase</a></div>
+            <div class="CellBody"><a name="1386068">authenticationErrorCode</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1224082">Required</a></span>. Contains general message information like streamId and domainType.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224084">flags</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1227357">Required</a></span>. Indicate presence of optional login status members. For details, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.021.html', '');" title="7.3.3.2 RSSL RDM Login Status Flag Enumeration Values">Section 7.3.3.2</a>.</div>
+            <div class="CellBody"><span class="Parameter"><a name="1386070">Optional</a></span>. If present, a <span class="CodeOrCommand">flags</span> value of <span class="Parameter">RDM_LG_STF_HAS_AUTHN_ERROR_CODE</span> should be specified.</div>
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1386074">authenticationErrorCode</a></span> is specific to deployments using TREP Authentication, and specifies an error code. A code of <span class="Parameter">0</span> indicates no error condition. For further information, refer to the <span class="DocumentTitle">TREP Authentication User Manual</span>.<sup><a name="wwfootnote_inline_25" href="#25">1</a></sup></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1227390">state</a></div>
+            <div class="CellBody"><a name="1386080">authenticationErrorText</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1227440">If present, flags value of </a><span class="Parameter">RDM_LG_STF_HAS_STATE</span> should be specified.</div>
-            <div class="CellBody"><a name="1227441">Indicates the state of the login stream. When rejecting a login the state should be:</a></div>
+            <div class="CellBody"><span class="Parameter"><a name="1386085">Optional</a></span>. If present, a <span class="CodeOrCommand">flags</span> value of <span class="Parameter">RDM_LG_STF_HAS_AUTHN_ERROR_TEXT</span> should be specified.</div>
+            <div class="CellBody"><a name="1386086">Specifies any text associated with the specified </a><span class="CodeOrCommand">authenticationErrorCode</span>. For further information, refer to the <span class="DocumentTitle">TREP Authentication User Manual</span>.<span class="Superscript"><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.013.html#1385395', '');" title="7.3.2.1 RSSL RDM Login Refresh Structure Members">a</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1386091">flags</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1386093">Required</a></span>. Indicates the presence of optional login status members. For details, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.021.html', '');" title="7.3.3.2 RSSL RDM Login Status Flag Enumeration Values">Section 7.3.3.2</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1386101">rdmMsgBase</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1386103">Required</a></span>. Contains general message information, such as <span class="CodeOrCommand">streamId</span> and <span class="CodeOrCommand">domainType</span>. </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1386105">state</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Parameter"><a name="1386110">Optional</a></span>. If present, a flags value of <span class="Parameter">RDM_LG_STF_HAS_STATE</span> should be specified.</div>
+            <div class="CellBody"><a name="1386111">Indicates the state of the login stream. When rejecting a login the state should be:</a></div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -101,7 +119,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1227442">streamState</a></span> = <span class="Parameter">RSSL_STREAM_CLOSED</span> or <span class="Parameter">RSSL_STREAM_CLOSED_RECOVER</span></div>
+                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1386115">streamState</a></span> = <span class="Parameter">RSSL_STREAM_CLOSED</span> or <span class="Parameter">RSSL_STREAM_CLOSED_RECOVER</span></div>
                   </td>
                 </tr>
               </table>
@@ -115,7 +133,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1227443">dataState</a></span> = <span class="Parameter">RSSL_DATA_SUSPECT</span></div>
+                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1386122">dataState</a></span> = <span class="Parameter">RSSL_DATA_SUSPECT</span></div>
                   </td>
                 </tr>
               </table>
@@ -129,21 +147,21 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1227444">stateCode</a></span> = <span class="Parameter">RSSL_SC_NOT_ENTITLED</span></div>
+                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1386126">stateCode</a></span> = <span class="Parameter">RSSL_SC_NOT_ENTITLED</span></div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1227445">For more information on </a><span class="CodeOrCommand">RsslState</span>, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
+            <div class="CellBody"><a name="1386131">For more information on </a><span class="CodeOrCommand">RsslState</span>, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1227394">userNameType</a></div>
+            <div class="CellBody"><a name="1386133">userNameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1227595">If present, </a><span class="CodeOrCommand">flags</span> value of <span class="Parameter">RDM_LG_STF_HAS_USERNAME_TYPE</span> should be specified. If not present, a default value of <span class="Parameter">RDM_LOGIN_USER_NAME</span> is assumed. </div>
-            <div class="CellBody"><a name="1227596">Possible values:</a></div>
+            <div class="CellBody"><span class="Parameter"><a name="1386138">Optional</a></span>. If present, a <span class="CodeOrCommand">flags</span> value of <span class="Parameter">RDM_LG_STF_HAS_USERNAME_TYPE</span> should be specified. If absent, a default value of <span class="Parameter">RDM_LOGIN_USER_NAME</span> is assumed. </div>
+            <div class="CellBody"><a name="1386142">Possible values:</a></div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt; vertical-align: baseline">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -153,7 +171,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1227597">RDM_LOGIN_USER_NAME == 1</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1386149">RDM_LOGIN_USER_NAME == 1</a></span></div>
                   </td>
                 </tr>
               </table>
@@ -167,7 +185,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1227598">RDM_LOGIN_USER_EMAIL_ADDRESS == 2</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1386156">RDM_LOGIN_USER_EMAIL_ADDRESS == 2</a></span></div>
                   </td>
                 </tr>
               </table>
@@ -181,25 +199,60 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1227599">RDM_LOGIN_USER_TOKEN == 3</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1386163">RDM_LOGIN_USER_TOKEN == 3</a></span></div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1227600">A type of </a><span class="Parameter">RDM_LOGIN_USER_NAME</span> typically corresponds to a DACS user name. This can be used to authenticate and permission a user.</div>
-            <div class="CellBody"><span class="Parameter"><a name="1227601">RDM_LOGIN_USER_TOKEN</a></span> is specified when using AAAAPI The user token is retrieved from an AAAAPI gateway. To validate users, a provider application can pass this user token to an Authentication Manager application. This type of token periodically changes: when it changes, an application can send a login reissue to pass information upstream. For more information, refer to specific AAAAPI documentation.</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt; vertical-align: baseline">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap; color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1386170">RDM_LOGIN_USER_COOKIE == 4</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt; vertical-align: baseline">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap; color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1386177">RDM_LOGIN_USER_AUTHN_TOKEN == 5</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="CellBody"><a name="1386181">A type of </a><span class="Parameter">RDM_LOGIN_USER_NAME</span> typically corresponds to a DACS user name and can be used to authenticate and permission a user.</div>
+            <div class="CellBody"><span class="Parameter"><a name="1386185">RDM_LOGIN_USER_TOKEN</a></span> is specified when using the AAA (‘triple A’) API. The user token is retrieved from the Authentication Manager application. To validate users, a provider application passes this user token to the AAA Gateway. This type of token periodically changes: when it changes, an application can send a login reissue to pass information upstream. For more information, refer to documentation specific to the AAAAPI.</div>
+            <div class="CellBody"><span class="Parameter"><a name="1386189">RDM_LOGIN_USER_AUTHN_TOKEN</a></span> is specified when using TREP Authentication. The authentication token should be specified in the <span class="CodeOrCommand">userName</span> member. This type of token can periodically change: when it changes, an application can send a login reissue to pass information upstream. For more information, refer to the <span class="DocumentTitle">TREP Authentication User Manual</span>.<span class="Superscript"><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.013.html#1385395', '');" title="7.3.2.1 RSSL RDM Login Refresh Structure Members">a</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1227398">userName</a></div>
+            <div class="CellBody"><a name="1386194">userName</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1227629">If present, </a><span class="CodeOrCommand">flags</span> value of <span class="Parameter">RDM_LG_STF_HAS_USERNAME</span> should be specified.</div>
-            <div class="CellBody"><a name="1227630">When populated, this should match the </a><span class="CodeOrCommand">userName</span> contained in the login request.</div>
+            <div class="CellBody"><span class="Parameter"><a name="1386199">Optional</a></span>. If present, a <span class="CodeOrCommand">flags</span> value of <span class="Parameter">RDM_LG_STF_HAS_USERNAME</span> should be specified.</div>
+            <div class="CellBody"><a name="1386200">When populated, this should match the </a><span class="CodeOrCommand">userName</span> in the login request.</div>
           </td>
         </tr>
       </table>
+      <hr />
+      <div style="font-size: smaller; float: left; padding-right: 10px;">
+        <a name="25" href="#wwfootnote_inline_25">1</a>
+      </div>
+      <div class="Footnote"><a name="1386078">For further details on TREP Authentication, refer to the </a><span class="DocumentTitle">TREP Authentication User Manual</span>, accessible on <span class="Hyperlink"><a href="https://my.thomsonreuters.com/products" target="external_window">Thomson Reuters MyAccount</a></span> in the DACS product documentation set.</div>
+      <br style="clear: both;" />
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

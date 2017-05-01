@@ -1,7 +1,9 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
 import com.thomsonreuters.upa.codec.CodecFactory;
+import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.State;
+import com.thomsonreuters.upa.codec.StreamStates;
 
 /**
  * The options for rejecting a TunnelStream.
@@ -14,6 +16,12 @@ public class TunnelStreamRejectOptions
 {
     State _state = CodecFactory.createState();
     ClassOfService _expectedClassOfService;
+    
+    public TunnelStreamRejectOptions()
+    {
+        _state.streamState(StreamStates.CLOSED_RECOVER);
+        _state.dataState(DataStates.SUSPECT);
+    }
     
     /**
      * Returns the expected class of service of the tunnel stream.
@@ -50,6 +58,8 @@ public class TunnelStreamRejectOptions
     public void clear()
     {
         _state.clear();
+        _state.streamState(StreamStates.CLOSED_RECOVER);
+        _state.dataState(DataStates.SUSPECT);
         _expectedClassOfService = null;
     }    
 }

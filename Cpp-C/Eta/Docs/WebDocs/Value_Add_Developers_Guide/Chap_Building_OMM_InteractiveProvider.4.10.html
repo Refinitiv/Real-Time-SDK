@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1219690">Handle Requests and Post Messages</a></div>
-      <div class="Body"><a name="1219691">A provider can receive a request for any domain, though this should typically be limited to the domain capabilities indicated in the Source Directory. When a request is received, the provider application must determine if it can satisfy the request by:</a></div>
+      <div class="Body"><a name="1230664">A provider can receive a request for any domain, though this should typically be limited to the domain capabilities indicated in the Source Directory. When a request is received, the provider application must determine if it can satisfy the request by:</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1219692">Comparing </a><span class="CodeOrCommand">msgKey</span> identification information</div>
+              <div class="Bullet_inner"><a name="1230665">Comparing </a><span class="CodeOrCommand">msgKey</span> identification information</div>
             </td>
           </tr>
         </table>
@@ -80,7 +80,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1219693">Determining whether it can provide the requested QoS</a></div>
+              <div class="Bullet_inner"><a name="1230666">Determining whether it can provide the requested QoS</a></div>
             </td>
           </tr>
         </table>
@@ -94,14 +94,14 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1219694">Ensuring that the consumer does not already have a stream open for the requested information</a></div>
+              <div class="Bullet_inner"><a name="1230667">Ensuring that the consumer does not already have a stream open for the requested information</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1219695">If a provider can service a request, it should send appropriate responses. However, if the provider cannot satisfy the request, the provider should send an </a><span class="CodeOrCommand">RsslStatusMsg</span> to indicate the reason and close the stream. All requests and responses should follow specific formatting as defined in the domain model specification. The <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCRDMG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition RDM Usage Guide</a></span> defines all domains provided by Thomson Reuters. This content will be returned to the application via the <span class="CodeOrCommand">RsslDefaultMsgCallback</span>.</div>
-      <div class="Body"><a name="1219696">The provider can specify that it supports post messages via the </a><span class="CodeOrCommand">RsslRDMLoginRefresh</span>. If a provider application receives a Post message, the provider should determine the correct handling for the post. This depends on the application’s role in the system and might involve storing the post in its cache or passing it farther up into the system. If the provider is the destination for the Post, the provider should send any requested acknowledgments, following the guidelines described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>. Any posted content will be returned to the application via the <span class="CodeOrCommand">RsslDefaultMsgCallback</span>.</div>
-      <div class="Body"><a name="1219697">All content requested, received, or posted is encoded and decoded using the Transport API Message Package and the Transport API Data Package described in the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
+      <div class="Body"><a name="1230668">If a provider can service a request, it should send appropriate responses. However, if the provider cannot satisfy the request, the provider should send an </a><span class="CodeOrCommand">RsslStatusMsg</span> to indicate the reason and close the stream. All requests and responses should follow specific formatting as defined in the domain model specification. The <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition RDM Usage Guide</a></span> defines all domains provided by Thomson Reuters. This content will be returned to the application via the <span class="CodeOrCommand">RsslDefaultMsgCallback</span>.</div>
+      <div class="Body"><a name="1230679">The provider can specify that it supports post messages via the </a><span class="CodeOrCommand">RsslRDMLoginRefresh</span>. If a provider application receives a post message, the provider should determine the correct handling for the post. This depends on the application’s role in the system and might involve storing the post in its cache or passing it farther up into the system. If the provider is the destination for the post, the provider should send any requested acknowledgments, following the guidelines described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>. Any posted content will be returned to the application via the <span class="CodeOrCommand">RsslDefaultMsgCallback</span>.</div>
+      <div class="Body"><a name="1230687">All content requested, received, or posted is encoded and decoded using the Transport API</a> Message Package and the Transport API Data Package described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

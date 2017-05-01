@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="999046">Overview of Data Types</a></div>
-      <div class="Body"><a name="1168436">The Elektron APIs offer a wide variety of data types categorized into two groups:</a></div>
+      <div class="Body"><a name="1212728">The Elektron API offer a wide variety of data types categorized into two groups:</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Concept"><a name="1168437">Primitive Types</a></span>: A primitive type represents simple, atomically updating information such as values like integers, dates, and ASCII string buffers (refer to <a href="javascript:WWHClickedPopup('API_Concepts', 'Chap_DataTypesandMessages.5.3.html', '');" title="5.2 Primitive Types">Section 5.2</a>).</div>
+              <div class="Bullet_inner"><span class="Concept"><a name="1212729">Primitive Types</a></span>: A primitive type represents simple, atomically updating information such as values like integers, dates, and ASCII string buffers (refer to <a href="javascript:WWHClickedPopup('API_Concepts', 'Chap_DataTypesandMessages.5.3.html', '');" title="5.2 Primitive Types">Section 5.2</a>).</div>
             </td>
           </tr>
         </table>
@@ -80,26 +80,15 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><span class="Concept"><a name="1168447">Container Types</a></span>: A container type can model data representations more intricately and manage dynamic content at a more granular level than primitive types. Container types represent complex information such as field identifier-value, name-value, or key-value pairs (refer to <a href="javascript:WWHClickedPopup('API_Concepts', 'Chap_DataTypesandMessages.5.4.html', '');" title="5.3 Container Types">Section 5.3</a>). Elektron APIs offers several uniform, homogeneous container types (i.e., all entries house the same type of data). Additionally, there are several non-uniform, heterogeneous container types in which different entries can hold different types of data.</div>
+              <div class="Bullet_inner"><span class="Concept"><a name="1212739">Container Types</a></span>: A container type can model data representations more intricately and manage dynamic content at a more granular level than primitive types. Container types represent complex information such as field identifier-value, name-value, or key-value pairs (refer to <a href="javascript:WWHClickedPopup('API_Concepts', 'Chap_DataTypesandMessages.5.4.html', '');" title="5.3 Container Types">Section 5.3</a>). Elektron API offers several uniform, homogeneous container types (i.e., all entries house the same type of data). Additionally, there are several non-uniform, heterogeneous container types in which different entries can hold different types of data.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1168464">The following diagram illustrates the use of Elektron APIs data types to resemble a composite pattern.</a></div>
-      <div class="Body"><a name="1168468"><img class="Default" src="images/CompositePattern.jpg" width="482" height="224" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
-      <div class="FigTitle_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="FigTitle_inner" style="width: 36pt; white-space: nowrap">Figure 26.  </div>
-            </td>
-            <td width="100%">
-              <div class="FigTitle_inner"><a name="1168475">Elektron APIs and the Composite Pattern</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1168476">The diagram highlights the following:</a></div>
+      <div class="Body"><a name="1212756">The following diagram illustrates the use of Elektron API data types to resemble a composite pattern.</a></div>
+      <div class="Body"><a name="1212760"><img class="Default" src="images/CompositePattern.jpg" width="482" height="224" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 26.  <a name="1212767">Elektron API and the Composite Pattern</a></div>
+      <div class="Body"><a name="1212768">The diagram highlights the following:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -109,7 +98,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1168480">Being made up of both primitive and container types, Elektron APIs data type values mirror the composite pattern’s component.</a></div>
+              <div class="bullet_ind_inner"><a name="1212772">Being made up of both primitive and container types, Elektron API data type values mirror the composite pattern’s component.</a></div>
             </td>
           </tr>
         </table>
@@ -123,7 +112,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1168484">Elektron APIs primitive </a>types mimic the composite pattern’s leaf, conveying concrete information for the user.</div>
+              <div class="bullet_ind_inner"><a name="1212776">Elektron API primitive </a>types mimic the composite pattern’s leaf, conveying concrete information for the user.</div>
             </td>
           </tr>
         </table>
@@ -137,12 +126,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1168488">The </a>Elektron APIs container type and its entries are similar to the composite pattern’s composite. This allows for housing other container types and, in some cases such as field and element lists, housing primitive types.</div>
+              <div class="bullet_ind_inner"><a name="1212780">The </a>Elektron API container type and its entries are similar to the composite pattern’s composite. This allows for housing other container types and, in some cases such as field and element lists, housing primitive types.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1168489">The housing of other types is also referred to as </a><span class="Concept">nesting</span>. Nesting allows:</div>
+      <div class="Body"><a name="1212781">The housing of other types is also referred to as </a><span class="Concept">nesting</span>. Nesting allows:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -152,7 +141,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1168490">Messages to house other messages or container types</a></div>
+              <div class="bullet_ind_inner"><a name="1212782">Messages to house other messages or container types</a></div>
             </td>
           </tr>
         </table>
@@ -166,12 +155,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1168491">Container types to house other messages, container, or primitive types</a></div>
+              <div class="bullet_ind_inner"><a name="1212783">Container types to house other messages, container, or primitive types</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1168492">This provides the flexibility for domain model definitions and applications to arrange and nest data types in whatever way best achieves their goals.</a></div>
+      <div class="Body"><a name="1212784">This provides the flexibility for domain model definitions and applications to arrange and nest data types in whatever way best achieves their goals.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

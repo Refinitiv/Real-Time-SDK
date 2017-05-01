@@ -262,6 +262,20 @@ public interface OmmProvider
 	 */
 	public long registerClient(ReqMsg reqMsg, OmmProviderClient client, Object closure);
 	
+	/** 
+	 * Changes the interest in an open item stream.
+	 * The first formal parameter houses a ReqMsg.
+	 * The second formal parameter is a handle that identifies the open stream to be modified.
+	 * This method is ObjectLevelSafe.
+	 * 
+	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
+	 * @throws OmmInvalidUsageException if passed in ReqMsg violates reissue rules
+	 * 
+	 * @param reqMsg specifies modifications to the open item stream
+	 * @param handle identifies item to be modified
+	 */
+	public void reissue(ReqMsg reqMsg, long handle);
+
 	/**
 	 * Sends a GenericMsg.
 	 * <p>This method is ObjectLevelSafe.</p>
@@ -283,7 +297,7 @@ public interface OmmProvider
 	 * @param handle identifies item stream on which to send the RefreshMsg
 	 */
 	public void submit(RefreshMsg refreshMsg, long handle);
-	
+
 	/**
 	 * Sends a UpdateMsg.
 	 * <p>This method is ObjectLevelSafe.</p>
@@ -305,7 +319,7 @@ public interface OmmProvider
 	 * @param handle identifies item stream on which to send the StatusMsg
 	 */
 	public void submit(StatusMsg statusMsg, long handle);
-	
+
 	/**
 	 * Sends a AckMsg.
 	 * <p>This method is ObjectLevelSafe.</p>

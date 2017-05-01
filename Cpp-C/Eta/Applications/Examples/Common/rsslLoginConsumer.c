@@ -37,6 +37,15 @@ static const char *instanceId = "instance1";
 /* user name requested by application */
 static char cmdLineUsername[MAX_LOGIN_INFO_STRLEN];
 
+/* authentication token requested by application */
+static char cmdLineAuthenticationToken[255];
+
+/* authentication extended requested by application */
+static char cmdLineAuthenticationExtended[MAX_LOGIN_INFO_STRLEN];
+
+/* applicationId requested by application */
+static char cmdLineApplicationId[MAX_LOGIN_INFO_STRLEN];
+
 /* login success callback function pointer */
 LoginSuccessCallback loginSuccessCallback = NULL;
 
@@ -78,6 +87,34 @@ void setUsername(char* username)
 {
 	snprintf(cmdLineUsername, MAX_LOGIN_INFO_STRLEN, "%s", username);
 }
+
+/*
+ * Sets the authentication token requested by the application.
+ * authenticationToken - The token requested by the application
+ */
+void setAuthenticationToken(char* authenticationToken)
+{
+	snprintf(cmdLineAuthenticationToken, 255, "%s", authenticationToken);
+}
+
+/*
+ * Sets the authentication extended information requested by the application.
+ * authenticationExtended - The extended information requested by the application
+ */
+void setAuthenticationExtended(char* authenticationExtended)
+{
+	snprintf(cmdLineAuthenticationExtended, 255, "%s", authenticationExtended);
+}
+
+/*
+ * Sets the application Id information requested by the application.
+ * applicationId - The application Id requested by the application
+ */
+void setApplicationId(char* applicationId)
+{
+	snprintf(cmdLineApplicationId, 255, "%s", applicationId);
+}
+
 
 /*
  * Returns the login response information structure
@@ -139,8 +176,26 @@ RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role
 		{
 			snprintf(loginReqInfo.Username, 128, "%s", cmdLineUsername);
 		}
-		/* ApplicationId */
-		snprintf(loginReqInfo.ApplicationId, 128, "%s", applicationId);
+		/* If an authentication token is present, set the login request's name type to RDM_LOGIN_USER_AUTHN_TOKEN and use the authentication token */
+		if(strlen(cmdLineAuthenticationToken) != 0)
+		{
+			snprintf(loginReqInfo.AuthenticationToken, 255, "%s", cmdLineAuthenticationToken);
+			loginReqInfo.NameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+			
+			if(strlen(cmdLineAuthenticationExtended) != 0)
+			{
+				snprintf(loginReqInfo.AuthenticationExtended, 255, "%s", cmdLineAuthenticationExtended);
+			}
+		}
+		/* If the application Id is present, set on the request */
+		if(strlen(cmdLineApplicationId) != 0)
+		{
+			snprintf(loginReqInfo.ApplicationId, 128, "%s", cmdLineApplicationId);
+		}
+		else /* Use default AppId */
+		{
+			snprintf(loginReqInfo.ApplicationId, 128, "%s", applicationId);
+		}
 		/* ApplicationName */
 		snprintf(loginReqInfo.ApplicationName, 128, "%s", appName);
 		/* Position */
@@ -211,6 +266,9 @@ RsslRet processLoginResponse(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator
 	RsslState *pState = 0;
 	char tempData[1024];
 	RsslBuffer tempBuffer;
+	RsslElementList	elementList;
+	RsslElementEntry	element;
+	RsslUInt code;
 
 	tempBuffer.data = tempData;
 	tempBuffer.length = 1024;
@@ -235,7 +293,26 @@ RsslRet processLoginResponse(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator
 		/* get state information */
 		pState = &msg->refreshMsg.state;
 		rsslStateToString(&tempBuffer, pState);
-		printf("	%.*s\n\n", tempBuffer.length, tempBuffer.data);
+		printf("	%.*s\n", tempBuffer.length, tempBuffer.data);
+		
+		if(strlen(loginResponseInfo.AuthenticationExtendedResponse) != 0)
+		{
+			printf("	Authentication Extended Response: %s\n", loginResponseInfo.AuthenticationExtendedResponse);
+		}
+		
+		if(loginResponseInfo.AuthenticationTTReissue != 0)
+		{
+			printf("	Authentication Time To Reissue: " RTR_LLU "\n", loginResponseInfo.AuthenticationTTReissue);
+		}
+		if(loginResponseInfo.HasAuthenticationStatusErrorCode == RSSL_TRUE)
+		{
+			printf("	Authentication Error Code: " RTR_LLD "\n", loginResponseInfo.AuthenticationStatusErrorCode);
+		}
+		if(strlen(loginResponseInfo.AuthenticationStatusErrorText) != 0)
+		{
+			printf("	Authentication Status Text: %s\n", loginResponseInfo.AuthenticationStatusErrorText);
+		}
+		printf("\n");
 
 		/* call login success callback if login okay and is solicited */
 		if (loginResponseInfo.isSolicited && pState->streamState == RSSL_STREAM_OPEN && pState->dataState == RSSL_DATA_OK)
@@ -275,7 +352,57 @@ RsslRet processLoginResponse(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator
 			/* get state information */
 			pState = &msg->statusMsg.state;
 			rsslStateToString(&tempBuffer, pState);
-			printf("	%.*s\n\n", tempBuffer.length, tempBuffer.data);
+			printf("	%.*s\n", tempBuffer.length, tempBuffer.data);
+			
+			/* Check for authentication attrib information */
+			if(msg->statusMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_ATTRIB)
+			{
+				
+				/* decode key opaque data */
+				if ((ret = rsslDecodeMsgKeyAttrib(dIter, &msg->statusMsg.msgBase.msgKey)) < RSSL_RET_SUCCESS)
+				{
+					printf("rsslDecodeMsgKeyAttrib() failed with return code: %d\n", ret);
+					return RSSL_RET_FAILURE;
+				}
+
+				/* decode element list */
+				if ((ret = rsslDecodeElementList(dIter, &elementList, NULL)) == RSSL_RET_SUCCESS)
+				{
+					/* decode each element entry in list */
+					while ((ret = rsslDecodeElementEntry(dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
+					{
+						if (ret == RSSL_RET_SUCCESS)
+						{
+							/* get login request information */
+							/* Authentication Error code */
+							if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_CODE))
+							{
+								ret = rsslDecodeUInt(dIter, &code);
+								if (ret != RSSL_RET_SUCCESS && ret != RSSL_RET_BLANK_DATA)
+								{
+									printf("rsslDecodeUInt() failed with return code: %d\n", ret);
+									return RSSL_RET_FAILURE;
+								}
+								printf("	Authentication Error Code: %llu\n", code);
+							}
+							/* Authentication Error Text */
+							else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_TEXT))
+							{
+								printf("	Authentication Error text: %.*s\n", element.encData.length, element.encData.data);
+							}
+						}
+						else
+						{
+							printf("rsslDecodeElementEntry() failed with return code: %d\n", ret);
+							return RSSL_RET_FAILURE;
+						}
+					}
+				}
+			}
+			
+			printf("\n");
+							
+				
 			/* handle error cases */
 			if (pState->streamState == RSSL_STREAM_CLOSED_RECOVER)
 			{

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>6.7.2.2 TunnelStreamOpenOptions</title>
+    <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H4"><a name="1220841">TunnelStreamOpenOptions</a></div>
+      <div class="Body"><a name="1858081">The </a><span class="CodeOrCommand">TunnelStreamOpenOptions</span> contain event handler associations and options for use in creating a tunnel stream.</div>
+      <div class="Blank_Line"><a name="1858226">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 58: <span class="LucidaConsole"><a name="1858223">TunnelStreamOpenOptions</a></span> &nbsp;</div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 175.5pt">
+            <div class="CellHeading"><a name="1858084">CLASS MEMBER</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 380.25pt">
+            <div class="CellHeading"><a name="1858086">DESCRIPTION</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858088">domainType</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858090">Indicates the domain for which the tunnel stream is established. Set this to the domain specified on the service on which the Transport API opens the tunnel stream.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858095">streamId</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858097">Indicates the stream ID to use for the tunnel stream. Though substreams will flow within this stream ID, each will have their own independent stream ID.</a></div>
+            <div class="CellBody"><a name="1858098">For example, a tunnel stream can have an ID of 10. If a substream is opened to retrieve TRI data, the substream can have a stream ID of 5, though it is encapsulated in the tunnel stream whose stream ID is 10.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858100">serviceId</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858102">Indicates the service ID of the service on which you open the tunnel stream.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858107">userSpecObject</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858109">Indicates a user-specified object passed in via these options and then associated with the </a><span class="CodeOrCommand">TunnelStream</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858114">statusEventCallback</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858119">Specifies an instance of the callback for </a><span class="CodeOrCommand">TunnelStreamStatusEvent</span>s, which provides the <span class="CodeOrCommand">TunnelStream</span> on initial connection, and after the tunnel stream is established, communicates the tunnel stream’s state information.</div>
+            <div class="CellBody"><a name="1858129">For further details, refer to</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.102.html', '');" title="6.7.4 Tunnel Stream Callback Methods and Event Types">Section 6.7.4</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858131">queueMsgCallback</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858133">Specifies the instance of the callback used to handle Queue Messages received on this </a><span class="CodeOrCommand">TunnelStream</span>.</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1858143">For details on the </a><span class="CodeOrCommand">TunnelStreamQueueMsgCallback</span>, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.102.html', '');" title="6.7.4 Tunnel Stream Callback Methods and Event Types">Section 6.7.4</a>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1858153">For details on various Queue Messages, refer to</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.119.html', '');" title="7.6 RDM Queue Messages">Section 7.6</a>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858155">defaultMsgCallback</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858157">Specifies the instance of the callback that handles all other content received on this </a><span class="CodeOrCommand">TunnelStream</span>.</div>
+            <div class="CellBody"><a name="1858167">For further details, refer to</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.102.html', '');" title="6.7.4 Tunnel Stream Callback Methods and Event Types">Section 6.7.4</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858169">name</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858171">Specifies the tunnel stream name. </a><span class="CodeOrCommand">name</span> cannot be longer than 255 characters.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858173">responseTimeout</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858175">Sets the duration (in seconds) to wait for a provider to respond to a tunnel stream open request. If the provider does not respond in time, a </a><span class="CodeOrCommand">TunnelStreamStatusEvent</span> is sent to the application to indicate that the tunnel stream was not opened.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858180">guaranteedOutputBuffers</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858182">Sets the number of guaranteed output buffers available for the tunnel stream.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858187">authLoginRequest</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858189">Specifies the</a> login request to send if <span class="CodeOrCommand">ClassOfService.authentication.type</span> is set to <span class="Parameter">OMM_LOGIN</span>. If absent, the API uses the login request provided on the <span class="CodeOrCommand">ConsumerRole.rdmLoginRequest</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858203">classOfService</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1858205">The class of service of the tunnel stream to be opened.</a></div>
+            <div class="CellBody"><a name="1858215">For further details on </a><span class="CodeOrCommand">ClassOfService</span>, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.096.html', '');" title="6.7.3 Negotiating Stream Behaviors: Class of Service">Section 6.7.3</a>.</div>
+          </td>
+        </tr>
+      </table>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.091.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7.2	Opening a Tunnel Stream</a> : 6.7.2.2	TunnelStreamOpenOptions</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

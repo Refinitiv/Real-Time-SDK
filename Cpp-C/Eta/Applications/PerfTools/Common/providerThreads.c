@@ -497,6 +497,9 @@ void providerSessionDestroy(ProviderThread *pProvThread, ProviderSession *pSessi
 	while(pLink = rotatingQueuePeekFrontAsList(&pSession->updateItemList))
 		freeItemInfo(pProvThread, pSession, RSSL_QUEUE_LINK_TO_OBJECT(ItemInfo, watchlistLink, pLink));
 
+	if (niProvPerfConfig.useReactor || provPerfConfig.useReactor) // Reactor used
+		free(pSession->pChannelInfo);
+
 	hashTableCleanup(&pSession->itemAttributesTable);
 	hashTableCleanup(&pSession->itemStreamIdTable);
 	free(pSession);

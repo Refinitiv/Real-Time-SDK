@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>340__MarketPrice__OnStreamPost</title>
+    <title>333__Login__Streaming__DomainRepresentation</title>
     <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,51 +45,55 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1020352">340__MarketPrice__OnStreamPost</a></div>
-      <div class="Body"><a name="1041353">Summary</a></div>
-      <div class="Body"><a name="1041354">=======</a></div>
-      <div class="Body"><a name="1041355">&nbsp;</a></div>
-      <div class="Body"><a name="1041356">The 340__MarketPrice__OnStreamPost application is provided as an example of</a></div>
-      <div class="Body"><a name="1041357">OMM Consumer application written to the EMA library.</a></div>
-      <div class="Body"><a name="1041358">&nbsp;</a></div>
-      <div class="Body"><a name="1041359">This application demonstrates basic usage of the EMA library for accessing,</a></div>
-      <div class="Body"><a name="1041360">posting and parsing of MarketPrice data directly directly from and to an OMM</a></div>
-      <div class="Body"><a name="1041361">Provider application, or to Thomson Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1041362">&nbsp;</a></div>
-      <div class="Body"><a name="1041363">The 340__MarketPrice__OnStreamPost showcases the usage of on stream posting</a></div>
-      <div class="Body"><a name="1041364">feature in OMM Consumer. It submits OMM Data for the open item and processes</a></div>
-      <div class="Body"><a name="1041365">a requested AckMsg when received.</a></div>
-      <div class="Body"><a name="1041366">&nbsp;</a></div>
-      <div class="Body"><a name="1041367">&nbsp;</a></div>
-      <div class="Body"><a name="1041368">Detailed Description</a></div>
-      <div class="Body"><a name="1041369">====================</a></div>
-      <div class="Body"><a name="1041370">&nbsp;</a></div>
-      <div class="Body"><a name="1041371">The 340__MarketPrice__OnStreamPost implements the following high level steps:</a></div>
-      <div class="Body"><a name="1041372">&nbsp;</a></div>
-      <div class="Body"><a name="1041373">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1041374">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1041375">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1041376">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1041377">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1041378">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1041379">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1041380">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1041381">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1041382">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1041383">+ Opens a streaming item interests</a></div>
-      <div class="Body"><a name="1041384">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1041385">+ Sends a PostMsg with FieldList as payload on this stream</a></div>
-      <div class="Body"><a name="1041386">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1041387">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1041388">  - application may receive RespMsg as well as AckMsg</a></div>
-      <div class="Body"><a name="1041389">+ Exits</a></div>
-      <div class="Body"><a name="1041390">&nbsp;</a></div>
-      <div class="Body"><a name="1041391">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1041392">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1041393">	  </a></div>
-      <div class="Body"><a name="1041394">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1041395">      standard configuration.</a></div>
-      <div class="Body"><a name="1029279">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1040172">333__Login__Streaming__DomainRepresentation</a></div>
+      <div class="Body"><a name="1044028">Summary</a></div>
+      <div class="Body"><a name="1044029">=======</a></div>
+      <div class="Body"><a name="1044030">&nbsp;</a></div>
+      <div class="Body"><a name="1044031">The 333__Login__Streaming__DomainRepresentation application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1044032">application written to the EMA library.</a></div>
+      <div class="Body"><a name="1044033">&nbsp;</a></div>
+      <div class="Body"><a name="1044034">This application demonstrates basic usage of the EMA library for accessing</a></div>
+      <div class="Body"><a name="1044035">and parsing of OMM Login and MarketPrice data from Reuters Data Feed Direct</a></div>
+      <div class="Body"><a name="1044036">(RDF-D), directly from an OMM Provider application, or from Thomson Reuters</a></div>
+      <div class="Body"><a name="1044037">Advanced Distribution Server.</a></div>
+      <div class="Body"><a name="1044038">&nbsp;</a></div>
+      <div class="Body"><a name="1044039">The 333__Login__Streaming__DomainRepresentation showcases usage of login stream in OMM Consumer.</a></div>
+      <div class="Body"><a name="1044040">It demonstrates opening of login stream as well as its processing. Having</a></div>
+      <div class="Body"><a name="1044041">a login stream open is useful for consumer applications willing to do</a></div>
+      <div class="Body"><a name="1044042">Off Stream Posting and or knowing the state of its connectivity to server.</a></div>
+      <div class="Body"><a name="1044043">&nbsp;</a></div>
+      <div class="Body"><a name="1044044">This application is the Domain Representation version of example 330__Login__Streaming. It demonstrates the</a></div>
+      <div class="Body"><a name="1044045">ease-of-use Domain Representation functionality.</a></div>
+      <div class="Body"><a name="1044046">&nbsp;</a></div>
+      <div class="Body"><a name="1044047">Detailed Description</a></div>
+      <div class="Body"><a name="1044048">====================</a></div>
+      <div class="Body"><a name="1044049">&nbsp;</a></div>
+      <div class="Body"><a name="1044050">The 333__Login__Streaming__DomainRepresentation implements the following high level steps:</a></div>
+      <div class="Body"><a name="1044051">&nbsp;</a></div>
+      <div class="Body"><a name="1044052">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1044053">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1044054">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1044055">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1044056">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1044057">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1044058">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1044059">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1044060">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1044061">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1044062">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1044063">+ Opens two streaming item interests</a></div>
+      <div class="Body"><a name="1044064">  - Login Domain stream</a></div>
+      <div class="Body"><a name="1044065">  - MarketPrice Domain IBM.N item DIRECT_FEED </a></div>
+      <div class="Body"><a name="1044066">+ Processes data received from user thread for 60 seconds</a></div>
+      <div class="Body"><a name="1044067">  - all received messages are processed on main thread of control</a></div>
+      <div class="Body"><a name="1044068">+ Exits</a></div>
+      <div class="Body"><a name="1044069">&nbsp;</a></div>
+      <div class="Body"><a name="1044070">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1044071">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1044072">	  </a></div>
+      <div class="Body"><a name="1044073">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1044074">      standard configuration.</a></div>
+      <div class="Body"><a name="1040255">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -102,7 +106,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.23.html">300 Series Examples</a> : 340__MarketPrice__OnStreamPost</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.23.html">300 Series Examples</a> : 333__Login__Streaming__DomainRepresentation</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

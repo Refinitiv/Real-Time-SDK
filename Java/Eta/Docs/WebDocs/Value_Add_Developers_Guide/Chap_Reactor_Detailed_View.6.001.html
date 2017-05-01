@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>Chapter 6 Reactor Detailed View</title>
+    <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H1"><a name="1219533">Reactor Detailed View</a></div>
+      <div class="WebWorks_MiniTOC">
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.002.html">6.1	Concepts</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.003.html">6.1.1	Functionality: Transport API Versus Transport API Reactor</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.004.html">6.1.2	Reactor Error Handling</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.005.html">6.1.3	Reactor Error Info Codes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.006.html">6.1.4	Transport API Reactor Application Lifecycle</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.007.html">6.2	Reactor Use</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.008.html">6.2.1	Creating a Reactor</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.009.html">6.2.1.1	Reactor Creation</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.010.html">6.2.1.2	ReactorOptions Class Members</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.011.html">6.2.1.3	ReactorOptions Utility Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.012.html">6.2.2	Destroying a Reactor</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.013.html">6.2.2.1	Reactor Destruction</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.014.html">6.2.2.2	Reactor Creation and Destruction Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.015.html">6.3	Reactor Channel Use</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.016.html">6.3.1	Reactor Channel Roles</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.017.html">6.3.1.1	ReactorRole Class</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.018.html">6.3.1.2	ReactorRoleType Enumerations</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.019.html">6.3.2	Reactor Channel Role: OMM Consumer</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.020.html">6.3.2.1	OMM Consumer Role</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.021.html">6.3.2.2	OMM Consumer Role Dictionary Download Modes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.022.html">6.3.2.3	OMM Consumer Role Watchlist Options</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.023.html">6.3.2.4	OMM Consumer Role Utility Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.024.html">6.3.3	Reactor Channel Role: OMM Provider</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.025.html">6.3.3.1	OMM Provider Role</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.026.html">6.3.3.2	OMM Provider Role Utility Function</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.027.html">6.3.4	Reactor Channel Role: OMM Non-Interactive Provider</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.028.html">6.3.4.1	OMM Non-Interactive Role Members</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.029.html">6.3.4.2	OMM Non-Interactive Provider Role Utility Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.030.html">6.4	Managing Reactor Channels</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.030.html#1219633">6.4.1	Adding Reactor Channels</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.031.html">6.4.1.1	Reactor Connect</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.032.html">6.4.1.2	ReactorConnectOptions Class Members</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.033.html">6.4.1.3	ReactorConnectInfo Class members</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.034.html">6.4.1.4	ReactorConnectOptions Utility Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.035.html">6.4.1.5	Reactor.connect Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.036.html">6.4.1.6	Reactor Accept</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.037.html">6.4.1.7	ReactorAcceptOptions Class Members</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.038.html">6.4.1.8	ReactorAcceptOptions Utility Function</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.039.html">6.4.1.9	Reactor.accept Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.040.html">6.4.2	Removing Reactor Channels</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.040.html#1219824">6.4.2.1	ReactorChannel.close Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.041.html">6.4.2.2	ReactorChannel.close Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.042.html">6.5	Dispatching Data</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.043.html">6.5.1	Reactor Dispatch Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.044.html">6.5.1.1	Reactor Dispatch Options</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.045.html">6.5.1.2	ReactorDispatchOptions Utility Function</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.046.html">6.5.1.3	ReactorChannel.dispatch Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.047.html">6.5.2	Reactor Callback Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.048.html">6.5.3	Reactor Callback: Channel Event</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.049.html">6.5.3.1	Reactor Channel Event</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.050.html">6.5.3.2	Reactor Channel Event Type Enumeration Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.051.html">6.5.3.3	Reactor Channel Event Utility Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.052.html">6.5.3.4	Reactor Channel Event Callback Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.053.html">6.5.4	Reactor Callback: Default Message</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.054.html">6.5.4.1	Reactor Message Event</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.055.html">6.5.4.2	Reactor Message Event Utility Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.056.html">6.5.4.3	Reactor Message Event Callback Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.057.html">6.5.5	Reactor Callback: RDM Login Message</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.058.html">6.5.5.1	Reactor RDM Login Message Event</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.059.html">6.5.5.2	Reactor RDM Login Message Event Utility Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.060.html">6.5.5.3	Reactor RDM Login Message Event Callback Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.061.html">6.5.6	Reactor Callback: RDM Directory Message</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.062.html">6.5.6.1	Reactor RDM Directory Message Event</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.063.html">6.5.6.2	Reactor RDM Directory Message Event Utility Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.064.html">6.5.6.3	Reactor RDM Directory Message Event Callback Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.065.html">6.5.7	Reactor Callback: RDM Dictionary Message</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.066.html">6.5.7.1	Reactor RDM Dictionary Message Event</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.067.html">6.5.7.2	Reactor RDM Dictionary Message Event Utility Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.068.html">6.5.7.3	Reactor RDM Dictionary Message Event Callback Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.069.html">6.6	Writing Data</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.070.html">6.6.1	Writing Data using ReactorChannel.submit(Msg…)</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.071.html">6.6.1.1	ReactorChannel.submit(Msg…) Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.072.html">6.6.1.2	Reactor Submit Options</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.073.html">6.6.1.3	ReactorChannel.submit(Msg...) Return Codes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.074.html">6.6.1.4	ReactorRequestMsgOptions</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.075.html">6.6.1.5	ReactorSubmitOptions Utility Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.076.html">6.6.1.6	ReactorChannel.submit(Msg...) Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.077.html">6.6.2	Writing Data Using ReactorChannel.submit(TransportBuffer...)</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.078.html">6.6.2.1	Obtaining a Buffer: Overview</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.079.html">6.6.2.2	Obtaining a Buffer: ReactorChannel Buffer Management Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.080.html">6.6.2.3	Obtaining a Buffer: ReactorChannel.getBuffer Return Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.081.html">6.6.2.4	Writing Data: Overview</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.082.html">6.6.2.5	Writing Data: ReactorChannel.submit(TransportBuffer…) Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.083.html">6.6.2.6	Writing Data: Reactor Submit Options</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.084.html">6.6.2.7	Writing Data: ReactorRequestMsgOptions</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.085.html">6.6.2.8	Writing Data: ReactorChannel.submit(TransportBuffer…) Return Codes</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.086.html">6.6.2.9	Writing Data: ReactorSubmitOptions Utility Function</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.087.html">6.6.2.10	Example: ReactorChannel.getBuffer and ReactorChannel.submit(TransportBuffer…) Example</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.088.html">6.6.2.11	Packing Additional Data into a Buffer</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.089.html">6.6.2.12	ReactorChannel.packBuffer Return Values</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.090.html">6.6.2.13	Example: ReactorChannel.getBuffer, ReactorChannel.packBuffer, and ReactorChannel.submit(TransportBuffer…)</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.091.html">6.7	Creating and Using Tunnel Streams</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.092.html">6.7.1	Authenticating a Tunnel Stream</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7.2	Opening a Tunnel Stream</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.094.html">6.7.2.1	ReactorChannel.openTunnelStream Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.095.html">6.7.2.2	TunnelStreamOpenOptions</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.096.html">6.7.3	Negotiating Stream Behaviors: Class of Service</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.097.html">6.7.3.1	ClassOfService Common Member</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.098.html">6.7.3.2	ClassOfService Authentication Member</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.099.html">6.7.3.3	ClassOfService Flow Control Members</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.100.html">6.7.3.4	ClassOfService Data Integrity Member</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.101.html">6.7.3.5	ClassOfService Guarantee Members</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.102.html">6.7.4	Tunnel Stream Callback Methods and Event Types</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.102.html#1221004">6.7.4.1	Tunnel Stream Callback Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.103.html">6.7.4.2	Tunnel Stream Callback Event Types</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.104.html">6.7.5	Code Sample: Opening and Managing a Tunnel Stream</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.105.html">6.7.6	Accepting Tunnel Streams</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.106.html">6.7.6.1	Reactor Tunnel Stream Listener Callback</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.107.html">6.7.6.2	ReactorChannel.acceptTunnelStream Method</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.108.html">6.7.6.3	TunnelStreamAcceptOptions</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.109.html">6.7.6.4	ReactorChannel.rejectTunnelStream</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.110.html">6.7.6.5	TunnelStreamRejectOptions</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.111.html">6.7.6.6	Accepting a Tunnel Stream Code Sample</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.112.html">6.7.6.7	Rejecting a Tunnel Stream Code Sample</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.113.html">6.7.7	Receiving Content on a TunnelStream</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.114.html">6.7.8	Sending Content on a TunnelStream</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.115.html">6.7.8.1	Tunnel Stream Buffer Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.116.html">6.7.8.2	Tunnel Stream Submit</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.117.html">6.7.8.3	TunnelStream.submit Option</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.118.html">6.7.8.4	Submitting Content on a Tunnel Stream Code Sample</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.119.html">6.7.9	Closing a Tunnel Stream</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.120.html">6.7.9.1	Tunnel Stream Close</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level3">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.121.html">6.7.9.2	Closing a Tunnel Stream Sample</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level1">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.122.html">6.8	Reactor Utility Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.123.html">6.8.1	General Reactor Utility Methods</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.124.html">6.8.2	ReactorChannelInfo Class Members</a>
+        </div>
+        <div class="WebWorks_MiniTOC_Level2">
+          <a class="WebWorks_MiniTOC_Link" href="Chap_Reactor_Detailed_View.6.125.html">6.8.3	ReactorChannel.ioctl Option Values</a>
+        </div>
+      </div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 6	Reactor Detailed View</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

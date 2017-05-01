@@ -59,7 +59,7 @@
       <div class="Blank_Line"><a name="1003065">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75072pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 13: <span class="CodeOrCommand"><a name="1003091">ConnectOptions</a></span> Methods &nbsp;</div>
+          <div class="TableTitle">Table 13: <span class="LucidaConsole"><a name="1003091">ConnectOptions</a></span> Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 138.00024pt">
@@ -71,19 +71,53 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1003075">unifiedNetworkInfo</a></div>
+            <div class="CellBody"><a name="1492013">blocking</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="CodeOrCommand"><a name="1077487">unifiedNetworkInfo</a></span> object representing connection parameters used when sending and receiving on same network. This is typically used with <span class="CodeOrCommand">ConnectionTypes.SOCKET</span>, <span class="CodeOrCommand">ConnectionTypes.HTTP,</span> <span class="CodeOrCommand">ConnectionTypes.ENCRYPTED</span>, and fully connected/mesh multicast networks.</div>
-            <div class="CellBody"><span class="CodeOrCommand"><a name="1077488">unifiedNetworkInfo</a></span> is described in more detail in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.25.html', '');" title="9.3.2.2 UnifiedNetworkInfo Method Options">Section 9.3.2.2</a>.</div>
+            <div class="CellBody"><a name="1492018">If set to </a><span class="Parameter">true</span>, blocking I/O will be used for this <span class="CodeOrCommand">Channel</span>.</div>
+            <div class="CellBody"><a name="1492022">When I/O is used in a blocking manner on a </a><span class="CodeOrCommand">Channel</span>, any reading or writing will complete before control is returned to the application. In addition, the <span class="CodeOrCommand">Transport.connect</span> method will complete any initialization on the <span class="CodeOrCommand">Channel</span> prior to returning it. Blocking I/O prevents the application from performing any operations until the I/O operation is completed.</div>
+            <div class="CellBody"><a name="1492029">Blocking I/O is typically not recommended. An application can leverage an I/O notification mechanism to allow efficient reading and writing, while using other cycles to perform other necessary work in the application. An I/O notification mechanism enables the application to read when data is available, and write when output space is available.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1003079">segmentedNetworkInfo</a></div>
+            <div class="CellBody"><a name="1492137">channelReadLocking</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009516">Connection parameters when sending and receiving on different networks. This is typically used with multicast networks that have different groups of senders and receivers (e.g., NIProvider can send on one network and receive on another). </a><span class="CodeOrCommand">segmentedNetworkInfo</span> is described in more detail in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
+            <div class="CellBody"><a name="1492139">Accessor method, used to set or check if the connection will use locking on reading.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1492141">channelWriteLocking</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1492143">Accessor method, used to set or check if the connection will use locking on writing.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1491991">clear</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1491993">Clears this object, so that it can be reused.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1491995">componentVersion</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1491997">An optional, user-defined component version string appended behind the standard Transport API component version information. If the combined component version length exceeds the maximum supported by the Transport API, the user-defined information will be truncated. </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1491960">compressionType</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1491962">The type of compression the client would like performed for this connection. Compression is negotiated between the client and server and may not be performed if only the client has it enabled.</a></div>
+            <div class="CellBody"><a name="1491963">For more information about supported compression types and compression negotiation, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.39.html', '');" title="9.4.3 Compression Support">Section 9.4.3</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -97,6 +131,15 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1492005">credentialsInfo</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1492007">credentialsInfo</a></span> object representing Proxy credentials.</div>
+            <div class="CellBody"><a name="1492011">For more information, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.95.html', '');" title="9.15.2.3 CredentialsInfo Methods">Section 9.15.2.3</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
             <div class="CellBody"><a name="1003087">guaranteedOutputBuffers</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
@@ -106,139 +149,75 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009219">numInputBuffers</a></div>
+            <div class="CellBody"><a name="1492055">majorVersion</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009643">The number of sequential input buffers to allocate for reading data into. This controls the maximum number of bytes that can be handled with a single network read operation. Input buffers are allocated at initialization time.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009223">pingTimeout</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077632">The clients desired ping timeout value. This may change through the negotiation process between the client and the server. After the connection becomes active, the actual negotiated value becomes available through the </a><span class="CodeOrCommand">pingTimeout</span> value on the <span class="CodeOrCommand">Channel</span>. When determining the desired ping timeout, the typically used rule of thumb is to send a heartbeat every <span class="CodeOrCommand">pingTimeout</span>/3 seconds.</div>
-            <div class="CellBody"><a name="1077633">For more information, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.73.html', '');" title="9.12 Ping Management">Section 9.12</a>.</div>
+            <div class="CellBody"><a name="1492057">The major version of the protocol that the client intends to exchange over the connection. This value is negotiated with the server at connection time. The outcome of the negotiation is provided via the </a><span class="CodeOrCommand">majorVersion</span> information on the <span class="CodeOrCommand">Channel</span>. Typically, a major version increase is associated with the introduction of incompatible change.</div>
+            <div class="CellBody"><a name="1492061">The transport layer is data neutral and does not change nor depend on any information in content being distributed. This information is provided to help client and server applications manage the information they are communicating.</a></div>
+            <div class="CellBody"><a name="1492065">For more details, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.10.18.html', '');" title="10.5.1 Protocol Versioning">Section 10.5.1</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009227">compressionType</a></div>
+            <div class="CellBody"><a name="1492067">minorVersion</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077666">The type of compression the client would like performed for this connection. Compression is negotiated between the client and server and may not be performed if only the client has it enabled.</a></div>
-            <div class="CellBody"><a name="1077667">For more information about supported compression types and compression negotiation, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.39.html', '');" title="9.4.3 Compression Support">Section 9.4.3</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009231">tunnelingInfo</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="CodeOrCommand"><a name="1077691">tunnelingInfo</a></span> object representing tunneling connection specific options. This is only valid for HTTP and Encrypted connection types.</div>
-            <div class="bullet_ind_outer" style="margin-left: 18pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1077692">For more information on </a><span class="CodeOrCommand">ConnectionTypes</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.09.html', '');" title="9.1.2.2 ConnectionTypes Values">Section 9.1.2.2</a>.</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div class="bullet_ind_outer" style="margin-left: 18pt">
-              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-                <tr style="vertical-align: baseline">
-                  <td>
-                    <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                      <span class="AG_bold">•	</span>
-                    </div>
-                  </td>
-                  <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1077693">For more information on </a><span class="CodeOrCommand">TunnelingInfo</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.90.html', '');" title="9.15.1.1 TunnelingInfo Methods">Section 9.15.1.1</a>.</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
+            <div class="CellBody"><a name="1492069">The minor version of the protocol that the client intends to exchange over the connection. This value is negotiated with the server at connection time. The outcome of the negotiation is provided via the </a><span class="CodeOrCommand">minorVersion</span> information on the <span class="CodeOrCommand">Channel</span>. Typically, a minor version increase is associated with a fully backward compatible change or extension.</div>
+            <div class="CellBody"><a name="1492073">The transport layer is data neutral and does not change nor depend on any information in content being distributed. This information is provided to help client and server applications manage the information they are communicating.</a></div>
+            <div class="CellBody"><a name="1492077">For more details, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.10.18.html', '');" title="10.5.1 Protocol Versioning">Section 10.5.1</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009235">credentialsInfo</a></div>
+            <div class="CellBody"><a name="1492145">multicastOpts</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="CodeOrCommand"><a name="1077758">credentialsInfo</a></span> object representing Proxy credentials.</div>
-            <div class="CellBody"><a name="1077759">For more information, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.95.html', '');" title="9.15.2.3 CredentialsInfo Methods">Section 9.15.2.3</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009239">blocking</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077806">If set to </a><span class="Parameter">true</span>, blocking I/O will be used for this <span class="CodeOrCommand">Channel</span>.</div>
-            <div class="CellBody"><a name="1077807">When I/O is used in a blocking manner on a </a><span class="CodeOrCommand">Channel</span>, any reading or writing will complete before control is returned to the application. In addition, the <span class="CodeOrCommand">Transport.connect</span> method will complete any initialization on the <span class="CodeOrCommand">Channel</span> prior to returning it. Blocking I/O prevents the application from performing any operations until the I/O operation is completed.</div>
-            <div class="CellBody"><a name="1077808">Blocking I/O is typically not recommended. An application can leverage an I/O notification mechanism to allow efficient reading and writing, while using other cycles to perform other necessary work in the application. An I/O notification mechanism enables the application to read when data is available, and write when output space is available.</a></div>
+            <div class="CellBody"><a name="1492147">A substructure containing multicast-based connection type-specific options. These settings are used for </a><span class="CodeOrCommand">ConnectionTypes.RELIABLE_MCAST</span>.</div>
+            <div class="CellBody"><a name="1492151">For information about specific options, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009243">protocolType</a></div>
+            <div class="CellBody"><a name="1492094">numInputBuffers</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077843">The protocol type that the client intends to exchange over the connection. If the </a><span class="CodeOrCommand">protocolType</span> indicated by a server does not match the <span class="CodeOrCommand">protocolType</span> that a client specifies, the connection will be rejected. When a <span class="CodeOrCommand">Channel</span> becomes active for a client or server, this information becomes available via the <span class="CodeOrCommand">protocolType</span> on the <span class="CodeOrCommand">Channel</span>.</div>
-            <div class="CellBody"><a name="1077844">The transport layer is data neutral and does not change nor depend on any information in content being distributed. This information is provided to help client and server applications manage the information they are communicating.</a></div>
-            <div class="CellBody"><a name="1077845">For more details, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.10.18.html', '');" title="10.5.1 Protocol Versioning">Section 10.5.1</a>.</div>
+            <div class="CellBody"><a name="1492096">The number of sequential input buffers to allocate for reading data into. This controls the maximum number of bytes that can be handled with a single network read operation. Input buffers are allocated at initialization time.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009247">majorVersion</a></div>
+            <div class="CellBody"><a name="1492098">pingTimeout</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077890">The major version of the protocol that the client intends to exchange over the connection. This value is negotiated with the server at connection time. The outcome of the negotiation is provided via the </a><span class="CodeOrCommand">majorVersion</span> information on the <span class="CodeOrCommand">Channel</span>. Typically, a major version increase is associated with the introduction of incompatible change.</div>
-            <div class="CellBody"><a name="1077891">The transport layer is data neutral and does not change nor depend on any information in content being distributed. This information is provided to help client and server applications manage the information they are communicating.</a></div>
-            <div class="CellBody"><a name="1077892">For more details, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.10.18.html', '');" title="10.5.1 Protocol Versioning">Section 10.5.1</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009251">minorVersion</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077942">The minor version of the protocol that the client intends to exchange over the connection. This value is negotiated with the server at connection time. The outcome of the negotiation is provided via the </a><span class="CodeOrCommand">minorVersion</span> information on the <span class="CodeOrCommand">Channel</span>. Typically, a minor version increase is associated with a fully backward compatible change or extension.</div>
-            <div class="CellBody"><a name="1077943">The transport layer is data neutral and does not change nor depend on any information in content being distributed. This information is provided to help client and server applications manage the information they are communicating.</a></div>
-            <div class="CellBody"><a name="1077944">For more details, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.10.18.html', '');" title="10.5.1 Protocol Versioning">Section 10.5.1</a>.</div>
+            <div class="CellBody"><a name="1492100">The clients desired ping timeout value. This may change through the negotiation process between the client and the server. After the connection becomes active, the actual negotiated value becomes available through the </a><span class="CodeOrCommand">pingTimeout</span> value on the <span class="CodeOrCommand">Channel</span>. When determining the desired ping timeout, the typically used rule of thumb is to send a heartbeat every <span class="CodeOrCommand">pingTimeout</span>/3 seconds.</div>
+            <div class="CellBody"><a name="1492107">For more information, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.73.html', '');" title="9.12 Ping Management">Section 9.12</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009262">userSpecObject</a></div>
+            <div class="CellBody"><a name="1492079">protocolType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1010226">A reference that can be set by the application. This value is not modified by the transport, but will be preserved and stored in the </a><span class="CodeOrCommand">userSpecObject</span> of the <span class="CodeOrCommand">Channel</span> returned from the <span class="CodeOrCommand">Transport.connect</span> method. This information can be useful for coupling this <span class="CodeOrCommand">Channel</span> with other user created information, such as a watch list associated with this connection.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009266">tcpOpts</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="CodeOrCommand"><a name="1077987">TcpOpts</a></span> object representing TCP-based connection type-specific options. These settings are used for <span class="CodeOrCommand">ConnectionType</span>s of <span class="CodeOrCommand">SOCKET</span>, <span class="CodeOrCommand">HTTP</span>, and <span class="CodeOrCommand">ENCRYPTED</span>.</div>
-            <div class="CellBody"><a name="1077988">For information about specific options, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.27.html', '');" title="9.3.2.4 TcpOpts Method Option">Section 9.3.2.4</a>.</div>
+            <div class="CellBody"><a name="1492081">The protocol type that the client intends to exchange over the connection. If the </a><span class="CodeOrCommand">protocolType</span> indicated by a server does not match the <span class="CodeOrCommand">protocolType</span> that a client specifies, the connection will be rejected. When a <span class="CodeOrCommand">Channel</span> becomes active for a client or server, this information becomes available via the <span class="CodeOrCommand">protocolType</span> on the <span class="CodeOrCommand">Channel</span>.</div>
+            <div class="CellBody"><a name="1492088">The transport layer is data neutral and does not change nor depend on any information in content being distributed. This information is provided to help client and server applications manage the information they are communicating.</a></div>
+            <div class="CellBody"><a name="1492092">For more details, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.10.18.html', '');" title="10.5.1 Protocol Versioning">Section 10.5.1</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009270">multicastOpts</a></div>
+            <div class="CellBody"><a name="1492180">segmentedNetworkInfo</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1078007">A substructure containing multicast-based connection type-specific options. These settings are used for </a><span class="CodeOrCommand">ConnectionTypes.RELIABLE_MCAST</span>.</div>
-            <div class="CellBody"><a name="1078008">For information about specific options, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
+            <div class="CellBody"><a name="1492182">Connection parameters when sending and receiving on different networks. This is typically used with multicast networks that have different groups of senders and receivers (e.g., NIProvider can send on one network and receive on another). </a><span class="CodeOrCommand">segmentedNetworkInfo</span> is described in more detail in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1492187">seqMCastOpts</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1492189">A substructure containing multicast-based, connection type-specific options. These settings are used for </a><span class="CodeOrCommand">ConnectionTypes.SEQUENCED_MCAST</span>.</div>
+            <div class="CellBody"><a name="1492193">For information about specific options, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.30.html', '');" title="9.3.2.7 SeqMCastOpts Method">Section 9.3.2.7</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -248,31 +227,6 @@
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
             <div class="CellBody"><a name="1078027">A substructure containing shared memory-based connection type-specific options. These settings are used for </a><span class="CodeOrCommand">ConnectionTypes.UNIDIR_SHMEM</span>.</div>
             <div class="CellBody"><a name="1078028">For information about specific options, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.29.html', '');" title="9.3.2.6 ShmemOpts Method">Section 9.3.2.6</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1009278">seqMCastOpts</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1078047">A substructure containing multicast-based, connection type-specific options. These settings are used for </a><span class="CodeOrCommand">ConnectionTypes.SEQUENCED_MCAST</span>.</div>
-            <div class="CellBody"><a name="1177430">For information about specific options, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.30.html', '');" title="9.3.2.7 SeqMCastOpts Method">Section 9.3.2.7</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077405">channelReadLocking</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077407">Accessor method, used to set or check if the connection will use locking on reading.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077409">channelWriteLocking</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077411">Accessor method, used to set or check if the connection will use locking on writing.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -294,10 +248,64 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077421">clear</a></div>
+            <div class="CellBody"><a name="1492153">tcpOpts</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1077423">Clears this object, so that it can be reused.</a></div>
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1492155">TcpOpts</a></span> object representing TCP-based connection type-specific options. These settings are used for <span class="CodeOrCommand">ConnectionType</span>s of <span class="CodeOrCommand">SOCKET</span>, <span class="CodeOrCommand">HTTP</span>, and <span class="CodeOrCommand">ENCRYPTED</span>.</div>
+            <div class="CellBody"><a name="1492159">For information about specific options, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.27.html', '');" title="9.3.2.4 TcpOpts Method Option">Section 9.3.2.4</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1492161">tunnelingInfo</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1492163">tunnelingInfo</a></span> object representing tunneling connection specific options. This is only valid for HTTP and Encrypted connection types.</div>
+            <div class="bullet_ind_outer" style="margin-left: 18pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="bullet_ind_inner"><a name="1492167">For more information on </a><span class="CodeOrCommand">ConnectionTypes</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.09.html', '');" title="9.1.2.2 ConnectionTypes Values">Section 9.1.2.2</a>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="bullet_ind_outer" style="margin-left: 18pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="bullet_ind_inner"><a name="1492171">For more information on </a><span class="CodeOrCommand">TunnelingInfo</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.90.html', '');" title="9.15.1.1 TunnelingInfo Methods">Section 9.15.1.1</a>.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1491983">unifiedNetworkInfo</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1491985">unifiedNetworkInfo</a></span> object representing connection parameters used when sending and receiving on same network. This is typically used with <span class="CodeOrCommand">ConnectionTypes.SOCKET</span>, <span class="CodeOrCommand">ConnectionTypes.HTTP,</span> <span class="CodeOrCommand">ConnectionTypes.ENCRYPTED</span>, and fully connected/mesh multicast networks.</div>
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1491989">unifiedNetworkInfo</a></span> is described in more detail in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.25.html', '');" title="9.3.2.2 UnifiedNetworkInfo Method Options">Section 9.3.2.2</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1492121">userSpecObject</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1492123">A reference that can be set by the application. This value is not modified by the transport, but will be preserved and stored in the </a><span class="CodeOrCommand">userSpecObject</span> of the <span class="CodeOrCommand">Channel</span> returned from the <span class="CodeOrCommand">Transport.connect</span> method. This information can be useful for coupling this <span class="CodeOrCommand">Channel</span> with other user created information, such as a watch list associated with this connection.</div>
           </td>
         </tr>
       </table>

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.12.2 Example: Dictionary Lookup Using a FieldId</title>
+    <title>5.13.1 Example: Basic Dictionary Use</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,193 +55,272 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1021510">Example: Dictionary Lookup Using a FieldId</a></div>
-      <div class="Body"><a name="1021531">This example illustrates a dictionary lookup using a </a><span class="CodeOrCommand">fieldId</span> to determine how to decode the <span class="CodeOrCommand">RsslFieldEntry</span> data. This example also cross references an enumerated type (<span class="Parameter">RSSL_DT_ENUM</span>) to use enumerated type dictionary information. For additional examples of encoding or decoding from the domain model, refer to the Transport API’s example applications.</div>
-      <div class="Blank_Line"><a name="1021605">&nbsp;</a></div>
+      <div class="H3"><a name="1168748">Example: Basic Dictionary Use</a></div>
+      <div class="Body"><a name="1168749">The following example illustrates basic field and enumerated dictionary loading and unloading. Additional examples of encoding or decoding from domain model can be seen in the example applications provided with the .</a></div>
+      <div class="Blank_Line"><a name="1168808">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1021608">&nbsp;</a></div>
+            <div class="command"><a name="1168755">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021610">/* This sample shows use of a loaded dictionary. This looks up a fieldId to determine how to decode the</a></div>
+            <div class="command"><a name="1168757">/* This sample shows loading field and enumerated dictionaries from a file */</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021612">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FieldEntry content. It also demonstrates cross referencing an enumerated type */</a></div>
+            <div class="command"><a name="1168759">RsslDataDictionary dictionary;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021614">RsslDictionaryEntry* dictionaryEntry = NULL;</a></div>
+            <div class="command"><a name="1168761">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021616">&nbsp;</a></div>
+            <div class="command"><a name="1168763">/* clear the dictionary before first use/load */</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021618">/* used while decoding field list content */</a></div>
+            <div class="command"><a name="1168765">rsslClearDataDictionary(&amp;dictionary);</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021620">rsslDecodeFieldEntry(&amp;decIter, &amp;fieldEntry)</a></div>
+            <div class="command"><a name="1168767">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021622">/* look up entry associated with fieldId */</a></div>
+            <div class="command"><a name="1168769">/* load field dictionary from file */</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021624">dictionaryEntry = dictionary-&gt;entriesArray[fieldEntry.fieldId];</a></div>
+            <div class="command"><a name="1168771">if (rsslLoadFieldDictionary(“RDMFieldDictionary”, &amp;dictionary, &amp;errorText) &lt; 0)</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021626">/* return if no entry found */</a></div>
+            <div class="command"><a name="1168773">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021786">if (!dictionaryEntry)</a></div>
+            <div class="command"><a name="1168775">&nbsp;&nbsp;&nbsp;&nbsp;printf("\nUnable to load dictionary.\n\tText: %s\n", errorText.data);</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021800">{</a></div>
+            <div class="command"><a name="1168777">&nbsp;&nbsp;&nbsp;&nbsp;/* cleanup and exit */</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021802">&nbsp;&nbsp;&nbsp;&nbsp;printf("\tFid %d not found in dictionary\n", fEntry-&gt;fieldId);</a></div>
+            <div class="command"><a name="1168779">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021804">&nbsp;&nbsp;&nbsp;&nbsp;return;</a></div>
+            <div class="command"><a name="1168781">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021806">}</a></div>
+            <div class="command"><a name="1168783">/* load enumerated dictionary from file */</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021808">&nbsp;</a></div>
+            <div class="command"><a name="1168785">if (rsslLoadEnumTypeDictionary(“enumtype.def”, &amp;dictionary, &amp;errorText) &lt; 0)</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021810">/* If found, we can access various pieces of information, and use the Type information for further</a></div>
+            <div class="command"><a name="1168787">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021812">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decoding of the field */</a></div>
+            <div class="command"><a name="1168789">&nbsp;&nbsp;&nbsp;&nbsp;printf("\nUnable to load enum type dictionary.\n\tText: %s\n", errorText.data);</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021814">&nbsp;</a></div>
+            <div class="command"><a name="1168791">&nbsp;&nbsp;&nbsp;&nbsp;/* cleanup and exit */</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021816">switch(dictionaryEntry-&gt;rwfType) </a></div>
+            <div class="command"><a name="1168793">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021818">{</a></div>
+            <div class="command"><a name="1168795">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021820">&nbsp;&nbsp;&nbsp;&nbsp;case RSSL_DT_UINT:</a></div>
+            <div class="command"><a name="1168797">/* when users are done, they should unload dictionaries to clean up memory */</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021822">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsslDecodeUInt(&amp;decIter, &amp;rsslUInt);</a></div>
+            <div class="command"><a name="1168799">if (rsslDeleteDataDictionary(&amp;dictionary) &lt; 0)</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021824">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</a></div>
+            <div class="command"><a name="1168801">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021826">&nbsp;&nbsp;&nbsp;&nbsp;case RSSL_DT_INT:</a></div>
+            <div class="command"><a name="1168803">&nbsp;&nbsp;&nbsp;&nbsp;printf("\nUnable to delete dictionary.\n);</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021828">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsslDecodeInt(&amp;decIter, &amp;rsslInt);</a></div>
+            <div class="command"><a name="1168805">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021830">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021832">&nbsp;&nbsp;&nbsp;&nbsp;case RSSL_DT_ENUM:</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021834">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* enumerated types can be cross referenced with enum dictionary */</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021836">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsslDecodeEnum(&amp;decIter, &amp;rsslEnum);</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021838">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* RsslEnumType contains value, display, and meaning information */</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021840">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RsslEnumType *pEnumType = getFieldEntryEnumType(dictionaryEntry, rsslEnum); </a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021842">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021844">&nbsp;&nbsp;&nbsp;&nbsp;/* continued with decoding for other possible types */</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021846">}</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1021848">&nbsp;</a></div>
+            <div class="command"><a name="1168807">&nbsp;</a></div>
           </td>
         </tr>
       </table>
-      <div class="CodeTitle">Code Example 10: <a name="1021535">Transport API Dictionary Utility Function Field and Enum Look Up Example</a></div>
+      <div class="Blank_Line"><a name="1171335">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1171288">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171290">/* This sample shows loading field and enumerated dictionaries from a file */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171292">DataDictionary dictionary = CodecFactory.createDataDictionary();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171294">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171296">/* clear the dictionary before first use/load */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171298">dictionary.clear();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171300">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171302">/* load field dictionary from file */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171304">if (dictionary.loadFieldDictionary(FIELD_DICTIONARY_FILE_NAME, error) &lt; CodecReturnCodes.SUCCESS)</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171306">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171308">&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Unable to load field dictionary.\n\tText: " + error.text());</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171310">&nbsp;&nbsp;&nbsp;&nbsp;/* cleanup and exit */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171312">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171314">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171316">/* load enumerated dictionary from file */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171318">if (dictionary.loadEnumTypeDictionary(ENUM_TABLE_FILE_NAME, error) &lt; CodecReturnCodes.SUCCESS)</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171320">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171322">&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Unable to load enum dictionary.\n\tText: " + error.text());</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171324">&nbsp;&nbsp;&nbsp;&nbsp;/* cleanup and exit */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171326">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171328">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171330">/* when users are done, they should unload dictionaries to clean up memory */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171332">dictionary.clear();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171334">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="CodeTitle">Code Example 9: <a name="1168862"> Dictionary Loading Utility Function Use</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -254,7 +333,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.37.html">5.12	Dictionary Utility Functions</a> : 5.12.2	Example: Dictionary Lookup Using a FieldId</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.38.html">5.13	Dictionary Utility Functions</a> : 5.13.1	Example: Basic Dictionary Use</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

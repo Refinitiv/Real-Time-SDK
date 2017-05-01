@@ -8,6 +8,7 @@
 #ifndef _RTR_RSSL_REACTOR_IMPL_H
 #define _RTR_RSSL_REACTOR_IMPL_H
 
+#include "rtr/rsslNotifier.h"
 #include "rtr/rsslReactor.h"
 #include "rtr/rsslWatchlist.h"
 #include "rtr/rsslReactorEventQueue.h"
@@ -59,6 +60,7 @@ typedef struct
 	RsslQueue *reactorParentQueue;
 	RsslReactorEventQueue eventQueue;
 	RsslInt64 lastPingReadMs;
+	RsslNotifierEvent *pNotifierEvent;
 	RsslRet readRet;				/* Last return code from rsslRead on this channel. Helps determine whether data can still be read from this channel. */
 	RsslRet writeRet;				/* Last return from rsslWrite() for this channel. Helps determine whether we should request a flush. */
 	RsslBool requestedFlush;		/* Indicates whether flushing is signaled for this channel */
@@ -83,6 +85,7 @@ typedef struct
 	RsslErrorInfo channelWorkerCerr;
 	RsslInt64 lastRequestedExpireTime;
 	RsslInt64 nextExpireTime;
+	RsslNotifierEvent *pWorkerNotifierEvent;
 
 	/* Reconnection logic */
 	RsslInt32 reconnectMinDelay;
@@ -190,7 +193,6 @@ RTR_C_INLINE void rsslResetReactorChannelState(RsslReactorImpl *pReactorImpl, Rs
 	pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
 	pReactorChannel->lastPingReadMs = 0;
 	pReactorChannel->readRet = 0;
-	pReactorChannel->lastPingSentMs = 0;
 	pReactorChannel->writeRet = 0;
 	pReactorChannel->pWriteCallAgainBuffer = 0;
 }
@@ -248,8 +250,8 @@ typedef struct
 	RsslQueue inactiveChannels;			/* Channels that have failed in some way */
 	RsslQueue reconnectingChannels;
 
-	fd_set *readFds, *writeFds, *exceptFds;
-	fd_set *useReadFds, *useWriteFds, *useExceptFds;
+	RsslNotifier *pNotifier; /* Notifier for workerQueue and channels */
+	RsslNotifierEvent *pQueueNotifierEvent;	/* Notification for workerQueue */
 
 	RsslInt64 lastRecordedTimeMs;
 
@@ -292,10 +294,10 @@ struct _RsslReactorImpl
 	RsslThreadId thread;
 
 	RsslReactorEventQueue reactorEventQueue;
-	unsigned int fdSetSize;
-	unsigned int fdSetSizeInBytes;
-	fd_set *readFds, *exceptFds;
-	fd_set *useReadFds, *useExceptFds;
+
+	RsslNotifier *pNotifier; /* Notifier for reactorEventQueue and channels */
+	RsslNotifierEvent *pQueueNotifierEvent; /* Notification for reactorEventQueue */
+
 	RsslBuffer memoryBuffer;
 
 	RsslInt64 lastRecordedTimeMs;
@@ -328,6 +330,9 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl);
 
 /* Write reactor thread function */
 RSSL_THREAD_DECLARE(runReactorWorker, pArg);
+
+/* Estimate encoded message size. */
+RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg);
 
 #ifdef __cplusplus
 };

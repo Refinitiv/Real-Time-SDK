@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>6.7.6.1 Reactor Tunnel Stream Listener Callback and Tunnel Stream Request Event</title>
+    <title>6.7.6 Accepting Tunnel Streams</title>
     <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,89 +55,49 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1221103">Reactor Tunnel Stream Listener Callback and Tunnel Stream Request Event</a></div>
-      <div class="Body"><a name="1251855">OMM providers that want to handle tunnel streams from connected consumers can specify a </a><span class="CodeOrCommand">tunnelStreamListenerCallback</span>. This callback informs the provider application of any consumer tunnel stream requests. The provider can specify this callback on the <span class="CodeOrCommand">RsslReactorOMMProviderRole</span>. It has the following signature:</div>
-      <div class="Blank_Line"><a name="1252121">&nbsp;</a></div>
-      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+      <div class="H3"><a name="1228022">Accepting Tunnel Streams</a></div>
+      <div class="Body"><a name="1531911">OMM provider applications can accept tunnel streams provided on an </a><span class="CodeOrCommand">RsslReactorChannel</span> (enabled by specifying a <span class="CodeOrCommand">RsslTunnelStreamListenerCallback</span> on the <span class="CodeOrCommand">RsslReactorOMMProviderRole</span>).</div>
+      <div class="Body"><a name="1531921">When a consumer opens a tunnel stream, the </a><span class="CodeOrCommand">RsslTunnelStreamListenerCallback</span> receives an <span class="CodeOrCommand">RsslTunnelStreamRequestEvent</span>. At this point, the provider should call <span class="CodeOrCommand">rsslTunnelStreamRequestGetCos</span> to retrieve the <span class="CodeOrCommand">RsslClassOfService</span> requested by the tunnel stream and ensure that the parameters indicated by the members of that class of service match what the provider allows. The provider can also check the <span class="CodeOrCommand">RsslTunnelStreamRequestEvent.classOfServiceFilter</span> to determine which behaviors the consumer supports. For more information on this filter, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.109.html', '');" title="6.7.6.1 Reactor Tunnel Stream Listener Callback and Tunnel Stream Request Event">Section 6.7.6.1</a>.</div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1531943">To accept a tunnel stream, the provider must call </a><span class="CodeOrCommand">rsslReactorAcceptTunnelStream</span> with the given <span class="CodeOrCommand">RsslTunnelStreamRequestEvent</span>. Further events regarding the accepted stream are provided in the specified <span class="CodeOrCommand">RsslReactorAcceptTunnelStreamOptions.statusEventCallback</span>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1531953">To reject a tunnel stream, the provider calls </a><span class="CodeOrCommand">rsslReactorRejectTunnelStream</span> with the given <span class="CodeOrCommand">RsslTunnelStreamRequestEvent</span>. No further events are received for that tunnel stream.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1531963">Queue messaging (a</a>n <span class="CodeOrCommand">RsslClassOfService.guarantee.type</span> setting of <span class="Parameter">RDM_COS_GU_PERSISTENT_QUEUE</span>) is not supported for provider applications.</div>
+      <div class="Body"><a name="1531964">The API automatically rejects tunnel streams that contain invalid information. When this happens, the provider application receives warnings via a</a>n <span class="CodeOrCommand">RsslReactorChannelEvent</span>. The type will be set to <span class="Parameter">RSSL_RC_CET_WARNING</span> and the <span class="CodeOrCommand">RsslErrorInfo</span> in the event will contain text describing the reason for the rejection.</div>
+      <div class="Blank_Line"><a name="1531994">&nbsp;</a></div>
+      <table class="Warning" style="width: 554.99976pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1252181">&nbsp;</a></div>
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 30.74904pt">
+            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1531979"><img class="Default" src="images/Chap_Reactor_Detailed_View.6.108.1.jpg" width="34" height="33" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
           </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1252183">RsslTunnelStreamListenerCallback(RsslTunnelStreamRequestEvent*, RsslErrorInfo*)</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1252185">&nbsp;</a></div>
-          </td>
-        </tr>
-      </table>
-      <div class="Body"><a name="1252245">For more information on the </a><span class="CodeOrCommand">RsslReactorOMMProviderRole</span>, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.024.html', '');" title="6.3.3 Reactor Channel Role: OMM Provider">Section 6.3.3</a>.</div>
-      <div class="Body"><a name="1252246">An </a><span class="CodeOrCommand">RsslTunnelStreamRequestEvent</span> is returned to the application via the <span class="CodeOrCommand">RsslTunnelStreamListenerCallback</span>.</div>
-      <div class="Blank_Line"><a name="1252119">&nbsp;</a></div>
-      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
-        <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 68: <span class="LucidaConsole"><a name="1252145">RsslTunnelStreamRequestEvent</a></span> Structure Members &nbsp;</div>
-        </caption>
-        <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 175.5pt">
-            <div class="CellHeading"><a name="1252129">STRUCTURE MEMBER</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 380.25pt">
-            <div class="CellHeading"><a name="1252131">DESCRIPTION</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252133">pReactorChannel</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252135">Specifies the </a><span class="CodeOrCommand">RsslReactorChannel</span> on which the event was received.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252137">streamId</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252139">Specifies the stream ID of the requested tunnel stream.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252141">domainType</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252143">Specifies the domain type of the requested tunnel stream.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252311">serviceId</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252313">Specifies the service ID of the requested tunnel stream.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252315">name</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252317">Specifies the name of the requested tunnel stream.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252319">classOfServiceFilter</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1252361">Sets a filter that indicates which </a><span class="CodeOrCommand">RsslClassOfService</span> members were present. The provider can use this filter to determine whether behaviors are supported by the consumer, and if needed reject the tunnel stream before calling <span class="CodeOrCommand">rsslTunnelStreamRequestGetCos</span> to get the full <span class="CodeOrCommand">RsslClassOfService</span>.</div>
-            <div class="CellBody"><a name="1252362">For enumerations of the flags present in this filter, refer to </a><span class="CodeOrCommand">RsslTunnelStreamCoSFilterFlags</span> in <span class="FileOrDirectory">rsslRDM.h</span>.</div>
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 524.25072pt">
+            <div class="Warning">
+              <span class="Color_003aRequired">Warning! </span><a name="1531984">Ensure that the provider application calls </a><span class="CodeOrCommand">rsslReactorAcceptTunnelStream</span> or <span class="CodeOrCommand">rsslReactorRejectTunnelStream</span> before returning from the <span class="CodeOrCommand">RsslTunnelStreamListenerCallback</span>. If not, the provider application will receive a warning via an <span class="CodeOrCommand">RsslReactorChannelEvent</span> similar to the above, and the stream will be automatically rejected.</div>
           </td>
         </tr>
       </table>
@@ -153,7 +113,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.107.html">6.7.6	Accepting Tunnel Streams</a> : 6.7.6.1	Reactor Tunnel Stream Listener Callback and Tunnel Stream Request Event</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : 6.7.6	Accepting Tunnel Streams</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

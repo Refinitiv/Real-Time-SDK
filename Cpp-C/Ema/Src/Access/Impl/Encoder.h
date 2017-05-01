@@ -17,6 +17,11 @@ namespace thomsonreuters {
 
 namespace ema {
 
+namespace rdm  {
+
+	class DataDictionaryImpl;
+}
+
 namespace access {
 
 class EmaString;
@@ -45,11 +50,13 @@ public :
 
 protected :
 
+	friend class thomsonreuters::ema::rdm::DataDictionaryImpl;
+
 	Encoder();
 
 	virtual ~Encoder();
 
-	void acquireEncIterator();
+	void acquireEncIterator(UInt32 allocatedSize = 4096);
 
 	void releaseEncIterator();
 

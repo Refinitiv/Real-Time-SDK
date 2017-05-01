@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1222863">Packing</a></div>
-      <div class="Body"><a name="1226379"><!--o--></a>To efficiently use buffer space, reduce the number of writes to the transport,<sup><a name="wwfootnote_inline_32" href="#32">1</a></sup> and improve throughput, applications can use the <span class="CodeOrCommand">Channel.packBuffer()</span> method to pack multiple messages into a single buffer. Each call to <span class="CodeOrCommand">Channel.packBuffer()</span> adds another message to the existing buffer. Though packing messages can help increase throughput, overall effects will vary depending on the type of transport you use. In general:</div>
+      <div class="Body"><a name="1227259"><!--o--></a>To efficiently use buffer space, reduce the number of writes to the transport,<sup><a name="wwfootnote_inline_32" href="#32">1</a></sup> and improve throughput, applications can use the <span class="CodeOrCommand">Channel.packBuffer()</span> method to pack multiple messages into a single buffer. Each call to <span class="CodeOrCommand">Channel.packBuffer()</span> adds another message to the existing buffer. Though packing messages can help increase throughput, overall effects will vary depending on the type of transport you use. In general:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1226389">Slower transports benefit more than faster transports</a></div>
+              <div class="bullet_ind_inner"><a name="1227269">Slower transports benefit more than faster transports</a></div>
             </td>
           </tr>
         </table>
@@ -80,13 +80,13 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1226390">More saturated transports benefit more than less-saturated ones.</a></div>
+              <div class="bullet_ind_inner"><a name="1227270">More saturated transports benefit more than less-saturated ones.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1226391">Because packing adds latency, it is important that you weigh the trade-offs when deciding to employ packing. For example, if 15 messages are packed into a single buffer, the first message will sit in the buffer longer before being written than the last message added to the buffer. An application can reduce this latency by sending the packed buffer before it is full, often through the use of a timing mechanism that indicates a latency threshold has been reached. In general, the more messages packed into a buffer, the higher the latency penalty.</a></div>
-      <div class="Body"><span class="ToolOrUtility_Name"><a name="1226401">upajProvPerf</a></span> and <span class="ToolOrUtility_Name">upajNIProvPerf</span> perform the following steps when configured to pack buffers:</div>
+      <div class="Body"><a name="1227271">Because packing adds latency, it is important that you weigh the trade-offs when deciding to employ packing. For example, if 15 messages are packed into a single buffer, the first message will sit in the buffer longer before being written than the last message added to the buffer. An application can reduce this latency by sending the packed buffer before it is full, often through the use of a timing mechanism that indicates a latency threshold has been reached. In general, the more messages packed into a buffer, the higher the latency penalty.</a></div>
+      <div class="Body"><span class="ToolOrUtility_Name"><a name="1227281">upajProvPerf</a></span> and <span class="ToolOrUtility_Name">upajNIProvPerf</span> perform the following steps when configured to pack buffers:</div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -96,7 +96,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1226405">Get a packable buffer of a specified size, using </a><span class="CodeOrCommand">Channel.getBuffer()</span>.</div>
+              <div class="Step1_inner"><a name="1227285">Get a packable buffer of a specified size, using </a><span class="CodeOrCommand">Channel.getBuffer()</span>.</div>
             </td>
           </tr>
         </table>
@@ -110,7 +110,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1226409">Encode messages into the buffer, calling </a><span class="CodeOrCommand">Channel.packBuffer()</span> after each message is encoded.</div>
+              <div class="Stepnext_inner"><a name="1227289">Encode messages into the buffer, calling </a><span class="CodeOrCommand">Channel.packBuffer()</span> after each message is encoded.</div>
             </td>
           </tr>
         </table>
@@ -124,7 +124,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1226413">After the configured number of messages are packed or when the buffer is full, </a><span class="CodeOrCommand">Channel.write()</span> is called to pass the packed buffer to the Transport API.</div>
+              <div class="Stepnext_inner"><a name="1227293">After the configured number of messages are packed or when the buffer is full, </a><span class="CodeOrCommand">Channel.write()</span> is called to pass the packed buffer to the Transport API.</div>
             </td>
           </tr>
         </table>
@@ -142,7 +142,7 @@
       <div style="font-size: smaller; float: left; padding-right: 10px;">
         <a name="32" href="#wwfootnote_inline_32">1</a>
       </div>
-      <div class="Footnote"><a name="1226378">Reducing underlying transport header overhead.</a></div>
+      <div class="Footnote"><a name="1227258">Reducing underlying transport header overhead.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

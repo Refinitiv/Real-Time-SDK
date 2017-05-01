@@ -56,42 +56,42 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1043909">FilterEntryActions Values</a></div>
-      <div class="Body"><a name="1533242">Each entry has an associated </a><span class="CodeOrCommand">action</span> which informs the user of how to apply the entry’s contents.</div>
-      <div class="Blank_Line"><a name="1533271">&nbsp;</a></div>
+      <div class="Body"><a name="1691518">Each entry has an associated </a><span class="CodeOrCommand">action</span> which informs the user of how to apply the entry’s contents.</div>
+      <div class="Blank_Line"><a name="1691547">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 109: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1533268">FilterEntry</a></span><span class="LucidaConsole" style="font-size: 10pt">Actions</span> Values &nbsp;</div>
+          <div class="TableTitle">Table 109: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1691544">FilterEntry</a></span><span class="LucidaConsole" style="font-size: 10pt">Actions</span> Values &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 155.25pt">
-            <div class="CellHeading"><a name="1533245">ACTION ENUMERATION</a></div>
+            <div class="CellHeading"><a name="1691521">ACTION ENUMERATION</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 400.5pt">
-            <div class="CellHeading"><a name="1533247">MEANING</a></div>
+            <div class="CellHeading"><a name="1691523">MEANING</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533249">SET</a></div>
+            <div class="CellBody"><a name="1691525">SET</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533251">Indicates that the consumer should set the entry corresponding to this </a><span class="CodeOrCommand">id</span>. A set action typically occurs when an entry is initially provided. Multiple set actions can occur for the same entry <span class="CodeOrCommand">id</span>, in which case, any previously received data associated with the entry <span class="CodeOrCommand">id</span> should be replaced with the newly-added information.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533253">UPDATE</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533255">Indicates that the consumer should update any previously stored or displayed information with the contents of this entry. An update action typically occurs when an entry is set and changes to the contents need to be conveyed. An update action can occur prior to the set action for the same entry </a><span class="CodeOrCommand">id</span>, in which case, the update action should be ignored.</div>
+            <div class="CellBody"><a name="1691527">Indicates that the consumer should set the entry corresponding to this </a><span class="CodeOrCommand">id</span>. A set action typically occurs when an entry is initially provided. Multiple set actions can occur for the same entry <span class="CodeOrCommand">id</span>, in which case, any previously received data associated with the entry <span class="CodeOrCommand">id</span> should be replaced with the newly-added information.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533257">CLEAR</a></div>
+            <div class="CellBody"><a name="1691529">UPDATE</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1533259">Indicates that the consumer should remove any stored or displayed information associated with this entry’s </a><span class="CodeOrCommand">id</span>. No entry payload is included when the action is a clear.</div>
+            <div class="CellBody"><a name="1691531">Indicates that the consumer should update any previously stored or displayed information with the contents of this entry. An update action typically occurs when an entry is set and changes to the contents need to be conveyed. An update action can occur prior to the set action for the same entry </a><span class="CodeOrCommand">id</span>, in which case, the update action should be ignored.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1691533">CLEAR</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1691535">Indicates that the consumer should remove any stored or displayed information associated with this entry’s </a><span class="CodeOrCommand">id</span>. No entry payload is included when the action is a clear.</div>
           </td>
         </tr>
       </table>

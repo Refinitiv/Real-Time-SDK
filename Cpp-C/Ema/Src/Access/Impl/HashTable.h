@@ -19,20 +19,6 @@ namespace ema {
 
 namespace access {
 
-static size_t random[] =
-{
-	111710620, 184238244, 451328906, 943295202,
-	1065191270, 1083355379, 1407334961, 1458301317,
-	1500266454, 1661103267, 1716071707, 1849688643,
-	1959322347, 2091271342, 2158305429ULL, 2459883033ULL,
-	2468603175ULL, 2673206687ULL, 2969537573ULL, 3277918233ULL,
-	3351607917ULL, 3466578375ULL, 3473725589ULL, 3485557041ULL,
-	3526817927ULL, 3531673673ULL, 3590797041ULL, 3742937545ULL,
-	3763147552ULL, 3796487866ULL, 3862762540ULL, 4158074941ULL
-};
-
-static int sizeRandom = sizeof random / sizeof random[0];
-
 template<class T>
 class Hasher
 {
@@ -122,7 +108,6 @@ private:
 	Equal_To keyEqual;
 	UInt32 occupiedBucketCount;
 	UInt32 elementCount;
-	UInt32 maxBucketSize;
 
 	UInt32 rehashWhen;
 	double loadFactor;
@@ -139,7 +124,7 @@ private:
 
 template<class KeyType, class ValueType, class Hasher, class Equal_To>
 HashTable<KeyType, ValueType, Hasher,  Equal_To>::HashTable( UInt32 size, double loadFactor ) :
-	tableSize( size == 0 ? 513 : size ), elementCount( 0 ), occupiedBucketCount( 0 ), maxBucketSize( 0 ), loadFactor( loadFactor )
+	tableSize( size == 0 ? 513 : size ), elementCount( 0 ), occupiedBucketCount( 0 ), loadFactor( loadFactor )
 {
 	theTable = new Node *[tableSize];
 	memset( theTable, 0, tableSize * sizeof theTable[0] );
@@ -165,7 +150,6 @@ HashTable<KeyType, ValueType, Hasher, Equal_To>::insert( const KeyType& key, con
 {
 	size_t slot = hashFn( key ) % tableSize;
 	Node* bucket = *( theTable + slot );
-	UInt32 bucketSize( 0 );
 
 	if ( bucket )
 	{
@@ -174,8 +158,6 @@ HashTable<KeyType, ValueType, Hasher, Equal_To>::insert( const KeyType& key, con
 		{
 			if ( keyEqual( p->key, key ) )
 				return false;
-
-			++bucketSize;
 
 			if ( p->next )
 				p = p->next;
@@ -196,9 +178,6 @@ HashTable<KeyType, ValueType, Hasher, Equal_To>::insert( const KeyType& key, con
 		}
 	}
 
-	if ( ++bucketSize > maxBucketSize )
-		maxBucketSize = bucketSize;
-
 	return true;
 }
 
@@ -208,20 +187,19 @@ HashTable<KeyType, ValueType, Hasher, Equal_To>::operator[]( const KeyType& key 
 {
 	size_t slot = hashFn( key ) % tableSize;
 	Node* bucket = *( theTable + slot );
-	int bucketSize( 0 );
+	UInt32 bucketSize( 0 );
 
 	if ( bucket )
 	{
 		Node* p;
 		Node* last( 0 );
-		for ( p = bucket; p; last = p, p = p->next, ++bucketSize )
+		for ( p = bucket; p; last = p, p = p->next )
 			if ( keyEqual( p->key, key ) )
 				return p->value;
 
 		ValueType v;
 		_insert( last->next, last, key, v );
-		if ( ++bucketSize > maxBucketSize )
-			maxBucketSize = bucketSize;
+	
 		return last->next->value;
 	}
 
@@ -244,8 +222,6 @@ HashTable<KeyType, ValueType, Hasher, Equal_To>::operator[]( const KeyType& key 
 			}
 		}
 
-		if ( ++bucketSize > maxBucketSize )
-			maxBucketSize = bucketSize;
 		return theTable[slot]->value;
 	}
 }
@@ -297,7 +273,7 @@ HashTable<KeyType, ValueType, Hasher, Equal_To>::clear()
 		}
 		theTable[i] = 0;
 	}
-	occupiedBucketCount = elementCount = maxBucketSize = 0;
+	occupiedBucketCount = elementCount = 0;
 }
 
 template<class KeyType, class ValueType, class Hasher, class Equal_To>
@@ -324,7 +300,7 @@ HashTable<KeyType, ValueType, Hasher, Equal_To>::rehash( UInt32 newSize )
 	tableSize = newSize;
 	theTable = new Node *[tableSize];
 	memset( theTable, 0, tableSize * sizeof theTable[0] );
-	occupiedBucketCount = maxBucketSize = 0;
+	occupiedBucketCount = 0;
 
 	Node* element;
 	Node* next;
@@ -354,11 +330,6 @@ HashTable<KeyType, ValueType, Hasher, Equal_To>::rehash( UInt32 newSize )
 		if ( theTable[i] )
 		{
 			++occupiedBucketCount;
-			UInt32 bucketSize( 1 );
-			for ( Node* p = theTable[i]->next; p; p = p->next )
-				++bucketSize;
-			if ( bucketSize > maxBucketSize )
-				maxBucketSize = bucketSize;
 		}
 	rehashWhen = static_cast<UInt32>( tableSize * loadFactor );
 

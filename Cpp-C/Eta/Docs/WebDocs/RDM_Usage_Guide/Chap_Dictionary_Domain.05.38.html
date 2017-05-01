@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.12.1 Example: Basic Dictionary Use</title>
+    <title>5.13 Dictionary Utility Functions</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,148 +55,193 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="999808">Example: Basic Dictionary Use</a></div>
-      <div class="Body"><a name="1020679">The following example illustrates basic field and enumerated dictionary loading and unloading. Additional examples of encoding or decoding from domain model can be seen in the example applications provided with the Transport API.</a></div>
-      <div class="Blank_Line"><a name="1020699">&nbsp;</a></div>
-      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
-        <caption></caption>
+      <div class="H2"><a name="1168418">Dictionary Utility Functions</a></div>
+      <div class="Body"><a name="1168419">Utility functions load, encode, and decode Field and Enumerated Types Dictionaries. You may find these functions in the  .</a></div>
+      <div class="Body"><a name="1168429">The functions should be called with a</a>n  object, which stores information associated with each field (any associated Enumerated Types table, if the field uses one). Each load or decode function adds information to the object when called. Fields and Enumerated Types tables may be added from any number of sources, as long as there is no duplicate or conflicting information.</div>
+      <div class="Body"><a name="1168435">The </a> object stores an array of  objects, indexed by . Each entry stores the data type () of the field along with other information. The field will also have a reference to an , if the field uses an Enumerated Types table.</div>
+      <div class="Blank_Line"><a name="1168747">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 51: <a name="1168744">Dictionary Helper Functions </a></div>
+        </caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1020735">&nbsp;</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 168.75pt">
+            <div class="CellHeading" style="text-align: center"><a name="1168448">FUNCTION NAME</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 387pt">
+            <div class="CellHeading" style="text-align: center"><a name="1168450">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020737">/* This sample shows loading field and enumerated dictionaries from a file */</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168454">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168460">Clears the . This must be done prior to initial use of the object.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020739">RsslDataDictionary dictionary;</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168464">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168470">Adds data from a Field Dictionary file to the  (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.12.html', '');" title="5.5.2 Field Dictionary File Format">Section 5.5.2</a>). This currently supports the <span class="FileOrDirectory">RDMFieldDictionary</span>, or other dictionaries using the same formatting. </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020741">&nbsp;</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168477">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168482">Adds data from a Field Dictionary message payload to the  (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.11.html#999151', '');" title="5.5 Field Dictionary">Section 5.5.1</a>).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020743">/* clear the dictionary before first use/load */</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168490">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168495">Creates a Field Dictionary message payload from the  object (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.11.html#999151', '');" title="5.5 Field Dictionary">Section 5.5.1</a>).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020745">rsslClearDataDictionary(&amp;dictionary);</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168503">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168508">Adds data from an Enumerated Types Dictionary file to the  (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.20.html', '');" title="5.6.2 Enumerated Types Dictionary File Format">Section 5.6.2</a>). This currently supports the enumtype.def, or other enumerated type dictionaries using the same formatting.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020747">&nbsp;</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168516">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168521">Adds data from an Enumerated Types Dictionary message payload to the  (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.19.html#1007827', '');" title="5.6 Enumerated Types Dictionary">Section 5.6.1</a>).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020749">/* load field dictionary from file */</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168529">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168534">Creates an Enumerated Types Dictionary message payload from the  object (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.19.html#1007827', '');" title="5.6 Enumerated Types Dictionary">Section 5.6.1</a>). Note that this function uses  as the <span class="Parameter">DISPLAY</span> array type.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020751">if (rsslLoadFieldDictionary(“RDMFieldDictionary”, &amp;dictionary, &amp;errorText) &lt; 0)</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168545">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168550">Prints the information (fields, enumerated type tables) currently stored in the . Aids in debugging.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020753">{</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168555">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168561">Extracts the RDM Dictionary Type () information from an encoded dictionary. This can determine the specific dictionary decode function that should be used (e.g. for dictionary type of , the user would next invoke the  function). </a></div>
+            <div class="CellBody"><a name="1168571">This is expected to be called after  (where the </a><span class="CodeOrCommand">.domainType</span> is ), but before decoding the <span class="CodeOrCommand">.</span> payload.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020882">&nbsp;&nbsp;&nbsp;&nbsp;printf("\nUnable to load dictionary.\n\tText: %s\n", errorText.data);</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168587">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168593">Clears the . This must be called before initial use of the object.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020884">&nbsp;&nbsp;&nbsp;&nbsp;/* cleanup and exit */</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168597">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168605">Deep copies the given  into the .</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020886">}</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168610">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168615">Creates a Global Field Set Definition Dictionary message payload from the  object (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.26.html', '');" title="5.7 Global Field Set Definition Payload">Section 5.7</a>).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020888">&nbsp;</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168623">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168626">Adds data from a Global Field Set Definition Dictionary message payload to the  object.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020890">/* load enumerated dictionary from file */</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168633">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168639">Clears the . This must be called before initial use of the object.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020892">if (rsslLoadEnumTypeDictionary(“enumtype.def”, &amp;dictionary, &amp;errorText) &lt; 0)</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168643">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168651">Deep copies the given  into the .</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020894">{</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168656">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168659">Creates a Global Element Set Definition Dictionary message payload from the  object (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.26.html', '');" title="5.7 Global Field Set Definition Payload">Section 5.7</a>).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020896">&nbsp;&nbsp;&nbsp;&nbsp;printf("\nUnable to load enum type dictionary.\n\tText: %s\n", errorText.data);</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168669">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168672">Adds data from a Global Element Set Definition Dictionary message payload to the  object.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020898">&nbsp;&nbsp;&nbsp;&nbsp;/* cleanup and exit */</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168679">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168687">Allocates the ’s array of  pointers, and deep copies the version information.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020900">}</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168692">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168697">Deletes all of the allocated data contained by the . This will delete any data allocated by  and . This will also delete any data allocated by .</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020902">&nbsp;</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168711">&nbsp;</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168719">Allocates the ’s array of  pointers, and deep copies the version information.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020904">/* when users are done, they should unload dictionaries to clean up memory */</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168724">&nbsp;</a></div>
           </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020906">if (rsslDeleteDataDictionary(&amp;dictionary) &lt; 0)</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020908">{</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020910">&nbsp;&nbsp;&nbsp;&nbsp;printf("\nUnable to delete dictionary.\n);</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020912">}</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1020914">&nbsp;</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1168729">Deletes all of the allocated data contained by the . This will delete any data allocated by  and . This will also delete any data allocated by .</a></div>
           </td>
         </tr>
       </table>
-      <div class="CodeTitle">Code Example 9: <a name="1020697">Transport API Dictionary Loading Utility Function Use</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -209,7 +254,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.37.html">5.12	Dictionary Utility Functions</a> : 5.12.1	Example: Basic Dictionary Use</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : 5.13	Dictionary Utility Functions</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

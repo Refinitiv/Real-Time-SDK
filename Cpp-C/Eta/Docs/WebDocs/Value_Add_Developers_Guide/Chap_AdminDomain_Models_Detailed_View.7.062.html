@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>7.4.6 RSSL RDM Consumer Status</title>
+    <title>7.4.6.1 RSSL RDM Directory Consumer Status Structure Members</title>
     <link rel="StyleSheet" href="css/Chap_AdminDomain_Models_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,9 +55,45 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1233142">RSSL RDM Consumer Status</a></div>
-      <div class="Body"><a name="1236679">The </a><span class="Concept">Directory Consumer Status</span> is sent by OMM Consumer applications to inform a service of how it is being used for <span class="Concept">Source Mirroring</span>. This message is primarily informational.</div>
-      <div class="Body"><a name="1236680">The </a><span class="CodeOrCommand">RsslRDMDirectoryConsumerStatus</span> relies on the <span class="CodeOrCommand">RsslGenericMsg</span> and represents all members necessary for applications that leverage RDM. This structure follows the behavior and layout that is defined in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCRDMG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition RDM Usage Guide</a></span>.</div>
+      <div class="H4"><a name="1234931">RSSL RDM Directory Consumer Status Structure Members</a></div>
+      <div class="Blank_Line"><a name="1387421">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 122: <span class="LucidaConsole"><a name="1387418">RsslRDMDirectoryConsumerStatus</a></span> Structure Members &nbsp;</div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 175.5pt">
+            <div class="CellHeading"><a name="1387390">STRUCTURE </a>MEMBER</div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 380.25pt">
+            <div class="CellHeading"><a name="1387392">DESCRIPTION</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1387394">consumerServiceStatusCount</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1387396">Required</a></span>. Indicates the number of services present in the <span class="CodeOrCommand">serviceList</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1387398">consumerServiceStatusList</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1387400">Optional</a></span>. Presence indicated by <span class="CodeOrCommand">consumerServiceStatusCount</span>. Contains an array of <span class="CodeOrCommand">RsslRDMConsumerStatusService</span> structures.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1387408">rdmMsgBase</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1387410">Required</a></span>. Contains general message information like <span class="CodeOrCommand">streamId</span> and <span class="CodeOrCommand">domainType</span>.</div>
+          </td>
+        </tr>
+      </table>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -70,7 +106,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.001.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.042.html">7.4	Source Directory Domain</a> : 7.4.6	RSSL RDM Consumer Status</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.001.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.042.html">7.4	Source Directory Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.061.html">7.4.6	RSSL RDM Consumer Status</a> : 7.4.6.1	RSSL RDM Directory Consumer Status Structure Members</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

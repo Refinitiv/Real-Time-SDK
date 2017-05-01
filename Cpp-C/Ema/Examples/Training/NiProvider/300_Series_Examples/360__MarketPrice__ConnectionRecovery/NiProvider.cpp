@@ -68,13 +68,11 @@ int main( int argc, char* argv[] )
 	{
 		AppClient appClient;
 
-		OmmProvider provider( OmmNiProviderConfig().operationModel( OmmNiProviderConfig::UserDispatchEnum ).username( "user" ) );
+		OmmProvider provider( OmmNiProviderConfig().operationModel( OmmNiProviderConfig::UserDispatchEnum ).username( "user" ), appClient );
 		UInt64 triHandle = 6;
 		RefreshMsg refresh;
 		UpdateMsg update;
 		FieldList fieldList;
-
-		UInt64 loginHandle = provider.registerClient( ReqMsg().domainType( MMT_LOGIN ).name( "user" ), appClient, (void*) 1 );
 
 		provider.dispatch( 1000000 );		// calls to onRefreshMsg(), or onStatusMsg() execute on this thread
 

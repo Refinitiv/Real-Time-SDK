@@ -124,7 +124,8 @@ main: librsslReactor.a librsslRDM.a librsslVAUtil.a librsslVA.so
 
 librsslVAUtil_src = \
 	Util/rsslMemoryBuffer.c \
-	Util/rsslHashTable.c
+	Util/rsslHashTable.c \
+	Util/rsslNotifier.c
 
 librsslVAUtil_objs = $(addprefix $(OUTPUT_DIR)/obj/,$(librsslVAUtil_src:%.c=%.o))
 
@@ -140,6 +141,7 @@ librsslReactor_src = \
 	Reactor/rsslReactor.c \
 	Reactor/rsslReactorWorker.c \
 	Reactor/TunnelStream/bufferPool.c \
+	Reactor/TunnelStream/bigBufferPool.c \
 	Reactor/TunnelStream/tunnelManager.c \
 	Reactor/TunnelStream/msgQueueEncDec.c \
 	Reactor/TunnelStream/persistFile.c \
@@ -175,14 +177,14 @@ librsslReactor.a : librsslVAUtil.a librsslRDM.a $(librsslReactor_objs)
 	mkdir -p $(EXE_DIR)
 	ar -ruv $(EXE_DIR)/librsslReactor.a $(librsslReactor_objs)
 
-librsslVA.so : librsslVA.so.8 
-	( cd $(EXE_DIR)/Shared; rm -f librsslVA.so; ln -s librsslVA.so.8  librsslVA.so; )
+librsslVA.so : librsslVA.so.9 
+	( cd $(EXE_DIR)/Shared; rm -f librsslVA.so; ln -s librsslVA.so.9  librsslVA.so; )
 
-librsslVA.so.8  : $(librsslVA_objs)
+librsslVA.so.9  : $(librsslVA_objs)
 	mkdir -p $(EXE_DIR)/Shared
 	$(CC) $(CFLAGS) -o $(EXE_DIR)/Shared/$@ $(librsslVA_objs)  $(SONAME_OPT)$@ $(RSSL_LIB_PATH)/Shared $(RSSL_LIB) $(SYSTEM_LIBS)
 
-clean:
+clean: 
 	rm -f $(OUTPUT_DIR)/librsslVAUtil*
 	rm -f $(OUTPUT_DIR)/librsslRDM.*
 	rm -f $(OUTPUT_DIR)/Shared/librsslVA.*

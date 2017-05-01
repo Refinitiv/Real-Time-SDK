@@ -304,7 +304,7 @@ RsslReactorCallbackRet DirectoryHandler::directoryCallback(RsslReactor* pReactor
 		}
 	}
 
-	return RsslReactorCallbackRet::RSSL_RC_CRET_SUCCESS;
+	return RSSL_RC_CRET_SUCCESS;
 }
 
 void DirectoryHandler::notifyOnClose(RsslMsg* pRsslMsg, ItemInfo* itemInfo)

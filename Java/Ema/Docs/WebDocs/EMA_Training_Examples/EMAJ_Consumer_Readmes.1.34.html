@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>400 Series Examples</title>
+    <title>370__MarketPrice__Batch</title>
     <link rel="StyleSheet" href="css/EMAJ_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,21 +55,49 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2_NoNum"><a name="1017958">400 Series Examples</a></div>
-      <div class="WebWorks_MiniTOC">
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.35.html">400__Custom__NestedMessaging</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.36.html">410__MarketPrice__HorizontalScaling</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.37.html">420__MarketPrice__AdminDomainConfig</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_Consumer_Readmes.1.38.html">422__MarketPrice__ErrorClient</a>
-        </div>
-      </div>
+      <div class="H3_NoNum"><a name="1030237">370__MarketPrice__Batch</a></div>
+      <div class="Body"><a name="1040128">Summary</a></div>
+      <div class="Body"><a name="1040129">=======</a></div>
+      <div class="Body"><a name="1040130">&nbsp;</a></div>
+      <div class="Body"><a name="1040131">The example370__MarketPrice__Batch application is provided as an example of OMM</a></div>
+      <div class="Body"><a name="1040132">Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1040133">&nbsp;</a></div>
+      <div class="Body"><a name="1040134">This application demonstrates basic usage of the EMA library while opening</a></div>
+      <div class="Body"><a name="1040135">multiple item stream via a single request (a.k.a., batch request) and parsing</a></div>
+      <div class="Body"><a name="1040136">of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly from</a></div>
+      <div class="Body"><a name="1040137">an OMM Provider application, or from Thomson Reuters Advanced Distribution</a></div>
+      <div class="Body"><a name="1040138">Server.</a></div>
+      <div class="Body"><a name="1040139">&nbsp;</a></div>
+      <div class="Body"><a name="1040140">example370__MarketPrice__Batch showcases usage of batch request feature of OMM</a></div>
+      <div class="Body"><a name="1040141">Consumer.</a></div>
+      <div class="Body"><a name="1040142">&nbsp;</a></div>
+      <div class="Body"><a name="1040143">Detailed Description</a></div>
+      <div class="Body"><a name="1040144">====================</a></div>
+      <div class="Body"><a name="1040145">&nbsp;</a></div>
+      <div class="Body"><a name="1040146">example370__MarketPrice__Batch implements the following high level steps:</a></div>
+      <div class="Body"><a name="1040147">&nbsp;</a></div>
+      <div class="Body"><a name="1040148">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1040149">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1040150">  - provides own methods as needed, e.g. decode( FieldList )</a></div>
+      <div class="Body"><a name="1040151">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1040152">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1040153">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1040154">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1040155">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1040156">+ Opens a batch of streaming item interests</a></div>
+      <div class="Body"><a name="1040157">  - MarketPrice Domain batch request from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1040158">  - the batch (a list of item names) definition is added to the request</a></div>
+      <div class="Body"><a name="1040159">	using the payload() method</a></div>
+      <div class="Body"><a name="1040160">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1040161">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1040162">+ Exits</a></div>
+      <div class="Body"><a name="1040163">&nbsp;</a></div>
+      <div class="Body"><a name="1040164">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1040165">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1040166">	  </a></div>
+      <div class="Body"><a name="1040167">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1040168">      standard configuration.</a></div>
+      <div class="Body"><a name="1038591">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -82,7 +110,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : 400 Series Examples</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.01.html">EMA Java Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_Consumer_Readmes.1.21.html">300 Series Examples</a> : 370__MarketPrice__Batch</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

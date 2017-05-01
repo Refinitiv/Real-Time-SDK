@@ -23,6 +23,20 @@
 extern "C" {
 #endif
 
+#define MAX_REQUEST_RETRIES 1 /* Maximum tunnel stream request retries. */
+
+#define NUM_POOLS 32
+
+typedef struct
+{
+	RsslQueue _pools[NUM_POOLS];
+	RsslUInt _maxSize;
+	RsslUInt _maxPool;
+	RsslUInt _fragmentSize;
+	RsslUInt _maxNumBuffers;
+	RsslUInt _currentNumBuffers;
+} BigBufferPool;
+
 typedef enum
 {
 	TS_BT_DATA		= 0, /* Represents a data message. */
@@ -38,21 +52,29 @@ typedef enum
 
 typedef struct
 {
-	PoolBuffer			_poolBuffer;		/* Pool buffer object. Must be first member (RsslBuffer contained in PoolBuffer must also be first). */
-	RsslUInt8			_bufferType;		/* See TunnelBufferType. */
-	RsslUInt32			_integrity;			/* Used to ensure this is a valid Tunnel Stream Buffer. */
-	RsslQueueLink		_tbpLink;			/* Link to pool of TunnelBuffer objects, or for tunnel stream queues.  */
-	RsslQueueLink		_timeoutLink;		/* Link for tunnel stream timeout queue. */
-	RsslUInt32			_seqNum;			/* Sequence number assigned to this buffer. */
-	RsslUInt32			_maxLength;			/* Length allocated to this buffer when it was retrieved from the pool. */
-	char				*_startPos;			/* Start of buffer, where stream header is encoded. */
-	char				*_dataStartPos;		/* Start of content of buffers (substream header starts here) */
-	RsslTunnelStream	*_tunnel;			/* Tunnel that is holding this buffer. */
-	TunnelSubstream		*_substream;		/* Substream that sent this message, if any. */
-	PersistentMsg		*_persistentMsg;	/* Persistence associated with this message, if any. */
-	RsslBool			_isTransmitted;		/* Buffer has been transmitted (so seqNum is already set) */
-	RsslInt64			_expireTime;		/* Timeout associated with this message. */
-	RsslUInt8			_flags;				/* See TunnelBufferFlags. */
+	PoolBuffer			_poolBuffer;				/* Pool buffer object. Must be first member (RsslBuffer contained in PoolBuffer must also be first). */
+	RsslUInt8			_bufferType;				/* See TunnelBufferType. */
+	RsslUInt32			_integrity;					/* Used to ensure this is a valid Tunnel Stream Buffer. */
+	RsslQueueLink		_tbpLink;					/* Link to pool of TunnelBuffer objects, or for tunnel stream queues.  */
+	RsslQueueLink		_timeoutLink;				/* Link for tunnel stream timeout queue. */
+	RsslUInt32			_seqNum;					/* Sequence number assigned to this buffer. */
+	RsslUInt32			_maxLength;					/* Length allocated to this buffer when it was retrieved from the pool. */
+	char				*_startPos;					/* Start of buffer, where stream header is encoded. */
+	char				*_dataStartPos;				/* Start of content of buffers (substream header starts here) */
+	RsslTunnelStream	*_tunnel;					/* Tunnel that is holding this buffer. */
+	TunnelSubstream		*_substream;				/* Substream that sent this message, if any. */
+	PersistentMsg		*_persistentMsg;			/* Persistence associated with this message, if any. */
+	RsslBool			_isTransmitted;				/* Buffer has been transmitted (so seqNum is already set) */
+	RsslInt64			_expireTime;				/* Timeout associated with this message. */
+	RsslUInt8			_flags;						/* See TunnelBufferFlags. */
+	RsslBool			_isBigBuffer;				/* Buffer is a big buffer for fragmentation. */
+	RsslBool			_fragmentationInProgress;	/* Fragmentation is in progress. */
+	RsslUInt32			_totalMsgLength;			/* Total length of fragmented message. */
+	RsslUInt32			_bytesRemainingToSend;		/* Fragmentation bytes remaining to send. */
+	RsslUInt32			_lastFragmentId;			/* Last fragment id used while sending. */
+	RsslUInt16			_messageId;					/* Message id used for fragmentation. */
+	RsslUInt8			_containerType;				/* Container type of fragmented message. */
+	RsslUInt8			_bigBufferPoolIndex;		/* Index of big buffer pool. */
 } TunnelBufferImpl;
 
 RTR_C_INLINE void tunnelBufferImplClear(TunnelBufferImpl *pBufferImpl)
@@ -155,10 +177,20 @@ typedef struct
 	RsslUInt32							_retransRetryCount;	/* Number of retries attempted when sending certain messages. */
 	BufferPool							_memoryBufferPool;
 	RsslUInt32							_guaranteedOutputBuffersAppLimit;
+	BigBufferPool						_bigBufferPool; /* big buffer pool for tunnel stream fragmentation */
+	RsslUInt32							_requestRetryCount; /* for tunnel stream request retries when falling back to lesser stream versions */
+	RsslUInt							_streamVersion; /* stream version of this tunnel stream */
+	RsslHashTable						_fragmentationProgressHashTable; /* hash table indexed by message id for tracking fragmentation progress */
+	RsslQueue							_fragmentationProgressQueue; /* queue for tracking fragmentation progress */
+	RsslQueue							_pendingBigBufferList; /* pending big buffer list (holds big buffers that weren't fully written during submit) */
+	RsslUInt16							_messageId; /* message id for fragmentation */
 } TunnelStreamImpl;
 
 RsslRet tunnelStreamEnqueueBuffer(RsslTunnelStream *pTunnelStream,
 		RsslBuffer *pBuffer, RsslUInt8 containerType, RsslErrorInfo *pErrorInfo);
+
+RsslRet tunnelStreamEnqueueBigBuffer(RsslTunnelStream *pTunnelStream,
+		TunnelBufferImpl *pBufferImpl, RsslUInt8 containerType, RsslErrorInfo *pErrorInfo);
 
 RTR_C_INLINE void tunnelStreamSetNeedsDispatch(TunnelStreamImpl *pTunnelImpl)
 {
@@ -202,7 +234,7 @@ RsslRet tunnelStreamHandleError(TunnelStreamImpl *pTunnelImpl, RsslErrorInfo *pE
 
 /* Opens a tunnel stream. */
 RsslTunnelStream* tunnelStreamOpen(TunnelManager *pManager, RsslTunnelStreamOpenOptions *pOpts,
-		RsslBool isProvider, RsslClassOfService *pRemoteCos, RsslErrorInfo *pErrorInfo);
+		RsslBool isProvider, RsslClassOfService *pRemoteCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo);
 
 /* Sets the channel for a tunnel stream. Set a NULL channel to indicate a
  * closed channel. */
@@ -300,6 +332,31 @@ RTR_C_INLINE void tunnelStreamUnsetHasExpireTime(TunnelStreamImpl *pTunnelImpl)
 RTR_C_INLINE RsslInt64 tunnelStreamGetNextExpireTime(TunnelStreamImpl *pTunnelImpl)
 {
 	return pTunnelImpl->_nextExpireTime;
+}
+
+/* structure for tracking fragmentation progress */
+typedef struct
+{
+	RsslHashLink		fragmentationHashLink;	/* Link for _fragmentationProgressHashTable by message id. */
+	RsslQueueLink		fragmentationQueueLink;	/* Link for _fragmentationProgressQueue. */
+	TunnelBufferImpl	*pBigBuffer;			/* Big buffer for re-assembling the fragmented message. */
+	RsslUInt32			bytesAlreadyCopied;		/* Number of bytes already copied. */
+} TunnelStreamFragmentationProgress;
+
+RTR_C_INLINE void clearTunnelStreamFragmentationProgress(TunnelStreamFragmentationProgress *pFragmentationProgress)
+{
+	memset(pFragmentationProgress, 0, sizeof(TunnelStreamFragmentationProgress));
+}
+
+/* Saves the write progress for fragmentation. */
+RTR_C_INLINE void saveWriteProgress(TunnelBufferImpl *pBufferImpl, RsslUInt32 totalMsgLength, RsslUInt32 bytesRemaining, RsslUInt32 lastFragmentId, RsslUInt16 messageId, RsslUInt8 containerType)
+{
+	pBufferImpl->_fragmentationInProgress = RSSL_TRUE;
+	pBufferImpl->_totalMsgLength = totalMsgLength;
+	pBufferImpl->_bytesRemainingToSend = bytesRemaining;
+	pBufferImpl->_lastFragmentId = lastFragmentId;
+	pBufferImpl->_messageId = messageId;
+	pBufferImpl->_containerType = containerType;
 }
 
 #ifdef __cplusplus

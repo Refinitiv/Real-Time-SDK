@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>3.2 Usage</title>
+    <link rel="StyleSheet" href="css/Chap_Login_Domain.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H2_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">3.2	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H2_inner"><a name="999129">Usage</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="H3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">3.2.1	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H3_inner"><a name="999131">Login Request Message</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="999494">A Login request message is encoded and sent by OMM consumer and OMM non-interactive provider applications</a> internally in the constructor of this class. This message registers a user with the system. After receiving a successful login response, applications can then begin consuming or providing additional content. An OMM interactive provider can use the Login request information to authenticate users with DACS.</div>
+      <div class="Body"><a name="1131826">You can configure a login request message using the following methods.</a></div>
+      <div class="Blank_Line"><a name="1131864">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 4: <a name="1131861">Configure Login Request Message &nbsp;</a></div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 181.49976pt">
+            <div class="CellHeading" style="text-align: center"><a name="1131829">Method Name</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 374.25024pt">
+            <div class="CellHeading" style="text-align: center"><a name="1131831">Description</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1131833">OmmConsumerConfig.username()</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1131835">Required</a></span>.</div>
+            <div class="CellBody"><a name="1131836">Specifies the user name for login request message.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1131838">OmmConsumerConfig.password()</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1131840">Optional</a></div>
+            <div class="CellBody"><a name="1131841">Specifies the password for login request message.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1131843">OmmConsumerConfig.position()</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1131845">Optional</a></div>
+            <div class="CellBody"><a name="1131846">Specifies the position for login request message.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1131848">OmmConsumerConfig.applicationId()</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1131850">Optional</a></div>
+            <div class="CellBody"><a name="1131851">Specifies the authorization application identifier for login request message.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1131853">OmmConsumerConfig.addAdminMsg()</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1131855">Optional</a></div>
+            <div class="CellBody"><a name="1131856">Specifies a login request message to override the default login request.</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Body"><a name="999495">An initial Login request must be streaming (i.e., a </a><span class="Parameter">ReqMsg.InterestAfterRefresh</span> flag set to <span class="Parameter">true</span> is required). After the initial Login stream is established, subsequent Login requests using the same login handle can be sent to obtain additional refresh messages, pause the stream, or resume the stream. If a login stream is paused, this is interpreted as a ‘Pause All’ request which indicates that all item streams associated with the user should be paused. A login stream is paused by specifying <span class="Parameter">ReqMsg.Pause</span> to <span class="Parameter">true</span>. To resume data flow on all item streams (also known as a Resume All), users need to call <span class="Parameter">ReqMsg.InterestAfterRefresh</span> with <span class="Parameter">true</span> value. For more information, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Message API C++ Edition Developers Guide</a></span>.</div>
+      <div class="Blank_Line"><a name="999968">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 5: <a name="1000018">Login Request Message &nbsp;</a></div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
+            <div class="CellHeading"><a name="999974">COMPONENT</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
+            <div class="CellHeading"><a name="999976">DESCRIPTION / VALUE</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="999982">DomainType</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="999984">Required</a></span>. <span class="Parameter">MMT_LOGIN = 1</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="VariableValue"><a name="1020467">Interactions</a></span></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1036152">Conditional</a></span>.</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1020489">Setting </a><span class="CodeOrCommand">InitialImage</span> to <span class="Parameter">true </span>indicates that an initial image is required.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1020491">Setting </a><span class="CodeOrCommand">InterestAfterRefresh</span> to <span class="Parameter">true</span> indicates that a streaming request is required. A streaming request is required before any other requests. Non-streaming requests are unsupported.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1034486">Setting </a><span class="CodeOrCommand">Pause</span> set to <span class="Parameter">true</span> indicates that a pause is required. A pause request is a request to pause all item streams associated with the login. To resume all item streams associated with the login, issue another streaming request.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="999986">QoS</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="999988">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="999990">worstQos</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="999992">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000002">extendedHeader</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000004">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000006">ServiceId</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000008">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000010">NameType</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000435">Optional. Possible values are:</a></div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000460">USER_NAME</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000461">USER_EMAIL_ADDRESS</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000462">USER_TOKEN</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1033062">USER_COOKIE</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1033066">USER_AUTHN_TOKEN</a></span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="CellBody"><a name="1021353">If </a><span class="CodeOrCommand">NameType</span> is not set, it is assumed to be <span class="Parameter">USER_NAME</span>.</div>
+            <div class="CellBody"><a name="1033075">A type of </a><span class="Parameter">USER_NAME</span> typically corresponds to a DACS user name. This can be used to authenticate and permission a user.<span class="Parameter">USER_TOKEN</span> is specified when using the AAA API The user token is retrieved from a AAA API gateway and then passed through the system via the <span class="CodeOrCommand">Name</span>. To validate users, a provider can pass this user token to an authentication manager application.</div>
+            <div class="CellBody"><a name="1033085">If you specify </a><span class="Parameter">USER_AUTHN_TOKEN</span>, you must also set <span class="CodeOrCommand">Name</span> to a single, null character (i.e., a 0x00 binary), and include an <span class="CodeOrCommand">AuthenticationToken</span> element in the <span class="CodeOrCommand">Attrib</span>. For details on the <span class="CodeOrCommand">AuthenticationToken</span>, refer to <a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'Chap_Login_Domain.03.03.html', '');" title="3.2.2 Login Request Elements">Section 3.2.2</a>.</div>
+            <div class="CellBody"><a name="1033098">Both </a><span class="Parameter">USER_TOKEN</span> and <span class="Parameter">USER_AUTHN_TOKEN</span> can periodically change: when it changes, an application can send a login reissue to pass information upstream.</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1033102">For further details on using </a><span class="Parameter">USER_TOKEN</span>, refer to the AAA API documentation.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1022409">For further details on using </a><span class="Parameter">USER_AUTHN_TOKEN</span>, refer to the <span class="DocumentTitle">TREP Authentication User Manual</span>.<sup><a name="wwfootnote_inline_22" href="#22">1</a></sup></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000014">Name</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000016">Required</a></span>. <span class="CodeOrCommand">Name</span> should be populated with appropriate content corresponding to the <span class="CodeOrCommand">NameType</span> specification.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000180">Filter</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000182">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000184">Identifier</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000186">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000188">Attrib</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000190">Optional.</a> Typically an <span class="CodeOrCommand">ElementList</span>. Attributes are specified in <a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'Chap_Login_Domain.03.03.html', '');" title="3.2.2 Login Request Elements">Section 3.2.2</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000192">Payload</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000194">Not used.</a></div>
+          </td>
+        </tr>
+      </table>
+      <hr />
+      <div style="font-size: smaller; float: left; padding-right: 10px;">
+        <a name="22" href="#wwfootnote_inline_22">1</a>
+      </div>
+      <div class="Footnote"><a name="1094835">For further details on TREP Authentication, refer to the </a><span class="DocumentTitle">TREP Authentication User Manual</span>, accessible on <span class="Hyperlink"><a href="https://my.thomsonreuters.com/products" target="external_window">Thomson Reuters MyAccount</a></span> in the DACS product documentation set.</div>
+      <br style="clear: both;" />
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 3	Login Domain : 3.2	Usage</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

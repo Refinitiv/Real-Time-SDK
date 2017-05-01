@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.5.2 Login Refresh Message Sample XML</title>
+    <title>3.5 Login Sample XML</title>
     <link rel="StyleSheet" href="css/Chap_Login_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,147 +55,138 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="999240">Login Refresh Message Sample XML</a></div>
-      <div class="Blank_Line"><a name="1015685">&nbsp;</a></div>
+      <div class="H2"><a name="1142104">Login Sample XML</a></div>
+      <div class="H3"><a name="1142106">Login Request Message Sample XML</a></div>
+      <div class="Blank_Line"><a name="1144056">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1015632">&nbsp;</a></div>
+            <div class="command"><a name="1144007">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015634">&lt;REFRESH domainType="LOGIN" streamId="1" containerType="NO_DATA" flags="0x168</a></div>
+            <div class="command"><a name="1144009">&lt;REQUEST domainType="LOGIN" streamId="1" containerType="NO_DATA" flags="0x04 (STREAMING)" </a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015636">		(HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE|CLEAR_CACHE)" groupId="0" State: Open/Ok/None - text: </a></div>
+            <div class="command"><a name="1144011">		dataSize="0"&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015638">		"Login accepted by host oaklrh196." dataSize="0"&gt;</a></div>
+            <div class="command"><a name="1144013">	&lt;key flags="0x26 (HAS_NAME|HAS_NAME_TYPE|HAS_ATTRIB)" name="patrick.kerkstra" nameType="1"</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015640">	&lt;key flags="0x26 (HAS_NAME|HAS_NAME_TYPE|HAS_ATTRIB)" name="patrick.kerkstra" nameType="1"</a></div>
+            <div class="command"><a name="1144015">			attribContainerType="ELEMENT_LIST"&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015642">			attribContainerType="ELEMENT_LIST"&gt;</a></div>
+            <div class="command"><a name="1144017">		&lt;attrib&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015644">		&lt;attrib&gt;</a></div>
+            <div class="command"><a name="1144019">			&lt;elementList flags="0x08 (HAS_STANDARD_DATA)"&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015646">			&lt;elementList flags="0x08 (HAS_STANDARD_DATA)"&gt;</a></div>
+            <div class="command"><a name="1144021">				&lt;elementEntry name="ApplicationId" dataType="ASCII_STRING" data="256"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015648">				&lt;elementEntry name="AllowSuspectData" dataType="UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1144023">				&lt;elementEntry name="ApplicationName" dataType="ASCII_STRING" data="Consumer"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015650">				&lt;elementEntry name="ApplicationId" dataType="ASCII_STRING" data="256"/&gt;</a></div>
+            <div class="command"><a name="1144025">				&lt;elementEntry name="Position" dataType="ASCII_STRING" data="127.0.0.1/net"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015652">				&lt;elementEntry name="ApplicationName" dataType="ASCII_STRING" data="ADS"/&gt;</a></div>
+            <div class="command"><a name="1144027">				&lt;elementEntry name="Password" dataType="ASCII_STRING" data="myPassword"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015654">				&lt;elementEntry name="Position" dataType="ASCII_STRING" data="127.0.0.1/net"/&gt;</a></div>
+            <div class="command"><a name="1144029">				&lt;elementEntry name="ProvidePermissionProfile" dataType="UINT" data="1"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015656">				&lt;elementEntry name="ProvidePermissionExpressions" dataType="UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1144031">				&lt;elementEntry name="ProvidePermissionExpressions" dataType="UINT" data="1"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015658">				&lt;elementEntry name="ProvidePermissionProfile" dataType="UINT" data="0"/&gt;</a></div>
+            <div class="command"><a name="1144033">				&lt;elementEntry name="SingleOpen" dataType="UINT" data="1"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015660">				&lt;elementEntry name="SingleOpen" dataType="UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1144035">				&lt;elementEntry name="AllowSuspectData" dataType="UINT" data="1"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015662">				&lt;elementEntry name="SupportOMMPost" dataType="UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1144037">				&lt;elementEntry name="InstanceId" dataType="ASCII_STRING" data="myInstance"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015664">				&lt;elementEntry name="SupportStandby" dataType="UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1144039">				&lt;elementEntry name="Role" dataType="UINT" data="0"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015666">				&lt;elementEntry name="SupportBatchRequests" dataType="UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1144041">				&lt;elementEntry name="DownloadConnectionConfig" dataType="UINT" data="0"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015668">				&lt;elementEntry name="SupportViewRequests" dataType="UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1144043">			&lt;/elementList&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015670">				&lt;elementEntry name="SupportOptimizedPauseResume" dataType="UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1144045">		&lt;/attrib&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015672">			&lt;/elementList&gt;</a></div>
+            <div class="command"><a name="1144047">	&lt;/key&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015674">		&lt;/attrib&gt;</a></div>
+            <div class="command"><a name="1144049">	&lt;dataBody&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015676">	&lt;/key&gt;</a></div>
+            <div class="command"><a name="1144051">	&lt;/dataBody&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015678">	&lt;dataBody&gt;</a></div>
+            <div class="command"><a name="1144053">&lt;/REQUEST&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015680">	&lt;/dataBody&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015682">&lt;/REFRESH&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1015684">&nbsp;</a></div>
+            <div class="command"><a name="1144055">&nbsp;</a></div>
           </td>
         </tr>
       </table>
-      <div class="CodeTitle">Code Example 2: <a name="999244">Login Refresh Message Sample XML Message Layout</a></div>
+      <div class="CodeTitle">Code Example 1: <a name="1142209">Login Request Message Sample XML Message Layout</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -208,7 +199,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.19.html">3.5	Login Sample XML</a> : 3.5.2	Login Refresh Message Sample XML</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : 3.5	Login Sample XML</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

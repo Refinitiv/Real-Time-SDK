@@ -1,2 +1,2 @@
-# file,load_location,node_location
-TunnelStreamHandler.java,com/thomsonreuters/upa/valueadd/examples/provider,valueadd/com/thomsonreuters/upa/valueadd/examples/provider
+# file, relative_path to original file
+TunnelStreamHandler.java,com/thomsonreuters/upa/valueadd/examples/provider

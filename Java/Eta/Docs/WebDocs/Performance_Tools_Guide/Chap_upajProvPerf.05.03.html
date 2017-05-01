@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1222799">Threading and Scaling</a></div>
-      <div class="Body"><a name="1230685">The Transport API is designed to allow calls from multiple threads, such that applications can scale their work across multiple cores by creating multiple threads to handle multiple connections through the Transport API. To support this multi-threading feature, each application must enable global locking when calling </a><span class="CodeOrCommand">Transport.initialize()</span>.</div>
-      <div class="Body"><a name="1230695">You can configure </a><span class="ToolOrUtility_Name">upajProvPerf</span> for multiple threads by using the <span class="CodeOrCommand">-threads</span> command-line option. When multiple threads are configured, consumer connections are balanced such that each thread receives an equal number of connections.</div>
-      <div class="Body"><a name="1230696">The main thread monitors the other threads and collects and reports statistics from them.</a></div>
+      <div class="Body"><a name="1231959">The Transport API is designed to allow calls from multiple threads, such that applications can scale their work across multiple cores by creating multiple threads to handle multiple connections through the Transport API. To support this multi-threading feature, each application must enable global locking when calling </a><span class="CodeOrCommand">Transport.initialize()</span>.</div>
+      <div class="Body"><a name="1231969">You can configure </a><span class="ToolOrUtility_Name">upajProvPerf</span> for multiple threads by using the <span class="CodeOrCommand">-threads</span> command-line option. When multiple threads are configured, consumer connections are balanced such that each thread receives an equal number of connections.</div>
+      <div class="Body"><a name="1231970">The main thread monitors the other threads and collects and reports statistics from them.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

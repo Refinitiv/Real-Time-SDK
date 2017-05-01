@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>6.3 Reactor Channels</title>
+    <title>6.3 Reactor Channel Use</title>
     <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,97 +55,98 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2"><a name="1219591">Reactor Channels</a></div>
-      <div class="Body"><a name="1224649">The </a><span class="CodeOrCommand">RsslReactorChannel</span> structure is used to represent a connection that can send or receive information across a network. This structure is used to represent a connection, regardless of if that was an outbound connection or a connection that was accepted by a listening socket via an <span class="CodeOrCommand">RsslServer</span>. The <span class="CodeOrCommand">RsslReactorChannel</span> is the application’s point of access, used to perform any action on the connection that it represents (e.g. dispatching events, writing, disconnecting, etc). See the subsequent sections for more information about <span class="CodeOrCommand">RsslReactorChannel</span> and how to associate with an <span class="CodeOrCommand">RsslReactor</span>. </div>
-      <div class="Blank_Line"><a name="1224687">&nbsp;</a></div>
+      <div class="H2"><a name="1219591">Reactor Channel Use</a></div>
+      <div class="Body"><a name="1527078">The </a><span class="CodeOrCommand">RsslReactorChannel</span> structure is used to represent a connection that can send or receive information across a network. This structure is used to represent a connection, regardless of whether it is an outbound connection or a connection accepted by a listening socket via an <span class="CodeOrCommand">RsslServer</span>. The <span class="CodeOrCommand">RsslReactorChannel</span> is the application’s point of access, used to perform any action on the connection that it represents (e.g. dispatching events, writing, disconnecting, etc). See the subsequent sections for more information about <span class="CodeOrCommand">RsslReactorChannel</span> and how to associate with an <span class="CodeOrCommand">RsslReactor</span>. </div>
+      <div class="Blank_Line"><a name="1527106">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1224693">Only Transport API Reactor functions, like those defined in this chapter, should be called on a channel managed by an RsslReactor.</a></div>
+              <span class="Bold">Note: </span><a name="1527102">Only Transport API Reactor functions, like those defined in this chapter, should be called on a channel managed by an </a><span class="CodeOrCommand">RsslReactor</span>.</div>
           </td>
         </tr>
       </table>
-      <div class="Body"><a name="1224651">The following table describes the members of the </a><span class="CodeOrCommand">RsslReactorChannel</span> structure.</div>
-      <div class="Blank_Line"><a name="1224638">&nbsp;</a></div>
+      <div class="Body"><a name="1527113">The following table describes the members of the </a><span class="CodeOrCommand">RsslReactorChannel</span> structure.</div>
+      <div class="Blank_Line"><a name="1527273">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 10: <span class="LucidaConsole"><a name="1224731">RsslReactorChannel</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 10: <span class="LucidaConsole"><a name="1527270">RsslReactorChannel</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1224703">STRUCTURE MEMBER</a></div>
+            <div class="CellHeading"><a name="1527119">Structure MEMBER</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1224705">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1527121">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224707">pRsslChannel</a></div>
+            <div class="CellBody"><a name="1527123">pRsslChannel </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224709">A pointer to the underlying </a><span class="CodeOrCommand">RsslChannel</span> structure, as defined in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>, mainly for reference purposes. All operations should be performed using the Transport API Reactor functionality; the application should not use this <span class="CodeOrCommand">RsslChannel</span> directly with any RSSL Transport functionality. </div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224711">pRsslServer</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224966">A pointer to the underlying </a><span class="CodeOrCommand">RsslServer</span> structure, as defined in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>, mainly for reference purposes. This will only be populated when the channel was created via the <span class="CodeOrCommand">rsslReactorAccept</span> function, as described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.039.html', '');" title="6.4.1.6 Reactor Accept">Section 6.4.1.6</a>. </div>
+            <div class="CellBody"><a name="1527132">A pointer to the </a>underlying <span class="CodeOrCommand">RsslChannel</span> structure, as defined in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>, mainly for reference purposes. All operations should be performed using the Transport API Reactor functionality; the application should not use this <span class="CodeOrCommand">RsslChannel</span> directly with any RSSL Transport functionality. </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224715">socketId</a></div>
+            <div class="CellBody"><a name="1527140">pRsslServer </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224717">Represents a file descriptor that can be used in some kind of I/O notification mechanism (e.g. select, poll) to alert users when dispatch is required on a specific </a><span class="CodeOrCommand">RsslReactorChannel</span>. This is the file descriptor associated with this end of the network connection; the file descriptor value may be different from the other end of the connection. </div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224719">oldSocketId</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224721">It is possible for a file descriptor to change over time, typically due to some kind of connection keep-alive mechanism. If this occurs, this is typically communicated via a callback indicating </a><span class="Parameter">RSSL_RC_CET_FD_CHANGE</span>. The previous <span class="CodeOrCommand">socketId</span> is stored in <span class="CodeOrCommand">oldSocketId</span> so the application can properly unregister and then register the new <span class="CodeOrCommand">socketId</span> with their I/O notification mechanism.</div>
+            <div class="CellBody"><a name="1527149">A pointer to the </a>underlying <span class="CodeOrCommand">RsslServer</span> structure, as defined in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>, mainly for reference purposes. This is populated only if the channel was created via the <span class="CodeOrCommand">rsslReactorAccept</span> function, as described in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.039.html', '');" title="6.4.1.6 Reactor Accept">Section 6.4.1.6</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224723">protocolType</a></div>
+            <div class="CellBody"><a name="1527166">socketId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1225020">When an </a><span class="CodeOrCommand">RsslReactorChannel</span> is up (<span class="Parameter">RSSL_RC_CET_CHANNEL_UP</span>), this is populated with the <span class="CodeOrCommand">protocolType</span> associated with the content being sent on this connection. If the <span class="CodeOrCommand">protocolType</span> indicated by a server does not match the <span class="CodeOrCommand">protocolType</span> that a client specifies, the connection will be rejected.</div>
-            <div class="CellBody"><a name="1225021">The Transport API Reactor will leverage the versioning information for any content it is encoding or decoding. Proper use of versioning should be handled by the application for any other application encoded or decoded content. See the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span> for more information about use of versioning.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224727">majorVersion</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1225036">When an </a><span class="CodeOrCommand">RsslReactorChannel</span> is up (<span class="Parameter">RSSL_RC_CET_CHANNEL_UP</span>), this is populated with the major version number that is associated with the content being sent on this connection. Typically, a minor version increase is associated with a fully backward compatible change or extension.</div>
-            <div class="CellBody"><a name="1225037">The Transport API Reactor will leverage the versioning information for any content it is encoding or decoding. Proper use of versioning should be handled by the application for any other application encoded or decoded content. See the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span> for more information about use of versioning.</div>
+            <div class="CellBody"><a name="1527168">Represents a file descriptor that can be used in some kind of I/O notification mechanism (e.g. select, poll) to alert users when dispatch is required on a specific </a><span class="CodeOrCommand">RsslReactorChannel</span>. This is the file descriptor associated with this end of the network connection; the file descriptor value may be different from the other end of the connection.</div>
+            <div class="CellBody"><a name="1527172">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224913">minorVersion</a></div>
+            <div class="CellBody"><a name="1527177">oldSocketId </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1225054">When an </a><span class="CodeOrCommand">RsslReactorChannel</span> is up (<span class="Parameter">RSSL_RC_CET_CHANNEL_UP</span>), this is populated with the minor version number that is associated with the content being sent on this connection. Typically, a minor version increase is associated with a fully backward compatible change or extension.</div>
-            <div class="CellBody"><a name="1225055">The Transport API Reactor will leverage the versioning information for any content it is encoding or decoding. Proper use of versioning should be handled by the application for any other application encoded or decoded content. For more information about use of versioning, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
+            <div class="CellBody"><a name="1527179">It is possible for a</a> file descriptor to change over time, typically due to some kind of connection keep-alive mechanism. If this occurs, this is typically communicated via a callback indicating <span class="Parameter">RSSL_RC_CET_FD_CHANGE</span>. The previous <span class="CodeOrCommand">RsslReactorChannel</span> is stored in <span class="CodeOrCommand">oldSocketId</span> so the application can properly unregister and then register the new <span class="CodeOrCommand">socketId</span> with their I/O notification mechanism.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224917">userSpecPtr</a></div>
+            <div class="CellBody"><a name="1527197">protocolType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224919">A pointer that can be set by the user of the </a><span class="CodeOrCommand">RsslChannel</span>. This value can be set directly or via <span class="CodeOrCommand">RsslReactorConnectOption</span>s and <span class="CodeOrCommand">RsslReactorAcceptOption</span>s. This information can be useful for coupling this <span class="CodeOrCommand">RsslReactorChannel</span> with other user created information, such as a watch list associated with this connection.</div>
+            <div class="CellBody"><a name="1527205">When a</a>n <span class="CodeOrCommand">RsslReactorChannel</span> is up (<span class="Parameter">RSSL_RC_CET_CHANNEL_UP</span>), this is populated with the <span class="CodeOrCommand">protocolType</span> associated with the content being sent on this connection. If the server indicates a <span class="CodeOrCommand">protocolType</span> that does not match the <span class="CodeOrCommand">protocolType</span> specified by the client, the connection is rejected.</div>
+            <div class="CellBody"><a name="1527209">The Transport API Reactor will leverage the versioning information for any content it is encoding or decoding. Proper use of versioning should be handled by the application for any other application encoded or decoded content. For more information on versioning, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527212">majorVersion</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527220">When a</a>n <span class="CodeOrCommand">RsslReactorChannel</span> is up (<span class="Parameter">RSSL_RC_CET_CHANNEL_UP</span>), this is populated with the major version number associated with the content sent on this connection. Typically only minor version increases are associated with a fully backward compatible change or extension.</div>
+            <div class="CellBody"><a name="1527224">The Transport API Reactor will leverage the versioning information for any content it is encoding or decoding. Proper use of versioning should be handled by the application for any other application encoded or decoded content. For more information on versioning, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527227">minorVersion</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527235">When a</a>n <span class="CodeOrCommand">RsslReactorChannel</span> is up (<span class="Parameter">RSSL_RC_CET_CHANNEL_UP</span>), this is populated with the minor version number associated with the content sent on this connection. Typically, a minor version increase is associated with a fully backward compatible change or extension.</div>
+            <div class="CellBody"><a name="1527239">The Transport API Reactor will leverage the versioning information for any content it is encoding or decoding. Proper use of versioning should be handled by the application for any other application encoded or decoded content. For more information on versioning, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527245">userSpecPtr</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1527250">A</a> pointer that can be set by the user of the <span class="CodeOrCommand">RsslChannel</span>. This value can be set directly or via the <span class="CodeOrCommand">RsslReactorConnectOptions</span>s and <span class="CodeOrCommand">RsslReactorAcceptOption</span>s. This information can be useful for coupling this <span class="CodeOrCommand">RsslReactorChannel</span> with other user-created information, such as a watch list associated with this connection.</div>
           </td>
         </tr>
       </table>
@@ -161,7 +162,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : 6.3	Reactor Channels</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : 6.3	Reactor Channel Use</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

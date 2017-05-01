@@ -18,15 +18,16 @@ import com.thomsonreuters.ema.access.OmmState.DataState;
 import com.thomsonreuters.ema.access.OmmState.StreamState;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CloseMsg;
+import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.CopyMsgFlags;
+import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
 import com.thomsonreuters.upa.codec.RefreshMsg;
-import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StateCodes;
 import com.thomsonreuters.upa.codec.StreamStates;
@@ -34,9 +35,11 @@ import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginAttrib;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.reactor.RDMLoginMsgCallback;
 import com.thomsonreuters.upa.valueadd.reactor.RDMLoginMsgEvent;
@@ -60,7 +63,13 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 	private ReentrantLock 			_loginItemLock = new java.util.concurrent.locks.ReentrantLock();
 	private boolean					_notifyChannelDownReconnecting;
 	private State	_rsslState;
-	
+	private DecodeIterator			_decIter = CodecFactory.createDecodeIterator();
+	private EncodeIterator 			_encIter = CodecFactory.createEncodeIterator();
+	private Buffer					_tempBuffer = CodecFactory.createBuffer();
+    private ByteBuffer 				_tempByteBuffer;
+    private Msg						_tempMsg = CodecFactory.createMsg();
+	private LoginRequest			_tempLoginReq = (LoginRequest) LoginMsgFactory.createMsg();
+    
 	LoginCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
 		 super(baseImpl, CLIENT_NAME);
@@ -83,6 +92,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, 
 					temp.toString(),Severity.TRACE).toString());
 		}
+		
+		_tempByteBuffer = ByteBuffer.allocate(8192);
+		_tempBuffer.data(_tempByteBuffer);
 	}
 	
 	@Override
@@ -153,7 +165,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			        		.append(OmmLoggerClient.CR);
 			        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
 			        	temp.append(OmmLoggerClient.CR)
-			    			.append("State: ").append(state.toString());
+			    			.append(state.toString());
 			        	
 			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 		        	}
@@ -168,7 +180,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			        		.append(OmmLoggerClient.CR);
 			        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
 			        	temp.append(OmmLoggerClient.CR)
-			    			.append("State: ").append(state.toString());
+		    			.append(state.toString());
 			        	
 			        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 		        	}
@@ -185,8 +197,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			        	StringBuilder temp = _baseImpl.strBuilder();
 						
 			        	temp.append("RDMLogin stream was open with refresh message").append(OmmLoggerClient.CR)
-			        		.append(loginMsg.toString()).append(OmmLoggerClient.CR)
-							.append("State: ").append(state.toString());
+			        		.append(loginMsg.toString()).append(OmmLoggerClient.CR);
+
 			        	
 			        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		        	}
@@ -219,7 +231,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				        		.append(OmmLoggerClient.CR);
 				        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
 				        	temp.append(OmmLoggerClient.CR)
-				    			.append("State: ").append(state.toString());
+			    				.append(state.toString());
 				        	
 				        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 			        	}
@@ -234,7 +246,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				        		.append(OmmLoggerClient.CR);
 				        	loginMsgToString(temp, loginMsg, loginMsg.rdmMsgType());
 				        	temp.append(OmmLoggerClient.CR)
-				    			.append("State: ").append(state.toString());
+			    				.append(state.toString());
 				        	
 				        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 			        	}
@@ -249,8 +261,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				        	StringBuilder temp = _baseImpl.strBuilder();
 							
 				        	temp.append("RDMLogin stream was open with status message").append(OmmLoggerClient.CR)
-				        		.append(loginMsg.toString()).append(OmmLoggerClient.CR)
-								.append("State: ").append(state.toString());
+				        		.append(loginMsg.toString()).append(OmmLoggerClient.CR);
 				        	
 				        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(LoginCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 			        	}
@@ -598,7 +609,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		item.loginChannelList(_loginChannelList);
 		_loginItemList.add(item);
 		
-		_baseImpl.addTimeoutEvent(10, item);
+		/* Do not give a refresh msg to the user if one is not present */
+		if(_refreshMsg != null)
+			_baseImpl.addTimeoutEvent(10, item);
 		
 		return item;
 	}
@@ -639,6 +652,123 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 	
+	
+	int overlayLoginRequest(Msg request)
+	{
+		 int ret = CodecReturnCodes.SUCCESS;
+	        
+        // clear temp buffer
+        _tempBuffer.clear();
+        _tempByteBuffer.clear();
+        _tempBuffer.data(_tempByteBuffer);
+        
+        // encode Codec message into buffer
+        _encIter.clear();
+        _encIter.setBufferAndRWFVersion(_tempBuffer, Codec.majorVersion(), Codec.minorVersion());
+        if ((ret = request.encode(_encIter)) >= CodecReturnCodes.SUCCESS)
+        {
+            // decode encoded Codec message into RDM message
+            _decIter.clear();
+            _decIter.setBufferAndRWFVersion(_tempBuffer, Codec.majorVersion(), Codec.minorVersion());
+            _tempMsg.clear();
+			_tempLoginReq.clear();
+			_tempLoginReq.rdmMsgType(LoginMsgType.REQUEST);
+            ret = _tempMsg.decode(_decIter);
+            if((ret = _tempLoginReq.decode(_decIter, _tempMsg)) < CodecReturnCodes.SUCCESS)
+            {
+            	return ret;
+	        }
+        }
+        else
+        	return ret;
+        
+        /* Apply the following changed fields to the cached login request:
+         * userName
+         * Attrib
+         * applicationName
+         * Position
+         * InstanceId
+         * Password
+         * Pause
+         */
+        
+        if(!_tempLoginReq.userName().isBlank() && !_tempLoginReq.userName().equals(rsslLoginRequest().userName()))
+        {
+        	rsslLoginRequest().userName(_tempLoginReq.userName());
+        }
+        
+        if(_tempLoginReq.checkHasAttrib())
+        {
+        	if(_tempLoginReq.attrib().checkHasApplicationId())
+        	{
+	        	if(!rsslLoginRequest().attrib().checkHasApplicationId() || 
+	        		!_tempLoginReq.attrib().applicationId().equals(rsslLoginRequest().attrib().applicationId()))
+				{
+	        		rsslLoginRequest().applyHasAttrib();
+	        		ByteBuffer byteBuffer = ByteBuffer.allocate(_tempLoginReq.attrib().applicationId().length());
+	            	_tempLoginReq.attrib().applicationId().copy(byteBuffer);
+	            	rsslLoginRequest().attrib().applyHasApplicationId();
+	            	rsslLoginRequest().attrib().applicationId().data(byteBuffer);
+				}
+        	}
+        	
+        	if(_tempLoginReq.attrib().checkHasApplicationName())
+        	{
+	        	if(!rsslLoginRequest().attrib().checkHasApplicationName() || 
+	        		!_tempLoginReq.attrib().applicationName().equals(rsslLoginRequest().attrib().applicationName()))
+				{
+	        		rsslLoginRequest().applyHasAttrib();
+	        		ByteBuffer byteBuffer = ByteBuffer.allocate(_tempLoginReq.attrib().applicationName().length());
+	            	_tempLoginReq.attrib().applicationName().copy(byteBuffer);
+	            	rsslLoginRequest().attrib().applyHasApplicationName();
+	            	rsslLoginRequest().attrib().applicationName().data(byteBuffer);
+				}
+        	}
+        	
+        	if(_tempLoginReq.attrib().checkHasPosition())
+        	{
+	        	if(!rsslLoginRequest().attrib().checkHasPosition() || 
+	        			!_tempLoginReq.attrib().position().equals(rsslLoginRequest().attrib().position()))
+				{
+	        		ByteBuffer byteBuffer = ByteBuffer.allocate(_tempLoginReq.attrib().position().length());
+	            	_tempLoginReq.attrib().position().copy(byteBuffer);
+	            	rsslLoginRequest().attrib().applyHasPosition();
+	            	rsslLoginRequest().attrib().position().data(byteBuffer);
+				}
+        	}
+        }
+        
+        if(_tempLoginReq.checkHasInstanceId())
+        {
+	        if(!rsslLoginRequest().checkHasInstanceId() || 
+	        	!_tempLoginReq.instanceId().equals(rsslLoginRequest().instanceId()))
+			{
+	        	ByteBuffer byteBuffer = ByteBuffer.allocate(_tempLoginReq.instanceId().length());
+	        	_tempLoginReq.instanceId().copy(byteBuffer);
+	        	rsslLoginRequest().applyHasInstanceId();
+	        	rsslLoginRequest().instanceId().data(byteBuffer);
+			}
+        }
+        
+        if(_tempLoginReq.checkHasPassword())
+        {
+	        if(!rsslLoginRequest().checkHasPassword() || 
+	        	!_tempLoginReq.password().equals(rsslLoginRequest().password()))
+			{
+	        	ByteBuffer byteBuffer = ByteBuffer.allocate(_tempLoginReq.password().length());
+	        	_tempLoginReq.password().copy(byteBuffer);
+	        	rsslLoginRequest().applyHasPassword();
+	        	rsslLoginRequest().password().data(byteBuffer);
+			}
+        }
+        
+        if(_tempLoginReq.checkPause())
+        {
+        	rsslLoginRequest().applyPause();
+        }
+        
+        return CodecReturnCodes.SUCCESS;
+	}
 	
 	void populateStatusMsg()
 	{
@@ -827,10 +957,12 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 {
 	private static final String 	CLIENT_NAME = "LoginItem";
 	private List<ChannelInfo> 		_loginChannelList;
+	LoginRequest						_loginReq;
 	
 	LoginItem(OmmBaseImpl<T> baseImpl , T client , Object closure)
 	{
 		super(baseImpl, client, closure, null);
+		_loginReq = baseImpl._loginCallbackClient.rsslLoginRequest();
 		_streamId = 1;
 	}
 
@@ -838,13 +970,40 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> batchItem)
 	{
 		super.reset(baseImpl, client, closure, batchItem);
+		_loginReq = baseImpl._loginCallbackClient.rsslLoginRequest();
 		_streamId = 1;
 	}
 	
 	@Override
 	boolean modify(ReqMsg reqMsg)
 	{
-		return submit(((ReqMsgImpl) reqMsg).rsslMsg());
+		int ret;
+		if((ret = _baseImpl._loginCallbackClient.overlayLoginRequest((Msg)((ReqMsgImpl)reqMsg).rsslMsg()))
+				!= CodecReturnCodes.SUCCESS)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+	        	temp.append("Internal error: Error caching login reissue.");
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(LoginItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
+			
+			temp.append("Failed cache login reissue. Reason: ")
+				.append(ReactorReturnCodes.toString(ret));
+				
+			_baseImpl.handleInvalidUsage(temp.toString());
+			
+		}
+		
+		boolean submitRet = submit(_baseImpl.loginCallbackClient().rsslLoginRequest());
+		
+		/* Unset the pause all flag on the stored request. */
+		_baseImpl.loginCallbackClient().rsslLoginRequest().flags(_baseImpl.loginCallbackClient().rsslLoginRequest().flags() & ~LoginRequestFlags.PAUSE_ALL);
+		
+		return submitRet;
 	}
 	
 	@Override
@@ -891,16 +1050,16 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 		}
 	}
 	
-	boolean submit(RequestMsg rsslRequestMsg)
+	boolean submit(LoginRequest rdmRequestMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		 ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
-		 rsslRequestMsg.streamId(_streamId);
+		 rdmRequestMsg.streamId(_streamId);
 		 //TODO Workaround
-		 if ( rsslRequestMsg.msgKey().nameType() == 0)
+		 if ( !rdmRequestMsg.checkHasUserNameType() )
 		 {
-			 rsslRequestMsg.msgKey().nameType(Login.UserIdTypes.NAME);
-			 rsslRequestMsg.msgKey().applyHasNameType();
+			 rdmRequestMsg.applyHasUserNameType();
+			 rdmRequestMsg.userNameType(Login.UserIdTypes.NAME);
 		 }
 		 
 		 int ret;
@@ -910,7 +1069,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 			rsslSubmitOptions.requestMsgOptions().userSpecObj(this);
 			rsslErrorInfo.clear();
 
-			if (ReactorReturnCodes.SUCCESS > (ret = entry.rsslReactorChannel().submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
+			if (ReactorReturnCodes.SUCCESS > (ret = entry.rsslReactorChannel().submit(rdmRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
 		    {
 				StringBuilder temp = _baseImpl.strBuilder();
 				if (_baseImpl.loggerClient().isErrorEnabled())
@@ -939,6 +1098,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 	
 				return false;
 		    }
+			ret = 0;
 		}
 		
 		return true;

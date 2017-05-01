@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1222799">rsslWrite, rsslFlush</a></div>
-      <div class="Body"><a name="1226296">To make efficient use of underlying transport method calls, the </a><span class="CodeOrCommand">Channel.write()</span> method passes messages to an outbound queue of the specified priority, rather than immediately writing the message to the network. <span class="CodeOrCommand">Channel.write()</span> indicates that there is queued content by returning a value greater than <span class="Parameter">TransportReturnCodes.SUCCESS</span>.</div>
-      <div class="Body"><a name="1226303">The network write occurs if:</a></div>
+      <div class="Body"><a name="1227176">To make efficient use of underlying transport method calls, the </a><span class="CodeOrCommand">Channel.write()</span> method passes messages to an outbound queue of the specified priority, rather than immediately writing the message to the network. <span class="CodeOrCommand">Channel.write()</span> indicates that there is queued content by returning a value greater than <span class="Parameter">TransportReturnCodes.SUCCESS</span>.</div>
+      <div class="Body"><a name="1227183">The network write occurs if:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1226307">The application calls </a><span class="CodeOrCommand">Channel.flush()</span>.</div>
+              <div class="bullet_ind_inner"><a name="1227187">The application calls </a><span class="CodeOrCommand">Channel.flush()</span>.</div>
             </td>
           </tr>
         </table>
@@ -81,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1226317">The </a><span class="Parameter">WriteFlags.DIRECT_SOCKET_WRITE</span> flag is passed into the <span class="CodeOrCommand">Channel.write()</span> method.</div>
+              <div class="bullet_ind_inner"><a name="1227197">The </a><span class="Parameter">WriteFlags.DIRECT_SOCKET_WRITE</span> flag is passed into the <span class="CodeOrCommand">Channel.write()</span> method.</div>
             </td>
           </tr>
         </table>
@@ -95,12 +95,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1226318">The amount of queued data reaches a configurable highwater mark (i.e., using the </a><span class="CodeOrCommand">-highWaterMark</span> option), which causes <span class="CodeOrCommand">Channel.write()</span> to pass queued content to the underlying transport.</div>
+              <div class="bullet_ind_inner"><a name="1227198">The amount of queued data reaches a configurable highwater mark (i.e., using the </a><span class="CodeOrCommand">-highWaterMark</span> option), which causes <span class="CodeOrCommand">Channel.write()</span> to pass queued content to the underlying transport.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1226322">You can use a simple algorithm to write large amounts of content efficiently while still maintaining low latency:</a></div>
+      <div class="Body"><a name="1227202">You can use a simple algorithm to write large amounts of content efficiently while still maintaining low latency:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -110,7 +110,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1226326">Write all currently desired content via </a><span class="CodeOrCommand">Channel.write()</span>, relying on the highwater mark to periodically flush.</div>
+              <div class="bullet_ind_inner"><a name="1227206">Write all currently desired content via </a><span class="CodeOrCommand">Channel.write()</span>, relying on the highwater mark to periodically flush.</div>
             </td>
           </tr>
         </table>
@@ -124,22 +124,22 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1226330">When there is no more content to write, call </a><span class="CodeOrCommand">Channel.flush()</span> to flush any remaining data. After all data is written to the network, <span class="CodeOrCommand">Channel.flush()</span> returns <span class="Parameter">TransportReturnCodes.SUCCESS</span>.</div>
+              <div class="bullet_ind_inner"><a name="1227210">When there is no more content to write, call </a><span class="CodeOrCommand">Channel.flush()</span> to flush any remaining data. After all data is written to the network, <span class="CodeOrCommand">Channel.flush()</span> returns <span class="Parameter">TransportReturnCodes.SUCCESS</span>.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Blank_Line"><a name="1226343">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1227223">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1226342">A positive value returned from </a><span class="CodeOrCommand">Channel.write()</span> means there is queued content. It is not passed to the underlying transport unless the application performs one of the previously mentioned actions.</div>
+              <span class="Bold">Note: </span><a name="1227222">A positive value returned from </a><span class="CodeOrCommand">Channel.write()</span> means there is queued content. It is not passed to the underlying transport unless the application performs one of the previously mentioned actions.</div>
           </td>
         </tr>
       </table>
-      <div class="Body"><a name="1226347">Transport API Performance Tools observe the following model when writing message bursts:</a></div>
+      <div class="Body"><a name="1227227">Transport API Performance Tools observe the following model when writing message bursts:</a></div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -149,7 +149,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1226351">Write the entire burst of messages using </a><span class="CodeOrCommand">Channel.write()</span>.</div>
+              <div class="Step1_inner"><a name="1227231">Write the entire burst of messages using </a><span class="CodeOrCommand">Channel.write()</span>.</div>
             </td>
           </tr>
         </table>
@@ -163,7 +163,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1226355">After the burst finishes, check the return value from the last call to </a><span class="CodeOrCommand">Channel.write()</span>. If the value is greater than <span class="Parameter">TransportReturnCodes.SUCCESS</span>, data remains in the Transport API’s output queue. Use the channel’s selector in conjunction with an I/O notifier to notify the application when it can flush remaining data.</div>
+              <div class="Stepnext_inner"><a name="1227235">After the burst finishes, check the return value from the last call to </a><span class="CodeOrCommand">Channel.write()</span>. If the value is greater than <span class="Parameter">TransportReturnCodes.SUCCESS</span>, data remains in the Transport API’s output queue. Use the channel’s selector in conjunction with an I/O notifier to notify the application when it can flush remaining data.</div>
             </td>
           </tr>
         </table>
@@ -177,12 +177,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1226371">Call </a><span class="CodeOrCommand">Channel.flush()</span> on channels indicated by the notifier. Continue to invoke the notifier and <span class="CodeOrCommand">Channel.flush()</span> until all data is successfully provided to the underlying transport.</div>
+              <div class="Stepnext_inner"><a name="1227251">Call </a><span class="CodeOrCommand">Channel.flush()</span> on channels indicated by the notifier. Continue to invoke the notifier and <span class="CodeOrCommand">Channel.flush()</span> until all data is successfully provided to the underlying transport.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1226372">Each application has a command-line option (</a><span class="CodeOrCommand">-highWaterMark</span>) for adjusting the high-water mark.</div>
+      <div class="Body"><a name="1227252">Each application has a command-line option (</a><span class="CodeOrCommand">-highWaterMark</span>) for adjusting the high-water mark.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

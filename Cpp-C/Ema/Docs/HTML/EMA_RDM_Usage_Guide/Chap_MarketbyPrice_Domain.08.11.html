@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>8.5 Specific Usage: RDF Direct and the Response Message Payload</title>
+    <link rel="StyleSheet" href="css/Chap_MarketbyPrice_Domain.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H2_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H2_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">8.5	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H2_inner"><a name="1042402">Specific Usage: RDF Direct and the Response Message Payload</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1042403">RDF Direct uses MARKET_BY_PRICE for several markets, including NYSE OpenBook, Archipelago ECN market depth, and Instinet ECN market depth.</a></div>
+      <div class="Body"><a name="1042410">The payload is a </a><span class="CodeOrCommand">Map</span>. Each refresh message for this <span class="CodeOrCommand">Map</span> includes SummaryData and up to 50 map entries. Updates are not sent for any map entry until after the <span class="CodeOrCommand">RefreshMsg.Complete</span> is set to <span class="Parameter">true</span>. DataDefinitions are not used to reduce bandwidth. <span class="CodeOrCommand">Map.TotalCountHint</span> is not provided.</div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1042417">Map.SummaryData</a></span> is sent in every refresh message, even if it does not change. The fields used are from the RWFFld Field Dictionary:</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042418">PROD_PERM (1): Integer for permission information</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042419">CURRENCY (15): Enumeration of currency for the orders</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042420">TRD_UNITS (53): Enumeration of trade Units for the precision for which order prices are set</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042421">MKT_ST_IND (133): Enumeration of market state</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042422">RDN_EXCHD2 (1709): Enumeration of exchange on which the orders were placed</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1042426">The </a><span class="CodeOrCommand">MapEntry.Key</span>’s data is a Buffer that contains the combination of price and order side (<span class="Parameter">B</span> for buy or <span class="Parameter">S</span> for Sell), so each key is unique within its map. The <span class="CodeOrCommand">MapEntry.Key</span>’’s data should be treated as a single entity and is not meant to be parsed.</div>
+      <div class="Body"><a name="1042436">The </a><span class="CodeOrCommand">MapEntry.Value</span> is a <span class="CodeOrCommand">FieldList</span> that contains the following information about the price point:</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042440">NO_ORD (3430): Integer for the Number of Orders aggregated into this </a><span class="CodeOrCommand">MapEntry</span> </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042441">ORDER_PRC (3427) &amp; ORDER_SIDE (3428): Real and Enumeration for the order price &amp; side (buy or sell/bid or ask)</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042442">ORDER_SIZE (3429): Real for the aggregated size of the order at this price</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042443">QUOTIM_MS (3855): Quote Time in millisecond since GMT of the current day in the GMT time zone</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1042447">Some venues may provide an extra field that contains a map. The </a><span class="CodeOrCommand">MapEntry.KeyData</span> will have a <span class="CodeOrCommand">KeyFieldId</span> which is MMID (3435). If the positions of each market maker are available, then the MapEntry.Value will contain a <span class="CodeOrCommand">FieldList</span>. The field list will contain a single field with the position of that market maker. If positions for each market maker are not available, <span class="CodeOrCommand">MapEntry.Value</span>’s data type will be NoData.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1042454">The </a><span class="CodeOrCommand">FieldList.DictId</span> is <span class="Parameter">0</span>, so it should be ignored.</div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 8	Market By Price Domain : 8.5	Specific Usage: RDF Direct and the Response Message Payload</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

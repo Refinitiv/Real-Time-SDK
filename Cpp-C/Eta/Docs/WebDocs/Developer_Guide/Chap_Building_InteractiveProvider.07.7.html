@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1001206">Handle Requests and Post Messages</a></div>
-      <div class="Body"><a name="1008540">A provider can receive a request for any domain, though this should typically be limited to the domain capabilities indicated in the Source Directory. When a request is received, the provider application must determine if it can satisfy the request by:</a></div>
+      <div class="Body"><a name="1011089">A provider can receive a request for any domain, though this should typically be limited to the domain capabilities indicated in the Source Directory. When a request is received, the provider application must determine if it can satisfy the request by:</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1008541">Comparing </a><span class="CodeOrCommand">msgKey</span> identification information received against the content available from the provider</div>
+              <div class="Bullet_inner"><a name="1011090">Comparing </a><span class="CodeOrCommand">msgKey</span> identification information received against the content available from the provider</div>
             </td>
           </tr>
         </table>
@@ -80,7 +80,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1008542">Determining whether it can provide the requested QoS</a></div>
+              <div class="Bullet_inner"><a name="1011091">Determining whether it can provide the requested QoS</a></div>
             </td>
           </tr>
         </table>
@@ -94,14 +94,14 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1008543">Ensuring that the consumer does not already have a stream open for the requested information</a></div>
+              <div class="Bullet_inner"><a name="1011092">Ensuring that the consumer does not already have a stream open for the requested information</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1008544">If a provider can service a request, it should send appropriate responses. However, if the provider cannot satisfy the request, the provider should send a</a>n <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">StatusMsg</span> to indicate the reason and close the stream. All requests and responses should follow specific formatting as defined in the domain model specification. For details on all domains provided by Thomson Reuters, refer to the <span class="DocumentTitle">Transport API </span><span class="DocumentTitle">RDM Usage Guide</span>.</div>
-      <div class="Body"><a name="1008547">If a provider application receives a Post message, the provider should determine the correct handling for the post. This depends on the application’s role in the system and might involve storing the post in its cache or passing it farther up into the system. If the provider is the destination for the Post, the provider should send any requested acknowledgments, following the guidelines described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.22.html', '');" title="13.9 Posting">Section 13.9</a>.</div>
-      <div class="Body"><a name="1008562">Content is typically encoded and decoded using the Transport API’s Message Package</a> (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.01.html', '');" title="Chapter 12 Message Package Detailed View">Chapter 12, Message Package Detailed View</a>) and Data Package (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.001.html', '');" title="Chapter 11 Data Package Detailed View">Chapter 11, Data Package Detailed View</a>).</div>
+      <div class="Body"><a name="1011093">If a provider can service a request, it should send appropriate responses. However, if the provider cannot satisfy the request, the provider should send a</a>n <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">StatusMsg</span> to indicate the reason and close the stream. All requests and responses should follow specific formatting as defined in the domain model specification. For details on all domains provided by Thomson Reuters, refer to the <span class="DocumentTitle">Transport API </span><span class="DocumentTitle">RDM Usage Guide</span>.</div>
+      <div class="Body"><a name="1011096">If a provider application receives a Post message, the provider should determine the correct handling for the post. This depends on the application’s role in the system and might involve storing the post in its cache or passing it farther up into the system. If the provider is the destination for the Post, the provider should send any requested acknowledgments</a>, following the guidelines described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.22.html', '');" title="13.9 Posting">Section 13.9</a>.</div>
+      <div class="Body"><a name="1011108">Content is typically encoded and decoded using the Transport API’s Message Package</a> (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.01.html', '');" title="Chapter 12 Message Package Detailed View">Chapter 12, Message Package Detailed View</a>) and Data Package (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.001.html', '');" title="Chapter 11 Data Package Detailed View">Chapter 11, Data Package Detailed View</a>).</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -1,7 +1,6 @@
 function FileData_Pairs(x)
 {
 x.t("resumes","data");
-x.t("2.8","general");
 x.t("m.parentnode.insertbefore","window");
 x.t(".l=1","new");
 x.t("create","ua-55718642-4");
@@ -29,14 +28,13 @@ x.t("api","edition");
 x.t("api","concepts");
 x.t("requested","stream");
 x.t("guide","chapter");
-x.t("overview","2.8");
+x.t("overview","2.6");
 x.t("resulting","streams");
 x.t("functionality","refer");
 x.t("window","document");
 x.t("parameters","pause");
 x.t("parameters","already");
 x.t("further","details");
-x.t("2.8.3","reissue");
 x.t("sends","subsequent");
 x.t("continue","streaming");
 x.t("developers","guide");
@@ -70,6 +68,7 @@ x.t("requests","changeable");
 x.t("rsslrequestmsg","stream");
 x.t("transport","api");
 x.t("changes","priority");
+x.t("2.6.3","reissue");
 x.t("consumer","application");
 x.t("known","reissue");
 x.t("login","stream");
@@ -121,7 +120,8 @@ x.t("subsequent","rsslrequestmsg");
 x.t("subsequent","reissue");
 x.t("googleanalyticsobject","[r]");
 x.t("even","pause");
+x.t("2.6","general");
 x.t("a.src=g","m.parentnode.insertbefore");
 x.t("streams","paused");
-x.t("concepts","2.8.3");
+x.t("concepts","2.6.3");
 }

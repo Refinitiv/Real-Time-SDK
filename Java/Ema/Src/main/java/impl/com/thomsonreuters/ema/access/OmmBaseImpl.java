@@ -1094,7 +1094,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 					}
 				}
 			}
-			while (true);
+			while (_selector != null);
+			
+			return false;
 			
 		} //end of Try		
 		catch (CancelledKeyException e)

@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>6.2.3 Market Price Update Message</title>
+    <link rel="StyleSheet" href="css/Chap_MarketPrice_Domain.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="H3_inner" style="width: 54pt; white-space: nowrap">
+                <span class="bold">6.2.3	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="H3_inner"><a name="999059">Market Price Update Message</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><a name="1000689">A Market Price Update Message is</a> encoded using <span class="CodeOrCommand">UpdateMsg</span> and sent by OMM provider and OMM non-interactive provider applications. It conveys any changes to an item’s data.</div>
+      <div class="Blank_Line"><a name="1033682">&nbsp;</a></div>
+      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1033675">The provider should only send the </a><span class="CodeOrCommand">Name</span> and <span class="CodeOrCommand">NameType</span> in the first Refresh response message. However if <span class="Parameter">MsgKeyInUpdates</span> is set to <span class="Parameter">true</span>, then the <span class="CodeOrCommand">Name</span> and <span class="CodeOrCommand">NameType</span> must be provided for every Update response messages.</div>
+          </td>
+        </tr>
+      </table>
+      <div class="Blank_Line"><a name="1000704">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 50: <a name="1000945">Market Price Update Message &nbsp;</a></div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
+            <div class="CellHeading" style="text-align: center"><a name="1000881">COMPONENT</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
+            <div class="CellHeading" style="text-align: center"><a name="1000883">DESCRIPTION / VALUE</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000889">DomainType</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000891">Required</a></span>. <span class="Parameter">MMT_MARKET_PRICE = 6</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000893">UpdateTypeNum</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1001241">Required</a></span>. Indicates the general content of the update:</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001242">INSTRUMENT_UPDATE_UNSPECIFIED = 0</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001243">INSTRUMENT_UPDATE_QUOTE = 1</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001244">INSTRUMENT_UPDATE_TRADE = 2</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001245">INSTRUMENT_UPDATE_NEWS_ALERT = 3</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001246">INSTRUMENT_UPDATE_VOLUME_ALERT = 4</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001247">INSTRUMENT_UPDATE_ORDER_INDICATION = 5</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001248">INSTRUMENT_UPDATE_CLOSING_RUN = 6</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001249">INSTRUMENT_UPDATE_CORRECTION = 7</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001250">INSTRUMENT_UPDATE_MARKET_DIGEST = 8</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001251">INSTRUMENT_UPDATE_QUOTES_TRADE = 9</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001252">INSTRUMENT_UPDATE_MULTIPLE = 10</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1001253">INSTRUMENT_UPDATE_VERIFY = 11</a></span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody" style="color: #666666; font-family: Arial; font-size: 10.0pt; font-style: italic; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="VariableValue"><a name="1007170">Indications</a></span></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1007519">Conditional.</a></span> </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1007520">If </a><span class="CodeOrCommand">UpdateTypeNum</span> is set to be <span class="Parameter">INSTRUMENT_UPDATE_CORRECTION=7</span> or <span class="Parameter">UPDVERIFY</span>, <span class="CodeOrCommand">DoNotRipple</span> must be set to <span class="Parameter">true</span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1007522">DoNotCache</a></span>: <span class="Parameter">true</span>, Indicates the application should not cache this update message.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="CodeOrCommand"><a name="1007526">DoNotConflate</a></span>: <span class="Parameter">true</span>, Indicates the application should not conflate updates.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1007199">QoS</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1007201">Optional. Specifies the QoS at which the stream is provided.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000897">SeqNum</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000899">Optional. A user-specified, item-level sequence number which can be used by the application for sequencing messages within this stream.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000901">ConflatedCount</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1001283">Optional. If a provider sends a conflated update, </a><span class="CodeOrCommand">ConflatedCount</span> specifies the number of updates in the conflation.</div>
+            <div class="CellBody"><a name="1001284">The consumer indicates interest in this information by setting the </a><span class="Parameter">ReqMsg.ConflatedInUpdates</span> to <span class="Parameter">true</span> in the request.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000905">ConflatedTime</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1001299">Optional. If a provider sends a conflated update, </a><span class="CodeOrCommand">ConflatedTime</span> specifies the time interval (in milliseconds) over which data is conflated.</div>
+            <div class="CellBody"><a name="1001300">The consumer indicates interest in this information by setting the </a><span class="Parameter">ReqMsg.ConflatedInUpdates</span> to <span class="Parameter">true</span> in the request.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1007248">ItemGroup</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1007253">Optional. Associates the item with an Item Group (refer to </a><a href="javascript:WWHClickedPopup('EMA_RDM_Usage_Guide', 'Chap_SourceDirectory_Domain.04.10.html', '');" title="4.3.1.3 Source Directory Group Filter Entry">Section 4.3.1.3</a>).</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000909">PermissionData</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000911">Optional. Specifies permissioning information associated with only the contents of this update. </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000913">extendedHeader</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000915">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
+            <div class="CellBody"><a name="1000917">ServiceId</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000919">Conditional</a></span>. <span class="CodeOrCommand">ServiceId</span> is required if <span class="Parameter">MsgKeyInUpdates</span> was set to <span class="Parameter">true</span> on the request. Specifies the ID of the service that provides the data.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1007313">The application should set either the </a><span class="CodeOrCommand">ServiceName</span> or <span class="CodeOrCommand">ServiceId</span> of the service, but not both.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1004707">NameType</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000923">Conditional</a></span>. <span class="CodeOrCommand">NameType</span> is required if <span class="Parameter">MsgKeyInUpdates</span> was set to <span class="Parameter">true</span> on the request. <span class="CodeOrCommand">NameType</span> should match the name type specified on the request. If <span class="CodeOrCommand">NameType</span> is unspecified, its value defaults to <span class="Parameter">INSTRUMENT_NAME_RIC = 1</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1004712">Name</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000927">Conditional</a></span>. <span class="CodeOrCommand">Name</span> is required if <span class="Parameter">MsgKeyInUpdates</span> was set to <span class="Parameter">true</span> on the request. <span class="CodeOrCommand">Name</span> specifies the name of the item being provided.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="2">
+            <div class="CellBody"><a name="1007299">ServiceName</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1007301">Conditional</a></span>. <span class="CodeOrCommand">ServiceName</span> is required if <span class="Parameter">MsgKeyInUpdates</span> was set to <span class="Parameter">true</span> on the request. Specifies the name of the service that provides the data.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1007308">The application should set either the </a><span class="CodeOrCommand">ServiceName</span> or <span class="CodeOrCommand">ServiceId</span> of the service, but not both.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000929">Filter</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000931">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000933">Identifier</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000935">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000937">Attrib</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000939">Not used.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1000941">Payload</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000943">Required</a></span>. This should consist of an <span class="CodeOrCommand">FieldList</span> with any changed data.</div>
+          </td>
+        </tr>
+      </table>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 6	Market Price Domain : <a class="WebWorks_Breadcrumb_Link" href="Chap_MarketPrice_Domain.06.02.html">6.2	Usage</a> : 6.2.3	Market Price Update Message</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

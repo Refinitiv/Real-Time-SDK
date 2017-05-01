@@ -56,60 +56,60 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1003585">Transport Error Handling</a></div>
-      <div class="Body"><a name="1471911">Many Transport Package methods take a parameter for returning detailed error information. This </a><span class="CodeOrCommand">Error</span> object is populated only in the event of an error condition and should only be inspected when a specific failure code is returned from the method itself.</div>
-      <div class="Body"><a name="1471915">In several cases</a> (e.g. Transport.connect), positive return values are reserved or have special meaning, for example bytes remaining to write to the network. As a result, some negative return codes might be used to indicate success. Any specific transport-related success or failure error handling is described along with the method that requires it.</div>
-      <div class="Body"><span class="CodeOrCommand"><a name="1471922">Error</a></span> methods are described in the following table.</div>
-      <div class="Blank_Line"><a name="1471977">&nbsp;</a></div>
+      <div class="Body"><a name="1525649">Many Transport Package methods take a parameter for returning detailed error information. This </a><span class="CodeOrCommand">Error</span> object is populated only in the event of an error condition and should only be inspected when a specific failure code is returned from the method itself.</div>
+      <div class="Body"><a name="1525653">In several cases</a> (e.g. Transport.connect), positive return values are reserved or have special meaning, for example bytes remaining to write to the network. As a result, some negative return codes might be used to indicate success. Any specific transport-related success or failure error handling is described along with the method that requires it.</div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1525660">Error</a></span> methods are described in the following table.</div>
+      <div class="Blank_Line"><a name="1525715">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 8: <span class="LucidaConsole"><a name="1471974">Error</a></span> Methods &nbsp;</div>
+          <div class="TableTitle">Table 8: <span class="LucidaConsole"><a name="1525712">Error</a></span> Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 129.74976pt">
-            <div class="CellHeading"><a name="1471928">Method</a></div>
+            <div class="CellHeading"><a name="1525666">Method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 426.00024pt">
-            <div class="CellHeading"><a name="1471930">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1525668">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471932">channel</a></div>
+            <div class="CellBody"><a name="1525670">channel</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471937">A </a>reference to the <span class="CodeOrCommand">Channel</span> on which the error occurred.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471940">errorId</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471942">A Transport API-specific return code that specifies what error occurred. Refer to the following sections for specific error conditions that might arise.</a></div>
+            <div class="CellBody"><a name="1525675">A </a>reference to the <span class="CodeOrCommand">Channel</span> on which the error occurred.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471944">sysError</a></div>
+            <div class="CellBody"><a name="1525678">errorId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471946">Populated with the system </a><span class="CodeOrCommand">errno</span> or error number associated with the failure. This information is only available when the failure occurs as a result of a system function, and will be populated by <span class="Parameter">0</span> otherwise.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471954"><!--o--></a>text<sup><a name="wwfootnote_inline_34" href="#34">1</a></sup></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471959">Detailed text describing the error. This can include </a>Transport API- specific error information, underlying library-specific error information, or a combination of both.</div>
+            <div class="CellBody"><a name="1525680">A Transport API-specific return code that specifies what error occurred. Refer to the following sections for specific error conditions that might arise.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471961">clear</a></div>
+            <div class="CellBody"><a name="1525682">sysError</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1471963">Clears the </a><span class="CodeOrCommand">Error</span> object.</div>
+            <div class="CellBody"><a name="1525684">Populated with the system </a><span class="CodeOrCommand">errno</span> or error number associated with the failure. This information is only available when the failure occurs as a result of a system function, and will be populated by <span class="Parameter">0</span> otherwise.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1525692"><!--o--></a>text<sup><a name="wwfootnote_inline_34" href="#34">1</a></sup></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1525697">Detailed text describing the error. This can include </a>Transport API- specific error information, underlying library-specific error information, or a combination of both.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1525699">clear</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1525701">Clears the </a><span class="CodeOrCommand">Error</span> object.</div>
           </td>
         </tr>
       </table>
@@ -117,7 +117,7 @@
       <div style="font-size: smaller; float: left; padding-right: 10px;">
         <a name="34" href="#wwfootnote_inline_34">1</a>
       </div>
-      <div class="TableFootnote"><span class="LucidaConsole"><a name="1471953">Error</a></span> text information is limited to 1,200 bytes in length.</div>
+      <div class="TableFootnote"><span class="LucidaConsole"><a name="1525691">Error</a></span> text information is limited to 1,200 bytes in length.</div>
       <br style="clear: both;" />
       <script type="text/javascript" language="JavaScript1.2">
         <!--

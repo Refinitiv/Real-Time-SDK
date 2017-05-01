@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.6 Messaging Concepts</title>
+    <title>5.6 Message Class Information</title>
     <link rel="StyleSheet" href="css/Chap_DataTypesandMessages.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -54,13 +54,222 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H2_inner"><a name="1000970">Messaging Concepts</a></div>
+              <div class="H2_inner"><a name="1002102">Message Class Information</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1177888">Messages communicate data between system components: to exchange information, indicate status, permission users and access, and for a variety of other purposes. Many messages have associated semantics for efficient use in market data systems to request information, respond to information, or provide updated information. Other messages have relatively loose semantics, allowing for a more dynamic use either inside or outside market data systems.</a></div>
-      <div class="Body"><a name="1177899">An individual flow of related messages within a connection is typically referred to as a </a><span class="Concept">stream</span>, and the message package allows multiple simultaneous streams to coexist in a connection. An information stream is instantiated between a consuming application and a providing application when the consumer issues an <span class="CodeOrCommand">RequestMsg</span> followed by the provider responding with an <span class="CodeOrCommand">RefreshMsg</span> or <span class="CodeOrCommand">StatusMsg</span>. At this point the stream is established and allows other messages to flow within the stream. The remainder of this chapter discusses streams, stream identification, and stream uniqueness..</div>
+      <div class="Blank_Line"><a name="1214817">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1214991">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 6: <a name="1214988">Message Class Information &nbsp;</a></div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 108.7488pt">
+            <div class="CellHeading"><a name="1214820">MESSAGE CLASS</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 447.0012pt">
+            <div class="CellHeading"><a name="1214822">DESCRIPTION</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214824">Request Message</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214846">Consumers use </a><span class="CodeOrCommand">RequestMsg</span> to express interest in a new stream or modify some parameters on an existing stream; typically results in the delivery of an <span class="CodeOrCommand">RefreshMsg</span> or <span class="CodeOrCommand">StatusMsg</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214848">Refresh Message</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1215677">The Interactive Provider can use this class to respond to a consumer’s request for information (solicited) or provide a data resynchronization point (unsolicited).</a></div>
+            <div class="CellBody"><a name="1215678">The NIP can use this class to initiate a data flow on a new item stream.</a></div>
+            <div class="CellBody"><a name="1214863">Conveys state information, QoS, stream permissioning information, and group information in addition to payload.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214865">Update Message</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214881">Interactive or NIPs use the </a><span class="CodeOrCommand">UpdateMsg</span> to convey changes to information on a stream. Update messages typically flow on a stream after delivery of a refresh.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214883">Status Message</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1215736">Indicates changes to the stream or data properties. A provider uses </a><span class="CodeOrCommand">StatusMsg</span> to close streams and to indicate successful establishment of a stream when there is no data to convey. </div>
+            <div class="CellBody"><a name="1215744">This message can indicate changes:</a></div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1215745">In </a><span class="CodeOrCommand">streamState</span> or <span class="CodeOrCommand">dataState</span></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1215746">In a stream’s permissioning information</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1214902">To the item group to which the stream belongs</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214904">Close Message</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1215754">A consumer uses </a><span class="CodeOrCommand">CloseMsg</span> to indicate no further interest in a stream. As a result, the stream should be closed.</div>
+            <div class="CellBody"><a name="1215762">&nbsp;</a></div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1215763">The Transport API allows direct use of the Close message</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1215764">The Message API implicitly handles this messaging functionality whenever a user unregisters.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1214923">&nbsp;</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214925">Generic Message</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1215770">A bi-directional message that does not have any implicit interaction semantics associated with it, thus the name generic. </a></div>
+            <div class="CellBody"><a name="1215777">After a stream is established via a request-refresh/status interaction:</a></div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1215778">A consumer can send this message to a provider.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1215779">A provider can send this message to a consumer.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1214941">NIPs can send this message to the ADH.</a></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214943">Post Message</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214959">A consumer uses </a><span class="CodeOrCommand">PostMsg</span> to push content upstream. This information can be applied to an Enterprise Platform cache or routed further upstream to a data source. After receiving posted data, upstream components can republish it to downstream consumers.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214961">Ack Message</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1214983">A provider uses </a><span class="CodeOrCommand">AckMsg</span> to inform a consumer of success or failure for a specific <span class="CodeOrCommand">PostMsg</span> or <span class="CodeOrCommand">CloseMsg</span>.</div>
+          </td>
+        </tr>
+      </table>
+      <div class="Blank_Line"><a name="1214992">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -72,7 +281,7 @@
       </script>
     </blockquote>
     <hr align="left" />
-    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 5	Data Types and Messaging Concepts : 5.6	Messaging Concepts</div>
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">Chapter 5	Data Types and Messaging Concepts : 5.6	Message Class Information</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

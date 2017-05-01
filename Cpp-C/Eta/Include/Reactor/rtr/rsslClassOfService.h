@@ -30,6 +30,8 @@ extern "C" {
 typedef struct
 {
 	RsslUInt	maxMsgSize;				/*!< The maximum message size to be used on the qualified stream. This value is sent only by providers -- consumers do not need to configure it. */
+	RsslUInt	maxFragmentSize;		/*!< The maximum fragment size to be used on the qualified stream if supported. This value is sent only by providers -- consumers do not need to configure it. */
+	RsslUInt    supportsFragmentation;  /*!< Indication of support message fragmentation */
 	RsslUInt8	protocolType;			/*!< The protocol type to be used in the qualified stream. */
 	RsslUInt8	protocolMajorVersion;	/*!< The major version of the protocol to be used in the qualified stream. */
 	RsslUInt8	protocolMinorVersion;	/*!< The minor version of the protocol to be used in the qualified stream. */
@@ -90,7 +92,9 @@ typedef struct
  */
 RTR_C_INLINE void rsslClearClassOfService(RsslClassOfService *pClass)
 {
-	pClass->common.maxMsgSize = 6144;
+	pClass->common.maxMsgSize = 614400;
+	pClass->common.maxFragmentSize = 6144;
+	pClass->common.supportsFragmentation = 1;
 	pClass->common.protocolType = RSSL_RWF_PROTOCOL_TYPE;
 	pClass->common.protocolMajorVersion = RSSL_RWF_MAJOR_VERSION;
 	pClass->common.protocolMinorVersion = RSSL_RWF_MINOR_VERSION;

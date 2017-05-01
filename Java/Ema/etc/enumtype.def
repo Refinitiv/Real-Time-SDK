@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.27
-!tag Build_RDMD  4.20.27
-!tag DT_Version  16.91
-!tag Date        15-Nov-2016
+!tag RT_Version  4.20.28
+!tag Build_RDMD  4.20.28
+!tag DT_Version  17.31
+!tag Date        3-Apr-2017
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -4058,6 +4058,7 @@ CAN_COND    6585
   21343        "BMR"   Benchmark Trade. Out of Sequence Retransmission. (OPRA).
   21345        "TTE"   Trade Trough Exempt. Out of Sequence. Not LAST (OPRA).
   21346        "TTR"   Trade Through Exempt. Out of sequence Retransmission. (OPRA).
+  32690        "EGR"   Exchange Granted Trade
   32691        "RFQ"   Request for Quote
   32692        "NR "   Non-Resident
   32693        "CTO"   Contingent Trade - Extended Hours - Odd Lot
@@ -4773,6 +4774,7 @@ LEG40_TYPE 12832
       9       "C/C "   call/call
      10       "P/C "   put/call
      11       "C/P "   call/put
+     12       "IRS "   Interest Rate Swap
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5059,6 +5061,7 @@ OFF_CD_IN2  1055
      57        "ARG"   Argus PA Code
      58        "TWI"   Tradeweb ID Code
      59        "RED"   RED ID code for Credit Default Swaps
+     60        "TSH"   TOSHO - Tokyo SE security Identification number
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7138,7 +7141,7 @@ LEG4_EXCH  13574
     159        "BAH"   BAHRAIN BOURSE
     160        "CAI"   Cairo Stock Exchange
     161        "AMM"   Amman Stock Exchange
-    162        "KUW"   Kuwait Stock Exchange
+    162        "KUW"   Boursa Kuwait
     163        "BUE"   Buenos Aires Stock Exchange
     164        "RIO"   Rio Fixed Income Exchange
     165        "SAO"   Sao Paolo Stock Exchange
@@ -8430,6 +8433,9 @@ LEG4_EXCH  13574
    1451        "MPO"   MIAX Pearl Options Exchange
    1452        "AIP"   Australian Institute of Petroleum
    1453        "SMC"   SMC-SOMA CORRETORA
+   1454        "PCW"   PetroChem Wire LLC
+   1455        "SMP"   Euronext - Smartpool
+   1456        "BT1"   BATS ONE - LEVEL 1 (PRODUCT)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10756,6 +10762,8 @@ PRC_QL3     3264
     397        "INC"   Internal Cross
     398        "CYL"   Composite Yield
     399        "BEI"   Break Even Inflation Rate
+    400        "CHN"   Clean Cash Price, capitalised (face value of bond)
+    401        "CGN"   Gross Cash Price, capitalised
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11118,7 +11126,8 @@ CORR_ACT    4034
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
-      1   "!       "   Corrected
+      1   "!       "   Correction (DO NOT USE)
+      2   "CORR    "   Corrected
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11128,7 +11137,8 @@ CORR_REV    4035
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
-      1   "!       "   Corrected
+      1   "!       "   Correction (DO NOT USE)
+      2   "CORR    "   Corrected
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11297,6 +11307,9 @@ PRICE_METH  4396
      23        "IXC"   Inflation adjusted Clean Price (percentage of par)
      24        "ILD"   Inflation Adjusted Yield
      25        "PRM"   Option Premium (price)
+     26        "CHN"   Clean Cash Price, capitalised (face value of bond)
+     27        "CGN"   Gross Cash Price, capitalised
+     28        "MON"   Price (monetary value)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12158,6 +12171,8 @@ ORD_ENT_ST  6518
       3          "N"   Order Entry Enabled, No Cancelations Allowed
       4          "C"   Order Entry Inhibited, Cancelations Allowed
       5          "S"   Order Entry Enabled, Sell Orders Only
+      6          "M"   Order Entry Inhibited, Cancellations and Modifications are Allowed
+      7          "A"   Order entry enabled, no cancellations and modifications are allowed
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12717,6 +12732,11 @@ INDEX_TYPE  8939
       1   "Grs TTR "   Gross Total Return Index
       2   "Net TTR "   Net Total Return Index
       3   "Prc Perf"   Price Performance Index
+      4   "FX Hdg  "   FX Hedged Performance Index
+      5   "S&L Perf"   Short & Leverage Index
+      6   "Hdg Prc "   Hedged Price Performance Index
+      7   "Hdg Grs "   Hedged Gross Total Return Index
+      8   "Hdg Net "   Hedged Net Total Return Index
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12751,6 +12771,7 @@ IND_L2_IND  8944
       6   "NACE    "   Statistical Classification of Economic Activities in the European Community
       7   "TRD     "   Toronto Reference feed
       8   "VRD     "   Venture Reference feed
+      9   "LOC     "   Local Exchange Industry Classification
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12842,6 +12863,24 @@ REFPRC_TP4 13491
      14   "VAL     "   Valuation Trade
      15   "JPYREF  "   Closing price conversion exchange rate - JPY
      16   "GBPREF  "   Closing price conversion exchange rate - GBP
+     17   "$/mT    "   US Dollars per Metric Tonnes
+     18   "EUR/mT  "   Euros per Metric Tonnes
+     19   "£/mT    "   Pound Sterling per Metric Tonnes
+     20   "$/ShT   "   US Dollars per Short Tonnes
+     21   "E/MWh   "   Euros per Mega Watt Hours
+     22   "£/MWh   "   Pound Sterling per Mega Watt Hours
+     23   "$/MWh   "   US Dollars per Mega Watt Hours
+     24   "USc/Bu  "   US Cents per Bushel
+     25   "$/KG    "   US Dollars per Kilogramme
+     26   "EUR/day "   Euros per Day
+     27   "$/Day   "   US Dollars per Day
+     28   "USc/LB  "   US Cents per Pounds
+     29   "$/BBL   "   US Dollars per Barrel
+     30   "C$/mT   "   Canadian Dollars per Metric Tonnes
+     31   "$/Units "   US Dollars per Unit
+     32   "$/mmBtu "   US Dollars per Million British Thermal Units
+     33   "GBp/TH  "   Pence per Therm
+     34   "RATE/KM "   Rate per Kilometer
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13403,6 +13442,11 @@ STRGY_TYPE  8989
     202   "CFD     "   Contract for Difference
     203   "CALSTRP "   Calendar Strip
     204   "CNTRSTRP"   Contract Strip
+    205   "SPARK   "   Spark Spread - The spark spread is the theoretical gross margin of a gas-fired power plant from selling a unit of electricity, having bought the fuel required to produce this unit of electricity.
+    206   "DARK    "   Dark Spread - The dark spread is the theoretical gross margin of a coal-fired power plant from selling a unit of electricity, having bought the fuel required to produce this unit of electricity.
+    207   "CLN SPK "   Clean Spark - The Clean Spark Spread is calculated using a gas emissions intensity factor. It is calculated by subtracting the carbon price from the spark spread.
+    208   "CLN DRK "   Clean Dark - The Clean Dark Spread is calculated using a coal emissions intensity factor. It is calculated by subtracting the carbon price from the dark spread.
+    209   "IESP    "   Inter-Exchange Spread
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15015,6 +15059,14 @@ NBBO_IND   12783
       7        "8  "   National BBO Change - Quote Contains Best Bid, Best Offer Appendage
       8        "9  "   National BBO Change - Best Bid Appendage, No Best Offer Change
       9        "10 "   National BBO Change - Best Bid Appendage, Quote contains Best Offer
+     10        "11 "   National BBO Change - No Best Bid Change, Quote contains Best Offer
+     11        "12 "   National BBO Change - No Best Bid Change, No Best Offer
+     12        "13 "   National BBO Change - Quote contains Best Bid, No Best Offer Change
+     13        "14 "   National BBO Change - Quote contains Best Bid, No Best Offer
+     14        "15 "   National BBO Change - No Best Bid, No Best Offer Change
+     15        "16 "   National BBO Change - No Best Bid, Quote contains Best Offer
+     16        "17 "   National BBO Change - No Best Bid, Best Offer Appendage
+     17        "18 "   National BBO Change - Best Bid Appendage, No Best Offer
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15299,6 +15351,11 @@ PHASE_RSN  12822
      11   "SD      "   Volatility range breached - dynamic
      12   "MOE     "   Market Order Extension
      13   "PME     "   Price Monitoring Extension
+     14   "US      "   Underlying instrument is suspended
+     15   "UH      "   Underlying instrument is halted
+     16   "UMO     "   Uncrossing by market operations
+     17   "AMO     "   Action by market operations
+     18   "WTS     "   Waiting for trading state
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16110,6 +16167,8 @@ DATBLK_TYP 12939
      41   "TIC DIR "   Tick Direction
      42   "MID PRC "   MID Price
      43   "ANLYS   "   Analytics update
+     44   "NAV     "   Net Asset Value
+     45   "REF PRC "   Reference Price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16146,6 +16205,7 @@ SRCUPD_TYP 12942
       1        "ADD"   Addition
       2        "CHG"   Change
       3        "DEL"   Delete
+      4        "RFH"   Refresh
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16675,24 +16735,388 @@ OUT_PROD16 13008
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET312 13013
-PRE_1ET313 13014
-PRE_1ET314 13015
-PRE_1ET315 13016
-PRE_1ET316 13017
-PRE_1ET317 13018
-PRE_1ET318 13019
-PRE_1ET319 13020
-PRE_1ET320 13021
-PRE_1ET321 13022
-PRE_1ET322 13023
-PRE_1ET323 13024
-PRE_1ET324 13025
-PRE_1ET325 13026
-PRE_1ET326 13027
-PRE_1ET327 13028
-PRE_1ET328 13029
-PRE_1ET329 13030
+AVGPRC_TP1 13013
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "MTH AVG "   Month Average
+      2   "WEEK AVG"   Week Average
+      3   "MEAN    "   Arithmetic Mean
+      4   "AUC INDX"   Auction Index. Non-Weighted arithmetic average of the matching prices of each Hour instrument.
+      5   "RPD INDX"   Reference Price Data Index. A volume-weighted reference price for each half hour settlement period each day.
+      6   "ID3     "   A weighted average price of the hourly and 15-minute products of the last three hours prior to delivery.
+      7   "TGe24   "   Arithmetic Average of the prices of transactions concluded during the first fixing at particular hours throughout the day N-1 for the same delivery date.
+!
+! ACRONYM    FID
+! -------    ---
+!
+BLK_HR_TYP 13014
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "1H BLK  "   1 Hour Block. 24 blocks/day, block 23 begins 23:00; block 22 ends 23:00
+      2   "HH BLK  "   Half Hour Block. 48 periods/day, 1/2 hour 1 begins 00:00; 1/2 hour 48 ends 00:00
+      3   "2H BLK  "   2 Hour Block. 12 blocks/day, block 1A begins 23:00; block 6B ends 23:00
+      4   "4H BLK  "   4 Hours Block. 6 blocks/day, block 1 begins 23:00; block 6 ends 23:00
+      5   "15MinAUC"   15 Min Auction. 96 periods/day, 15 Min Auction 1 begins 00:00, 15 Min Auction 96 ends 00:00
+      6   "BASELOAD"   Baseload
+      7   "PEAKLOAD"   Peakload
+      8   "OFFPEAK "   Off-Peak
+      9   "OFFPK1  "   Off-Peak 1
+     10   "OFFPK2  "   Off-Peak 2
+     11   "INDPEAK "   Industrial Peak
+     12   "EXTPEAK "   Extended Peak
+     13   "BL-RPDIN"   Baseload UK Auction/RPD Index
+     14   "PK-RPDIN"   Peakload UK Auction Index
+     15   "OPK1-RPD"   Off-Peak1 UK Auction/RPD Index
+     16   "OPK2-RPD"   Off-Peak2 UK Auction/RPD Index
+     17   "MOONLGHT"   Moonlight
+     18   "DREAM   "   Dream/Night
+     19   "SUNRISE "   Sunrise/Early Morning
+     20   "WAKEUP  "   Wakeup
+     21   "MORNING "   Morning
+     22   "OFFICE  "   Office / Business
+     23   "LUNCH   "   Lunch / High Noon
+     24   "AFTRNOON"   Afternoon
+     25   "TEA/RUSH"   Tea / Rush Hour
+     26   "EVENING "   Evening
+     27   "BLOCK 1 "   Block 1 - 23:00 - 03:00
+     28   "BLOCK 2 "   Block 2 - 03:00 - 07:00
+     29   "BLOCK 3 "   Block 3 - 07:00 - 11:00
+     30   "BLOCK 4 "   Block 4 - 11:00 - 15:00
+     31   "BLOCK 5 "   Block 5 - 15:00 - 19:00
+     32   "BLOCK 6 "   Block 6 - 19:00 - 23:00
+     33   "BLOCK1+2"   23:00 - 07:00
+     34   "BLOCK3+4"   07:00 - 15:00
+!
+! ACRONYM    FID
+! -------    ---
+!
+DELIV_PRD  13015
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "MON     "   Monday
+      2   "TUE     "   Tuesday
+      3   "WED     "   Wednesday
+      4   "THU     "   Thursday
+      5   "FRI     "   Friday
+      6   "SAT     "   Saturday
+      7   "SUN     "   Sunday
+      8   "DA      "   Day-Ahead
+      9   "D+1     "   Day-Ahead + 1
+     10   "D+2     "   Day-Ahead + 2
+     11   "D+3     "   Day-Ahead + 3
+     12   "D+4     "   Day-Ahead + 4
+     13   "D+5     "   Day-Ahead + 5
+     14   "D+6     "   Day-Ahead + 6
+     15   "WEND    "   Week End
+     16   "WE + 1  "   Week End + 1
+     17   "WE + 2  "   Week End + 2
+     18   "WE + 3  "   Week End + 3
+     19   "WE + 4  "   Week End + 4
+     20   "WEEK    "   Week
+     21   "WK + 1  "   Week+1
+     22   "WK + 2  "   Week+2
+     23   "WK + 3  "   Week+3
+     24   "WK + 4  "   Week+4
+     25   "WDNW    "   Working Day Next Week
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRD_MD_TYP 13016
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "CONT    "   Continuous auction order book trading system
+      2   "QTE     "   Quote-driven trading system
+      3   "PAUC    "   Periodic auction trading system
+      4   "RFQ     "   Request-for-quote trading system
+      5   "VOC     "   Voice trading system
+!
+! ACRONYM    FID
+! -------    ---
+!
+ADM_TRD_RQ 13017
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+      1      "YES  "   Issuer of the financial instrument has requested for admission to trading
+      2      "NO   "   Issuer of the financial instrument has not requested for admission to trading
+!
+! ACRONYM    FID
+! -------    ---
+!
+CLR_OBL_FL 13018
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CMD_BASE   13019
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0       "    "   undefined
+      1       "AGRI"   Agricultural
+      2       "NRGY"   Energy
+      3       "ENVR"   Environmental
+      4       "FRGT"   Freight
+      5       "FRTL"   Fertilizer
+      6       "INDP"   Industrial Products
+      7       "METL"   Metals
+      8       "MCEX"   Multi Commodity Exotic
+      9       "PAPR"   Paper
+     10       "POLY"   Polypropylene
+     11       "INFL"   Inflation
+     12       "OEST"   Official economic statistics
+     13       "OTHC"   Other C10
+     14       "OTHR"   Other
+!
+! ACRONYM    FID
+! -------    ---
+!
+CMD_SUB    13020
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0       "    "   undefined
+      1       "GROS"   Grains Oil Seeds
+      2       "SOFT"   Softs
+      3       "OOLI"   Olive oil
+      4       "DIRY"   Dairy
+      5       "FRST"   Forestry
+      6       "SEAF"   Seafood
+      7       "LSTK"   Livestock
+      8       "GRIN"   Grain
+      9       "ELEC"   Electricity
+     10       "NGAS"   Natural Gas
+     11       "OILP"   Oil
+     12       "COAL"   Coal
+     13       "INRG"   Inter Energy
+     14       "RNNG"   Renewable energy
+     15       "LGHT"   Light ends
+     16       "DIST"   Distillates
+     17       "EMIS"   Emissions
+     18       "WTHR"   Weather
+     19       "CRBR"   Carbon related
+     20       "WEFT"   Wet
+     21       "DRYF"   Dry
+     22       "AMMO"   Ammonia
+     23       "DAPH"   DAP (Diammonium Phosphate)
+     24       "PTSH"   Potash
+     25       "SLPH"   Sulphur
+     26       "UREA"   Urea
+     27       "UAAN"   UAN (urea and ammonium nitrate)
+     28       "CSTR"   Construction
+     29       "MFTG"   Manufacturing
+     30       "NPRM"   Non Precious
+     31       "PRME"   Precious
+     32       "CBRD"   Containerboard
+     33       "NSPT"   Newsprint
+     34       "PULP"   Pulp
+     35       "RCVP"   Recovered paper
+     36       "PLST"   Plastic
+!
+! ACRONYM    FID
+! -------    ---
+!
+CMD_SUB2   13021
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0       "    "   undefined
+      1       "FWHT"   Feed Wheat
+      2       "SOYB"   Soybeans
+      3       "CORN"   Corn
+      4       "RPSD"   Rapeseed
+      5       "CCOA"   Cocoa
+      6       "ROBU"   Robusta Coffee
+      7       "WHSG"   White Sugar
+      8       "BRWN"   Brown Sugar
+      9       "POTA"   Potatoe
+     10       "RICE"   Rice
+     11       "LAMP"   Lampante
+     12       "MWH "   Milling Wheat
+     13       "BSLD"   Base load
+     14       "FITR"   Financial Transmission Rights
+     15       "PLKD"   Peak load
+     16       "OFFP"   Off-peak
+     17       "CASP"   GASPOOL
+     18       "LNGG"   LNG
+     19       "NBPG"   NBP
+     20       "NCGG"   NCG
+     21       "TTFG"   TTF
+     22       "BAKK"   Bakken
+     23       "BDSL"   Biodiesel
+     24       "BRNT"   Brent
+     25       "BRNX"   Brent NX
+     26       "CNDA"   Canadian
+     27       "COND"   Condensate
+     28       "DSEL"   Diesel
+     29       "DUBA"   Dubai
+     30       "ESPO"   ESPO
+     31       "ETH "   Ethanol
+     32       "FUEL"   Fuel
+     33       "FOIL"   Fuel Oil
+     34       "GOIL"   Gasoil
+     35       "GSLN"   Gasoline
+     36       "HEAT"   Heating Oil
+     37       "JTFL"   Jet Fuel
+     38       "KERO"   Kerosene
+     39       "LLSO"   Light Louisiana Sweet (LLS)
+     40       "MARS"   Mars
+     41       "NAPH"   Naptha
+     42       "NGLO"   NGL
+     43       "TAPI"   Tapis
+     44       "URAL"   Urals
+     45       "WTIO"   WTI
+     46       "CERE"   CER
+     47       "ERUE"   ERU
+     48       "EUAE"   EUA
+     49       "EUAA"   EUAA
+     50       "TNKR"   Tankers
+     51       "CSHP"   Containerships
+     52       "DBCR"   Dry bulk carriers
+     53       "ALUM"   Aluminium
+     54       "ALUA"   Aluminium Alloy
+     55       "CBLT"   Cobalt
+     56       "COPR"   Copper
+     57       "IRON"   Iron ore
+     58       "LEAD"   Lead
+     59       "MOLY"   Molybdenum
+     60       "NASC"   NASAAC
+     61       "NICK"   Nickel
+     62       "STEL"   Steel
+     63       "TINN"   Tin
+     64       "ZINC"   Zinc
+     65       "GOLD"   Gold
+     66       "SLVR"   Silver
+     67       "PTNM"   Platinum
+     68       "PLDM"   Palladium
+     69       "OTHR"   Other
+!
+! ACRONYM    FID
+! -------    ---
+!
+COMMOD_IN  13022
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+      1      "YES  "   Commodities derivative
+      2      "NO   "   Not commodities derivative
+!
+! ACRONYM    FID
+! -------    ---
+!
+FNL_PR_TYP 13023
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0       "    "   undefined
+      1       "ARGM"   Argus/McCloskey
+      2       "BLTC"   Baltic
+      3       "EXOF"   Exchange
+      4       "GBCL"   GlobalCOAL
+      5       "IHSM"   IHS McCloskey
+      6       "PLAT"   Platts
+      7       "OTHR"   Other
+!
+! ACRONYM    FID
+! -------    ---
+!
+LIQIND_INS 13024
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+      1      "YES  "   The instrument Is illiquid
+      2      "NO   "   The instrument is not illiquid
+!
+! ACRONYM    FID
+! -------    ---
+!
+LIQIND_SCL 13025
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+      1      "YES  "   The sub-class instrument is illiquid
+      2      "NO   "   The sub-class instrument is not illiquid
+!
+! ACRONYM    FID
+! -------    ---
+!
+PRC_PNDG   13026
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRAN_TYP   13027
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0       "    "   undefined
+      1       "FUTR"   Futures
+      2       "OPTN"   Options
+      3       "TAPO"   TAPOS
+      4       "SWAP"   SWAPS
+      5       "MINI"   Minis
+      6       "OTCT"   OTC
+      7       "ORIT"   Outright
+      8       "CRCK"   Crack
+      9       "DIFF"   Differential
+     10       "OTHR"   Other
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRD_OBL_FL 13028
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+      1      "YES  "   The instrument is obligated to be traded on an EU regulated market(s).
+      2      "NO   "   The instrument is not obligated to be traded on an EU regulated market(s).
+!
+! ACRONYM    FID
+! -------    ---
+!
+UN_CUR_TP  13029
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0       "    "   undefined
+      1       "FXCR"   FX Cross Rates
+      2       "FXEM"   FX Emerging Markets
+      3       "FXMJ"   FX Majors
+!
+! ACRONYM    FID
+! -------    ---
+!
+VNE_SUS_FL 13030
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET330 13031
 PRE_1ET331 13032
 PRE_1ET332 13033
@@ -17264,6 +17688,7 @@ REGU_COND  13409
       2      "FEVD "   Feverish (Volatility) Designation
       3      "EFEVD"   Extension of Feverish (Volatility) Designation/Delay in lifting
       4      "IRGIS"   Irregular Issue
+      5      "APM  "   Abnormal Price Movement
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17912,6 +18337,7 @@ TRD_MD_ELG 13440
       4   "COD     "   Central Limit Order Book + Off Book + Dark Book
       5   "COP     "   Central Limit Orderbook + Off Book + Periodic Auction Book
       6   "CODP    "   Central Limit Orderbook + Off Book + Dark Book + Periodic Auction Book
+      7   "CMOC    "   CLOB + MOC
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18298,6 +18724,10 @@ LMT_STATUS 13494
      16     "CT    "   Continuous Trading Price Limits in Effect
      17     "CA    "   Closing Auction Price Limits in Effect
      18     "CT+CA "   Continuous Trading and Closing Auction Price Limits in Effect
+     19     "N     "   Price Limit(s) Not In Effect
+     20     "NOR   "   Normal price limit in effect
+     21     "WIDE  "   Wide price limit in effect
+     22     "MAX   "   Widest price limit in effect
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19624,7 +20054,287 @@ PRC_QULFTN 13581
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET261 13582
+CNV_PAR_UT 13582
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      4        "AFA"   Afghanistan afghani (from 1925 until 2003)
+      8        "ALL"   Albanian lek
+     12        "DZD"   Algerian dinar
+     20        "ADP"   Andorran peseta
+     24        "AON"   Angolan new kwanza
+     32        "ARS"   Argentine peso
+     36        "AUD"   Australian dollar
+     37        "AUc"   Australian cent (deprecated)
+     40        "ATS"   Austrian schilling
+     44        "BSD"   Bahamian dollar
+     48        "BHD"   Bahraini dinar
+     50        "BDT"   Bangladesh taka
+     51        "AMD"   Armenian Dram
+     52        "BBD"   Barbados dollar
+     56        "BEF"   Belgian franc
+     60        "BMD"   Bermudian dollar
+     64        "BTN"   Bhutan ngultrum
+     68        "BOB"   Bolivian boliviano
+     70        "BAD"   Bosnia and Herzegovina Dinar
+     72        "BWP"   Botswanian pula
+     76        "BRL"   Brazilian real
+     84        "BZD"   Belize dollar
+     90        "SBD"   Solomon Islands dollar
+     96        "BND"   Brunei dollar
+    100        "BGL"   Bulgarian Lev (pre 5 July 1999)
+    104        "MMK"   Myanmar kyat
+    108        "BIF"   Burundi franc
+    116        "KHR"   Kampuchean riel
+    124        "CAD"   Canadian dollar
+    132        "CVE"   Cape Verde escudo
+    136        "KYD"   Cayman Islands dollar
+    144        "LKR"   Sri Lanka rupee
+    152        "CLP"   Chilean peso
+    156        "CNY"   Chinese yuan renminbi
+    170        "COP"   Colombian peso
+    174        "KMF"   Comoro franc
+    180        "ZRN"   Zaire new zaire
+    188        "CRC"   Costa Rican colon
+    191        "HRK"   Croatian Kuna
+    192        "CUP"   Cuban peso
+    196        "CYP"   Cyprus pound
+    200        "200"   Not allocated
+    203        "CZK"   Czech koruna
+    208        "DKK"   Danish krone
+    214        "DOP"   Dominican peso
+    218        "ECS"   Ecuador sucre
+    222        "SVC"   El Salvador colon
+    226        "EEK"   Estonian kroon
+    230        "ETB"   Ethiopian birr
+    232        "ERN"   Nakfa
+    238        "FKP"   Falkland Islands pound
+    242        "FJD"   Fiji dollar
+    246        "FIM"   Finnish markka
+    250        "FRF"   French franc
+    262        "DJF"   Djibouti franc
+    270        "GMD"   Gambian dalasi
+    280        "DEM"   Deutsche mark
+    288        "GHC"   Ghanaian cedi
+    292        "GIP"   Gibraltar pound
+    300        "GRD"   Greek drachma
+    320        "GTQ"   Guatemalan quetzal
+    324        "GNF"   Guinea franc
+    328        "GYD"   Guyana dollar
+    332        "HTG"   Haitian gourde
+    340        "HNL"   Honduran lempira
+    344        "HKD"   Hong Kong dollar
+    345        "HKc"   Hong Kong cent (deprecated)
+    348        "HUF"   Hungarian forint
+    352        "ISK"   Iceland krona
+    356        "INR"   Indian rupee
+    360        "IDR"   Indonesian rupiah
+    364        "IRR"   Iranian rial
+    368        "IQD"   Iraqi dinar
+    372        "IEP"   Irish pound
+    373        "IEp"   Irish pence (deprecated)
+    376        "ILS"   Israeli shekel
+    380        "ITL"   Italian lira
+    388        "JMD"   Jamaican dollar
+    392        "JPY"   Japanese yen
+    398        "KZT"   Kazakhstan Tenge
+    400        "JOD"   Jordanian dinar
+    404        "KES"   Kenyan shilling
+    408        "KPW"   North Korean won
+    410        "KRW"   Republic of Korea won
+    414        "KWD"   Kuwaiti dinar
+    417        "KGS"   Kyrgyzstan Som
+    418        "LAK"   Lao kip
+    422        "LBP"   Lebanese pound
+    426        "LSL"   Lesotho loti
+    428        "LVL"   Latvian Lats
+    430        "LRD"   Liberian dollar
+    434        "LYD"   Libyan dinar
+    440        "LTL"   Lithuanian litas
+    442        "LUF"   Luxembourg franc
+    446        "MOP"   Macau pataca
+    450        "450"   Not allocated (was Malagasy franc)
+    454        "MWK"   Malawi kwacha
+    458        "MYR"   Malaysian ringgit
+    459        "MYc"   Malaysian cent (deprecated)
+    462        "MVR"   Maldivian rufiyaa
+    466        "MLF"   Mali franc
+    470        "MTL"   Maltese lira
+    478        "MRO"   Mauritanian ouguiya
+    480        "MUR"   Mauritius rupee
+    484        "MXN"   Mexican peso
+    496        "MNT"   Mongolian tugrik
+    498        "MDL"   Moldovan leu
+    504        "MAD"   Moroccan dirham
+    508        "MZM"   Mozambique metical
+    512        "OMR"   Rial Omani
+    516        "NAD"   Namibia dollar
+    524        "NPR"   Nepalese rupee
+    528        "NLG"   Netherlands guilder
+    532        "ANG"   Netherlands Antillean guilder
+    533        "AWG"   Aruban florin
+    548        "VUV"   Vanuatu vatu
+    554        "NZD"   New Zealand dollar
+    558        "NIO"   Nicaraguan cordoba oro
+    566        "NGN"   Nigerian naira
+    578        "NOK"   Norwegian krone
+    586        "PKR"   Pakistan rupee
+    590        "PAB"   Panamanian balboa
+    598        "PGK"   Papua New Guinea kina
+    600        "PYG"   Paraguay guarani
+    604        "PEN"   Peruvian nuevo sol
+    608        "PHP"   Philippine peso
+    616        "PLZ"   Old Polish zloty
+    620        "PTE"   Portuguese escudo
+    624        "GWP"   Guinea-Bissau peso
+    626        "TPE"   Timor escudo
+    634        "QAR"   Qatari rial
+    642        "ROL"   Romanian leu
+    646        "RWF"   Rwanda franc
+    654        "SHP"   Saint Helena pound
+    678        "STD"   Sao Tome and Principe dobra
+    682        "SAR"   Saudi Arabian riyal
+    690        "SCR"   Seychelles rupee
+    694        "SLL"   Sierra Leone leone
+    702        "SGD"   Singapore dollar
+    703        "SKK"   Slovak Koruna
+    704        "VND"   Vietnamese dong
+    705        "SIT"   Slovenian tolar
+    706        "SOS"   Somali shilling
+    710        "ZAR"   South African rand
+    716        "ZWD"   Zimbabwe dollar
+    720        "720"   Not allocated
+    724        "ESP"   Spanish peseta
+    728        "SSP"   South Sudanese Pound
+    736        "SDD"   Sudanese dinar
+    740        "SRG"   Suriname guilder
+    748        "SZL"   Swaziland lilangeni
+    752        "SEK"   Swedish krona
+    756        "CHF"   Swiss franc
+    760        "SYP"   Syrian pound
+    764        "THB"   Thai baht
+    776        "TOP"   Tongan pa'anga
+    780        "TTD"   Trinidad and Tobago dollar
+    784        "AED"   UAE dirham
+    788        "TND"   Tunisian dinar
+    792        "TRL"   Old Turkish lira
+    795        "TMM"   Turkmenistan manat
+    800        "UGX"   Uganda shilling
+    804        "UAK"   Ukrainian karbovanet
+    807        "MKD"   Macedonian denar
+    810        "RUB"   Russian ruble
+    818        "EGP"   Egyptian pound
+    826        "GBP"   UK pound sterling
+    827        "GBp"   UK pence sterling (deprecated)
+    834        "TZS"   Tanzanian shilling
+    840        "USD"   US dollar
+    841        "USc"   US cents (deprecated)
+    858        "UYU"   Peso Uruguayo
+    860        "UZS"   Uzbekistan Sum
+    862        "VEB"   Old Venezuelan bolivar
+    882        "WST"   Samoan tala
+    886        "YER"   Yemeni rial
+    890        "890"   Not allocated
+    891        "CSD"   Serbian Dinar
+    894        "ZMK"   Zambian kwacha
+    900        "ROb"   Romanian bani
+    901        "TWD"   New Taiwan dollar
+    902        "BHf"   Bahraini Fils
+    903        "KWf"   Kuwaiti Fils
+    904        "OMb"   Baiza Omani
+    905        "SAh"   Saudi Arabian Halalah
+    906        "QAd"   Qatari Dirham
+    907        "AEf"   UAE Fils
+    931        "CUC"   Cuba Convertible Peso
+    932        "ZWL"   Zimbabwe Dollar
+    933        "BYN"   Belarusian Ruble
+    934        "TMT"   Turkmenistan New Manat
+    936        "GHS"   Ghana Cedi
+    937        "VEF"   Venezuelan Bolivar
+    938        "SDG"   SUDANESE POUND
+    940        "UYI"   Uruguay Peso en Unidades Indexadas
+    941        "RSD"   Serbian Dinar
+    942        "ZWN"   'new' Zimbabwe Dollar
+    943        "MZN"   Mozambique Metical
+    944        "AZN"   Azerbaijanian Manat
+    946        "RON"   New Romanian Leu
+    948        "CHW"   Swiss WIR Franc
+    949        "TRY"   Turkish lira
+    950        "XAF"   CFA franc BEAC
+    951        "XCD"   East Caribbean dollar
+    952        "XOF"   CFA franc BCEAO
+    953        "XPF"   CFP franc
+    954        "XEU"   European currency unit
+    955        "XBA"   European composite unit
+    956        "XBB"   European monetary unit
+    957        "XBC"   European unit of Account 9
+    958        "XBD"   European unit of Account 17
+    959        "XAU"   Gold
+    960        "XDR"   Special drawing right
+    961        "XAG"   Silver
+    962        "XPT"   Platinum
+    963        "XTS"   Reserved for testing
+    964        "XPD"   Palladium
+    965        "XUA"   ADB Unit of Account
+    967        "ZMW"   Zambian kwacha
+    968        "SRD"   Surinam Dollar
+    969        "MGA"   Malagasy Ariary
+    971        "AFN"   Afghanistan afghani
+    972        "TJS"   Tajikistan Somoni
+    973        "AOA"   Angolan kwanza
+    974        "BYR"   Belarusian Ruble (Jan 2000 - Dec 2016)
+    975        "BGN"   Bulgarian Lev
+    976        "CDF"   Congolese Franc
+    977        "BAM"   Convertible Mark
+    978        "EUR"   Euro
+    979        "MXV"   Mexico Unidad de Inversion
+    980        "UAH"   Ukrainian Hryvnia
+    981        "GEL"   Georgian Lari
+    984        "BOV"   Bolivian Mvdol
+    985        "PLN"   New Polish zloty
+    990        "CLF"   Chilean unidad de fomento
+    991        "ZAL"   South African financial rand
+    995        "ESB"   Spanish peseta (accounts 'B')
+    996        "ESA"   Spanish peseta (accounts 'A')
+    997        "USN"   US dollar (next day)
+    998        "USS"   US dollar (same day)
+    999        "XXX"   Code assigned for no currency transactions
+   2000        "tst"   Test
+   2001        "AUc"   Australian cents ****
+   2002        "CAc"   Canadian cents ****
+   2003        "HKc"   Hong Kong cents ****
+   2004        "IEp"   Irish pence ****
+   2005        "MYc"   Malaysian cents ****
+   2006        "NZc"   New Zealand cents ****
+   2007        "SGc"   Singapore cents ****
+   2008        "GBp"   UK pence sterling ****
+   2009        "USc"   US cents ****
+   2010        "ZAc"   South African cents ****
+   2011        "ZWc"   Zimbabwe cents
+   2012        "EUc"   The Euro minor currency, the cent
+   2013        "NAc"   Namibian cent
+   2014        "ILa"   Israeli Agora
+   2015        "RUB"   Russian Rouble
+   2016        "HRL"   Croatian Lipa (was Croatian Kuna)
+   2017        "BWt"   Botswana Thebe
+   2018        "ZZZ"   Multi-Currency
+   2019        "TRk"   New Turkish Kurus
+   2020        "COU"   Colombia Unidad Valor Real
+   2021        "MWt"   Malawi Tambala
+   2022        "BRc"   Brazilian Centavos
+   2023        "CNH"   Chinese Yuan Offshore
+   2024        "UST"   Thousands of US dollars
+   2025        "XVN"   Ven
+   2026        "CRU"   Costa Rican Unidad de Desarrolla
+   2027        "BTC"   bitcoin
+   2028        "UYR"   Unidades Reajustables
+   2029        "BYk"   Belarusian Kapeyka
+   4000        "%  "   percentage
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET262 13583
 PRE_2ET263 13584
 PRE_2ET264 13585

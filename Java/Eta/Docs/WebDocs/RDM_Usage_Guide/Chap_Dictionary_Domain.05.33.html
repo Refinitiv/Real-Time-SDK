@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.10.5 Reference Dictionary Type</title>
+    <title>5.12.2 Example: Dictionary Lookup Using a FieldId</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,8 +55,214 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1011801">Reference Dictionary Type</a></div>
-      <div class="Body"><a name="1011745">A Reference Dictionary contains a table of reference information provided as a Series. This information is not used for parsing, interpreting, caching or displaying data.</a></div>
+      <div class="H3"><a name="1168863">Example: Dictionary Lookup Using a FieldId</a></div>
+      <div class="Body"><a name="1168867">This example illustrates a dictionary lookup using a </a><span class="CodeOrCommand">fieldId</span> to determine how to decode the <span class="CodeOrCommand">FieldEntry</span> data. This example also cross references an enumerated type (<span class="Parameter">DataTypes.ENUM</span>) to use enumerated type dictionary information. For additional examples of encoding or decoding from the domain model, refer to the Transport API’s example applications.</div>
+      <div class="Blank_Line"><a name="1171424">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1171342">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171344">/* This sample shows use of a loaded dictionary. This looks up a fieldId to determine how to decode the</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171346">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FieldEntry content. It also demonstrates cross referencing an enumerated type */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171348">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171350">/* (DataDictionary) dictionary loaded earlier */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171352">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171354">/* used while decoding field list content */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171356">if ((ret = fieldEntry.decode(dIter)) != CodecReturnCodes.SUCCESS)</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171358">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171360">&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("decoding of FieldEntry failed with return code: " + ret);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171362">&nbsp;&nbsp;&nbsp;&nbsp;return;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171364">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171366">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171368">DictionaryEntry dictionaryEntry = dictionary.entry(fieldEntry.fieldId());</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171373">if (dictionaryEntry </a><span class="Parameter" style="color: #666666; font-family: Arial; font-size: 10.0pt">==</span> null)</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171375">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171377">&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(FieldId " + fieldEntry.fieldId() + " not found in dictionary");</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171379">&nbsp;&nbsp;&nbsp;&nbsp;return;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171381">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171383">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171385">/* If found, we can access various pieces of information, and use the Type information for further</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171387">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decoding of the field */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171389">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171391">switch (dataType)</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171393">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171395">&nbsp;&nbsp;&nbsp;&nbsp;case DataTypes.UINT:</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171397">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decodeUInt(dIter, uintValue);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171399">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171401">&nbsp;&nbsp;&nbsp;&nbsp;case DataTypes.INT:</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171403">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decodeInt(dIter, intValue);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171405">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171407">&nbsp;&nbsp;&nbsp;&nbsp;case DataTypes.ENUM:</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171409">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* enumerated types can be cross referenced with enum dictionary */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171411">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decodeEnum(dIter, enumValue);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171413">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* EnumType contains value, display, and meaning information */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171415">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EnumType enumType = dictionary.entryEnumType(dictionaryEntry, enumValue);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171417">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171419">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* continued with decoding for other possible types */</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171421">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171423">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="CodeTitle">Code Example 10: <a name="1169039">Transport API Dictionary Utility Function Field and Enum Look Up Example</a></div>
+      <div class="Blank_Line"><a name="1057272">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -69,7 +275,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.28.html">5.10	Other Dictionary Types</a> : 5.10.5	Reference Dictionary Type</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.31.html">5.12	Dictionary Utility Functions</a> : 5.12.2	Example: Dictionary Lookup Using a FieldId</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

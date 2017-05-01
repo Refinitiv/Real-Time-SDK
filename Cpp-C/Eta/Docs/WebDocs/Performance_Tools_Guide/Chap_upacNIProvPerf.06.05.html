@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1222945">Latency Measurement</a></div>
-      <div class="Body"><a name="1229580">The Transport API is designed to allow calls from multiple threads, such that applications can scale their work across multiple cores. Applications can take advantage of this by creating multiple threads to handle multiple connections through the Transport API. To support this multi-threading, each application enables global locking when calling </a><span class="CodeOrCommand">rsslInitialize</span>.</div>
-      <div class="Body"><span class="ToolOrUtility_Name"><a name="1229590">upacNIProvPerf</a></span> encodes a timestamp as part of its message payload. The timestamp is taken at the start of encoding and added as field TIM_TRK_1 (<span class="ToolOrUtility_Name">3902</span>). Latency is measured after <span class="ToolOrUtility_Name">upacConsPerf</span> decodes the message and payload.</div>
-      <div class="Procedure_Heading"><a name="1229597"><img class="Default" src="images/Chap_upacNIProvPerf.06.05.1.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> Non-Interactive Provider Latency Measurement Sequence:</a></div>
+      <div class="Body"><a name="1230978">The Transport API is designed to allow calls from multiple threads, such that applications can scale their work across multiple cores. Applications can take advantage of this by creating multiple threads to handle multiple connections through the Transport API. To support this multi-threading, each application enables global locking when calling </a><span class="CodeOrCommand">rsslInitialize</span>.</div>
+      <div class="Body"><span class="ToolOrUtility_Name"><a name="1230988">upacNIProvPerf</a></span> encodes a timestamp as part of its message payload. The timestamp is taken at the start of encoding and added as field TIM_TRK_1 (<span class="ToolOrUtility_Name">3902</span>). Latency is measured after <span class="ToolOrUtility_Name">upacConsPerf</span> decodes the message and payload.</div>
+      <div class="Procedure_Heading"><a name="1230995"><img class="Default" src="images/Chap_upacNIProvPerf.06.05.1.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> Non-Interactive Provider Latency Measurement Sequence:</a></div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -68,7 +68,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1229598">Get the current time (</a><span class="Parameter">t1</span>).</div>
+              <div class="Step1_inner"><a name="1230996">Get the current time (</a><span class="Parameter">t1</span>).</div>
             </td>
           </tr>
         </table>
@@ -82,7 +82,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1229602">Obtain an output buffer using </a><span class="CodeOrCommand">rsslGetBuffer()</span>.</div>
+              <div class="Stepnext_inner"><a name="1231000">Obtain an output buffer using </a><span class="CodeOrCommand">rsslGetBuffer</span>.</div>
             </td>
           </tr>
         </table>
@@ -96,7 +96,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1229603">Encode the message, including time </a><span class="Parameter">t1</span>.</div>
+              <div class="Stepnext_inner"><a name="1231001">Encode the message, including time </a><span class="Parameter">t1</span>.</div>
             </td>
           </tr>
         </table>
@@ -110,7 +110,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1229604">Pass the message to the API, which passes it to underlying transport.</a></div>
+              <div class="Stepnext_inner"><a name="1231002">Pass the message to the API, which passes it to underlying transport.</a></div>
             </td>
           </tr>
         </table>
@@ -124,7 +124,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1229605">The consuming application receives a timestamp in the payload and compares it to the current time to calculate latency.</a></div>
+              <div class="Stepnext_inner"><a name="1231003">The consuming application receives a timestamp in the payload and compares it to the current time to calculate latency.</a></div>
             </td>
           </tr>
         </table>

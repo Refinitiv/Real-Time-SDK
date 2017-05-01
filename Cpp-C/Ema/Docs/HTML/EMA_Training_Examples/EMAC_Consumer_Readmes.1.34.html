@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>360__MarketPrice__View</title>
+    <title>350__MarketPrice__PauseAll</title>
     <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,50 +45,52 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1020434">360__MarketPrice__View</a></div>
-      <div class="Body"><a name="1041493">Summary</a></div>
-      <div class="Body"><a name="1041494">=======</a></div>
-      <div class="Body"><a name="1041495">&nbsp;</a></div>
-      <div class="Body"><a name="1041496">The 360__MarketPrice__View application is provided as an example of OMM Consumer</a></div>
-      <div class="Body"><a name="1041497">application written to the EMA library.</a></div>
-      <div class="Body"><a name="1041498">&nbsp;</a></div>
-      <div class="Body"><a name="1041499">This application demonstrates basic usage of the EMA library for opening item</a></div>
-      <div class="Body"><a name="1041500">stream with a list of field IDs called “View” and parsing of OMM MarketPrice</a></div>
-      <div class="Body"><a name="1041501">data from Reuters Data Feed Direct (RDF-D), directly from an OMM Provider</a></div>
-      <div class="Body"><a name="1041502">application, or from Thomson Reuters Advanced Distribution Server.</a></div>
-      <div class="Body"><a name="1041503">&nbsp;</a></div>
-      <div class="Body"><a name="1041504">The 360__MarketPrice__View showcases usage of view request feature supported</a></div>
-      <div class="Body"><a name="1041505">by OMM Consumer and server.</a></div>
-      <div class="Body"><a name="1041506">&nbsp;</a></div>
-      <div class="Body"><a name="1041507">&nbsp;</a></div>
-      <div class="Body"><a name="1041508">Detailed Description</a></div>
-      <div class="Body"><a name="1041509">====================</a></div>
-      <div class="Body"><a name="1041510">&nbsp;</a></div>
-      <div class="Body"><a name="1041511">The 360__MarketPrice__View implements the following high level steps:</a></div>
-      <div class="Body"><a name="1041512">&nbsp;</a></div>
-      <div class="Body"><a name="1041513">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1041514">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1041515">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1041516">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1041517">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1041518">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1041519">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1041520">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1041521">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1041522">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1041523">+ Opens one streaming item interest</a></div>
-      <div class="Body"><a name="1041524">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1041525">    - the view definition is added to the request with the payload() method</a></div>
-      <div class="Body"><a name="1041526">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1041527">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1041528">+ Exits</a></div>
-      <div class="Body"><a name="1041529">&nbsp;</a></div>
-      <div class="Body"><a name="1041530">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1041531">      environment using EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1041532">	  </a></div>
-      <div class="Body"><a name="1041533">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1041534">      standard configuration.</a></div>
-      <div class="Body"><a name="1029487">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1020432">350__MarketPrice__PauseAll</a></div>
+      <div class="Body"><a name="1043611">Summary</a></div>
+      <div class="Body"><a name="1043612">=======</a></div>
+      <div class="Body"><a name="1043613">&nbsp;</a></div>
+      <div class="Body"><a name="1043614">The 350__MarketPrice__PauseAll application is provided as an example of</a></div>
+      <div class="Body"><a name="1043615">OMM Consumer application written to the EMA library.</a></div>
+      <div class="Body"><a name="1043616">&nbsp;</a></div>
+      <div class="Body"><a name="1043617">This application demonstrates basic usage of the EMA library for opening</a></div>
+      <div class="Body"><a name="1043618">login and item streams and pausing item response messages from Reuters Data</a></div>
+      <div class="Body"><a name="1043619">Feed Direct (RDF-D), directly from an OMM Provider application, or from</a></div>
+      <div class="Body"><a name="1043620">Thomson Reuters Advanced Distribution Server with login stream.</a></div>
+      <div class="Body"><a name="1043621">&nbsp;</a></div>
+      <div class="Body"><a name="1043622">The 350__MarketPrice__PauseAll showcases the pause all feature of OMM Consumer.</a></div>
+      <div class="Body"><a name="1043623">It sends a single pause request on login stream to pause all open items.</a></div>
+      <div class="Body"><a name="1043624">&nbsp;</a></div>
+      <div class="Body"><a name="1043625">&nbsp;</a></div>
+      <div class="Body"><a name="1043626">Detailed Description</a></div>
+      <div class="Body"><a name="1043627">====================</a></div>
+      <div class="Body"><a name="1043628">&nbsp;</a></div>
+      <div class="Body"><a name="1043629">The 350__MarketPrice__PauseAll implements the following high level steps:</a></div>
+      <div class="Body"><a name="1043630">&nbsp;</a></div>
+      <div class="Body"><a name="1043631">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1043632">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1043633">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1043634">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1043635">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1043636">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1043637">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1043638">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1043639">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1043640">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1043641">+ Opens three streaming item interests</a></div>
+      <div class="Body"><a name="1043642">  - Login Domain stream</a></div>
+      <div class="Body"><a name="1043643">  - MarketPrice Domain IBM.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1043644">  - MarketPrice Domain MSFT.N item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1043645">+ Sends a PauseAll request message on login stream</a></div>
+      <div class="Body"><a name="1043646">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1043647">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1043648">+ Exits</a></div>
+      <div class="Body"><a name="1043649">&nbsp;</a></div>
+      <div class="Body"><a name="1043650">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1043651">      environment using EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1043652">	  </a></div>
+      <div class="Body"><a name="1043653">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1043654">      standard configuration.</a></div>
+      <div class="Body"><a name="1041890">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -101,7 +103,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.23.html">300 Series Examples</a> : 360__MarketPrice__View</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.23.html">300 Series Examples</a> : 350__MarketPrice__PauseAll</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

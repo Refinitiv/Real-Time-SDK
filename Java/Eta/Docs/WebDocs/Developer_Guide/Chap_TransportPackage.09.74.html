@@ -56,64 +56,64 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1035978">Ping Timeout</a></div>
-      <div class="Body"><a name="1474783">Applications are able to configure their desired </a><span class="CodeOrCommand">pingTimeout</span> values, where the <span class="Concept">ping timeout</span> is the point at which a connection is terminated due to inactivity. Heartbeat messages are typically sent every one-third of the <span class="CodeOrCommand">pingTimeout</span>, ensuring that heartbeats are exchanged prior to a ping timeout. This can be useful for detecting a connection loss prior to any kind of network or operating system notification.</div>
-      <div class="Body"><span class="CodeOrCommand"><a name="1474784">pingTimeout</a></span> values are negotiated between a connecting client application and the server application, where the server can specify a minimum allowable ping timeout (via the <span class="CodeOrCommand">minPingTimeout</span> option) and the direction in which heartbeats flow (via <span class="CodeOrCommand">serverToClientPings</span> and <span class="CodeOrCommand">clientToServerPings</span>). For more information on specifying these options, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.24.html', '');" title="9.3.2.1 ConnectOptions Methods">Section 9.3.2.1</a> and <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.34.html', '');" title="9.4.1.1 BindOptions Methods">Section 9.4.1.1</a>. During negotiation, the lowest <span class="CodeOrCommand">pingTimeout</span> value is selected. Because <span class="CodeOrCommand">minPingTimeout</span> sets the lowest possible value, if a client’s specified <span class="CodeOrCommand">pingTimeout</span> value is less than <span class="CodeOrCommand">minPingTimeout</span>, the connection uses the <span class="CodeOrCommand">minPingTimeout</span> as its <span class="CodeOrCommand">pingTimeout</span> value. After a connection transitions to the active state, the negotiated <span class="CodeOrCommand">pingTimeout</span> is available through the <span class="CodeOrCommand">Channel.pingTimeout</span>.</div>
-      <div class="Body"><a name="1474800">The Transport uses the following formula to determine the negotiated </a><span class="CodeOrCommand">pingTimeout</span> value:</div>
-      <div class="Blank_Line"><a name="1474822">&nbsp;</a></div>
+      <div class="Body"><a name="1528524">Applications are able to configure their desired </a><span class="CodeOrCommand">pingTimeout</span> values, where the <span class="Concept">ping timeout</span> is the point at which a connection is terminated due to inactivity. Heartbeat messages are typically sent every one-third of the <span class="CodeOrCommand">pingTimeout</span>, ensuring that heartbeats are exchanged prior to a ping timeout. This can be useful for detecting a connection loss prior to any kind of network or operating system notification.</div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1528525">pingTimeout</a></span> values are negotiated between a connecting client application and the server application, where the server can specify a minimum allowable ping timeout (via the <span class="CodeOrCommand">minPingTimeout</span> option) and the direction in which heartbeats flow (via <span class="CodeOrCommand">serverToClientPings</span> and <span class="CodeOrCommand">clientToServerPings</span>). For more information on specifying these options, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.24.html', '');" title="9.3.2.1 ConnectOptions Methods">Section 9.3.2.1</a> and <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.34.html', '');" title="9.4.1.1 BindOptions Methods">Section 9.4.1.1</a>. During negotiation, the lowest <span class="CodeOrCommand">pingTimeout</span> value is selected. Because <span class="CodeOrCommand">minPingTimeout</span> sets the lowest possible value, if a client’s specified <span class="CodeOrCommand">pingTimeout</span> value is less than <span class="CodeOrCommand">minPingTimeout</span>, the connection uses the <span class="CodeOrCommand">minPingTimeout</span> as its <span class="CodeOrCommand">pingTimeout</span> value. After a connection transitions to the active state, the negotiated <span class="CodeOrCommand">pingTimeout</span> is available through the <span class="CodeOrCommand">Channel.pingTimeout</span>.</div>
+      <div class="Body"><a name="1528541">The Transport uses the following formula to determine the negotiated </a><span class="CodeOrCommand">pingTimeout</span> value:</div>
+      <div class="Blank_Line"><a name="1528563">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1474803">&nbsp;</a></div>
+            <div class="command"><a name="1528544">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1474805">/* Determine lesser of client or servers pingTimeout */</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1528546">/* Determine lesser of client or servers pingTimeout */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1474807">if (client.pingTimeout &lt; server.pingTimeout)</a></div>
+            <div class="command"><a name="1528548">if (client.pingTimeout &lt; server.pingTimeout)</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1474809">	connection.pingTimeout = clientPingTimeout;</a></div>
+            <div class="command"><a name="1528550">	connection.pingTimeout = clientPingTimeout;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1474811">else</a></div>
+            <div class="command"><a name="1528552">else</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1474813">	connection.pingTimeout = server.pingTimeout;</a></div>
+            <div class="command"><a name="1528554">	connection.pingTimeout = server.pingTimeout;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1474815">/* Determine whether timeout is less than minimum allowable timeout */</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1528556">/* Determine whether timeout is less than minimum allowable timeout */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1474817">if (connection.pingTimeout &lt; server.minPingTimeout)</a></div>
+            <div class="command"><a name="1528558">if (connection.pingTimeout &lt; server.minPingTimeout)</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1474819">	connection.pingTimeout = server.minPingTimeout;</a></div>
+            <div class="command"><a name="1528560">	connection.pingTimeout = server.minPingTimeout;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1474821">&nbsp;</a></div>
+            <div class="command"><a name="1528562">&nbsp;</a></div>
           </td>
         </tr>
       </table>
-      <div class="CodeTitle">Code Example 10: <a name="1474823">Ping Negotiation Calculation</a></div>
+      <div class="CodeTitle">Code Example 10: <a name="1528564">Ping Negotiation Calculation</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

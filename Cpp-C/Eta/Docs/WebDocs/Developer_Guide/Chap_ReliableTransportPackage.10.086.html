@@ -56,64 +56,64 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1035978">Ping Timeout</a></div>
-      <div class="Body"><a name="1223230">Applications are able to configure their desired </a><span class="CodeOrCommand">pingTimeout</span> values, where the <span class="Concept">ping timeout</span> is the point at which a connection is terminated due to inactivity. Heartbeat messages are typically sent every one-third of the <span class="CodeOrCommand">pingTimeout</span>, ensuring that heartbeats are exchanged prior to a ping timeout. This can be useful for detecting a connection loss prior to any kind of network or operating system notification.</div>
-      <div class="Body"><span class="CodeOrCommand"><a name="1223231">pingTimeout</a></span> values are negotiated between a connecting client application and the server application, where the server can specify a minimum allowable ping timeout (via the <span class="CodeOrCommand">minPingTimeout</span> option) and the direction in which heartbeats flow (via <span class="CodeOrCommand">serverToClientPings</span> and <span class="CodeOrCommand">clientToServerPings</span>). For more information on specifying these options, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.024.html', '');" title="10.3.2.1 RsslConnectOptions Structure Members">Section 10.3.2.1</a> and <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.034.html', '');" title="10.4.1.1 RsslBindOptions Structure Members">Section 10.4.1.1</a>. During negotiation, the lowest <span class="CodeOrCommand">pingTimeout</span> value is selected. Because <span class="CodeOrCommand">minPingTimeout</span> sets the lowest possible value, if a client’s specified <span class="CodeOrCommand">pingTimeout</span> value is less than <span class="CodeOrCommand">minPingTimeout</span>, the connection uses the <span class="CodeOrCommand">minPingTimeout</span> as its <span class="CodeOrCommand">pingTimeout</span> value. After a connection transitions to the active state, the negotiated <span class="CodeOrCommand">pingTimeout</span> is available through the <span class="CodeOrCommand">RsslChannel.pingTimeout</span>.</div>
-      <div class="Body"><a name="1223247">The </a>RSSL Transport uses the following formula to determine the negotiated <span class="CodeOrCommand">pingTimeout</span> value:</div>
-      <div class="Blank_Line"><a name="1223269">&nbsp;</a></div>
+      <div class="Body"><a name="1247961">Applications are able to configure their desired </a><span class="CodeOrCommand">pingTimeout</span> values, where the <span class="Concept">ping timeout</span> is the point at which a connection is terminated due to inactivity. Heartbeat messages are typically sent every one-third of the <span class="CodeOrCommand">pingTimeout</span>, ensuring that heartbeats are exchanged prior to a ping timeout. This can be useful for detecting a connection loss prior to any kind of network or operating system notification.</div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1247962">pingTimeout</a></span> values are negotiated between a connecting client application and the server application, where the server can specify a minimum allowable ping timeout (via the <span class="CodeOrCommand">minPingTimeout</span> option) and the direction in which heartbeats flow (via <span class="CodeOrCommand">serverToClientPings</span> and <span class="CodeOrCommand">clientToServerPings</span>). For more information on specifying these options, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.024.html', '');" title="10.3.2.1 RsslConnectOptions Structure Members">Section 10.3.2.1</a> and <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.034.html', '');" title="10.4.1.1 RsslBindOptions Structure Members">Section 10.4.1.1</a>. During negotiation, the lowest <span class="CodeOrCommand">pingTimeout</span> value is selected. Because <span class="CodeOrCommand">minPingTimeout</span> sets the lowest possible value, if a client’s specified <span class="CodeOrCommand">pingTimeout</span> value is less than <span class="CodeOrCommand">minPingTimeout</span>, the connection uses the <span class="CodeOrCommand">minPingTimeout</span> as its <span class="CodeOrCommand">pingTimeout</span> value. After a connection transitions to the active state, the negotiated <span class="CodeOrCommand">pingTimeout</span> is available through the <span class="CodeOrCommand">RsslChannel.pingTimeout</span>.</div>
+      <div class="Body"><a name="1247978">The </a>RSSL Transport uses the following formula to determine the negotiated <span class="CodeOrCommand">pingTimeout</span> value:</div>
+      <div class="Blank_Line"><a name="1248000">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1223250">&nbsp;</a></div>
+            <div class="command"><a name="1247981">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1223252">/* Determine lesser of client or servers pingTimeout */</a></span></div>
+            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1247983">/* Determine lesser of client or servers pingTimeout */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223254">if (client.pingTimeout &lt; server.pingTimeout)</a></div>
+            <div class="command"><a name="1247985">if (client.pingTimeout &lt; server.pingTimeout)</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223256">	connection.pingTimeout = clientPingTimeout;</a></div>
+            <div class="command"><a name="1247987">	connection.pingTimeout = clientPingTimeout;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223258">else</a></div>
+            <div class="command"><a name="1247989">else</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223260">	connection.pingTimeout = server.pingTimeout;</a></div>
+            <div class="command"><a name="1247991">	connection.pingTimeout = server.pingTimeout;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1223262">/* Determine whether timeout is less than minimum allowable timeout */</a></span></div>
+            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1247993">/* Determine whether timeout is less than minimum allowable timeout */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223264">if (connection.pingTimeout &lt; server.minPingTimeout)</a></div>
+            <div class="command"><a name="1247995">if (connection.pingTimeout &lt; server.minPingTimeout)</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223266">	connection.pingTimeout = server.minPingTimeout;</a></div>
+            <div class="command"><a name="1247997">	connection.pingTimeout = server.minPingTimeout;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223268">&nbsp;</a></div>
+            <div class="command"><a name="1247999">&nbsp;</a></div>
           </td>
         </tr>
       </table>
-      <div class="CodeTitle">Code Example 13: <a name="1223270">Ping Negotiation Calculation</a></div>
+      <div class="CodeTitle">Code Example 13: <a name="1248001">Ping Negotiation Calculation</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="999125">Group Status Responsibilities by Application Type</a></div>
-      <div class="Body"><a name="1027694">Dissemination and handling of group status information is distributed across providers and consumers. This section discusses responsibilities by application type.</a></div>
-      <div class="Body"><a name="1027695">An OMM interactive provider or NIP application is responsible for:</a></div>
+      <div class="Body"><a name="1036629">Dissemination and handling of group status information is distributed across providers and consumers. This section discusses responsibilities by application type.</a></div>
+      <div class="Body"><a name="1036630">An OMM interactive provider or NIP application is responsible for:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1027699">Assigning and providing item group id values. This is accomplished by specifying the </a><span class="CodeOrCommand">RsslRefreshMsg.groupId</span> or <span class="CodeOrCommand">RsslStatusMsg.groupId</span> for all provided content<sup><a name="wwfootnote_inline_69" href="#69">1</a></sup>.</div>
+              <div class="bullet_ind_inner"><a name="1036634">Assigning and providing item group id values. This is accomplished by specifying the </a><span class="CodeOrCommand">RsslRefreshMsg.groupId</span> or <span class="CodeOrCommand">RsslStatusMsg.groupId</span> for all provided content<sup><a name="wwfootnote_inline_70" href="#70">1</a></sup>.</div>
             </td>
           </tr>
         </table>
@@ -81,12 +81,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1027706">If a group of items becomes unavailable (i.e., an upstream service or provider goes down), group status messages should be sent out for all affected item groups. These are sent via the Source Directory domain.</a></div>
+              <div class="bullet_ind_inner"><a name="1036641">If a group of items becomes unavailable (i.e., an upstream service or provider goes down), group status messages should be sent out for all affected item groups. These are sent via the Source Directory domain.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_5"><a name="1027707">For more information about group status messages (including specific message content and formatting), refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition </a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">RDM Usage Guide</a></span>.</div>
+      <div class="indent_5"><a name="1036642">For more information about group status messages (including specific message content and formatting), refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition </a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">RDM Usage Guide</a></span>.</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -96,12 +96,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1027714">If items become available again, recovery should occur and items’ states should be updated via a subsequent </a><span class="CodeOrCommand">RsslRefreshMsg</span> or <span class="CodeOrCommand">RsslStatusMsg</span> provided to any downstream components interested in the item.</div>
+              <div class="bullet_ind_inner"><a name="1036649">If items become available again, recovery should occur and items’ states should be updated via a subsequent </a><span class="CodeOrCommand">RsslRefreshMsg</span> or <span class="CodeOrCommand">RsslStatusMsg</span> provided to any downstream components interested in the item.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1027721">An OMM consumer application is responsible for:</a></div>
+      <div class="Body"><a name="1036656">An OMM consumer application is responsible for:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -111,12 +111,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1027722">Subscribing to the item group filter when requesting Source Directory information.</a></div>
+              <div class="bullet_ind_inner"><a name="1036657">Subscribing to the item group filter when requesting Source Directory information.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_5"><a name="1027723">For more information about the item group filter and group status messages (including specific message content and formatting), refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition </a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">RDM Usage Guide</a></span>.</div>
+      <div class="indent_5"><a name="1036658">For more information about the item group filter and group status messages (including specific message content and formatting), refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition </a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">RDM Usage Guide</a></span>.</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -126,7 +126,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1027730">If group status changes are received, the state change should be propagated to all items associated with the indicated group, as noted by the </a><span class="CodeOrCommand">RsslRefreshMsg.groupId</span> or <span class="CodeOrCommand">RsslStatusMsg.groupId</span> provided with the item stream.</div>
+              <div class="bullet_ind_inner"><a name="1036665">If group status changes are received, the state change should be propagated to all items associated with the indicated group, as noted by the </a><span class="CodeOrCommand">RsslRefreshMsg.groupId</span> or <span class="CodeOrCommand">RsslStatusMsg.groupId</span> provided with the item stream.</div>
             </td>
           </tr>
         </table>
@@ -140,7 +140,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1027742">Any recovery should follow </a><span class="CodeOrCommand">SingleOpen</span> and <span class="CodeOrCommand">AllowSuspectData</span> rules, as described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition </a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">RDM Usage Guide</a></span>.</div>
+              <div class="bullet_ind_inner"><a name="1036677">Any recovery should follow </a><span class="CodeOrCommand">SingleOpen</span> and <span class="CodeOrCommand">AllowSuspectData</span> rules, as described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition </a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">RDM Usage Guide</a></span>.</div>
             </td>
           </tr>
         </table>
@@ -156,9 +156,9 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="69" href="#wwfootnote_inline_69">1</a>
+        <a name="70" href="#wwfootnote_inline_70">1</a>
       </div>
-      <div class="Footnote"><a name="1027705">This does not include administrative domains such as Login, Source Directory, and Dictionary.</a></div>
+      <div class="Footnote"><a name="1036640">This does not include administrative domains such as Login, Source Directory, and Dictionary.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

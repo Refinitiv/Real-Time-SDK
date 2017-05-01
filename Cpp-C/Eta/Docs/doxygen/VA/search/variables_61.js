@@ -9,5 +9,10 @@ var searchData=
   ['applicationauthorizationtoken',['applicationAuthorizationToken',['../structRsslRDMLoginRequest.html#a44c8122c1bc1181b92a93168b539d68b',1,'RsslRDMLoginRequest']]],
   ['applicationid',['applicationId',['../structRsslRDMLoginRequest.html#a6d5aea3c5572adaaef2af477d797c994',1,'RsslRDMLoginRequest::applicationId()'],['../structRsslRDMLoginRefresh.html#ab5e5a1e4c77c33aa72402e047553581a',1,'RsslRDMLoginRefresh::applicationId()']]],
   ['applicationname',['applicationName',['../structRsslRDMLoginRequest.html#a524edb970231f1a2eb10c695492d17e0',1,'RsslRDMLoginRequest::applicationName()'],['../structRsslRDMLoginRefresh.html#a0648a430fe1f1785ff3350da4a1f07e9',1,'RsslRDMLoginRefresh::applicationName()']]],
-  ['authentication',['authentication',['../structRsslClassOfService.html#a80ab9c4f8573d31f8c070b0d533b6330',1,'RsslClassOfService']]]
+  ['authentication',['authentication',['../structRsslClassOfService.html#a80ab9c4f8573d31f8c070b0d533b6330',1,'RsslClassOfService']]],
+  ['authenticationerrorcode',['authenticationErrorCode',['../structRsslRDMLoginRefresh.html#aad2351a4dd732962e44f7b1172013e98',1,'RsslRDMLoginRefresh::authenticationErrorCode()'],['../structRsslRDMLoginStatus.html#ad7b5a063705d4db89370b87ce272b8d3',1,'RsslRDMLoginStatus::authenticationErrorCode()']]],
+  ['authenticationerrortext',['authenticationErrorText',['../structRsslRDMLoginRefresh.html#a2e6e10b160d5d0a6ae77afc52ce647cd',1,'RsslRDMLoginRefresh::authenticationErrorText()'],['../structRsslRDMLoginStatus.html#af4aee67ec66259e5992e757ebac1054e',1,'RsslRDMLoginStatus::authenticationErrorText()']]],
+  ['authenticationextended',['authenticationExtended',['../structRsslRDMLoginRequest.html#aa51326a5ad7a6fcecb39b1c4a474290f',1,'RsslRDMLoginRequest']]],
+  ['authenticationextendedresp',['authenticationExtendedResp',['../structRsslRDMLoginRefresh.html#af1bcf893f3520701ba4060de9bb2bc7e',1,'RsslRDMLoginRefresh']]],
+  ['authenticationttreissue',['authenticationTTReissue',['../structRsslRDMLoginRefresh.html#ae46fc89d9fc4b4d7e0ddb6594cc97446',1,'RsslRDMLoginRefresh']]]
 ];

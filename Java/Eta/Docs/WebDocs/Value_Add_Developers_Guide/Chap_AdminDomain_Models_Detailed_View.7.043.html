@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>7.3.11.5 Decoding a Login Refresh</title>
+    <link rel="StyleSheet" href="css/Chap_AdminDomain_Models_Detailed_View.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H4"><a name="1229945">Decoding a Login Refresh</a></div>
+      <div class="Blank_Line"><a name="1229960">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1230099">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230103">DecodeIterator decodeIter = CodecFactory.createDecodeIterator();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230105">LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230107">Msg msg = CodecFactory.createMsg();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230109">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1230111">/* Clear the decode iterator, set its RWF Version, and set it to the encoded buffer. */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230113">decodeIter.clear();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230115">ret = decodeIter.setBufferAndRWFVersion(msgBuf,channelMajorVersion, channelMinorVersion);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230117">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1230119">/* Decode the message to a Msg object. */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230121">ret = msg.decode(decodeIter);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230123">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230125">if (ret == CodecReturnCodes.SUCCESS &amp;&amp; msg.domainType() == DomainTypes.LOGIN &amp;&amp; msg.msgClass() ==</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230127">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MsgClasses.REFRESH)</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230129">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230131">&nbsp;&nbsp;&nbsp;&nbsp;loginRefresh.clear();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230133">&nbsp;&nbsp;&nbsp;&nbsp;loginRefresh.rdmMsgType(LoginMsgType.REFRESH);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230135">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232469">&nbsp;&nbsp;&nbsp;&nbsp;ret = loginRefresh.decode(decodeIter, msg);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232471">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232473">&nbsp;&nbsp;&nbsp;&nbsp;if(ret == CodecReturnCodes.SUCCESS)</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232475">&nbsp;&nbsp;&nbsp;&nbsp;{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232477">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">&nbsp;/* Print username. */</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232479">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(loginRefresh.checkHasUserName())</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232481">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf("Username: " + loginRefresh.userName().toString());</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232483">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232485">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (loginRefresh.checkHasAttrib())</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232487">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232489">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LoginAttrib attrib = loginRefresh.attrib();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1276824">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232491">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">/* Print ApplicationName if present. */</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232493">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(attrib.checkHasApplicationName())</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232499">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(“ApplicationName: " + attrib.applicationName().toString());</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232501">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1276873">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">/* Print ApplicationId if present. */</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1276859">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(attrib.checkHasApplicationId())</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1276908">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(“ApplicationId: " + attrib.applicationId().toString());</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1276910">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232507">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">/* Print Position if present. */</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232509">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(attrib.checkHasPosition())</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232511">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(“Position: " + attrib.position().toString());</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1233017">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1233019">&nbsp;&nbsp;&nbsp;&nbsp;}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1230137">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1277106">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="CodeTitle">Code Example 22: <a name="1223997">Login Refresh Decoding Example</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.001.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.007.html">7.3	RDM Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.039.html">7.3.11	Login Encoding and Decoding</a> : 7.3.11.5	Decoding a Login Refresh</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

@@ -21,8 +21,8 @@ x.t("uses","ackmsg");
 x.t("uses","statusmsg");
 x.t("cache","routed");
 x.t("downstream","consumers");
+x.t("5.6","message");
 x.t("state","information");
-x.t("5.7","message");
 x.t("payload","update");
 x.t("close","message");
 x.t("close","streams");
@@ -226,5 +226,5 @@ x.t("update","messages");
 x.t("update","message");
 x.t("streams","indicate");
 x.t("content","upstream");
-x.t("concepts","5.7");
+x.t("concepts","5.6");
 }

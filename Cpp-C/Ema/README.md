@@ -117,9 +117,11 @@ Elektron Message API Documentation is also available online at https://customers
       - HP Intel PC or AMD Opteron (64-bit)
       - AMD Opteron (64-bit)
       - Red Hat Enterprise Linux Advanced Server 6.0 64-bit 
-      - Oracle Linux Server 6.0 64-bit (Qualified on RHAS 6.0)
+      - Oracle Linux Server 6.0 64-bit (Qualified on RHAS 6.0) **
       - Oracle Linux Server 7.0 64-bit
-	  - CentOS 7 64-bit (Qualified on OL7)
+	  - CentOS 7 64-bit (Qualified on OL7) **
+
+** EMA is qualified on Oracle Linux Server 6.0 64-bit and CentOS 7 64-bit. Qualification was established by building on Red Hat AS 6.0 64-bit and Oracle Linux 7.0 64-bit, and by running the output on OL6 and CentOS 7, respectively. If you want to build source code on OL6 or CentOS 7, refer to the information in ETA’s readme and replicate the OL6 or CentOS 7 build steps from the ETA Makefiles for the EMA components you want to build. 
 
       (Windows)
       - Intel compatible PC and AMD Opteron for 64-bit
@@ -128,6 +130,7 @@ Elektron Message API Documentation is also available online at https://customers
       - Microsoft Windows 7 Professional 64-bit
       - Microsoft Windows 8 Professional 64-bit
       - Microsoft Windows 8.1 Professional 64-bit 
+	  - Microsoft Windows 10 Professional 64-bit
 
 
 
@@ -143,6 +146,7 @@ Elektron Message API Documentation is also available online at https://customers
       - Microsoft Visual C++ 10.0 64-bit (visual Studio 2010)
       - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
       - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
+	  - Microsoft Visual C++ 14.0 64-bit (Visual Studio 2015)
 	  
       ---------------------------------------------------------
       Enterprise Platform for Real-Time - RSSL/RWF connections

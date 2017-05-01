@@ -56,40 +56,40 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1001284">RsslLocalElementSetDefDb Structure Members</a></div>
-      <div class="Body"><span class="CodeOrCommand"><a name="1362798">RsslLocalElementSetDefDb</a></span> (which represents multiple local element set definitions) has the following members:</div>
-      <div class="Blank_Line"><a name="1362896">&nbsp;</a></div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1477228">RsslLocalElementSetDefDb</a></span> (which represents multiple local element set definitions) has the following members:</div>
+      <div class="Blank_Line"><a name="1477326">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 151: <span class="LucidaConsole"><a name="1362893">RsslLocalElementSetDefDb</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 151: <span class="LucidaConsole"><a name="1477323">RsslLocalElementSetDefDb</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1362804">Structure Member</a></div>
+            <div class="CellHeading"><a name="1477234">Structure Member</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1362806">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1477236">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top" rowspan="1">
-            <div class="CellBody"><a name="1362808">definitions</a></div>
+            <div class="CellBody"><a name="1477238">definitions</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1362817">An array containing up to fifteen </a><span class="CodeOrCommand">RsslElementSetDef</span> structures. Each contained element set definition defines a unique <span class="CodeOrCommand">setId</span> for use within the container on which this is present.</div>
+            <div class="CellBody"><a name="1477247">An array containing up to fifteen </a><span class="CodeOrCommand">RsslElementSetDef</span> structures. Each contained element set definition defines a unique <span class="CodeOrCommand">setId</span> for use within the container on which this is present.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1362835">entries</a><sup><a name="wwfootnote_inline_141" href="#141">1</a></sup></div>
+            <div class="CellBody"><a name="1477265">entries</a><sup><a name="wwfootnote_inline_141" href="#141">1</a></sup></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="Blank_Line"><span style="font-size: 10.0pt"><a name="1362864">An </a></span><span class="CodeOrCommand">RsslBuffer</span><span style="font-size: 10.0pt"> </span><span style="font-size: 10.0pt">that helps manage memory associated with set definition entries for each </span><span class="CodeOrCommand">RsslElementSetDef</span><span style="font-size: 10.0pt">. </span><span style="font-size: 10.0pt">Optionally, a decoding application can populate </span><span class="CodeOrCommand">RsslBuffer.data</span><span style="font-size: 10.0pt"> and </span><span class="CodeOrCommand">length</span><span style="font-size: 10.0pt"> with its own memory, causing RSSL to decode definitions in user-provided storage. If </span><span class="CodeOrCommand">RsslBuffer.data</span><span style="font-size: 10.0pt"> and </span><span class="CodeOrCommand">length</span><span style="font-size: 10.0pt"> are not populated, RSSL uses internal memory, which is no longer valid after the container decoding completes. Though an encoding application does not need to use this, it might be helpful to populate the </span><span class="CodeOrCommand">RsslBuffer.data</span><span style="font-size: 10.0pt"> and </span><span class="CodeOrCommand">length</span><span style="font-size: 10.0pt"> with its own memory referring to its entry array content.</span></div>
+            <div class="Blank_Line"><span style="font-size: 10.0pt"><a name="1477294">An </a></span><span class="CodeOrCommand">RsslBuffer</span><span style="font-size: 10.0pt"> </span><span style="font-size: 10.0pt">that helps manage memory associated with set definition entries for each </span><span class="CodeOrCommand">RsslElementSetDef</span><span style="font-size: 10.0pt">. </span><span style="font-size: 10.0pt">Optionally, a decoding application can populate </span><span class="CodeOrCommand">RsslBuffer.data</span><span style="font-size: 10.0pt"> and </span><span class="CodeOrCommand">length</span><span style="font-size: 10.0pt"> with its own memory, causing RSSL to decode definitions in user-provided storage. If </span><span class="CodeOrCommand">RsslBuffer.data</span><span style="font-size: 10.0pt"> and </span><span class="CodeOrCommand">length</span><span style="font-size: 10.0pt"> are not populated, RSSL uses internal memory, which is no longer valid after the container decoding completes. Though an encoding application does not need to use this, it might be helpful to populate the </span><span class="CodeOrCommand">RsslBuffer.data</span><span style="font-size: 10.0pt"> and </span><span class="CodeOrCommand">length</span><span style="font-size: 10.0pt"> with its own memory referring to its entry array content.</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1362868">If an application decodes content over multiple threads and the data may contain set definitions, to ensure thread safety, the application should populate the </a><span class="CodeOrCommand">RsslLocalFieldSetDefDb.entries</span> or <span class="CodeOrCommand">RsslLocalElementSetDefDb.entries</span> buffer with its own memory.</div>
+              <span class="Bold">Note: </span><a name="1477298">If an application decodes content over multiple threads and the data may contain set definitions, to ensure thread safety, the application should populate the </a><span class="CodeOrCommand">RsslLocalFieldSetDefDb.entries</span> or <span class="CodeOrCommand">RsslLocalElementSetDefDb.entries</span> buffer with its own memory.</div>
           </td>
         </tr>
       </table>
@@ -97,7 +97,7 @@
       <div style="font-size: smaller; float: left; padding-right: 10px;">
         <a name="141" href="#wwfootnote_inline_141">1</a>
       </div>
-      <div class="TableFootnote"><a name="1362834">Within the same thread, if an application is using multiple </a><span class="LucidaConsole">RsslDecodeIterator</span> structures, where each decode iterator requires the use of a local set definition database, the application must provide entries memory for decoding into. </div>
+      <div class="TableFootnote"><a name="1477264">Within the same thread, if an application is using multiple </a><span class="LucidaConsole">RsslDecodeIterator</span> structures, where each decode iterator requires the use of a local set definition database, the application must provide entries memory for decoding into. </div>
       <br style="clear: both;" />
       <script type="text/javascript" language="JavaScript1.2">
         <!--

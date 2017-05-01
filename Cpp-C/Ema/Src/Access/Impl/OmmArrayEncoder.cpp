@@ -108,7 +108,7 @@ void OmmArrayEncoder::addInt( Int64 value )
 	else if ( _rsslArray.primitiveType != RSSL_DT_INT )
 	{
 		EmaString temp( "Attempt to addInt() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -171,7 +171,7 @@ void OmmArrayEncoder::addUInt( UInt64 value )
 	else if ( _rsslArray.primitiveType != RSSL_DT_UINT )
 	{
 		EmaString temp( "Attempt to addUInt() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	} 
@@ -241,7 +241,7 @@ void OmmArrayEncoder::addReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeT
 	else if ( _rsslArray.primitiveType != RSSL_DT_REAL )
 	{
 		EmaString temp( "Attempt to addReal() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -275,7 +275,7 @@ void OmmArrayEncoder::addRealFromDouble( double value, OmmReal::MagnitudeType ma
 	else if ( _rsslArray.primitiveType != RSSL_DT_REAL )
 	{
 		EmaString temp( "Attempt to addRealFromDouble() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -313,7 +313,7 @@ void OmmArrayEncoder::addFloat( float value )
 	else if ( _rsslArray.primitiveType != RSSL_DT_FLOAT )
 	{
 		EmaString temp( "Attempt to addFloat() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -342,7 +342,7 @@ void OmmArrayEncoder::addDouble( double value )
 	else if ( _rsslArray.primitiveType != RSSL_DT_DOUBLE )
 	{
 		EmaString temp( "Attempt to addDouble() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -386,7 +386,7 @@ void OmmArrayEncoder::addDate( UInt16 year, UInt8 month, UInt8 day )
 	else if ( _rsslArray.primitiveType != RSSL_DT_DATE )
 	{
 		EmaString temp( "Attempt to addDate() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -428,7 +428,7 @@ void OmmArrayEncoder::addTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mi
 	else if ( _rsslArray.primitiveType != RSSL_DT_TIME )
 	{
 		EmaString temp( "Attempt to addTime() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -488,7 +488,7 @@ void OmmArrayEncoder::addDateTime( UInt16 year, UInt8 month, UInt8 day,
 	else if ( _rsslArray.primitiveType != RSSL_DT_DATETIME )
 	{
 		EmaString temp( "Attempt to addDateTime() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -528,7 +528,7 @@ void OmmArrayEncoder::addQos( UInt32 timeliness, UInt32 rate )
 	else if ( _rsslArray.primitiveType != RSSL_DT_QOS )
 	{
 		EmaString temp( "Attempt to addQos() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -563,7 +563,7 @@ void OmmArrayEncoder::addState( OmmState::StreamState streamState,
 	else if ( _rsslArray.primitiveType != RSSL_DT_STATE )
 	{
 		EmaString temp( "Attempt to addState() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -591,7 +591,7 @@ void OmmArrayEncoder::addEnum( UInt16 value )
 	else if ( _rsslArray.primitiveType != RSSL_DT_ENUM )
 	{
 		EmaString temp( "Attempt to addEnum() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -641,7 +641,7 @@ void OmmArrayEncoder::addBuffer( const EmaBuffer& value )
 	else if ( _rsslArray.primitiveType != RSSL_DT_BUFFER )
 	{
 		EmaString temp( "Attempt to addBuffer() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -674,7 +674,7 @@ void OmmArrayEncoder::addAscii( const EmaString& value )
 	else if ( _rsslArray.primitiveType != RSSL_DT_ASCII_STRING )
 	{
 		EmaString temp( "Attempt to addAscii() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -707,7 +707,7 @@ void OmmArrayEncoder::addUtf8( const EmaBuffer& value )
 	else if ( _rsslArray.primitiveType != RSSL_DT_UTF8_STRING )
 	{
 		EmaString temp( "Attempt to addUtf8() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -740,7 +740,7 @@ void OmmArrayEncoder::addRmtes( const EmaBuffer& value )
 	else if ( _rsslArray.primitiveType != RSSL_DT_RMTES_STRING )
 	{
 		EmaString temp( "Attempt to addRmtes() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -790,7 +790,7 @@ void OmmArrayEncoder::addCodeInt()
 	else if ( _rsslArray.primitiveType != RSSL_DT_INT )
 	{
 		EmaString temp( "Attempt to addCodeInt() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -828,7 +828,7 @@ void OmmArrayEncoder::addCodeUInt()
 	else if ( _rsslArray.primitiveType != RSSL_DT_UINT )
 	{
 		EmaString temp( "Attempt to addCodeUInt() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	} 
@@ -857,7 +857,7 @@ void OmmArrayEncoder::addCodeReal()
 	else if ( _rsslArray.primitiveType != RSSL_DT_REAL )
 	{
 		EmaString temp( "Attempt to addCodeReal() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -886,7 +886,7 @@ void OmmArrayEncoder::addCodeFloat()
 	else if ( _rsslArray.primitiveType != RSSL_DT_FLOAT )
 	{
 		EmaString temp( "Attempt to addCodeFloat() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -915,7 +915,7 @@ void OmmArrayEncoder::addCodeDouble()
 	else if ( _rsslArray.primitiveType != RSSL_DT_DOUBLE )
 	{
 		EmaString temp( "Attempt to addCodeDouble() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -944,7 +944,7 @@ void OmmArrayEncoder::addCodeDate()
 	else if ( _rsslArray.primitiveType != RSSL_DT_DATE )
 	{
 		EmaString temp( "Attempt to addCodeDate() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -980,7 +980,7 @@ void OmmArrayEncoder::addCodeTime()
 	else if ( _rsslArray.primitiveType != RSSL_DT_TIME )
 	{
 		EmaString temp( "Attempt to addCodeTime() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -1016,7 +1016,7 @@ void OmmArrayEncoder::addCodeDateTime()
 	else if ( _rsslArray.primitiveType != RSSL_DT_DATETIME )
 	{
 		EmaString temp( "Attempt to addCodeDateTime() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -1045,7 +1045,7 @@ void OmmArrayEncoder::addCodeQos()
 	else if ( _rsslArray.primitiveType != RSSL_DT_QOS )
 	{
 		EmaString temp( "Attempt to addCodeQos() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -1074,7 +1074,7 @@ void OmmArrayEncoder::addCodeState()
 	else if ( _rsslArray.primitiveType != RSSL_DT_STATE )
 	{
 		EmaString temp( "Attempt to addCodeState() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -1110,7 +1110,7 @@ void OmmArrayEncoder::addCodeEnum()
 	else if ( _rsslArray.primitiveType != RSSL_DT_ENUM )
 	{
 		EmaString temp( "Attempt to addCodeEnum() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -1131,7 +1131,7 @@ void OmmArrayEncoder::addCodeBuffer()
 	else if ( _rsslArray.primitiveType != RSSL_DT_BUFFER )
 	{
 		EmaString temp( "Attempt to addCodeBuffer() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -1152,7 +1152,7 @@ void OmmArrayEncoder::addCodeAscii()
 	else if ( _rsslArray.primitiveType != RSSL_DT_ASCII_STRING )
 	{
 		EmaString temp( "Attempt to addCodeAscii() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -1173,7 +1173,7 @@ void OmmArrayEncoder::addCodeUtf8()
 	else if ( _rsslArray.primitiveType != RSSL_DT_UTF8_STRING )
 	{
 		EmaString temp( "Attempt to addCodeUtf8() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}
@@ -1194,7 +1194,7 @@ void OmmArrayEncoder::addCodeRmtes()
 	else if ( _rsslArray.primitiveType != RSSL_DT_RMTES_STRING )
 	{
 		EmaString temp( "Attempt to addCodeRmtes() while OmmArray contains='" );
-		temp.append( getDTypeAsString( dataType[ _rsslArray.primitiveType ] ) ).append( "'. " );
+		temp.append(getDTypeAsString((DataType::DataTypeEnum)_rsslArray.primitiveType)).append("'. ");
 		throwIueException( temp );
 		return;
 	}

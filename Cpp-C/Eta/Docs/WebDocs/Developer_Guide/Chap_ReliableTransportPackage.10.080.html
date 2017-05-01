@@ -56,50 +56,50 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1032973">rsslFlush Return Codes</a></div>
-      <div class="Body"><a name="1223004">The following table defines the return</a> codes that can occur when using <span class="CodeOrCommand">rsslFlush</span>.</div>
-      <div class="Blank_Line"><a name="1223085">&nbsp;</a></div>
+      <div class="Body"><a name="1247735">The following table defines the return</a> codes that can occur when using <span class="CodeOrCommand">rsslFlush</span>.</div>
+      <div class="Blank_Line"><a name="1247816">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 56: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1223082">rsslFlush</a></span> Return Codes &nbsp;</div>
+          <div class="TableTitle">Table 56: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1247813">rsslFlush</a></span> Return Codes &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 180pt">
-            <div class="CellHeading"><a name="1223007">RETURN CODE</a></div>
+            <div class="CellHeading"><a name="1247738">RETURN CODE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 375.75pt">
-            <div class="CellHeading"><a name="1223009">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1247740">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223011">RSSL_RET_</a>SUCCESS</div>
+            <div class="CellBody"><a name="1247742">RSSL_RET_</a>SUCCESS</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223019">Indicates that the </a><span class="CodeOrCommand">rsslFlush</span> function has succeeded and additional bytes are not internally queued. The <span class="CodeOrCommand">rsslFlush</span> function need not be called.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223027">Any positive value &gt; 0</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223035">Indicates that the </a><span class="CodeOrCommand">rsslFlush</span> function has succeeded, however data is still internally queued by the transport. The <span class="CodeOrCommand">rsslFlush</span> function must be called again. Data might still be queued because the connections output buffer does not have sufficient space. An I/O notification mechanism can indicate when the <span class="CodeOrCommand">socketId</span> has write availability.</div>
+            <div class="CellBody"><a name="1247750">Indicates that the </a><span class="CodeOrCommand">rsslFlush</span> function has succeeded and additional bytes are not internally queued. The <span class="CodeOrCommand">rsslFlush</span> function need not be called.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223046">RSSL_RET_</a>FAILURE</div>
+            <div class="CellBody"><a name="1247758">Any positive value &gt; 0</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223048">Indicates that a general failure has occurred, often because the underlying connection is unavailable or closed. The </a><span class="CodeOrCommand">RsslChannel</span> should be closed (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.090.html', '');" title="10.13 Closing Connections">Section 10.13</a>). For more details, refer to the <span class="CodeOrCommand">RsslError</span> content.</div>
+            <div class="CellBody"><a name="1247766">Indicates that the </a><span class="CodeOrCommand">rsslFlush</span> function has succeeded, however data is still internally queued by the transport. The <span class="CodeOrCommand">rsslFlush</span> function must be called again. Data might still be queued because the connections output buffer does not have sufficient space. An I/O notification mechanism can indicate when the <span class="CodeOrCommand">socketId</span> has write availability.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223062">RSSL_RET_</a>INIT_NOT_INITIALIZED</div>
+            <div class="CellBody"><a name="1247777">RSSL_RET_</a>FAILURE</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223064">Indicates that the </a>RSSL Transport is not initialized. For more details, refer to the <span class="CodeOrCommand">RsslError</span> content. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.014.html', '');" title="10.2 Initializing and Uninitializing the Transport">Section 10.2</a>.</div>
+            <div class="CellBody"><a name="1247779">Indicates that a general failure has occurred, often because the underlying connection is unavailable or closed. The </a><span class="CodeOrCommand">RsslChannel</span> should be closed (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.090.html', '');" title="10.13 Closing Connections">Section 10.13</a>). For more details, refer to the <span class="CodeOrCommand">RsslError</span> content.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247793">RSSL_RET_</a>INIT_NOT_INITIALIZED</div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247795">Indicates that the </a>RSSL Transport is not initialized. For more details, refer to the <span class="CodeOrCommand">RsslError</span> content. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.014.html', '');" title="10.2 Initializing and Uninitializing the Transport">Section 10.2</a>.</div>
           </td>
         </tr>
       </table>

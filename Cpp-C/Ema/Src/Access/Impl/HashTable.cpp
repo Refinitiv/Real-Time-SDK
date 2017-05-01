@@ -19,11 +19,14 @@ size_t Hasher<int>::operator()( const int& val ) const
 template<>
 size_t Hasher<EmaString>::operator()( const EmaString& val ) const
 {
-	size_t retVal = val[0ULL] % sizeRandom;
-	const char* p( val.c_str() );
-	while ( *p )
-		retVal = retVal * 101 + *p++;
-	return retVal;
+	size_t result = 0;
+	size_t magic = 8388593; // the greatest prime lower than 2^23
+
+	const char* s = val.c_str();
+	UInt32 n = val.length();
+	while (n--)
+		result = ((result % magic) << 8) + (size_t)* s++;
+	return result;
 }
 
 template<>

@@ -164,6 +164,17 @@ public class EmaRdm
 	   * String defining User Token
 	   */
 	  public static final int USER_TOKEN			=	3;
+	  
+	  /**
+	   * String defining User Cookie
+	   */
+	  
+	  public static final int  USER_COOKIE            = 4;
+	          
+	  /**
+	   * String defining User Authentication
+	   */
+	  public static final int USER_AUTH_TOKEN  = 5;
 
 	
 	//Login Roles
@@ -557,6 +568,7 @@ public class EmaRdm
 	  public static final String ENAME_APPAUTH_TOKEN  = "ApplicationAuthorizationToken";
 	  public static final String ENAME_POSITION = "Position";
 	  public static final String ENAME_PASSWORD = "Password";
+	  public static final String ENAME_PAUSE = "Pause";
 	  public static final String ENAME_PROV_PERM_PROF = "ProvidePermissionProfile";
 	  public static final String ENAME_PROV_PERM_EXP = "ProvidePermissionExpressions";
 	  public static final String ENAME_ALLOW_SUSPECT_DATA = "AllowSuspectData";
@@ -573,7 +585,18 @@ public class EmaRdm
 	  public static final String ENAME_SEQUENCE_RETRY_INTERVAL = "SequenceRetryInterval";
 	  public static final String ENAME_UPDATE_BUFFER_LIMIT = "UpdateBufferLimit";
 	  public static final String ENAME_SEQUENCE_NUMBER_RECOVERY = "SequenceNumberRecovery";
-
+	  public static final String ENAME_AUTHN_TOKEN = "AuthenticationToken";
+	  public static final String ENAME_AUTHN_EXTENDED = "AuthenticationExtended";
+	  public static final String ENAME_AUTHN_EXTENDED_RESP = "AuthenticationExtendedResp";
+	  public static final String ENAME_AUTHN_TT_REISSUE = "AuthenticationTTReissue";
+	  public static final String ENAME_AUTHN_ERRORCODE = "AuthenticationErrorCode";
+	  public static final String ENAME_AUTHN_ERRORTEXT = "AuthenticationErrorText";
+	  public static final String ENAME_USERNAME = "UserName";
+	  public static final String ENAME_USERNAME_TYPE = "UserNameType";
+	  public static final String ENAME_SEQ_NUM = "SequenceNumber";
+	  public static final String ENAME_STATE = "State";
+	  public static final String ENAME_SOLICITED = "Solicited";
+	  
 	  
 	//Well known source directory names.
 	  public static final String ENAME_NAME = "Name";

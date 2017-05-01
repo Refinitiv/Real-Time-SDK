@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>7.6.7.2 Queue Message Undeliverable Codes</title>
+    <title>7.6.8 Queue Ack</title>
     <link rel="StyleSheet" href="css/Chap_AdminDomain_Models_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,91 +55,51 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1261968">Queue Message Undeliverable Codes</a></div>
-      <div class="Body"><a name="1261944">Undeliverable codes are used in the </a><span class="CodeOrCommand">QueueDataExpired.undeliverable</span> member, and specify why the message could not be delivered.</div>
-      <div class="Blank_Line"><a name="1262804">&nbsp;</a></div>
+      <div class="H3"><a name="1220140">Queue Ack</a></div>
+      <div class="Body"><a name="1390078">A Queue Provider encodes and sends a </a><span class="Concept">Queue Ack</span> message to OMM applications, acknowledging that a Queue Data message is persisted on the Queue Provider. After a Queue Provider acknowledges persistence, the OMM application no longer needs to persist the acknowledged content.</div>
+      <div class="Blank_Line"><a name="1390113">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 177: <span class="LucidaConsole"><a name="1262856">RsslRDMQueueDataUndeliverableCodes</a></span> &nbsp;</div>
+          <div class="TableTitle">Table 179: <span class="LucidaConsole"><a name="1390110">RsslRDMQueueAck</a></span> &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 195.75pt">
-            <div class="CellHeading"><a name="1262816">ENUMERATION</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 102.74976pt">
+            <div class="CellHeading"><a name="1390081">MEMBER</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 360pt">
-            <div class="CellHeading"><a name="1262818">REASON FOR DELIVERY FAILURE</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262820">RDM_QMSG_UC_EXPIRED</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262822">The timeout value specified for this message has expired.</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 453.00024pt">
+            <div class="CellHeading"><a name="1390083">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262824">RDM_QMSG_UC_NO_PERMISSION</a></div>
+            <div class="CellBody"><a name="1390085">destName</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262826">The source/sender of this message is not permitted to send or is not permitted to send to the specified destination.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262828">RDM_QMSG_UC_INVALID_TARGET</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262830">The specified destination of this message does not exist.</a></div>
+            <div class="CellBody"><a name="1390087">Optional. </a>Specifies the name of the queue from which content is sourced (i.e., the value of <span class="CodeOrCommand">sourceName</span> as set in the original Queue Data message).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262832">RDM_QMSG_UC_QUEUE_FULL</a></div>
+            <div class="CellBody"><a name="1390089">identifier</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262834">The specified destination of this message has a full queue and cannot receive any additional content.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262836">RDM_QMSG_UC_QUEUE_DISABLED</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262838">The specified destination of this message has a disabled queue.</a></div>
+            <div class="CellBody"><span class="Bold"><a name="1390091">Required</a></span>. The identifier of the message being acknowledged. This should match the <span class="CodeOrCommand">RsslRDMQueueData.identifier</span> for the message being acknowledged.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262840">RDM_QMSG_UC_UNSPECIFIED</a></div>
+            <div class="CellBody"><a name="1390096">sourceName</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262842">Delivery failed for unspecified reasons.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262844">RDM_QMSG_UC_MAX_MSG_SIZE</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262846">The message was too large.</a></div>
+            <div class="CellBody"><span class="Bold"><a name="1390098">Required</a></span>. Specifies the name of the queue to which content was originally sent (i.e., the value of <span class="CodeOrCommand">destName</span> as set in the original Queue Data message).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262848">RDM_QMSG_UC_INVALID_SENDER</a></div>
+            <div class="CellBody"><a name="1390100">rdmMsgBase</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262850">The sender of this message has now become invalid.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262852">RDM_QMSG_UC_TARGET_DELETED</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1262854">The target queue was deleted before the message was delivered.</a></div>
+            <div class="CellBody"><span class="Bold"><a name="1390102">Required</a></span>. Sets the message type (i.e., <span class="Parameter">RDM_QMSG_MT_ACK</span>) and contains general message information, including the stream’s ID (<span class="Parameter">streamId</span>) and domain type (<span class="Parameter">domainType</span>).</div>
           </td>
         </tr>
       </table>
@@ -155,7 +115,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.001.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.134.html">7.6	RDM Queue Messages</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.146.html">7.6.7	QueueDataExpired</a> : 7.6.7.2	Queue Message Undeliverable Codes</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.001.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.133.html">7.6	RDM Queue Messages</a> : 7.6.8	Queue Ack</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

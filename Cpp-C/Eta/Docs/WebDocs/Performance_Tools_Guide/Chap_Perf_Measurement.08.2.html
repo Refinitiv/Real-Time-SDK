@@ -56,37 +56,37 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1221390">Interactive Provider to Consumer, Through TREP</a></div>
-      <div class="Body"><a name="1222687">You can measure interactive providers by connecting </a><span class="ToolOrUtility_Name">upacConsPerf</span> to an ADS, the ADS to an ADH,<sup><a name="wwfootnote_inline_57" href="#57">1</a></sup> and finally the ADH with an instance of <span class="ToolOrUtility_Name">upacProvPerf</span>. You can perform this test with caching enabled or disabled in the ADH or ADS, as <span class="ToolOrUtility_Name">upacProvPerf</span> acts as the cache of record in this scenario.</div>
-      <div class="Body"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt"><a name="1222814"><img class="Default" src="images/Chap_Perf_Measurement.08.2.1.jpg" width="469" height="321" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 18.  <a name="1222816">Interactive Provider to Consumer with Enterprise Platform</a></div>
-      <div class="Procedure_Heading"><a name="1222818"><img class="Default" src="images/Chap_Perf_Measurement.08.2.2.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To perform a basic performance measurement:</a></div>
-      <div class="Body"><a name="1222820">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.2.html#1222816', '');" title="8.1 Interactive Provider to Consumer, Through TREP">Figure 18</a>, run <span class="ToolOrUtility_Name">upacProvPerf</span> and <span class="ToolOrUtility_Name">upacConsPerf</span> with the following, respective, commands:<sup><a name="wwfootnote_inline_58" href="#58">2</a></sup></div>
-      <div class="Blank_Line"><a name="1222943">&nbsp;</a></div>
+      <div class="Body"><a name="1229041">You can measure interactive providers by connecting </a><span class="ToolOrUtility_Name">upacConsPerf</span> to an ADS, the ADS to an ADH,<sup><a name="wwfootnote_inline_66" href="#66">1</a></sup> and finally the ADH with an instance of <span class="ToolOrUtility_Name">upacProvPerf</span>. You can perform this test with caching enabled or disabled in the ADH or ADS, as <span class="ToolOrUtility_Name">upacProvPerf</span> acts as the cache of record in this scenario.</div>
+      <div class="Body"><a name="1229051"><img class="Default" src="images/Chap_Perf_Measurement.08.2.1.jpg" width="469" height="321" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 18.  <a name="1229059">Interactive Provider to Consumer on TREP</a></div>
+      <div class="Procedure_Heading"><a name="1229063"><img class="Default" src="images/Chap_Perf_Measurement.08.2.2.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> To run a basic performance measurement:</a></div>
+      <div class="Body"><a name="1229070">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.2.html#1229059', '');" title="8.1 Interactive Provider to Consumer, Through TREP">Figure 18</a>, run <span class="ToolOrUtility_Name">upacProvPerf</span> and <span class="ToolOrUtility_Name">upacConsPerf</span> with the following commands:<sup><a name="wwfootnote_inline_67" href="#67">2</a></sup></div>
+      <div class="Blank_Line"><a name="1229100">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1222964">&nbsp;</a></div>
+            <div class="command"><a name="1229079">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1222966">upacProvPerf -p 17008 -serviceName TEST_FEED</a></div>
+            <div class="command"><a name="1229084">upacProvPerf -p 17008 -serviceName TEST_FEED</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223021">&nbsp;</a></div>
+            <div class="command"><a name="1229088">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223000">upacConsPerf -h adshost -p 14002 -serviceName TEST_FEED</a></div>
+            <div class="command"><a name="1229093">upacConsPerf -h adshost -p 14002 -serviceName TEST_FEED</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1223002">&nbsp;</a></div>
+            <div class="command"><a name="1229099">&nbsp;</a></div>
           </td>
         </tr>
       </table>
@@ -101,14 +101,14 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="57" href="#wwfootnote_inline_57">1</a>
+        <a name="66" href="#wwfootnote_inline_66">1</a>
       </div>
-      <div class="Footnote"><a name="1223318">Via the RRCP backbone.</a></div>
+      <div class="Footnote"><a name="1229040">Via the RRCP backbone.</a></div>
       <br style="clear: both;" />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="58" href="#wwfootnote_inline_58">2</a>
+        <a name="67" href="#wwfootnote_inline_67">2</a>
       </div>
-      <div class="Footnote"><a name="1223282">The options on these command lines assume TEST_FEED is the service being used and 17008 is the port number. Modify these example values as necessary.</a></div>
+      <div class="Footnote"><a name="1229076">The options on these command lines assume TEST_FEED is the service being used and 17008 is the port number. Modify these example values as necessary.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

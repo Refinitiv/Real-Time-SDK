@@ -10,9 +10,11 @@
 	<property name="libs.dir" value="${dist.dir}/Libs"/>
 	<property name="bin.dir" value="${dist.dir}/Src/bin"/>	
 	<property name="emaj.src.dir" value="${dist.dir}/Src" />
+	<property name="emaj.docs.dir" value="${dist.dir}/Docs" />
+	<property name="src.main.java.dir" value="${dist.dir}/Src/main/java" />
 	<property name="vendor" value="Thomson Reuters"/>
-	<property name="project.version" value="3.0"/>
-    <property name="load.version" value="emaj3.0.4.all.rrg"/>
+	<property name="project.version" value="3.1.0.L1"/>
+    <property name="load.version" value="emaj3.1.0.L1.all.rrg"/>
 	
 	<path id="emaj.classpath">
         <pathelement path="${etaj.dist.dir}/Libs/upa.jar"/>
@@ -56,6 +58,7 @@
 			<fileset dir="${bin.dir}">
 				<include name="com/thomsonreuters/ema/access/**/*.class"/>
 				<include name="com/thomsonreuters/ema/rdm/**/*.class"/>
+				<include name="com/thomsonreuters/ema/domain/**/*.class"/>
 			</fileset>
 			<manifest>
 				<attribute name="Build-Date" value="${TODAY}"/>
@@ -67,6 +70,72 @@
 			</manifest>
 		</jar>
 	</target>
+
+
+        <target name="package-docs"
+            depends="build-emajar" >
+
+        <echo message="EMA Java API javadocs" />
+
+                <!-- the classpath for all packaging javadocs -->
+                <path id="emaj.javadoc.classpath">
+                        <pathelement path="${libs.dir}/ema.jar"/>
+            <pathelement path="${slf4j.dir}/slf4j-1.7.12/slf4j-api-1.7.12.jar"/>
+            <pathelement path="${apache.dir}/commons-configuration-1.10/commons-configuration-1.10.jar"/>
+                </path>
+
+                <!-- exclude impl -->
+                <copy todir="${marshall.dir}">
+                        <fileset dir="${src.main.java.dir}">
+                                <include name="**/*.*" />
+                                <exclude name="com/thomsonreuters/ema/access/impl/**" />
+                        </fileset>
+                </copy>
+
+                <!-- sourcepath for emajava javadoc -->
+                <path id="emaj.javadoc.emajava.sourcepath.interface">
+                        <pathelement path="${marshall.dir}/interface"/>
+                </path>
+
+                <!-- packages to be grouped in javadocs -->
+                <property name="ACCESS" value="com.thomsonreuters.ema.access"/>
+                <property name="RDM" value="com.thomsonreuters.ema.rdm"/>
+
+                <!-- emajava do javadoc GitHub -->
+                <javadoc sourcepathref="emaj.javadoc.emajava.sourcepath.interface"
+                         classpathref="emaj.javadoc.classpath"
+                         public="true"
+                         destdir="${emaj.docs.dir}/refman/emajava"
+                         doctitle="EMA JAVA ${project.version}"
+                         windowtitle="EMA">
+
+                        <group title="Access" packages="${ACCESS}" />
+                        <group title="RDM" packages="${RDM}" />
+                        <header>
+                                <![CDATA[<a href="http://about.reuters.com/developer" target=_top>Thomson Reuters</a>]]></header>
+                        <footer>
+                                <![CDATA[<a href="http://about.reuters.com/developer" target=_top>Thomson Reuters</a>]]></footer>
+                </javadoc>
+
+                <delete dir="${marshall.dir}"/>
+
+                <!-- create ema-javadoc.jar -->
+                <echo message="Creating ema-javadoc.jar" />
+                <jar jarfile="${libs.dir}/ema-javadoc.jar">
+                        <fileset dir="${emaj.docs.dir}/refman/emajava">
+                                <include name="**/**"/>
+                        </fileset>
+                        <manifest>
+                                <attribute name="Build-Date" value="${TODAY}"/>
+                                <attribute name="Specification-Title" value="EMA Java javadoc"/>
+                                <attribute name="Specification-Version" value="${project.version}"/>
+                                <attribute name="Specification-Vendor" value="${vendor}"/>
+                                <attribute name="package_Version" value="${load.version}"/>
+                                <attribute name="Implementation-Version" value="${load.version}"/>
+                        </manifest>
+                </jar>
+
+        </target><!-- end -->
 
 
 	<target depends="clean,build-etajars,build-emaj-source,build-emajar" name="build"/>

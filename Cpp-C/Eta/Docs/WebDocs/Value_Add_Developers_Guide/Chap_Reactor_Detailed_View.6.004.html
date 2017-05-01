@@ -56,44 +56,72 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1221527">Reactor Error Handling</a></div>
-      <div class="Body"><a name="1222603">The </a><span class="CodeOrCommand">RsslErrorInfo</span> structure is used to return error or warning information to the application. This can be returned from the various Reactor functions as well as part of a callback function. When returned directly from a Reactor function, this indicates that an error occurred while processing in that function. If returned as part of a callback function, this indicates that an error has occurred on one of the channels that the Reactor is managing.</div>
-      <div class="Body"><a name="1222605">The </a><span class="CodeOrCommand">RsslErrorInfo</span> members are described in the following table.</div>
-      <div class="Blank_Line"><a name="1222601">&nbsp;</a></div>
+      <div class="Body"><a name="1526518">The </a><span class="CodeOrCommand">RsslErrorInfo</span> structure is used to return error or warning information to the application. This can be returned from the various reactor functions as well as part of a callback function.</div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1526531">If returned directly from a reactor function: an error occurred while processing in that function.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1526535">If returned as part of a callback function: an error has occurred on one of the channels managed by the reactor.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Body"><span class="CodeOrCommand"><a name="1526539">RsslErrorInfo</a></span> members are as follows:</div>
+      <div class="Blank_Line"><a name="1526596">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 3: <span class="LucidaConsole"><a name="1222627">RsslErrorInfo</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 3: <span class="LucidaConsole"><a name="1526593">RsslErrorInfo</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 127.49976pt">
-            <div class="CellHeading"><a name="1222611">STRUCTURE MEMBER</a></div>
+            <div class="CellHeading"><a name="1526542">STRUCTURE </a>MEMBER</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 428.25024pt">
-            <div class="CellHeading"><a name="1222613">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1526544">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222615">rsslErrorInfoCode</a></div>
+            <div class="CellBody"><a name="1526546">rsslErrorInfoCode </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222747">An informational code about this error. Indicates whether it reports a failure condition or is intended to provide non-failure related information to the user. For details on available codes, refer to </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.005.html#1222904', '');" title="6.1.3 Reactor Error Info Codes">Table 4</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222619">rsslError</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222770">The underlying error information from the Transport API. This includes a pointer to the </a><span class="CodeOrCommand">RsslChannel</span> on which the error occurred, both a Transport API and a system error number, and more descriptive error text. The <span class="CodeOrCommand">RsslError</span> and its values are described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
+            <div class="CellBody"><a name="1526548">An informational code about this error. Indicates whether it reports a failure condition or is intended to provide non-failure-related information to the user. For details on available codes, refer to </a>Table 1.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222623">errorLocation</a></div>
+            <div class="CellBody"><a name="1526553">rsslError </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222625">Provides information about the file and line that the error occurred at. Detailed error text is provided via the </a><span class="CodeOrCommand">rsslError</span> portion of this structure.</div>
-            <div class="CellBody"><span class="CodeOrCommand"><a name="1222808">RsslErrorInfo.errorLocation</a></span> length is limited to 1,024 bytes.</div>
+            <div class="CellBody"><a name="1526561">Returns an </a><span class="CodeOrCommand">RsslError</span> structure (i.e., the underlying error information from the Transport API). <span class="CodeOrCommand">RsslError</span> includes a pointer to the <span class="CodeOrCommand">RsslChannel</span> on which the error occurred, both a Transport API and a system error number, and more descriptive error text. The <span class="CodeOrCommand">RsslError</span> and its values are described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;DEV&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition Developers Guide</a></span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1526573">errorLocation </a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1526575">Provides information about the file and line on which the error occurred. Detailed error text is provided via the </a><span class="CodeOrCommand">RsslError</span> portion of this structure.</div>
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1526585">RsslErrorInfo.errorLocation</a></span> length is limited to 1,024 bytes.</div>
           </td>
         </tr>
       </table>

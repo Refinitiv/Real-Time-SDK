@@ -5,8 +5,7 @@ P.fA("1.2 Audience","Chap_Intro.1.2.html");
 P.fA("1.3 Programming Language","Chap_Intro.1.3.html");
 P.fA("1.4 Acronyms and Abbreviations","Chap_Intro.1.4.html");
 P.fA("1.5 References","Chap_Intro.1.5.html");
-P.fA("1.6 Documentation Feedback","Chap_Intro.1.6.html");
-P.fA("1.7 Document Conventions","Chap_Intro.1.7.html");
+P.fA("1.6 Document Conventions","Chap_Intro.1.6.html");
 P.fA("2.1 EMA Product Description","Chapter_Prod_Desc.2.1.html");
 P.fA("2.2 Product Documentation and Learning EMA","Chapter_Prod_Desc.2.2.html");
 P.fA("2.2.1 Consumer Examples","Chapter_Prod_Desc.2.3.html");
@@ -61,5 +60,4 @@ P.fA("6.1 EMA Logger Usage","Chapter_Troubleshooting.6.1.html");
 P.fA("6.2 Omm Error Client Classes","Chapter_Troubleshooting.6.2.html");
 P.fA("6.2.2 Example: Error Client","Chapter_Troubleshooting.6.3.html");
 P.fA("6.3 OmmException Class","Chapter_Troubleshooting.6.4.html");
-P.fA("\u00a9 2015, 2016 Thomson Reuters. All rights reserved.","lastpage.html");
 }

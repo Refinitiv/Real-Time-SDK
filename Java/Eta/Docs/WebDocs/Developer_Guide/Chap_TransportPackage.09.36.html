@@ -56,28 +56,28 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1009821">Accepting Connection Requests</a></div>
-      <div class="Body"><a name="1472828">After establishing a listening socket, the </a><span class="CodeOrCommand">Server.SelectableChannel</span> can be registered with an I/O notification mechanism. An alert from the I/O notification mechanism on the server’s <span class="CodeOrCommand">SelectableChannel</span> indicates that a connection request has been detected. An application can begin the process of accepting or rejecting the connection by using the <span class="CodeOrCommand">Server.accept</span> method.</div>
-      <div class="Blank_Line"><a name="1472904">&nbsp;</a></div>
+      <div class="Body"><a name="1526569">After establishing a listening socket, the </a><span class="CodeOrCommand">Server.SelectableChannel</span> can be registered with an I/O notification mechanism. An alert from the I/O notification mechanism on the server’s <span class="CodeOrCommand">SelectableChannel</span> indicates that a connection request has been detected. An application can begin the process of accepting or rejecting the connection by using the <span class="CodeOrCommand">Server.accept</span> method.</div>
+      <div class="Blank_Line"><a name="1526645">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 22: <span class="LucidaConsole"><a name="1472901">Server.accept</a></span> Method &nbsp;</div>
+          <div class="TableTitle">Table 22: <span class="LucidaConsole"><a name="1526642">Server.accept</a></span> Method &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 97.49952pt">
-            <div class="CellHeading"><a name="1472843">method NAME</a></div>
+            <div class="CellHeading"><a name="1526584">method NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 458.25048pt">
-            <div class="CellHeading"><a name="1472845">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1526586">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1472850">Server.accept</a></div>
+            <div class="CellBody"><a name="1526591">Server.accept</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1472855">Uses the </a><span class="CodeOrCommand">Server</span> that represents the listening socket connection and begins the process of accepting the incoming connection request. Returns a <span class="CodeOrCommand">Channel</span> that represents the client connection. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">Error</span> object.</div>
-            <div class="CellBody"><a name="1472868">The </a><span class="CodeOrCommand">Transport.accept</span> method can also begin the rejection process for a connection through the use of the <span class="CodeOrCommand">AcceptOptions</span> object as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.37.html', '');" title="9.4.2.1 AcceptOptions Methods">Section 9.4.2.1</a>.</div>
-            <div class="CellBody"><a name="1472887">Once a connection is established and transitions to </a><span class="CodeOrCommand">ChannelState.ACTIVE</span>, this <span class="CodeOrCommand">Channel</span> can be used for other transport operations. For more information about channel initialization, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.40.html', '');" title="9.5 Channel Initialization">Section 9.5</a>.</div>
+            <div class="CellBody"><a name="1526596">Uses the </a><span class="CodeOrCommand">Server</span> that represents the listening socket connection and begins the process of accepting the incoming connection request. Returns a <span class="CodeOrCommand">Channel</span> that represents the client connection. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">Error</span> object.</div>
+            <div class="CellBody"><a name="1526609">The </a><span class="CodeOrCommand">Transport.accept</span> method can also begin the rejection process for a connection through the use of the <span class="CodeOrCommand">AcceptOptions</span> object as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.37.html', '');" title="9.4.2.1 AcceptOptions Methods">Section 9.4.2.1</a>.</div>
+            <div class="CellBody"><a name="1526628">Once a connection is established and transitions to </a><span class="CodeOrCommand">ChannelState.ACTIVE</span>, this <span class="CodeOrCommand">Channel</span> can be used for other transport operations. For more information about channel initialization, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.40.html', '');" title="9.5 Channel Initialization">Section 9.5</a>.</div>
           </td>
         </tr>
       </table>

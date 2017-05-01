@@ -72,6 +72,9 @@ typedef struct
 
 	RsslBuffer			userName;						/* Username to use when logging in. */
 	RsslBuffer			serviceName;					/* Service name to use when requesting items. */
+	RsslBuffer			authenticationToken;			/* Authentication token used for logging in */
+	RsslBuffer			authenticationExtended;			/* Extended Authentication information used for logging in */
+	RsslBuffer			appId;					/* Application ID */
 	ItemInfo			itemList[MAX_ITEMS];			/* The list of items to request. */
 	ItemInfo			providedItemList[MAX_ITEMS];	/* Stores any items opened by the provider.
 														 * May occur when requesting symbol list with
@@ -103,6 +106,9 @@ typedef struct
 	char			_queueSourceNameMem[255];
 	char			_queueDestNameMem[MAX_DEST_NAMES][255];
 	char			_tunnelStreamServiceNameMem[255];
+	char 			_authenticationTokenMem[1024];
+	char			_authenticationExtendedMem[1024];
+	char 			_appIdMem[255];
 } WatchlistConsumerConfig;
 extern WatchlistConsumerConfig watchlistConsumerConfig;
 

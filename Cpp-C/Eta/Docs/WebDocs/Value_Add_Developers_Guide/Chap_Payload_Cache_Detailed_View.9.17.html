@@ -56,46 +56,46 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1221091">Managing Payload Cache Entries</a></div>
-      <div class="Body"><a name="1221150">Payload cache entries are created within a cache instance. A cache entry is defined by the </a><span class="CodeOrCommand">RsslPayloadEntryHandle</span> returned from the <span class="CodeOrCommand">rsslPayloadEntryCreate</span> function. Entries cannot be moved between different cache instances, due to their dependency on the field dictionary bound to the cache where they are created.</div>
-      <div class="Body"><a name="1224050">Cache entries only store the payload container of an item. Other information related to items (e.g. message key attributes, domain, state) would need to be maintained as needed in an item list managed by the application, which will identify the source or sink associated with the cache entry data. This item list will likely include the </a><span class="CodeOrCommand">RsslPayloadEntryHandle</span> if the payload of the item is cached.</div>
-      <div class="Body"><a name="1224051">For a list of basic utilities provided by the payload cache to manage the collection of entries in the cache, refer to </a><a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Payload_Cache_Detailed_View.9.15.html', '');" title="9.2.5 Payload Cache Utilities">Section 9.2.5</a>.</div>
-      <div class="Body"><a name="1221152">Use the following functions for managing cache entries:</a></div>
-      <div class="Blank_Line"><a name="1221154">&nbsp;</a></div>
+      <div class="Body"><a name="1240187">Payload cache entries are created within a cache instance. </a>A cache entry is defined by the <span class="CodeOrCommand">RsslPayloadEntryHandle</span> returned from the <span class="CodeOrCommand">rsslPayloadEntryCreate</span> function. You cannot move entries between different cache instances, due to their dependency on the field dictionary bound to the cache where they are created.</div>
+      <div class="Body"><a name="1240194">Cache entries only store the payload container of an item. Maintain other item data (e.g. message key attributes, domain, state) as needed in an item list managed by the application, which will identify the source or sink associated with the cache entry data. This item list will likely include the</a> <span class="CodeOrCommand">RsslPayloadEntryHandle</span> if the payload of the item is cached.</div>
+      <div class="Body"><a name="1240198">For a list of basic utilities provided by the payload cache to manage the collection of entries in the cache, refer to</a> <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Payload_Cache_Detailed_View.9.15.html', '');" title="9.2.5 Payload Cache Utilities">Section 9.2.5</a>.</div>
+      <div class="Body"><a name="1240205">Use the following functions to manage cache entries:</a></div>
+      <div class="Blank_Line"><a name="1240252">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 187: <a name="1224094">Payload Cache Entry Management Functions &nbsp;</a></div>
+          <div class="TableTitle">Table 188: <a name="1240249">Payload Cache Entry Management Functions &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 144pt">
-            <div class="CellHeading"><a name="1224078">FUNCTION NAME</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 158.99976pt">
+            <div class="CellHeading"><a name="1240211">Function NAME</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 411.75pt">
-            <div class="CellHeading"><a name="1224080">DESCRIPTION</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224082">rsslPayloadEntryCreate</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224212">Returns a </a><span class="CodeOrCommand">RsslPayloadEntryHandle</span> to the newly created entry in the cache defined by the given <span class="CodeOrCommand">RsslPayloadCacheHandle</span>. The <span class="CodeOrCommand">RsslPayloadEntryHandle</span> is required for all operations on this entry. </div>
-            <div class="CellBody"><a name="1224213">This function will return a null handle if the entry could not be created (e.g. if the maximum number of entries as defined in </a><span class="CodeOrCommand">RsslPayloadCacheConfigOptions</span> would be exceeded). </div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 396.75024pt">
+            <div class="CellHeading"><a name="1240213">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224086">rsslPayloadEntryDestroy</a></div>
+            <div class="CellBody"><a name="1240218">rsslPayloadEntryCreate</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224088">Destroys the cache entry defined by </a><span class="CodeOrCommand">RsslPayloadEntryHandle</span> and removes it from it’s cache. </div>
+            <div class="CellBody"><a name="1240220">This method returns a </a><span class="CodeOrCommand">RsslPayloadEntryHandle</span> to the newly created entry in the cache defined by the given <span class="CodeOrCommand">RsslPayloadCacheHandle</span>. The <span class="CodeOrCommand">RsslPayloadEntryHandle</span> is required for all operations on this entry. </div>
+            <div class="CellBody"><a name="1240230">This function will return a null handle if it cannot create the entry (e.g., if the maximum number of entries as defined in </a><span class="CodeOrCommand">RsslPayloadCacheConfigOptions</span> would be exceeded). </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224090">rsslPayloadEntryClear</a></div>
+            <div class="CellBody"><a name="1240235">rsslPayloadEntryDestroy </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224092">Any data contained in the cache entry </a><span class="CodeOrCommand">RsslPayloadEntryHandle</span> is deleted, and the entry is returned to its initial state. The entry itself remains in the cache and can be re-used. </div>
+            <div class="CellBody"><a name="1240237">This method destroys the cache entry defined</a> by <span class="CodeOrCommand">RsslPayloadEntryHandle</span> and removes it from its cache. </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1240239">rsslPayloadEntryClear </a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1240241">This method deletes any data in the cache entry</a> <span class="CodeOrCommand">RsslPayloadEntryHandle</span> and returns the entry to its initial state. The entry itself remains in the cache and can be re-used. </div>
           </td>
         </tr>
       </table>

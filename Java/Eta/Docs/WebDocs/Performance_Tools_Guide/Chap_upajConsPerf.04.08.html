@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1223145">Posting Latency</a></div>
-      <div class="Body"><a name="1231766">You can configure </a><span class="ToolOrUtility_Name">upajConsPerf</span> to send on-stream posts in which case the consumer periodically sends bursts of post messages for specified items in the item list file. You can also configure the tool to include latency information in its posts. When configured in this manner, <span class="ToolOrUtility_Name">upajConsPerf</span> adds latency information to random post messages. When the posted content returns on the stream, <span class="ToolOrUtility_Name">upajConsPerf</span> decodes the timestamp and measures the difference to determine posting latency.</div>
-      <div class="Procedure_Heading"><a name="1231776"><img class="Default" src="images/Chap_upajConsPerf.04.08.1.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> Posting Latency Measurement Sequence:</a></div>
+      <div class="Body"><a name="1233666">You can configure </a><span class="ToolOrUtility_Name">upajConsPerf</span> to send on-stream posts in which case the consumer periodically sends bursts of post messages for specified items in the item list file. You can also configure the tool to include latency information in its posts. When configured in this manner, <span class="ToolOrUtility_Name">upajConsPerf</span> adds latency information to random post messages. When the posted content returns on the stream, <span class="ToolOrUtility_Name">upajConsPerf</span> decodes the timestamp and measures the difference to determine posting latency.</div>
+      <div class="Procedure_Heading"><a name="1233676"><img class="Default" src="images/Chap_upajConsPerf.04.08.1.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> Posting Latency Measurement Sequence:</a></div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1231777">Get the current time (</a><span class="Parameter">t1</span>).</div>
+              <div class="Step1_inner"><a name="1233677">Get the current time (</a><span class="Parameter">t1</span>).</div>
             </td>
           </tr>
         </table>
@@ -81,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1231778">Obtain an output buffer using</a> <span class="CodeOrCommand">Channel.getBuffer()</span>.</div>
+              <div class="Stepnext_inner"><a name="1233678">Obtain an output buffer using</a> <span class="CodeOrCommand">Channel.getBuffer()</span>.</div>
             </td>
           </tr>
         </table>
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1231779">Encode the message, including the time (</a><span class="Parameter">t1</span>).</div>
+              <div class="Stepnext_inner"><a name="1233679">Encode the message, including the time (</a><span class="Parameter">t1</span>).</div>
             </td>
           </tr>
         </table>
@@ -109,7 +109,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1231780">Pass the message to the API, which then passes it to the underlying transport.</a></div>
+              <div class="Stepnext_inner"><a name="1233680">Pass the message to the API, which then passes it to the underlying transport.</a></div>
             </td>
           </tr>
         </table>
@@ -123,7 +123,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1231781">When processing received content, check to see whether the payload contains latency information, if so:</a></div>
+              <div class="Stepnext_inner"><a name="1233681">When processing received content, check to see whether the payload contains latency information, if so:</a></div>
             </td>
           </tr>
         </table>
@@ -137,7 +137,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1231782">Get the current time (</a><span class="Parameter">t2</span>).</div>
+              <div class="bullet_ind_inner"><a name="1233682">Get the current time (</a><span class="Parameter">t2</span>).</div>
             </td>
           </tr>
         </table>
@@ -151,7 +151,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1231783">Calculate the difference between timestamps.</a></div>
+              <div class="bullet_ind_inner"><a name="1233683">Calculate the difference between timestamps.</a></div>
             </td>
           </tr>
         </table>
@@ -165,12 +165,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1231784">Store the result in the recorded output information.</a></div>
+              <div class="bullet_ind_inner"><a name="1233684">Store the result in the recorded output information.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1231785">The time at the start of encoding is encoded as a timestamp in the payload as field TIM_TRK_2 (</a><span class="Parameter">3903</span>). When the payload from the post returns from the platform, the consumer compares the timestamp to the current time to determine the posting latency.</div>
+      <div class="indent_25"><a name="1233685">The time at the start of encoding is encoded as a timestamp in the payload as field TIM_TRK_2 (</a><span class="Parameter">3903</span>). When the payload from the post returns from the platform, the consumer compares the timestamp to the current time to determine the posting latency.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

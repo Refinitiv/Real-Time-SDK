@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="999701">Dynamic View Use</a></div>
-      <div class="Body"><a name="1028165">Applications can use the Transport API to send or receive requests for a dynamic view of a stream’s content. A consumer application uses a </a><span class="Concept">dynamic view</span> to specify a subset of data in which the application has interest. A provider can choose to supply only this requested subset of content across all response messages. Filtering content in this manner can reduce the volume of data that flows across the connection. View use can be leveraged across all non-administrative<sup><a name="wwfootnote_inline_71" href="#71">1</a></sup> domain model types, where the model definition should specify associated usage and support. Though a consumer might request a specific view, the provider might still send additional content and/or content might be unavailable (and not provided).</div>
-      <div class="Body"><a name="1028172">A consumer application can request a view through an </a><span class="CodeOrCommand">RsslRequestMsg</span> with the <span class="Parameter">RSSL_RQMF_HAS_VIEW</span> flag set and by including a specially-formatted payload. The payload should contain an <span class="CodeOrCommand">RsslElementList</span> along with:</div>
+      <div class="Body"><a name="1037121">Applications can use the Transport API to send or receive requests for a dynamic view of a stream’s content. A consumer application uses a </a><span class="Concept">dynamic view</span> to specify a subset of data in which the application has interest. A provider can choose to supply only this requested subset of content across all response messages. Filtering content in this manner can reduce the volume of data that flows across the connection. View use can be leveraged across all non-administrative<sup><a name="wwfootnote_inline_72" href="#72">1</a></sup> domain model types, where the model definition should specify associated usage and support. Though a consumer might request a specific view, the provider might still send additional content and/or content might be unavailable (and not provided).</div>
+      <div class="Body"><a name="1037128">A consumer application can request a view through an </a><span class="CodeOrCommand">RsslRequestMsg</span> with the <span class="Parameter">RSSL_RQMF_HAS_VIEW</span> flag set and by including a specially-formatted payload. The payload should contain an <span class="CodeOrCommand">RsslElementList</span> along with:</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1028179">An </a><span class="CodeOrCommand">RsslElementEntry</span> for <span class="CodeOrCommand">:ViewType</span> which contains an <span class="Parameter">RSSL_DT_UINT</span> value indicating the specific type of view requested. <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.20.html', '');" title="13.8.1 RDMViewTypes Enumerated Names">Section 13.8.1</a> describes the currently defined <span class="CodeOrCommand">:ViewType</span> values.</div>
+              <div class="Bullet_inner"><a name="1037135">An </a><span class="CodeOrCommand">RsslElementEntry</span> for <span class="CodeOrCommand">:ViewType</span> which contains an <span class="Parameter">RSSL_DT_UINT</span> value indicating the specific type of view requested. <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.20.html', '');" title="13.8.1 RDMViewTypes Enumerated Names">Section 13.8.1</a> describes the currently defined <span class="CodeOrCommand">:ViewType</span> values.</div>
             </td>
           </tr>
         </table>
@@ -81,15 +81,15 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1028192">An </a><span class="CodeOrCommand">RsslElementEntry</span> for <span class="CodeOrCommand">:ViewData</span> which contains an <span class="CodeOrCommand">RsslArray</span> populated with the content being requested. For instance, when specifying a <span class="CodeOrCommand">fieldId</span> list, the array would contain two-byte fixed length <span class="Parameter">RSSL_DT_INT</span> entries. The specific contents of the <span class="CodeOrCommand">:ViewData</span> are indicated in the definition of the <span class="CodeOrCommand">:ViewType</span>.</div>
+              <div class="Bullet_inner"><a name="1037148">An </a><span class="CodeOrCommand">RsslElementEntry</span> for <span class="CodeOrCommand">:ViewData</span> which contains an <span class="CodeOrCommand">RsslArray</span> populated with the content being requested. For instance, when specifying a <span class="CodeOrCommand">fieldId</span> list, the array would contain two-byte fixed length <span class="Parameter">RSSL_DT_INT</span> entries. The specific contents of the <span class="CodeOrCommand">:ViewData</span> are indicated in the definition of the <span class="CodeOrCommand">:ViewType</span>.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1028196">Because payload content can include customer-defined portions and Thomson Reuters-defined portions, the Transport API uses a name-spacing scheme. Any content in the </a><span class="CodeOrCommand">name</span> member prior to the colon (<span class="CodeOrCommand">:</span>) is used as name space information (e.g., <span class="CodeOrCommand">Customer:Element</span>). Thomson Reuters reserves the empty name space (e.g., <span class="CodeOrCommand">:Element</span>). View-related enumerations and element name string constants are defined in the <span class="FileOrDirectory">rsslRDM.h</span> header file.</div>
-      <div class="Body"><a name="1028197">If a consumer application wishes to change a previously-specified view, the same process can be followed by issuing a subsequent </a><span class="CodeOrCommand">RsslRequestMsg</span> using the same <span class="CodeOrCommand">streamId</span> (a reissue). In this case, <span class="CodeOrCommand">:ViewData</span> would contain the newly desired view. If a reissue is required and the consumer wants to continue using the same view, the <span class="CodeOrCommand">RsslRequestMsg</span> should continue to include the <span class="Parameter">RSSL_RQMF_HAS_VIEW</span> flag,<span class="CodeOrCommand">:ViewType</span> or <span class="CodeOrCommand">:ViewData</span> are not required. Sending an <span class="CodeOrCommand">RsslRequestMsg</span> without the <span class="Parameter">RSSL_RQMF_HAS_VIEW</span> flag removes any view associated with a stream.</div>
-      <div class="Body"><a name="1028207">A provider application can receive a view request and determine an appropriate way to respond. Response content can be filtered to abide by the view specification, or the provider can send full/additional content. Several </a><span class="CodeOrCommand">RsslState.code</span> values are available to convey view-related status. If a view’s possible content changes (e.g., a previously requested field becomes available), an <span class="CodeOrCommand">RsslRefreshMsg</span> should be provided to convey such a change to the data. This refresh should follow the rules associated with solicited or unsolicited refresh messages.</div>
-      <div class="Body"><a name="1028214">A provider application can indicate support for dynamic view handling by sending the </a><span class="CodeOrCommand">msgKey</span> attribute <span class="CodeOrCommand">supportViewRequests</span> in the Login domain <span class="CodeOrCommand">RsslRefreshMsg</span>.</div>
+      <div class="Body"><a name="1037152">Because payload content can include customer-defined portions and Thomson Reuters-defined portions, the Transport API uses a name-spacing scheme. Any content in the </a><span class="CodeOrCommand">name</span> member prior to the colon (<span class="CodeOrCommand">:</span>) is used as name space information (e.g., <span class="CodeOrCommand">Customer:Element</span>). Thomson Reuters reserves the empty name space (e.g., <span class="CodeOrCommand">:Element</span>). View-related enumerations and element name string constants are defined in the <span class="FileOrDirectory">rsslRDM.h</span> header file.</div>
+      <div class="Body"><a name="1037153">If a consumer application wishes to change a previously-specified view, the same process can be followed by issuing a subsequent </a><span class="CodeOrCommand">RsslRequestMsg</span> using the same <span class="CodeOrCommand">streamId</span> (a reissue). In this case, <span class="CodeOrCommand">:ViewData</span> would contain the newly desired view. If a reissue is required and the consumer wants to continue using the same view, the <span class="CodeOrCommand">RsslRequestMsg</span> should continue to include the <span class="Parameter">RSSL_RQMF_HAS_VIEW</span> flag,<span class="CodeOrCommand">:ViewType</span> or <span class="CodeOrCommand">:ViewData</span> are not required. Sending an <span class="CodeOrCommand">RsslRequestMsg</span> without the <span class="Parameter">RSSL_RQMF_HAS_VIEW</span> flag removes any view associated with a stream.</div>
+      <div class="Body"><a name="1037163">A provider application can receive a view request and determine an appropriate way to respond. Response content can be filtered to abide by the view specification, or the provider can send full/additional content. Several </a><span class="CodeOrCommand">RsslState.code</span> values are available to convey view-related status. If a view’s possible content changes (e.g., a previously requested field becomes available), an <span class="CodeOrCommand">RsslRefreshMsg</span> should be provided to convey such a change to the data. This refresh should follow the rules associated with solicited or unsolicited refresh messages.</div>
+      <div class="Body"><a name="1037170">A provider application can indicate support for dynamic view handling by sending the </a><span class="CodeOrCommand">msgKey</span> attribute <span class="CodeOrCommand">supportViewRequests</span> in the Login domain <span class="CodeOrCommand">RsslRefreshMsg</span>.</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -99,21 +99,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1028227">For details on </a><span class="CodeOrCommand">RsslState.code</span> values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.028.html', '');" title="11.2.6.4 Code Values">Section 11.2.6.4</a>.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1028231">For details on the </a><span class="CodeOrCommand">RsslRequestMsg</span> and <span class="Parameter">RSSL_RQMF_HAS_VIEW</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.14.html#1001278', '');" title="12.2 RSSL Messages">Section 12.2.1</a>.</div>
+              <div class="Bullet_inner"><a name="1037183">For details on </a><span class="CodeOrCommand">RsslState.code</span> values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.028.html', '');" title="11.2.6.4 Code Values">Section 11.2.6.4</a>.</div>
             </td>
           </tr>
         </table>
@@ -127,7 +113,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1028247">For details on the </a><span class="CodeOrCommand">RsslElementList</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.2 RsslElementList">Section 11.3.2</a>.</div>
+              <div class="Bullet_inner"><a name="1037187">For details on the </a><span class="CodeOrCommand">RsslRequestMsg</span> and <span class="Parameter">RSSL_RQMF_HAS_VIEW</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.14.html#1001278', '');" title="12.2 RSSL Messages">Section 12.2.1</a>.</div>
             </td>
           </tr>
         </table>
@@ -141,7 +127,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1028254">For rules associated with refresh messages, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.18.html', '');" title="12.2.2 RSSL Refresh Message Class">Section 12.2.2</a>.</div>
+              <div class="Bullet_inner"><a name="1037203">For details on the </a><span class="CodeOrCommand">RsslElementList</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.2 RsslElementList">Section 11.3.2</a>.</div>
             </td>
           </tr>
         </table>
@@ -155,7 +141,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1028255">For details on the Login </a><span class="CodeOrCommand">domainType</span> (<span class="Parameter">RSSL_DMT_LOGIN</span>) and general view use, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API RDM Usage Guide</a></span>.</div>
+              <div class="Bullet_inner"><a name="1037210">For rules associated with refresh messages, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.18.html', '');" title="12.2.2 RSSL Refresh Message Class">Section 12.2.2</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a name="1037211">For details on the Login </a><span class="CodeOrCommand">domainType</span> (<span class="Parameter">RSSL_DMT_LOGIN</span>) and general view use, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API RDM Usage Guide</a></span>.</div>
             </td>
           </tr>
         </table>
@@ -171,9 +171,9 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="71" href="#wwfootnote_inline_71">1</a>
+        <a name="72" href="#wwfootnote_inline_72">1</a>
       </div>
-      <div class="Footnote"><a name="1028168">Administrative domain types are considered to be the Login, Directory, and Dictionary domain models. Other domains are considered non-administrative.</a></div>
+      <div class="Footnote"><a name="1037124">Administrative domain types are considered to be the Login, Directory, and Dictionary domain models. Other domains are considered non-administrative.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

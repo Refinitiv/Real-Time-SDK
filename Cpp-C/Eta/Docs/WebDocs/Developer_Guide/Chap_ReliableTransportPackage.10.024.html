@@ -71,6 +71,32 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219118">blocking</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219123">If set to </a><span class="Parameter">RSSL_TRUE</span>, blocking I/O will be used for this <span class="CodeOrCommand">RsslChannel</span>.</div>
+            <div class="CellBody"><a name="1219127">When I/O is used in a blocking manner on an </a><span class="CodeOrCommand">RsslChannel</span>, any reading or writing will complete before control is returned to the application. In addition, the <span class="CodeOrCommand">rsslConnect</span> function will complete any initialization on the RsslChannel prior to returning it. Blocking I/O prevents the application from performing any operations until the I/O operation is completed.</div>
+            <div class="CellBody"><a name="1219131">Blocking I/O is typically not recommended. An application can leverage an I/O notification mechanism to allow efficient reading and writing, while using other cycles to perform other necessary work in the application. An I/O notification mechanism enables the application to read when data is available, and write when output space is available.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219079">componentVersion</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219081">An optional, user-defined component version string appended behind the standard Transport API component version information. If the combined component version length exceeds the maximum supported by the Transport API, the user-defined information will be truncated. </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219089">compressionType</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219091">The type of compression the client would like performed for this connection. Compression is negotiated between the client and server and may not be performed if only the client has it enabled. For more information about supported compression types and compression negotiation, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.042.html', '');" title="10.4.3 Compression Support">Section 10.4.3</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="CellBody"><a name="1003075">connectionInfo</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
@@ -79,29 +105,11 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1003079">hostName</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1009515">DEPRECATED</a></span>.</div>
-            <div class="CellBody"><a name="1009516">For information on using </a><span class="CodeOrCommand">connectionInfo.unified.address</span> to configure equivalent functionality, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.025.html#1003129', '');" title="10.3.2.2 RsslConnectOptions.connectionInfo Options">Table 22</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1003083">serviceName</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1009535">DEPRECATED</a></span>.</div>
-            <div class="CellBody"><a name="1009536">For information on using </a><span class="CodeOrCommand">connectionInfo.unified.serviceName</span> to configure equivalent functionality, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.025.html#1003129', '');" title="10.3.2.2 RsslConnectOptions.connectionInfo Options">Table 22</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="CellBody"><a name="1003087">connectionType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="CellBody"><a name="1009598">Specifies the type of connection to establish. Creation of TCP-based socket connection types or UDP-based multicast connection types are available across all supported platforms. Encrypted and HTTP connection types are available only for supported Windows platforms and depend on the Microsoft WinINET system library.</a></div>
-            <div class="CellBody"><a name="1009617">Connection Types are described in more detail in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.009.html#1220421', '');" title="10.1.2.2 RSSL Connection Enumerated Names Values">Table 14</a>.</div>
+            <div class="CellBody"><a name="1009617">Connection Types are described in more detail in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.009.html#1245149', '');" title="10.1.2.2 RSSL Connection Enumerated Names Values">Table 14</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -115,10 +123,55 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219041">hostName</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1219043">DEPRECATED</a></span>.</div>
+            <div class="CellBody"><a name="1219044">For information on using </a><span class="CodeOrCommand">connectionInfo.unified.address</span> to configure equivalent functionality, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.025.html#1003129', '');" title="10.3.2.2 RsslConnectOptions.connectionInfo Options">Table 22</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219133">majorVersion</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219135">The major version of the protocol that the client intends to exchange over the connection. This value is negotiated with the server at connection time. The outcome of the negotiation is provided via the </a><span class="CodeOrCommand">majorVersion</span> information on the <span class="CodeOrCommand">RsslChannel</span>. Typically, a major version increase is associated with the introduction of incompatible change.</div>
+            <div class="CellBody"><a name="1219139">The transport layer is data-neutral and allows the flow of any type of content. </a><span class="CodeOrCommand">majorVersion</span> is provided to help client and server applications manage the information they communicate. For more details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.09.17.html', '');" title="9.5.1 Protocol Versioning">Section 9.5.1</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219144">minorVersion</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219146">The minor version of the protocol that the client intends to exchange over the connection. This value is negotiated with the server at connection time. The outcome of the negotiation is provided via the </a><span class="CodeOrCommand">minorVersion</span> information on the <span class="CodeOrCommand">RsslChannel</span>. Typically, a minor version increase is associated with a fully backward compatible change or extension.</div>
+            <div class="CellBody"><a name="1219150">The transport layer is data-neutral and allows the flow of any type of content. </a><span class="CodeOrCommand">minorVersion</span> is provided to help client and server applications manage the information they communicate. For more details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.09.17.html', '');" title="9.5.1 Protocol Versioning">Section 9.5.1</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219163">multicastOpts</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219165">A substructure containing multicast-based connection type specific options. These settings are used for </a><span class="Parameter">RSSL_CONN_TYPE_RELIABLE_MCAST</span> and <span class="Parameter">RSSL_CONN_TYPE_SEQ_MCAST</span>.</div>
+            <div class="CellBody"><a name="1219169">For information about specific options, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.027.html#1003216', '');" title="10.3.2.4 RsslConnectOptions.multicastOpts">Table 24</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="CellBody"><a name="1009223">numInputBuffers</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="CellBody"><a name="1009225">The number of sequential input buffers to allocate for reading data into. This controls the maximum number of bytes that can be handled with a single network read operation. Input buffers are allocated at initialization time.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219096">objectName</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1219098">An optional object name to pass with a URL while tunneling. This option is only valid for HTTP and Encrypted connection types.</a></div>
+            <div class="CellBody"><a name="1219102">For more information on connection types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.009.html#1245149', '');" title="10.1.2.2 RSSL Connection Enumerated Names Values">Table 14</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -131,73 +184,29 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009231">compressionType</a></div>
+            <div class="CellBody"><a name="1219104">protocolType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009790">The type of compression the client would like performed for this connection. Compression is negotiated between the client and server and may not be performed if only the client has it enabled. For more information about supported compression types and compression negotiation, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.042.html', '');" title="10.4.3 Compression Support">Section 10.4.3</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009235">tcp_nodelay</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1009864">DEPRECATED</a></span>.</div>
-            <div class="CellBody"><a name="1009865">To configure equivalent functionality, refer to </a><span class="CodeOrCommand">tcpOpts.tcp_nodelay</span> in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.026.html#1003176', '');" title="10.3.2.3 RsslConnectOptions.tcpOpts Options">Table 23</a>.</div>
+            <div class="CellBody"><a name="1219106">The protocol type that the client intends to exchange over the connection. If the </a><span class="CodeOrCommand">protocolType</span> indicated by a server does not match the <span class="CodeOrCommand">protocolType</span> that a client specifies, the connection will be rejected. When an <span class="CodeOrCommand">RsslChannel</span> becomes active for a client or server, this information becomes available via the <span class="CodeOrCommand">protocolType</span> on the <span class="CodeOrCommand">RsslChannel</span>.</div>
+            <div class="CellBody"><a name="1219113">The transport layer is data-neutral and allows the flow of any type of content. </a><span class="CodeOrCommand">protocolType</span> is provided to help client and server applications manage the information they communicate. For more details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.09.17.html', '');" title="9.5.1 Protocol Versioning">Section 9.5.1</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009239">objectName</a></div>
+            <div class="CellBody"><a name="1219057">serviceName</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1010060">An optional object name to pass with a URL while tunneling. This option is only valid for HTTP and Encrypted connection types.</a></div>
-            <div class="CellBody"><a name="1010061">For more information on connection types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.009.html#1220421', '');" title="10.1.2.2 RSSL Connection Enumerated Names Values">Table 14</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009243">blocking</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1010100">If set to </a><span class="Parameter">RSSL_TRUE</span>, blocking I/O will be used for this <span class="CodeOrCommand">RsslChannel</span>.</div>
-            <div class="CellBody"><a name="1010101">When I/O is used in a blocking manner on an </a><span class="CodeOrCommand">RsslChannel</span>, any reading or writing will complete before control is returned to the application. In addition, the <span class="CodeOrCommand">rsslConnect</span> function will complete any initialization on the RsslChannel prior to returning it. Blocking I/O prevents the application from performing any operations until the I/O operation is completed.</div>
-            <div class="CellBody"><a name="1010102">Blocking I/O is typically not recommended. An application can leverage an I/O notification mechanism to allow efficient reading and writing, while using other cycles to perform other necessary work in the application. An I/O notification mechanism enables the application to read when data is available, and write when output space is available.</a></div>
+            <div class="CellBody"><span class="Bold"><a name="1219059">DEPRECATED</a></span>.</div>
+            <div class="CellBody"><a name="1219060">For information on using </a><span class="CodeOrCommand">connectionInfo.unified.serviceName</span> to configure equivalent functionality, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.025.html#1003129', '');" title="10.3.2.2 RsslConnectOptions.connectionInfo Options">Table 22</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009247">protocolType</a></div>
+            <div class="CellBody"><a name="1219155">tcp_nodelay</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1010136">The protocol type that the client intends to exchange over the connection. If the </a><span class="CodeOrCommand">protocolType</span> indicated by a server does not match the <span class="CodeOrCommand">protocolType</span> that a client specifies, the connection will be rejected. When an <span class="CodeOrCommand">RsslChannel</span> becomes active for a client or server, this information becomes available via the <span class="CodeOrCommand">protocolType</span> on the <span class="CodeOrCommand">RsslChannel</span>.</div>
-            <div class="CellBody"><a name="1010137">The transport layer is data-neutral and allows the flow of any type of content. </a><span class="CodeOrCommand">protocolType</span> is provided to help client and server applications manage the information they communicate. For more details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.09.17.html', '');" title="9.5.1 Protocol Versioning">Section 9.5.1</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009251">majorVersion</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1010178">The major version of the protocol that the client intends to exchange over the connection. This value is negotiated with the server at connection time. The outcome of the negotiation is provided via the </a><span class="CodeOrCommand">majorVersion</span> information on the <span class="CodeOrCommand">RsslChannel</span>. Typically, a major version increase is associated with the introduction of incompatible change.</div>
-            <div class="CellBody"><a name="1010180">The transport layer is data-neutral and allows the flow of any type of content. </a><span class="CodeOrCommand">majorVersion</span> is provided to help client and server applications manage the information they communicate. For more details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.09.17.html', '');" title="9.5.1 Protocol Versioning">Section 9.5.1</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009262">minorVersion</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1010224">The minor version of the protocol that the client intends to exchange over the connection. This value is negotiated with the server at connection time. The outcome of the negotiation is provided via the </a><span class="CodeOrCommand">minorVersion</span> information on the <span class="CodeOrCommand">RsslChannel</span>. Typically, a minor version increase is associated with a fully backward compatible change or extension.</div>
-            <div class="CellBody"><a name="1010226">The transport layer is data-neutral and allows the flow of any type of content. </a><span class="CodeOrCommand">minorVersion</span> is provided to help client and server applications manage the information they communicate. For more details, refer to<a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.09.17.html', '');" title="9.5.1 Protocol Versioning">Section 9.5.1</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009266">userSpecPtr</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009268">A pointer that can be set by the application. This value is not modified by the transport, but will be preserved and stored in the </a><span class="CodeOrCommand">userSpecPtr</span> of the <span class="CodeOrCommand">RsslChannel</span> returned from <span class="CodeOrCommand">rsslConnect</span>. This information can be useful for coupling this <span class="CodeOrCommand">RsslChannel</span> with other user created information, such as a watch list associated with this connection.</div>
+            <div class="CellBody"><span class="Bold"><a name="1219157">DEPRECATED</a></span>.</div>
+            <div class="CellBody"><a name="1219161">To configure equivalent functionality, refer to </a><span class="CodeOrCommand">tcpOpts.tcp_nodelay</span> in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.026.html#1003176', '');" title="10.3.2.3 RsslConnectOptions.tcpOpts Options">Table 23</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -211,15 +220,6 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1009274">multicastOpts</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1010322">A substructure containing multicast-based connection type specific options. These settings are used for </a><span class="Parameter">RSSL_CONN_TYPE_RELIABLE_MCAST</span> and <span class="Parameter">RSSL_CONN_TYPE_SEQ_MCAST</span>.</div>
-            <div class="CellBody"><a name="1010323">For information about specific options, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.027.html#1003216', '');" title="10.3.2.4 RsslConnectOptions.multicastOpts">Table 24</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="CellBody"><a name="1009278">shmemOpts</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
@@ -228,10 +228,10 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1122129">componentVersion</a></div>
+            <div class="CellBody"><a name="1219065">userSpecPtr</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1122131">An optional, user-defined component version string appended behind the standard Transport API component version information. If the combined component version length exceeds the maximum supported by the Transport API, the user-defined information will be truncated. </a></div>
+            <div class="CellBody"><a name="1219067">A pointer that can be set by the application. This value is not modified by the transport, but will be preserved and stored in the </a><span class="CodeOrCommand">userSpecPtr</span> of the <span class="CodeOrCommand">RsslChannel</span> returned from <span class="CodeOrCommand">rsslConnect</span>. This information can be useful for coupling this <span class="CodeOrCommand">RsslChannel</span> with other user created information, such as a watch list associated with this connection.</div>
           </td>
         </tr>
       </table>

@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1219612">Perform Dictionary Download</a></div>
-      <div class="Body"><a name="1219613">If connected to a supporting ADH, an OMM NIP can download the RWFFld and RWFEnum dictionaries to retrieve the appropriate dictionary information for providing field list content. An OMM NIP can use this feature to ensure they are using the appropriate version of the dictionary or to encode data. To support the Provider Dictionary Download feature, the ADH sends a Login response message containing the </a><span class="Parameter">SupportProviderDictionaryDownload</span> login element. The dictionary request is sent using the Dictionary domain model<sup><a name="wwfootnote_inline_28" href="#28">1</a></sup>.</div>
-      <div class="Body"><a name="1219614">The Transport API offers several utility functions for downloading and managing a properly-formatted field dictionary. There are also utility functions that the provider can use to encode the dictionary into an appropriate format for downloading or decoding.</a></div>
-      <div class="Body"><a name="1219615">For details on using the Login domain, expected message content, and available dictionary utility functions, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCRDMG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition RDM Usage Guide</a></span>.</div>
+      <div class="Body"><a name="1225901">If connected to a supporting ADH, an OMM non-interactive provider can download the RWFFld and RWFEnum dictionaries to retrieve the appropriate dictionary information for providing field list content. An OMM non-interactive provider can use this feature to ensure they use the appropriate version of the dictionary or to encode data. To support the Provider Dictionary Download feature, the ADH sends a Login response message containing the </a><span class="CodeOrCommand">SupportProviderDictionaryDownload</span> login element. The dictionary request is sent using the Dictionary domain model.<sup><a name="wwfootnote_inline_30" href="#30">1</a></sup></div>
+      <div class="Body"><a name="1225908">The Transport API offers several utility functions for downloading and managing a properly-formatted field dictionary. The provider can also use utility functions to encode the dictionary into an appropriate format for downloading or decoding.</a></div>
+      <div class="Body"><a name="1225909">For details on using the Login domain, expected message content, and available dictionary utility functions, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;RDM&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> C</a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);"> Edition RDM Usage Guide</a></span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -70,9 +70,9 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="28" href="#wwfootnote_inline_28">1</a>
+        <a name="30" href="#wwfootnote_inline_30">1</a>
       </div>
-      <div class="Footnote"><a name="1220232">Because the provider instantiates this request, the application should use a streamId with a negative value. Additional details are provided in subsequent chapters.</a></div>
+      <div class="Footnote"><a name="1225904">Because the provider instantiates this request, the application should use a streamId with a negative value. Additional details are provided in subsequent chapters.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

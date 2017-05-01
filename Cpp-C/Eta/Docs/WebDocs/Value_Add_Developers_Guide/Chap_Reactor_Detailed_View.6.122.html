@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>6.7.8.6 Closing a Tunnel Stream</title>
+    <title>6.7.8.5 Submitting Content on a Tunnel Stream Code Sample</title>
     <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,30 +55,183 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1221369">Closing a Tunnel Stream</a></div>
-      <div class="Body"><a name="1256481">When an application has completed its use of an </a><span class="CodeOrCommand">RsslTunnelStream</span>, it can be closed.</div>
-      <div class="Blank_Line"><a name="1256479">&nbsp;</a></div>
-      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
-        <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 77: <span class="LucidaConsole"><a name="1256559">rsslReactorCloseTunnelStream</a></span> &nbsp;</div>
-        </caption>
+      <div class="H4"><a name="1221350">Submitting Content on a Tunnel Stream Code Sample</a></div>
+      <div class="Body"><a name="1255666">The following code sample is a basic example of writing opaque content to a tunnel stream. This can be combined with the QueueData message samples in subsequent chapters to send content to a Queue Provider.</a></div>
+      <div class="Blank_Line"><a name="1256445">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 175.5pt">
-            <div class="CellHeading"><a name="1256547">METHOD NAME</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 380.25pt">
-            <div class="CellHeading"><a name="1256549">DESCRIPTION</a></div>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1255687">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1256551">rsslReactorCloseTunnelStream</a></div>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255689">int submitMessage()</a></div>
           </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1256553">Closes a tunnel stream. Once closed, any content stored for guaranteed messaging or reliable delivery will be cleaned up.</a></div>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255691">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255693">&nbsp;&nbsp;&nbsp;&nbsp;RsslErrorInfo _errorInfo;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255695">&nbsp;&nbsp;&nbsp;&nbsp;RsslBuffer *pBuffer;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255697">&nbsp;&nbsp;&nbsp;&nbsp;RsslTunnelStreamGetBufferOptions _getBufferOpts;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255699">&nbsp;&nbsp;&nbsp;&nbsp;RsslTunnelStreamSubmitOptions _submitOpts; </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255701">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255703">&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">// gets a buffer of 50 bytes to put content into.</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255705">&nbsp;&nbsp;&nbsp;&nbsp;rsslClearTunnelStreamGetBufferOptions(&amp;_getBufferOptions);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255707">&nbsp;&nbsp;&nbsp;&nbsp;_getBufferOptions.size = 50;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255709">&nbsp;&nbsp;&nbsp;&nbsp;pBuffer = rsslTunnelStreamGetBuffer(pTunnelStream, &amp;_getBufferOptions, _errorInfo);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255711">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255713">&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">// put generic content into the buffer</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255715">&nbsp;&nbsp;&nbsp;&nbsp;pBuffer-&gt;data = “Hello World!”;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255717">&nbsp;&nbsp;&nbsp;&nbsp;pBuffer-&gt;length = 12;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255719">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255721">&nbsp;&nbsp;&nbsp;&nbsp;rsslClearTunnelStreamSubmitOptions(&amp;_submitOpts);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255723">&nbsp;&nbsp;&nbsp;&nbsp;_submitOpts.containerType = RSSL_DT_OPAQUE;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255725">&nbsp;&nbsp;&nbsp;&nbsp;if ((rsslTunnelStreamSubmit(pTunnelStream, pBuffer, &amp;_submitOpts, &amp;_errorInfo)) != </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255927">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RSSL_RET_SUCCESS)</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255929">&nbsp;&nbsp;&nbsp;&nbsp;{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255931">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(“Content submission failed!”);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255933">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">// Because submission failed, we need to return the buffer to the tunnel stream</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255935">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsslTunnelStreamReleaseBuffer(&amp;_buffer, &amp;_errorInfo);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255937">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255939">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return RSSL_RET_FAILURE;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255941">&nbsp;&nbsp;&nbsp;&nbsp;}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255943">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255945">&nbsp;&nbsp;&nbsp;&nbsp;printf(“Content submission succeeded!”);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-size: 9.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1255947">&nbsp;&nbsp;&nbsp;&nbsp;// Thanks to successful submission, we do not need to release the buffer because the Reactor will.</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255949">&nbsp;&nbsp;&nbsp;&nbsp;return RSSL_RET_SUCCESS;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1255951">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1256315">&nbsp;</a></div>
           </td>
         </tr>
       </table>
+      <div class="CodeTitle">Code Example 18: <a name="1255681">Submitting Content on a Tunnel Stream</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -91,7 +244,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.116.html">6.7.8	Sending Content on a TunnelStream</a> : 6.7.8.6	Closing a Tunnel Stream</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.117.html">6.7.8	Sending Content on a TunnelStream</a> : 6.7.8.5	Submitting Content on a Tunnel Stream Code Sample</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

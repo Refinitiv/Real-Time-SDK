@@ -56,8 +56,8 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1007170">TCP-based Networks</a></div>
-      <div class="Body"><a name="1220730">If an application needs to communicate with multiple devices using a </a><span class="Parameter">RSSL_CONN_TYPE_SOCKET</span>, <span class="Parameter">RSSL_CONN_TYPE_HTTP</span>, and <span class="Parameter">RSSL_CONN_TYPE_ENCRYPTED</span> connection type, a unique (point-to-point) connection is required for each device. Any content that needs to go to all devices must be written (or “fanned out”) on all connections, which is the application’s responsibility. The following diagram illustrates this scenario:</div>
-      <div class="Body"><a name="1220734"><img class="Default" src="images/UnifiedTCPNet.jpg" width="262" height="167" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="Body"><a name="1245458">If an application needs to communicate with multiple devices using a </a><span class="Parameter">RSSL_CONN_TYPE_SOCKET</span>, <span class="Parameter">RSSL_CONN_TYPE_HTTP</span>, and <span class="Parameter">RSSL_CONN_TYPE_ENCRYPTED</span> connection type, a unique (point-to-point) connection is required for each device. Any content that needs to go to all devices must be written (or “fanned out”) on all connections, which is the application’s responsibility. The following diagram illustrates this scenario:</div>
+      <div class="Body"><a name="1245462"><img class="Default" src="images/UnifiedTCPNet.jpg" width="262" height="167" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
       <div class="FigTitle_outer" style="margin-left: 21.6pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -65,14 +65,14 @@
               <div class="FigTitle_inner" style="width: 46.800000000000004pt; white-space: nowrap">Figure 29.  </div>
             </td>
             <td width="100%">
-              <div class="FigTitle_inner"><a name="1220736">Unified TCP Network</a></div>
+              <div class="FigTitle_inner"><a name="1245464">Unified TCP Network</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1220740">In </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.020.html#1220736', '');" title="10.3.1.1 TCP-based Networks">Figure 29</a>, Application A has a unique, point-to-point connection with each of the applications B and C. If Application A wants to send the same content to both applications B and C, Application A must send the same content over each connection. In this scenario, if content is sent over only one connection, only the application on the corresponding end of that connection receives the content.</div>
-      <div class="Body"><a name="1220744">For TCP connections, OMM consumer and NIP applications connect as shown in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.020.html#1220750', '');" title="10.3.1.1 TCP-based Networks">Figure 30</a>. The arrows used in the figure depict the directions in which connections are established. OMM consumers typically connect to a well known port number associated with some kind of Interactive Provider (e.g. ADS, Elektron), while OMM Non-Interactive Providers typically connect to a well known port on the ADH.</div>
-      <div class="Body"><a name="1220748"><img class="Default" src="images/TCPConnectCreation.jpg" width="446" height="151" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="Body"><a name="1245468">In </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.020.html#1245464', '');" title="10.3.1.1 TCP-based Networks">Figure 29</a>, Application A has a unique, point-to-point connection with each of the applications B and C. If Application A wants to send the same content to both applications B and C, Application A must send the same content over each connection. In this scenario, if content is sent over only one connection, only the application on the corresponding end of that connection receives the content.</div>
+      <div class="Body"><a name="1245472">For TCP connections, OMM consumer and NIP applications connect as shown in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.020.html#1245478', '');" title="10.3.1.1 TCP-based Networks">Figure 30</a>. The arrows used in the figure depict the directions in which connections are established. OMM consumers typically connect to a well known port number associated with some kind of Interactive Provider (e.g. ADS, Elektron), while OMM Non-Interactive Providers typically connect to a well known port on the ADH.</div>
+      <div class="Body"><a name="1245476"><img class="Default" src="images/TCPConnectCreation.jpg" width="446" height="151" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
       <div class="FigTitle_outer" style="margin-left: 21.6pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -80,7 +80,7 @@
               <div class="FigTitle_inner" style="width: 46.800000000000004pt; white-space: nowrap">Figure 30.  </div>
             </td>
             <td width="100%">
-              <div class="FigTitle_inner"><a name="1220750">TCP Connection Creation</a></div>
+              <div class="FigTitle_inner"><a name="1245478">TCP Connection Creation</a></div>
             </td>
           </tr>
         </table>

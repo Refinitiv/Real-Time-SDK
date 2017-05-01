@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>8.2.4.2 Setting Example</title>
+    <link rel="StyleSheet" href="css/Chap_Payload_Cache_Detailed_View.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55718642-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Transport API Java Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Transport API Java Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H4"><a name="1221002">Setting Example</a></div>
+      <div class="Body"><a name="1224537">In the following example, two cache instances are created and set to a single, shared field dictionary.</a></div>
+      <div class="Blank_Line"><a name="1224514">‘</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1224556">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224558">PayloadCacheConfigOptions cacheConfig = CacheFactory.</a><span class="VariableValue">createPayloadCacheConfig()</span>;</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224560">cacheConfig.maxItems(0); </a><span class="Color_003aGreen">/* unlimited */</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224562">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224564">/* For simplicity in this code fragment, CHK is assumed to be a macro for error handling (performing </a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224566">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cleanup and returning from method). */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224568">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224570">/* create cache instances */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224572">CacheError cacheError = CacheFactory.</a><span class="VariableValue">createCacheError()</span>;</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224574">PayloadCache cacheInstance1 = CacheFactory.</a><span class="VariableValue">createPayloadCache</span>(cacheConfig, cacheError);</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><span class="Color_003aRed"><a name="1224576">if</a></span> (cacheInstance1 == <span class="Color_003aRed">null</span>)</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224578">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224580">&nbsp;&nbsp;&nbsp;&nbsp;System.</a><span class="VariableValue" style="color: #0000ff">out</span>.println("<span class="Color_003aBlue">CacheFactory.createPayloadCache failure:</span> " + cacheError.text());</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224582">&nbsp;&nbsp;&nbsp;&nbsp;CHK(cacheError.errorId());</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224584">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224586">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224588">PayloadCache cacheInstance2 = CacheFactory.</a><span class="VariableValue">createPayloadCache</span>(cacheConfig, cacheError);</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><span class="Color_003aRed"><a name="1224590">if</a></span> (cacheInstance2 == <span class="Color_003aRed">null</span>)</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224592">{</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224594">&nbsp;&nbsp;&nbsp;&nbsp;System.</a><span class="VariableValue" style="color: #0000ff">out</span>.println("<span class="Color_003aBlue">CacheFactory.createPayloadCache failure:</span> " + cacheError.text());</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224823">&nbsp;&nbsp;&nbsp;&nbsp;CHK(cacheError.errorId());</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224825">}</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224827">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224829">/* Load an RDM Field Dictionary object from file: set to each cache. */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224831">DataDictionary dataDictionary = CodecFactory.</a><span class="VariableValue">createDataDictionary()</span>;</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224833">com.thomsonreuters.upa.transport.Error error = TransportFactory.</a><span class="VariableValue">createError()</span>;</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><span class="Color_003aRed"><a name="1224835">int</a></span> ret = dataDictionary.loadFieldDictionary("<span class="Color_003aBlue">RDMFieldDictionary</span>", error); CHK(ret);</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224837">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224839">String dictionaryKey = "</a><span class="Color_003aBlue">SharedKey1</span>";</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224841">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224843">/* Initial setting of the dictionary to the first cache */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224845">ret = cacheInstance1.setDictionary(dataDictionary, dictionaryKey, cacheError); CHK(ret);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224849">/* Shared setting of the same dictionary to the second cache */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224851">ret = cacheInstance2.setSharedDictionaryKey(dictionaryKey, cacheError); CHK(ret);</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224855">/* The dataDictionary can be destroyed after setting, but is typically retained by the application for </a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224859">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encoding and decoding. */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224863">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224865">/* Two cache instances are now ready for applying and retrieving data */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224869">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1224871">/* Cleanup */</a></span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1225303">cacheInstance1.destroy(); </a><span class="Color_003aGreen">/* destroys all entries and the cache instance */</span></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1232277">cacheInstance2.destroy();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1224873">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="CodeTitle">Code Example 32: <a name="1221004">Creating Cache and Setting to Dictionary</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Payload_Cache_Detailed_View.8.01.html">Chapter 8	Payload Cache Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Payload_Cache_Detailed_View.8.03.html">8.2	Payload Cache</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Payload_Cache_Detailed_View.8.11.html">8.2.4	Managing RDM Field Dictionaries for Payload Cache</a> : 8.2.4.2	Setting Example</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

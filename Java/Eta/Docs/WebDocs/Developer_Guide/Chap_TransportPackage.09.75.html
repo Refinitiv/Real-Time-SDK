@@ -56,30 +56,30 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1035986">Channel.ping Function</a></div>
-      <div class="Body"><a name="1474827">An application typically monitors both messages and heartbeats. If bytes are flushed to the network, this is considered sufficient as a heartbeat so any timer mechanism associated with sending heartbeats can be reset. When bytes are received or </a><span class="CodeOrCommand">Channel.read</span> returns <span class="CodeOrCommand">TransportReturnCodes.READ_PING</span> (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.46.html', '');" title="9.6 Reading Data">Section 9.6</a>), this is comparable to receiving a heartbeat so any timer mechanism associated with receiving heartbeats can be reset. If either the sending or receiving heartbeat timer mechanism reaches or surpasses the <span class="CodeOrCommand">Channel.pingTimeout</span> value, the connection should be closed.</div>
-      <div class="Body"><a name="1474846">The following table describes the </a><span class="CodeOrCommand">Channel.ping</span> method, used to send heartbeat messages.</div>
-      <div class="Blank_Line"><a name="1474896">&nbsp;</a></div>
+      <div class="Body"><a name="1528568">An application typically monitors both messages and heartbeats. If bytes are flushed to the network, this is considered sufficient as a heartbeat so any timer mechanism associated with sending heartbeats can be reset. When bytes are received or </a><span class="CodeOrCommand">Channel.read</span> returns <span class="CodeOrCommand">TransportReturnCodes.READ_PING</span> (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.46.html', '');" title="9.6 Reading Data">Section 9.6</a>), this is comparable to receiving a heartbeat so any timer mechanism associated with receiving heartbeats can be reset. If either the sending or receiving heartbeat timer mechanism reaches or surpasses the <span class="CodeOrCommand">Channel.pingTimeout</span> value, the connection should be closed.</div>
+      <div class="Body"><a name="1528587">The following table describes the </a><span class="CodeOrCommand">Channel.ping</span> method, used to send heartbeat messages.</div>
+      <div class="Blank_Line"><a name="1528637">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 42: <span class="LucidaConsole"><a name="1474893">Channel.ping</a></span> <span style="font-weight: normal">method</span> &nbsp;</div>
+          <div class="TableTitle">Table 42: <span class="LucidaConsole"><a name="1528634">Channel.ping</a></span> <span style="font-weight: normal">method</span> &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1474852">method</a></div>
+            <div class="CellHeading"><a name="1528593">method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1474854">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1528595">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474859">Channel.ping</a></div>
+            <div class="CellBody"><a name="1528600">Channel.ping</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1474864">Attempts to write a heartbeat message on the connection. This method expects an active </a><span class="CodeOrCommand">Channel</span>.</div>
-            <div class="CellBody"><a name="1474874">If an application calls the </a><span class="CodeOrCommand">Channel.ping</span> method while other bytes are queued for output, the Transport layer suppresses the heartbeat message and attempts to flush bytes to the network on the user’s behalf.</div>
-            <div class="CellBody"><a name="1474875">When using a shared memory (</a><span class="CodeOrCommand">UNIDIR_SHMEM</span>) connection type, pings can only be sent from server to client.</div>
-            <div class="CellBody"><a name="1474882">Return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.76.html#1474966', '');" title="9.12.3 Channel.ping Return Values">Table 43</a>.</div>
+            <div class="CellBody"><a name="1528605">Attempts to write a heartbeat message on the connection. This method expects an active </a><span class="CodeOrCommand">Channel</span>.</div>
+            <div class="CellBody"><a name="1528615">If an application calls the </a><span class="CodeOrCommand">Channel.ping</span> method while other bytes are queued for output, the Transport layer suppresses the heartbeat message and attempts to flush bytes to the network on the user’s behalf.</div>
+            <div class="CellBody"><a name="1528616">When using a shared memory (</a><span class="CodeOrCommand">UNIDIR_SHMEM</span>) connection type, pings can only be sent from server to client.</div>
+            <div class="CellBody"><a name="1528623">Return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.76.html#1528707', '');" title="9.12.3 Channel.ping Return Values">Table 43</a>.</div>
           </td>
         </tr>
       </table>

@@ -101,8 +101,9 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	private String								_enumDictReqServiceName;
 	private boolean 							_fidDictReqServiceIdSet;
 	private boolean 							_enumDictReqServiceIdSet;
-	
     	protected List<Integer> channelOrChannelSet = new ArrayList<Integer>();
+    
+    private static String 						_defaultAppName = "ema";
 	
 	EmaConfigImpl()
 	{
@@ -132,12 +133,11 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 			.create(Severity.ERROR);
 		}
 		
+		_rsslLoginReq.clear();
 		_rsslLoginReq.rdmMsgType(LoginMsgType.REQUEST);
 		_rsslLoginReq.initDefaultRequest(1);
 		
-		int attribFlag = _rsslLoginReq.attrib().flags();
-		attribFlag &= ~LoginAttribFlags.HAS_APPLICATION_NAME;
-		_rsslLoginReq.attrib().flags(attribFlag);
+		_rsslLoginReq.attrib().applicationName().data(_defaultAppName);
 
 		if ( _rsslDirectoryReq != null)
 			_rsslDirectoryReq.clear();
@@ -233,6 +233,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		{
 			case com.thomsonreuters.upa.rdm.DomainTypes.LOGIN :
 				ret = setLoginRequest(rsslRequestMsg);
+				
 				break;
 			case com.thomsonreuters.upa.rdm.DomainTypes.DICTIONARY :
 				addDictionaryReqMsg(rsslRequestMsg, (reqMsg.hasServiceName() ? reqMsg.serviceName() : null));
@@ -260,7 +261,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 			.create(Severity.ERROR);
 	    }
 	}
-	
+		
 	protected void addAdminMsgInt(RefreshMsg refreshMsg)
 	{	
 		com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg = ((RefreshMsgImpl)refreshMsg).rsslMsg();
@@ -295,7 +296,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	
 	abstract String channelName(String instanceName);
 	
-	
+
 	int setLoginRequest(RequestMsg rsslRequestMsg)
 	{
 		_rsslLoginReq.clear();
@@ -460,6 +461,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	                    return ret;
 	                
 	                flags |= LoginRequestFlags.HAS_ROLE;
+	                _rsslLoginReq.applyHasRole();
 	                _rsslLoginReq.role(tmpUInt.toLong());
 	            }
 	            else if (elementEntry.name().equals(ElementNames.SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD))
@@ -473,6 +475,20 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	                flags |= LoginRequestFlags.HAS_ATTRIB;
 	                attrib.applyHasProviderSupportDictionaryDownload();
 	                attrib.supportProviderDictionaryDownload(tmpUInt.toLong());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.AUTHN_TOKEN))
+	            {
+	                if (elementEntry.dataType() != DataTypes.BUFFER && elementEntry.dataType() != DataTypes.ASCII_STRING )
+	                    return CodecReturnCodes.FAILURE;
+	                
+	                _rsslLoginReq.userName().data(elementEntry.encodedData().data(), elementEntry.encodedData().position(), elementEntry.encodedData().length());
+	            }
+	            else if (elementEntry.name().equals(ElementNames.AUTHN_EXTENDED))
+	            {
+	                if (elementEntry.dataType() != DataTypes.BUFFER && elementEntry.dataType() != DataTypes.ASCII_STRING)
+	                    return CodecReturnCodes.FAILURE;
+	                flags |= LoginRequestFlags.HAS_AUTHENTICATION_EXTENDED;
+	                _rsslLoginReq.authenticationExtended().data(elementEntry.encodedData().data(), elementEntry.encodedData().position(), elementEntry.encodedData().length());
 	            }
         	}
 		}

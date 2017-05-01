@@ -127,9 +127,9 @@ RsslRet tunnelManagerDispatch(TunnelManager *pManager,
 }
 
 RsslTunnelStream* tunnelManagerOpenStream(TunnelManager *pManager,
-		RsslTunnelStreamOpenOptions *pOptions, RsslBool isProvider, RsslClassOfService *pRemoteCos, RsslErrorInfo *pErrorInfo)
+		RsslTunnelStreamOpenOptions *pOptions, RsslBool isProvider, RsslClassOfService *pRemoteCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo)
 {
-	return tunnelStreamOpen(pManager, pOptions, isProvider, pRemoteCos, pErrorInfo);
+	return tunnelStreamOpen(pManager, pOptions, isProvider, pRemoteCos, streamVersion, pErrorInfo);
 }
 
 static RsslRet tunnelManagerAutoReject(
@@ -211,6 +211,7 @@ RsslRet tunnelManagerReadMsg(TunnelManager *pManager, RsslMsg *pMsg, RsslErrorIn
 				newRequest.event.streamId = pMsg->msgBase.streamId;
 				newRequest.event.domainType = pMsg->msgBase.domainType;
 				newRequest.pReqMsg = &pMsg->requestMsg;
+				newRequest.streamVersion = COS_CURRENT_STREAM_VERSION;
 
 				if (rsslMsgKeyCheckHasFilter(&pMsg->msgBase.msgKey))
 					newRequest.event.classOfServiceFilter = pMsg->msgBase.msgKey.filter;
@@ -292,7 +293,7 @@ RsslRet tunnelManagerReadMsg(TunnelManager *pManager, RsslMsg *pMsg, RsslErrorIn
 						return RSSL_RET_SUCCESS;
 					}
 
-					if (streamVersion != COS_STREAM_VERSION)
+					if (streamVersion > COS_CURRENT_STREAM_VERSION)
 					{
 						if (tunnelManagerAutoReject(pManagerImpl, &newRequest.event,
 									(char*)"Rejected a consumer's tunnel stream due to an unrecognized stream version.",
@@ -303,6 +304,7 @@ RsslRet tunnelManagerReadMsg(TunnelManager *pManager, RsslMsg *pMsg, RsslErrorIn
 
 						return RSSL_RET_SUCCESS;
 					}
+					newRequest.streamVersion = streamVersion;
 				}
 
 				if ((cret = (*pManagerImpl->_listenerCallback)(&newRequest.event, pErrorInfo))
@@ -488,7 +490,7 @@ RsslRet tunnelManagerAcceptStream(TunnelManager *pManager, RsslTunnelStreamReque
 
 	/* Open tunnel stream (it will use our already-allocated name instead of copying it) */
 	pTunnelStream = tunnelManagerOpenStream(pReactorChannelImpl->pTunnelManager, &tsOpts, 
-			RSSL_TRUE, &pRequest->classOfService, pErrorInfo);
+		RSSL_TRUE, &pRequest->classOfService, pRequest->streamVersion, pErrorInfo);
 
 	if (pTunnelStream == NULL)
 		return pErrorInfo->rsslError.rsslErrorId;
@@ -539,7 +541,7 @@ RsslRet tunnelManagerRejectStream(TunnelManager *pManager, RsslTunnelStreamReque
 	tunnelStatus.name.data = pEvent->name;
 	tunnelStatus.name.length = (RsslUInt32)strlen(pEvent->name);
 
-	if ((ret = tunnelStreamStatusEncode(&eIter, &tunnelStatus, pOptions->pCos, pErrorInfo))
+	if ((ret = tunnelStreamStatusEncode(&eIter, &tunnelStatus, pOptions->pCos, pRequest->streamVersion, pErrorInfo))
 			!= RSSL_RET_SUCCESS) 
 		return ret;
 

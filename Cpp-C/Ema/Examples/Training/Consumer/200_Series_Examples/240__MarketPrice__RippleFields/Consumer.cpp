@@ -54,37 +54,39 @@ void AppClient::decode( const FieldList& fl )
 		switch ( fe.getLoadType() )
 		{
 			case DataType::RealEnum:
-				if ( fe.getFieldId() == 22 )	// Display data for BID field name and its ripple fields
-				{
-					if ( fe.getRippleTo( fe.getRippleTo() ) == 24 )
-						BID_2 = BID_1;
+			if ( fe.getFieldId() == 22 )	// Display data for BID field name and its ripple fields
+			{
+				if ( fe.getRippleTo(fe.getRippleTo()) == 24 )
+					BID_2 = BID_1;
 
-					if ( fe.getRippleTo() == 23 )
-						BID_1 = BID;
+				if ( fe.getRippleTo() == 23 )
+					BID_1 = BID;
 
-					BID = fe.getReal().getAsDouble();
+				BID = fe.getReal().getAsDouble();
 
-					cout << "DataType: " << DataType( fe.getLoad().getDataType() ) << endl;
-					cout << "Name: " << fe.getName() << " Value: " << BID << endl;
-					cout << "Name: " << fe.getRippleTo() << " Value: " << BID_1 << endl;
-					cout << "Name: " << fe.getRippleTo( fe.getRippleTo() ) << " Value: " << BID_2 << endl;
-				}
-				else if ( fe.getFieldId() == 25 ) // Display data for ASK field name and its ripple fields
-				{
-					if ( fe.getRippleTo( fe.getRippleTo() ) == 27 )
-						ASK_2 = ASK_1;
+				cout << "DataType: " << DataType( fe.getLoad().getDataType() ) << endl;
+				cout << "Name: " << fe.getName() << " (" << fe.getFieldId() << ") Value: " << BID << endl;
+				cout << "Name: " << fe.getRippleToName() << " (" << fe.getRippleTo() << ") Value: " << BID_1 << endl;
+				cout << "Name: " << fe.getRippleToName(fe.getRippleTo()) << " (" << fe.getRippleTo(fe.getRippleTo()) << 
+					") Value: " << BID_2 << endl;
+			}
+			else if ( fe.getFieldId() == 25 ) // Display data for ASK field name and its ripple fields
+			{
+				if ( fe.getRippleTo(fe.getRippleTo()) == 27 )
+					ASK_2 = ASK_1;
 
-					if ( fe.getRippleTo() == 26 )
-						ASK_1 = ASK;
+				if ( fe.getRippleTo() == 26 )
+					ASK_1 = ASK;
 
-					ASK = fe.getReal().getAsDouble();
+				ASK = fe.getReal().getAsDouble();
 
-					cout << "DataType: " << DataType( fe.getLoad().getDataType() ) << endl;
-					cout << "Name: " << fe.getName() << " Value: " << ASK << endl;
-					cout << "Name: " << fe.getRippleTo() << " Value: " << ASK_1 << endl;
-					cout << "Name: " << fe.getRippleTo(fe.getRippleTo()) << " Value: " << ASK_2 << endl;
-				}
-				break;
+				cout << "DataType: " << DataType( fe.getLoad().getDataType() ) << endl;
+				cout << "Name: " << fe.getName() << " (" << fe.getFieldId() << ") Value: " << ASK << endl;
+				cout << "Name: " << fe.getRippleToName() << " (" << fe.getRippleTo() << ") Value: " << ASK_1 << endl;
+				cout << "Name: " << fe.getRippleToName(fe.getRippleTo()) << " (" << fe.getRippleTo(fe.getRippleTo()) <<
+					") Value: " << ASK_2 << endl;
+			}
+			break;
 		}
 	}
 }

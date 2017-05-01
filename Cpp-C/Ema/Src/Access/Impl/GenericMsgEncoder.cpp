@@ -19,7 +19,7 @@ GenericMsgEncoder::GenericMsgEncoder() :
 #endif
 {
 	rsslClearGenericMsg( &_rsslGenericMsg );
-	_rsslGenericMsg.msgBase.domainType = 0;
+	_rsslGenericMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
 	_rsslGenericMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 }
 
@@ -32,7 +32,7 @@ void GenericMsgEncoder::clear()
 	MsgEncoder::clear();
 
 	rsslClearGenericMsg( &_rsslGenericMsg );
-	_rsslGenericMsg.msgBase.domainType = 0;
+	_rsslGenericMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
 	_rsslGenericMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 }
 

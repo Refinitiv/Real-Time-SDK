@@ -56,52 +56,52 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1003815">Functions for use with RsslDecodeIterator</a></div>
-      <div class="Body"><a name="1029818">The following table describes the functions that you can use with </a><span class="CodeOrCommand">RsslDecodeIterator</span>.</div>
-      <div class="Blank_Line"><a name="1029895">&nbsp;</a></div>
+      <div class="Body"><a name="1037172">The following table describes the functions that you can use with </a><span class="CodeOrCommand">RsslDecodeIterator</span>.</div>
+      <div class="Blank_Line"><a name="1037249">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 6: <span class="LucidaConsole"><a name="1029892">RsslDecodeIterator</a></span> Utility Functions &nbsp;</div>
+          <div class="TableTitle">Table 6: <span class="LucidaConsole"><a name="1037246">RsslDecodeIterator</a></span> Utility Functions &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 189pt">
-            <div class="CellHeading"><a name="1029830">function</a> NAME</div>
+            <div class="CellHeading"><a name="1037184">function</a> NAME</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 366.75pt">
-            <div class="CellHeading"><a name="1029832">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1037186">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1029834">rsslClearDecodeIterator</a></div>
+            <div class="CellBody"><a name="1037188">rsslClearDecodeIterator</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1029836">Clears members necessary for decoding and readies the iterator for reuse.</a></div>
-            <div class="CellBody"><a name="1029840">You must clear </a><span class="CodeOrCommand">RsslDecodeIterator</span> before decoding content. For performance purposes, only those members required for proper functionality are cleared.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1029842">rsslSetDecodeIteratorBuffer</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1029850">Associates the </a><span class="CodeOrCommand">RsslDecodeIterator</span> with the <span class="CodeOrCommand">RsslBuffer</span> from which to decode.</div>
-            <div class="CellBody"><a name="1029864">Set </a><span class="CodeOrCommand">RsslBuffer.data</span> to refer to the content to be decoded and <span class="CodeOrCommand">RsslBuffer.length</span> to the number of bytes contained in <span class="CodeOrCommand">RsslBuffer.data</span>. These settings ensure that decoding does not provide content beyond what is contained in the buffer space.</div>
+            <div class="CellBody"><a name="1037190">Clears members necessary for decoding and readies the iterator for reuse.</a></div>
+            <div class="CellBody"><a name="1037194">You must clear </a><span class="CodeOrCommand">RsslDecodeIterator</span> before decoding content. For performance purposes, only those members required for proper functionality are cleared.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1029869">rsslSetDecodeIteratorRWFVersion</a></div>
+            <div class="CellBody"><a name="1037196">rsslSetDecodeIteratorBuffer</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1029874">Sets the RWF Version to use with the </a><span class="CodeOrCommand">RsslDecodeIterator</span>. The appropriate RWF Version is typically available on the connection between applications. Refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.09.17.html', '');" title="9.5.1 Protocol Versioning">Section 9.5.1</a>.</div>
+            <div class="CellBody"><a name="1037204">Associates the </a><span class="CodeOrCommand">RsslDecodeIterator</span> with the <span class="CodeOrCommand">RsslBuffer</span> from which to decode.</div>
+            <div class="CellBody"><a name="1037218">Set </a><span class="CodeOrCommand">RsslBuffer.data</span> to refer to the content to be decoded and <span class="CodeOrCommand">RsslBuffer.length</span> to the number of bytes contained in <span class="CodeOrCommand">RsslBuffer.data</span>. These settings ensure that decoding does not provide content beyond what is contained in the buffer space.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1029879">rsslFinishDecodeEntries</a></div>
+            <div class="CellBody"><a name="1037223">rsslSetDecodeIteratorRWFVersion</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1029881">The decoding process typically runs until the end of each container, indicated by </a><span class="Parameter">RSSL_RET_END_OF_CONTAINER</span>. This function will skip past remaining entries in the container and perform necessary synchronization between the content and iterator so that decoding can continue.</div>
+            <div class="CellBody"><a name="1037228">Sets the RWF Version to use with the </a><span class="CodeOrCommand">RsslDecodeIterator</span>. The appropriate RWF Version is typically available on the connection between applications. Refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_EncodingDecoding.09.17.html', '');" title="9.5.1 Protocol Versioning">Section 9.5.1</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1037233">rsslFinishDecodeEntries</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1037235">The decoding process typically runs until the end of each container, indicated by </a><span class="Parameter">RSSL_RET_END_OF_CONTAINER</span>. This function will skip past remaining entries in the container and perform necessary synchronization between the content and iterator so that decoding can continue.</div>
           </td>
         </tr>
       </table>

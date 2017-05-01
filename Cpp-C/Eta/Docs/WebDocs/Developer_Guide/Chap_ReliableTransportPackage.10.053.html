@@ -56,27 +56,27 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1022358">rsslRead Function</a></div>
-      <div class="Blank_Line"><a name="1221945">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1246676">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 39: <span class="LucidaConsole"><a name="1221942">RsslChannel</a></span> Function &nbsp;</div>
+          <div class="TableTitle">Table 39: <span class="LucidaConsole"><a name="1246673">RsslChannel</a></span> Function &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1221895">function</a> Name</div>
+            <div class="CellHeading"><a name="1246626">function</a> Name</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1221897">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1246628">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221902">RsslChannel</a></div>
+            <div class="CellBody"><a name="1246633">RsslChannel</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221907">Provides the user with data received from the connection. This function expects the </a><span class="CodeOrCommand">RsslChannel</span> to be in the active state. When data is available, an <span class="CodeOrCommand">RsslBuffer</span> referring to the information is returned, which is valid until the next call to <span class="CodeOrCommand">rsslRead</span>. If a blocking I/O is used, the <span class="CodeOrCommand">rsslRead</span> function will not return until there is information to return or an error has occurred.</div>
-            <div class="CellBody"><a name="1221923">A </a>return code parameter passed into the function is used to convey return code information as well as communicate whether there is additional information to read. An I/O notification mechanism may not inform the user of this additional information as it has already been read from the socket and is contained in the <span class="CodeOrCommand">rsslRead</span> input buffer.</div>
-            <div class="CellBody"><a name="1221934">Return values are described in</a> <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.054.html', '');" title="10.6.2 rsslRead Return Codes">Section 10.6.2</a>.</div>
+            <div class="CellBody"><a name="1246638">Provides the user with data received from the connection. This function expects the </a><span class="CodeOrCommand">RsslChannel</span> to be in the active state. When data is available, an <span class="CodeOrCommand">RsslBuffer</span> referring to the information is returned, which is valid until the next call to <span class="CodeOrCommand">rsslRead</span>. If a blocking I/O is used, the <span class="CodeOrCommand">rsslRead</span> function will not return until there is information to return or an error has occurred.</div>
+            <div class="CellBody"><a name="1246654">A </a>return code parameter passed into the function is used to convey return code information as well as communicate whether there is additional information to read. An I/O notification mechanism may not inform the user of this additional information as it has already been read from the socket and is contained in the <span class="CodeOrCommand">rsslRead</span> input buffer.</div>
+            <div class="CellBody"><a name="1246665">Return values are described in</a> <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.054.html', '');" title="10.6.2 rsslRead Return Codes">Section 10.6.2</a>.</div>
           </td>
         </tr>
       </table>

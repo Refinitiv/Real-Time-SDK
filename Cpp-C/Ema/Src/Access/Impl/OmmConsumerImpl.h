@@ -38,7 +38,11 @@ public:
 
 	OmmConsumerImpl( const OmmConsumerConfig& );
 
+	OmmConsumerImpl(const OmmConsumerConfig&, OmmConsumerClient&, void*);
+
 	OmmConsumerImpl( const OmmConsumerConfig&, OmmConsumerErrorClient& );
+
+	OmmConsumerImpl(const OmmConsumerConfig&, OmmConsumerClient&, OmmConsumerErrorClient&, void*);
 
 	virtual ~OmmConsumerImpl();
 

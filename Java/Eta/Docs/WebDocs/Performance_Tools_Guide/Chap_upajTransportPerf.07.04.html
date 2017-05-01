@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1222814">upajTransportPerf Life Cycle</a></div>
-      <div class="Body"><a name="1231103">The lifecycle of </a><span class="ToolOrUtility_Name">upajTransportPerf</span> is divided into the following phases:</div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1231107"><img class="Default" src="images/Chap_upajTransportPerf.07.04.1.jpg" width="469" height="256" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 16.  <a name="1231111">upa</a><span class="ToolOrUtility_Name">j</span>TransportPerf Lifecycle 1</div>
+      <div class="Body"><a name="1232592">The lifecycle of </a><span class="ToolOrUtility_Name">upajTransportPerf</span> is divided into the following phases:</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1232596"><img class="Default" src="images/Chap_upajTransportPerf.07.04.1.jpg" width="469" height="256" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 16.  <a name="1232600">upa</a><span class="ToolOrUtility_Name">j</span>TransportPerf Lifecycle 1</div>
       <div class="Step1_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -68,12 +68,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Step1_inner"><a name="1231115">Application and Transport API initialization.</a></div>
+              <div class="Step1_inner"><a name="1232604">Application and Transport API initialization.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><span class="ToolOrUtility_Name"><a name="1231122">upajTransportPerf</a></span> loads its configuration, initializes the Transport API, and starts the transport thread(s) that read and write data. The main thread now:</div>
+      <div class="indent_25"><span class="ToolOrUtility_Name"><a name="1232611">upajTransportPerf</a></span> loads its configuration, initializes the Transport API, and starts the transport thread(s) that read and write data. The main thread now:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -83,21 +83,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1231123">If acting as server, accepts client connections and passes them to one of the transport threads. </a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1231124">If acting as client, connects out to server.</a></div>
+              <div class="bullet_ind_inner"><a name="1232612">If acting as server, accepts client connections and passes them to one of the transport threads. </a></div>
             </td>
           </tr>
         </table>
@@ -111,7 +97,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1231125">Periodically collects and writes statistics from the transport thread(s) for the remainder of the test. </a></div>
+              <div class="bullet_ind_inner"><a name="1232613">If acting as client, connects out to server.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1232614">Periodically collects and writes statistics from the transport thread(s) for the remainder of the test. </a></div>
             </td>
           </tr>
         </table>
@@ -125,12 +125,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1231126">Publishing and receiving opaque content.</a></div>
+              <div class="Stepnext_inner"><a name="1232615">Publishing and receiving opaque content.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1231127">The transport thread performs the following actions until its run time expires:</a></div>
+      <div class="indent_25"><a name="1232616">The transport thread performs the following actions until its run time expires:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -140,21 +140,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1231128">Adds new connections passed from the main thread.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1231129">Sends bursts of messages on existing connections, as specified by command line arguments.</a></div>
+              <div class="bullet_ind_inner"><a name="1232617">Adds new connections passed from the main thread.</a></div>
             </td>
           </tr>
         </table>
@@ -168,7 +154,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1231130">Uses remaining time segments to read from the transport and process incoming data.</a></div>
+              <div class="bullet_ind_inner"><a name="1232618">Sends bursts of messages on existing connections, as specified by command line arguments.</a></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1232619">Uses remaining time segments to read from the transport and process incoming data.</a></div>
             </td>
           </tr>
         </table>
@@ -182,14 +182,14 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Stepnext_inner"><a name="1231131">Application shutdown and cleanup.</a></div>
+              <div class="Stepnext_inner"><a name="1232620">Application shutdown and cleanup.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="indent_25"><a name="1231132">The transport thread stops. The main thread collects any remaining data from the transport threads, cleans them up, and writes the final summary statistics. Finally, the main thread uninitializes the Transport API, cleans up remaining resources, and exits.</a></div>
-      <div class="indent_25" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1231139"><img class="Default" src="images/Chap_upajTransportPerf.07.04.2.jpg" width="205" height="206" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 17.  <a name="1231143">upa</a><span class="ToolOrUtility_Name">j</span>TransportPerf Application Flow</div>
+      <div class="indent_25"><a name="1232621">The transport thread stops. The main thread collects any remaining data from the transport threads, cleans them up, and writes the final summary statistics. Finally, the main thread uninitializes the Transport API, cleans up remaining resources, and exits.</a></div>
+      <div class="indent_25" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1232628"><img class="Default" src="images/Chap_upajTransportPerf.07.04.2.jpg" width="205" height="206" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 17.  <a name="1232632">upa</a><span class="ToolOrUtility_Name">j</span>TransportPerf Application Flow</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

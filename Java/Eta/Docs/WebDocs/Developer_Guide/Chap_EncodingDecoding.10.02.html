@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1001185">Concepts</a></div>
-      <div class="Body"><a name="1038097">The </a>Transport API Codec package allows the user to encode and decode constructs and various content. The Codec Package defines a single encode iterator type and a single decode iterator type. The Transport API supports single-iterator encoding and decoding such that a single instance can encode or decode the full depth and breadth of a user’s content. The application controls the depth of decoding, so you can skip content of no interest. Less efficiently, you can continue to leverage the Transport API to use separate iterator instances and hence allow the user to separate portions of content across iterators when encoding or decoding.</div>
-      <div class="Body"><a name="1038108">The </a>Codec package does not provide inherent threading or locking capability. Separate iterator and type instances do not cause contention and do not share resources between instances. Any needed threading, locking, or thread-model implementation is at the discretion of the application. Different application threads can encode or decode different messages without requiring a lock; thus each thread must use its own iterator instance and each message should be encoded or decoded using unique and independent buffers. Though possible, Thomson Reuters recommends that you do not encode or decode related messages (ones that flow on the same stream) on different threads as this can scramble the delivery order.</div>
-      <div class="Body"><a name="1038109">You can use the Codec package with the Transport package and user-defined transports:</a></div>
+      <div class="Body"><a name="1052041">The </a>Transport API Codec package allows the user to encode and decode constructs and various content. The Codec Package defines a single encode iterator type and a single decode iterator type. The Transport API supports single-iterator encoding and decoding such that a single instance can encode or decode the full depth and breadth of a user’s content. The application controls the depth of decoding, so you can skip content of no interest. Less efficiently, you can continue to leverage the Transport API to use separate iterator instances and hence allow the user to separate portions of content across iterators when encoding or decoding.</div>
+      <div class="Body"><a name="1052052">The </a>Codec package does not provide inherent threading or locking capability. Separate iterator and type instances do not cause contention and do not share resources between instances. Any needed threading, locking, or thread-model implementation is at the discretion of the application. Different application threads can encode or decode different messages without requiring a lock; thus each thread must use its own iterator instance and each message should be encoded or decoded using unique and independent buffers. Though possible, Thomson Reuters recommends that you do not encode or decode related messages (ones that flow on the same stream) on different threads as this can scramble the delivery order.</div>
+      <div class="Body"><a name="1052053">You can use the Codec package with the Transport package and user-defined transports:</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -68,7 +68,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1038110">To use the Codec package with the Transport package, obtain </a><span class="CodeOrCommand">TransportBuffers</span> from the Transport package and encode and/or decode using the Codec package.</div>
+              <div class="Bullet_inner"><a name="1052054">To use the Codec package with the Transport package, obtain </a><span class="CodeOrCommand">TransportBuffers</span> from the Transport package and encode and/or decode using the Codec package.</div>
             </td>
           </tr>
         </table>
@@ -82,12 +82,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1038111">To use the Codec package with user-defined transports, obtain </a><span class="CodeOrCommand">Buffers</span> from the Codec package, and encode and/or decode using the Codec package. </div>
+              <div class="Bullet_inner"><a name="1052055">To use the Codec package with user-defined transports, obtain </a><span class="CodeOrCommand">Buffers</span> from the Codec package, and encode and/or decode using the Codec package. </div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1038112">The rest of this chapter refers to </a><span class="CodeOrCommand">TransportBuffers</span>, unless <span class="CodeOrCommand">Buffers</span> are explicitly specified. However, <span class="CodeOrCommand">Buffers</span> can be used whereever <span class="CodeOrCommand">TransportBuffers</span> are specified.</div>
+      <div class="Body"><a name="1052056">The rest of this chapter refers to </a><span class="CodeOrCommand">TransportBuffers</span>, unless <span class="CodeOrCommand">Buffers</span> are explicitly specified. However, <span class="CodeOrCommand">Buffers</span> can be used whereever <span class="CodeOrCommand">TransportBuffers</span> are specified.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

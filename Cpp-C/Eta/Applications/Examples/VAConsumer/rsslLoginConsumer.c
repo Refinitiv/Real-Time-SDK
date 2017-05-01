@@ -75,6 +75,21 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 		pState = &pLoginRefresh->state;
 		rsslStateToString(&tempBuffer, pState);
 		printf("	%.*s\n\n", tempBuffer.length, tempBuffer.data);
+		
+		/* If authentication information is present, print it out */
+
+		if(pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_TT_REISSUE)
+			printf("	Authn TT Reissue: %llu\n", pLoginRefresh->authenticationTTReissue);
+		
+		if(pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP)
+			printf("	Authn Extended Response: %.*s\n", pLoginRefresh->authenticationExtendedResp.length, pLoginRefresh->authenticationExtendedResp.data);
+		
+		if(pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_CODE)
+			printf("	Authn Error Code: %llu\n", pLoginRefresh->authenticationErrorCode);
+		
+		if(pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT)
+			printf("	Authn Error Text: %.*s\n", pLoginRefresh->authenticationErrorText.length, pLoginRefresh->authenticationErrorText.data);
+
 
 		/* Print out the list of servers available, if one was provided 
 		 * in the login response.  Normally this is only given if
@@ -98,6 +113,13 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 			closeConnection(pReactor, pChannel, pCommand);
 			return RSSL_RC_CRET_SUCCESS;
 		}
+
+		// get login reissue time from authenticationTTReissue
+		if (pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_TT_REISSUE)
+		{
+			pCommand->loginReissueTime = pLoginRefresh->authenticationTTReissue;
+			pCommand->canSendLoginReissue = RSSL_TRUE;
+		}
 		break;
 	}
 	case RDM_LG_MT_STATUS:
@@ -108,6 +130,12 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 			rsslStateToString(&tempBuffer, &pLoginMsg->status.state);
 			printf("	%.*s\n\n", tempBuffer.length, tempBuffer.data);
     	}
+		
+		if(pLoginMsg->status.flags & RDM_LG_STF_HAS_AUTHN_ERROR_CODE)
+			printf("	Authn Error Code: %llu\n", pLoginMsg->status.authenticationErrorCode);
+		
+		if(pLoginMsg->status.flags & RDM_LG_STF_HAS_AUTHN_ERROR_TEXT)
+			printf("	Authn Error Text: %.*s\n", pLoginMsg->status.authenticationErrorText.length, pLoginMsg->status.authenticationErrorText.data);
 		break;
 
 	default:

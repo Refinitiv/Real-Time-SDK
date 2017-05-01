@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>300 Series Examples</title>
+    <title>280__MarketPrice__Performance</title>
     <link rel="StyleSheet" href="css/EMAJ_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,24 +55,43 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2_NoNum"><a name="1031573">300 Series Examples</a></div>
-      <div class="WebWorks_MiniTOC">
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.17.html">300__MarketPrice__Close</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.18.html">301__MarketPrice__PriorityChange</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.19.html">320__Custom__GenericMsg</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.20.html">331__Directory__UserControl</a>
-        </div>
-        <div class="WebWorks_MiniTOC_Level1">
-          <a class="WebWorks_MiniTOC_Link" href="EMAJ_IP_Readmes.3.21.html">380__MarketPrice__ConnectionLost</a>
-        </div>
-      </div>
+      <div class="H3_NoNum"><a name="1031571">280__MarketPrice__Performance</a></div>
+      <div class="Body"><a name="1033871">Summary</a></div>
+      <div class="Body"><a name="1033872">=======</a></div>
+      <div class="Body"><a name="1033873">&nbsp;</a></div>
+      <div class="Body"><a name="1033874">280__MarketPrice__Performance is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1033875">written to the EMA library.</a></div>
+      <div class="Body"><a name="1033876">&nbsp;</a></div>
+      <div class="Body"><a name="1033877">This application demonstrates the performance usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1033878">of OMM MarketPrice data a Consumer application.</a></div>
+      <div class="Body"><a name="1033879">&nbsp;</a></div>
+      <div class="Body"><a name="1033880">280__MarketPrice__Performance illustrates how to efficiently create and publish a number</a></div>
+      <div class="Body"><a name="1033881">of OMM streaming items. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1033882">file.</a></div>
+      <div class="Body"><a name="1033883">&nbsp;</a></div>
+      <div class="Body"><a name="1033884">&nbsp;</a></div>
+      <div class="Body"><a name="1033885">Detailed Description</a></div>
+      <div class="Body"><a name="1033886">====================</a></div>
+      <div class="Body"><a name="1033887">&nbsp;</a></div>
+      <div class="Body"><a name="1033888">280__MarketPrice__Performance implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1033889">&nbsp;</a></div>
+      <div class="Body"><a name="1033890">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
+      <div class="Body"><a name="1033891">  - which reads in the EmaConfig.xml file with:</a></div>
+      <div class="Body"><a name="1033892">    - specified SourceDirectory of DIRECT_FEED</a></div>
+      <div class="Body"><a name="1033893">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1033894">  - listens on a port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1033895">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1033896">  - sends down the source directory refresh message with DIRECT_FEED service info</a></div>
+      <div class="Body"><a name="1033897">+ Processes a number of item requests.</a></div>
+      <div class="Body"><a name="1033898"> - Creates a number of streaming items (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1033899"> - Publishes a number of updates for 300 seconds.</a></div>
+      <div class="Body"><a name="1033900">+ Prints out approximate rates of refreshes and updates every second or so</a></div>
+      <div class="Body"><a name="1033901">+ Exits</a></div>
+      <div class="Body"><a name="1033902">&nbsp;</a></div>
+      <div class="Body"><a name="1033903">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1033904">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1033905">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1033067">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -85,7 +104,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : 300 Series Examples</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.10.html">200 Series Examples</a> : 280__MarketPrice__Performance</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

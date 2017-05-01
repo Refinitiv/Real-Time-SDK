@@ -56,62 +56,62 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1001355">Local Set Definition Database Encoding Interfaces</a></div>
-      <div class="Body"><a name="1528305">Applications can send or receive local set definitions while using the </a><span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Vector</span>, or <span class="CodeOrCommand">Series</span> container types. To provide local set definition information, an application can use the <span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">SetDefs</span> method with a pre-encoded set definition database, or encode this using the Transport API-provided methods described in this section.</div>
-      <div class="Body"><a name="1528315">The following table describes all available encoding methods required to provide set definition database content on a </a><span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Vector</span>, or <span class="CodeOrCommand">Series</span>. When present, this information should apply to any <span class="CodeOrCommand">FieldList</span> or <span class="CodeOrCommand">ElementList</span> content within the types’ entries. When encoding set-defined field or element list content, the application must pass <span class="CodeOrCommand">LocalFieldSetDefDb</span> or <span class="CodeOrCommand">LocalElementSetDefDb</span> into the <span class="CodeOrCommand">FieldList.encodeInit</span> and <span class="CodeOrCommand">ElementList.encodeInit</span> methods.</div>
-      <div class="Blank_Line"><a name="1528423">&nbsp;</a></div>
+      <div class="Body"><a name="1686580">Applications can send or receive local set definitions while using the </a><span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Vector</span>, or <span class="CodeOrCommand">Series</span> container types. To provide local set definition information, an application can use the <span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">SetDefs</span> method with a pre-encoded set definition database, or encode this using the Transport API-provided methods described in this section.</div>
+      <div class="Body"><a name="1686590">The following table describes all available encoding methods required to provide set definition database content on a </a><span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Vector</span>, or <span class="CodeOrCommand">Series</span>. When present, this information should apply to any <span class="CodeOrCommand">FieldList</span> or <span class="CodeOrCommand">ElementList</span> content within the types’ entries. When encoding set-defined field or element list content, the application must pass <span class="CodeOrCommand">LocalFieldSetDefDb</span> or <span class="CodeOrCommand">LocalElementSetDefDb</span> into the <span class="CodeOrCommand">FieldList.encodeInit</span> and <span class="CodeOrCommand">ElementList.encodeInit</span> methods.</div>
+      <div class="Blank_Line"><a name="1686698">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 118: <a name="1528420">Local Set Definition Database Encode </a>Methods &nbsp;</div>
+          <div class="TableTitle">Table 118: <a name="1686695">Local Set Definition Database Encode </a>Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 180pt">
-            <div class="CellHeading"><a name="1528339">ENCODE INTERFACE</a></div>
+            <div class="CellHeading"><a name="1686614">ENCODE INTERFACE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 375.75pt">
-            <div class="CellHeading"><a name="1528341">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1686616">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528343">LocalFieldSetDefDb</a>.encode</div>
+            <div class="CellBody"><a name="1686618">LocalFieldSetDefDb</a>.encode</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528345">Encodes a non-pre-encoded local field set definition database into its own buffer for use with </a><span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">SetDefs</span> or directly into a <span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Vector</span>, or <span class="CodeOrCommand">Series</span>. After the container’s <span class="CodeOrCommand">EncodeInit</span> method, local set definition encoding is expected prior to any summary data or container entries.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528359">LocalElementSetDefDb</a>.encode</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528361">Encodes a non-pre-encoded local element set definition database into its own buffer for use with </a><span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">SetDefs</span> or directly into a <span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Vector</span>, or <span class="CodeOrCommand">Series</span>. After the containers <span class="CodeOrCommand">EncodeInit</span> method, local set definition encoding is expected prior to any summary data or container entries.</div>
+            <div class="CellBody"><a name="1686620">Encodes a non-pre-encoded local field set definition database into its own buffer for use with </a><span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">SetDefs</span> or directly into a <span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Vector</span>, or <span class="CodeOrCommand">Series</span>. After the container’s <span class="CodeOrCommand">EncodeInit</span> method, local set definition encoding is expected prior to any summary data or container entries.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528375">Map.encodeSetDefsComplete</a></div>
+            <div class="CellBody"><a name="1686634">LocalElementSetDefDb</a>.encode</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528377">Completes encoding non-pre-encoded element or field set definition database content.</a></div>
-            <div class="CellBody"><a name="1528383">This applies to local set definition database content on a </a><span class="CodeOrCommand">Map</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.052.html', '');" title="11.3.3 Map">Section 11.3.3</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528389">Series.encodeSetDefsComplete</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528391">Completes encoding non-pre-encoded element or field set definition database content.</a></div>
-            <div class="CellBody"><a name="1528397">This applies to local set definition database content on a </a><span class="CodeOrCommand">Series</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.4 Series">Section 11.3.4</a>.</div>
+            <div class="CellBody"><a name="1686636">Encodes a non-pre-encoded local element set definition database into its own buffer for use with </a><span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">SetDefs</span> or directly into a <span class="CodeOrCommand">Map</span>, <span class="CodeOrCommand">Vector</span>, or <span class="CodeOrCommand">Series</span>. After the containers <span class="CodeOrCommand">EncodeInit</span> method, local set definition encoding is expected prior to any summary data or container entries.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528403">Vector.encodeSetDefsComplete</a></div>
+            <div class="CellBody"><a name="1686650">Map.encodeSetDefsComplete</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1528405">Completes encoding non-pre-encoded element or field set definition database content.</a></div>
-            <div class="CellBody"><a name="1528411">This applies to local set definition database content on a </a><span class="CodeOrCommand">Vector</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.066.html', '');" title="11.3.5 Vector">Section 11.3.5</a>.</div>
+            <div class="CellBody"><a name="1686652">Completes encoding non-pre-encoded element or field set definition database content.</a></div>
+            <div class="CellBody"><a name="1686658">This applies to local set definition database content on a </a><span class="CodeOrCommand">Map</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.052.html', '');" title="11.3.3 Map">Section 11.3.3</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1686664">Series.encodeSetDefsComplete</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1686666">Completes encoding non-pre-encoded element or field set definition database content.</a></div>
+            <div class="CellBody"><a name="1686672">This applies to local set definition database content on a </a><span class="CodeOrCommand">Series</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.4 Series">Section 11.3.4</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1686678">Vector.encodeSetDefsComplete</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1686680">Completes encoding non-pre-encoded element or field set definition database content.</a></div>
+            <div class="CellBody"><a name="1686686">This applies to local set definition database content on a </a><span class="CodeOrCommand">Vector</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.066.html', '');" title="11.3.5 Vector">Section 11.3.5</a>.</div>
           </td>
         </tr>
       </table>

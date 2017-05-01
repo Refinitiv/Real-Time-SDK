@@ -56,28 +56,28 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1022358">Channel.read Method</a></div>
-      <div class="Blank_Line"><a name="1473419">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1527160">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 28: <span class="LucidaConsole"><a name="1473416">Channel</a></span> Method &nbsp;</div>
+          <div class="TableTitle">Table 28: <span class="LucidaConsole"><a name="1527157">Channel</a></span> Method &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1473369">method</a></div>
+            <div class="CellHeading"><a name="1527110">method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1473371">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1527112">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473376">Channel</a></div>
+            <div class="CellBody"><a name="1527117">Channel</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473384">Provides the user with data received from the connection. This method expects the </a><span class="CodeOrCommand">Channel</span> to be in the active state. When data is available, a <span class="CodeOrCommand">TransportBuffer</span> referring to the information is returned, which is valid until the next call to <span class="CodeOrCommand">Channel.read</span>. If a blocking I/O is used, the <span class="CodeOrCommand">Channel.read</span> method will not return until there is information to return or an error has occurred.</div>
-            <div class="CellBody"><a name="1473397">A </a><span class="CodeOrCommand">ReadArgs</span> parameter passed into the function is used to convey return code information as well as communicate whether there is additional information to read. An I/O notification mechanism may not inform the user of this additional information as it has already been read from the socket and is contained in the <span class="CodeOrCommand">Channel</span> input buffer. <span class="CodeOrCommand">ReadArgs</span> also conveys the number of bytes and uncompressed bytes read. The <span class="CodeOrCommand">ReadArgs.readRetVal</span> method is used to get the return code.</div>
-            <div class="CellBody"><a name="1473401">An Error parameter passed into the method is used to convey error information if the </a><span class="CodeOrCommand">ReadArgs.readRetVal</span> value indicates an error.</div>
-            <div class="CellBody"><a name="1473408">Return values are described in</a> <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.49.html', '');" title="9.6.3 Channel.read Return Codes">Section 9.6.3</a>.</div>
+            <div class="CellBody"><a name="1527125">Provides the user with data received from the connection. This method expects the </a><span class="CodeOrCommand">Channel</span> to be in the active state. When data is available, a <span class="CodeOrCommand">TransportBuffer</span> referring to the information is returned, which is valid until the next call to <span class="CodeOrCommand">Channel.read</span>. If a blocking I/O is used, the <span class="CodeOrCommand">Channel.read</span> method will not return until there is information to return or an error has occurred.</div>
+            <div class="CellBody"><a name="1527138">A </a><span class="CodeOrCommand">ReadArgs</span> parameter passed into the function is used to convey return code information as well as communicate whether there is additional information to read. An I/O notification mechanism may not inform the user of this additional information as it has already been read from the socket and is contained in the <span class="CodeOrCommand">Channel</span> input buffer. <span class="CodeOrCommand">ReadArgs</span> also conveys the number of bytes and uncompressed bytes read. The <span class="CodeOrCommand">ReadArgs.readRetVal</span> method is used to get the return code.</div>
+            <div class="CellBody"><a name="1527142">An Error parameter passed into the method is used to convey error information if the </a><span class="CodeOrCommand">ReadArgs.readRetVal</span> value indicates an error.</div>
+            <div class="CellBody"><a name="1527149">Return values are described in</a> <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.49.html', '');" title="9.6.3 Channel.read Return Codes">Section 9.6.3</a>.</div>
           </td>
         </tr>
       </table>

@@ -56,35 +56,35 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1022561">FieldEntry Methods</a></div>
-      <div class="Body"><a name="1530221">Each FieldEntry can house any </a><span class="CodeOrCommand">DataTypes</span>. This includes primitive types (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>), set-defined types (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.088.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>), or container types. If updating information, when the <span class="CodeOrCommand">FieldEntry</span> contains a primitive type, it replaces any previously stored or displayed data associated with the same <span class="CodeOrCommand">fieldId</span>. If the <span class="CodeOrCommand">FieldEntry</span> contains another container type, action values associated with that type indicate how to modify the information.</div>
-      <div class="Blank_Line"><a name="1530431">&nbsp;</a></div>
+      <div class="Body"><a name="1688496">Each FieldEntry can house any </a><span class="CodeOrCommand">DataTypes</span>. This includes primitive types (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.003.html', '');" title="11.2 Primitive Types">Section 11.2</a>), set-defined types (as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.088.html', '');" title="11.6 Set Definitions and Set-Defined Data">Section 11.6</a>), or container types. If updating information, when the <span class="CodeOrCommand">FieldEntry</span> contains a primitive type, it replaces any previously stored or displayed data associated with the same <span class="CodeOrCommand">fieldId</span>. If the <span class="CodeOrCommand">FieldEntry</span> contains another container type, action values associated with that type indicate how to modify the information.</div>
+      <div class="Blank_Line"><a name="1688706">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 88: <span class="LucidaConsole"><a name="1530428">FieldEntry</a></span> Methods &nbsp;</div>
+          <div class="TableTitle">Table 88: <span class="LucidaConsole"><a name="1688703">FieldEntry</a></span> Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1530248">Method</a></div>
+            <div class="CellHeading"><a name="1688523">Method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1530250">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1688525">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530252">fieldId</a></div>
+            <div class="CellBody"><a name="1688527">fieldId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530254">Sets or gets the </a>signed two-byte value (<span class="CodeOrCommand">fieldId</span>) that refers to specific name and type information defined by an external field dictionary, such as the <span class="FileOrDirectory">RDMFieldDictionary</span>. Negative <span class="CodeOrCommand">fieldId</span> values typically refer to user-defined values while positive <span class="CodeOrCommand">fieldId</span> values typically refer to Thomson Reuters-defined values.</div>
-            <div class="CellBody"><span class="CodeOrCommand"><a name="1530255">fieldId</a></span> has an allowable range of -32,768 to 32,767 where Thomson Reuters defines positive values and the user defines negative values. A <span class="CodeOrCommand">fieldId</span> value of <span class="Parameter">0</span> is reserved to indicate <span class="CodeOrCommand">dictionaryId</span> changes, where the type of <span class="CodeOrCommand">fieldId</span> <span class="Parameter">0</span> is an <span class="CodeOrCommand">Int</span>.</div>
+            <div class="CellBody"><a name="1688529">Sets or gets the </a>signed two-byte value (<span class="CodeOrCommand">fieldId</span>) that refers to specific name and type information defined by an external field dictionary, such as the <span class="FileOrDirectory">RDMFieldDictionary</span>. Negative <span class="CodeOrCommand">fieldId</span> values typically refer to user-defined values while positive <span class="CodeOrCommand">fieldId</span> values typically refer to Thomson Reuters-defined values.</div>
+            <div class="CellBody"><span class="CodeOrCommand"><a name="1688530">fieldId</a></span> has an allowable range of -32,768 to 32,767 where Thomson Reuters defines positive values and the user defines negative values. A <span class="CodeOrCommand">fieldId</span> value of <span class="Parameter">0</span> is reserved to indicate <span class="CodeOrCommand">dictionaryId</span> changes, where the type of <span class="CodeOrCommand">fieldId</span> <span class="Parameter">0</span> is an <span class="CodeOrCommand">Int</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530257">dataType</a></div>
+            <div class="CellBody"><a name="1688532">dataType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530265">Sets or gets </a>the <span class="CodeOrCommand">DataTypes</span> of this <span class="CodeOrCommand">FieldEntry</span>’s contents. </div>
+            <div class="CellBody"><a name="1688540">Sets or gets </a>the <span class="CodeOrCommand">DataTypes</span> of this <span class="CodeOrCommand">FieldEntry</span>’s contents. </div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -94,7 +94,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1530266">While encoding, </a><span class="CodeOrCommand">dataType</span> must be set to the enumerated value of the type being encoded.</div>
+                    <div class="Bullet_Table_inner"><a name="1688541">While encoding, </a><span class="CodeOrCommand">dataType</span> must be set to the enumerated value of the type being encoded.</div>
                   </td>
                 </tr>
               </table>
@@ -108,20 +108,20 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1530267">While decoding, if </a><span class="CodeOrCommand">dataType</span> is <span class="CodeOrCommand">DataTypes.UNKNOWN</span>, the user must determine the type of contained information from the associated field dictionary.</div>
+                    <div class="Bullet_Table_inner"><a name="1688542">While decoding, if </a><span class="CodeOrCommand">dataType</span> is <span class="CodeOrCommand">DataTypes.UNKNOWN</span>, the user must determine the type of contained information from the associated field dictionary.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1530271">If set-defined data is used, </a><span class="CodeOrCommand">dataType</span> will indicate specific <span class="CodeOrCommand">DataTypes</span> information as indicated by the set definition.</div>
+            <div class="CellBody"><a name="1688546">If set-defined data is used, </a><span class="CodeOrCommand">dataType</span> will indicate specific <span class="CodeOrCommand">DataTypes</span> information as indicated by the set definition.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530273">enc</a>odedData</div>
+            <div class="CellBody"><a name="1688548">enc</a>odedData</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530275">Sets or gets </a><span class="CodeOrCommand">encodedData</span>, which is a <span class="CodeOrCommand">Buffer</span> (with position and length) containing the encoded content of this <span class="CodeOrCommand">FieldEntry</span>.</div>
+            <div class="CellBody"><a name="1688550">Sets or gets </a><span class="CodeOrCommand">encodedData</span>, which is a <span class="CodeOrCommand">Buffer</span> (with position and length) containing the encoded content of this <span class="CodeOrCommand">FieldEntry</span>.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -131,7 +131,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1530282">If populated on encode methods, this indicates that data is pre-encoded and </a><span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">Data</span> will be copied while encoding.</div>
+                    <div class="Bullet_Table_inner"><a name="1688557">If populated on encode methods, this indicates that data is pre-encoded and </a><span class="CodeOrCommand">enc</span><span class="CodeOrCommand">oded</span><span class="CodeOrCommand">Data</span> will be copied while encoding.</div>
                   </td>
                 </tr>
               </table>
@@ -145,7 +145,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1530286">If populated on decoding functions, this refers to the encoded </a><span class="CodeOrCommand">FieldEntry</span>’s payload and length information.</div>
+                    <div class="Bullet_Table_inner"><a name="1688561">If populated on decoding functions, this refers to the encoded </a><span class="CodeOrCommand">FieldEntry</span>’s payload and length information.</div>
                   </td>
                 </tr>
               </table>
@@ -154,40 +154,40 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530288">encode(w/primitiveType)</a></div>
+            <div class="CellBody"><a name="1688563">encode(w/primitiveType)</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530293">Encodes a </a><span class="CodeOrCommand">FieldEntry</span> with a primitive data type (e.g. <span class="CodeOrCommand">UInt</span>). This method expects the same <span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.encodeInit</span>. You must properly populate <span class="CodeOrCommand">FieldEntry.fieldId</span> and <span class="CodeOrCommand">FieldEntry.dataType</span>. </div>
-            <div class="CellBody"><a name="1530303">Call this method for each </a><span class="CodeOrCommand">primitiveType</span> entry being encoded.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530305">encode</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530310">Encodes a </a><span class="CodeOrCommand">FieldEntry</span> with pre-encoded data. This method expects the same <span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.encodeInit</span>. You must properly populate <span class="CodeOrCommand">FieldEntry.fieldId</span> and <span class="CodeOrCommand">FieldEntry.dataType</span>. Set <span class="CodeOrCommand">encodedData</span> with pre-encoded data before calling this method. </div>
-            <div class="CellBody"><a name="1530320">Call this method for each pre-encoded entry being encoded.</a></div>
+            <div class="CellBody"><a name="1688568">Encodes a </a><span class="CodeOrCommand">FieldEntry</span> with a primitive data type (e.g. <span class="CodeOrCommand">UInt</span>). This method expects the same <span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.encodeInit</span>. You must properly populate <span class="CodeOrCommand">FieldEntry.fieldId</span> and <span class="CodeOrCommand">FieldEntry.dataType</span>. </div>
+            <div class="CellBody"><a name="1688578">Call this method for each </a><span class="CodeOrCommand">primitiveType</span> entry being encoded.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530322">encodeBlank</a></div>
+            <div class="CellBody"><a name="1688580">encode</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530327">Encodes a blank </a><span class="CodeOrCommand">FieldEntry</span>. This method expects the same <span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.encodeInit</span>.</div>
-            <div class="CellBody"><a name="1530331">Call this method for each blank entry being encoded.</a></div>
+            <div class="CellBody"><a name="1688585">Encodes a </a><span class="CodeOrCommand">FieldEntry</span> with pre-encoded data. This method expects the same <span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.encodeInit</span>. You must properly populate <span class="CodeOrCommand">FieldEntry.fieldId</span> and <span class="CodeOrCommand">FieldEntry.dataType</span>. Set <span class="CodeOrCommand">encodedData</span> with pre-encoded data before calling this method. </div>
+            <div class="CellBody"><a name="1688595">Call this method for each pre-encoded entry being encoded.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530333">encodeInit</a></div>
+            <div class="CellBody"><a name="1688597">encodeBlank</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530338">Encodes a </a><span class="CodeOrCommand">FieldEntry</span> from a complex type, such as a container type or an array.</div>
-            <div class="CellBody"><a name="1530342">This method expects the same </a><span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.enocdeInit</span>. You must properly populate <span class="CodeOrCommand">FieldEntry.fieldId</span> and <span class="CodeOrCommand">FieldEntry.dataType</span>.</div>
-            <div class="CellBody"><a name="1530349">To reserve space needed for encoding, you can pass in a maximum-length hint value, associated with the expected maximum-encoded length of this field. If the approximate encoded length is not known, you can pass in a value of </a><span class="Parameter">0</span> which allows the maximum content length.</div>
-            <div class="CellBody"><a name="1530350">Typical use (e.g. encode an element list as a field entry):</a></div>
+            <div class="CellBody"><a name="1688602">Encodes a blank </a><span class="CodeOrCommand">FieldEntry</span>. This method expects the same <span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.encodeInit</span>.</div>
+            <div class="CellBody"><a name="1688606">Call this method for each blank entry being encoded.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1688608">encodeInit</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1688613">Encodes a </a><span class="CodeOrCommand">FieldEntry</span> from a complex type, such as a container type or an array.</div>
+            <div class="CellBody"><a name="1688617">This method expects the same </a><span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.enocdeInit</span>. You must properly populate <span class="CodeOrCommand">FieldEntry.fieldId</span> and <span class="CodeOrCommand">FieldEntry.dataType</span>.</div>
+            <div class="CellBody"><a name="1688624">To reserve space needed for encoding, you can pass in a maximum-length hint value, associated with the expected maximum-encoded length of this field. If the approximate encoded length is not known, you can pass in a value of </a><span class="Parameter">0</span> which allows the maximum content length.</div>
+            <div class="CellBody"><a name="1688625">Typical use (e.g. encode an element list as a field entry):</a></div>
             <div class="Step1_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -197,7 +197,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Step1_inner"><a name="1530354">Call </a><span class="CodeOrCommand">FieldEntry.enocdeInit</span>.</div>
+                    <div class="Step1_inner"><a name="1688629">Call </a><span class="CodeOrCommand">FieldEntry.enocdeInit</span>.</div>
                   </td>
                 </tr>
               </table>
@@ -211,7 +211,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Stepnext_inner"><a name="1530355">Call one or more encoding methods for the complex type using the same buffer.</a></div>
+                    <div class="Stepnext_inner"><a name="1688630">Call one or more encoding methods for the complex type using the same buffer.</a></div>
                   </td>
                 </tr>
               </table>
@@ -225,7 +225,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Stepnext_inner"><a name="1530359">Call </a><span class="CodeOrCommand">FieldEntry.encodeComplete</span>.</div>
+                    <div class="Stepnext_inner"><a name="1688634">Call </a><span class="CodeOrCommand">FieldEntry.encodeComplete</span>.</div>
                   </td>
                 </tr>
               </table>
@@ -234,11 +234,11 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530361">encodeComplete</a></div>
+            <div class="CellBody"><a name="1688636">encodeComplete</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530366">Completes encoding of a </a><span class="CodeOrCommand">FieldEntry</span> for a complex type, such as a container type or an array.</div>
-            <div class="CellBody"><a name="1530370">This method expects the same </a><span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.encodeInit</span>, <span class="CodeOrCommand">FieldEntry.encodeInit</span>, and all other entry encoding.</div>
+            <div class="CellBody"><a name="1688641">Completes encoding of a </a><span class="CodeOrCommand">FieldEntry</span> for a complex type, such as a container type or an array.</div>
+            <div class="CellBody"><a name="1688645">This method expects the same </a><span class="CodeOrCommand">EncodeIterator</span> used with <span class="CodeOrCommand">FieldList.encodeInit</span>, <span class="CodeOrCommand">FieldEntry.encodeInit</span>, and all other entry encoding.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -248,7 +248,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1530374">If encoding succeeds, set the </a><span class="CodeOrCommand">boolean</span> <span class="Parameter">success</span> to <span class="Parameter">true</span> to finish entry encoding.</div>
+                    <div class="Bullet_Table_inner"><a name="1688649">If encoding succeeds, set the </a><span class="CodeOrCommand">boolean</span> <span class="Parameter">success</span> to <span class="Parameter">true</span> to finish entry encoding.</div>
                   </td>
                 </tr>
               </table>
@@ -262,7 +262,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1530375">If encoding the entry fails, set the </a><span class="CodeOrCommand">boolean</span> <span class="Parameter">success</span> parameter to <span class="Parameter">false</span> to roll back the encoding of this particular <span class="CodeOrCommand">FieldEntry</span>.</div>
+                    <div class="Bullet_Table_inner"><a name="1688650">If encoding the entry fails, set the </a><span class="CodeOrCommand">boolean</span> <span class="Parameter">success</span> parameter to <span class="Parameter">false</span> to roll back the encoding of this particular <span class="CodeOrCommand">FieldEntry</span>.</div>
                   </td>
                 </tr>
               </table>
@@ -271,10 +271,10 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530380">decode</a></div>
+            <div class="CellBody"><a name="1688655">decode</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530388">Decodes a </a><span class="CodeOrCommand">FieldEntry</span>, expecting the same <span class="CodeOrCommand">DecodeIterator</span> used with <span class="CodeOrCommand">FieldList.decode</span> and populates <span class="CodeOrCommand">encodedData</span> with the entry’s encoded contents.</div>
+            <div class="CellBody"><a name="1688663">Decodes a </a><span class="CodeOrCommand">FieldEntry</span>, expecting the same <span class="CodeOrCommand">DecodeIterator</span> used with <span class="CodeOrCommand">FieldList.decode</span> and populates <span class="CodeOrCommand">encodedData</span> with the entry’s encoded contents.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -284,7 +284,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1530392">If decoding set-defined entries, the </a><span class="CodeOrCommand">FieldEntry.dataType</span> populates with the type from the set definition.</div>
+                    <div class="Bullet_Table_inner"><a name="1688667">If decoding set-defined entries, the </a><span class="CodeOrCommand">FieldEntry.dataType</span> populates with the type from the set definition.</div>
                   </td>
                 </tr>
               </table>
@@ -298,26 +298,26 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1530396">If decoding standard </a><span class="CodeOrCommand">fieldId</span>-value data, <span class="CodeOrCommand">FieldEntry.dataType</span> is set to <span class="CodeOrCommand">DataTypes.UNKNOWN</span>, indicating that the user must determine the type from a field dictionary.</div>
+                    <div class="Bullet_Table_inner"><a name="1688671">If decoding standard </a><span class="CodeOrCommand">fieldId</span>-value data, <span class="CodeOrCommand">FieldEntry.dataType</span> is set to <span class="CodeOrCommand">DataTypes.UNKNOWN</span>, indicating that the user must determine the type from a field dictionary.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1530397">After determining the type, the specific decode method can be called if needed. Calling </a><span class="CodeOrCommand">FieldEntry.decode</span> again will begin decoding the next entry in the <span class="CodeOrCommand">FieldList</span> until no more entries are available.</div>
+            <div class="CellBody"><a name="1688672">After determining the type, the specific decode method can be called if needed. Calling </a><span class="CodeOrCommand">FieldEntry.decode</span> again will begin decoding the next entry in the <span class="CodeOrCommand">FieldList</span> until no more entries are available.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1530405">clear</a></div>
+            <div class="CellBody"><a name="1688680">clear</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1530407">Clears this object, so that you can reuse it.</a></div>
+            <div class="CellBody"><a name="1688682">Clears this object, so that you can reuse it.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
             <div class="Tip">
-              <span class="Bold">Tip: </span><a name="1530417"><img class="Tip" src="images/Chap_DataPackage_DetailedView.11.042.1.jpg" width="18" height="23" style="display: block; left: 0.0; top: 0.0" alt="" />When decoding, </a><span class="CodeOrCommand">FieldEntry</span> can be reused without using <span class="CodeOrCommand">clear</span>.</div>
+              <span class="Bold">Tip: </span><a name="1688692"><img class="Tip" src="images/Chap_DataPackage_DetailedView.11.042.1.jpg" width="18" height="23" style="display: block; left: 0.0; top: 0.0" alt="" />When decoding, </a><span class="CodeOrCommand">FieldEntry</span> can be reused without using <span class="CodeOrCommand">clear</span>.</div>
           </td>
         </tr>
       </table>

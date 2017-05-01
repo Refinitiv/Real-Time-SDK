@@ -435,7 +435,22 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Rdm\Impl\DataDictionary.cpp" />
+    <ClCompile Include="..\Rdm\Impl\DataDictionaryImpl.cpp" />
+    <ClCompile Include="..\Rdm\Impl\DictionaryEntry.cpp" />
+    <ClCompile Include="..\Rdm\Impl\DictionaryEntryImpl.cpp" />
+    <ClCompile Include="..\Rdm\Impl\DictionaryUtility.cpp" />
+    <ClCompile Include="..\Rdm\Impl\EnumType.cpp" />
+    <ClCompile Include="..\Rdm\Impl\EnumTypeImpl.cpp" />
+    <ClCompile Include="..\Rdm\Impl\EnumTypeTable.cpp" />
+    <ClCompile Include="..\Rdm\Impl\EnumTypeTableImpl.cpp" />
     <ClCompile Include="..\Rdm\Impl\RdmUtilities.cpp" />
+    <ClCompile Include="..\Domain\Login\Impl\LoginRefresh.cpp" />
+    <ClCompile Include="..\Domain\Login\Impl\LoginRefreshImpl.cpp" />
+    <ClCompile Include="..\Domain\Login\Impl\LoginReq.cpp" />
+    <ClCompile Include="..\Domain\Login\Impl\LoginReqImpl.cpp" />
+    <ClCompile Include="..\Domain\Login\Impl\LoginStatus.cpp" />
+    <ClCompile Include="..\Domain\Login\Impl\LoginStatusImpl.cpp" />
     <ClCompile Include="EmaVersion.c" />
     <ClCompile Include="Impl\AckMsg.cpp" />
     <ClCompile Include="Impl\AckMsgDecoder.cpp" />
@@ -626,8 +641,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Ema.h" />
+    <ClInclude Include="..\Domain\Login\Include\Login.h" />
+    <ClInclude Include="..\Rdm\Impl\DataDictionaryImpl.h" />
+    <ClInclude Include="..\Rdm\Impl\DictionaryEntryImpl.h" />
+    <ClInclude Include="..\Rdm\Impl\EnumTypeImpl.h" />
+    <ClInclude Include="..\Rdm\Impl\EnumTypeTableImpl.h" />
     <ClInclude Include="..\Rdm\Impl\RdmUtilities.h" />
+    <ClInclude Include="..\Rdm\Include\DataDictionary.h" />
+    <ClInclude Include="..\Rdm\Include\DictionaryEntry.h" />
+    <ClInclude Include="..\Rdm\Include\DictionaryUtility.h" />
     <ClInclude Include="..\Rdm\Include\EmaRdm.h" />
+    <ClInclude Include="..\Rdm\Include\EnumType.h" />
+    <ClInclude Include="..\Rdm\Include\EnumTypeTable.h" />
+    <ClInclude Include="..\Rdm\Include\MfFieldType.h" />
     <ClInclude Include="EmaVersion.h" />
     <ClInclude Include="Impl\AckMsgDecoder.h" />
     <ClInclude Include="Impl\AckMsgEncoder.h" />
@@ -651,7 +677,6 @@
     <ClInclude Include="Impl\EmaList.h" />
     <ClInclude Include="Impl\EmaPool.h" />
     <ClInclude Include="Impl\EmaStringInt.h" />
-    <ClInclude Include="Impl\EmaVector.h" />
     <ClInclude Include="Impl\EncodeIterator.h" />
     <ClInclude Include="Impl\Encoder.h" />
     <ClInclude Include="Impl\ErrorClientHandler.h" />
@@ -760,6 +785,7 @@
     <ClInclude Include="Include\EmaBuffer.h" />
     <ClInclude Include="Include\EmaBufferU16.h" />
     <ClInclude Include="Include\EmaString.h" />
+    <ClInclude Include="Include\EmaVector.h" />
     <ClInclude Include="Include\FieldEntry.h" />
     <ClInclude Include="Include\FieldList.h" />
     <ClInclude Include="Include\FilterEntry.h" />

@@ -1,6 +1,5 @@
 function FileData_Pairs(x)
 {
-x.t("2.8","general");
 x.t("m.parentnode.insertbefore","window");
 x.t("indicated","model");
 x.t(".l=1","new");
@@ -25,7 +24,7 @@ x.t("api","concepts");
 x.t("requested","subset");
 x.t("results","reduced");
 x.t("guide","chapter");
-x.t("overview","2.8");
+x.t("overview","2.6");
 x.t("via","supportviewrequests");
 x.t("definition","provider");
 x.t("leveraged","across");
@@ -36,7 +35,6 @@ x.t("filtering","results");
 x.t("reduced","data");
 x.t("developers","guide");
 x.t("allows","consumer");
-x.t("2.8.5","dynamic");
 x.t("(o)","m=s.getelementsbytagname");
 x.t("(o)","[0]");
 x.t("flow","across");
@@ -51,6 +49,7 @@ x.t("transport","api");
 x.t("types","specific");
 x.t("section","3.3.1");
 x.t("consumer","application");
+x.t("2.6.5","dynamic");
 x.t("login","attribute");
 x.t("usage","support");
 x.t("send","pageview");
@@ -98,9 +97,10 @@ x.t("across","connection");
 x.t("across","non-administrative");
 x.t("googleanalyticsobject","[r]");
 x.t("views","refer");
+x.t("2.6","general");
 x.t("a.src=g","m.parentnode.insertbefore");
 x.t("specify","subset");
 x.t("content","interested");
 x.t("content","across");
-x.t("concepts","2.8.5");
+x.t("concepts","2.6.5");
 }

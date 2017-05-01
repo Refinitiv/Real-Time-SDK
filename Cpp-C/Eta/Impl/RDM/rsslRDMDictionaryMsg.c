@@ -1,8 +1,8 @@
 /*
- * This source code is provided under the Apache 2.0 license and is provided
- * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
- * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+* This source code is provided under the Apache 2.0 license and is provided
+* AS IS with no warranty or guarantee of fit for purpose.  See the project's
+* LICENSE.md for details.
+* Copyright Thomson Reuters 2015. All rights reserved.
 */
 
 #include "rtr/rsslRDMDictionaryMsg.h"
@@ -128,14 +128,14 @@ RSSL_VA_API RsslRet rsslEncodeRDMDictionaryMsg(RsslEncodeIterator *pIter, RsslRD
 					if ((dictEncodeRet = rsslEncodeEnumTypeDictionaryAsMultiPart(pIter, pDictionaryRefresh->pDictionary, &pDictionaryRefresh->enumStartFid, (RDMDictionaryVerbosityValues)pDictionaryRefresh->verbosity, &errorText)) != RSSL_RET_SUCCESS)
 					{
 						if (dictEncodeRet != RSSL_RET_DICT_PART_ENCODED)
-					{
-						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "rsslEncodeEnumTypeDictionaryAsMultiPart failed: %.*s", errorText.length, errorText.data);
-						return ret;
-					}
+						{
+							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "rsslEncodeEnumTypeDictionaryAsMultiPart failed: %.*s", errorText.length, errorText.data);
+							return ret;
+						}
 					}
 
 					if (dictEncodeRet == RSSL_RET_SUCCESS)
-					rsslSetRefreshCompleteFlag(pIter);
+						rsslSetRefreshCompleteFlag(pIter);
 
 					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 

@@ -1778,19 +1778,19 @@ public class Consumer implements ConsumerCallback
     		switch (domainType)
     		{
     		case DomainTypes.MARKET_PRICE:
-    			ret = chnlInfo.marketPriceHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
+    			ret = chnlInfo.marketPriceHandler.decodePayload(dIter, chnlInfo.dictionary, cacheDisplayStr);
     			break;
 
     		case DomainTypes.MARKET_BY_ORDER:
-    			ret = chnlInfo.marketByOrderHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
+    			ret = chnlInfo.marketByOrderHandler.decodePayload(dIter, chnlInfo.dictionary, cacheDisplayStr);
     			break;
 
     		case DomainTypes.MARKET_BY_PRICE:
-    			ret = chnlInfo.marketByPriceHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
+    			ret = chnlInfo.marketByPriceHandler.decodePayload(dIter, chnlInfo.dictionary, cacheDisplayStr);
     			break;
 
     		case DomainTypes.YIELD_CURVE:
-    			ret = chnlInfo.yieldCurveHandler.decodePayload(dIter, dictionary);
+    			ret = chnlInfo.yieldCurveHandler.decodePayload(dIter, chnlInfo.dictionary);
     			break;
 
     		default:

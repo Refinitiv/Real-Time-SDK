@@ -27,8 +27,6 @@ class RmtesDecoderImpl implements RmtesDecoder
     private RmtesInfo _tempInfo = new RmtesInfo();
     private RmtesInfo _returnInfo = new RmtesInfo();
 
-    ByteBuffer _inBuffer = null;
-
     int GLLowest(RmtesCharSet set)
     {
         return ((set.get_shape() == CharSet.SHAPE_96) ? 0x20 : 0x21);
@@ -847,7 +845,7 @@ class RmtesDecoderImpl implements RmtesDecoder
         int numCount = 0;
         int state = RMTESParseState.NORMAL;
 
-        for (i = 0; i < buffer.length(); ++i)
+        for (i = buffer.position(); i < buffer.length()+buffer.position(); ++i)
         {
             switch (state)
             {
@@ -886,55 +884,31 @@ class RmtesDecoderImpl implements RmtesDecoder
      */
     public int RMTESApplyToCache(Buffer fEntry, RmtesCacheBuffer cacheBuffer)
     {
-        int inBufPos = 0;
+        int inBufPos = fEntry.position();
         int cacheBufferPos = 0;
         int numCount = 0;
-        int i;
+        int i = 0;
         byte prevByte = 0;
-        int escStart = 0;
-        boolean escFirst = false;
+        boolean escPresent = false;
         int state = RMTESParseState.NORMAL;
         int maxLen = 0;
-        int input = 0;
+        
 
         if (fEntry.length() == 0)
             return CodecReturnCodes.INVALID_ARGUMENT;
         if (cacheBuffer.allocatedLength() == 0)
             return CodecReturnCodes.BUFFER_TOO_SMALL;
 
-        _inBuffer = ByteBuffer.allocate(fEntry.length());
-
-        // If the ESC sequence tells us to do UTF-8, put bytes directly into _inBuffer
-        if (fEntry.data().get(0) == 0x1B && fEntry.data().get(1) == 0x25 && fEntry.data().get(2) == 0x30)
-        {
-            _inBuffer.put(fEntry.data().array());
-        }
-        else
-            // If the ESC sequence is not already UTF-8, put bytes into Int first to get unsigned bytes, then into _inBuffer
-            for (int x = fEntry.position(); x < fEntry.length() + fEntry.position(); ++x)
-            {
-                input = (char)fEntry.data().get(x);
-                input = (input & 0xFF);
-                _inBuffer.put((byte)input);
-            }
-
         i = 1;
-        if (_inBuffer.limit() > 0)
-            if (_inBuffer.get(0) == ESC_CHAR)
-            {
-                escFirst = true;
-                escStart = 0;
-            }
 
-        while (inBufPos < _inBuffer.limit())
+        while (inBufPos < (fEntry.length() + fEntry.position()))
         {
             switch (state)
             {
                 case RMTESParseState.NORMAL:
-                    if (_inBuffer.get(inBufPos) == ESC_CHAR)
+                    if (fEntry.data().get(inBufPos) == ESC_CHAR)
                     {
                         state = RMTESParseState.ESC;
-                        escStart = inBufPos;
                         numCount = 0;
                     }
                     else
@@ -943,17 +917,17 @@ class RmtesDecoderImpl implements RmtesDecoder
                         {
                             return CodecReturnCodes.FAILURE;
                         }
-                        prevByte = _inBuffer.get(inBufPos);
+                        prevByte = fEntry.data().get(inBufPos);
                         cacheBuffer.byteData().put(cacheBufferPos++, prevByte);
                     }
                     break;
                 case RMTESParseState.ESC:
-                    if (_inBuffer.get(inBufPos) == LBRKT_CHAR)
+                    if (fEntry.data().get(inBufPos) == LBRKT_CHAR)
                         state = RMTESParseState.LBRKT;
-                    else if (_inBuffer.get(inBufPos) == 0x25)
+                    else if (fEntry.data().get(inBufPos) == 0x25)
                     {
                         inBufPos++;
-                        if (_inBuffer.get(inBufPos) == 0x30)
+                        if (fEntry.data().get(inBufPos) == 0x30)
                         {
                             if (cacheBufferPos + 3 > cacheBuffer.allocatedLength())
                             {
@@ -980,21 +954,20 @@ class RmtesDecoderImpl implements RmtesDecoder
                             return CodecReturnCodes.FAILURE;
                         }
                         cacheBuffer.byteData().put(cacheBufferPos++, (byte)ESC_CHAR);
-                        cacheBuffer.byteData().put(cacheBufferPos++, _inBuffer.get(inBufPos));
+                        cacheBuffer.byteData().put(cacheBufferPos++, fEntry.data().get(inBufPos));
                     }
                     break;
                 case RMTESParseState.LBRKT:
-                    if (_inBuffer.get(inBufPos) >= '0' && _inBuffer.get(inBufPos) <= '9')
+                    if (fEntry.data().get(inBufPos) >= '0' && fEntry.data().get(inBufPos) <= '9')
                     {
-                        numCount = numCount * 10 + _inBuffer.get(inBufPos) - '0';
+                        numCount = numCount * 10 + fEntry.data().get(inBufPos) - '0';
                     }
-                    else if (_inBuffer.get(inBufPos) == RHPA_CHAR)
+                    else if (fEntry.data().get(inBufPos) == RHPA_CHAR)
                     {
                         /* Move cursor command */
-                        if (escStart == 0)
-                        {
-                            escFirst = true;
-                        }
+                    	/* Escape command is completed, flag as true */
+                        escPresent = true;
+
                         if (numCount >= 0)
                         {
                             cacheBufferPos = numCount;
@@ -1009,14 +982,13 @@ class RmtesDecoderImpl implements RmtesDecoder
                             return CodecReturnCodes.FAILURE;
                         }
                     }
-                    else if (_inBuffer.get(inBufPos) == RREP_CHAR)
+                    else if (fEntry.data().get(inBufPos) == RREP_CHAR)
                     {
                         /* Repeat character command. This is always 1 char */
                         /* Check for overrun first */
-                        if (escStart == 0)
-                        {
-                            escFirst = true;
-                        }
+                    	/* Escape command completed */
+                        escPresent = true;
+
                         if (cacheBuffer.allocatedLength() < cacheBufferPos + numCount)
                             return CodecReturnCodes.BUFFER_TOO_SMALL;
                         for (i = 0; i < numCount; i++)
@@ -1040,7 +1012,7 @@ class RmtesDecoderImpl implements RmtesDecoder
         if (state != RMTESParseState.NORMAL)
             return CodecReturnCodes.FAILURE;
 
-        if (escFirst == true)
+        if (escPresent == true)
         {
             if (maxLen > cacheBuffer.length())
             {

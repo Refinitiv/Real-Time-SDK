@@ -56,42 +56,42 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1224344">Transport Performance, Direct Connect with TCP, Reflection</a></div>
-      <div class="Body"><a name="1228476">To measure latency across hosts, </a><span class="ToolOrUtility_Name">upajTransportPerf</span> supports reflecting messages. When reflecting is enabled, instead of <span class="ToolOrUtility_Name">upajTransportPerf</span> producing its own messages, each read message is written back as-is to the same connection. Reflecting is enabled by the <span class="CodeOrCommand">-reflectMsgs</span> command-line option and may be done by servers or clients.</div>
-      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1228486"><img class="Default" src="images/Chap_Perf_Measurement.08.7.1.jpg" width="201" height="256" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 23.  <a name="1228488">Transport Performance, TCP Direct Connect with Reflection</a></div>
-      <div class="Procedure_Heading"><a name="1228492"><img class="Default" src="images/Chap_Perf_Measurement.08.7.2.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To run a Basic Performance Measurement:</a></div>
-      <div class="Body"><a name="1228496">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.7.html#1228488', '');" title="8.6 Transport Performance, Direct Connect with TCP, Reflection">Figure 23</a>, run two instances of <span class="ToolOrUtility_Name">upajTransportPerf</span> with the following command-line options:</div>
-      <div class="Blank_Line"><a name="1228519">&nbsp;</a></div>
+      <div class="Body"><a name="1230141">To measure latency across hosts, </a><span class="ToolOrUtility_Name">upajTransportPerf</span> supports reflecting messages. When reflecting is enabled, instead of <span class="ToolOrUtility_Name">upajTransportPerf</span> producing its own messages, each read message is written back as-is to the same connection. Reflecting is enabled by the <span class="CodeOrCommand">-reflectMsgs</span> command-line option and may be done by servers or clients.</div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1230151"><img class="Default" src="images/Chap_Perf_Measurement.08.7.1.jpg" width="201" height="256" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
+      <div class="FigTitle">Figure 23.  <a name="1230153">Transport Performance, TCP Direct Connect with Reflection</a></div>
+      <div class="Procedure_Heading"><a name="1230157"><img class="Default" src="images/Chap_Perf_Measurement.08.7.2.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> To run a Basic Performance Measurement:</a></div>
+      <div class="Body"><a name="1230161">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.7.html#1230153', '');" title="8.6 Transport Performance, Direct Connect with TCP, Reflection">Figure 23</a>, run two instances of <span class="ToolOrUtility_Name">upajTransportPerf</span> with the following command-line options:</div>
+      <div class="Blank_Line"><a name="1230184">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1228502">&nbsp;</a></div>
+            <div class="command"><a name="1230167">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1228507">upajTransportPerf -p 15000 -runTime 900 -connType socket -tickRate 1000 -appType server -reflectMsgs</a></div>
+            <div class="command"><a name="1230172">upajTransportPerf -p 15000 -runTime 900 -connType socket -tickRate 1000 -appType server -reflectMsgs</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1228509">&nbsp;</a></div>
+            <div class="command"><a name="1230174">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1228514">upajTransportPerf –h apphost1 -p 15000 -connType socket -runTime 60 -tickRate 1000  appType client</a></div>
+            <div class="command"><a name="1230179">upajTransportPerf –h apphost1 -p 15000 -connType socket -runTime 60 -tickRate 1000  appType client</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1228516">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-msgRate 100000 -latencyMsgRate 1000</a></div>
+            <div class="command"><a name="1230181">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-msgRate 100000 -latencyMsgRate 1000</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1228518">&nbsp;</a></div>
+            <div class="command"><a name="1230183">&nbsp;</a></div>
           </td>
         </tr>
       </table>

@@ -59,7 +59,7 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1053423">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1063669">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
@@ -144,6 +144,21 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1062998">&nbsp;&nbsp;&nbsp;&nbsp;.addInt("ReconnectAttemptLimit", 10)</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063000">&nbsp;&nbsp;&nbsp;&nbsp;.addInt( "ReconnectMinDelay", 2000 ) </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063002">&nbsp;&nbsp;&nbsp;&nbsp;.addInt( "ReconnectMaxDelay", 6000 ) </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1053547">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "MaxOutstandingPosts", 5000 )</a></div>
           </td>
         </tr>
@@ -154,7 +169,7 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1053551">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "HandleException", 0 )</a></div>
+            <div class="command"><a name="1053551">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "CatchUnhandledException", 0 )</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -175,6 +190,51 @@
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1053559">&nbsp;&nbsp;&nbsp;&nbsp;.addInt( "PipePort", 4001 ).complete() ).complete();</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063076">&nbsp;&nbsp;&nbsp;&nbsp;.addAscii( "XmlTraceFileName", "MyXMLTrace" ) </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063078">&nbsp;&nbsp;&nbsp;&nbsp;.addInt( "XmlTraceMaxFileSize", 50000000 )</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063080">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceToFile", 1 )</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063082">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceToStdout", 0 )</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063084">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceToMultipleFiles", 1 )</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063093">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceWrite", 1 )</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063095">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceRead", 1 )</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063097">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTracePing", 1 )</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1063099">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "MsgKeyInUpdates", 1 ).complete() ).complete();</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -254,21 +314,6 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1053591">&nbsp;&nbsp;&nbsp;&nbsp;.addInt("ReconnectAttemptLimit", 10)</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054043">&nbsp;&nbsp;&nbsp;&nbsp;.addInt( "ReconnectMinDelay", 2000 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054045">&nbsp;&nbsp;&nbsp;&nbsp;.addInt( "ReconnectMaxDelay", 6000 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
             <div class="command"><a name="1054047">&nbsp;&nbsp;&nbsp;&nbsp;.addAscii( "Host", "localhost" )</a></div>
           </td>
         </tr>
@@ -279,52 +324,7 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054051">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "TcpNodelay", 0 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054053">&nbsp;&nbsp;&nbsp;&nbsp;.addAscii( "XmlTraceFileName", "MyXMLTrace" )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054055">&nbsp;&nbsp;&nbsp;&nbsp;.addInt( "XmlTraceMaxFileSize", 50000000 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054057">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceToFile", 1 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054066">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceToStdout", 0 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054068">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceToMultipleFiles", 1 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054070">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceWrite", 1 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054072">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTraceRead", 1 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054745">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "XmlTracePing", 1 )</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1054074">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "MsgKeyInUpdates", 1 ).complete() ).complete();</a></div>
+            <div class="command"><a name="1054051">&nbsp;&nbsp;&nbsp;&nbsp;.addUInt( "TcpNodelay", 0 ).complete() ).complete();</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -513,6 +513,7 @@
           </td>
         </tr>
       </table>
+      <div class="Body"><a name="1053423">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

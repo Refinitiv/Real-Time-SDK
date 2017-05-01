@@ -56,149 +56,149 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1022613">Channel.read Return Codes</a></div>
-      <div class="Body"><a name="1473426">The following table defines </a><span class="CodeOrCommand">TransportReturnCodes</span> that can occur when using <span class="CodeOrCommand">Channel.read</span>.</div>
-      <div class="Blank_Line"><a name="1473627">&nbsp;</a></div>
+      <div class="Body"><a name="1527167">The following table defines </a><span class="CodeOrCommand">TransportReturnCodes</span> that can occur when using <span class="CodeOrCommand">Channel.read</span>.</div>
+      <div class="Blank_Line"><a name="1527368">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.1502399999999pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 30: <span class="LucidaConsole"><a name="1473622">Channel.read</a></span><span style="font-weight: normal"> </span><span class="LucidaConsole">TransportReturnCodes</span> &nbsp;</div>
+          <div class="TableTitle">Table 30: <span class="LucidaConsole"><a name="1527363">Channel.read</a></span><span style="font-weight: normal"> </span><span class="LucidaConsole">TransportReturnCodes</span> &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 197.55pt">
-            <div class="CellHeading"><a name="1473429">RETURN CODE</a></div>
+            <div class="CellHeading"><a name="1527170">RETURN CODE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 115.79976pt">
-            <div class="CellHeading"><a name="1473431">BUFFER CONTENTS</a></div>
+            <div class="CellHeading"><a name="1527172">BUFFER CONTENTS</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 241.80048pt">
-            <div class="CellHeading"><a name="1473433">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1527174">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473435">SUCCESS</a></div>
+            <div class="CellBody"><a name="1527176">SUCCESS</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473437">Populated if the full buffer is available, NULL otherwise. The buffer’s </a><span class="CodeOrCommand">length</span> indicates the number of bytes to which the <span class="CodeOrCommand">data</span> refers.</div>
+            <div class="CellBody"><a name="1527178">Populated if the full buffer is available, NULL otherwise. The buffer’s </a><span class="CodeOrCommand">length</span> indicates the number of bytes to which the <span class="CodeOrCommand">data</span> refers.</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473442">Indicates that the </a><span class="CodeOrCommand">Channel.read</span> call was successful and there are no remaining bytes in the input buffer. The I/O notification mechanism will notify the user when additional information arrives. The ping timer should be updated, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.73.html', '');" title="9.12 Ping Management">Section 9.12</a>.</div>
+            <div class="CellBody"><a name="1527183">Indicates that the </a><span class="CodeOrCommand">Channel.read</span> call was successful and there are no remaining bytes in the input buffer. The I/O notification mechanism will notify the user when additional information arrives. The ping timer should be updated, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.73.html', '');" title="9.12 Ping Management">Section 9.12</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1473450">Any positive value &gt; 0</a></div>
+            <div class="CellBody"><a name="1527191">Any positive value &gt; 0</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1473452">Populated if full buffer is available, NULL otherwise. The buffer’s </a><span class="CodeOrCommand">length</span> indicates the number of bytes to which the <span class="CodeOrCommand">data</span> refers.</div>
+            <div class="CellBody"><a name="1527193">Populated if full buffer is available, NULL otherwise. The buffer’s </a><span class="CodeOrCommand">length</span> indicates the number of bytes to which the <span class="CodeOrCommand">data</span> refers.</div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473457">Indicates that the </a><span class="CodeOrCommand">Channel.read</span> call was successful and there are remaining bytes in the input buffer. The I/O notification mechanism will not notify the user of these bytes. The <span class="CodeOrCommand">Channel.read</span> method should be called again to ensure that the remaining bytes are processed. The ping timer should be updated (for details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.73.html', '');" title="9.12 Ping Management">Section 9.12</a>).</div>
+            <div class="CellBody"><a name="1527198">Indicates that the </a><span class="CodeOrCommand">Channel.read</span> call was successful and there are remaining bytes in the input buffer. The I/O notification mechanism will not notify the user of these bytes. The <span class="CodeOrCommand">Channel.read</span> method should be called again to ensure that the remaining bytes are processed. The ping timer should be updated (for details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.73.html', '');" title="9.12 Ping Management">Section 9.12</a>).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1473475">If there are additional bytes to process, you should call</a><span style="color: #666666"> </span><span class="CodeOrCommand">Channel.read</span><span style="color: #666666"> </span>again. Because the bytes are already contained in the transport input buffer, an I/O notification mechanism will not alert the user of their presence.</div>
+              <span class="Bold">Note: </span><a name="1527216">If there are additional bytes to process, you should call</a><span style="color: #666666"> </span><span class="CodeOrCommand">Channel.read</span><span style="color: #666666"> </span>again. Because the bytes are already contained in the transport input buffer, an I/O notification mechanism will not alert the user of their presence.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473480">READ_WOULD_BLOCK</a></div>
+            <div class="CellBody"><a name="1527221">READ_WOULD_BLOCK</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473482">NULL</a></div>
+            <div class="CellBody"><a name="1527223">NULL</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473487">Indicates that the </a><span class="CodeOrCommand">Channel.read</span> call has nothing to return to the user.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473489">READ_PING</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473491">NULL</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473493">Indicates that a heartbeat message was received. The ping timer should be updated (for details, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.73.html', '');" title="9.12 Ping Management">Section 9.12</a>).</div>
+            <div class="CellBody"><a name="1527228">Indicates that the </a><span class="CodeOrCommand">Channel.read</span> call has nothing to return to the user.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473501">FAILURE</a></div>
+            <div class="CellBody"><a name="1527230">READ_PING</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473503">NULL</a></div>
+            <div class="CellBody"><a name="1527232">NULL</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473505">Indicates a failure condition, often that the connection is no longer available. The </a><span class="CodeOrCommand">Channel</span> should be closed (for details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.78.html', '');" title="9.13 Closing Connections">Section 9.13</a>).</div>
-            <div class="CellBody"><a name="1473518">For more details, refer to </a><span class="CodeOrCommand">Error</span> content.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473520">PACKET_GAP_DETECTED</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473522">NULL</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473524">Indicates that a packet gap was detected in the inbound transport content. This may be recoverable above the transport layer, so the </a><span class="CodeOrCommand">Channel</span> is left in a connected state. If needed, an application can configure the transport to disconnect whenever this occurs by using the <span class="CodeOrCommand">disconnectOnGaps</span> option. For details on this option, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
+            <div class="CellBody"><a name="1527234">Indicates that a heartbeat message was received. The ping timer should be updated (for details, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.73.html', '');" title="9.12 Ping Management">Section 9.12</a>).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473535">SLOW_READER</a></div>
+            <div class="CellBody"><a name="1527242">FAILURE</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473537">NULL</a></div>
+            <div class="CellBody"><a name="1527244">NULL</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473539">Indicates that the reader is not keeping up with the data rate and a packet gap was detected in the inbound transport content. This may be recoverable above the transport layer, so the </a><span class="CodeOrCommand">Channel</span> is left in a connected state. If needed, an application can configure the transport to disconnect whenever this occurs by using the <span class="CodeOrCommand">disconnectOnGaps</span> option. For details on this option, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473550">CONGESTION_DETECTED</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473552">NULL</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473554">Indicates network congestion and that a gap was detected in the inbound transport content. This may be recoverable above the transport layer, so the </a><span class="CodeOrCommand">Channel</span> is left in a connected state. If needed, an application can configure the transport to disconnect whenever this occurs by using the <span class="CodeOrCommand">disconnectOnGaps</span> option. For details on this option, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
+            <div class="CellBody"><a name="1527246">Indicates a failure condition, often that the connection is no longer available. The </a><span class="CodeOrCommand">Channel</span> should be closed (for details, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.78.html', '');" title="9.13 Closing Connections">Section 9.13</a>).</div>
+            <div class="CellBody"><a name="1527259">For more details, refer to </a><span class="CodeOrCommand">Error</span> content.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473565">READ_FD_CHANGE</a></div>
+            <div class="CellBody"><a name="1527261">PACKET_GAP_DETECTED</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473567">NULL</a></div>
+            <div class="CellBody"><a name="1527263">NULL</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473572">Indicates that the connections </a><span class="CodeOrCommand">SelectableChannel</span> has changed. This can occur as a result of internal connection keep-alive mechanisms. The previous <span class="CodeOrCommand">SelectableChannel</span> is stored in the <span class="CodeOrCommand">Channel.oldSelectableChannel</span> so it can be removed from the I/O notification mechanism. The <span class="CodeOrCommand">Channel.oldSelectableChannel</span> contains the new file descriptor, which should be registered with the I/O notification mechanism.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473589">READ_IN_PROGRESS</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473591">NULL</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473599">Indicates that a </a><span class="CodeOrCommand">Channel.read</span> call on the <span class="CodeOrCommand">Channel</span> is already in progress. This can be due to another thread performing the same operation.</div>
+            <div class="CellBody"><a name="1527265">Indicates that a packet gap was detected in the inbound transport content. This may be recoverable above the transport layer, so the </a><span class="CodeOrCommand">Channel</span> is left in a connected state. If needed, an application can configure the transport to disconnect whenever this occurs by using the <span class="CodeOrCommand">disconnectOnGaps</span> option. For details on this option, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473601">INIT_NOT_INITIALIZED</a></div>
+            <div class="CellBody"><a name="1527276">SLOW_READER</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473603">NULL</a></div>
+            <div class="CellBody"><a name="1527278">NULL</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473605">Indicates that the Transport has not been initialized. See the </a><span class="CodeOrCommand">Error</span> content for more details. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.14.html', '');" title="9.2 Initializing and Uninitializing the Transport">Section 9.2</a>.</div>
+            <div class="CellBody"><a name="1527280">Indicates that the reader is not keeping up with the data rate and a packet gap was detected in the inbound transport content. This may be recoverable above the transport layer, so the </a><span class="CodeOrCommand">Channel</span> is left in a connected state. If needed, an application can configure the transport to disconnect whenever this occurs by using the <span class="CodeOrCommand">disconnectOnGaps</span> option. For details on this option, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527291">CONGESTION_DETECTED</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527293">NULL</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527295">Indicates network congestion and that a gap was detected in the inbound transport content. This may be recoverable above the transport layer, so the </a><span class="CodeOrCommand">Channel</span> is left in a connected state. If needed, an application can configure the transport to disconnect whenever this occurs by using the <span class="CodeOrCommand">disconnectOnGaps</span> option. For details on this option, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.28.html', '');" title="9.3.2.5 MCastOpts Method Options">Section 9.3.2.5</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527306">READ_FD_CHANGE</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527308">NULL</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527313">Indicates that the connections </a><span class="CodeOrCommand">SelectableChannel</span> has changed. This can occur as a result of internal connection keep-alive mechanisms. The previous <span class="CodeOrCommand">SelectableChannel</span> is stored in the <span class="CodeOrCommand">Channel.oldSelectableChannel</span> so it can be removed from the I/O notification mechanism. The <span class="CodeOrCommand">Channel.oldSelectableChannel</span> contains the new file descriptor, which should be registered with the I/O notification mechanism.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527330">READ_IN_PROGRESS</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527332">NULL</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527340">Indicates that a </a><span class="CodeOrCommand">Channel.read</span> call on the <span class="CodeOrCommand">Channel</span> is already in progress. This can be due to another thread performing the same operation.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527342">INIT_NOT_INITIALIZED</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527344">NULL</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527346">Indicates that the Transport has not been initialized. See the </a><span class="CodeOrCommand">Error</span> content for more details. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.14.html', '');" title="9.2 Initializing and Uninitializing the Transport">Section 9.2</a>.</div>
           </td>
         </tr>
       </table>

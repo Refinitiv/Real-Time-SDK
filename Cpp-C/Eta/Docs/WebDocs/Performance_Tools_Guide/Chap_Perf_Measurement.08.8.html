@@ -56,47 +56,47 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1224586">Transport Performance, Direct Connect with Multicast</a></div>
-      <div class="Body"><a name="1224642">Because of the nature of multicast, both applications are configured as clients. Also, this example uses separate ‘send’ and ‘receive’ networks.</a></div>
-      <div class="Body"><span style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt"><a name="1224778"><img class="Default" src="images/Chap_Perf_Measurement.08.8.1.jpg" width="471" height="252" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
-      <div class="FigTitle">Figure 24.  <a name="1224780">Transport Performance, Multicast Direct Connect</a></div>
-      <div class="Procedure_Heading"><a name="1224782"><img class="Default" src="images/Chap_Perf_Measurement.08.8.2.jpg" width="14" height="16" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To run a Basic Performance Measurement:</a></div>
-      <div class="Body"><a name="1224784">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.8.html#1224780', '');" title="8.7 Transport Performance, Direct Connect with Multicast">Figure 24</a>, run two instances of <span class="ToolOrUtility_Name">upacTransportPerf</span> with the following command-line options:</div>
-      <div class="Blank_Line"><a name="1225006">&nbsp;</a></div>
+      <div class="Body"><a name="1229446">Because of the nature of multicast, both applications are configured as clients. Also, this example uses separate ‘send’ and ‘receive’ networks.</a></div>
+      <div class="Body" style="color: #000000; font-family: &quot;Times New Roman&quot;; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 8.0pt; margin-top: 8.0pt; text-transform: none; vertical-align: baseline"><a name="1229450"><img class="Default" src="images/Chap_Perf_Measurement.08.8.1.jpg" width="471" height="252" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 24.  <a name="1229455">Transport Performance, Multicast Direct Connect</a></div>
+      <div class="Procedure_Heading"><a name="1229459"><img class="Default" src="images/Chap_Perf_Measurement.08.8.2.jpg" width="14" height="16" style="display: inline; left: 0.0; top: 0.0" alt="" /> To run a basic performance measurement:</a></div>
+      <div class="Body"><a name="1229463">To run a basic performance measurement using a setup like the one pictured in </a><a href="javascript:WWHClickedPopup('Performance_Tools_Guide', 'Chap_Perf_Measurement.08.8.html#1229455', '');" title="8.7 Transport Performance, Direct Connect with Multicast">Figure 24</a>, run two instances of <span class="ToolOrUtility_Name">upacTransportPerf</span> as follows:</div>
+      <div class="Blank_Line"><a name="1229488">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1224908">&nbsp;</a></div>
+            <div class="command"><a name="1229469">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224930">upacTransportPerf -runTime 90 -connType reliableMCast -u 12345 -sp 15001 -sa 235.1.1.3 -rp 15002</a></div>
+            <div class="command"><a name="1229474">upacTransportPerf -runTime 90 -connType reliableMCast -u 12345 -sp 15001 -sa 235.1.1.3 -rp 15002</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224912">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-ra 235.1.1.4 -latencyMsgRate 1000 -msgRate 10000 -tickRate 1000 -appType client</a></div>
+            <div class="command"><a name="1229476">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-ra 235.1.1.4 -latencyMsgRate 1000 -msgRate 10000 -tickRate 1000 -appType client</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224914">&nbsp;</a></div>
+            <div class="command"><a name="1229478">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224916">upacTransportPerf -u 14006 -sp 15002 -sa 235.1.1.4 -rp 15001 -ra 235.1.1.3 -connType reliableMCast</a></div>
+            <div class="command"><a name="1229483">upacTransportPerf -u 14006 -sp 15002 -sa 235.1.1.4 -rp 15001 -ra 235.1.1.3 -connType reliableMCast</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224918">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-runTime 60 -appType client -msgRate 0 -latencyMsgRate 0 -tickRate 1000</a></div>
+            <div class="command"><a name="1229485">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-runTime 60 -appType client -msgRate 0 -latencyMsgRate 0 -tickRate 1000</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1224920">&nbsp;</a></div>
+            <div class="command"><a name="1229487">&nbsp;</a></div>
           </td>
         </tr>
       </table>

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.10.4 StyleSheet DictionaryType</title>
+    <title>5.9.3.2 Handling Dictionary Version Changes</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,8 +55,10 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1011793">StyleSheet DictionaryType</a></div>
-      <div class="Body"><a name="1011795">A StyleSheet dictionary contains an XSLT or CSS style sheet.</a></div>
+      <div class="H4"><a name="1011629">Handling Dictionary Version Changes</a></div>
+      <div class="Body"><a name="1011686">To keep consumers informed of changes, Thomson Reuters recommends that dictionary requests be streaming even though updates are not used for this domain.</a></div>
+      <div class="Body"><a name="1011687">If the dictionary’s minor version changes, a provider may advertise it via a</a>n  with an  of /. The consumer may then reissue its dictionary request to obtain the latest version.</div>
+      <div class="Body"><a name="1011688">If a dictionary’s major version is changed, the provider should disconnect all consumers to ensure that the consumers’ content and dictionary are entirely resynchronized.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -69,7 +71,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.28.html">5.10	Other Dictionary Types</a> : 5.10.4	StyleSheet DictionaryType</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.28.html">5.9	Special Semantics</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.30.html">5.9.3	Version Information</a> : 5.9.3.2	Handling Dictionary Version Changes</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

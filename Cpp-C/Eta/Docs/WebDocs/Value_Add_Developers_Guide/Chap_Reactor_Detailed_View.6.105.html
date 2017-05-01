@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>6.7.4.2 Tunnel Stream Callback Event Types</title>
+    <title>6.7.4.1 Tunnel Stream Callback Functions</title>
     <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,115 +55,46 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1221023">Tunnel Stream Callback Event Types</a></div>
-      <div class="Body"><a name="1226034">The various tunnel stream callbacks return their information via specific event objects. The following table defines these events.</a></div>
-      <div class="Blank_Line"><a name="1246959">&nbsp;</a></div>
+      <div class="H4"><a name="1221004">Tunnel Stream Callback Functions</a></div>
+      <div class="Body"><a name="1531625">The </a><span class="CodeOrCommand">RsslTunnelStream</span> delivers events via the following user-implemented callback functions. These callback functions return event objects as defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.106.html', '');" title="6.7.4.2 Tunnel Stream Callback Event Types">Section 6.7.4.2</a>. Each callback returns the <span class="CodeOrCommand">RsslTunnelStream</span> on which the event occurred along with the event itself.</div>
+      <div class="Blank_Line"><a name="1531707">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 67: <a name="1246952">Tunnel Stream Callback Event Types &nbsp;</a></div>
+          <div class="TableTitle">Table 67: <a name="1531704">Tunnel Stream Callback Functions &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 165.00024pt">
-            <div class="CellHeading"><a name="1246903">EVENT</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 187.50024pt">
+            <div class="CellHeading"><a name="1531640">CALLBACK Function</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 132.75pt">
-            <div class="CellHeading"><a name="1246905">EVENT DESCRIPTION</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 87.00048pt">
-            <div class="CellHeading"><a name="1246907">CLASS MEMBER</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 170.99928pt">
-            <div class="CellHeading"><a name="1246909">CLASS MEMBER DESCRIPTION</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top" rowspan="4">
-            <div class="CellBody"><a name="1246911">RsslTunnelStreamStatusEvent</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top" rowspan="4">
-            <div class="CellBody"><a name="1246913">This event is used to present the tunnel stream and its status.</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1246917">pReactorChannel</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1246920">A pointer to the </a><span class="CodeOrCommand">RsslReactorChannelunnelStream</span> with which this tunnel stream is associated.</div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 368.24976pt">
+            <div class="CellHeading"><a name="1531642">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247108">pState</a></div>
+            <div class="CellBody"><a name="1531644">RsslTunnelStreamStatusEventCallback </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247110">Indicates status information associated with the </a><span class="CodeOrCommand">RsslTunnelStream</span>. For instance, a state of <span class="Parameter">OPEN</span> and <span class="Parameter">OK</span> indicates that the tunnel stream is established and content should be flowing as expected. If <span class="Parameter">CLOSED_RECOVER</span> and <span class="Parameter">SUSPECT</span>, this indicates that the connection or tunnel stream may be lost, however if performing guaranteed messaging content may still be able to be persisted by the Reactor and communicated upon recovery of the tunnel stream.</div>
+            <div class="CellBody"><a name="1531646">Communicates status information about the tunnel stream. Additionally, this callback delivers the </a><span class="CodeOrCommand">RsslTunnelStream</span> object after the enhanced private stream is established.</div>
+            <div class="CellBody"><a name="1531653">This callback provides a</a>n <span class="CodeOrCommand">RsslTunnelStreamStatusEvent</span> to the application. Details about this event are available in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.106.html', '');" title="6.7.4.2 Tunnel Stream Callback Event Types">Section 6.7.4.2</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247130">pRsslMsg</a></div>
+            <div class="CellBody"><a name="1531661">RsslTunnelStreamDefaultMsgCallback </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247132">A pointer to an </a><span class="CodeOrCommand">RsslMsg</span> structure.</div>
+            <div class="CellBody"><a name="1531663">Similar to the </a><span class="CodeOrCommand">ReactorChannel</span>’s <span class="CodeOrCommand">defaultMsgCallback</span>, content received by the tunnel stream are returned via this callback if it is not handled by a more specific content handler, such as the <span class="CodeOrCommand">RsslTunnelStreamQueueMsgCallback</span>.</div>
+            <div class="CellBody"><a name="1531670">This callback provides a</a>n <span class="CodeOrCommand">RsslTunnelStreamMsgEvent</span> to the application. Details about this event are available in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.106.html', '');" title="6.7.4.2 Tunnel Stream Callback Event Types">Section 6.7.4.2</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1246926">pAuthInfo</a></div>
+            <div class="CellBody"><a name="1531681">RsslTunnelStreamQueueMsgCallback</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1246976">If the event was produced by an authentication message, </a><span class="CodeOrCommand">pAuthInfo</span> is populated by an <span class="CodeOrCommand">RsslTunnelStreamAuthInfo</span> structure. For more information, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.094.html', '');" title="6.7.1 Authenticating a Tunnel Stream">Section 6.7.1</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top" rowspan="3">
-            <div class="CellBody"><a name="1247096">RsslTunnelStreamMsgEvent</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top" rowspan="3">
-            <div class="CellBody"><a name="1247098">This event presents content received on the </a><span class="CodeOrCommand">RsslTunnelStream</span>. If a more specific handler, such as the <span class="CodeOrCommand">RsslTunnelStreamQueueMsgEvent</span>, is also configured, messages of that type will go to their specific handler.</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247100">pReactorChannel</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247102">A pointer to the </a><span class="CodeOrCommand">RsslReactorChannelunnelStream</span> with which this tunnel stream is associated.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247264">pRsslMsg</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247266">A pointer to an RsslMsg structure, used to deliver any OMM content or opaque content.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247272">pErrorInfo</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247274">Used to convey error information, when applicable.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1246930">RsslTunnelStreamQueueMsgEvent</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top" rowspan="2">
-            <div class="CellBody"><a name="1246932">This event is used to present any Queue Message content received on the </a><span class="CodeOrCommand">RsslTunnelStream</span>.</div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1246934">base</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1247413">An </a><span class="CodeOrCommand">RsslTunnelStreamMsgEvent</span>. Refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.104.html#1221004', '');" title="6.7.4 Tunnel Stream Callback Functions and Event Types">Section 6.7.4.1</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1246943">pQueueMsg</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1246947">A pointer to a Queue Message containing OMM content or opaque content exchanged with a Queue Provider. Refer to subsequent chapters for information about Queue Messages.</a></div>
+            <div class="CellBody"><a name="1531683">Any queue messages are delivered via this callback and presented to the user in their native queue message formats. If unspecified, queue messages are delivered via the </a><span class="CodeOrCommand">RsslTunnelStreamDefaultMsgCallback</span>; however they are not presented in a queue message format.</div>
+            <div class="CellBody"><a name="1531690">This callback provides a </a><span class="CodeOrCommand">RsslTunnelStreamQueueMsgEvent</span> to the application. Details about this event are available in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Reactor_Detailed_View.6.106.html', '');" title="6.7.4.2 Tunnel Stream Callback Event Types">Section 6.7.4.2</a>.</div>
           </td>
         </tr>
       </table>
@@ -179,7 +110,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.104.html">6.7.4	Tunnel Stream Callback Functions and Event Types</a> : 6.7.4.2	Tunnel Stream Callback Event Types</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.104.html">6.7.4	Tunnel Stream Callback Functions and Event Types</a> : 6.7.4.1	Tunnel Stream Callback Functions</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

@@ -6,7 +6,7 @@ function  WWHBookGroups_Books(ParamTop)
 
 
   ParamTop.fAddDirectory("TransportAPI_Documentation_Portal", null, null, null, null);
-  ParamTop.fAddDirectory("API%20Concepts", null, null, null, null);
+  ParamTop.fAddDirectory("API_Concepts", null, null, null, null);
   ParamTop.fAddDirectory("Developer_Guide", null, null, null, null);
   ParamTop.fAddDirectory("Reference_Guides", null, null, null, null);
   ParamTop.fAddDirectory("RDM_Usage_Guide", null, null, null, null);

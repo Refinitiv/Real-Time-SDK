@@ -75,7 +75,7 @@ void AppClient::decode( const FieldList& fl, bool newLine )
 				cout << fe.getRmtes().toString();
 				break;
 			case DataType::EnumEnum:
-				cout << fe.getEnum();
+				fe.hasEnumDisplay() ? cout << fe.getEnumDisplay() << endl : cout << fe.getEnum() << endl;
 				break;
 			case DataType::ErrorEnum:
 				cout << "( " << fe.getError().getErrorCodeAsString() << " )";

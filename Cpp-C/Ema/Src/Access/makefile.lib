@@ -40,9 +40,13 @@ INCLUDES=	-I./Include					\
 		-I../../../Eta/Include/Transport		\
 		-I../../../Eta/Include/RDM	\
 		-I../../../Eta/Include/Reactor	\
+		-I../../../Ema/Src/Access/Impl  \
+		-I../../../Ema/Src/Include  \
 		-I../../../Eta/Include/Util		\
 		-I../../../Ema/Src/Rdm/Impl			\
 		-I../../../Ema/Src/Rdm/Include			\
+		-I../../../Ema/Src/Domain/Login/Impl			\
+		-I../../../Ema/Src/Domain/Login/Include			\
 		-I../../../Eta/Utils/Libxml2/include
 STATIC_LIBS=	 $(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librsslRDM.a		\
 		$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/librssl.a	\
@@ -57,14 +61,18 @@ SHARED_LIBS=    -L$(ROOTNODE)/Eta/Libs/$(IDENT)/$(LIBTYPE)/Shared/		\
 
 EMA_LIB_SRC=	$(shell ls Impl/*.cpp)
 EMA_LIB_OBJ=	$(addprefix $(OUTPUT_DIR)/obj/Access/, $(EMA_LIB_SRC:%.cpp=%.o))
-RDM_LIB_SRC=	../Rdm/Impl/RdmUtilities.cpp
+RDM_LIB_SRC=	$(shell ls ../Rdm/Impl/*.cpp)
 RDM_LIB_OBJ=	$(addprefix $(OUTPUT_DIR)/obj/Rdm/, $(RDM_LIB_SRC:%.cpp=%.o))
+DOMAIN_LIB_SRC=	$(shell ls ../Domain/Login/Impl/*.cpp)
+DOMAIN_LIB_OBJ=	$(addprefix $(OUTPUT_DIR)/obj/Domain/, $(DOMAIN_LIB_SRC:%.cpp=%.o))
 EMA_VER_SRC=	EmaVersion.c
 EMA_VER_OBJ=	$(addprefix $(OUTPUT_DIR)/obj/, $(EMA_VER_SRC:%.c=%.o))
 
 $(OUTPUT_DIR)/obj/Access/%.o : %.cpp
 	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
 $(OUTPUT_DIR)/obj/Rdm/%.o : %.cpp
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(OUTPUT_DIR)/obj/Domain/%.o : %.cpp
 	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
 $(OUTPUT_DIR)/obj/%.o : %.c
 	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
@@ -76,14 +84,14 @@ archiver = $(shell	cd $(tmpdir);					\
 			ar -ru $(OUTPUT_DIR)/libema.a $(tmpdir)/*.o; 	\
 			rm $(tmpdir)/*.o;				\
 	)
-$(OUTPUT_DIR)/libema.a: $(RDM_LIB_OBJ) $(EMA_VER_OBJ) $(EMA_LIB_OBJ)
+$(OUTPUT_DIR)/libema.a: $(DOMAIN_LIB_OBJ) $(RDM_LIB_OBJ) $(DOMAIN_LIB_OBJ) $(EMA_VER_OBJ) $(EMA_LIB_OBJ)
 	@ar -ru $(OUTPUT_DIR)/libema.a $^
 	$(shell mkdir -p $(tmpdir))
 	$(foreach file,$(STATIC_LIBS),$(archiver))
 	$(shell rmdir $(tmpdir))
 
-$(OUTPUT_DIR)/libema.so: $(RDM_LIB_OBJ) $(EMA_VER_OBJ) $(EMA_LIB_OBJ)
-	$(CC) $(CFLAGS) -Wl,-soname,libema.so.3 -o $(OUTPUT_DIR)/libema.so.3.0 $^ $(SHARED_LIBS)
-	ln -fs libema.so.3.0 $(OUTPUT_DIR)/libema.so.3
+$(OUTPUT_DIR)/libema.so: $(RDM_LIB_OBJ) $(DOMAIN_LIB_OBJ) $(EMA_VER_OBJ) $(EMA_LIB_OBJ)
+	$(CC) $(CFLAGS) -Wl,-soname,libema.so.3 -o $(OUTPUT_DIR)/libema.so.3.1 $^ $(SHARED_LIBS)
+	ln -fs libema.so.3.1 $(OUTPUT_DIR)/libema.so.3
 	ln -fs libema.so.3 $(OUTPUT_DIR)/libema.so
 

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>2.8.4 Rippling Fields</title>
+    <title>2.6.4 Rippling Fields</title>
     <link rel="StyleSheet" href="css/Chap_Domain_Model_Overview.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,28 +55,28 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="999997">Rippling Fields</a></div>
-      <div class="Body"><a name="999961">The </a><span class="CodeOrCommand">FieldList</span> container supports the <span class="Concept">rippling of fields</span>. When rippling, newly received content associated with a <span class="CodeOrCommand">fieldId</span> replaces previously received content associated with the same <span class="CodeOrCommand">fieldId</span>. The previously received content is moved to a new <span class="CodeOrCommand">fieldId</span>, which is typically indicated in a field dictionary. In the <span class="FileOrDirectory">RDMFieldDictionary</span>, the ‘<span class="Parameter">RIPPLES TO</span>’ column defines <span class="CodeOrCommand">fieldId</span> information used when rippling (for details, refer to <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.09.html#999151', '');" title="5.5 Field Dictionary">Section 5.5.1</a> and <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.10.html', '');" title="5.5.2 Field Dictionary File Format">Section 5.5.2</a>). Rippling typically reduces bandwidth consumption. Because previously received information is still relevant, it would normally need to be sent with subsequent updates even though the value does not change. The use of rippling allows this information to be optimized out of subsequent updates; however it relies on the consumer to use ripple information from a field dictionary to correctly propagate the previously received content.</div>
-      <div class="Blank_Line"><a name="1000445">&nbsp;</a></div>
+      <div class="H3"><a name="1012642">Rippling Fields</a></div>
+      <div class="Body"><a name="1012646">The </a><span class="CodeOrCommand">FieldList</span> container supports the <span class="Concept">rippling of fields</span>. When rippling, newly received content associated with a <span class="CodeOrCommand">fieldId</span> replaces previously received content associated with the same <span class="CodeOrCommand">fieldId</span>. The previously received content is moved to a new <span class="CodeOrCommand">fieldId</span>, which is typically indicated in a field dictionary. In the <span class="FileOrDirectory">RDMFieldDictionary</span>, the ‘<span class="Parameter">RIPPLES TO</span>’ column defines <span class="CodeOrCommand">fieldId</span> information used when rippling (for details, refer to <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.08.html#999151', '');" title="5.5 Field Dictionary">Section 5.5.1</a> and <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Dictionary_Domain.05.09.html', '');" title="5.5.2 Field Dictionary File Format">Section 5.5.2</a>). Rippling typically reduces bandwidth consumption. Because previously received information is still relevant, it would normally need to be sent with subsequent updates even though the value does not change. The use of rippling allows this information to be optimized out of subsequent updates; however it relies on the consumer to use ripple information from a field dictionary to correctly propagate the previously received content.</div>
+      <div class="Blank_Line"><a name="1012659">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1000451">The consumer application is responsible for rippling and the Transport API performs no entry rippling.</a></div>
+              <span class="Bold">Note: </span><a name="1012658">The consumer application is responsible for rippling and the Transport API does not perform entry rippling.</a></div>
           </td>
         </tr>
       </table>
-      <div class="Blank_Line"><a name="1000443">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1012677">&nbsp;</a></div>
       <table class="Warning" style="width: 554.99976pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 30.74904pt">
-            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1000461"><img class="Default" src="images/Chap_Domain_Model_Overview.02.13.1.jpg" width="34" height="33" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
+            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1012665"><img class="Default" src="images/Chap_Domain_Model_Overview.02.13.1.jpg" width="34" height="33" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
           </td>
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 524.25072pt">
             <div class="Warning">
-              <span class="Bold">Warning! </span><a name="1000463">The application should not perform rippling if the </a><span class="CodeOrCommand">updateType</span> of the <span class="CodeOrCommand">UpdateMsg</span> is <span class="Parameter">UpdateEventTypes.CORRECTION</span>.</div>
+              <span class="Bold">Warning! </span><a name="1012673">The application should not perform rippling if the </a><span class="CodeOrCommand">updateType</span> of the <span class="CodeOrCommand">UpdateMsg</span> is <span class="Parameter">UpdateEventTypes.CORRECTION</span>.</div>
           </td>
         </tr>
       </table>
@@ -92,7 +92,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Domain_Model_Overview.02.01.html">Chapter 2	Domain Model Overview</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Domain_Model_Overview.02.09.html">2.8	General Transport API Concepts</a> : 2.8.4	Rippling Fields</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Domain_Model_Overview.02.01.html">Chapter 2	Domain Model Overview</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Domain_Model_Overview.02.09.html">2.6	General Transport API Concepts</a> : 2.6.4	Rippling Fields</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

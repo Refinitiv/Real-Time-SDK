@@ -374,14 +374,36 @@ public interface EncodeIterator
     int unsetRefreshCompleteFlag();
 
     /**
-     * Set the RefreshMsgFlags.STREAMING flag on an encoded buffer.
-     * 
-     * @return {@link CodecReturnCodes#SUCCESS}, if the flag has been replaced,
-     *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the iterator buffer is too small
-     *         or new flags would be different length
-     * 
-     * @see RefreshMsgFlags
-     */
+	 * Set the GenericMsgFlags.MESSAGE_COMPLETE flag on an encoded buffer.
+	 * 
+	 * @return {@link CodecReturnCodes#SUCCESS}, if the flag has been replaced,
+	 *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the iterator buffer
+	 *         is too small or new flags would be different length
+	 * 
+	 * @see GenericMsgFlags
+	 */
+	public int setGenericCompleteFlag();
+
+	/**
+	 * Unset the GenericMsgFlags.MESSAGE_COMPLETE flag on an encoded buffer.
+	 * 
+	 * @return {@link CodecReturnCodes#SUCCESS}, if the flag has been replaced,
+	 *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the iterator buffer
+	 *         is too small or new flags would be different length
+	 * 
+	 * @see GenericMsgFlags
+	 */
+	public int unsetGenericCompleteFlag();
+
+	/**
+	 * Set the RefreshMsgFlags.STREAMING flag on an encoded buffer.
+	 * 
+	 * @return {@link CodecReturnCodes#SUCCESS}, if the flag has been replaced,
+	 *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the iterator buffer
+	 *         is too small or new flags would be different length
+	 * 
+	 * @see RefreshMsgFlags
+	 */
     int setStreamingFlag();
 
     /**

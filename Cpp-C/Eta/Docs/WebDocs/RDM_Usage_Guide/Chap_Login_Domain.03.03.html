@@ -56,14 +56,14 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="999129">Usage</a></div>
-      <div class="H3"><a name="999131">Login Request Message Use</a></div>
+      <div class="H3"><a name="999131">Login Request Message</a></div>
       <div class="Body"><a name="999494">A Login request message is encoded and sent by OMM consumer and OMM non-interactive provider applications. This message registers a user with the system. After receiving a successful login response, applications can then begin consuming or providing additional content. An OMM provider can use the Login request information to authenticate users with DACS.</a></div>
-      <div class="Body"><a name="999495">The initial Login request must be streaming (i.e., a </a><span class="Parameter">RSSL_RQMF_STREAMING</span> flag is required). After the initial Login stream is established, subsequent Login requests using the same streamId can be sent to obtain additional refresh messages, pause the stream, or resume the stream. If a login stream is paused, this is interpreted as a Pause All request which indicates that all item streams associated with the user should be paused. A login stream is paused by specifying <span class="Parameter">RSSL_RQMF_PAUSE</span> without the streaming flag. To resume data flow on all item streams (also known as a Resume All) the streaming flag must be sent again. For more information, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
-      <div class="Body"><a name="999496">For an example layout of this message, refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.19.html#999205', '');" title="3.5 Login Sample XML">Section 3.5.1</a>.</div>
+      <div class="Body"><a name="999495">An initial Login request must be streaming (i.e., a </a><span class="Parameter">RSSL_RQMF_STREAMING</span> flag is required). After the initial Login stream is established, subsequent Login requests using the same <span class="CodeOrCommand">streamId</span> can be sent to obtain additional refresh messages, pause the stream, or resume the stream. If a login stream is paused, this is interpreted as a ‘Pause All’ request which indicates that all item streams associated with the user should be paused. A login stream is paused by specifying <span class="Parameter">RSSL_RQMF_PAUSE</span> without the streaming flag. To resume data flow on all item streams (also known as a Resume All), the streaming flag must be sent again. For more information, refer to the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
+      <div class="Body"><a name="1141941">For an example layout of this message, refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.20.html#1142106', '');" title="3.5 Login Sample XML">Section 3.5.1</a>.</div>
       <div class="Blank_Line"><a name="999968">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 3: <a name="1000018">Login Request Message Member Use &nbsp;</a></div>
+          <div class="TableTitle">Table 3: <a name="1000018">Login Request Message</a> Member Use &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
@@ -142,8 +142,7 @@
             <div class="CellBody"><a name="1000010">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000435">Optional, if present </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_NAME_TYPE</span> should be specified. </div>
-            <div class="CellBody"><a name="1000436">Possible values:</a></div>
+            <div class="CellBody"><a name="1000435">Optional</a>, if present <span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_NAME_TYPE</span> should be specified. Possible values are:</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -153,7 +152,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000460">RDM_LOGIN_USER_NAME == 1</a></span> </div>
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000460">RDM_LOGIN_USER_NAME</a></span><span class="Parameter"> == 1</span> </div>
                   </td>
                 </tr>
               </table>
@@ -167,7 +166,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000461">RDM_LOGIN_USER_EMAIL_ADDRESS == 2</a></span> </div>
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000461">RDM_LOGIN_USER_EMAIL_ADDRESS</a></span><span class="Parameter"> == 2</span> </div>
                   </td>
                 </tr>
               </table>
@@ -181,7 +180,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000462">RDM_LOGIN_USER_TOKEN == 3</a></span> </div>
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000462">RDM_LOGIN_USER_TOKEN</a></span><span class="Parameter"> == 3</span> </div>
                   </td>
                 </tr>
               </table>
@@ -195,15 +194,58 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1000463">RDM_LOGIN_USER_COOKIE == 4</a></span> </div>
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1033062">RDM_LOGIN_USER_COOKIE</a></span><span class="Parameter"> == 4</span> </div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1000541">If </a><span class="CodeOrCommand">nameType</span> is not set , it is assumed to be <span class="CodeOrCommand">nameType</span> of <span class="Parameter">RDM_LOGIN_USER_NAME</span>.</div>
-            <div class="CellBody"><a name="1000542">A type of </a><span class="Parameter">RDM_LOGIN_USER_NAME</span> typically corresponds to a DACS user name. This can be used to authenticate and permission a user.</div>
-            <div class="CellBody"><span class="Parameter"><a name="1000543">RDM_LOGIN_USER_TOKEN</a></span> is specified when using the AAA API The user token is retrieved from a AAA API gateway and then passed through the system via the <span class="CodeOrCommand">msgKey.name</span>. To validate users, a provider application can pass this user token to an Authentication Manager application.</div>
-            <div class="CellBody"><a name="1000544">This type of token periodically changes: when it changes, an application can send a login reissue to pass information upstream. For more information, refer to specific AAA API documentation.</a></div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Parameter"><a name="1033066">RDM_LOGIN_USER_AUTHN_TOKEN</a></span><span class="Parameter"> == 5</span> </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="CellBody"><a name="1021353">If </a><span class="CodeOrCommand">msgKey.nameType</span> is not set, it is assumed to be <span class="Parameter">RDM_LOGIN_USER_NAME</span>.</div>
+            <div class="CellBody"><a name="1142597">A type of </a><span class="Parameter">RDM_LOGIN_USER_NAME</span> typically corresponds to a DACS user name. This can be used to authenticate and permission a user.</div>
+            <div class="CellBody"><span class="Parameter"><a name="1033075">RDM_LOGIN_USER_TOKEN</a></span> is specified when using the AAA API The user token is retrieved from a AAA API gateway and then passed through the system via the <span class="CodeOrCommand">msgKey.name</span>. To validate users, a provider can pass this user token to an authentication manager application.</div>
+            <div class="CellBody"><a name="1033085">If you specify </a><span class="Parameter">RDM_LOGIN_USER_AUTHN_TOKEN</span>, you must also set <span class="CodeOrCommand">msgKey.name</span> to a single, null character (i.e., a 0x00 binary), and include an <span class="CodeOrCommand">AuthenticationToken</span> element in the <span class="CodeOrCommand">msgKey.attrib</span>. For details on the <span class="CodeOrCommand">AuthenticationToken</span>, refer to <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.04.html', '');" title="3.2.2 Login Request Elements">Section 3.2.2</a>.</div>
+            <div class="CellBody"><a name="1033098">Both </a><span class="Parameter">RDM_LOGIN_USER_TOKEN</span> and <span class="Parameter">RDM_LOGIN_USER_AUTHN_TOKEN</span> can periodically change: when it changes, an application can send a login reissue to pass information upstream.</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1033102">For further details on using </a><span class="Parameter">RDM_LOGIN_USER_TOKEN</span>, refer to the AAA API documentation.</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><a name="1022409">For further details on using </a><span class="Parameter">RDM_LOGIN_USER_AUTHN_TOKEN</span>, refer to the <span class="DocumentTitle">TREP Authentication User Manual</span>.<sup><a name="wwfootnote_inline_22" href="#22">1</a></sup></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -211,7 +253,7 @@
             <div class="CellBody"><a name="1000014">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="1000016">Required</a></span>. A <span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_NAME_TYPE</span> should be specified. This should be populated with appropriate content corresponding to the <span class="CodeOrCommand">nameType</span> specification.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000016">Required</a></span>. A <span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_NAME_TYPE</span> should be specified. <span class="CodeOrCommand">msgKey.name</span> should be populated with appropriate content corresponding to the <span class="CodeOrCommand">msgKey.nameType</span> specification.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -235,7 +277,7 @@
             <div class="CellBody"><a name="1000188">msgKey.attrib</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000190">Optional. If present a </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_ATTRIB</span> should be specified and <span class="CodeOrCommand">msgKey.attribContainerType</span> should be set to <span class="Parameter">RSSL_DT_ELEMENT_LIST</span>. Attributes are specified in <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.04.html#1000857', '');" title="3.2.2 Login Request Elements">Table 4</a>.</div>
+            <div class="CellBody"><a name="1000190">Optional.</a> If present, a <span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_ATTRIB</span> should be specified and <span class="CodeOrCommand">msgKey.attribContainerType</span> should be set to <span class="Parameter">RSSL_DT_ELEMENT_LIST</span>. Attributes are specified in <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.04.html', '');" title="3.2.2 Login Request Elements">Section 3.2.2</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -247,6 +289,12 @@
           </td>
         </tr>
       </table>
+      <hr />
+      <div style="font-size: smaller; float: left; padding-right: 10px;">
+        <a name="22" href="#wwfootnote_inline_22">1</a>
+      </div>
+      <div class="Footnote"><a name="1094835">For further details on TREP Authentication, refer to the </a><span class="DocumentTitle">TREP Authentication User Manual</span>, accessible on <span class="Hyperlink"><a href="https://my.thomsonreuters.com/products" target="external_window">Thomson Reuters MyAccount</a></span> in the DACS product documentation set.</div>
+      <br style="clear: both;" />
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

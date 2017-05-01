@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.10 Other Dictionary Types</title>
+    <title>5.11 Dictionary Sample XML</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,9 +55,48 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H2"><a name="999814">Other Dictionary Types</a></div>
-      <div class="Body"><a name="1011761">The Dictionary domain is intended to be used for other versionable data that updates very rarely. This section briefly describes the other reserved dictionary types.</a></div>
-      <div class="Body"><a name="1011762">None of these dictionary types are currently used, nor is there any domain model specification associated with any of them at this time.</a></div>
+      <div class="H2"><a name="1167902">Dictionary Sample XML</a></div>
+      <div class="H3"><a name="1167903">Dictionary Request Message Sample XML</a></div>
+      <div class="Blank_Line"><a name="1171033">&nbsp;</a></div>
+      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
+            <div class="command"><a name="1171020">&nbsp;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171022">&lt;REQUEST domainType="DICTIONARY" streamId="3" containerType="NO_DATA" flags="0x00" dataSize="0"&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171024">	&lt;key flags="0x0B (HAS_SERVICE_ID|HAS_NAME|HAS_FILTER)" serviceId="1257" name="RWFFld" filter="7"/&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171026">	&lt;dataBody&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171028">	&lt;/dataBody&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171030">&lt;/REQUEST&gt;</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1171032">&nbsp;</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="CodeTitle">Code Example 7: <a name="1167936">Dictionary Request Message Sample XML Message Layout</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -70,7 +109,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : 5.10	Other Dictionary Types</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : 5.11	Dictionary Sample XML</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

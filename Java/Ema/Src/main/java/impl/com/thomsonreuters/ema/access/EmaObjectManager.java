@@ -155,7 +155,7 @@ class EmaObjectManager
         if (intObj == null)
         {
         	intObj = new IntObject();
-            _longObjectPool.updatePool(intObj);
+        	_intObjectPool.updatePool(intObj);
             return intObj;
         }
         else

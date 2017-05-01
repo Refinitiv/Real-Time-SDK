@@ -23,13 +23,42 @@ RsslRet setupLoginRequest(NIChannelCommand* chnlCommand, RsslInt32 streamId)
 	chnlCommand->loginRequest.role = 1;
 	
 	chnlCommand->loginRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_ID;
-	chnlCommand->loginRequest.applicationId.data = (char *)applicationId;
-	chnlCommand->loginRequest.applicationId.length = (RsslUInt32)strlen(applicationId);
+	if(chnlCommand->applicationId.length)
+	{
+		chnlCommand->loginRequest.applicationId = chnlCommand->applicationId;
+	}
+	else
+	{
+		chnlCommand->loginRequest.applicationId.data = (char *)applicationId;
+		chnlCommand->loginRequest.applicationId.length = (RsslUInt32)strlen(applicationId);
+	}
 	
 	chnlCommand->loginRequest.flags |= RDM_LG_RQF_HAS_USERNAME_TYPE;
-	chnlCommand->loginRequest.userNameType = RDM_LOGIN_USER_NAME;
-
-	printf("Username: %s\n", chnlCommand->loginRequest.userName.data);
+	
+	if(chnlCommand->authenticationToken.length)
+	{
+		chnlCommand->loginRequest.userName = chnlCommand->authenticationToken;
+		chnlCommand->loginRequest.userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+		
+		if(chnlCommand->authenticationExtended.length)
+		{
+			chnlCommand->loginRequest.flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
+			chnlCommand->loginRequest.authenticationExtended = chnlCommand->authenticationExtended;
+		}
+		
+		printf("AuthenticationToken: %s\n", chnlCommand->loginRequest.userName.data);
+		printf("AuthenticationExtended: %s\n", chnlCommand->loginRequest.authenticationExtended.data);
+	}
+	else
+	{
+		chnlCommand->loginRequest.userNameType = RDM_LOGIN_USER_NAME;
+		if(chnlCommand->username.length)
+		{
+			chnlCommand->loginRequest.userName = chnlCommand->username;
+		}
+		
+		printf("Username: %s\n", chnlCommand->loginRequest.userName.data);
+	}
 	
 	return RSSL_RET_SUCCESS;
 }
@@ -70,6 +99,18 @@ RsslReactorCallbackRet processLoginResponse(RsslReactor *pReactor, RsslReactorCh
 			rsslStateToString(&tempBuffer, pState);
 			printf("\t%.*s\n\n", tempBuffer.length, tempBuffer.data);
 			
+			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_TT_REISSUE)
+				printf("  AuthenticationTTReissue: %llu\n", pLoginRefresh->authenticationTTReissue);
+
+			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP)
+				printf("  AuthenticationExtendedResp: %.*s\n", pLoginRefresh->authenticationExtendedResp.length, pLoginRefresh->authenticationExtendedResp.data);
+
+			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_CODE)
+				printf("  AuthenticationErrorCode: %llu\n", pLoginRefresh->authenticationErrorCode);
+			
+			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT)
+				printf("  AuthenticationErrorText: %.*s\n", pLoginRefresh->authenticationErrorText.length, pLoginRefresh->authenticationErrorText.data);
+			
 			if(pState->streamState == RSSL_STREAM_OPEN &&
 			   pState->dataState == RSSL_DATA_OK &&
 			   pState->code == RSSL_SC_NONE)
@@ -81,12 +122,27 @@ RsslReactorCallbackRet processLoginResponse(RsslReactor *pReactor, RsslReactorCh
 				printf("\nLogin failure, shutting down\n");
 				return RSSL_RC_CRET_FAILURE;
 			}
+
+			// get login reissue time from authenticationTTReissue
+			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_TT_REISSUE)
+			{
+				chnlCommand->loginReissueTime = pLoginRefresh->authenticationTTReissue;
+				chnlCommand->canSendLoginReissue = RSSL_TRUE;
+			}
+
 			break;
 		}
 		case RDM_LG_MT_STATUS:
 		{
 			RsslRDMLoginStatus *pLoginStatus = &pEvent->pRDMLoginMsg->status;
 			printf("\nReceived Login Status\n");
+			
+			if (pLoginStatus->flags & RDM_LG_STF_HAS_AUTHN_ERROR_CODE)
+				printf("  AuthenticationErrorCode: %llu\n", pLoginStatus->authenticationErrorCode);
+			
+			if (pLoginStatus->flags & RDM_LG_STF_HAS_AUTHN_ERROR_TEXT)
+				printf("  AuthenticationErrorText: %.*s\n", pLoginStatus->authenticationErrorText.length, pLoginStatus->authenticationErrorText.data);
+			
 			if (pLoginStatus->flags & RDM_LG_STF_HAS_STATE)
 			{
 				/* get state information */

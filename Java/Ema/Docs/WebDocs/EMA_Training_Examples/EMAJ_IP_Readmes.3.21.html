@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>380__MarketPrice__ConnectionLost</title>
+    <title>331__Directory__UserControl</title>
     <link rel="StyleSheet" href="css/EMAJ_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,44 +55,42 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1031582">380__MarketPrice__ConnectionLost</a></div>
-      <div class="Body"><a name="1033216">Summary</a></div>
-      <div class="Body"><a name="1033217">=======</a></div>
-      <div class="Body"><a name="1033218">&nbsp;</a></div>
-      <div class="Body"><a name="1033219">300__MarketPrice__ConnectionLost is an example of an OMM Interactive Provider application </a></div>
-      <div class="Body"><a name="1033220">written to the EMA library.</a></div>
-      <div class="Body"><a name="1033221">&nbsp;</a></div>
-      <div class="Body"><a name="1033222">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1033223">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1033224">&nbsp;</a></div>
-      <div class="Body"><a name="1033225">300__MarketPrice__ConnectionLost illustrates how to create and publish a single OMM</a></div>
-      <div class="Body"><a name="1033226">streaming item. This application uses source directory configured in the EmaConfig.xml</a></div>
-      <div class="Body"><a name="1033227">file.</a></div>
-      <div class="Body"><a name="1033228">&nbsp;</a></div>
-      <div class="Body"><a name="1033229">&nbsp;</a></div>
-      <div class="Body"><a name="1033230">Detailed Description</a></div>
-      <div class="Body"><a name="1033231">====================</a></div>
-      <div class="Body"><a name="1033232">&nbsp;</a></div>
-      <div class="Body"><a name="1033233">300__MarketPrice__ConnectionLost implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1033234">&nbsp;</a></div>
-      <div class="Body"><a name="1033235">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
-      <div class="Body"><a name="1033236">+ Instantiates an OmmProvider object which.</a></div>
-      <div class="Body"><a name="1033237">  - listens on the port from the EmaConfig.xml file</a></div>
-      <div class="Body"><a name="1033238">+ Accepts an login request.</a></div>
-      <div class="Body"><a name="1033239">+ Processes an item request for MarketPrice domain.</a></div>
-      <div class="Body"><a name="1033240"> - Creates streaming item (refresh and updates) and publishes them</a></div>
-      <div class="Body"><a name="1033241"> - Publishes updates 1 per second.</a></div>
-      <div class="Body"><a name="1033242">+ Rejects subsequent item requests.</a></div>
-      <div class="Body"><a name="1033243">+ Processes a login close request after the channel is disconnected.</a></div>
-      <div class="Body"><a name="1033244"> - reset item handle to 0</a></div>
-      <div class="Body"><a name="1033245"> - stop publishing updates after receiving the login close request.</a></div>
-      <div class="Body"><a name="1033246">+ Exits</a></div>
-      <div class="Body"><a name="1033247">&nbsp;</a></div>
-      <div class="Body"><a name="1033248">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1033249">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1033250">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1032600">&nbsp;</a></div>
-      <div class="Body"><a name="1030186">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1031580">331__Directory__UserControl</a></div>
+      <div class="Body"><a name="1034024">Summary</a></div>
+      <div class="Body"><a name="1034025">=======</a></div>
+      <div class="Body"><a name="1034026">&nbsp;</a></div>
+      <div class="Body"><a name="1034027">331__Directory_UserControl is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1034028">written to the EMA library.</a></div>
+      <div class="Body"><a name="1034029">&nbsp;</a></div>
+      <div class="Body"><a name="1034030">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1034031">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1034032">&nbsp;</a></div>
+      <div class="Body"><a name="1034033">331__Directory_UserControl illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1034034">streaming item. This application will push source directory refresh message.</a></div>
+      <div class="Body"><a name="1034035">&nbsp;</a></div>
+      <div class="Body"><a name="1034036">&nbsp;</a></div>
+      <div class="Body"><a name="1034037">Detailed Description</a></div>
+      <div class="Body"><a name="1034038">====================</a></div>
+      <div class="Body"><a name="1034039">&nbsp;</a></div>
+      <div class="Body"><a name="1034040">331__Directory_UserControl implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1034041">&nbsp;</a></div>
+      <div class="Body"><a name="1034042">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
+      <div class="Body"><a name="1034043">  - Set the admin control to use user control</a></div>
+      <div class="Body"><a name="1034044">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1034045">  - listens on the port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1034046">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1034047">+ Processes a source directory request.</a></div>
+      <div class="Body"><a name="1034048"> - Pulishes a source directory refresh message</a></div>
+      <div class="Body"><a name="1034049">+ Processes an item request for MarketPrice domain.</a></div>
+      <div class="Body"><a name="1034050"> - Creates streaming item (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1034051"> - Publishes updates 1 per second for total 60 updates.</a></div>
+      <div class="Body"><a name="1034052">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1034053">+ Exits</a></div>
+      <div class="Body"><a name="1034054">&nbsp;</a></div>
+      <div class="Body"><a name="1034055">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1034056">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1034057">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1033370">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -105,7 +103,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.16.html">300 Series Examples</a> : 380__MarketPrice__ConnectionLost</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.17.html">300 Series Examples</a> : 331__Directory__UserControl</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

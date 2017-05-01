@@ -114,6 +114,12 @@ namespace thomsonreuters {
 
 namespace ema {
 
+namespace rdm {
+	
+class DataDictionaryImpl;
+
+}
+
 namespace access {
 
 class SeriesDecoder;
@@ -229,6 +235,8 @@ public :
 	//@}
 
 private :
+
+	friend class thomsonreuters::ema::rdm::DataDictionaryImpl;
 
 	Decoder& getDecoder();
 	bool hasDecoder() const;

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.9.3.2 Handling Dictionary Version Changes</title>
+    <title>5.8 Global Element Set Definition Payload</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,10 +55,21 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1011629">Handling Dictionary Version Changes</a></div>
-      <div class="Body"><a name="1011686">To keep consumers informed of changes, Thomson Reuters recommends that dictionary requests be streaming even though updates are not used for this domain.</a></div>
-      <div class="Body"><a name="1011687">If the dictionary’s minor version changes, a provider may advertise it via an </a><span class="CodeOrCommand">RsslStatusMsg</span> with an <span class="CodeOrCommand">RsslState</span> of <span class="Parameter">RSSL_STREAM_OPEN</span>/<span class="Parameter">RSSL_DATA_SUSPECT</span>. The consumer may then reissue its dictionary request to obtain the latest version.</div>
-      <div class="Body"><a name="1011688">If a dictionary’s major version is changed, the provider should disconnect all consumers to ensure that the consumers’ content and dictionary are entirely resynchronized.</a></div>
+      <div class="H2"><a name="1167804">Global Element Set Definition Payload</a></div>
+      <div class="Blank_Line"><a name="1167808">&nbsp;</a></div>
+      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1167807">This portion of the Dictionary Domain is used only with the Elektron Direct Feed (EDF) product. For further details, consult the EDF product documentation.</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Body"><a name="1167809">The payload of a Global Element Set Definition Dictionary Refresh Message consists of a</a>n , where each vector entry contains an . Each  represents a specific set definition ID, which corresponds to the ’s index. Each line in the set definition is represented by a corresponding value in the arrays within the FIDS and TYPES element entries.</div>
+      <div class="Body"><a name="1167825"><img class="Default" src="images/Chap_Dictionary_Domain.05.27.1.jpg" width="498" height="299" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="Body"><a name="1170994"><img class="Default" src="images/Element_Set_Def_Refresh.jpg" width="488" height="333" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 13.  <a name="1167830">Global Element Set Definition Payload</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -71,7 +82,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.23.html">5.9	Special Semantics</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.25.html">5.9.3	Version Information</a> : 5.9.3.2	Handling Dictionary Version Changes</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : 5.8	Global Element Set Definition Payload</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

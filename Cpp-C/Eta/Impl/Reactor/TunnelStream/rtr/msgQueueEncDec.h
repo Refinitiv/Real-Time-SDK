@@ -22,28 +22,28 @@ extern "C" {
 #endif
 
 /* Current tunnel stream protocol version. */
-static const RsslUInt COS_STREAM_VERSION = 1;
+#define COS_CURRENT_STREAM_VERSION 2
 
 /* Encodes a tunnel stream request. */
-RsslRet tunnelStreamRequestEncode(RsslEncodeIterator *pIter, TunnelStreamRequest *requestHeader, RsslClassOfService *pCos, RsslErrorInfo *pErrorInfo);
+RsslRet tunnelStreamRequestEncode(RsslEncodeIterator *pIter, TunnelStreamRequest *requestHeader, RsslClassOfService *pCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo);
 
 /* Populates the RsslRequestMsg to send a tunnel stream request. */
 void tunnelStreamRequestSetRsslMsg(TunnelStreamRequest *requestHeader, RsslRequestMsg *oRsslMsg, RsslClassOfService *pCos);
 
 /* Encodes a tunnel stream refresh. */
-RsslRet tunnelStreamRefreshEncode(RsslEncodeIterator *pIter, TunnelStreamRefresh *pTunnelRefresh, RsslClassOfService *pCos, RsslErrorInfo *pErrorInfo);
+RsslRet tunnelStreamRefreshEncode(RsslEncodeIterator *pIter, TunnelStreamRefresh *pTunnelRefresh, RsslClassOfService *pCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo);
 
 /* Populates the RsslRefreshMsg to send a tunnel stream refresh. */
 void tunnelStreamRefreshSetRsslMsg(TunnelStreamRefresh *pTunnelRefresh, RsslRefreshMsg *oRsslMsg, RsslClassOfService *pCos);
 
 /* Encodes a tunnel stream status. */
-RsslRet tunnelStreamStatusEncode(RsslEncodeIterator *pIter, TunnelStreamStatus *pTunnelStatus, RsslClassOfService *pCos, RsslErrorInfo *pErrorInfo);
+RsslRet tunnelStreamStatusEncode(RsslEncodeIterator *pIter, TunnelStreamStatus *pTunnelStatus, RsslClassOfService *pCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo);
 
 /* Populates the RsslStatusMsg to send a tunnel stream status. */
 void tunnelStreamStatusSetRsslMsg(TunnelStreamStatus *pTunnelStatus, RsslStatusMsg *oRsslMsg, RsslClassOfService *pCos);
 
 /* Encodes a tunnel stream data message header. */
-RsslRet tunnelStreamDataEncodeInit(RsslEncodeIterator *pIter, TunnelStreamData *dataHeader);
+RsslRet tunnelStreamDataEncodeInit(RsslEncodeIterator *pIter, TunnelStreamData *dataHeader, RsslUInt streamVersion);
 
 /* Replaces the opcode of an already-encoded data header. Intended for setting the retransmit code. */
 RsslRet tunnelStreamDataReplaceOpcode(RsslEncodeIterator *pIter, RsslUInt8 opcode);
@@ -52,7 +52,7 @@ RsslRet tunnelStreamDataReplaceOpcode(RsslEncodeIterator *pIter, RsslUInt8 opcod
 RsslRet tunnelStreamAckEncode(RsslEncodeIterator *pIter, TunnelStreamAck *ackHeader, AckRangeList *ackRangeList, AckRangeList *nakRangeList);
 
 /* Decodes a tunnel stream message. */
-RsslRet tunnelStreamMsgDecode(RsslMsg *pMsg, TunnelStreamMsg *pTunnelMsg, AckRangeList *ackRangeList, AckRangeList *nakRangeList);
+RsslRet tunnelStreamMsgDecode(RsslMsg *pMsg, TunnelStreamMsg *pTunnelMsg, AckRangeList *ackRangeList, AckRangeList *nakRangeList, RsslUInt streamVersion);
 
 RsslRet rsslEncodeMsgQueueSubstreamRequestHeader(RsslEncodeIterator *pIter, MsgQueueSubstreamRequestHeader *requestHeader);
 
@@ -85,7 +85,7 @@ RsslRet rsslAddQueueDataDuplicateFlag(RsslDecodeIterator *pIter);
 
 /* Encodes a class of service filter list. */
 RsslRet rsslEncodeClassOfService(RsslEncodeIterator *pIter, RsslClassOfService *pCos, RsslUInt32 filter,
-		 RsslBool isProvider, RsslErrorInfo *pErrorInfo);
+		 RsslBool isProvider, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo);
 
 /* Retrieves the stream version from a ClassOfService filter list. */
 RsslRet rsslGetClassOfServiceStreamVersion(RsslDecodeIterator *pIter, RsslUInt *pStreamVersion,

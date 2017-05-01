@@ -25,7 +25,7 @@ class DictionaryPayload : public ListLinks< DictionaryPayload >
 {
 public:
 
-	typedef enum DictionaryType
+	enum DictionaryType
 	{
 		RDM_FIELD_DICTIONARY,
 		ENUM_TYPE
@@ -50,7 +50,7 @@ class DictionaryHandler
 {
 public:
 
-	typedef enum DictionaryRejectEnum
+	enum DictionaryRejectEnum
 	{
 		DICTIONARY_INVALID_MESSAGE,
 		DICTIONARY_NOT_LOADED,

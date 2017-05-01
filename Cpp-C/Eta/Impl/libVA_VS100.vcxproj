@@ -216,6 +216,7 @@
   
   <ItemGroup>
     	<ClCompile Include="Util\rsslMemoryBuffer.c"/>
+	<ClCompile Include="Util\rsslNotifier.c"/>
 	<ClCompile Include="Util\rsslHashTable.c"/>
 	<ClCompile Include="Util\DllVAMain.c"/>
 	<ClCompile Include="RDM\rsslRDMDictionaryMsg.c"/>
@@ -225,6 +226,7 @@
 	<ClCompile Include="Reactor\rsslReactorWorker.c"/>
 	<ClCompile Include="Reactor\rsslReactor.c"/>
 	<ClCompile Include="Reactor\TunnelStream\bufferPool.c"/>
+	<ClCompile Include="Reactor\TunnelStream\bigBufferPool.c"/>
 	<ClCompile Include="Reactor\TunnelStream\tunnelManager.c"/>
 	<ClCompile Include="Reactor\TunnelStream\msgQueueEncDec.c"/>
 	<ClCompile Include="Reactor\TunnelStream\persistFile.c"/>
@@ -248,6 +250,7 @@
   <ItemGroup>
     	<ClInclude Include="..\Include\Util\rtr\rsslEventSignal.h"/>
 	<ClInclude Include="..\Include\Util\rtr\rsslMemoryBuffer.h"/>
+	<ClInclude Include="..\Include\Util\rtr\rsslNotifier.h"/>
 	<ClInclude Include="..\Include\Util\rtr\rsslHashTable.h"/>
 	<ClInclude Include="..\Include\Util\rtr\rsslQueue.h"/>
 	<ClInclude Include="..\Include\Util\rtr\rsslThread.h"/>
@@ -267,6 +270,7 @@
 	<ClInclude Include="..\Include\Reactor\rtr\rsslReactor.h"/>
 	<ClInclude Include="..\Include\Reactor\rtr\rsslTunnelStream.h"/>
 	<ClInclude Include="Reactor\TunnelStream\rtr\bufferPool.h"/>
+	<ClInclude Include="Reactor\TunnelStream\rtr\bigBufferPool.h"/>
 	<ClInclude Include="Reactor\TunnelStream\rtr\msgQueueEncDec.h"/>
 	<ClInclude Include="Reactor\TunnelStream\rtr\msgQueueHeader.h"/>
 	<ClInclude Include="Reactor\TunnelStream\rtr\msgQueueSubstreamHeader.h"/>

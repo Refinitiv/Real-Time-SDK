@@ -7,6 +7,10 @@
 
 package com.thomsonreuters.ema.access;
 
+import com.thomsonreuters.ema.access.OmmProviderConfig.ProviderRole;
+import com.thomsonreuters.ema.domain.login.Login.LoginRefresh;
+import com.thomsonreuters.ema.domain.login.Login.LoginReq;
+import com.thomsonreuters.ema.domain.login.Login.LoginStatus;
 import com.thomsonreuters.ema.rdm.DataDictionary;
 import com.thomsonreuters.ema.rdm.DictionaryUtility;
 
@@ -162,6 +166,26 @@ public class EmaFactory
 	
 	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumer}.
+	 * @param config OmmConsumerConfig providing configuration
+	 * @return {@link com.thomsonreuters.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient client)
+	{
+		return new OmmConsumerImpl(config, client);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumer}.
+	 * @param config OmmConsumerConfig providing configuration
+	 * @return {@link com.thomsonreuters.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient client, Object closure)
+	{
+		return new OmmConsumerImpl(config, client, closure);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumer}.
 	 * 
 	 * @param config OmmConsumerConfig providing configuration
 	 * @param client OmmConsumerClient that provides callback interfaces to be used for item processing
@@ -171,6 +195,30 @@ public class EmaFactory
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerErrorClient client)
 	{
 		return new OmmConsumerImpl(config, client);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
+	 * @param errorClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @return {@link com.thomsonreuters.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient errorClient)
+	{
+		return new OmmConsumerImpl(config, adminClient, errorClient);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
+	 * @param errorClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @return {@link com.thomsonreuters.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient errorClient, Object closure)
+	{
+		return new OmmConsumerImpl(config, adminClient, errorClient, closure);
 	}
 	
 	/**
@@ -204,7 +252,10 @@ public class EmaFactory
 	 */
 	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client)
 	{
-		return new OmmIProviderImpl(config, client, null);
+		if(config.providerRole() == ProviderRole.INTERACTIVE)
+			return new OmmIProviderImpl(config, client, null);
+		else
+			return new OmmNiProviderImpl(config, client, null);
 	}
 	
 	/**
@@ -218,7 +269,10 @@ public class EmaFactory
 	 */
 	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client, Object closure)
 	{
-		return new OmmIProviderImpl(config, client, closure);
+		if(config.providerRole() == ProviderRole.INTERACTIVE)
+			return new OmmIProviderImpl(config, client, closure);
+		else
+			return new OmmNiProviderImpl(config, client, closure);
 	}
 	
 	/**
@@ -441,9 +495,77 @@ public class EmaFactory
 	public static TunnelStreamRequest createTunnelStreamRequest()
 	{
 		return new TunnelStreamRequestImpl();
+	}	
+	
+	/**
+	 * Domain is a nested class of EmaFactory that creates Admin Domain-specific message objects.
+	 */
+	public static class Domain
+	{
+	    /**
+	     * This class is not instantiated
+	     */
+	    private Domain()
+	    {
+	        throw new AssertionError();
+	    }
+	    
+	    /**
+	     * Creates a {@link com.thomsonreuters.ema.domain.login.Login.LoginReq}.
+	     * @return {@link com.thomsonreuters.ema.domain.login.Login.LoginReq}
+	     */
+	    public static LoginReq createLoginReq()
+	    {
+	        return new LoginReqImpl();
+	    }
+
+	    /**
+	     * Creates a {@link com.thomsonreuters.ema.domain.login.Login.LoginReq}.
+	     * @return {@link com.thomsonreuters.ema.domain.login.Login.LoginReq}
+	     */
+	    public static LoginReq createLoginReq( ReqMsg reqMsg )
+	    {
+	        return new LoginReqImpl(reqMsg);
+	    }
+
+	    /**
+	     * Creates a {@link com.thomsonreuters.ema.domain.login.Login.LoginRefresh}.
+	     * @return {@link com.thomsonreuters.ema.domain.login.Login.LoginRefresh}
+	     */
+	    public static LoginRefresh createLoginRefresh()
+	    {
+	        return new LoginRefreshImpl();
+	    }
+
+	    /**
+	     * Creates a {@link com.thomsonreuters.ema.domain.login.Login.LoginRefresh}.
+	     * @return {@link com.thomsonreuters.ema.domain.login.Login.LoginRefresh}
+	     */
+	    public static LoginRefresh createLoginRefresh( RefreshMsg refreshMsg )
+	    {
+	        return new LoginRefreshImpl(refreshMsg);
+	    }
+
+	    /**
+	     * Creates a {@link com.thomsonreuters.ema.domain.login.Login.LoginStatus}.
+	     * @return {@link com.thomsonreuters.ema.domain.login.Login.LoginStatus}
+	     */
+	    public static LoginStatus createLoginStatus()
+	    {
+	        return new LoginStatusImpl();
+	    }
+
+	    /**
+	     * Creates a {@link com.thomsonreuters.ema.domain.login.Login.LoginStatus}.
+	     * @return {@link com.thomsonreuters.ema.domain.login.Login.LoginStatus}
+	     */
+	    public static LoginStatus createLoginStatus( StatusMsg statusMsg )
+	    {
+	        return new LoginStatusImpl(statusMsg);
+	    }
 	}
 	
-/**
+	/**
 	 * Creates a {@link com.thomsonreuters.ema.rdm.DataDictionary}.
 	 * @return {@link com.thomsonreuters.ema.rdm.DataDictionary}
 	 */

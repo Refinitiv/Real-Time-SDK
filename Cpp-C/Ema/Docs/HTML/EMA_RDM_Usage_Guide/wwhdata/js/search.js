@@ -1,6 +1,6 @@
 function  WWHBookData_SearchFileCount()
 {
-  return 2;
+  return 3;
 }
 
 function  WWHBookData_SearchMinimumWordLength()

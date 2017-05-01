@@ -19,17 +19,44 @@ import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.thomsonreuters.ema.access.ReqMsg;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 
 class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsumer
 {
 	private OmmConsumerErrorClient _consumerErrorClient;
 	private OmmConsumerActiveConfig _activeConfig;
 	private TunnelStreamSubmitOptions _rsslTunnelStreamSubmitOptions;
+	private ReqMsg loginRequest = EmaFactory.createReqMsg();
+	private OmmConsumerClient		_adminClient;
+	private Object					_adminClosure;
 
 	OmmConsumerImpl(OmmConsumerConfig config)
 	{
 		super();
 		_activeConfig = new OmmConsumerActiveConfig();
+		_adminClient = null;
+		_adminClosure = null;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);		
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient client)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = client;
+		_adminClosure = null;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);		
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient client, Object closure)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = client;
+		_adminClosure = closure;
 		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);		
 	}
 
@@ -37,6 +64,32 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	{
 		super();
 		_activeConfig = new OmmConsumerActiveConfig();
+		_consumerErrorClient = client;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient client)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = adminClient;
+		_adminClosure = null;
+		_consumerErrorClient = client;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient client, Object closure)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = adminClient;
+		_adminClosure = closure;
 		_consumerErrorClient = client;
 		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
 		
@@ -119,16 +172,6 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	public long dispatch()
 	{
 		return super.dispatch();
-	}
-	
-	boolean hasConsumerErrorClient()
-	{
-		return (_consumerErrorClient != null);
-	}
-
-	OmmConsumerErrorClient consumerErrorClient()
-	{
-		return _consumerErrorClient;
 	}
 	
 	@Override
@@ -350,6 +393,13 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 
 		_itemCallbackClient = new ItemCallbackClientConsumer(this);
 		_itemCallbackClient.initialize();
+		
+		if(_adminClient != null)
+		{
+			/* RegisterClient does not require a fully encoded login message to set the callbacks */
+			loginRequest.clear().domainType(EmaRdm.MMT_LOGIN);
+			_itemCallbackClient.registerClient(loginRequest, _adminClient, _adminClosure, 0);
+		}
 
 		_channelCallbackClient = new ChannelCallbackClient<>(this,_rsslReactor);
 		_channelCallbackClient.initializeConsumerRole(_loginCallbackClient.rsslLoginRequest(), _directoryCallbackClient.rsslDirectoryRequest());

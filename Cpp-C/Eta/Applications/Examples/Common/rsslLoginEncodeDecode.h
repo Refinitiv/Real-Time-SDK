@@ -15,11 +15,14 @@ extern "C" {
 /* login request information */
 typedef struct {
 	RsslInt32	StreamId;
+	RsslUInt8	NameType;
 	char		Username[MAX_LOGIN_INFO_STRLEN];
 	char		ApplicationId[MAX_LOGIN_INFO_STRLEN];
 	char		ApplicationName[MAX_LOGIN_INFO_STRLEN];
 	char		Position[MAX_LOGIN_INFO_STRLEN];
 	char		Password[MAX_LOGIN_INFO_STRLEN];
+	char		AuthenticationToken[255];
+	char		AuthenticationExtended[255];
 	RsslUInt64	ProvidePermissionProfile;
 	RsslUInt64	ProvidePermissionExpressions;
 	RsslUInt64	SingleOpen;
@@ -45,6 +48,11 @@ typedef struct {
 	char		ApplicationId[MAX_LOGIN_INFO_STRLEN];
 	char		ApplicationName[MAX_LOGIN_INFO_STRLEN];
 	char		Position[MAX_LOGIN_INFO_STRLEN];
+	char		AuthenticationExtendedResponse[MAX_LOGIN_INFO_STRLEN];
+	char		AuthenticationStatusErrorText[MAX_LOGIN_INFO_STRLEN];
+	RsslUInt64  AuthenticationTTReissue;
+	RsslBool	HasAuthenticationStatusErrorCode;
+	RsslUInt64   AuthenticationStatusErrorCode;
 	RsslUInt64	ProvidePermissionProfile;
 	RsslUInt64	ProvidePermissionExpressions;
 	RsslUInt64	SingleOpen;
@@ -75,9 +83,12 @@ RsslRet encodeLoginGenericMsg(RsslChannel* chnl, RsslBuffer* msgBuf, RsslInt32 s
 RTR_C_INLINE void clearLoginReqInfo(RsslLoginRequestInfo* loginReqInfo)
 {
 	loginReqInfo->StreamId = 0;
+	loginReqInfo->NameType = RDM_LOGIN_USER_NAME;
 	loginReqInfo->Username[0] = '\0';
 	loginReqInfo->ApplicationId[0] = '\0';
 	loginReqInfo->ApplicationName[0] = '\0';
+	loginReqInfo->AuthenticationToken[0] = '\0';
+	loginReqInfo->AuthenticationExtended[0] = '\0';
 	loginReqInfo->Position[0] = '\0';
 	loginReqInfo->Password[0] = '\0';
 	loginReqInfo->ProvidePermissionProfile = 0;
@@ -103,6 +114,8 @@ RTR_C_INLINE void initLoginReqInfo(RsslLoginRequestInfo* loginReqInfo)
 	loginReqInfo->Username[0] = '\0';
 	loginReqInfo->ApplicationId[0] = '\0';
 	loginReqInfo->ApplicationName[0] = '\0';
+	loginReqInfo->AuthenticationToken[0] = '\0';
+	loginReqInfo->AuthenticationExtended[0] = '\0';
 	loginReqInfo->Position[0] = '\0';
 	loginReqInfo->Password[0] = '\0';
 	loginReqInfo->ProvidePermissionProfile = 1;
@@ -126,6 +139,11 @@ RTR_C_INLINE void clearLoginRespInfo(RsslLoginResponseInfo* loginRespInfo)
 	loginRespInfo->ApplicationId[0] = '\0';
 	loginRespInfo->ApplicationName[0] = '\0';
 	loginRespInfo->Position[0] = '\0';
+	loginRespInfo->AuthenticationExtendedResponse[0] = '\0';
+	loginRespInfo->AuthenticationStatusErrorText[0] = '\0';
+	loginRespInfo->AuthenticationTTReissue = 0;
+	loginRespInfo->HasAuthenticationStatusErrorCode = RSSL_FALSE;
+	loginRespInfo->AuthenticationStatusErrorCode = 0;
 	loginRespInfo->ProvidePermissionProfile = 0;
 	loginRespInfo->ProvidePermissionExpressions = 0;
 	loginRespInfo->SingleOpen = 0;
@@ -151,6 +169,11 @@ RTR_C_INLINE void initLoginRespInfo(RsslLoginResponseInfo* loginRespInfo)
 	loginRespInfo->ApplicationId[0] = '\0';
 	loginRespInfo->ApplicationName[0] = '\0';
 	loginRespInfo->Position[0] = '\0';
+	loginRespInfo->AuthenticationExtendedResponse[0] = '\0';
+	loginRespInfo->AuthenticationStatusErrorText[0] = '\0';
+	loginRespInfo->AuthenticationTTReissue = 0;
+	loginRespInfo->HasAuthenticationStatusErrorCode = RSSL_FALSE;
+	loginRespInfo->AuthenticationStatusErrorCode = 0;
 	loginRespInfo->ProvidePermissionProfile = 1;
 	loginRespInfo->ProvidePermissionExpressions = 1;
 	loginRespInfo->SingleOpen = 1;

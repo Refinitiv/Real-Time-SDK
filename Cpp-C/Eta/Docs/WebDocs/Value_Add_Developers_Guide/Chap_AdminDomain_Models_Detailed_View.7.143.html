@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>7.6.6.3 Queue Message Timeout Codes</title>
+    <title>7.6.6.4 Queue Data Encoding</title>
     <link rel="StyleSheet" href="css/Chap_AdminDomain_Models_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,43 +55,44 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1260528">Queue Message Timeout Codes</a></div>
-      <div class="Body"><a name="1259776">Queue message timeout codes are special codes that can be set on the </a><span class="CodeOrCommand">RsslRDMQueueData.timeout</span> member to specify timeout behavior.</div>
-      <div class="Blank_Line"><a name="1260176">&nbsp;</a></div>
+      <div class="H4"><a name="1260182">Queue Data Encoding</a></div>
+      <div class="Body"><a name="1389860">The </a><span class="CodeOrCommand">RsslRDMQueueData</span> message allows users to encode both OMM and non-OMM/opaque content. There are several methods available to help with encoding.</div>
+      <div class="Blank_Line"><a name="1389904">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 174: <span class="LucidaConsole"><a name="1259861">RsslRDMQueueTimeoutCodes</a></span> &nbsp;</div>
+          <div class="TableTitle">Table 176: <a name="1389901">Queue Data Message Encoding Methods &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 195.75pt">
-            <div class="CellHeading"><a name="1259849">ENUMERATION</a></div>
+            <div class="CellHeading"><a name="1389866">Function NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 360pt">
-            <div class="CellHeading"><a name="1259851">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1389868">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1259853">RDM_QMSG_TC_INFINITE</a></div>
+            <div class="CellBody"><a name="1389870">rsslEncodeRDMQueueMsg </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1259855">This message persists in the system for an infinite amount of time.</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1260499">RDM_QMSG_TC_IMMEDIATE</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1260501">This message immediately times out if any portion of its delivery path is unavailable.</a></div>
+            <div class="CellBody"><a name="1389872">When sending no payload or payload content is preencoded and specified on the </a><span class="CodeOrCommand">RsslRDMQueueData.encDataBody</span> buffer, this method encodes the <span class="CodeOrCommand">RsslRDMQueueData</span> message in a single call.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1259857">RDM_QMSG_TC_PROVIDER_DEFAULT</a></div>
+            <div class="CellBody"><a name="1389883">rsslEncodeRDMQueueMsgComplete </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1259859">This message persists in the system for a duration set by the provider.</a></div>
+            <div class="CellBody"><a name="1389888">Completes the content encoding into this </a><span class="CodeOrCommand">RsslRDMQueueData</span> message.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1389890">rsslEncodeRDMQueueMsgInit </a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1389895">Begins the process of encoding content into this </a><span class="CodeOrCommand">RsslRDMQueueData</span> message. This method takes an <span class="CodeOrCommand">EncodeIterator</span> as a parameter, where the <span class="CodeOrCommand">EncodeIterator</span> is associated with the buffer into which content is encoded.</div>
+            <div class="CellBody"><a name="1389896">When this method returns, users should call additional methods required to encode the content. After all remaining encoding is completed, call the </a><span class="CodeOrCommand">encodeComplete</span> method.</div>
           </td>
         </tr>
       </table>
@@ -107,7 +108,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.001.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.134.html">7.6	RDM Queue Messages</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.140.html">7.6.6	Queue Data</a> : 7.6.6.3	Queue Message Timeout Codes</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.001.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.133.html">7.6	RDM Queue Messages</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.139.html">7.6.6	Queue Data</a> : 7.6.6.4	Queue Data Encoding</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

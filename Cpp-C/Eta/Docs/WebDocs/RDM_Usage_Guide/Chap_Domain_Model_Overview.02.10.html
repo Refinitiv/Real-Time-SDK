@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>2.8.1 Snapshot and Streaming Requests</title>
+    <title>2.6.1 Snapshot and Streaming Requests</title>
     <link rel="StyleSheet" href="css/Chap_Domain_Model_Overview.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -56,9 +56,9 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="999985">Snapshot and Streaming Requests</a></div>
-      <div class="Body"><a name="1000292">Many domains generally support issuing an </a><span class="CodeOrCommand">RsslRequestMsg</span> with or without the <span class="Parameter">RSSL_RQMF_STREAMING</span> flag set. When the flag is set, the request is known as a “streaming” request, meaning that the refresh will be followed by updates.</div>
+      <div class="Body"><a name="1000292">Many domains generally support issuing a request message with or without setting the </a><span class="Parameter">RSSL_RQMF_STREAMING</span> flag. When the flag is set, the request is known as a “streaming” request, meaning that the refresh will be followed by updates.</div>
       <div class="Body"><a name="1000293">When a snapshot request is made, the refresh should have a </a><span class="CodeOrCommand">streamState</span> of <span class="Parameter">RSSL_STREAM_NON_STREAMING</span>. When the final part of the refresh is received, the stream is considered closed (the final refresh is indicated by the <span class="Parameter">RSSL_RFMF_REFRESH_COMPLETE</span> flag on the <span class="CodeOrCommand">RsslRefreshMsg</span>). The consumer should be prepared to receive status messages or update messages between the first and final parts of the refresh (if the domain supplies only single part refresh messages, like Market Price, no updates would be delivered on the stream).</div>
-      <div class="Body"><a name="1000294">A provider may also set the </a><span class="CodeOrCommand">streamState</span> to <span class="Parameter">RSSL_STREAM_NON_STREAMING</span> if it does not allow streaming of the requested item.</div>
+      <div class="Body"><a name="1012606">A provider may also set the </a><span class="CodeOrCommand">streamState</span> to <span class="Parameter">RSSL_STREAM_NON_STREAMING</span> if it does not allow streaming of the requested item.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -71,7 +71,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Domain_Model_Overview.02.01.html">Chapter 2	Domain Model Overview</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Domain_Model_Overview.02.09.html">2.8	General Transport API Concepts</a> : 2.8.1	Snapshot and Streaming Requests</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Domain_Model_Overview.02.01.html">Chapter 2	Domain Model Overview</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Domain_Model_Overview.02.09.html">2.6	General Transport API Concepts</a> : 2.6.1	Snapshot and Streaming Requests</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

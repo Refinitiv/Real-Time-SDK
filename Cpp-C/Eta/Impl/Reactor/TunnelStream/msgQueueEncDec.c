@@ -331,7 +331,7 @@ RTR_C_ALWAYS_INLINE void tunnelStreamMsgKeyApplyCoSFilter(RsslMsgKey *pMsgKey, R
 
 
 RsslRet rsslEncodeClassOfService(RsslEncodeIterator *pIter, RsslClassOfService *pCos, RsslUInt32 filter,
-		RsslBool isProvider, RsslErrorInfo *pErrorInfo)
+		RsslBool isProvider, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo)
 {
 	RsslFilterList		filterList;
 	RsslFilterEntry		filterEntry;
@@ -377,12 +377,44 @@ RsslRet rsslEncodeClassOfService(RsslEncodeIterator *pIter, RsslClassOfService *
 		rsslClearElementEntry(&elemEntry);
 		elemEntry.name = RSSL_ENAME_COS_MAX_MSG_SIZE;
 		elemEntry.dataType = RSSL_DT_UINT;
-		tempUInt = pCos->common.maxMsgSize;
+		if (streamVersion > 1)
+		{
+			tempUInt = pCos->common.maxMsgSize;
+		}
+		else
+		{
+			tempUInt = pCos->common.maxFragmentSize;
+		}
 		if ((ret = rsslEncodeElementEntry(pIter, &elemEntry, &tempUInt)) != RSSL_RET_SUCCESS)
 		{
 			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
 				"TunnelStream ClassOfService common.maxMsgSize rsslEncodeElementEntry failed: %d", ret);
 			return RSSL_RET_FAILURE;
+		}
+		if (streamVersion > 1)
+		{
+			/* MaxFragmentSize */
+			rsslClearElementEntry(&elemEntry);
+			elemEntry.name = RSSL_ENAME_COS_MAX_FRAGMENT_SIZE;
+			elemEntry.dataType = RSSL_DT_UINT;
+			tempUInt = pCos->common.maxFragmentSize;
+			if ((ret = rsslEncodeElementEntry(pIter, &elemEntry, &tempUInt)) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+					"TunnelStream ClassOfService common.maxFragmentSize rsslEncodeElementEntry failed: %d", ret);
+				return RSSL_RET_FAILURE;
+			}
+			/* Support Fragmentation */
+			rsslClearElementEntry(&elemEntry);
+			elemEntry.name = RSSL_ENAME_COS_SUPPS_FRAGMENTATION;
+			elemEntry.dataType = RSSL_DT_UINT;
+			tempUInt = 1;
+			if ((ret = rsslEncodeElementEntry(pIter, &elemEntry, &tempUInt)) != RSSL_RET_SUCCESS)
+			{
+				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+					"TunnelStream ClassOfService common.supportFragmentation rsslEncodeElementEntry failed: %d", ret);
+				return RSSL_RET_FAILURE;
+			}
 		}
 	}
 
@@ -426,7 +458,8 @@ RsslRet rsslEncodeClassOfService(RsslEncodeIterator *pIter, RsslClassOfService *
 	rsslClearElementEntry(&elemEntry);
 	elemEntry.name = RSSL_ENAME_COS_STREAM_VERSION;
 	elemEntry.dataType = RSSL_DT_UINT;
-	tempUInt = COS_STREAM_VERSION;
+
+	tempUInt = streamVersion;
 	if ((ret = rsslEncodeElementEntry(pIter, &elemEntry, &tempUInt)) != RSSL_RET_SUCCESS)
 	{
 		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
@@ -669,7 +702,7 @@ RsslRet rsslGetClassOfServiceStreamVersion(RsslDecodeIterator *pIter, RsslUInt *
 	RsslRet				ret;
 	RsslUInt			tempUInt;
 
-	*pStreamVersion = COS_STREAM_VERSION;
+	*pStreamVersion = COS_CURRENT_STREAM_VERSION;
 
 	if ((ret = rsslDecodeFilterList(pIter, &filterList)) != RSSL_RET_SUCCESS)
 	{
@@ -767,7 +800,7 @@ RsslRet rsslDecodeClassOfService(RsslDecodeIterator *pIter, RsslClassOfService *
 
 	rsslClearClassOfService(pCos);
 	if (pStreamVersion != NULL)
-		*pStreamVersion = COS_STREAM_VERSION;
+		*pStreamVersion = COS_CURRENT_STREAM_VERSION;
 
 	if ((ret = rsslDecodeFilterList(pIter, &filterList)) != RSSL_RET_SUCCESS)
 	{
@@ -829,6 +862,42 @@ RsslRet rsslDecodeClassOfService(RsslDecodeIterator *pIter, RsslClassOfService *
 						}
 
 						pCos->common.maxMsgSize = tempUInt;
+					}
+					else if (rsslBufferIsEqual(&elemEntry.name, &RSSL_ENAME_COS_MAX_FRAGMENT_SIZE))
+					{
+						if (elemEntry.dataType != RSSL_DT_UINT)
+						{
+							rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+								"Decoded ClassOfService common.maxFragmentSize has wrong dataType: %u", elemEntry.dataType);
+							return RSSL_RET_FAILURE;
+						}
+
+						if ((ret = rsslDecodeUInt(pIter, &tempUInt)) != RSSL_RET_SUCCESS)
+						{
+							rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+								"ClassOfService common.maxMsgSize decode failed: %d", ret);
+							return RSSL_RET_FAILURE;
+						}
+
+						pCos->common.maxFragmentSize = tempUInt;
+					}
+					else if (rsslBufferIsEqual(&elemEntry.name, &RSSL_ENAME_COS_SUPPS_FRAGMENTATION))
+					{
+						if (elemEntry.dataType != RSSL_DT_UINT)
+						{
+							rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+								"Decoded ClassOfService common.supportsFragmentation has wrong dataType: %u", elemEntry.dataType);
+							return RSSL_RET_FAILURE;
+						}
+
+						if ((ret = rsslDecodeUInt(pIter, &tempUInt)) != RSSL_RET_SUCCESS)
+						{
+							rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+								"ClassOfService common.supportsFragmentation decode failed: %d", ret);
+							return RSSL_RET_FAILURE;
+						}
+
+						pCos->common.supportsFragmentation = tempUInt;
 					}
 					else if (rsslBufferIsEqual(&elemEntry.name, &RSSL_ENAME_COS_PROT_TYPE))
 					{
@@ -1172,7 +1241,7 @@ RsslRet rsslDecodeClassOfService(RsslDecodeIterator *pIter, RsslClassOfService *
 }
 
 
-RsslRet tunnelStreamRequestEncode(RsslEncodeIterator *pIter, TunnelStreamRequest *requestHeader, RsslClassOfService *pCos, RsslErrorInfo *pErrorInfo)
+RsslRet tunnelStreamRequestEncode(RsslEncodeIterator *pIter, TunnelStreamRequest *requestHeader, RsslClassOfService *pCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo)
 {
 	/* Send a request message to open the initial tunnel stream. */
 	RsslRequestMsg	requestMsg;
@@ -1186,7 +1255,7 @@ RsslRet tunnelStreamRequestEncode(RsslEncodeIterator *pIter, TunnelStreamRequest
 		return RSSL_RET_FAILURE;
 	}
 
-	if ((ret = rsslEncodeClassOfService(pIter, pCos, requestMsg.msgBase.msgKey.filter, RSSL_FALSE, pErrorInfo)) != RSSL_RET_SUCCESS)
+	if ((ret = rsslEncodeClassOfService(pIter, pCos, requestMsg.msgBase.msgKey.filter, RSSL_FALSE, streamVersion, pErrorInfo)) != RSSL_RET_SUCCESS)
 		return ret;
 
 	if ((ret = rsslEncodeMsgComplete(pIter, RSSL_TRUE)) != RSSL_RET_SUCCESS)
@@ -1220,7 +1289,7 @@ void tunnelStreamRequestSetRsslMsg(TunnelStreamRequest *requestHeader,
 	tunnelStreamMsgKeyApplyCoSFilter(&oRsslMsg->msgBase.msgKey, pCos, RSSL_FALSE);
 }
 
-RsslRet tunnelStreamRefreshEncode(RsslEncodeIterator *pIter, TunnelStreamRefresh *pTunnelRefresh, RsslClassOfService *pCos, RsslErrorInfo *pErrorInfo)
+RsslRet tunnelStreamRefreshEncode(RsslEncodeIterator *pIter, TunnelStreamRefresh *pTunnelRefresh, RsslClassOfService *pCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo)
 {
 	RsslRefreshMsg refreshMsg;
 	RsslRet ret; 
@@ -1236,7 +1305,7 @@ RsslRet tunnelStreamRefreshEncode(RsslEncodeIterator *pIter, TunnelStreamRefresh
 		return RSSL_RET_FAILURE;
 	}
 
-	if ((ret = rsslEncodeClassOfService(pIter, pCos, refreshMsg.msgBase.msgKey.filter, RSSL_TRUE, pErrorInfo)) != RSSL_RET_SUCCESS)
+	if ((ret = rsslEncodeClassOfService(pIter, pCos, refreshMsg.msgBase.msgKey.filter, RSSL_TRUE, streamVersion, pErrorInfo)) != RSSL_RET_SUCCESS)
 		return ret;
 
 	if ((ret = rsslEncodeMsgComplete(pIter, RSSL_TRUE)) != RSSL_RET_SUCCESS)
@@ -1287,7 +1356,7 @@ void tunnelStreamRefreshSetRsslMsg(TunnelStreamRefresh *pTunnelRefresh, RsslRefr
 }
 
 /* Encodes a tunnel stream status. */
-RsslRet tunnelStreamStatusEncode(RsslEncodeIterator *pIter, TunnelStreamStatus *pTunnelStatus, RsslClassOfService *pCos, RsslErrorInfo *pErrorInfo)
+RsslRet tunnelStreamStatusEncode(RsslEncodeIterator *pIter, TunnelStreamStatus *pTunnelStatus, RsslClassOfService *pCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo)
 {
 	RsslStatusMsg statusMsg;
 	RsslRet ret; 
@@ -1308,7 +1377,7 @@ RsslRet tunnelStreamStatusEncode(RsslEncodeIterator *pIter, TunnelStreamStatus *
 			return RSSL_RET_FAILURE;
 		}
 
-		if ((ret = rsslEncodeClassOfService(pIter, pCos, statusMsg.msgBase.msgKey.filter, RSSL_TRUE, pErrorInfo)) != RSSL_RET_SUCCESS)
+		if ((ret = rsslEncodeClassOfService(pIter, pCos, statusMsg.msgBase.msgKey.filter, RSSL_TRUE, streamVersion, pErrorInfo)) != RSSL_RET_SUCCESS)
 			return ret;
 
 		if ((ret = rsslEncodeMsgComplete(pIter, RSSL_TRUE)) != RSSL_RET_SUCCESS)
@@ -1361,7 +1430,7 @@ void tunnelStreamStatusSetRsslMsg(TunnelStreamStatus *pTunnelStatus, RsslStatusM
 		oRsslMsg->msgBase.containerType = RSSL_DT_NO_DATA;
 }
 
-RsslRet tunnelStreamDataEncodeInit(RsslEncodeIterator *pIter, TunnelStreamData *dataHeader)
+RsslRet tunnelStreamDataEncodeInit(RsslEncodeIterator *pIter, TunnelStreamData *dataHeader, RsslUInt streamVersion)
 {
 	RsslGenericMsg genericMsg;
 	RsslBuffer tmpBuffer;
@@ -1372,10 +1441,28 @@ RsslRet tunnelStreamDataEncodeInit(RsslEncodeIterator *pIter, TunnelStreamData *
 	genericMsg.msgBase.msgClass = RSSL_MC_GENERIC;
 	genericMsg.msgBase.streamId = dataHeader->base.streamId;
 	genericMsg.msgBase.domainType = dataHeader->base.domainType;
-	genericMsg.msgBase.containerType = RSSL_DT_MSG;
+	if ((dataHeader->flags & TS_DF_FRAGMENTED) == 0) // non-fragmented
+	{
+		// set container type to MSG if not already set, otherwise set to container type in tunnel stream data header
+		if (dataHeader->containerType == 0)
+		{
+			genericMsg.msgBase.containerType = RSSL_DT_MSG;
+		}
+		else
+		{
+			genericMsg.msgBase.containerType = dataHeader->containerType;
+		}
+		rsslGenericMsgApplyMessageComplete(&genericMsg);
+	}
+	else // fragmented
+	{
+		genericMsg.msgBase.containerType = RSSL_DT_OPAQUE;
+		if (dataHeader->msgComplete)
+		{
+			rsslGenericMsgApplyMessageComplete(&genericMsg);
+		}
+	}
 	rsslGenericMsgApplyHasExtendedHdr(&genericMsg);
-	rsslGenericMsgApplyMessageComplete(&genericMsg);
-
 
 	rsslGenericMsgApplyHasSeqNum(&genericMsg);
 	genericMsg.seqNum = dataHeader->seqNum;
@@ -1386,13 +1473,34 @@ RsslRet tunnelStreamDataEncodeInit(RsslEncodeIterator *pIter, TunnelStreamData *
 	if ((ret = rsslEncodeNonRWFDataTypeInit(pIter, &tmpBuffer)) != RSSL_RET_SUCCESS)
 		return ret;
 		
-	if (tmpBuffer.length < 1)
+	if (tmpBuffer.length < 2)
 		return RSSL_RET_BUFFER_TOO_SMALL;
 		
 	pData = tmpBuffer.data;
 
 	/* Opcode */
 	pData[encodedLen++] = dataHeader->base.opcode;
+
+	if (streamVersion >= COS_CURRENT_STREAM_VERSION)
+	{
+		// fragmentation flag
+		pData[encodedLen++] = dataHeader->flags;
+        
+		// populate other fragmentation fields if fragmentation flag set
+		if (dataHeader->flags & TS_DF_FRAGMENTED)
+		{
+			if (tmpBuffer.length < 11)
+				return RSSL_RET_BUFFER_TOO_SMALL;
+            
+			encodedLen += bufPut32(&pData[encodedLen], dataHeader->totalMsgLength);
+	
+			encodedLen += bufPut32(&pData[encodedLen], dataHeader->fragmentNumber);
+	
+			encodedLen += bufPut16(&pData[encodedLen], dataHeader->messageId);
+	
+			pData[encodedLen++] = dataHeader->containerType - RSSL_DT_CONTAINER_TYPE_MIN;
+		}
+	}
 
 	tmpBuffer.length = encodedLen;
 
@@ -1498,7 +1606,7 @@ RsslRet tunnelStreamAckEncode(RsslEncodeIterator *pIter, TunnelStreamAck *ackHea
 	return RSSL_RET_SUCCESS;
 }
 
-RsslRet tunnelStreamMsgDecode(RsslMsg *pMsg, TunnelStreamMsg *pTunnelMsg, AckRangeList *ackRangeList, AckRangeList *nakRangeList)
+RsslRet tunnelStreamMsgDecode(RsslMsg *pMsg, TunnelStreamMsg *pTunnelMsg, AckRangeList *ackRangeList, AckRangeList *nakRangeList, RsslUInt streamVersion)
 {
 	RsslBuffer tmpBuffer;
 	RsslUInt32 tmpPos;
@@ -1535,6 +1643,32 @@ RsslRet tunnelStreamMsgDecode(RsslMsg *pMsg, TunnelStreamMsg *pTunnelMsg, AckRan
 			{
 				case TS_MC_DATA:
 				case TS_MC_RETRANS:
+					if (streamVersion >= COS_CURRENT_STREAM_VERSION)
+					{
+						if (tmpPos + 1 /* flags */
+								> tmpBuffer.length)
+							return RSSL_RET_INCOMPLETE_DATA;
+
+						/* flags */
+						pTunnelMsg->dataHeader.flags = pData[tmpPos++];
+
+						// decode other fragmentation fields if fragmentation flag set
+						if (pTunnelMsg->dataHeader.flags & TS_DF_FRAGMENTED)
+						{
+							if (tmpPos + 4 /* totalMsgLength */ + 4 /* fragmentNumber */ + 2 /* messageId */ + 1 /* containerType */
+									> tmpBuffer.length)
+								return RSSL_RET_INCOMPLETE_DATA;
+
+                    		/* totalMsgLength */
+							tmpPos += bufGet32(&pData[tmpPos], &pTunnelMsg->dataHeader.totalMsgLength);
+                    		/* fragmentNumber */
+							tmpPos += bufGet32(&pData[tmpPos], &pTunnelMsg->dataHeader.fragmentNumber);
+                    		/* messageId */
+							tmpPos += bufGet16(&pData[tmpPos], &pTunnelMsg->dataHeader.messageId);
+							/* containerType */
+                    		pTunnelMsg->dataHeader.containerType = pData[tmpPos++] + RSSL_DT_CONTAINER_TYPE_MIN;
+						}
+					}
 
 					if (rsslGenericMsgCheckHasSeqNum(pGenericMsg) == RSSL_FALSE)
 						return RSSL_RET_INCOMPLETE_DATA;

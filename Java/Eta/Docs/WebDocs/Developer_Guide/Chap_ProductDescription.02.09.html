@@ -55,9 +55,9 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1050308">Java Garbage</a></div>
-      <div class="Body"><a name="1050315">Within its own implementation, the Transport API C Edition minimizes garbage collection. Additionally, the interface allows user applications to limit their own garbage collection, if desired.</a></div>
-      <div class="Body"><a name="1050316">If the performance overhead of garbage collection is a concern, you have several options in reducing its impact on your application, such as:</a></div>
+      <div class="H3"><a name="1059237">Java Garbage</a></div>
+      <div class="Body"><a name="1059244">Within its own implementation, the Transport API C Edition minimizes garbage collection. Additionally, the interface allows user applications to limit their own garbage collection, if desired.</a></div>
+      <div class="Body"><a name="1059245">If the performance overhead of garbage collection is a concern, you have several options in reducing its impact on your application, such as:</a></div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -67,7 +67,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1050323">Objects obtained through Transport API C Edition’s factories are owned by the application, with some exceptions (e.g.; TransportBuffers, Channels, Servers). An application can limit garbage collection by reusing these objects (e.g., pooling).</a></div>
+              <div class="Bullet_inner"><a name="1059252">Objects obtained through Transport API C Edition’s factories are owned by the application, with some exceptions (e.g.; TransportBuffers, Channels, Servers). An application can limit garbage collection by reusing these objects (e.g., pooling).</a></div>
             </td>
           </tr>
         </table>
@@ -81,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1050324">Maintain long term references to objects in the application until such a time as garbage collection is tolerable (i.e., after trading hours).</a></div>
+              <div class="Bullet_inner"><a name="1059253">Maintain long term references to objects in the application until such a time as garbage collection is tolerable (i.e., after trading hours).</a></div>
             </td>
           </tr>
         </table>
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1050325">Avoid the use of collections that have internal garbage collection. When using collections, ensure they are sized to allow for growth without implicit resizing, and attempt reuse where possible. Alternately, write your own variant or leverage a third-party package.</a></div>
+              <div class="Bullet_inner"><a name="1059254">Avoid the use of collections that have internal garbage collection. When using collections, ensure they are sized to allow for growth without implicit resizing, and attempt reuse where possible. Alternately, write your own variant or leverage a third-party package.</a></div>
             </td>
           </tr>
         </table>
@@ -109,7 +109,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1050326">Use a profiler to detect hot spots in your application, which you can then optimize to meet your requirements.</a></div>
+              <div class="Bullet_inner"><a name="1059255">Use a profiler to detect hot spots in your application, which you can then optimize to meet your requirements.</a></div>
             </td>
           </tr>
         </table>
@@ -123,12 +123,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1050327">Java Strings are immutable, resulting in contents being garbage collected whenever an attempt is made to modify or redefine the string’s contents. Consider the use of an alternative type or use StringBuilder to avoid some garbage collection. </a><span class="CodeOrCommand">Object.toString</span> conversion methods will generally create a new string whenever it is invoked, which can also add to garbage collection overhead.</div>
+              <div class="Bullet_inner"><a name="1059256">Java Strings are immutable, resulting in contents being garbage collected whenever an attempt is made to modify or redefine the string’s contents. Consider the use of an alternative type or use StringBuilder to avoid some garbage collection. </a><span class="CodeOrCommand">Object.toString</span> conversion methods will generally create a new string whenever it is invoked, which can also add to garbage collection overhead.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1050334">This manual and the Transport API C Edition Reference Manual both denote any method that internally incurs garbage collection. However, non-Transport API libraries (i.e., Apache, DACS, ANSIPage, XPP, etc) might also collect garbage.</a></div>
+      <div class="Body"><a name="1059263">This manual and the Transport API C Edition Reference Manual both denote any method that internally incurs garbage collection. However, non-Transport API libraries (i.e., Apache, DACS, ANSIPage, XPP, etc) might also collect garbage.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>4.2.5 Source Directory Generic Message Use</title>
+    <title>4.2.5 Source Directory Generic Message</title>
     <link rel="StyleSheet" href="css/Chap_SourceDirectory_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,13 +55,13 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1002157">Source Directory Generic Message Use</a></div>
-      <div class="Body"><a name="1002384">A Source Directory Generic message is encoded and sent by an ADH when using a ‘hot standby’ configuration. When running in hot standby mode, the ADH can leverage source mirroring and use a generic message to convey usage information to upstream providers. A generic message can inform providers whether the ADH is an active server without a standby (</a><span class="Parameter">ActiveNoStandby</span>), an active server with a standby (<span class="Parameter">ActiveWithStandby</span>) or a standby provider (<span class="Parameter">Standby</span>). This message is mainly for informational purposes, and allows a provider to better understand their role in a hot standby environment (The provider does not require a return action or acknowledgment).</div>
+      <div class="H3"><a name="1002157">Source Directory Generic Message</a></div>
+      <div class="Body"><a name="1002384">A Source Directory Generic message is encoded and sent by an ADH when using a ‘hot standby’ configuration. When running in hot standby mode, the ADH can leverage source mirroring and use a generic message to convey usage information to upstream providers. A generic message can inform providers whether the ADH is an active server without a standby (</a><span class="Parameter">ActiveNoStandby</span>), an active server with a standby (<span class="Parameter">ActiveWithStandby</span>) or a standby provider (<span class="Parameter">Standby</span>). This message is mainly for informational purposes, and allows a provider to better understand their role in a hot standby environment (the provider does not require a return action or acknowledgment).</div>
       <div class="Body"><a name="1002385">A provider indicates each service’s ability to process this message via the </a><span class="CodeOrCommand">AcceptingConsumerStatus</span> element in its Source Directory responses (see <a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_SourceDirectory_Domain.04.09.html', '');" title="4.3.1.1 Source Directory Info Filter Entry">Section 4.3.1.1</a>).</div>
       <div class="Blank_Line"><a name="1002380">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 19: <a name="1002465">Source Directory Generic Message Member Use &nbsp;</a></div>
+          <div class="TableTitle">Table 20: <a name="1002465">Source Directory Generic Message</a> Member Use &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
@@ -100,7 +100,7 @@
             <div class="CellBody"><a name="1002504">seqNum</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1002506">Optional. A user-specified, item-level sequence number which can be used by the application for sequencing messages within this stream.</a></div>
+            <div class="CellBody"><a name="1002506">Optional. A user-specified, item-level sequence number that the application can use to sequence messages in this stream.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -137,7 +137,7 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1002435">msgKey.nameType</a></div>
+            <div class="CellBody"><a name="1021337">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
             <div class="CellBody"><a name="1002437">Not used.</a></div>
@@ -145,7 +145,7 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1002439">msgKey.name</a></div>
+            <div class="CellBody"><a name="1021342">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
             <div class="CellBody"><span class="Color_003aRequired"><a name="1002441">Required</a></span>. The name of this message must be <span class="CodeOrCommand">ConsumerStatus</span>.</div>
@@ -196,7 +196,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_SourceDirectory_Domain.04.01.html">Chapter 4	Source Directory Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_SourceDirectory_Domain.04.03.html">4.2	Usage</a> : 4.2.5	Source Directory Generic Message Use</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_SourceDirectory_Domain.04.01.html">Chapter 4	Source Directory Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_SourceDirectory_Domain.04.03.html">4.2	Usage</a> : 4.2.5	Source Directory Generic Message</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

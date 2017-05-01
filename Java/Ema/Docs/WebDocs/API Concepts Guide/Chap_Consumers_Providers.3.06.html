@@ -64,14 +64,14 @@
               </div>
             </td>
             <td width="100%">
-              <div class="H3_inner"><a name="1046119">Pause and Resume</a></div>
+              <div class="H3_inner"><a name="1053920">Pause and Resume</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1046120">The </a><span class="Concept">Pause/Resume</span> feature optimizes network bandwidth. You can use Pause/Resume to reduce the amount of data flowing across the network for a single item or for many items that might already be openly streaming data to a client.</div>
-      <div class="Body"><a name="1046121">To pause/resume data, the client first sends a request to pause an item to the ADS. The ADS receives the pause request and stops sending new data to the client for that item, though the item remains open and in the ADS Cache. The ADS continues to receive messages from the upstream device (or feed) and continues to update the item in its cache (but because of the client’s pause request, does not send the new data to the client). When the client wants to start receiving messages for the item again, the client sends a resume to the ADS, which then responds by sending an aggregated update or a refresh (a current image) to the client. After the ADS resumes sending data, the ADS sends all subsequent messages.</a></div>
-      <div class="Body"><a name="1046122">By using the Pause/Resume feature a client can avoid issuing multiple open/close requests which can disrupt the ADS and prolong recovery times. There are two main use-case scenarios for this feature:</a></div>
+      <div class="Body"><a name="1053921">The </a><span class="Concept">Pause/Resume</span> feature optimizes network bandwidth. You can use Pause/Resume to reduce the amount of data flowing across the network for a single item or for many items that might already be openly streaming data to a client.</div>
+      <div class="Body"><a name="1053922">To pause/resume data, the client first sends a request to pause an item to the ADS. The ADS receives the pause request and stops sending new data to the client for that item, though the item remains open and in the ADS Cache. The ADS continues to receive messages from the upstream device (or feed) and continues to update the item in its cache (but because of the client’s pause request, does not send the new data to the client). When the client wants to start receiving messages for the item again, the client sends a resume to the ADS, which then responds by sending an aggregated update or a refresh (a current image) to the client. After the ADS resumes sending data, the ADS sends all subsequent messages.</a></div>
+      <div class="Body"><a name="1053923">By using the Pause/Resume feature a client can avoid issuing multiple open/close requests which can disrupt the ADS and prolong recovery times. There are two main use-case scenarios for this feature:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -81,7 +81,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1046123">Clients with intensive back-end processing</a></div>
+              <div class="bullet_ind_inner"><a name="1053924">Clients with intensive back-end processing</a></div>
             </td>
           </tr>
         </table>
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1046124">Clients that display a lot of data</a></div>
+              <div class="bullet_ind_inner"><a name="1053925">Clients that display a lot of data</a></div>
             </td>
           </tr>
         </table>

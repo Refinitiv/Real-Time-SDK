@@ -2,20 +2,65 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{E60B9B7F-D0D9-41E0-BECE-91F9A19DEAE7}</UniqueIdentifier>
+      <UniqueIdentifier>{66A0F5C2-94B9-4A5B-A700-7470DAAEB1EB}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{49787AF2-3612-48B4-ADBA-BE40EB017E4C}</UniqueIdentifier>
+      <UniqueIdentifier>{75CD65D8-769C-4CD1-8362-679D52C1FEF9}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{C84D167E-66D0-4F81-822E-27E6FBF563CC}</UniqueIdentifier>
+      <UniqueIdentifier>{74D1CB61-19A0-4B64-A45D-276A2FB49098}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
   </ItemGroup>
 	<ItemGroup>
+	<ClCompile Include="..\Rdm\Impl\DataDictionary.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Rdm\Impl\DataDictionaryImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Rdm\Impl\DictionaryEntry.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Rdm\Impl\DictionaryEntryImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Rdm\Impl\DictionaryUtility.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Rdm\Impl\EnumType.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Rdm\Impl\EnumTypeImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Rdm\Impl\EnumTypeTable.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Rdm\Impl\EnumTypeTableImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="..\Rdm\Impl\RdmUtilities.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Domain\Login\Impl\LoginRefresh.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Domain\Login\Impl\LoginRefreshImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Domain\Login\Impl\LoginReq.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Domain\Login\Impl\LoginReqImpl.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Domain\Login\Impl\LoginStatus.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+	<ClCompile Include="..\Domain\Login\Impl\LoginStatusImpl.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 	<ClCompile Include="EmaVersion.c">
@@ -582,10 +627,43 @@
 		<ClInclude Include="..\Include\Ema.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="..\Domain\Login\Include\Login.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Impl\DataDictionaryImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Impl\DictionaryEntryImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Impl\EnumTypeImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Impl\EnumTypeTableImpl.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="..\Rdm\Impl\RdmUtilities.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
+		<ClInclude Include="..\Rdm\Include\DataDictionary.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Include\DictionaryEntry.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Include\DictionaryUtility.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
 		<ClInclude Include="..\Rdm\Include\EmaRdm.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Include\EnumType.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Include\EnumTypeTable.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="..\Rdm\Include\MfFieldType.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="EmaVersion.h">
@@ -655,9 +733,6 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\EmaStringInt.h">
-		<Filter>Header Files</Filter>
-		</ClInclude>
-		<ClInclude Include="Impl\EmaVector.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Impl\EncodeIterator.h">
@@ -982,6 +1057,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\EmaString.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Include\EmaVector.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\FieldEntry.h">

@@ -57,31 +57,31 @@
     <blockquote>
       <div class="H2"><a name="1006011">Server Creation and Accepting Connections</a></div>
       <div class="H3"><a name="1006013">Creating a Listening Socket</a></div>
-      <div class="Body"><a name="1472361">The Transport Package allows you to establish and manage listening sockets, typically associated with a server. Listening sockets can be leveraged to create an application that accepts connections created through the use of</a> the <span class="CodeOrCommand">Transport.connect</span> method. Listening sockets are used mainly by OMM Interactive Provider applications and are typically established on a well-known port number (known by other connecting applications).</div>
-      <div class="Body"><a name="1472368"><img class="Default" src="images/ServerCreation.jpg" width="353" height="68" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> </a></div>
-      <div class="FigTitle">Figure 33. <a name="1472370">Transport API Server Creation</a></div>
-      <div class="Body"><a name="1472377">An application can create a listening socket connection by using the </a><span class="CodeOrCommand">Transport.bind</span> method, described in the following table.</div>
-      <div class="Blank_Line"><a name="1472435">&nbsp;</a></div>
+      <div class="Body"><a name="1526102">The Transport Package allows you to establish and manage listening sockets, typically associated with a server. Listening sockets can be leveraged to create an application that accepts connections created through the use of</a> the <span class="CodeOrCommand">Transport.connect</span> method. Listening sockets are used mainly by OMM Interactive Provider applications and are typically established on a well-known port number (known by other connecting applications).</div>
+      <div class="Body"><a name="1526109"><img class="Default" src="images/ServerCreation.jpg" width="353" height="68" style="display: inline; left: 0.0; top: 0.0" alt="" /> </a></div>
+      <div class="FigTitle">Figure 33. <a name="1526111">Transport API Server Creation</a></div>
+      <div class="Body"><a name="1526118">An application can create a listening socket connection by using the </a><span class="CodeOrCommand">Transport.bind</span> method, described in the following table.</div>
+      <div class="Blank_Line"><a name="1526176">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 20: <span class="CodeOrCommand"><a name="1472432">Transport.bind</a></span> Method &nbsp;</div>
+          <div class="TableTitle">Table 20: <span class="LucidaConsole"><a name="1526173">Transport.bind</a></span> Method &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1472383">method </a></div>
+            <div class="CellHeading"><a name="1526124">method </a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1472385">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1526126">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1472390">Transport.bind</a></div>
+            <div class="CellBody"><a name="1526131">Transport.bind</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1472392">Establishes a listening socket connection, which supports connections from standard socket and HTTP </a><span class="CodeOrCommand">Transport.connect</span> users. Returns a <span class="CodeOrCommand">Server</span> that represents the listening socket connection to the user. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">Error</span> structure.</div>
-            <div class="CellBody"><a name="1472413">Options are passed in via a </a><span class="CodeOrCommand">BindOptions</span> object described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.34.html', '');" title="9.4.1.1 BindOptions Methods">Section 9.4.1.1</a>.</div>
-            <div class="CellBody"><a name="1472418">Once a listening socket is established, this </a><span class="CodeOrCommand">Server</span> can begin accepting connections. For more information, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.36.html', '');" title="9.4.2 Accepting Connection Requests">Section 9.4.2</a>.</div>
+            <div class="CellBody"><a name="1526133">Establishes a listening socket connection, which supports connections from standard socket and HTTP </a><span class="CodeOrCommand">Transport.connect</span> users. Returns a <span class="CodeOrCommand">Server</span> that represents the listening socket connection to the user. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">Error</span> structure.</div>
+            <div class="CellBody"><a name="1526154">Options are passed in via a </a><span class="CodeOrCommand">BindOptions</span> object described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.34.html', '');" title="9.4.1.1 BindOptions Methods">Section 9.4.1.1</a>.</div>
+            <div class="CellBody"><a name="1526159">Once a listening socket is established, this </a><span class="CodeOrCommand">Server</span> can begin accepting connections. For more information, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.36.html', '');" title="9.4.2 Accepting Connection Requests">Section 9.4.2</a>.</div>
           </td>
         </tr>
       </table>

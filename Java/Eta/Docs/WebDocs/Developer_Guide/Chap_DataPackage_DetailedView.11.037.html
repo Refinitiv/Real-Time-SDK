@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1449479">Example: Converting RMTES to UCS-2</a></div>
-      <div class="Body"><a name="1528621">The following example illustrates storing and converting RMTES content. This example converts from RMTES to UCS-2 and assumes that:</a></div>
+      <div class="Body"><a name="1686896">The following example illustrates storing and converting RMTES content. This example converts from RMTES to UCS-2 and assumes that:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1528622">The input buffer is populated with RMTES content.</a></div>
+              <div class="bullet_ind_inner"><a name="1686897">The input buffer is populated with RMTES content.</a></div>
             </td>
           </tr>
         </table>
@@ -80,162 +80,162 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1528623">The allocated size of 100 bytes is sufficient for conversion and storage.</a></div>
+              <div class="bullet_ind_inner"><a name="1686898">The allocated size of 100 bytes is sufficient for conversion and storage.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1528624">To simplify the example, some error handling is omitted.</a></div>
-      <div class="Blank_Line"><a name="1528754">&nbsp;</a></div>
+      <div class="Body"><a name="1686899">To simplify the example, some error handling is omitted.</a></div>
+      <div class="Blank_Line"><a name="1687029">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1528697">&nbsp;</a></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1686972">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1528699">/* create cache buffer for storing RMTES and applying partial updates */</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1686974">/* create cache buffer for storing RMTES and applying partial updates */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528701">RmtesCacheBuffer rmtesCache = CodecFactory.createRmtesCacheBuffer(100);</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1686976">RmtesCacheBuffer rmtesCache = CodecFactory.createRmtesCacheBuffer(100);</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1528703">/* create RmtesBuffer to convert into */</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1686978">/* create RmtesBuffer to convert into */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528705">RmtesBuffer rmtesBuffer =CodecFactory.createRmtesBuffer(100);</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1686980">RmtesBuffer rmtesBuffer =CodecFactory.createRmtesBuffer(100);</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1528707">/* create RmtesDecoder used for the decoding process */</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1686982">/* create RmtesDecoder used for the decoding process */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528709">RmtesDecoder decoder = CodecFactory.createRmtesDecoder();</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1686984">RmtesDecoder decoder = CodecFactory.createRmtesDecoder();</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1528711">/*Our Buffer of data we are converting */</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1686986">/*Our Buffer of data we are converting */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528713">Buffer data = CodecFactory.createBuffer();</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1686988">Buffer data = CodecFactory.createBuffer();</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1528715">&nbsp;</a></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1686990">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1528717">/* apply RMTES content to cache, if successful convert to UCS-2 */</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1686992">/* apply RMTES content to cache, if successful convert to UCS-2 */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1528719">if</a></span> ((retVal = decoder.RMTESApplyToCache(data, rmtesCache)) &lt; CodecReturnCodes.SUCCESS)</div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1686994">if</a></span> ((retVal = decoder.RMTESApplyToCache(data, rmtesCache)) &lt; CodecReturnCodes.SUCCESS)</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528721">{</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1686996">{</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528723">&nbsp;&nbsp;&nbsp;&nbsp;</a></span><span class="Color_003aGreen">/* error while applying to cache */</span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1686998">&nbsp;&nbsp;&nbsp;&nbsp;</a></span><span class="Color_003aGreen">/* error while applying to cache */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528725">&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(</a></span><span class="Color_003aRed">“Error encountered while applying buffer to RMTES cache. Error code: “</span> </div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687000">&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(</a></span><span class="Color_003aRed">“Error encountered while applying buffer to RMTES cache. Error code: “</span> </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528727">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ CodecReturnCodes.toString(retVal));</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687002">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ CodecReturnCodes.toString(retVal));</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528729">}</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687004">}</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1528731">else if</a></span> ((retVal = decoder.RMTESToUCS2(rmtesBuffer, rmtesCache)) &lt; CodecReturnCodes.SUCCESS)</div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1687006">else if</a></span> ((retVal = decoder.RMTESToUCS2(rmtesBuffer, rmtesCache)) &lt; CodecReturnCodes.SUCCESS)</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528733">{</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687008">{</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528735">&nbsp;&nbsp;&nbsp;&nbsp;</a></span><span class="Color_003aGreen">/* error when converting */</span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687010">&nbsp;&nbsp;&nbsp;&nbsp;</a></span><span class="Color_003aGreen">/* error when converting */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528737">&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(</a></span><span class="Color_003aRed">“Error encountered while converting from RMTES to UCS-2. Error code: “</span> </div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687012">&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(</a></span><span class="Color_003aRed">“Error encountered while converting from RMTES to UCS-2. Error code: “</span> </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528739">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ CodecReturnCodes.toString(retVal));</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687014">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ CodecReturnCodes.toString(retVal));</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528741">}</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687016">}</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1528743">else</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1687018">else</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528745">{</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687020">{</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1528747">/* SUCCESS: Conversion was successful – application can now use converted content stored in</a></span> </div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1687022">/* SUCCESS: Conversion was successful – application can now use converted content stored in</a></span> </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528749">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></span><span class="Color_003aGreen">rmtesBuffer */</span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687024">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></span><span class="Color_003aGreen">rmtesBuffer */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528751">}</a></span></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: &quot;Courier New&quot;; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1687026">}</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1528753">&nbsp;</a></div>
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 1.0pt; margin-top: 1.0pt; text-transform: none; vertical-align: baseline"><a name="1687028">&nbsp;</a></div>
           </td>
         </tr>
       </table>
-      <div class="CodeTitle">Code Example 24: <a name="1528755">Converting RMTES to UCS-2 Example</a></div>
+      <div class="CodeTitle">Code Example 24: <a name="1687030">Converting RMTES to UCS-2 Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

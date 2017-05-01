@@ -10,6 +10,8 @@
 #include "LoginCallbackClient.h"
 #include "ChannelCallbackClient.h"
 #include "DirectoryCallbackClient.h"
+#include "OmmConsumerClient.h"
+#include "OmmProviderClient.h"
 
 #include "OmmInaccessibleLogFileException.h"
 #include "OmmInvalidHandleException.h"
@@ -29,6 +31,21 @@
 #define	EMA_BIG_STR_BUFF_SIZE (1024*4)
 
 using namespace thomsonreuters::ema::access;
+
+/* Dummy no-op consumer class client for initializing handlers */
+/* This should never be used */
+class DummyConsClient : public thomsonreuters::ema::access::OmmConsumerClient
+{
+};
+
+/* Dummy no-op provider class client for initializing handlers */
+/* This should never be used */
+class DummyProvClient : public thomsonreuters::ema::access::OmmProviderClient
+{
+};
+
+static DummyConsClient defaultConsClient;
+static DummyProvClient defaultProvClient;
 
 #ifdef USING_POLL
 int OmmBaseImpl::addFd( int fd, short events = POLLIN )
@@ -62,30 +79,98 @@ void OmmBaseImpl::removeFd( int fd )
 }
 #endif
 
-OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig ) :
-	_activeConfig( activeConfig ),
+OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
+	_activeConfig(activeConfig),
 	_userLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
-	_state( NotInitializedEnum ),
-	_pRsslReactor( 0 ),
-	_pChannelCallbackClient( 0 ),
-	_pLoginCallbackClient( 0 ),
-	_pDirectoryCallbackClient( 0 ),
-	_pDictionaryCallbackClient( 0 ),
-	_pItemCallbackClient( 0 ),
-	_pLoggerClient( 0 ),
+	_state(NotInitializedEnum),
+	_pRsslReactor(0), 
+	_consAdminClient(defaultConsClient),
+	_provAdminClient(defaultProvClient),
+	_pChannelCallbackClient(0),
+	_pLoginCallbackClient(0),
+	_pDirectoryCallbackClient(0),
+	_pDictionaryCallbackClient(0),
+	_pItemCallbackClient(0),
+	_pLoggerClient(0),
 	_pipe(),
 	_pipeWriteCount( 0 ),
 	_atExit( false ),
 	_eventTimedOut( false ),
 	_bMsgDispatched( false ),
 	_bEventReceived( false ),
+	_hasProvAdminClient( false ),
+	_hasConsAdminClient( false ),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts()
 {
+	_adminClosure = 0;
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
 }
+
+OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, void* adminClosure) :
+	_activeConfig(activeConfig),
+	_userLock(),
+	_pipeLock(),
+	_reactorDispatchErrorInfo(),
+	_state(NotInitializedEnum),
+	_consAdminClient(adminClient),
+	_provAdminClient(defaultProvClient),
+	_pRsslReactor(0),
+	_pChannelCallbackClient(0),
+	_pLoginCallbackClient(0),
+	_pDirectoryCallbackClient(0),
+	_pDictionaryCallbackClient(0),
+	_pItemCallbackClient(0),
+	_pLoggerClient(0),
+	_pipe(),
+	_pipeWriteCount(0),
+	_atExit(false),
+	_eventTimedOut(false),
+	_bMsgDispatched(false),
+	_bEventReceived(false),
+	_hasConsAdminClient(true),
+	_hasProvAdminClient(false),
+	_pErrorClientHandler(0),
+	_theTimeOuts()
+{
+	_adminClosure = adminClosure;
+	
+	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
+}
+
+OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminClient, void* adminClosure) :
+	_activeConfig(activeConfig),
+	_userLock(),
+	_pipeLock(),
+	_reactorDispatchErrorInfo(),
+	_state(NotInitializedEnum),
+	_consAdminClient(defaultConsClient),
+	_provAdminClient(adminClient),
+	_pRsslReactor(0),
+	_pChannelCallbackClient(0),
+	_pLoginCallbackClient(0),
+	_pDirectoryCallbackClient(0),
+	_pDictionaryCallbackClient(0),
+	_pItemCallbackClient(0),
+	_pLoggerClient(0),
+	_pipe(),
+	_pipeWriteCount(0),
+	_atExit(false),
+	_eventTimedOut(false),
+	_bMsgDispatched(false),
+	_bEventReceived(false),
+	_hasConsAdminClient(false),
+	_hasProvAdminClient(true),
+	_pErrorClientHandler(0),
+	_theTimeOuts()
+{
+	_adminClosure = adminClosure;
+
+	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
+}
+
 
 OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& client ) :
 	_activeConfig( activeConfig ),
@@ -93,6 +178,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state( NotInitializedEnum ),
+	_consAdminClient(defaultConsClient),
+	_provAdminClient(defaultProvClient),
 	_pRsslReactor( 0 ),
 	_pChannelCallbackClient( 0 ),
 	_pLoginCallbackClient( 0 ),
@@ -106,9 +193,12 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_eventTimedOut( false ),
 	_bMsgDispatched( false ),
 	_bEventReceived( false ),
+	_hasConsAdminClient( false ),
+	_hasProvAdminClient( false ),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts()
 {
+	_adminClosure = 0;
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler( client );
@@ -121,12 +211,53 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
 }
 
+OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* adminClosure) :
+	_activeConfig(activeConfig),
+	_userLock(),
+	_pipeLock(),
+	_reactorDispatchErrorInfo(),
+	_state(NotInitializedEnum),
+	_consAdminClient(adminClient),
+	_provAdminClient(defaultProvClient),
+	_pRsslReactor(0),
+	_pChannelCallbackClient(0),
+	_pLoginCallbackClient(0),
+	_pDirectoryCallbackClient(0),
+	_pDictionaryCallbackClient(0),
+	_pItemCallbackClient(0),
+	_pLoggerClient(0),
+	_pipe(),
+	_pipeWriteCount(0),
+	_atExit(false),
+	_eventTimedOut(false),
+	_bMsgDispatched(false),
+	_bEventReceived(false),
+	_hasConsAdminClient(true),
+	_hasProvAdminClient(false),
+	_pErrorClientHandler(0),
+	_theTimeOuts()
+{
+	_adminClosure = adminClosure;
+	try
+	{
+		_pErrorClientHandler = new ErrorClientHandler(errorClient);
+	}
+	catch (std::bad_alloc)
+	{
+		errorClient.onMemoryExhaustion("Failed to allocate memory in OmmBaseImpl( ActiveConfig& , OmmConsumerErrorClient& )");
+	}
+
+	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
+}
+
 OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& client ) :
 	_activeConfig( activeConfig ),
 	_userLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state( NotInitializedEnum ),
+	_consAdminClient(defaultConsClient),
+	_provAdminClient(defaultProvClient),
 	_pRsslReactor( 0 ),
 	_pChannelCallbackClient( 0 ),
 	_pLoginCallbackClient( 0 ),
@@ -143,6 +274,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts()
 {
+	_adminClosure = 0;
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler( client );
@@ -153,6 +285,45 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	}
 
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
+}
+
+OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminClient, OmmProviderErrorClient& errorClient, void* adminClosure) :
+	_activeConfig(activeConfig),
+	_userLock(),
+	_pipeLock(),
+	_reactorDispatchErrorInfo(),
+	_state(NotInitializedEnum),
+	_consAdminClient(defaultConsClient),
+	_provAdminClient(adminClient),
+	_pRsslReactor(0),
+	_pChannelCallbackClient(0),
+	_pLoginCallbackClient(0),
+	_pDirectoryCallbackClient(0),
+	_pDictionaryCallbackClient(0),
+	_pItemCallbackClient(0),
+	_pLoggerClient(0),
+	_pipe(),
+	_pipeWriteCount(0),
+	_atExit(false),
+	_eventTimedOut(false),
+	_bMsgDispatched(false),
+	_bEventReceived(false),
+	_hasConsAdminClient(false),
+	_hasProvAdminClient(true),
+	_pErrorClientHandler(0),
+	_theTimeOuts()
+{
+	_adminClosure = adminClosure;
+	try
+	{
+		_pErrorClientHandler = new ErrorClientHandler(errorClient);
+	}
+	catch (std::bad_alloc)
+	{
+		errorClient.onMemoryExhaustion("Failed to allocate memory in OmmBaseImpl( ActiveConfig& , OmmConsumerErrorClient& )");
+	}
+
+	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 OmmBaseImpl::~OmmBaseImpl()
@@ -977,6 +1148,22 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		_pItemCallbackClient = ItemCallbackClient::create( *this );
 		_pItemCallbackClient->initialize();
 
+		/* Now that all the handlers are setup, initialize the login stream handle, if set */
+		if (_hasConsAdminClient)
+		{
+			ReqMsg loginRequest;
+			loginRequest.clear().domainType(ema::rdm::MMT_LOGIN);
+			_pItemCallbackClient->registerClient(loginRequest, _consAdminClient, _adminClosure, 0);
+		}
+
+		/* Consumer and Provider side should be mutually exclusive */
+		if (_hasProvAdminClient)
+		{
+			ReqMsg loginRequest;
+			loginRequest.clear().domainType(ema::rdm::MMT_LOGIN);
+			_pItemCallbackClient->registerClient(loginRequest, _provAdminClient, _adminClosure, 0);
+		}
+
 		_pChannelCallbackClient = ChannelCallbackClient::create( *this, _pRsslReactor );
 		_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest() );
 
@@ -988,46 +1175,48 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		        ( _state != RsslChannelUpStreamNotOpenEnum ) )
 			rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread, _bEventReceived );
 
-		ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
-		if (!pChannelcfg)
-			pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size()-1];
-
-		if ( _eventTimedOut )
+	    if ( !_atExit )
 		{
-			EmaString failureMsg( "login failed (timed out after waiting " );
-			failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds) for " );
-			if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
-			{
-				SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
-				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-			}
-			else if ( pChannelcfg->getType() == ChannelConfig::HttpChannelEnum )
-			{
-				HttpChannelConfig* channelConfig( reinterpret_cast< HttpChannelConfig* >( pChannelcfg ) );
-				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-			}
-			else if ( pChannelcfg->getType() == ChannelConfig::EncryptedChannelEnum )
-			{
-				EncryptedChannelConfig* channelConfig( reinterpret_cast< EncryptedChannelConfig* >( pChannelcfg ) );
-				failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-			}
+			ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
+			if (!pChannelcfg)
+				pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size()-1];
 
-			throwIueException( failureMsg );
-			return;
-		}
-		else if ( _state == RsslChannelUpStreamNotOpenEnum )
-		{
-			if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
-			throwIueException( getLoginCallbackClient().getLoginFailureMessage() );
-			return;
+			if ( _eventTimedOut )
+			{
+				EmaString failureMsg( "login failed (timed out after waiting " );
+				failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds) for " );
+				if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
+				{
+					SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
+					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
+				}
+				else if ( pChannelcfg->getType() == ChannelConfig::HttpChannelEnum )
+				{
+					HttpChannelConfig* channelConfig( reinterpret_cast< HttpChannelConfig* >( pChannelcfg ) );
+					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
+				}
+				else if ( pChannelcfg->getType() == ChannelConfig::EncryptedChannelEnum )
+				{
+					EncryptedChannelConfig* channelConfig( reinterpret_cast< EncryptedChannelConfig* >( pChannelcfg ) );
+					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
+				}
+
+				throwIueException( failureMsg );
+				return;
+			}
+			else if ( _state == RsslChannelUpStreamNotOpenEnum )
+			{
+				if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
+				throwIueException( getLoginCallbackClient().getLoginFailureMessage() );
+				return;
+			}
+			else
+			{
+				if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
+				loginWatcher = 0;
+			}
 		}
 		else
-		{
-			if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
-			loginWatcher = 0;
-		}
-
-		if ( _atExit )
 		{
 			throwIueException( "Application or user initiated exit while waiting for login response." );
 			return;
@@ -1279,6 +1468,12 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 		startTime = endTime;
 
 		Int64 selectRetCode = 1;
+
+		// Do not wait infinitely in the select if there is a timeout event in the list.
+		if ( ( timeOut < 0 ) && getTimeOutList().size() != 0 )
+		{
+			return bMsgDispRcvd ? 0 : -1;
+		}
 
 #if defined( USING_SELECT )
 
@@ -1590,6 +1785,11 @@ void OmmBaseImpl::submit( const PostMsg& postMsg, UInt64 handle )
 ActiveConfig& OmmBaseImpl::getActiveConfig()
 {
 	return _activeConfig;
+}
+
+Mutex& OmmBaseImpl::getUserLock()
+{
+	return _userLock;
 }
 
 void OmmBaseImpl::run()

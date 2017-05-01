@@ -2546,7 +2546,7 @@ public interface Service
             stringBuf.append(tab);
             stringBuf.append(tab);
             stringBuf.append("LinkText: ");
-            stringBuf.append(linkText());
+            stringBuf.append(text());
             stringBuf.append(eol);
 
             return stringBuf.toString();
@@ -2681,16 +2681,6 @@ public interface Service
         }
 
         /**
-         * Returns linkCode - Code indicating additional information about the status of the source. Populated by {@link com.thomsonreuters.upa.rdm.Directory.LinkCodes}.
-         *  
-         * @return linkCode
-         */
-        public Buffer linkText()
-        {
-            return text;
-        }
-        
-        /**
          * Sets linkCode - Code indicating additional information about the status of the source. Populated by {@link com.thomsonreuters.upa.rdm.Directory.LinkCodes}.
          *  
          * @param linkCode
@@ -2699,6 +2689,18 @@ public interface Service
         {
             assert(checkHasCode());
             this.linkCode = linkCode;
+        }
+
+        /**
+         * Returns text - Text further describing the state provided by the linkState and
+         * linkCode members.
+         * 
+         * @return text
+         */
+        @Deprecated
+        public Buffer linkText()	 	 	 
+        {	 	 	 
+        	return text;	 	 	 
         }
 
         /**

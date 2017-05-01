@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>7.5.1 RSSL RDM Dictionary Request</title>
+    <title>7.5.1.1 RSSL RDM Dictionary Request Structure Members</title>
     <link rel="StyleSheet" href="css/Chap_AdminDomain_Models_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,9 +55,118 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1219985">RSSL RDM Dictionary Request</a></div>
-      <div class="Body"><a name="1251858">A </a><span class="Concept">Dictionary Request</span> message is encoded and sent by OMM Consumer applications. This message is used to request a dictionary from a service.</div>
-      <div class="Body"><a name="1251859">The </a><span class="CodeOrCommand">RsslRDMDictionaryRequest</span> represents all members of a dictionary request message and allows for simplified use in OMM applications that leverage RDM. This structure follows the behavior and layout that is defined in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCRDMG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition RDM Usage Guide</a></span>.</div>
+      <div class="H4"><a name="1251878">RSSL RDM Dictionary Request Structure Members</a></div>
+      <div class="Blank_Line"><a name="1389114">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 155: <span class="LucidaConsole"><a name="1389111">RsslRDMDictionaryRequest</a></span> Structure Members &nbsp;</div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 151.50024pt">
+            <div class="CellHeading"><a name="1389046">STRUCTURE </a>MEMBER</div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 404.24976pt">
+            <div class="CellHeading"><a name="1389048">DESCRIPTION</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1389050">dictionaryName</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1389052">Required</a></span>. Indicates the name of the dictionary being requested.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1389054">flags</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1389056">Required</a></span>. Indicates the presence of optional dictionary request members. For details, refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_AdminDomain_Models_Detailed_View.7.112.html', '');" title="7.5.1.2 RSSL RDM Dictionary Request Flag Enumeration Value">Section 7.5.1.2</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1389064">rdmMsgBase</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1389066">Required</a></span>. Contains general message information like streamId and domainType.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1389068">serviceId</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1389070">Required</a></span>. Specifies the service from which to request the dictionary.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1389072">verbosity</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><span class="Bold"><a name="1389074">Required</a></span>. Indicates the amount of information desired from the dictionary. Available enumerations are:</div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Bold"><a name="1389081">RDM_DICTIONARY_INFO </a></span><span class="Parameter">==</span><span class="Bold"> 0x00</span>: Version information only</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Bold"><a name="1389088">RDM_DICTIONARY_MINIMAL </a></span><span class="Parameter">==</span><span class="Bold"> 0x03</span>: Provides information needed for caching</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Bold"><a name="1389095">RDM_DICTIONARY_NORMAL </a></span><span class="Parameter">==</span><span class="Bold"> 0x07</span>: Provides all information needed for decoding</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="Bullet_Table_outer" style="margin-left: 0pt">
+              <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+                <tr style="vertical-align: baseline">
+                  <td>
+                    <div class="Bullet_Table_inner" style="width: 14.4pt; white-space: nowrap">
+                      <span class="AG_bold">•	</span>
+                    </div>
+                  </td>
+                  <td width="100%">
+                    <div class="Bullet_Table_inner"><span class="Bold"><a name="1389102">RDM_DICTIONARY_VERBOSE </a></span><span class="Parameter">==</span><span class="Bold"> 0x0F</span>: Provides all information (including comments)</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="CellBody"><a name="1389103">Providers are not required to support the </a><span class="Bold">MINIMAL</span> and <span class="Bold">VERBOSE</span> filters.</div>
+          </td>
+        </tr>
+      </table>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -70,7 +179,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.001.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.110.html">7.5	Dictionary Domain</a> : 7.5.1	RSSL RDM Dictionary Request</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.001.html">Chapter 7	Administration Domain Models Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.109.html">7.5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_AdminDomain_Models_Detailed_View.7.110.html">7.5.1	RSSL RDM Dictionary Request</a> : 7.5.1.1	RSSL RDM Dictionary Request Structure Members</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

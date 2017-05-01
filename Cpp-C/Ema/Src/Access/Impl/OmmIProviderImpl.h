@@ -40,6 +40,8 @@ public:
 
 	UInt64 registerClient(const ReqMsg&, OmmProviderClient&, void* closure = 0, UInt64 parentHandle = 0);
 
+	void reissue(const ReqMsg& reqMsg, UInt64 handle);
+
 	void submit(const GenericMsg&, UInt64);
 
 	void submit(const RefreshMsg&, UInt64);
@@ -63,6 +65,10 @@ public:
 	void onServiceGroupChange(ClientSession* clientSession, RsslUInt serviceId, RsslRDMServiceGroupState*&, RsslUInt32 groupStateCount);
 
 private:
+
+	bool encodeServiceIdFromName(const EmaString& serviceName, RsslUInt16& serviceId, RsslMsgBase& rsslMsgBase );
+
+	bool validateServiceId(RsslUInt16 serviceId, RsslMsgBase& rsslMsgBase);
 
 	bool submit(RsslReactorSubmitMsgOptions submitMsgOptions, const EmaVector< ItemInfo* >& itemList, EmaString& text, bool applyDirectoryFilter, RsslErrorInfo& rsslErrorInfo);
 

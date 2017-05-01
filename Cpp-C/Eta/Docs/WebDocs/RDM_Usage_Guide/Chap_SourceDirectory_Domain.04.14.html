@@ -57,51 +57,40 @@
     <blockquote>
       <div class="H4"><a name="1000013">Source Directory Link Filter Entry</a></div>
       <div class="Body"><a name="1000033">The Link filter entry (</a><span class="Parameter">RDM_DIRECTORY_SERVICE_LINK_FILTER</span>, <span class="Parameter">RDM_DIRECTORY_SERVICE_LINK_ID</span>) conveys information about the upstream sources that provide data to a service.</div>
-      <div class="Body"><a name="1000034">This information is represented as an </a><span class="CodeOrCommand">RsslMap</span>, where each <span class="CodeOrCommand">RsslMapEntry</span> represents one upstream source. The map entry key is the name associated with the communication link, and is of type <span class="Parameter" style="font-size: 9.0pt">RSSL_DT_ASCII_STRING</span>. This name is scoped globally, and if multiple sources have the same name, they are assumed to be identical and the aggregating system will balance requests among them.</div>
-      <div class="Body"><a name="1000035">The ADH component can leverage this information for failover and hot standby functionality. More detailed information is available in the ADH documentation. A typical consumer application can treat this entry as mainly informational. The consumer should use the State </a><span class="CodeOrCommand">RsslFilterEntry</span> to make programmatic decisions about service availability and status.</div>
+      <div class="Body"><a name="1000034">This information is represented as</a><span style="font-size: 9.0pt"> a</span>n<span style="font-size: 9.0pt"> </span><span class="CodeOrCommand">RsslMap</span>, where each <span class="CodeOrCommand">RsslMapEntry</span> represents one upstream source. The map entry key is the name associated with the communication link, and is of type <span class="Parameter" style="font-size: 9.0pt">RSSL_DT_ASCII_STRING</span>. This name is scoped globally, and if multiple sources have the same name, they are assumed to be identical and the aggregating system will balance requests among them.</div>
+      <div class="Body"><a name="1000035">An ADH component can leverage this information for failover and hot standby functionality. More detailed information is available in the ADH documentation. </a>A typical consumer application can treat this entry as mainly informational. The consumer should use the State <span class="CodeOrCommand">RsslFilterEntry</span> to make programmatic decisions about service availability and status.</div>
+      <div class="Body"><a name="1033314">Any default behavior is explained in the Element’s description.</a></div>
       <div class="Blank_Line"><a name="1006435">&nbsp;</a></div>
-      <table class="Two_Column" style="width: 674.99928pt" cellspacing="0" summary="">
+      <table class="Two_Column" style="width: 555.75072pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 27: <a name="1006424">Source Directory Link Filter Entry Map Contents &nbsp;</a></div>
+          <div class="TableTitle">Table 28: <a name="1033464">Source Directory Link </a><span class="LucidaConsole">RsslFilterEntry</span> Map Contents &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 99.74952pt">
-            <div class="CellHeading"><a name="1006325">ELEMENT NAME</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 90pt">
+            <div class="CellHeading"><a name="1033409">ELEMENT NAME</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 116.24976pt">
-            <div class="CellHeading"><a name="1006327">TYPE</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 117pt">
+            <div class="CellHeading"><a name="1033411">TYPE</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 59.99976pt">
-            <div class="CellHeading"><a name="1006329">REQUIRED</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 94.5pt">
+            <div class="CellHeading"><a name="1033413">RANGE/EXAMPLE</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 65.25pt">
-            <div class="CellHeading"><a name="1006331">DEFAULT</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 95.99976pt">
-            <div class="CellHeading"><a name="1006333">RANGE/EXAMPLE</a></div>
-          </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 237.75048pt">
-            <div class="CellHeading"><a name="1006335">DESCRIPTION</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 254.25072pt">
+            <div class="CellHeading"><a name="1033415">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006337">Type</a></div>
+            <div class="CellBody_9pt"><a name="1033417">Type</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006339">RSSL_DT_UINT</a></div>
+            <div class="CellBody_9pt"><a name="1033422">RSSL_DT_UINT</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006341">No</a></div>
+            <div class="CellBody_9pt"><a name="1033424">1 | 2</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006343">1 (Interactive)</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006345">1, 2</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1008060">Indicates whether the upstream source is interactive or broadcast. This does not describe whether the service itself is interactive or broadcast.</a></div>
+            <div class="CellBody_9pt"><a name="1033426">Indicates whether the upstream source is interactive or broadcast. This does not describe whether the service itself is interactive or broadcast.</a></div>
             <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -111,7 +100,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1008061">1</a></span>: Interactive source</div>
+                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1033427">1</a></span>: The upstream source is interactive (this is the default).</div>
                   </td>
                 </tr>
               </table>
@@ -125,7 +114,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1008062">2</a></span>: Broadcast source</div>
+                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1033428">2</a></span>: The upstream source is a broadcast source.</div>
                   </td>
                 </tr>
               </table>
@@ -134,22 +123,16 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006349">LinkState</a></div>
+            <div class="CellBody_9pt"><a name="1033430">LinkState</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006351">RSSL_DT_UINT</a></div>
+            <div class="CellBody_9pt"><a name="1033435">RSSL_DT_UINT</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006353">Yes</a></div>
+            <div class="CellBody_9pt"><span style="font-size: 10.0pt"><a name="1033437">0 | 1</a></span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006355">None</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006357">0, 1</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1008077">Indicates whether the upstream source is up or down</a></div>
+            <div class="CellBody_9pt"><span class="Color_003aRequired"><a name="1033439">Required.</a></span> Indicates whether the upstream source is up or down</div>
             <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -159,7 +142,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1008078">0</a></span>: Link is Down</div>
+                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1033440">0</a></span>: The upstream source is down.</div>
                   </td>
                 </tr>
               </table>
@@ -173,7 +156,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1008079">1</a></span>: Link is Up</div>
+                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1033441">1</a></span>: The upstream source is up.</div>
                   </td>
                 </tr>
               </table>
@@ -182,22 +165,16 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006361">LinkCode</a></div>
+            <div class="CellBody_9pt"><a name="1033443">LinkCode</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006363">RSSL_DT_UINT</a></div>
+            <div class="CellBody_9pt"><a name="1033448">RSSL_DT_UINT</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006365">No</a></div>
+            <div class="CellBody_9pt"><a name="1033450">0 - 3</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006367">0 (None)</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006369">0 - 3</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1008094">Provides additional status information about the upstream source.</a></div>
+            <div class="CellBody_9pt"><a name="1033452">Provides additional</a> status information about the upstream source.</div>
             <div class="Bullet_Table_9PT_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -207,7 +184,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1008095">0</a></span>: None</div>
+                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1033453">0</a></span>: None (this is the default)</div>
                   </td>
                 </tr>
               </table>
@@ -221,7 +198,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1008096">1</a></span>: Ok</div>
+                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1033454">1</a></span>: Ok</div>
                   </td>
                 </tr>
               </table>
@@ -235,7 +212,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1008097">2</a></span>: RecoveryStarted</div>
+                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1033455">2</a></span>: RecoveryStarted</div>
                   </td>
                 </tr>
               </table>
@@ -249,7 +226,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1008098">3</a></span>: RecoveryCompleted</div>
+                    <div class="Bullet_Table_9PT_inner"><span class="Parameter"><a name="1033456">3</a></span>: RecoveryCompleted</div>
                   </td>
                 </tr>
               </table>
@@ -258,22 +235,16 @@
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006373">Text</a></div>
+            <div class="CellBody_9pt"><a name="1033472">Text</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006375">RSSL_DT_ASCII_STRING</a></div>
+            <div class="CellBody_9pt"><a name="1033477">RSSL_DT_ASCII_STRING</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006377">No</a></div>
+            <div class="CellBody_9pt"><a name="1033479">N/A</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006379">“”</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006381">N/A</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody_9pt"><a name="1006383">Explains the </a><span class="CodeOrCommand">LinkState</span> and <span class="CodeOrCommand">LinkCode</span>.</div>
+            <div class="CellBody_9pt"><a name="1033481">Explains the </a><span class="CodeOrCommand">LinkState</span> and <span class="CodeOrCommand">LinkCode</span>. Text defaults to <span class="CodeOrCommand">“”</span>.</div>
           </td>
         </tr>
       </table>

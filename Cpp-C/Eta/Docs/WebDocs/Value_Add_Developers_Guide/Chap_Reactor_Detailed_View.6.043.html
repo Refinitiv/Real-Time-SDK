@@ -57,27 +57,27 @@
     <blockquote>
       <div class="H3"><a name="1219805">Removing Reactor Channels</a></div>
       <div class="H4"><a name="1219824">rsslReactorClose Function</a></div>
-      <div class="Body"><a name="1225920">The following function can be used to remove an </a><span class="CodeOrCommand">RsslReactorChannel</span> from an <span class="CodeOrCommand">RsslReactor</span> instance. It will also close and clean up any resources associated with the <span class="CodeOrCommand">RsslReactorChannel</span>.</div>
-      <div class="Blank_Line"><a name="1232183">&nbsp;</a></div>
+      <div class="Body"><a name="1528585">You use the following function to remove a</a>n <span class="CodeOrCommand">RsslReactorChannel</span> from an <span class="CodeOrCommand">RsslReactor</span> instance. It can also close and clean up resources associated with the <span class="CodeOrCommand">RsslReactorChannel</span>.</div>
+      <div class="Blank_Line"><a name="1528631">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 29: <a name="1232197">rsslReactorCloseChannel Function &nbsp;</a></div>
+          <div class="TableTitle">Table 29: <span class="LucidaConsole"><a name="1528628">rsslReactorCloseChannel</a></span> Function &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1232189">FUNCTION NAME</a></div>
+            <div class="CellHeading"><a name="1528591">FUNCTION NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1232191">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1528593">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1232193">rsslReactorCloseChannel</a></div>
+            <div class="CellBody"><a name="1528598">rsslReactorCloseChannel</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1232646">Removes an </a><span class="CodeOrCommand">RsslReactorChannel</span> from the passed in <span class="CodeOrCommand">RsslReactor</span> instance and cleans up associated resources. This will additionally invoke the <span class="CodeOrCommand">rsslCloseChannel</span> function, as described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>, to clean up any resources associated with the underlying <span class="CodeOrCommand">RsslChannel</span>.</div>
-            <div class="CellBody"><a name="1232647">This function can be called from either outside or within a callback.</a></div>
+            <div class="CellBody"><a name="1528606">Removes a</a>n <span class="CodeOrCommand">RsslReactorChannel</span> from the corresponding <span class="CodeOrCommand">RsslReactor</span> and cleans up associated resources. This additionally invokes the <span class="CodeOrCommand">rsslCloseChannel</span> function, as described in the <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API </a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);">C </a></span><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(), (document.all||document.getElementById||document.layers)?event:null);">Edition Developers Guide</a></span>, to clean up any resources associated with the underlying <span class="CodeOrCommand">RsslChannel</span>.</div>
+            <div class="CellBody"><a name="1528620">This function can be called from either outside or within a callback.</a></div>
           </td>
         </tr>
       </table>

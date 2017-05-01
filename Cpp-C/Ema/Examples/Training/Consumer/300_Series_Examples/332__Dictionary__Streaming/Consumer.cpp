@@ -11,6 +11,10 @@ using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
 using namespace std;
 
+DataDictionary dataDictionary;
+bool fldDictComplete = false;
+bool enumTypeComplete = false;
+
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ommEvent )
 {
 	cout << endl << "Handle: " << ommEvent.getHandle() << " Closure: " << ommEvent.getClosure() << endl;
@@ -20,7 +24,7 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 
 	cout << endl << "Item State: " << refreshMsg.getState().toString() << endl;
 
-	decode( refreshMsg );
+	decode(refreshMsg, refreshMsg.getComplete());
 }
 
 void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& ommEvent )
@@ -44,149 +48,41 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 		cout << endl << "Item State: " << statusMsg.getState().toString() << endl;
 }
 
-void AppClient::decode( const Msg& msg )
+void AppClient::decode(const Msg& msg, bool complete)
 {
-	switch ( msg.getAttrib().getDataType() )
+	switch (msg.getPayload().getDataType())
 	{
-	case DataType::ElementListEnum:
-		decode( msg.getAttrib().getElementList() );
-		break;
-	}
+		case DataType::FieldListEnum:
+			decode(msg.getPayload().getFieldList());
+			break;
 
-	switch ( msg.getPayload().getDataType() )
-	{
-	case DataType::ElementListEnum:
-		decode( msg.getPayload().getElementList() );
-		break;
-
-	case DataType::FieldListEnum:
-		decode( msg.getPayload().getFieldList() );
-		break;
-
-	case DataType::SeriesEnum:
-		decode( msg.getPayload().getSeries() );
-	}
-}
-
-void AppClient::decode( const Series & sr )
-{
-	switch ( sr.getSummaryData().getDataType() )
-	{
-	case DataType::ElementListEnum:
-		decode( sr.getSummaryData().getElementList() );
-		break;
-	default:
-		cout << endl;
-		break;
-	}
-
-	while ( sr.forth() )
-	{
-		const SeriesEntry& se = sr.getEntry();
-
-		cout << "DataType: " << DataType( se.getLoad().getDataType() ) << " Value: " << endl;
-
-		switch ( se.getLoadType() )
+		case DataType::SeriesEnum:
 		{
-		case DataType::ElementListEnum:
-			decode( se.getElementList() );
-			break;
-		default:
-			cout << endl;
-			break;
+			if (msg.getName() == "RWFFld")
+			{
+				dataDictionary.decodeFieldDictionary(msg.getPayload().getSeries(), DICTIONARY_NORMAL);
+
+				if (complete)
+				{
+					fldDictComplete = true;
+				}
+			}
+
+			else if (msg.getName() == "RWFEnum")
+			{
+				dataDictionary.decodeEnumTypeDictionary(msg.getPayload().getSeries(), DICTIONARY_NORMAL);
+
+				if (complete)
+				{
+					enumTypeComplete = true;
+				}
+			}
+
+			if (fldDictComplete && enumTypeComplete)
+			{
+				cout << dataDictionary << endl;
+			}
 		}
-	}
-}
-
-void AppClient::decode( const ElementList& el )
-{
-	while ( el.forth() )
-	{
-		const ElementEntry& ee = el.getEntry();
-
-		cout << "Name: " << ee.getName() << " DataType: " << DataType( ee.getLoad().getDataType() ) << " Value: ";
-
-		if ( ee.getCode() == Data::BlankEnum )
-			cout << " blank" << endl;
-		else
-			switch ( ee.getLoadType() )
-			{
-			case DataType::RealEnum:
-				cout << ee.getReal().getAsDouble() << endl;
-				break;
-			case DataType::DateEnum:
-				cout << (UInt64)ee.getDate().getDay() << " / " << (UInt64)ee.getDate().getMonth() << " / " << (UInt64)ee.getDate().getYear() << endl;
-				break;
-			case DataType::TimeEnum:
-				cout << (UInt64)ee.getTime().getHour() << ":" << (UInt64)ee.getTime().getMinute() << ":" << (UInt64)ee.getTime().getSecond() << ":" << (UInt64)ee.getTime().getMillisecond() << endl;
-				break;
-			case DataType::IntEnum:
-				cout << ee.getInt() << endl;
-				break;
-			case DataType::UIntEnum:
-				cout << ee.getUInt() << endl;
-				break;
-			case DataType::AsciiEnum:
-				cout << ee.getAscii() << endl;
-				break;
-			case DataType::ErrorEnum:
-				cout << ee.getError().getErrorCode() << "( " << ee.getError().getErrorCodeAsString() << " )" << endl;
-				break;
-			case DataType::EnumEnum:
-				cout << ee.getEnum() << endl;
-				break;
-			case DataType::ArrayEnum:
-				cout << endl;
-				decode( ee.getArray() );
-				break;
-			default:
-				cout << endl;
-				break;
-			}
-	}
-}
-
-void AppClient::decode( const OmmArray& ommArray )
-{
-	while ( ommArray.forth() )
-	{
-		const OmmArrayEntry& ae = ommArray.getEntry();
-
-		cout << "DataType: " << DataType( ae.getLoad().getDataType() ) << " Value: ";
-
-		if ( ae.getCode() == Data::BlankEnum )
-			cout << " blank" << endl;
-		else
-			switch ( ae.getLoadType() )
-			{
-			case DataType::RealEnum:
-				cout << ae.getReal().getAsDouble() << endl;
-				break;
-			case DataType::DateEnum:
-				cout << (UInt64)ae.getDate().getDay() << " / " << (UInt64)ae.getDate().getMonth() << " / " << (UInt64)ae.getDate().getYear() << endl;
-				break;
-			case DataType::TimeEnum:
-				cout << (UInt64)ae.getTime().getHour() << ":" << (UInt64)ae.getTime().getMinute() << ":" << (UInt64)ae.getTime().getSecond() << ":" << (UInt64)ae.getTime().getMillisecond() << endl;
-				break;
-			case DataType::IntEnum:
-				cout << ae.getInt() << endl;
-				break;
-			case DataType::UIntEnum:
-				cout << ae.getUInt() << endl;
-				break;
-			case DataType::AsciiEnum:
-				cout << ae.getAscii() << endl;
-				break;
-			case DataType::ErrorEnum:
-				cout << ae.getError().getErrorCode() << "( " << ae.getError().getErrorCodeAsString() << " )" << endl;
-				break;
-			case DataType::EnumEnum:
-				cout << ae.getEnum() << endl;
-				break;
-			default:
-				cout << endl;
-				break;
-			}
 	}
 }
 
@@ -225,7 +121,7 @@ void AppClient::decode( const FieldList& fl )
 				cout << fe.getError().getErrorCode() << "( " << fe.getError().getErrorCodeAsString() << " )" << endl;
 				break;
 			case DataType::EnumEnum:
-				cout << fe.getEnum() << endl;
+				fe.hasEnumDisplay() ? cout << fe.getEnumDisplay() << endl : cout << fe.getEnum() << endl;
 				break;
 			case DataType::RmtesEnum:
 				cout << fe.getRmtes().toString() << endl;
@@ -251,7 +147,7 @@ int main( int argc, char* argv[] )
 		
 		UInt64 itemHandle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client, closure );
 
-		sleep( 300000 );			// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+		sleep( 180000 );			// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	}
 	catch ( const OmmException& excp ) {
 		cout << excp << endl;

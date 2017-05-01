@@ -30,64 +30,73 @@
       <i t="330__Login__Streaming" l="25" />
       <i t="331__Directory__Streaming" l="26" />
       <i t="332__Dictionary__Streaming" l="27" />
-      <i t="340__MarketPrice__OnStreamPost" l="28" />
-      <i t="341__MarketPrice__OffStreamPost" l="29" />
-      <i t="350__MarketPrice__PauseAll" l="30" />
-      <i t="360__MarketPrice__View" l="31" />
-      <i t="370__MarketPrice__Batch" l="32" />
+      <i t="333__Login__Streaming__DomainRepresentation" l="28" />
+      <i t="340__MarketPrice__OnStreamPost" l="29" />
+      <i t="341__MarketPrice__OffStreamPost" l="30" />
+      <i t="350__MarketPrice__PauseAll" l="31" />
+      <i t="360__MarketPrice__View" l="32" />
+      <i t="370__MarketPrice__Batch" l="33" />
     </i>
-    <i t="400 Series Examples" l="33">
-      <i t="400__Custom__NestedMessaging" l="34" />
-      <i t="410__MarketPrice__HorizontalScaling" l="35" />
-      <i t="420__MarketPrice__AdminDomainConfig" l="36" />
-      <i t="422__MarketPrice__ErrorClient" l="37" />
-    </i>
-  </i>
-  <i t="EMA Java Non-interactive Provider Examples" l="38">
-    <i t="100 Series Examples" l="39">
-      <i t="100__MarketPrice__Streaming" l="40" />
-      <i t="110__MarketByOrder__Streaming" l="41" />
-    </i>
-    <i t="200 Series Examples" l="42">
-      <i t="200__MarketPrice__Streaming" l="43" />
-      <i t="210__MarketByOrder__Streaming" l="44" />
-      <i t="250__MarketPrice__Performance" l="45" />
-      <i t="251__MarketPrice__Performance__KeyByServiceId" l="46" />
-    </i>
-    <i t="300 Series Examples" l="47">
-      <i t="300__MarketPrice__Streaming" l="48" />
-      <i t="310__MarketByOrder__Streaming" l="49" />
-      <i t="320__MarketPrice__Streaming__StatusClosed" l="50" />
-      <i t="340__Login__Streaming" l="51" />
-      <i t="360__MarketPrice__ConnectionRecovery" l="52" />
+    <i t="400 Series Examples" l="34">
+      <i t="400__Custom__NestedMessaging" l="35" />
+      <i t="410__MarketPrice__HorizontalScaling" l="36" />
+      <i t="420__MarketPrice__AdminDomainConfig" l="37" />
+      <i t="422__MarketPrice__ErrorClient" l="38" />
+      <i t="423__MarketPrice__AdminDomainConfig__DomainRepresentation" l="39" />
+      <i t="430__MarketPrice__TrepAuthentication" l="40" />
+      <i t="440__System__TunnelStream" l="41" />
     </i>
   </i>
-  <i t="EMA Java Interactive Provider Examples" l="53">
-    <i t="100 Series Examples" l="54">
-      <i t="100__MarketPrice__Streaming" l="55" />
-      <i t="102__MarketPrice__Snapshot" l="56" />
-      <i t="130__MarketPrice__UserDispatch" l="57" />
-      <i t="140__MarketByOrder__Streaming" l="58" />
-      <i t="150__MarketByOrder__Snapshot" l="59" />
-      <i t="160__Login__AcceptDeny" l="60" />
+  <i t="EMA Java Non-interactive Provider Examples" l="42">
+    <i t="100 Series Examples" l="43">
+      <i t="100__MarketPrice__Streaming" l="44" />
+      <i t="110__MarketByOrder__Streaming" l="45" />
     </i>
-    <i t="200 Series Examples" l="61">
-      <i t="200__MarketPrice__Streaming" l="62" />
-      <i t="210__MarketByPrice__Streaming" l="63" />
-      <i t="240__SourceDirectory__Fanout" l="64" />
-      <i t="250__GroupStatus__Fanout" l="65" />
-      <i t="260__Custom__NestedMsg" l="66" />
-      <i t="280__MarketPrice__Performance" l="67" />
+    <i t="200 Series Examples" l="46">
+      <i t="200__MarketPrice__Streaming" l="47" />
+      <i t="210__MarketByOrder__Streaming" l="48" />
+      <i t="250__MarketPrice__Performance" l="49" />
+      <i t="251__MarketPrice__Performance__KeyByServiceId" l="50" />
     </i>
-    <i t="300 Series Examples" l="68">
-      <i t="300__MarketPrice__Close" l="69" />
-      <i t="301__MarketPrice__PriorityChange" l="70" />
-      <i t="320__Custom__GenericMsg" l="71" />
-      <i t="331__Directory__UserControl" l="72" />
-      <i t="380__MarketPrice__ConnectionLost" l="73" />
+    <i t="300 Series Examples" l="51">
+      <i t="300__MarketPrice__Streaming" l="52" />
+      <i t="310__MarketByOrder__Streaming" l="53" />
+      <i t="320__MarketPrice__Streaming__StatusClosed" l="54" />
+      <i t="340__Login__Streaming" l="55" />
+      <i t="360__MarketPrice__ConnectionRecovery" l="56" />
+    </i>
+    <i t="400 Series Examples" l="57">
+      <i t="430__MarketPrice__TrepAuthentication" l="58" />
     </i>
   </i>
-  <i t="EMA Java Performance Tools Examples" l="74">
-    <i t="EmajConsPerf" l="75" />
+  <i t="EMA Java Interactive Provider Examples" l="59">
+    <i t="100 Series Examples" l="60">
+      <i t="100__MarketPrice__Streaming" l="61" />
+      <i t="102__MarketPrice__Snapshot" l="62" />
+      <i t="130__MarketPrice__UserDispatch" l="63" />
+      <i t="140__MarketByOrder__Streaming" l="64" />
+      <i t="150__MarketByOrder__Snapshot" l="65" />
+      <i t="160__Login__AcceptDeny" l="66" />
+      <i t="161__Login__AcceptDeny__DomainRepresentation" l="67" />
+    </i>
+    <i t="200 Series Examples" l="68">
+      <i t="200__MarketPrice__Streaming" l="69" />
+      <i t="210__MarketByPrice__Streaming" l="70" />
+      <i t="240__SourceDirectory__Fanout" l="71" />
+      <i t="250__GroupStatus__Fanout" l="72" />
+      <i t="260__Custom__NestedMsg" l="73" />
+      <i t="280__MarketPrice__Performance" l="74" />
+    </i>
+    <i t="300 Series Examples" l="75">
+      <i t="300__MarketPrice__Close" l="76" />
+      <i t="301__MarketPrice__PriorityChange" l="77" />
+      <i t="320__Custom__GenericMsg" l="78" />
+      <i t="331__Directory__UserControl" l="79" />
+      <i t="332__Dictionary__UserControl" l="80" />
+      <i t="380__MarketPrice__ConnectionLost" l="81" />
+    </i>
+  </i>
+  <i t="EMA Java Performance Tools Examples" l="82">
+    <i t="EmajConsPerf" l="83" />
   </i>
 </WebWorksHelpTOC>

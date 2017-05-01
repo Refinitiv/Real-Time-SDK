@@ -4,6 +4,10 @@
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
 
+	<tstamp>
+		<format property="YEAR" pattern="yyyy"/>
+	</tstamp>
+
 	<property name="dist.dir" value="../../"/>
 	<property name="bin.dir" value="bin"/>
 	<property name="libs.dir" value="../../Libs"/>	
@@ -68,7 +72,7 @@
 			<doctitle>
 				<![CDATA[<h1>Elektron Transport API (ETA) 3.0 - Java Edition Examples</h1>]]></doctitle>
 			<bottom>
-				<![CDATA[<i>Copyright &#169; 2016  Thomson Reuters. All Rights Reserved.</i>]]></bottom>
+				<![CDATA[<i>Copyright &#169; ${YEAR}  Thomson Reuters. All Rights Reserved.</i>]]></bottom>
 		</javadoc>
 
          <delete dir="${marshall.dir}" />

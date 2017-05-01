@@ -45,12 +45,8 @@ class ChannelInfo
 	private String				_name;
 	private StringBuilder		_toString;
 	private boolean				_toStringSet;
-	private int					_nextStreamId;
-	private int                 _nextProviderStreamId;
 	private Reactor				_rsslReactor;
 	private ReactorChannel		_rsslReactorChannel;		
-	private List<Integer>		_reusedStreamIds;
-	private List<Integer>		_reusedProviderStreamIds;
 	protected int _majorVersion;
 	protected int _minorVersion;
 	protected DataDictionary		_rsslDictionary;
@@ -59,18 +55,12 @@ class ChannelInfo
 	
 	ChannelInfo(String name, Reactor rsslReactor)
 	{
-		_nextStreamId = 4;
-		_nextProviderStreamId = 0;		
 		_name = name;
 		_rsslReactor = rsslReactor;
-		_reusedStreamIds = new ArrayList<Integer>();
-		_reusedProviderStreamIds = new ArrayList<Integer>();
 	}
 
 	ChannelInfo reset(String name, Reactor rsslReactor)
 	{
-		_nextStreamId = 4;
-		_nextProviderStreamId = 0;
 		_name = name;
 		_rsslReactor = rsslReactor;
 		_toStringSet = false;
@@ -111,51 +101,6 @@ class ChannelInfo
 		return this;
 	}
 
-	int nextStreamId(int numOfItem)
-	{
-		if ( numOfItem > 0 )
-		{
-			int retVal = ++_nextStreamId;
-			_nextStreamId += numOfItem;
-			return retVal;
-		}
-
-		if ( _reusedStreamIds.size() == 0 ) 
-			return ++_nextStreamId;
-		else
-		{
-			Integer streamId = _reusedStreamIds.remove(0);
-			if (streamId != null)
-				return streamId.intValue();
-			else
-				return ++_nextStreamId;
-		}
-		
-	}
-	
-	int nextProviderStreamId()
-	{		
-		if ( _reusedProviderStreamIds.size() == 0 ) 
-			return --_nextProviderStreamId;
-		else
-		{
-			Integer streamId = _reusedProviderStreamIds.remove(0);
-			if (streamId != null)
-				return streamId.intValue();
-			else
-				return --_nextProviderStreamId;
-		}				
-	}
-			
-	void returnStreamId(int streamId)
-	{ 
-		if (streamId < 0) 
-			_reusedProviderStreamIds.add((Integer)(streamId));
-		else	
-			_reusedStreamIds.add((Integer)(streamId));				
-	}
-
-
 	@Override
 	public String toString()
 	{
@@ -189,10 +134,9 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	private Reactor						_rsslReactor;
 	private ReactorConnectOptions 		_rsslReactorConnOptions = ReactorFactory.createReactorConnectOptions();
 	private ReactorRole 				_rsslReactorRole = null;
-	private boolean 					_bInitialChannelReadyEventReceived;
+	private boolean						_bInitialChannelReadyEventReceived;
     Package 							_package = Package.getPackage("com.thomsonreuters.ema.access");
 	String 								_productVersion;
-
 	
 	ChannelCallbackClient(OmmBaseImpl<T> baseImpl, Reactor rsslReactor)
 	{

@@ -16,6 +16,8 @@
 #include "EmaPool.h"
 #include "rtr/rsslSetData.h"
 
+#include "DataDictionaryImpl.h"
+
 namespace thomsonreuters {
 
 namespace ema {
@@ -52,6 +54,8 @@ public :
 
 	Int16 getRippleTo( Int16 fieldId = 0 ) const;
 
+	const EmaString& getRippleToName(Int16 fieldId = 0) const;
+
 	const Data& getLoad() const;
 
 	Data** getLoadPtr();
@@ -73,6 +77,12 @@ public :
 	void setAtExit();
 
 	OmmError::ErrorCode getErrorCode() const;
+
+	bool hasEnumDisplay(UInt16 enumValue) const;
+
+	const EmaString& getEnumDisplay(UInt16 enumValue) const;
+
+    const thomsonreuters::ema::rdm::DataDictionary& getDataDictionary();
 
 private :
 
@@ -102,7 +112,9 @@ private :
 
 	EmaStringInt				_name;
 
-	EmaStringInt				_rippleToName;
+	mutable EmaStringInt		_rippleToName;
+
+	mutable EmaStringInt		_enumDisplayValue;
 
 	EmaBufferInt				_hexBuffer;
 
@@ -115,6 +127,8 @@ private :
 	bool						_decodingStarted;
 
 	bool						_atEnd;
+
+	thomsonreuters::ema::rdm::DataDictionary*				_pDataDictionary;
 };
 
 class FieldListDecoderPool : public DecoderPool< FieldListDecoder >

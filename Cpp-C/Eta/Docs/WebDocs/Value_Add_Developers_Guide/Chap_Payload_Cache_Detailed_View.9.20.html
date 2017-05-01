@@ -56,50 +56,50 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1221228">Multi-Part Retrieval</a></div>
-      <div class="Body"><a name="1221230">For data types that support fragmentation, the container can be retrieved in multiple parts by calling </a><span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> until the complete container is returned. To support multi-part retrieval, the optional <span class="CodeOrCommand">RsslPayloadCursorHandle</span> parameter is required when calling <span class="CodeOrCommand">rsslPayloadEntryRetrieve</span>. The cursor is used to maintain the position where the next retrieval will resume. The application must check the state of the cursor after each call to <span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> to determine when the retrieval is complete. The following functions are needed when using the payload cursor.</div>
-      <div class="Blank_Line"><a name="1221232">&nbsp;</a></div>
+      <div class="Body"><a name="1240423">For data types that support fragmentation, the container can be retrieved in multiple parts by calling </a><span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> until the complete container is returned. To support multi-part retrieval, the optional <span class="CodeOrCommand">RsslPayloadCursorHandle</span> parameter is required when calling <span class="CodeOrCommand">rsslPayloadEntryRetrieve</span>. The cursor is used to maintain the position where the next retrieval will resume. The application must check the state of the cursor after each call to <span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> to determine when the retrieval is complete. The following functions are needed when using the payload cursor.</div>
+      <div class="Blank_Line"><a name="1240497">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 189: <a name="1222118">Functions for Using the Payload Cursor &nbsp;</a></div>
+          <div class="TableTitle">Table 190: <a name="1240494">Functions for Using the Payload Cursor &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 156.00024pt">
-            <div class="CellHeading"><a name="1222078">FUNCTION NAME</a></div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 164.25pt">
+            <div class="CellHeading"><a name="1240444">Function NAME</a></div>
           </td>
-          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 399.74976pt">
-            <div class="CellHeading"><a name="1222080">DESCRIPTION</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222082">rsslPayloadCursorCreate</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222084">Creates a cursor for optional use in the </a><span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> function (required for multi-part retrieval). Returns the <span class="CodeOrCommand">RsslPayloadCursorHandle</span>.</div>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 391.5pt">
+            <div class="CellHeading"><a name="1240446">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222086">rsslPayloadCursorDestroy</a></div>
+            <div class="CellBody"><a name="1240448">rsslPayloadCursorCreate </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222088">Destroys the cursor referenced by the </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222090">rsslPayloadCursorClear</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222092">Clears the state of the cursor for the given </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span>. Whenever retrieving data from a cache entry, the cursor must be cleared prior to the first call to <span class="CodeOrCommand">rsslPayloadEntryRetrieve</span>. Clearing the cursor also allows it to be reused with a retrieval on a different container. </div>
+            <div class="CellBody"><a name="1240456">Creates a cursor for optional use in the </a><span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> function (required for multi-part retrieval). Returns the <span class="CodeOrCommand">RsslPayloadCursorHandle</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222094">rsslPayloadCursorIsComplete</a></div>
+            <div class="CellBody"><a name="1240461">rsslPayloadCursorDestroy </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222096">Returns the completion state of a retrieval where the </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span> was used. The state must be checked after each call to <span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> to determine if there is any additional data to be encoded for the cache entry container. When the cursor state is complete, the entire container of the cache entry has been retrieved. </div>
+            <div class="CellBody"><a name="1240466">Destroys the cursor</a> referenced by the <span class="CodeOrCommand">RsslPayloadCursorHandle</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1240468">rsslPayloadCursorClear </a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1240473">Clears the state of the cursor</a> for the given <span class="CodeOrCommand">RsslPayloadCursorHandle</span>. Whenever retrieving data from a cache entry, the cursor must be cleared prior to the first call to <span class="CodeOrCommand">rsslPayloadEntryRetrieve</span>. Clearing the cursor also allows it to be reused with a retrieval on a different container. </div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1240478">rsslPayloadCursorIsComplete </a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1240483">Returns the completion state of a retrieval where the </a><span class="CodeOrCommand">RsslPayloadCursorHandle</span> was used. The state must be checked after each call to <span class="CodeOrCommand">rsslPayloadEntryRetrieve</span> to determine whether additional data needs to be encoded for the cache entry container. When the cursor state is complete, the entire container of the cache entry has been retrieved. </div>
           </td>
         </tr>
       </table>

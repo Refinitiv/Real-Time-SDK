@@ -253,13 +253,16 @@ public class MarketPriceHandler
         marketPriceRequest.serviceId(srcDirInfo.serviceId());
         marketPriceRequest.applyHasPriority();
         marketPriceRequest.priority(1, 1);
-        marketPriceRequest.applyHasQos();
-        marketPriceRequest.qos().dynamic(false);
-        marketPriceRequest.qos().timeInfo(srcDirInfo.info().qosList().get(0).timeInfo());
-        marketPriceRequest.qos().timeliness(srcDirInfo.info().qosList().get(0)
-                .timeliness());
-        marketPriceRequest.qos().rateInfo(srcDirInfo.info().qosList().get(0).rateInfo());
-        marketPriceRequest.qos().rate(srcDirInfo.info().qosList().get(0).rate());
+		if (srcDirInfo.info().qosList().size() > 0)
+		{
+			marketPriceRequest.applyHasQos();
+			marketPriceRequest.qos().dynamic(false);
+			marketPriceRequest.qos().timeInfo(srcDirInfo.info().qosList().get(0).timeInfo());
+			marketPriceRequest.qos().timeliness(srcDirInfo.info().qosList().get(0)
+					.timeliness());
+			marketPriceRequest.qos().rateInfo(srcDirInfo.info().qosList().get(0).rateInfo());
+			marketPriceRequest.qos().rate(srcDirInfo.info().qosList().get(0).rate());
+		}
         if (isPrivateStream)
             marketPriceRequest.applyPrivateStream();
 

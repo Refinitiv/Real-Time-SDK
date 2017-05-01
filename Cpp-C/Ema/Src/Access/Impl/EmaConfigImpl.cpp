@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #ifndef WIN32
 #include <unistd.h>
+#else
+#pragma warning( disable : 4355)
 #endif
 
 #include <new>
@@ -200,6 +202,13 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 	}
 
 	char* xmlData = reinterpret_cast<char*>(malloc(statBuffer.st_size + 1));
+	if (!xmlData)
+	{
+		EmaString errorMsg("Failed to allocate memory for reading configuration file[");
+		errorMsg.append(fileName).append("];");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+		return OmmLoggerClient::ErrorEnum;
+	}
 	size_t bytesRead(fread(reinterpret_cast<void*>(xmlData), sizeof(char), statBuffer.st_size, fp));
 	if (!bytesRead)
 	{
@@ -846,7 +855,7 @@ void EmaConfigImpl::addAdminMsg( const RefreshMsg& refreshMsg )
 		if ( pRsslRefreshMsg->msgBase.containerType != RSSL_DT_MAP )
 		{
 			EmaString temp( "RefreshMsg with SourceDirectory passed into addAdminMsg( const RefreshMsg& ) contains a container with wrong data type. Expected container data type is Map. Passed in is " );
-			temp += DataType( dataType[pRsslRefreshMsg->msgBase.containerType] ).toString();
+			temp += DataType((DataType::DataTypeEnum)pRsslRefreshMsg->msgBase.containerType).toString();
 			EmaConfigError* mce( new EmaConfigError( temp, OmmLoggerClient::ErrorEnum ) );
 			_pEmaConfig->errors().add( mce );
 			return;
@@ -1033,7 +1042,7 @@ void EmaConfigServerImpl::addAdminMsg( const RefreshMsg& refreshMsg )
 			if (pRsslRefreshMsg->msgBase.containerType != RSSL_DT_MAP)
 			{
 				EmaString temp("RefreshMsg with SourceDirectory passed into addAdminMsg( const RefreshMsg& ) contains a container with wrong data type. Expected container data type is Map. Passed in is ");
-				temp += DataType(dataType[pRsslRefreshMsg->msgBase.containerType]).toString();
+				temp += DataType((DataType::DataTypeEnum)pRsslRefreshMsg->msgBase.containerType).toString();
 				EmaConfigError* mce(new EmaConfigError(temp, OmmLoggerClient::ErrorEnum));
 				_pEmaConfig->errors().add(mce);
 				return;
@@ -1139,12 +1148,21 @@ void XMLnode::verifyDefaultConsumer()
 				return;
 
 			NameString* name( theNames.pop_front() );
+			bool foundDefaultName = false;
 			while ( name )
 			{
 				if ( *name == *defaultName )
-					return;
-				else name = theNames.pop_front();
+				{
+					foundDefaultName = true;
+				}
+
+				delete name;
+				name = theNames.pop_front();
 			}
+
+		    if (foundDefaultName)
+				return;	
+
 			EmaString errorMsg( "specified default consumer name [" );
 			errorMsg.append( *defaultName ).append( "] was not found in the configured consumers" );
 			throwIceException( errorMsg );
@@ -1172,13 +1190,22 @@ void XMLnode::verifyDefaultNiProvider()
 			if ( theNames.empty() && *defaultName == "EmaNiProvider" )
 				return;
 
-			NameString* name( theNames.pop_front() );
-			while ( name )
-			{
-				if ( *name == *defaultName )
-					return;
-				else name = theNames.pop_front();
-			}
+            NameString* name( theNames.pop_front() );
+            bool foundDefaultName = false;
+            while ( name )
+            {
+                if ( *name == *defaultName )
+                {
+                    foundDefaultName = true;
+                }
+
+                delete name;
+                name = theNames.pop_front();
+            }
+
+            if (foundDefaultName)
+                return;
+
 			EmaString errorMsg( "specified default ni provider name [" );
 			errorMsg.append( *defaultName ).append( "] was not found in the configured ni providers" );
 			throwIceException( errorMsg );
@@ -1206,13 +1233,22 @@ void XMLnode::verifyDefaultDirectory()
 			if ( theNames.empty() && *defaultName == "EmaDirectory" )
 				return;
 
-			NameString* name( theNames.pop_front() );
-			while ( name )
-			{
-				if ( *name == *defaultName )
-					return;
-				else name = theNames.pop_front();
-			}
+            NameString* name( theNames.pop_front() );
+            bool foundDefaultName = false;
+            while ( name )
+            {
+                if ( *name == *defaultName )
+                {
+                    foundDefaultName = true;
+                }
+
+                delete name;
+                name = theNames.pop_front();
+            }
+
+            if (foundDefaultName)
+                return;
+
 			EmaString errorMsg( "specified default directory name [" );
 			errorMsg.append( *defaultName ).append( "] was not found in the configured directories" );
 			throwIceException( errorMsg );
@@ -1220,7 +1256,7 @@ void XMLnode::verifyDefaultDirectory()
 		else if ( *defaultName != "EmaDirectory" )
 		{
 			EmaString errorMsg( "default ni directory name [" );
-			errorMsg.append( *defaultName ).append( "] was specified, but no ni directories with this name were configured" );
+			errorMsg.append( *defaultName ).append( "] was specified, but no directories with this name were configured" );
 			throwIceException( errorMsg );
 		}
 	}
@@ -1428,6 +1464,24 @@ namespace ema {
 namespace access {
 
 template<>
+void XMLConfigElement<UInt64>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %llu", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %llu", _values[i]);
+}
+
+template<>
+void XMLConfigElement<Int64>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %lld", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %lld", _values[i]);
+}
+
+template<>
 void XMLConfigElement< EmaString >::print() const
 {
 	printf( "%s (parent %p)", _name.c_str(), _parent );
@@ -1443,6 +1497,78 @@ void XMLConfigElement< bool >::print() const
 	printf( _values[0] == true ? ": true" : ": false" );
 	for ( unsigned int i = 0; i < _values.size(); ++i )
 		printf( _values[i] == true ? ", true" : ", false" );
+}
+
+template<>
+void XMLConfigElement<OmmLoggerClient::Severity>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<OmmLoggerClient::LoggerType>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<Dictionary::DictionaryType>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<RsslConnectionTypes>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<RsslCompTypes>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<OmmState::StreamState>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<OmmState::DataState>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<OmmState::StatusCode>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
 }
 
 template<>
@@ -1599,8 +1725,14 @@ AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 		if ( _rsslMsg.extendedHeader.length > _header.length )
 		{
 			if ( _header.data ) free( _header.data );
+			_header.data = 0;
 
 			_header.data = (char*) malloc( _rsslMsg.extendedHeader.length );
+			if (!_header.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Request extended header in AdminReqMsg::set()");			
+				return *this;
+			}
 			_header.length = _rsslMsg.extendedHeader.length;
 		}
 
@@ -1618,8 +1750,14 @@ AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 		if ( _rsslMsg.msgBase.encDataBody.length > _payload.length )
 		{
 			if ( _payload.data ) free( _payload.data );
+			_payload.data = 0;
 
 			_payload.data = (char*) malloc( _rsslMsg.msgBase.encDataBody.length );
+			if (!_payload.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Request payload in AdminReqMsg::set()");
+				return *this;
+			}
 			_payload.length = _rsslMsg.msgBase.encDataBody.length;
 		}
 
@@ -1637,8 +1775,15 @@ AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 		if ( _rsslMsg.msgBase.msgKey.encAttrib.length > _attrib.length )
 		{
 			if ( _attrib.data ) free( _attrib.data );
+			_attrib.data = 0;
 
 			_attrib.data = (char*) malloc( _rsslMsg.msgBase.msgKey.encAttrib.length );
+
+			if (!_attrib.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Request msgKey.attrib in AdminReqMsg::set()");
+				return *this;
+			}
 			_attrib.length = _rsslMsg.msgBase.msgKey.encAttrib.length;
 		}
 
@@ -1656,8 +1801,16 @@ AdminReqMsg& AdminReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 		if ( _rsslMsg.msgBase.msgKey.name.length > _name.length )
 		{
 			if ( _name.data ) free( _name.data );
+			_name.data = 0;
 
 			_name.data = (char*) malloc( _rsslMsg.msgBase.msgKey.name.length );
+			
+			if (!_name.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Request msgKey.name in AdminReqMsg::set()");
+				return *this;
+			}
+
 			_name.length = _rsslMsg.msgBase.msgKey.name.length;
 		}
 
@@ -1728,8 +1881,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.flags & RSSL_RQMF_HAS_EXTENDED_HEADER )
 	{
 		if ( _header.data ) free( _header.data );
+		_header.data = 0;
 
 		_header.data = (char*) malloc( _rsslMsg.extendedHeader.length );
+		if (!_header.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh Extended Header in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_header.length = _rsslMsg.extendedHeader.length;
 
 		memcpy( _header.data, _rsslMsg.extendedHeader.data, _header.length );
@@ -1744,8 +1902,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.msgBase.containerType != RSSL_DT_NO_DATA )
 	{
 		if ( _payload.data ) free( _payload.data );
+		_payload.data = 0;
 
 		_payload.data = (char*) malloc( _rsslMsg.msgBase.encDataBody.length );
+		if (!_payload.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh Payload in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_payload.length = _rsslMsg.msgBase.encDataBody.length;
 
 		memcpy( _payload.data, _rsslMsg.msgBase.encDataBody.data, _payload.length );
@@ -1760,8 +1923,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_ATTRIB )
 	{
 		if ( _attrib.data ) free( _attrib.data );
+		_attrib.data = 0;
 
 		_attrib.data = (char*) malloc( _rsslMsg.msgBase.msgKey.encAttrib.length );
+		if (!_attrib.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.attrib in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_attrib.length = _rsslMsg.msgBase.msgKey.encAttrib.length;
 
 		memcpy( _attrib.data, _rsslMsg.msgBase.msgKey.encAttrib.data, _attrib.length );
@@ -1776,8 +1944,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_NAME )
 	{
 		if ( _name.data ) free( _name.data );
+		_name.data = 0; 
 
 		_name.data = (char*) malloc( _rsslMsg.msgBase.msgKey.name.length );
+		if (!_name.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.name in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_name.length = _rsslMsg.msgBase.msgKey.name.length;
 
 		memcpy( _name.data, _rsslMsg.msgBase.msgKey.name.data, _name.length );
@@ -1792,8 +1965,13 @@ AdminRefreshMsg::AdminRefreshMsg( const AdminRefreshMsg& other ) :
 	if ( _rsslMsg.state.text.data )
 	{
 		if ( _statusText.data ) free( _statusText.data );
+		_statusText.data = 0;
 
 		_statusText.data = (char*) malloc( _rsslMsg.state.text.length );
+		if (!_statusText.data)
+		{
+			throwMeeException("Failed to allocate memory for encoded Admin Refresh state text in AdminRefreshMsg::AdminRefreshMsg()");
+		}
 		_statusText.length = _rsslMsg.state.text.length;
 
 		memcpy( _statusText.data, _rsslMsg.state.text.data, _statusText.length );
@@ -1815,8 +1993,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.extendedHeader.length > _header.length )
 		{
 			if ( _header.data ) free( _header.data );
+			_header.data = 0;
 
 			_header.data = (char*) malloc( _rsslMsg.extendedHeader.length );
+			if (!_header.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh extended header in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_header.length = _rsslMsg.extendedHeader.length;
 		}
 
@@ -1834,8 +2018,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.msgBase.encDataBody.length > _payload.length )
 		{
 			if ( _payload.data ) free( _payload.data );
+			_payload.data = 0;
 
 			_payload.data = (char*) malloc( _rsslMsg.msgBase.encDataBody.length );
+			if (!_payload.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh payload in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_payload.length = _rsslMsg.msgBase.encDataBody.length;
 		}
 
@@ -1853,8 +2043,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.msgBase.msgKey.encAttrib.length > _attrib.length )
 		{
 			if ( _attrib.data ) free( _attrib.data );
+			_attrib.data = 0;
 
 			_attrib.data = (char*) malloc( _rsslMsg.msgBase.msgKey.encAttrib.length );
+			if (!_attrib.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.attrib in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_attrib.length = _rsslMsg.msgBase.msgKey.encAttrib.length;
 		}
 
@@ -1872,8 +2068,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.msgBase.msgKey.name.length > _name.length )
 		{
 			if ( _name.data ) free( _name.data );
+			_name.data = 0;
 
 			_name.data = (char*) malloc( _rsslMsg.msgBase.msgKey.name.length );
+			if (!_name.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh name in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_name.length = _rsslMsg.msgBase.msgKey.name.length;
 		}
 
@@ -1891,8 +2093,14 @@ AdminRefreshMsg& AdminRefreshMsg::operator=( const AdminRefreshMsg& other )
 		if ( _rsslMsg.state.text.length > _statusText.length )
 		{
 			if ( _statusText.data ) free( _statusText.data );
+			_statusText.data = 0;
 
 			_statusText.data = (char*) malloc( _rsslMsg.state.text.length );
+			if (!_statusText.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh status text in AdminRefreshMsg::operator=");
+				return *this;
+			}
 			_statusText.length = _rsslMsg.state.text.length;
 		}
 
@@ -1935,8 +2143,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.extendedHeader.length > _header.length )
 		{
 			if ( _header.data ) free( _header.data );
+			_header.data = 0;
 
 			_header.data = (char*) malloc( _rsslMsg.extendedHeader.length );
+			if (!_header.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh Extended Header in AdminRefreshMsg::set");
+				return *this;
+			}
 			_header.length = _rsslMsg.extendedHeader.length;
 		}
 
@@ -1954,8 +2168,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.msgBase.encDataBody.length > _payload.length )
 		{
 			if ( _payload.data ) free( _payload.data );
+			_payload.data = 0;
 
 			_payload.data = (char*) malloc( _rsslMsg.msgBase.encDataBody.length );
+			if (!_payload.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh Payload in AdminRefreshMsg::set");
+				return *this;
+			}
 			_payload.length = _rsslMsg.msgBase.encDataBody.length;
 		}
 
@@ -1973,8 +2193,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.msgBase.msgKey.encAttrib.length > _attrib.length )
 		{
 			if ( _attrib.data ) free( _attrib.data );
+			_attrib.data = 0;
 
 			_attrib.data = (char*) malloc( _rsslMsg.msgBase.msgKey.encAttrib.length );
+			if (!_attrib.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.attrib in AdminRefreshMsg::set");
+				return *this;
+			}
 			_attrib.length = _rsslMsg.msgBase.msgKey.encAttrib.length;
 		}
 
@@ -1992,8 +2218,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.msgBase.msgKey.name.length > _name.length )
 		{
 			if ( _name.data ) free( _name.data );
+			_name.data = 0;
 
 			_name.data = (char*) malloc( _rsslMsg.msgBase.msgKey.name.length );
+			if (!_name.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh msgKey.name in AdminRefreshMsg::set");
+				return *this;
+			}
 			_name.length = _rsslMsg.msgBase.msgKey.name.length;
 		}
 
@@ -2011,8 +2243,14 @@ AdminRefreshMsg& AdminRefreshMsg::set( RsslRefreshMsg* pRsslRefreshMsg )
 		if ( _rsslMsg.state.text.length > _statusText.length )
 		{
 			if ( _statusText.data ) free( _statusText.data );
+			_statusText.data = 0;
 
 			_statusText.data = (char*) malloc( _rsslMsg.state.text.length );
+			if (!_statusText.data)
+			{
+				throwMeeException("Failed to allocate memory for encoded Admin Refresh status text in AdminRefreshMsg::set");
+				return *this;
+			}
 			_statusText.length = _rsslMsg.state.text.length;
 		}
 
@@ -2040,17 +2278,27 @@ RsslRefreshMsg* AdminRefreshMsg::get()
 	return &_rsslMsg;
 }
 
-LoginRdmReqMsg::LoginRdmReqMsg( EmaConfigImpl& emaConfigImpl ) :
-	_emaConfigImpl( emaConfigImpl ),
+LoginRdmReqMsg::LoginRdmReqMsg(EmaConfigImpl& emaConfigImpl) :
+	_emaConfigImpl(emaConfigImpl),
 	_username(),
 	_password(),
 	_position(),
 	_applicationId(),
 	_applicationName(),
+	_defaultApplicationName("ema"),
 	_instanceId()
 {
 	rsslClearRDMLoginRequest( &_rsslRdmLoginRequest );
-	_rsslRdmLoginRequest.rdmMsgBase.streamId = 1;
+	rsslInitDefaultRDMLoginRequest(&_rsslRdmLoginRequest, 1);
+
+	_rsslRdmLoginRequest.applicationName.data = (char*)_defaultApplicationName.c_str();
+	_rsslRdmLoginRequest.applicationName.length = _defaultApplicationName.length();
+
+	_applicationName = _defaultApplicationName;
+
+	_username.set(_rsslRdmLoginRequest.userName.data, _rsslRdmLoginRequest.userName.length);
+	_position.set(_rsslRdmLoginRequest.position.data, _rsslRdmLoginRequest.position.length);
+	_applicationId.set(_rsslRdmLoginRequest.applicationId.data, _rsslRdmLoginRequest.applicationId.length);
 }
 
 LoginRdmReqMsg::~LoginRdmReqMsg()
@@ -2066,6 +2314,16 @@ LoginRdmReqMsg& LoginRdmReqMsg::clear()
 	_applicationName.clear();
 	_instanceId.clear();
 	rsslClearRDMLoginRequest( &_rsslRdmLoginRequest );
+	rsslInitDefaultRDMLoginRequest(&_rsslRdmLoginRequest, 1);
+
+	_rsslRdmLoginRequest.applicationName.data = (char*)_defaultApplicationName.c_str();
+	_rsslRdmLoginRequest.applicationName.length = _defaultApplicationName.length();
+
+	_applicationName = _defaultApplicationName;
+
+	_username.set(_rsslRdmLoginRequest.userName.data, _rsslRdmLoginRequest.userName.length);
+	_position.set(_rsslRdmLoginRequest.position.data, _rsslRdmLoginRequest.position.length);
+	_applicationId.set(_rsslRdmLoginRequest.applicationId.data, _rsslRdmLoginRequest.applicationId.length);
 	return *this;
 }
 
@@ -2319,6 +2577,37 @@ LoginRdmReqMsg& LoginRdmReqMsg::set( RsslRequestMsg* pRsslRequestMsg )
 				}
 
 				_rsslRdmLoginRequest.flags |= RDM_LG_RQF_HAS_ROLE;
+			}
+			else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_AUTHN_TOKEN))
+			{
+				retCode = rsslDecodeBuffer(&dIter, &_rsslRdmLoginRequest.userName);
+				if (retCode != RSSL_RET_SUCCESS)
+				{
+					EmaString temp("Internal error while decoding login attribute of authentication token. Error='");
+					temp.append(rsslRetCodeToString(retCode)).append("'. Attribute will be skipped.");
+					_emaConfigImpl.appendConfigError(temp, OmmLoggerClient::WarningEnum);
+					continue;
+				}
+
+				_authenticationToken.set(_rsslRdmLoginRequest.userName.data, _rsslRdmLoginRequest.userName.length);
+				_rsslRdmLoginRequest.userName.data = (char*)_authenticationToken.c_str();
+				_rsslRdmLoginRequest.userName.length = _authenticationToken.length();
+			}
+			else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_AUTHN_EXTENDED))
+			{
+				retCode = rsslDecodeBuffer(&dIter, &_rsslRdmLoginRequest.authenticationExtended);
+				if (retCode != RSSL_RET_SUCCESS)
+				{
+					EmaString temp("Internal error while decoding login attribute of authentication token. Error='");
+					temp.append(rsslRetCodeToString(retCode)).append("'. Attribute will be skipped.");
+					_emaConfigImpl.appendConfigError(temp, OmmLoggerClient::WarningEnum);
+					continue;
+				}
+
+				_authenticationExtended.setFrom(_rsslRdmLoginRequest.authenticationExtended.data, _rsslRdmLoginRequest.authenticationExtended.length);
+				_rsslRdmLoginRequest.authenticationExtended.data = (char*)_authenticationExtended.c_buf();
+				_rsslRdmLoginRequest.authenticationExtended.length = _authenticationExtended.length();
+				_rsslRdmLoginRequest.flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
 			}
 
 			retCode = rsslDecodeElementEntry( &dIter, &elementEntry );

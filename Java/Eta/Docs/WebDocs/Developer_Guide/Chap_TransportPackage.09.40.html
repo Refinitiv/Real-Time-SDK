@@ -56,18 +56,18 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="1002130">Channel Initialization</a></div>
-      <div class="Body"><a name="1472917">After a </a><span class="CodeOrCommand">Channel</span> is returned from the client’s <span class="CodeOrCommand">Transport.connect</span> or server’s <span class="CodeOrCommand">Server.accept</span> call, the channel may need to continue the initialization process.</div>
-      <div class="Blank_Line"><a name="1472927">&nbsp;</a></div>
+      <div class="Body"><a name="1526658">After a </a><span class="CodeOrCommand">Channel</span> is returned from the client’s <span class="CodeOrCommand">Transport.connect</span> or server’s <span class="CodeOrCommand">Server.accept</span> call, the channel may need to continue the initialization process.</div>
+      <div class="Blank_Line"><a name="1526668">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1472926">For both client and server channels, to complete the channel initialization process, more than one call to </a><span class="CodeOrCommand">Channel.init</span> might be required.</div>
+              <span class="Bold">Note: </span><a name="1526667">For both client and server channels, to complete the channel initialization process, more than one call to </a><span class="CodeOrCommand">Channel.init</span> might be required.</div>
           </td>
         </tr>
       </table>
-      <div class="Body"><a name="1472934">Additional initialization is required as long as the </a><span class="CodeOrCommand">Channel.state</span> is <span class="CodeOrCommand">ChannelState.INITIALIZING</span>.</div>
+      <div class="Body"><a name="1526675">Additional initialization is required as long as the </a><span class="CodeOrCommand">Channel.state</span> is <span class="CodeOrCommand">ChannelState.INITIALIZING</span>.</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -77,7 +77,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1472938">If using a non-blocking I/O, this is the typical state from which a </a><span class="CodeOrCommand">Channel</span> starts and multiple initialization calls might be needed to transition to active.</div>
+              <div class="Bullet_inner"><a name="1526679">If using a non-blocking I/O, this is the typical state from which a </a><span class="CodeOrCommand">Channel</span> starts and multiple initialization calls might be needed to transition to active.</div>
             </td>
           </tr>
         </table>
@@ -91,12 +91,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1472945">If using a blocking I/O, when successful, </a><span class="CodeOrCommand">Transport.connect</span> and <span class="CodeOrCommand">Server.accept</span> return a completely initialized channel in an active state.</div>
+              <div class="Bullet_inner"><a name="1526686">If using a blocking I/O, when successful, </a><span class="CodeOrCommand">Transport.connect</span> and <span class="CodeOrCommand">Server.accept</span> return a completely initialized channel in an active state.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1472948">Internally, the initialization process involves several actions. The initialization includes any necessary </a>Transport API connection handshake exchanges, including any HTTP or HTTPS negotiation. Compression, ping timeout, and versioning related negotiations also take place during the initialization process. This process involves exchanging several messages across the connection, and once all message exchanges have completed the <span class="CodeOrCommand">Channel.state</span> will transition.</div>
+      <div class="Body"><a name="1526689">Internally, the initialization process involves several actions. The initialization includes any necessary </a>Transport API connection handshake exchanges, including any HTTP or HTTPS negotiation. Compression, ping timeout, and versioning related negotiations also take place during the initialization process. This process involves exchanging several messages across the connection, and once all message exchanges have completed the <span class="CodeOrCommand">Channel.state</span> will transition.</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -106,7 +106,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1472956">If the connection is accepted (i.e., all negotiations were successful), the </a><span class="CodeOrCommand">Channel.state</span> will become <span class="CodeOrCommand">ChannelState.ACTIVE</span>.</div>
+              <div class="Bullet_inner"><a name="1526697">If the connection is accepted (i.e., all negotiations were successful), the </a><span class="CodeOrCommand">Channel.state</span> will become <span class="CodeOrCommand">ChannelState.ACTIVE</span>.</div>
             </td>
           </tr>
         </table>
@@ -120,7 +120,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="1472963">If the connection is rejected (i.e., due to either failed negotiation or a </a><span class="CodeOrCommand">Server</span> rejection of the connection by setting <span class="CodeOrCommand">AcceptOptions.</span><span class="CodeOrCommand">nakMount</span> to <span class="Parameter">true</span>), the <span class="CodeOrCommand">Channel.state</span> will become <span class="CodeOrCommand">ChannelState.CLOSED</span>, and the application should close the channel to clean up any associated resources.</div>
+              <div class="Bullet_inner"><a name="1526704">If the connection is rejected (i.e., due to either failed negotiation or a </a><span class="CodeOrCommand">Server</span> rejection of the connection by setting <span class="CodeOrCommand">AcceptOptions.</span><span class="CodeOrCommand">nakMount</span> to <span class="Parameter">true</span>), the <span class="CodeOrCommand">Channel.state</span> will become <span class="CodeOrCommand">ChannelState.CLOSED</span>, and the application should close the channel to clean up any associated resources.</div>
             </td>
           </tr>
         </table>

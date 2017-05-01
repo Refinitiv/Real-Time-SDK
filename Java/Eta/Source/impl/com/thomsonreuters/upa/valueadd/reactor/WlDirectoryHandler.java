@@ -31,7 +31,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceFlags;
 
-public class WlDirectoryHandler implements WlHandler
+class WlDirectoryHandler implements WlHandler
 {
     final long ALL_FILTERS = Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE |
             Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.DATA |

@@ -57,25 +57,6 @@ The Makefile/MSBuild Project file will link with EMA library in a directory name
 
 The static library will be one level deeper in /Static.
 
-Building Examples With Custom Build
-===================================
-If libema.lib is built, the build environment for the examples must
-be changed to use the custom-built libema.lib.
-
-Makefile:
-	The command 'make help' provides details.
-
-MSBuild Project file:
-	Open the property manager for the example and open the
-        properties for the appropriate build environment (e.g., Debug MDd).
-	There should be an entry titled 'customBuild'. Open that entry,
-	select 'User Macros', and change USE_CUSTOM_BUILD to 'true'.
-	
-	Note that the USE_CUSTOM_BUILD setting is used for all environments.
-
-	To revert to the libema.lib shipped with the load, follow the
-	procedure above and set USE_CUSTOM_BUILD to false.
-
 Running Examples
 =================
 To run any consumer example, any OMM provider application/component is needed to source

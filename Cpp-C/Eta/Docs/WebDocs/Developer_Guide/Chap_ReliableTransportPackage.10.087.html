@@ -56,30 +56,30 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1035986">rsslPing Function</a></div>
-      <div class="Body"><a name="1223274">An application typically monitors both messages and heartbeats. If bytes are flushed to the network, this is considered sufficient as a heartbeat so any timer mechanism associated with sending heartbeats can be reset. When bytes are received or </a><span class="CodeOrCommand">rsslRead</span> returns <span class="Parameter">RSSL_RET_READ_PING</span> (refer to Section 9.6), this is comparable to receiving a heartbeat so any timer mechanism associated with receiving heartbeats can be reset. If either the sending or receiving heartbeat timer mechanism reaches or surpasses the <span class="CodeOrCommand">RsslChannel.pingTimeout</span> value, the connection should be closed.</div>
-      <div class="Body"><a name="1223293">The following table describes the </a><span class="CodeOrCommand">rsslPing</span> function, used to send heartbeat messages.</div>
-      <div class="Blank_Line"><a name="1223343">&nbsp;</a></div>
+      <div class="Body"><a name="1248005">An application typically monitors both messages and heartbeats. If bytes are flushed to the network, this is considered sufficient as a heartbeat so any timer mechanism associated with sending heartbeats can be reset. When bytes are received or </a><span class="CodeOrCommand">rsslRead</span> returns <span class="Parameter">RSSL_RET_READ_PING</span> (refer to Section 9.6), this is comparable to receiving a heartbeat so any timer mechanism associated with receiving heartbeats can be reset. If either the sending or receiving heartbeat timer mechanism reaches or surpasses the <span class="CodeOrCommand">RsslChannel.pingTimeout</span> value, the connection should be closed.</div>
+      <div class="Body"><a name="1248024">The following table describes the </a><span class="CodeOrCommand">rsslPing</span> function, used to send heartbeat messages.</div>
+      <div class="Blank_Line"><a name="1248074">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 59: <span class="LucidaConsole"><a name="1223340">rsslPing</a></span> <span style="font-weight: normal">function</span> &nbsp;</div>
+          <div class="TableTitle">Table 59: <span class="LucidaConsole"><a name="1248071">rsslPing</a></span> <span style="font-weight: normal">function</span> &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1223299">function</a> NAME</div>
+            <div class="CellHeading"><a name="1248030">function</a> NAME</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1223301">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1248032">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223306">rsslPing</a></div>
+            <div class="CellBody"><a name="1248037">rsslPing</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223311">Attempts to write a heartbeat message on the connection. This function expects an active </a><span class="CodeOrCommand">RsslChannel</span>.</div>
-            <div class="CellBody"><a name="1223321">If an application calls the </a><span class="CodeOrCommand">rsslPing</span> function while other bytes are queued for output, the RSSL Transport layer suppresses the heartbeat message and attempts to flush bytes to the network on the user’s behalf.</div>
-            <div class="CellBody"><a name="1223322">When using a shared memory (</a><span class="Parameter">RSSL_CONN_TYPE_UNIDIR_SHMEM</span>) connection type, pings can only be sent from server to client.</div>
-            <div class="CellBody"><a name="1223329">Return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.088.html#1223413', '');" title="10.12.3 rsslPing Return Values">Table 60</a>.</div>
+            <div class="CellBody"><a name="1248042">Attempts to write a heartbeat message on the connection. This function expects an active </a><span class="CodeOrCommand">RsslChannel</span>.</div>
+            <div class="CellBody"><a name="1248052">If an application calls the </a><span class="CodeOrCommand">rsslPing</span> function while other bytes are queued for output, the RSSL Transport layer suppresses the heartbeat message and attempts to flush bytes to the network on the user’s behalf.</div>
+            <div class="CellBody"><a name="1248053">When using a shared memory (</a><span class="Parameter">RSSL_CONN_TYPE_UNIDIR_SHMEM</span>) connection type, pings can only be sent from server to client.</div>
+            <div class="CellBody"><a name="1248060">Return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.088.html#1248144', '');" title="10.12.3 rsslPing Return Values">Table 60</a>.</div>
           </td>
         </tr>
       </table>

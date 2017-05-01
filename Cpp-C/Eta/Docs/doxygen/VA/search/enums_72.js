@@ -2,6 +2,7 @@ var searchData=
 [
   ['rssldownloaddictionarymode',['RsslDownloadDictionaryMode',['../group__VAReactorStruct.html#ga940e42e258f7c3d010114d1d3c5fde3e',1,'rsslReactor.h']]],
   ['rsslerrorinfocode',['RsslErrorInfoCode',['../group__RSSLVAUtils.html#gabbcef4cd67f8650c95d738d94ead1f92',1,'rsslErrorInfo.h']]],
+  ['rsslnotifiereventflags',['RsslNotifierEventFlags',['../rsslNotifier_8h.html#aedea53b162f72f5043ca58b15cc0c062',1,'rsslNotifier.h']]],
   ['rsslrdmdictionarymsgtype',['RsslRDMDictionaryMsgType',['../group__VARDMDictionary.html#ga61c0ac697c015654af61d0f088de8720',1,'rsslRDMDictionaryMsg.h']]],
   ['rsslrdmdictionaryrefreshflags',['RsslRDMDictionaryRefreshFlags',['../group__VARDMDictionary.html#gaaf2b3e3e2a84bde442b6710e26af60a2',1,'rsslRDMDictionaryMsg.h']]],
   ['rsslrdmdictionaryrequestflags',['RsslRDMDictionaryRequestFlags',['../group__VARDMDictionary.html#ga81e759e69da9880fe8234ab1466a4ef3',1,'rsslRDMDictionaryMsg.h']]],

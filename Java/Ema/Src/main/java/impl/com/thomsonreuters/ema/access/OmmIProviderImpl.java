@@ -192,13 +192,19 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmProviderClient client)
 	{
-		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.registerClient() method is not support in this release.");
+		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.registerClient() method is not supported in this release.");
 	}
 
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmProviderClient client, Object closure)
 	{
-		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.registerClient() method is not support in this release.");
+		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.registerClient() method is not supported in this release.");
+	}
+	
+	@Override
+	public void reissue(ReqMsg reqMsg, long handle) 
+	{
+		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.reissue() method is not supported in this release.");
 	}
 
 	@Override
@@ -450,7 +456,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		
 		userLock().unlock();
 	}
-
+	
 	@Override
 	public void submit(UpdateMsg updateMsg, long handle)
 	{

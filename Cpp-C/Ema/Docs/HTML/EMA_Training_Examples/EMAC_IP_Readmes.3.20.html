@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>331__Directory__UserControl</title>
+    <title>320__Custom__GenericMsg</title>
     <link rel="StyleSheet" href="css/EMAC_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,42 +45,43 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1020344">331__Directory__UserControl</a></div>
-      <div class="Body"><a name="1033474">Summary</a></div>
-      <div class="Body"><a name="1033475">=======</a></div>
-      <div class="Body"><a name="1033476">&nbsp;</a></div>
-      <div class="Body"><a name="1033477">331__Directory_UserControl is an example of an OMM Interactive Provider application </a></div>
-      <div class="Body"><a name="1033478">written to the EMA library.</a></div>
-      <div class="Body"><a name="1033479">&nbsp;</a></div>
-      <div class="Body"><a name="1033480">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1033481">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1033482">&nbsp;</a></div>
-      <div class="Body"><a name="1033483">331__Directory_UserControl illustrates how to create and publish a single OMM</a></div>
-      <div class="Body"><a name="1033484">streaming item. This application will push source directory refresh message.</a></div>
-      <div class="Body"><a name="1033485">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1019291">320__Custom__GenericMsg</a></div>
+      <div class="Body"><a name="1034276">Summary</a></div>
+      <div class="Body"><a name="1034277">=======</a></div>
+      <div class="Body"><a name="1034278">&nbsp;</a></div>
+      <div class="Body"><a name="1034279">320__Custom__GenericMsg is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1034280">written to the EMA library.</a></div>
+      <div class="Body"><a name="1034281">&nbsp;</a></div>
+      <div class="Body"><a name="1034282">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1034283">of custom domain data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1034284">&nbsp;</a></div>
+      <div class="Body"><a name="1034285">320__Custom__GenericMsg illustrates how to create and publish a single</a></div>
+      <div class="Body"><a name="1034286">streaming item of custom domain. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1034287">file.</a></div>
+      <div class="Body"><a name="1034288">&nbsp;</a></div>
+      <div class="Body"><a name="1034289">&nbsp;</a></div>
+      <div class="Body"><a name="1034290">Detailed Description</a></div>
+      <div class="Body"><a name="1034291">====================</a></div>
+      <div class="Body"><a name="1034292">&nbsp;</a></div>
+      <div class="Body"><a name="1034293">320__Custom__GenericMsg implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1034294">&nbsp;</a></div>
+      <div class="Body"><a name="1034295">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
+      <div class="Body"><a name="1034296">  - Set the operation model to use user dispatch</a></div>
+      <div class="Body"><a name="1034297">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1034298">  - listens on the port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1034299">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1034300">+ Processes an item request of custom domain.</a></div>
+      <div class="Body"><a name="1034301"> - Creates streaming item (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1034302"> - Publishes updates 1 per second for 60 seconds</a></div>
+      <div class="Body"><a name="1034303"> - Updates are published with a user dispatch loop</a></div>
+      <div class="Body"><a name="1034304">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1034305">+ Receive and pulish generic msg on the custom domain stream.</a></div>
+      <div class="Body"><a name="1034306">+ Exits</a></div>
+      <div class="Body"><a name="1034307">&nbsp;</a></div>
+      <div class="Body"><a name="1034308">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1034309">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1034310">      ReadMe.txt file and EMA Configuration Guide.</a></div>
       <div class="Body"><a name="1033486">&nbsp;</a></div>
-      <div class="Body"><a name="1033487">Detailed Description</a></div>
-      <div class="Body"><a name="1033488">====================</a></div>
-      <div class="Body"><a name="1033489">&nbsp;</a></div>
-      <div class="Body"><a name="1033490">331__Directory_UserControl implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1033491">&nbsp;</a></div>
-      <div class="Body"><a name="1033492">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
-      <div class="Body"><a name="1033493">  - Set the admin control to use user control</a></div>
-      <div class="Body"><a name="1033494">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1033495">  - listens on the port from the EmaConfig.xml file</a></div>
-      <div class="Body"><a name="1033496">+ Accepts a login request</a></div>
-      <div class="Body"><a name="1033497">+ Processes a source directory request.</a></div>
-      <div class="Body"><a name="1033498"> - Pulishes a source directory refresh message</a></div>
-      <div class="Body"><a name="1033499">+ Processes an item request for MarketPrice domain.</a></div>
-      <div class="Body"><a name="1033500"> - Creates streaming item (refresh and updates) and publishes them</a></div>
-      <div class="Body"><a name="1033501"> - Publishes updates 1 per second for total 60 updates.</a></div>
-      <div class="Body"><a name="1033502">+ Rejects subsequent item requests.</a></div>
-      <div class="Body"><a name="1033503">+ Exits</a></div>
-      <div class="Body"><a name="1033504">&nbsp;</a></div>
-      <div class="Body"><a name="1033505">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1033506">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1033507">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1032834">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -93,7 +94,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.16.html">300 Series Examples</a> : 331__Directory__UserControl</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.17.html">300 Series Examples</a> : 320__Custom__GenericMsg</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

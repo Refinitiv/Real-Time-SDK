@@ -235,102 +235,80 @@ class LoginRequestImpl extends MsgBaseImpl
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
-                if(elementEntry.encodedData().length() != 0)
-                {
-	                applyHasAttrib();
-	                Buffer applicationId = elementEntry.encodedData();
-	                attrib.applyHasApplicationId();
-	                attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
-                }
-                else
-                	return CodecReturnCodes.FAILURE;
+
+                applyHasAttrib();
+                Buffer applicationId = elementEntry.encodedData();
+                attrib.applyHasApplicationId();
+                attrib.applicationId().data(applicationId.data(), applicationId.position(), applicationId.length());
+
             }
             else if (elementEntry.name().equals(ElementNames.APPNAME))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
-                if(elementEntry.encodedData().length() != 0)
-                {
-	                applyHasAttrib();
-	                Buffer applicationName = elementEntry.encodedData();
-	                attrib.applyHasApplicationName();
-	                attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
-                }
-                else
-                	return CodecReturnCodes.FAILURE;
+
+                applyHasAttrib();
+                Buffer applicationName = elementEntry.encodedData();
+                attrib.applyHasApplicationName();
+                attrib.applicationName().data(applicationName.data(), applicationName.position(), applicationName.length());
+
             }
             else if (elementEntry.name().equals(ElementNames.POSITION))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
-                if(elementEntry.encodedData().length() != 0)
-                {
-	                applyHasAttrib();
-	                Buffer position = elementEntry.encodedData();
-	                attrib.applyHasPosition();
-	                attrib.position().data(position.data(), position.position(), position.length());
-                }
-                else
-                	return CodecReturnCodes.FAILURE;
+
+                applyHasAttrib();
+                Buffer position = elementEntry.encodedData();
+                attrib.applyHasPosition();
+                attrib.position().data(position.data(), position.position(), position.length());
+
             }
             else if (elementEntry.name().equals(ElementNames.PASSWORD))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
                 
-                if(elementEntry.encodedData().length() != 0)
-                {
-	                Buffer password = elementEntry.encodedData();
-	                applyHasAttrib();
-	                applyHasPassword();
-	                password().data(password.data(), password.position(), password.length());
-	            }
-	            else
-	            	return CodecReturnCodes.FAILURE;
+
+                Buffer password = elementEntry.encodedData();
+                applyHasAttrib();
+                applyHasPassword();
+                password().data(password.data(), password.position(), password.length());
+
             }
             else if (elementEntry.name().equals(ElementNames.AUTHN_TOKEN))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING
                         && elementEntry.dataType() != DataTypes.BUFFER)
                     return CodecReturnCodes.FAILURE;
-                if(elementEntry.encodedData().length() != 0)
-                {
-	                Buffer authenticationToken = elementEntry.encodedData();
-	                userName().data(authenticationToken.data(),
-	                                           authenticationToken.position(),
-	                                           authenticationToken.length());
-                }
-	            else
-	            	return CodecReturnCodes.FAILURE;
+                
+                Buffer authenticationToken = elementEntry.encodedData();
+                userName().data(authenticationToken.data(),
+                                           authenticationToken.position(),
+                                           authenticationToken.length());
+
             }
             else if (elementEntry.name().equals(ElementNames.AUTHN_EXTENDED))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING
                         && elementEntry.dataType() != DataTypes.BUFFER)
                     return CodecReturnCodes.FAILURE;
-                if(elementEntry.encodedData().length() != 0)
-                {
-	                Buffer authenticationExtended = elementEntry.encodedData();
-	                applyHasAuthenticationExtended();
-	                authenticationExtended().data(authenticationExtended.data(),
-	                                              authenticationExtended.position(),
-	                                              authenticationExtended.length());
-                }
-	            else
-	            	return CodecReturnCodes.FAILURE;
+
+                Buffer authenticationExtended = elementEntry.encodedData();
+                applyHasAuthenticationExtended();
+                authenticationExtended().data(authenticationExtended.data(),
+                                              authenticationExtended.position(),
+                                              authenticationExtended.length());
             }
             else if (elementEntry.name().equals(ElementNames.INST_ID))
             {
                 if (elementEntry.dataType() != DataTypes.ASCII_STRING)
                     return CodecReturnCodes.FAILURE;
-                if(elementEntry.encodedData().length() != 0)
-                {
-	                Buffer instanceId = elementEntry.encodedData();
-	                applyHasInstanceId();
-	                instanceId().data(instanceId.data(), instanceId.position(), instanceId.length());
-                }
-	            else
-	            	return CodecReturnCodes.FAILURE;
+
+                Buffer instanceId = elementEntry.encodedData();
+                applyHasInstanceId();
+                instanceId().data(instanceId.data(), instanceId.position(), instanceId.length());
+
             }
             else if (elementEntry.name().equals(ElementNames.DOWNLOAD_CON_CONFIG))
             {

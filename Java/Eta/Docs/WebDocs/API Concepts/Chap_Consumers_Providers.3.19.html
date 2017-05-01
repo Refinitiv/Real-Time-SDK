@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.3.1.1 Request /Response</title>
+    <title>3.3.1 Interactive Providers</title>
     <link rel="StyleSheet" href="css/Chap_Consumers_Providers.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,9 +55,12 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1042838">Request /Response</a></div>
-      <div class="Body"><a name="1042842">In a standard request/response scenario, the interactive provider receives requests from consumers on TREP (e.g., “Provide data for item TRI”). The consumer then expects the interactive provider to provide a response, status, and possible updates whenever the information changes. If the item cannot be provided by the interactive provider, the consumer expects the provider to reject the request by providing an appropriate response - commonly a status message with state and text information describing the reason. Request and response behavior is supported in all domains, not simply Market-Data-based domains.</a></div>
-      <div class="Body"><a name="1042843">Interactive providers can receive any consumer-style request described in the consumer section of this document, including batch requests, views, symbol lists, pause/resume, etc. Provider applications should respond with a negative acknowledgment or response if the interactive application cannot provide the expected response to a request.</a></div>
+      <div class="H3"><a name="1005863">Interactive Providers</a></div>
+      <div class="Body"><a name="1054201">An </a><span class="Concept">interactive provider</span> is one that communicates with the TREP, accepting and managing multiple connections with TREP components. The following diagram illustrates this concept.</div>
+      <div class="Body"><a name="1054205"><img class="Default" src="images/InteractProviders.jpg" width="713" height="318" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="FigTitle">Figure 16.  <a name="1054209">Interactive Providers</a></div>
+      <div class="Body"><a name="1054213">An interactive provider receives connection requests from the TREP. The Interactive Provider responds to requests for information as to what services, domains, and capabilities it can provide or for which it can receive requests. It may also receive and respond to requests for information about its data dictionary, describing the format of expected data types. After this is completed, its behavior is interactive.</a></div>
+      <div class="Body"><a name="1054217">For legacy Triarch users or early TREP adopters, the Interactive Provider is similar in concept to the legacy Sink-Driven Server or Managed Server Application. Interactive Providers act like servers in a client-server relationship. A</a>n interactive provider can accept and manage connections from multiple TREP components.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -70,7 +73,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.01.html">Chapter 3	Consumers and Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.17.html">3.3	Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.18.html">3.3.1	Interactive Providers</a> : 3.3.1.1	Request /Response</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.01.html">Chapter 3	Consumers and Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.18.html">3.3	Providers</a> : 3.3.1	Interactive Providers</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

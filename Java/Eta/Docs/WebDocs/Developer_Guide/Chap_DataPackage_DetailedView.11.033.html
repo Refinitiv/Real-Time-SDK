@@ -56,18 +56,18 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1406458">RMTES Decoding</a></div>
-      <div class="Body"><a name="1528476">Use special consideration when handling and converting </a><span class="CodeOrCommand">RmtesBuffer</span>s that contain RMTES data. This allows for the application of partial content updates, used to efficiently change already received RMTES content by sending only those portions that need to be changed. For a more detailed description of RMTES, refer to the <span class="DocumentTitle">Reuters Multilingual Text Encoding Standard Specification</span>.</div>
-      <div class="Body"><a name="1528480">The typical process for handling RMTES content contained in an </a><span class="CodeOrCommand">RmtesBuffer</span> involves storing content, applying partial updates, and converting to the desired character set. The Transport API provides several structures and functions to help with this storage and conversion as described in the following sections.</div>
-      <div class="Blank_Line"><a name="1528492">&nbsp;</a></div>
+      <div class="Body"><a name="1686751">Use special consideration when handling and converting </a><span class="CodeOrCommand">RmtesBuffer</span>s that contain RMTES data. This allows for the application of partial content updates, used to efficiently change already received RMTES content by sending only those portions that need to be changed. For a more detailed description of RMTES, refer to the <span class="DocumentTitle">Reuters Multilingual Text Encoding Standard Specification</span>.</div>
+      <div class="Body"><a name="1686755">The typical process for handling RMTES content contained in an </a><span class="CodeOrCommand">RmtesBuffer</span> involves storing content, applying partial updates, and converting to the desired character set. The Transport API provides several structures and functions to help with this storage and conversion as described in the following sections.</div>
+      <div class="Blank_Line"><a name="1686767">&nbsp;</a></div>
       <table class="Warning" style="width: 554.99976pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 30.74904pt">
-            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1528486"><img class="Default" src="images/Chap_DataPackage_DetailedView.11.033.1.jpg" width="39" height="38" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
+            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1686761"><img class="Default" src="images/Chap_DataPackage_DetailedView.11.033.1.jpg" width="39" height="38" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
           </td>
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 524.25072pt">
             <div class="Warning">
-              <span class="Color_003aRequired">Warning! </span><a name="1528488"><!--o--></a>RMTES processing is an expensive procedure that incurs multiple content copies. To avoid unnecessary processing, users should confirm that content providers are actually sending RMTES prior to using this function. If the content type is not RMTES, do not use this function<sup><a name="wwfootnote_inline_111" href="#111">1</a></sup>.</div>
+              <span class="Color_003aRequired">Warning! </span><a name="1686763"><!--o--></a>RMTES processing is an expensive procedure that incurs multiple content copies. To avoid unnecessary processing, users should confirm that content providers are actually sending RMTES prior to using this function. If the content type is not RMTES, do not use this function<sup><a name="wwfootnote_inline_111" href="#111">1</a></sup>.</div>
           </td>
         </tr>
       </table>
@@ -75,7 +75,7 @@
       <div style="font-size: smaller; float: left; padding-right: 10px;">
         <a name="111" href="#wwfootnote_inline_111">1</a>
       </div>
-      <div class="TableFootnote"><a name="1528491">Although the type specified in the field dictionary may indicate RMTES, the actual content might not be encoded as such. Unless content uses RMTES encoding, this functionality is not necessary.</a></div>
+      <div class="TableFootnote"><a name="1686766">Although the type specified in the field dictionary may indicate RMTES, the actual content might not be encoded as such. Unless content uses RMTES encoding, this functionality is not necessary.</a></div>
       <br style="clear: both;" />
       <script type="text/javascript" language="JavaScript1.2">
         <!--

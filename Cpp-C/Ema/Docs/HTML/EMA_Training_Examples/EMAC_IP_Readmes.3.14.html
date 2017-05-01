@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>260__Custom__NestedMsg</title>
+    <title>250__GroupStatus__Fanout</title>
     <link rel="StyleSheet" href="css/EMAC_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,41 +45,42 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1019282">260__Custom__NestedMsg</a></div>
-      <div class="Body"><a name="1033285">Summary</a></div>
-      <div class="Body"><a name="1033286">=======</a></div>
+      <div class="H3_NoNum"><a name="1019288">250__GroupStatus__Fanout</a></div>
+      <div class="Body"><a name="1034088">Summary</a></div>
+      <div class="Body"><a name="1034089">=======</a></div>
+      <div class="Body"><a name="1034090">&nbsp;</a></div>
+      <div class="Body"><a name="1034091">250__GroupStatus__Fanout is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1034092">written to the EMA library.</a></div>
+      <div class="Body"><a name="1034093">&nbsp;</a></div>
+      <div class="Body"><a name="1034094">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1034095">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1034096">&nbsp;</a></div>
+      <div class="Body"><a name="1034097">250__GroupStatus__Fanout illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1034098">streaming item. This application uses hardcoded source directory configuration.</a></div>
+      <div class="Body"><a name="1034099">&nbsp;</a></div>
+      <div class="Body"><a name="1034100">&nbsp;</a></div>
+      <div class="Body"><a name="1034101">Detailed Description</a></div>
+      <div class="Body"><a name="1034102">====================</a></div>
+      <div class="Body"><a name="1034103">&nbsp;</a></div>
+      <div class="Body"><a name="1034104">250__GroupStatus__Fanout implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1034105">&nbsp;</a></div>
+      <div class="Body"><a name="1034106">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
+      <div class="Body"><a name="1034107">  - Sets the listening  port to “14002”</a></div>
+      <div class="Body"><a name="1034108">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1034109">  - listens on the above port</a></div>
+      <div class="Body"><a name="1034110">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1034111">+ Processes an item request (MarketPrice) and creates requested item (streaming refresh)</a></div>
+      <div class="Body"><a name="1034112">  and publishes it on requested service</a></div>
+      <div class="Body"><a name="1034113">+ After submitting refresh and 10 updates,</a></div>
+      <div class="Body"><a name="1034114">  sends a directory update with group status</a></div>
+      <div class="Body"><a name="1034115">- all other domains are status closed</a></div>
+      <div class="Body"><a name="1034116">  </a></div>
+      <div class="Body"><a name="1034117">+ Exits</a></div>
+      <div class="Body"><a name="1034118">&nbsp;</a></div>
+      <div class="Body"><a name="1034119">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1034120">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1034121">      ReadMe.txt file and EMA Configuration Guide.</a></div>
       <div class="Body"><a name="1033287">&nbsp;</a></div>
-      <div class="Body"><a name="1033288">260__Custom__NestedMsg is an example of an OMM Interactive Provider application </a></div>
-      <div class="Body"><a name="1033289">written to the EMA library.</a></div>
-      <div class="Body"><a name="1033290">&nbsp;</a></div>
-      <div class="Body"><a name="1033291">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1033292">of OMM nested message with custom domain type(200) defined by user</a></div>
-      <div class="Body"><a name="1033293">&nbsp;</a></div>
-      <div class="Body"><a name="1033294">260__Custom__NestedMsg illustrates how to create and publish a single OMM</a></div>
-      <div class="Body"><a name="1033295">streaming item. This application uses source directory configured in the EmaConfig.xml</a></div>
-      <div class="Body"><a name="1033296">file.</a></div>
-      <div class="Body"><a name="1033297">&nbsp;</a></div>
-      <div class="Body"><a name="1033298">&nbsp;</a></div>
-      <div class="Body"><a name="1033299">Detailed Description</a></div>
-      <div class="Body"><a name="1033300">====================</a></div>
-      <div class="Body"><a name="1033301">&nbsp;</a></div>
-      <div class="Body"><a name="1033302">260__Custom__NestedMsg implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1033303">&nbsp;</a></div>
-      <div class="Body"><a name="1033304">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
-      <div class="Body"><a name="1033305">  - Set the operation model to use user dispatch</a></div>
-      <div class="Body"><a name="1033306">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1033307">  - listens on the port from the EmaConfig.xml file</a></div>
-      <div class="Body"><a name="1033308">+ Accepts a login request</a></div>
-      <div class="Body"><a name="1033309">+ Processes an item request for Custom domain.</a></div>
-      <div class="Body"><a name="1033310"> - Publishes a generic message with a refresh message to the requesting stream.</a></div>
-      <div class="Body"><a name="1033311"> - Publishes generic messages with update messages 1 per second for 60 seconds.</a></div>
-      <div class="Body"><a name="1033312">+ Rejects subsequent item requests.</a></div>
-      <div class="Body"><a name="1033313">+ Exits</a></div>
-      <div class="Body"><a name="1033314">&nbsp;</a></div>
-      <div class="Body"><a name="1033315">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1033316">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1033317">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1032529">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -92,7 +93,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.09.html">200 Series Examples</a> : 260__Custom__NestedMsg</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.10.html">200 Series Examples</a> : 250__GroupStatus__Fanout</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

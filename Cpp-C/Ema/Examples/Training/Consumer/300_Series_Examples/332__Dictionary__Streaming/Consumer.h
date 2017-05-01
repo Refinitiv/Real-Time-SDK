@@ -36,13 +36,7 @@ class AppClient : public thomsonreuters::ema::access::OmmConsumerClient
 {
 public :
 
-	void decode( const thomsonreuters::ema::access::Msg& );				// print content of passed in Msg to screen
-
-	void decode( const thomsonreuters::ema::access::Series& );			// print content of passed in Series to screen
-
-	void decode( const thomsonreuters::ema::access::ElementList& );		// print content of passed in ElementList to screen
-
-	void decode( const thomsonreuters::ema::access::OmmArray& );		// print content of passed in OmmArray to screen
+	void decode( const thomsonreuters::ema::access::Msg&, bool complete = false );				// print content of passed in Msg to screen
 	
 	void decode( const thomsonreuters::ema::access::FieldList& );		// print content of passed in FieldList to screen
 

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.3.2 Non-Interactive Providers</title>
+    <title>3.3.1.5 Tunnel Streams (Available Only in ETA Reactor and EMA)</title>
     <link rel="StyleSheet" href="css/Chap_Consumers_Providers.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,39 +55,9 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1015272">Non-Interactive Providers</a></div>
-      <div class="H4"><a name="1015402">Overview</a></div>
-      <div class="Body"><a name="1042765">A </a><span class="Concept">non-interactive provider</span> (NIP) writes a provider application that connects to TREP and sends a specific set of non-interactive data (services, domains, and capabilities).</div>
-      <div class="Body"><a name="1042769"><img class="Default" src="images/NIP_P2P.jpg" width="690" height="309" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
-      <div class="FigTitle_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="FigTitle_inner" style="width: 36pt; white-space: nowrap">Figure 16.  </div>
-            </td>
-            <td width="100%">
-              <div class="FigTitle_inner"><a name="1042774">NIP: Point-To-Point</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1042778"><img class="Default" src="images/NIP_Multicast.jpg" width="643" height="365" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
-      <div class="FigTitle_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="FigTitle_inner" style="width: 36pt; white-space: nowrap">Figure 17.  </div>
-            </td>
-            <td width="100%">
-              <div class="FigTitle_inner"><a name="1042783">NIP: Multicast</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1042787">After a NIP connects to TREP, the NIP can start sending information for any supported item and domain. For legacy Triarch users or early TREP adopters, the NIP is similar in concept to what was once called the Src-Driven, or Broadcast Server Application.</a></div>
-      <div class="Body"><a name="1042794">Non-interactive providers act like clients in a client-server relationship. Multiple NIPs can connect to the same TREP and publish the same items and content. For example, two NIPs can publish the same or different fields for the same item “INTC.O” to the same TREP.</a></div>
-      <div class="Body"><a name="1042801">NIP applications can connect using a point-to-point TCP-based transport as shown in </a><a href="javascript:WWHClickedPopup('API_Concepts', 'Chap_Consumers_Providers.3.24.html#1042774', '');" title="3.3.2 Non-Interactive Providers">Figure 16</a>, or using a multicast transport as shown in <a href="javascript:WWHClickedPopup('API_Concepts', 'Chap_Consumers_Providers.3.24.html#1042783', '');" title="3.3.2 Non-Interactive Providers">Figure 17</a>.</div>
-      <div class="Body"><a name="1042805">The main benefit of this scenario is that all publishing traffic flows from top to bottom: the way a system normally expects updating data to flow. In the local publishing scenario, posting is frequently done upstream and must contend with a potential Infrastructure bias in prioritization of upstream versus downstream traffic.</a></div>
+      <div class="H4"><a name="1054258">Tunnel Streams (Available Only in ETA Reactor and EMA)</a></div>
+      <div class="Body"><a name="1054259">An interactive provider can receive requests for a tunnel stream when using the ETA Reactor or EMA. When creating a tunnel stream, the consumer indicates any additional behaviors to enforce, which is exchanged with the provider application end point. The provider end-point acknowledges creation of the stream as well as the behaviors that it will enforce on the stream. After the stream is established, the consumer can exchange any content it wants, though the tunnel stream will enforce behaviors on the transmitted content as negotiated with the provider.</a></div>
+      <div class="Body"><a name="1054260">A tunnel stream allows for multiple substreams to exist, where substreams follow from the same general stream concept, except that they flow and coexist within the confines of a tunnel stream.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -100,7 +70,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.01.html">Chapter 3	Consumers and Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.17.html">3.3	Providers</a> : 3.3.2	Non-Interactive Providers</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.01.html">Chapter 3	Consumers and Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.18.html">3.3	Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.19.html">3.3.1	Interactive Providers</a> : 3.3.1.5	Tunnel Streams (Available Only in ETA Reactor and EMA)</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

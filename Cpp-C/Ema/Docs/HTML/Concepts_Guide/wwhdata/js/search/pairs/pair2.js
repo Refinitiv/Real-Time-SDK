@@ -2,7 +2,6 @@ function FileData_Pairs(x)
 {
 x.t("example","example");
 x.t("example","applications");
-x.t("rfa","elektron");
 x.t("provided","specific");
 x.t("i.e","java");
 x.t("product","written");
@@ -27,8 +26,8 @@ x.t("code","examples");
 x.t("message","api");
 x.t("java","chapter");
 x.t("architecture","specific");
-x.t("specific","rfa");
 x.t("specific","api");
+x.t("specific","elektron");
 x.t("suite","code");
 x.t("programming","languages");
 x.t("elektron","api");

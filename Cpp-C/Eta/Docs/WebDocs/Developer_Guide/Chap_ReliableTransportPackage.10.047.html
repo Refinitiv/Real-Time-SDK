@@ -56,28 +56,28 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1027844">rsslInitChannel Function</a></div>
-      <div class="Blank_Line"><a name="1221584">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1246315">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 36: <span class="LucidaConsole"><a name="1221581">rsslInitChannel</a></span> Function &nbsp;</div>
+          <div class="TableTitle">Table 36: <span class="LucidaConsole"><a name="1246312">rsslInitChannel</a></span> Function &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1221510">function NAME</a></div>
+            <div class="CellHeading"><a name="1246241">function NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1221512">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1246243">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221517">rsslInitChannel</a></div>
+            <div class="CellBody"><a name="1246248">rsslInitChannel</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221525">Continues initialization of a</a>n <span class="CodeOrCommand">RsslChannel</span>. This channel could originate from <span class="CodeOrCommand">rsslConnect</span> or <span class="CodeOrCommand">rsslAccept</span>. This function exchanges various messages to perform necessary RSSL negotiations and handshakes to complete channel initialization. If using blocking I/O, this function is typically not used because <span class="CodeOrCommand">rsslConnect</span> and <span class="CodeOrCommand">rsslAccept</span> return active channels.</div>
-            <div class="CellBody"><a name="1221556">Requires the use of the </a><span class="CodeOrCommand">RsslInProgInfo</span> structure, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.048.html', '');" title="10.5.2 RsslInProgInfo Structure">Section 10.5.2</a>.</div>
-            <div class="CellBody"><a name="1221560">The </a><span class="CodeOrCommand">RsslChannel</span> can be used for all additional transport functionality (e.g. reading, writing) after the <span class="CodeOrCommand">state</span> transitions to <span class="CodeOrCommand">RSSL_CH_STATE_ACTIVE</span>. If a connection is rejected or initialization fails, the state transitions to <span class="CodeOrCommand">RSSL_CH_STATE_CLOSED</span>, and the application should close the channel to clean up any associated resources.</div>
-            <div class="CellBody"><a name="1221573">The return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.050.html', '');" title="10.5.4 rsslInitChannel Return Codes">Section 10.5.4</a>.</div>
+            <div class="CellBody"><a name="1246256">Continues initialization of a</a>n <span class="CodeOrCommand">RsslChannel</span>. This channel could originate from <span class="CodeOrCommand">rsslConnect</span> or <span class="CodeOrCommand">rsslAccept</span>. This function exchanges various messages to perform necessary RSSL negotiations and handshakes to complete channel initialization. If using blocking I/O, this function is typically not used because <span class="CodeOrCommand">rsslConnect</span> and <span class="CodeOrCommand">rsslAccept</span> return active channels.</div>
+            <div class="CellBody"><a name="1246287">Requires the use of the </a><span class="CodeOrCommand">RsslInProgInfo</span> structure, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.048.html', '');" title="10.5.2 RsslInProgInfo Structure">Section 10.5.2</a>.</div>
+            <div class="CellBody"><a name="1246291">The </a><span class="CodeOrCommand">RsslChannel</span> can be used for all additional transport functionality (e.g. reading, writing) after the <span class="CodeOrCommand">state</span> transitions to <span class="CodeOrCommand">RSSL_CH_STATE_ACTIVE</span>. If a connection is rejected or initialization fails, the state transitions to <span class="CodeOrCommand">RSSL_CH_STATE_CLOSED</span>, and the application should close the channel to clean up any associated resources.</div>
+            <div class="CellBody"><a name="1246304">The return values are described in </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.050.html', '');" title="10.5.4 rsslInitChannel Return Codes">Section 10.5.4</a>.</div>
           </td>
         </tr>
       </table>

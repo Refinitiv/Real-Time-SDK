@@ -90,6 +90,11 @@ Int16 FieldEntry::getRippleTo( Int16 fieldId ) const
 	return _pDecoder->getRippleTo( fieldId );
 }
 
+const EmaString& FieldEntry::getRippleToName(Int16 fieldId) const
+{
+	return _pDecoder->getRippleToName(fieldId);
+}
+
 Int64 FieldEntry::getInt() const
 {
 	if ( (*_pLoad)->getDataType() != DataType::IntEnum )
@@ -345,6 +350,35 @@ UInt16 FieldEntry::getEnum() const
 	return static_cast<const OmmEnum&>( **_pLoad ).getEnum();
 }
 
+
+bool FieldEntry::hasEnumDisplay() const
+{
+	if  ( ( (*_pLoad)->getDataType() == DataType::EnumEnum ) &&
+		( (*_pLoad)->getCode() != Data::BlankEnum ) )
+	{
+		return _pDecoder->hasEnumDisplay( static_cast<const OmmEnum&>( **_pLoad ).getEnum() );
+	}
+
+	return false;
+}
+
+const EmaString& FieldEntry::getEnumDisplay() const
+{
+	if ( (*_pLoad)->getDataType() != DataType::EnumEnum )
+	{
+		EmaString temp( "Attempt to getEnumDisplay() while actual entry data type is " );
+		temp += getDTypeAsString( (*_pLoad)->getDataType() );
+		throwIueException( temp );
+	}
+	else if ( (*_pLoad)->getCode() == Data::BlankEnum )
+	{
+		EmaString temp( "Attempt to getEnumDisplay() while entry data is blank." );
+		throwIueException( temp );
+	}
+
+	return _pDecoder->getEnumDisplay( static_cast<const OmmEnum&>( **_pLoad ).getEnum() );
+}
+
 const FieldList& FieldEntry::getFieldList() const
 {
 	if ( (*_pLoad)->getDataType() != DataType::FieldListEnum )
@@ -569,7 +603,7 @@ const EmaString& FieldEntry::toString() const
 		.append( " name=\"" ).append( _pDecoder->getName() ).append( "\"" )
 		.append( " dataType=\"" ).append( getDTypeAsString( (*_pLoad)->getDataType() ) );
 
-	if ( (*_pLoad)->getDataType() <= DataType::ArrayEnum )
+	if ( (*_pLoad)->getDataType() >= DataType::FieldListEnum || (*_pLoad)->getDataType() == DataType::ArrayEnum )
 	{
 		_toString.append( "\"\n" ).append( (*_pLoad)->toString( 1 ) );
 		addIndent( _toString, 0 ).append( "FieldEntryEnd\n" );

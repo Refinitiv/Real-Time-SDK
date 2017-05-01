@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1001225">Protocol Versioning</a></div>
-      <div class="Body"><a name="1038788">Consumer and provider applications using the Transport can provide protocol type and version information. This data is supplied as part of </a><span class="CodeOrCommand">ConnectOptions</span> or <span class="CodeOrCommand">BindOptions</span> and populated via the <span class="CodeOrCommand">protocolType</span>, <span class="CodeOrCommand">majorVersion</span>, and <span class="CodeOrCommand">minorVersion</span> methods. When establishing a connection, data is exchanged and negotiated between client and server:</div>
+      <div class="Body"><a name="1052732">Consumer and provider applications using the Transport can provide protocol type and version information. This data is supplied as part of </a><span class="CodeOrCommand">ConnectOptions</span> or <span class="CodeOrCommand">BindOptions</span> and populated via the <span class="CodeOrCommand">protocolType</span>, <span class="CodeOrCommand">majorVersion</span>, and <span class="CodeOrCommand">minorVersion</span> methods. When establishing a connection, data is exchanged and negotiated between client and server:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1038795">If the client’s specified </a><span class="CodeOrCommand">protocolType</span> does not match the server’s specified <span class="CodeOrCommand">protocolType</span>, the connection is refused.</div>
+              <div class="bullet_ind_inner"><a name="1052739">If the client’s specified </a><span class="CodeOrCommand">protocolType</span> does not match the server’s specified <span class="CodeOrCommand">protocolType</span>, the connection is refused.</div>
             </td>
           </tr>
         </table>
@@ -80,12 +80,12 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1038796">If the </a><span class="CodeOrCommand">protocolType</span> information matches, version information is compared and a compatible version determined.</div>
+              <div class="bullet_ind_inner"><a name="1052740">If the </a><span class="CodeOrCommand">protocolType</span> information matches, version information is compared and a compatible version determined.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1038800">After a connection becomes active, negotiated version information is available via the </a><span class="CodeOrCommand">Channel</span> from both client and server and can be used for encoding and decoding:</div>
+      <div class="Body"><a name="1052744">After a connection becomes active, negotiated version information is available via the </a><span class="CodeOrCommand">Channel</span> from both client and server and can be used for encoding and decoding:</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1038804">To populate version information on a </a><span class="CodeOrCommand">EncodeIterator</span>, call the <span class="CodeOrCommand">EncodeIterator.setBufferAndRWFVersion</span> method.</div>
+              <div class="bullet_ind_inner"><a name="1052748">To populate version information on a </a><span class="CodeOrCommand">EncodeIterator</span>, call the <span class="CodeOrCommand">EncodeIterator.setBufferAndRWFVersion</span> method.</div>
             </td>
           </tr>
         </table>
@@ -109,59 +109,59 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1038811">To populate version information on a </a><span class="CodeOrCommand">DecodeIterator</span>, call the <span class="CodeOrCommand">DecodeIterator.setBufferAndRWFVersion</span> method.</div>
+              <div class="bullet_ind_inner"><a name="1052755">To populate version information on a </a><span class="CodeOrCommand">DecodeIterator</span>, call the <span class="CodeOrCommand">DecodeIterator.setBufferAndRWFVersion</span> method.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1038815">The Transport layer is data neutral and does not change or depend on data distribution. Versioning information is provided only to help client and server applications manage the data they communicate. For further details on the Transport, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.01.html', '');" title="Chapter 9 Transport Package Detailed View">Chapter 9, Transport Package Detailed View</a>.</div>
-      <div class="Blank_Line"><a name="1038831">&nbsp;</a></div>
+      <div class="Body"><a name="1052759">The Transport layer is data neutral and does not change or depend on data distribution. Versioning information is provided only to help client and server applications manage the data they communicate. For further details on the Transport, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.01.html', '');" title="Chapter 9 Transport Package Detailed View">Chapter 9, Transport Package Detailed View</a>.</div>
+      <div class="Blank_Line"><a name="1052775">&nbsp;</a></div>
       <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
             <div class="Note">
-              <span class="Bold">Note: </span><a name="1038827">Properly using Transport API’s versioning functionality helps minimize future impacts associated with underlying format modifications and enhancements, ensuring compatibility with other Transport API-enabled components.</a></div>
+              <span class="Bold">Note: </span><a name="1052771">Properly using Transport API’s versioning functionality helps minimize future impacts associated with underlying format modifications and enhancements, ensuring compatibility with other Transport API-enabled components.</a></div>
           </td>
         </tr>
       </table>
-      <div class="Body"><a name="1038832">Typically, an increase in the major version is associated with the introduction of an incompatible change. An increase in the minor version tends to signify the introduction of a compatible change or extension.</a></div>
-      <div class="Body"><a name="1038833">The </a>Codec Package contains several defined values that you can access via <span class="CodeOrCommand">Codec</span> methods and use with protocol versioning:</div>
-      <div class="Blank_Line"><a name="1038869">&nbsp;</a></div>
+      <div class="Body"><a name="1052776">Typically, an increase in the major version is associated with the introduction of an incompatible change. An increase in the minor version tends to signify the introduction of a compatible change or extension.</a></div>
+      <div class="Body"><a name="1052777">The </a>Codec Package contains several defined values that you can access via <span class="CodeOrCommand">Codec</span> methods and use with protocol versioning:</div>
+      <div class="Blank_Line"><a name="1052813">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 59: <a name="1038866">Codec </a>Methods &nbsp;</div>
+          <div class="TableTitle">Table 59: <a name="1052810">Codec </a>Methods &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 253.50048pt">
-            <div class="CellHeading"><a name="1038836">Method</a></div>
+            <div class="CellHeading"><a name="1052780">Method</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 302.24952pt">
-            <div class="CellHeading"><a name="1038838">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1052782">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1038840">protocolType</a></div>
+            <div class="CellBody"><a name="1052784">protocolType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1038842">Defines the </a><span class="CodeOrCommand">protocolType</span> value associated with RWF. Define other protocols using different <span class="CodeOrCommand">protocolType</span> values.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1038844">majorVersion</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1038846">Sets the value associated with the current major version. If incompatible changes are introduced, this value is incremented.</a></div>
+            <div class="CellBody"><a name="1052786">Defines the </a><span class="CodeOrCommand">protocolType</span> value associated with RWF. Define other protocols using different <span class="CodeOrCommand">protocolType</span> values.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1038848">minorVersion</a></div>
+            <div class="CellBody"><a name="1052788">majorVersion</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1038850">Sets the value associated with the current minor version. If extensions or compatible changes are introduced, this value is incremented.</a></div>
+            <div class="CellBody"><a name="1052790">Sets the value associated with the current major version. If incompatible changes are introduced, this value is incremented.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1052792">minorVersion</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1052794">Sets the value associated with the current minor version. If extensions or compatible changes are introduced, this value is incremented.</a></div>
           </td>
         </tr>
       </table>

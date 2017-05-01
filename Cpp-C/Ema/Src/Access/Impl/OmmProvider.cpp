@@ -39,8 +39,17 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config ) :
 OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& client, void* closure) :
 	_pImpl(0)
 {
-	if ( config.getProviderRole() == OmmProviderConfig::NonInteractiveEnum )
-		throwIueException("Attempt to pass an OmmNiProvConfig instance to interactive provider OmmProvider constructor.");
+	if (config.getProviderRole() == OmmProviderConfig::NonInteractiveEnum)
+	{
+		try
+		{
+			_pImpl = new OmmNiProviderImpl(this, static_cast<const OmmNiProviderConfig&>(config), client, closure);
+		}
+		catch (std::bad_alloc) {}
+
+		if (!_pImpl)
+			throwMeeException("Failed to allocate memory in OmmNiProvider( const OmmProviderConfig&, OmmProviderClient& client ).");
+	}
 	else
 	{
 		try
@@ -76,7 +85,16 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 	_pImpl(0)
 {
 	if (config.getProviderRole() == OmmProviderConfig::NonInteractiveEnum)
-		throwIueException("Attempt to pass an OmmNiProvConfig instance to interactive provider OmmProvider constructor.");
+	{
+		try
+		{
+			_pImpl = new OmmNiProviderImpl(this, static_cast<const OmmNiProviderConfig&>(config), client, errorClient, closure);
+		}
+		catch (std::bad_alloc) {}
+
+		if (!_pImpl)
+			errorClient.onMemoryExhaustion("Failed to allocate memory in OmmNiProvider( const OmmProviderConfig& , OmmProviderErrorClient& ).");
+	}
 	else
 	{
 		try
@@ -103,6 +121,11 @@ const EmaString& OmmProvider::getProviderName() const
 UInt64 OmmProvider::registerClient( const ReqMsg& reqMsg, OmmProviderClient& client, void* closure ) 
 {
 	return _pImpl->registerClient( reqMsg, client, closure );
+}
+
+void OmmProvider::reissue(const ReqMsg& reqMsg, UInt64 handle)
+{
+	return _pImpl->reissue(reqMsg, handle);
 }
 
 void OmmProvider::submit( const RefreshMsg& refreshMsg, UInt64 handle )

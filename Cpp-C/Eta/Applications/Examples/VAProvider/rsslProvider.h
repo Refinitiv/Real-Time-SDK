@@ -31,6 +31,7 @@ extern "C" {
 #define CLIENT_SESSIONS_LIMIT 7
 #define MAX_CLIENT_SESSIONS 10
 #define UPDATE_INTERVAL 1
+#define MAX_TUNNEL_STREAMS 5
 
 /* client session information */
 typedef struct {
@@ -40,8 +41,7 @@ typedef struct {
 	time_t nextSendPingTime;
 	RsslBool receivedClientMsg;
 	RsslBool pingsInitialized;
-	RsslBool isTunnelStreamOpen;
-	SimpleTunnelMsgHandler simpleTunnelMsgHandler;
+	SimpleTunnelMsgHandler simpleTunnelMsgHandler[MAX_TUNNEL_STREAMS];
 } RsslClientSessionInfo;
 
 static void initRuntime();
@@ -62,14 +62,17 @@ RsslVACacheInfo* getCacheInfo();
  */
 RTR_C_INLINE void clearClientSessionInfo(RsslClientSessionInfo* clientSessionInfo)
 {
+	int i;
 	clientSessionInfo->isInUse = RSSL_FALSE;
 	clientSessionInfo->clientChannel = 0;
 	clientSessionInfo->nextReceivePingTime = 0;
 	clientSessionInfo->nextSendPingTime = 0;
 	clientSessionInfo->receivedClientMsg = RSSL_FALSE;
 	clientSessionInfo->pingsInitialized = RSSL_FALSE;
-	clientSessionInfo->isTunnelStreamOpen = RSSL_FALSE;
-	simpleTunnelMsgHandlerInit(&clientSessionInfo->simpleTunnelMsgHandler, NULL, 0, RSSL_FALSE, RSSL_TRUE);
+	for (i = 0; i < MAX_TUNNEL_STREAMS; i++)
+	{
+		simpleTunnelMsgHandlerInit(&clientSessionInfo->simpleTunnelMsgHandler[i], NULL, 0, RSSL_FALSE, RSSL_TRUE);
+	}
 }
 
 #ifdef __cplusplus

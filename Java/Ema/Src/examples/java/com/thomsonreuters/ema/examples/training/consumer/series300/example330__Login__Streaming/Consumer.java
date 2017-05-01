@@ -128,6 +128,9 @@ class AppClient implements OmmConsumerClient
 				case DataTypes.ENUM :
 					System.out.println(elementEntry.enumValue());
 					break;
+				case DataTypes.RMTES:
+				    System.out.println(elementEntry.rmtes());
+				    break;
 				case DataTypes.ERROR :
 					System.out.println(elementEntry.error().errorCode() +" (" + elementEntry.error().errorCodeAsString() + ")");
 					break;
@@ -173,6 +176,9 @@ class AppClient implements OmmConsumerClient
 				case DataTypes.ENUM :
 					System.out.println(fieldEntry.hasEnumDisplay() ? fieldEntry.enumDisplay() : fieldEntry.enumValue());
 					break;
+				case DataTypes.RMTES:
+				    System.out.println(fieldEntry.rmtes());
+				    break;
 				case DataTypes.ERROR :
 					System.out.println(fieldEntry.error().errorCode() +" (" + fieldEntry.error().errorCodeAsString() + ")");
 					break;
@@ -218,12 +224,10 @@ public class Consumer
 		{
 			AppClient appClient = new AppClient();
 			
-			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"));
+			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"), appClient);
 			
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 		
-			long loginHandle = consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_LOGIN), appClient);
-			
 			long handle = consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
 
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()

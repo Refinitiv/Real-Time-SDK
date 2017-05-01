@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
+    <title>440__System__TunnelStream</title>
+    <link rel="StyleSheet" href="css/EMAC_Consumer_Readmes.css" type="text/css" media="all" />
+    <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/towwhdir.js"></script>
+    <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/wwhpagef.js"></script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        var  WebWorksRootPath = "";
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        // Set reference to top level help frame
+        //
+        var  WWHFrame = WWHGetWWHFrame("", true);
+      // -->
+    </script>
+    <script type="text/javascript" language="JavaScript1.2" src="scripts/expand.js"></script>
+  </head>
+  <body onload="WWHUpdate();" onunload="WWHUnload();" onkeydown="WWHHandleKeyDown((document.all||document.getElementById||document.layers)?event:null);" onkeypress="WWHHandleKeyPress((document.all||document.getElementById||document.layers)?event:null);" onkeyup="WWHHandleKeyUp((document.all||document.getElementById||document.layers)?event:null);">
+    <table width="100%" align="left" role="presentation">
+      <tr>
+        <td class="WebWorks_Company_Name_Top" width="250">
+          <div id="boxC">Elektron Message API C++ Edition</div>
+        </td>
+        <td width="30">
+          <div id="boxB"></div>
+        </td>
+        <td width="*"></td>
+        <td class="WebWorks_Company_Logo_Top" width="160">
+          <div id="boxA">
+            <img align="left" src="banner_logo.gif" alt="Elektron Message API C++ Edition" />
+          </div>
+        </td>
+      </tr>
+    </table>
+    <br clear="all" />
+    <hr align="left" />
+    <blockquote>
+      <div class="H3_NoNum"><a name="1024837">440__System__TunnelStream</a></div>
+      <div class="Body"><a name="1043987">Summary</a></div>
+      <div class="Body"><a name="1043988">=======</a></div>
+      <div class="Body"><a name="1043989">&nbsp;</a></div>
+      <div class="Body"><a name="1043990">440__System__TunnelStream is an example of an OMM Consumer application written to the EMA</a></div>
+      <div class="Body"><a name="1043991">library.</a></div>
+      <div class="Body"><a name="1043992">&nbsp;</a></div>
+      <div class="Body"><a name="1043993">This application demonstrates the usage of the EMA library in accessing and parsing of</a></div>
+      <div class="Body"><a name="1043994">OMM Data received through the Tunnel Stream connectivity. Such connectivity and OMM Data</a></div>
+      <div class="Body"><a name="1043995">can be obtained from the Auxiliary Services Gateway. Referential data and Time Series are</a></div>
+      <div class="Body"><a name="1043996">examples of OMM Data for which one requires the Tunnel Stream connectivity.</a></div>
+      <div class="Body"><a name="1043997">&nbsp;</a></div>
+      <div class="Body"><a name="1043998">440__System__TunnelStream illustrates how to open and process a tunnel stream and a sub-stream.</a></div>
+      <div class="Body"><a name="1043999">While processing received messages, the application prints them to the screen.</a></div>
+      <div class="Body"><a name="1044000">&nbsp;</a></div>
+      <div class="Body"><a name="1044001">Detailed Description</a></div>
+      <div class="Body"><a name="1044002">====================</a></div>
+      <div class="Body"><a name="1044003">&nbsp;</a></div>
+      <div class="Body"><a name="1044004">440__System__TunnelStream implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1044005">&nbsp;</a></div>
+      <div class="Body"><a name="1044006">+ Implements the OmmConsumerClient class in the AppClient</a></div>
+      <div class="Body"><a name="1044007">  - Overrides desired methods</a></div>
+      <div class="Body"><a name="1044008">+ Instantiates an AppClient object to receive and process item messages</a></div>
+      <div class="Body"><a name="1044009">+ Instantiates and modifies an OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1044010">  - Sets the user name to “user”</a></div>
+      <div class="Body"><a name="1044011">  - Reads in EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1044012">+ Instantiates an OmmConsumer object which initializes the connection</a></div>
+      <div class="Body"><a name="1044013">  and logs into the specified server</a></div>
+      <div class="Body"><a name="1044014">+ Opens a tunnel stream</a></div>
+      <div class="Body"><a name="1044015">  - TUNNEL on MMT_SYSTEM domain from the service of DIRECT_FEED</a></div>
+      <div class="Body"><a name="1044016">+ Opens streaming sub stream item on the tunnel stream</a></div>
+      <div class="Body"><a name="1044017">  - MarketPrice TUNNEL_ITEM from the service with id of 1</a></div>
+      <div class="Body"><a name="1044018">+ Processes data received from the API for 60 seconds</a></div>
+      <div class="Body"><a name="1044019">  - Received messages are processed on the API thread of control</a></div>
+      <div class="Body"><a name="1044020">+ Exits</a></div>
+      <div class="Body"><a name="1044021">&nbsp;</a></div>
+      <div class="Body"><a name="1044022">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1044023">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1044024">      ReadMe.txt file and EMA COnfiguration Guide.</a></div>
+      <div class="Body"><a name="1042276">&nbsp;</a></div>
+      <script type="text/javascript" language="JavaScript1.2">
+        <!--
+          // Clear related topics
+          //
+          WWHClearRelatedTopics();
+
+          document.writeln(WWHRelatedTopicsInlineHTML());
+        // -->
+      </script>
+    </blockquote>
+    <hr align="left" />
+    <div class="WebWorks_Breadcrumbs" style="text-align: left;">
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.01.html">EMA C++ Consumer Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_Consumer_Readmes.1.37.html">400 Series Examples</a> : 440__System__TunnelStream</div>
+    <br />
+    <script type="text/javascript" language="JavaScript1.2">
+      <!--
+        document.write(WWHRelatedTopicsDivTag() + WWHPopupDivTag() + WWHALinksDivTag());
+      // -->
+    </script>
+  </body>
+</html>

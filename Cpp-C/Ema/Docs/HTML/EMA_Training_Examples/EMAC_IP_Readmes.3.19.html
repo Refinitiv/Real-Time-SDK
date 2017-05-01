@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>320__Custom__GenericMsg</title>
+    <title>301__MarketPrice__PriorityChange</title>
     <link rel="StyleSheet" href="css/EMAC_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -45,43 +45,44 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1019291">320__Custom__GenericMsg</a></div>
-      <div class="Body"><a name="1033436">Summary</a></div>
-      <div class="Body"><a name="1033437">=======</a></div>
-      <div class="Body"><a name="1033438">&nbsp;</a></div>
-      <div class="Body"><a name="1033439">320__Custom__GenericMsg is an example of an OMM Interactive Provider application </a></div>
-      <div class="Body"><a name="1033440">written to the EMA library.</a></div>
-      <div class="Body"><a name="1033441">&nbsp;</a></div>
-      <div class="Body"><a name="1033442">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1033443">of custom domain data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1033444">&nbsp;</a></div>
-      <div class="Body"><a name="1033445">320__Custom__GenericMsg illustrates how to create and publish a single</a></div>
-      <div class="Body"><a name="1033446">streaming item of custom domain. This application uses source directory configured in the EmaConfig.xml</a></div>
-      <div class="Body"><a name="1033447">file.</a></div>
-      <div class="Body"><a name="1033448">&nbsp;</a></div>
-      <div class="Body"><a name="1033449">&nbsp;</a></div>
-      <div class="Body"><a name="1033450">Detailed Description</a></div>
-      <div class="Body"><a name="1033451">====================</a></div>
-      <div class="Body"><a name="1033452">&nbsp;</a></div>
-      <div class="Body"><a name="1033453">320__Custom__GenericMsg implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1033454">&nbsp;</a></div>
-      <div class="Body"><a name="1033455">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
-      <div class="Body"><a name="1033456">  - Set the operation model to use user dispatch</a></div>
-      <div class="Body"><a name="1033457">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1033458">  - listens on the port from the EmaConfig.xml file</a></div>
-      <div class="Body"><a name="1033459">+ Accepts a login request</a></div>
-      <div class="Body"><a name="1033460">+ Processes an item request of custom domain.</a></div>
-      <div class="Body"><a name="1033461"> - Creates streaming item (refresh and updates) and publishes them</a></div>
-      <div class="Body"><a name="1033462"> - Publishes updates 1 per second for 60 seconds</a></div>
-      <div class="Body"><a name="1033463"> - Updates are published with a user dispatch loop</a></div>
-      <div class="Body"><a name="1033464">+ Rejects subsequent item requests.</a></div>
-      <div class="Body"><a name="1033465">+ Receive and pulish generic msg on the custom domain stream.</a></div>
-      <div class="Body"><a name="1033466">+ Exits</a></div>
-      <div class="Body"><a name="1033467">&nbsp;</a></div>
-      <div class="Body"><a name="1033468">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1033469">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1033470">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1032774">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1019295">301__MarketPrice__PriorityChange</a></div>
+      <div class="Body"><a name="1034237">Summary</a></div>
+      <div class="Body"><a name="1034238">=======</a></div>
+      <div class="Body"><a name="1034239">&nbsp;</a></div>
+      <div class="Body"><a name="1034240">301__MarketPrice__PriorityChange is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1034241">written to the EMA library.</a></div>
+      <div class="Body"><a name="1034242">&nbsp;</a></div>
+      <div class="Body"><a name="1034243">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1034244">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1034245">&nbsp;</a></div>
+      <div class="Body"><a name="1034246">301__MarketPrice__PriorityChange illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1034247">streaming item. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1034248">file.</a></div>
+      <div class="Body"><a name="1034249">&nbsp;</a></div>
+      <div class="Body"><a name="1034250">&nbsp;</a></div>
+      <div class="Body"><a name="1034251">Detailed Description</a></div>
+      <div class="Body"><a name="1034252">====================</a></div>
+      <div class="Body"><a name="1034253">&nbsp;</a></div>
+      <div class="Body"><a name="1034254">301__MarketPrice__PriorityChange implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1034255">&nbsp;</a></div>
+      <div class="Body"><a name="1034256">+ Instantiates and modifies an OmmIProviderConfig object.</a></div>
+      <div class="Body"><a name="1034257"> - Set the operation model to use user dispatch</a></div>
+      <div class="Body"><a name="1034258">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1034259">  - listens on the port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1034260">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1034261">+ Processes an item request for MarketPrice domain.</a></div>
+      <div class="Body"><a name="1034262"> - Creates streaming item (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1034263"> - Publishes updates 1 per second for total 60 updates</a></div>
+      <div class="Body"><a name="1034264"> - Updates are published with a user dispatch loop</a></div>
+      <div class="Body"><a name="1034265">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1034266">+ Receive the item reissue request with priority change.</a></div>
+      <div class="Body"><a name="1034267"> - store and print priority information to console.</a></div>
+      <div class="Body"><a name="1034268">+ Exits</a></div>
+      <div class="Body"><a name="1034269">&nbsp;</a></div>
+      <div class="Body"><a name="1034270">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1034271">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1034272">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1033446">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -94,7 +95,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.16.html">300 Series Examples</a> : 320__Custom__GenericMsg</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.01.html">EMA C++ Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAC_IP_Readmes.3.17.html">300 Series Examples</a> : 301__MarketPrice__PriorityChange</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

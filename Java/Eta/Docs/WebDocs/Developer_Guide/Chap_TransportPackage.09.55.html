@@ -56,55 +56,55 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1104686">Channel.getBuffer Return Values</a></div>
-      <div class="Body"><a name="1473875">The following table defines</a> <span class="CodeOrCommand">TransportReturnCodes</span> and <span class="CodeOrCommand">Error.errorId</span> values that can occur while using <span class="CodeOrCommand">Channel.getBuffer</span>.</div>
-      <div class="Blank_Line"><a name="1473964">&nbsp;</a></div>
+      <div class="Body"><a name="1527616">The following table defines</a> <span class="CodeOrCommand">TransportReturnCodes</span> and <span class="CodeOrCommand">Error.errorId</span> values that can occur while using <span class="CodeOrCommand">Channel.getBuffer</span>.</div>
+      <div class="Blank_Line"><a name="1527705">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 33: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1473961">Channel.getBuffer</a></span> TransportReturnCodes &nbsp;</div>
+          <div class="TableTitle">Table 33: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1527702">Channel.getBuffer</a></span> TransportReturnCodes &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 240.75pt">
-            <div class="CellHeading"><a name="1473881">RETURN CODE</a></div>
+            <div class="CellHeading"><a name="1527622">RETURN CODE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: middle; width: 315pt">
-            <div class="CellHeading"><a name="1473883">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1527624">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473885">Valid buffer returned</a></div>
-            <div class="CellBody"><a name="1473886">Success Case</a>: <span class="CodeOrCommand">TransportReturnCodes.SUCCESS</span></div>
+            <div class="CellBody"><a name="1527626">Valid buffer returned</a></div>
+            <div class="CellBody"><a name="1527627">Success Case</a>: <span class="CodeOrCommand">TransportReturnCodes.SUCCESS</span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473891">A </a><span class="CodeOrCommand">TransportBuffer</span> is returned to the user. Transport <span class="CodeOrCommand">Buffer.data</span> refers to the underlying ByteBuffer.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473893">NULL buffer returned</a></div>
-            <div class="CellBody"><a name="1473894">Error Code:</a> <span class="CodeOrCommand">TransportReturnCodes.NO_BUFFERS</span></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473896">NULL is returned to the user. This value indicates that there are no buffers available to the user. See </a><span class="CodeOrCommand">Error</span> content for more details. </div>
-            <div class="CellBody"><a name="1473900">This typically occurs because all available buffers are queued and pending flushing to the connection. The application can use </a><span class="CodeOrCommand">Channel.flush</span> to attempt releasing buffers back to the pool (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.67.html', '');" title="9.10.2 Channel.flush Method">Section 9.10.2</a>). Additionally, the <span class="CodeOrCommand">Channel.ioctl</span> method can be used to increase the number of <span class="CodeOrCommand">guaranteedOutputBuffers</span> (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.80.html', '');" title="9.14 Utility Methods">Section 9.14</a>).</div>
+            <div class="CellBody"><a name="1527632">A </a><span class="CodeOrCommand">TransportBuffer</span> is returned to the user. Transport <span class="CodeOrCommand">Buffer.data</span> refers to the underlying ByteBuffer.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473923">NULL buffer returned</a></div>
-            <div class="CellBody"><a name="1473924">Error Code:</a> <span class="CodeOrCommand">TransportReturnCodes.FAILURE</span></div>
+            <div class="CellBody"><a name="1527634">NULL buffer returned</a></div>
+            <div class="CellBody"><a name="1527635">Error Code:</a> <span class="CodeOrCommand">TransportReturnCodes.NO_BUFFERS</span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473926">NULL is returned to the user. This value indicates that some type of general failure has occurred. The </a><span class="CodeOrCommand">Channel</span> should be closed, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.78.html', '');" title="9.13 Closing Connections">Section 9.13</a>. See <span class="CodeOrCommand">Error</span> content for more details.</div>
+            <div class="CellBody"><a name="1527637">NULL is returned to the user. This value indicates that there are no buffers available to the user. See </a><span class="CodeOrCommand">Error</span> content for more details. </div>
+            <div class="CellBody"><a name="1527641">This typically occurs because all available buffers are queued and pending flushing to the connection. The application can use </a><span class="CodeOrCommand">Channel.flush</span> to attempt releasing buffers back to the pool (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.67.html', '');" title="9.10.2 Channel.flush Method">Section 9.10.2</a>). Additionally, the <span class="CodeOrCommand">Channel.ioctl</span> method can be used to increase the number of <span class="CodeOrCommand">guaranteedOutputBuffers</span> (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.80.html', '');" title="9.14 Utility Methods">Section 9.14</a>).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473940">NULL buffer returned</a></div>
-            <div class="CellBody"><a name="1473941">Error Code:</a> <span class="CodeOrCommand">TransportReturnCodes.INIT_NOT_INITIALIZED</span></div>
+            <div class="CellBody"><a name="1527664">NULL buffer returned</a></div>
+            <div class="CellBody"><a name="1527665">Error Code:</a> <span class="CodeOrCommand">TransportReturnCodes.FAILURE</span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1473943">Indicates that the Transport has not been initialized. See the </a><span class="CodeOrCommand">Error</span> content for more details. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.14.html', '');" title="9.2 Initializing and Uninitializing the Transport">Section 9.2</a>.</div>
+            <div class="CellBody"><a name="1527667">NULL is returned to the user. This value indicates that some type of general failure has occurred. The </a><span class="CodeOrCommand">Channel</span> should be closed, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.78.html', '');" title="9.13 Closing Connections">Section 9.13</a>. See <span class="CodeOrCommand">Error</span> content for more details.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527681">NULL buffer returned</a></div>
+            <div class="CellBody"><a name="1527682">Error Code:</a> <span class="CodeOrCommand">TransportReturnCodes.INIT_NOT_INITIALIZED</span></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 2pt; padding-left: 4pt; padding-right: 4pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1527684">Indicates that the Transport has not been initialized. See the </a><span class="CodeOrCommand">Error</span> content for more details. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_TransportPackage.09.14.html', '');" title="9.2 Initializing and Uninitializing the Transport">Section 9.2</a>.</div>
           </td>
         </tr>
       </table>

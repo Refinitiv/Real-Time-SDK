@@ -4,6 +4,10 @@
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
 
+        <tstamp>
+                <format property="YEAR" pattern="yyyy"/>
+        </tstamp>
+
 	<property name="bin.dir" value="bin"/>
 	<property name="libs.dir" value="../../Libs"/>	
 	
@@ -34,6 +38,30 @@
             <classpath refid="examples.classpath"/>
         </javac>
     </target>
+
+        <!-- this target creates and packages the javadoc -->
+    <target depends="build-training" name="package-docs">
+        <echo message="Packaging ETA Java Training javadoc" />
+        <delete dir="${marshall.dir}" />
+                <copy todir="${marshall.dir}">
+            <fileset dir=".">
+                 <include name="**/*.*" />
+            </fileset>
+            <fileset dir="../Shared">
+                 <include name="**/*.*" />
+            </fileset>
+        </copy>
+
+                <javadoc sourcepath="${marshall.dir}" classpath="${libs.dir}/upa.jar;${libs.dir}/upaValueAdd.jar;${libs.dir}/ansipage.jar;${submodule.dir}/upaValueAddCache.jar;${submodule.dir}/jdacsUpalib.jar" defaultexcludes="yes" destdir="${docs.refman.upajexamples.dir}" author="true" version="true" use="true" windowtitle="ETAJ Training" additionalparam="-Xdoclint:none">
+                        <doctitle>
+                                <![CDATA[<h1>Elektron Transport API (ETA) 3.0 - Java Edition Training</h1>]]></doctitle>
+                        <bottom>
+                                <![CDATA[<i>Copyright &#169; ${YEAR}  Thomson Reuters. All Rights Reserved.</i>]]></bottom>
+                </javadoc>
+
+         <delete dir="${marshall.dir}" />
+    </target>
+
 	
 	<!-- this target runs the provider training example module 1a connect -->
 	<target name="run-provider-mod1a">

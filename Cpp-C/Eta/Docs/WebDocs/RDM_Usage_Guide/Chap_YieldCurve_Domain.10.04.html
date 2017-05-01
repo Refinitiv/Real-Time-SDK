@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>10.2.2 Yield Curve Refresh Message Use</title>
+    <title>10.2.2 Yield Curve Refresh Message</title>
     <link rel="StyleSheet" href="css/Chap_YieldCurve_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,34 +55,34 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="999350">Yield Curve Refresh Message Use</a></div>
+      <div class="H3"><a name="999350">Yield Curve Refresh Message</a></div>
       <div class="Body"><a name="1000033">A Yield Curve Refresh Message is sent by OMM provider and OMM non-interactive provider applications. This message sends all currently available information about the item to the consumer.</a></div>
       <div class="Body"><span class="CodeOrCommand"><a name="1000034">RsslFieldList</a></span> in the payload should include all fields that might be present in subsequent updates, even if those fields are currently blank. When responding to a View request, this refresh should contain all fields requested by the specified view. If for any reason the provider wishes to send new fields, it must first send an unsolicited refresh with both the new and currently-present fields.</div>
-      <div class="Body"><a name="1000035">Providers must set the </a><span class="CodeOrCommand">RSSL_RFMF_CLEAR_CACHE</span> flag on the solicited <span class="CodeOrCommand">RsslRefreshMsg</span>. For multi-part refreshes, the <span class="CodeOrCommand">RSSL_RFMF_CLEAR_CACHE</span> flag must be set on the first part only.</div>
-      <div class="Blank_Line"><a name="999352">&nbsp;</a></div>
+      <div class="Body"><a name="1063751">Providers must set the </a><span class="CodeOrCommand">RSSL_RFMF_CLEAR_CACHE</span> flag on the solicited <span class="CodeOrCommand">RsslRefreshMsg</span>. For multi-part refreshes, the <span class="CodeOrCommand">RSSL_RFMF_CLEAR_CACHE</span> flag must be set on the first part only.</div>
+      <div class="Blank_Line"><a name="1063779">&nbsp;</a></div>
       <table class="Warning" style="width: 554.99976pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 30.74904pt">
-            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1000053"><img class="Default" src="images/Chap_YieldCurve_Domain.10.04.1.jpg" width="34" height="33" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></span></div>
+            <div class="Body" style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><a name="1063767"><img class="Default" src="images/Chap_YieldCurve_Domain.10.04.1.jpg" width="34" height="33" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></span></div>
           </td>
           <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 524.25072pt">
             <div class="Warning">
-              <span class="Bold">Warning! </span><a name="1000055">Although the payload is an </a><span class="CodeOrCommand">RsslFieldList</span>, some field entries are sent as more complex types such as <span class="CodeOrCommand">RsslVector</span> and <span class="CodeOrCommand">RsslArray</span>. Encoding and decoding applications should be aware of this and ensure proper handling of these types.</div>
+              <span class="Bold">Warning! </span><a name="1063775">Although the payload is an </a><span class="CodeOrCommand">RsslFieldList</span>, some field entries are sent as more complex types such as <span class="CodeOrCommand">RsslVector</span> and <span class="CodeOrCommand">RsslArray</span>. Encoding and decoding applications should be aware of this and ensure proper handling of these types.</div>
           </td>
         </tr>
       </table>
       <div class="Blank_Line"><a name="999354">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 68: <a name="1000129">Yield Curve Refresh Message Member Use &nbsp;</a></div>
+          <div class="TableTitle">Table 70: <a name="1000129">Yield Curve Refresh Message</a> Member Use &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading" style="text-align: Center"><a name="1000065">COMPONENT</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="1000065">COMPONENT</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading" style="text-align: Center"><a name="1000067">DESCRIPTION / VALUE</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="1000067">DESCRIPTION / VALUE</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -122,7 +122,7 @@
             <div class="CellBody"><a name="1000085">qos</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000087">Optional. If sent, specifies the QoS at which the stream is provided.</a></div>
+            <div class="CellBody"><a name="1000087">Optional. Specifies the QoS at which the stream is provided.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -146,7 +146,7 @@
             <div class="CellBody"><a name="1000097">permData</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000099">Optional. Specifies the permission information associated with content on this stream.</a></div>
+            <div class="CellBody"><a name="1000099">Optional. Specifies permission information associated with content on this stream.</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -158,24 +158,24 @@
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="1">
             <div class="CellBody"><a name="1000105">msgKey.serviceId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="1000107">Required</a></span>. Specifies the Id of the service providing the item.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="1000107">Required</a></span>. Specifies the ID of the service providing the item.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000109">msgKey.nameType</a></div>
+            <div class="CellBody"><a name="1010889">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000111">Optional. Should match the </a><span class="CodeOrCommand">nameType</span> specified in the request. If this is not specified, <span class="CodeOrCommand">msgKey.nameType</span> defaults to <span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span>.</div>
+            <div class="CellBody"><a name="1000111">Optional. Should match the </a><span class="CodeOrCommand">nameType</span> specified in the request. If this is not specified, <span class="CodeOrCommand">nameType</span> defaults to <span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1000113">msgKey.name</a></div>
+            <div class="CellBody"><a name="1010894">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
             <div class="CellBody"><a name="1000115">Optional. </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_NAME</span> should be specified. This should match the requested name.</div>
@@ -226,7 +226,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_YieldCurve_Domain.10.01.html">Chapter 10	Yield Curve Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_YieldCurve_Domain.10.03.html">10.2	Usage</a> : 10.2.2	Yield Curve Refresh Message Use</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_YieldCurve_Domain.10.01.html">Chapter 10	Yield Curve Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_YieldCurve_Domain.10.03.html">10.2	Usage</a> : 10.2.2	Yield Curve Refresh Message</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

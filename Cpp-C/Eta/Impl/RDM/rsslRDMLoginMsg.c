@@ -14,6 +14,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 	RsslMsg msg;
 	RsslElementList elementList;
 	RsslElementEntry elementEntry;
+	char blank = 0x00;
 
 	switch (pLoginMsg->rdmMsgBase.rdmMsgType)
 	{
@@ -23,7 +24,10 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			RsslRDMLoginRequest *pLoginRequest = &pLoginMsg->request;
 
 			/* Preconditions */
-			if (!RSSL_ERROR_INFO_CHECK(pLoginRequest->userName.data && pLoginRequest->userName.length, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+			if (!RSSL_ERROR_INFO_CHECK((pLoginRequest->flags & RDM_LG_RQF_HAS_USERNAME_TYPE && pLoginRequest->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN 
+					&& pLoginRequest->userName.data && pLoginRequest->userName.length)
+					|| (pLoginRequest->userName.data && pLoginRequest->userName.length), RSSL_RET_FAILURE, pError)) 
+				return RSSL_RET_FAILURE;
 
 			rsslClearRequestMsg(pReqMsg);
 			/* Populate msgBase */
@@ -41,12 +45,22 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 
 			/* Populate key with userName */
 			pReqMsg->msgBase.msgKey.flags = RSSL_MKF_HAS_ATTRIB | RSSL_MKF_HAS_NAME;
-			pReqMsg->msgBase.msgKey.name = pLoginRequest->userName;
+			
+			
 			if (pLoginRequest->flags & RDM_LG_RQF_HAS_USERNAME_TYPE)
 			{
 				pReqMsg->msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME_TYPE;
 				pReqMsg->msgBase.msgKey.nameType = pLoginRequest->userNameType;
 			}
+			
+			if((pLoginRequest->flags & RDM_LG_RQF_HAS_USERNAME_TYPE) && pLoginRequest->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+			{
+				pReqMsg->msgBase.msgKey.name.data = &blank;
+				pReqMsg->msgBase.msgKey.name.length = 1;
+			}
+			else
+				pReqMsg->msgBase.msgKey.name = pLoginRequest->userName;				
+			
 			pReqMsg->msgBase.msgKey.attribContainerType = RSSL_DT_ELEMENT_LIST;
 
 			/* Begin encoding message */
@@ -59,9 +73,25 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
 			rsslClearElementEntry(&elementEntry);
+			
+			if((pLoginRequest->flags & RDM_LG_RQF_HAS_USERNAME_TYPE) && pLoginRequest->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN && pLoginRequest->userName.length != 0)
+			{
+				/* Authentication token.  This has already been verified to be present with the initial precondition check above */
+				elementEntry.dataType = RSSL_DT_ASCII_STRING;
+				elementEntry.name = RSSL_ENAME_AUTHN_TOKEN;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->userName)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			
+				/* Authentication extended Info */
+				if(pLoginRequest->flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED && pLoginRequest->authenticationExtended.length != 0)
+				{
+					elementEntry.dataType = RSSL_DT_BUFFER;
+					elementEntry.name = RSSL_ENAME_AUTHN_EXTENDED;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRequest->authenticationExtended)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				}
+			}
 
 			/* ApplicationId */
-			if (pLoginRequest->flags & RDM_LG_RQF_HAS_APPLICATION_ID)
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_APPLICATION_ID && pLoginRequest->applicationId.length != 0)
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPID;
@@ -69,7 +99,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			}
 
 			/* ApplicationName */
-			if (pLoginRequest->flags & RDM_LG_RQF_HAS_APPLICATION_NAME)
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_APPLICATION_NAME && pLoginRequest->applicationName.length != 0)
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPNAME;
@@ -77,7 +107,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			}
 
 			/* ApplicationAuthorization Token */
-			if (pLoginRequest->flags & RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN)
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN && pLoginRequest->applicationAuthorizationToken.length != 0)
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPAUTH_TOKEN;
@@ -85,7 +115,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			}
 
 			/* Position */
-			if (pLoginRequest->flags & RDM_LG_RQF_HAS_POSITION)
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_POSITION && pLoginRequest->position.length != 0)
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_POSITION;
@@ -93,7 +123,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			}
 
 			/* Password */
-			if (pLoginRequest->flags & RDM_LG_RQF_HAS_PASSWORD)
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_PASSWORD && pLoginRequest->password.length != 0)
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_PASSWORD;
@@ -101,7 +131,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			}
 
 			/* InstanceId */
-			if (pLoginRequest->flags & RDM_LG_RQF_HAS_INSTANCE_ID)
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_INSTANCE_ID && pLoginRequest->instanceId.length != 0)
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_INST_ID;
@@ -301,6 +331,13 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 
 			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_USERNAME_TYPE)
 			{
+				if((pLoginRefresh->flags & RDM_LG_RFF_HAS_USERNAME_TYPE) && pLoginRefresh->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+				{
+					msg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
+					msg.msgBase.msgKey.name.data = &blank;
+					msg.msgBase.msgKey.name.length = 1;
+				}
+				
 				msg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME_TYPE;
 				msg.msgBase.msgKey.nameType = pLoginRefresh->userNameType;
 			}
@@ -319,7 +356,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			rsslClearElementEntry(&elementEntry);
 
 			/* ApplicationId */
-			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_APPLICATION_ID)
+			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_APPLICATION_ID && pLoginRefresh->applicationId.length != 0)
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPID;
@@ -327,7 +364,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			}
 
 			/* ApplicationName */
-			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_APPLICATION_NAME)
+			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_APPLICATION_NAME && pLoginRefresh->applicationName.length != 0)
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_APPNAME;
@@ -335,7 +372,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			}
 
 			/* Position */
-			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_POSITION)
+			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_POSITION && pLoginRefresh->position.length != 0)
 			{
 				elementEntry.dataType = RSSL_DT_ASCII_STRING;
 				elementEntry.name = RSSL_ENAME_POSITION;
@@ -452,6 +489,38 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				elementEntry.dataType = RSSL_DT_UINT;
 				elementEntry.name = RSSL_ENAME_SEQUENCE_NUMBER_RECOVERY;
 				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->sequenceNumberRecovery)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			}
+			
+			/* Authentication time to reissue */
+			if(pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_TT_REISSUE)
+			{
+				elementEntry.dataType = RSSL_DT_UINT;
+				elementEntry.name = RSSL_ENAME_AUTHN_TT_REISSUE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationTTReissue)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			}
+			
+			/* Authentication extended response buffer */
+			if(pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP && pLoginRefresh->authenticationExtendedResp.length != 0)
+			{
+				elementEntry.dataType = RSSL_DT_BUFFER;
+				elementEntry.name = RSSL_ENAME_AUTHN_EXTENDED_RESP;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationExtendedResp)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			}
+			
+			/* Authentication error code */
+			if(pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_CODE)
+			{
+				elementEntry.dataType = RSSL_DT_UINT;
+				elementEntry.name = RSSL_ENAME_AUTHN_ERROR_CODE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			}
+			
+			/* Authentication error text buffer */
+			if(pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT && pLoginRefresh->authenticationErrorText.length != 0)
+			{
+				elementEntry.dataType = RSSL_DT_ASCII_STRING;
+				elementEntry.name = RSSL_ENAME_AUTHN_ERROR_TEXT;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->authenticationErrorText)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 			}
 
 			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
@@ -571,6 +640,13 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 			msg.msgBase.streamId = pLoginStatus->rdmMsgBase.streamId;
 			msg.msgBase.domainType = RSSL_DMT_LOGIN;
 			msg.msgBase.containerType = RSSL_DT_NO_DATA;
+			
+			if(pLoginStatus->flags & RDM_LG_STF_HAS_AUTHN_ERROR_CODE || (pLoginStatus->flags & RDM_LG_STF_HAS_AUTHN_ERROR_TEXT 
+				&& pLoginStatus->authenticationErrorText.data != 0 && pLoginStatus->authenticationErrorText.length != 0))
+			{
+				msg.flags |= RSSL_STMF_HAS_MSG_KEY;
+				msg.msgBase.msgKey.flags |= RSSL_MKF_HAS_ATTRIB;
+			}
 
 			if (pLoginStatus->flags & RDM_LG_STF_HAS_STATE) 
 			{
@@ -580,6 +656,7 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 
 			if (pLoginStatus->flags & RDM_LG_STF_HAS_USERNAME)
 			{
+
 				msg.flags |= RSSL_STMF_HAS_MSG_KEY;
 				msg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
 				msg.msgBase.msgKey.name = pLoginStatus->userName;
@@ -592,13 +669,53 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				}
 			}
 
-			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pEncodeIter, (RsslMsg*)&msg)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			if((pLoginStatus->flags & RDM_LG_STF_HAS_AUTHN_ERROR_CODE) || (pLoginStatus->flags & RDM_LG_STF_HAS_AUTHN_ERROR_TEXT && pLoginStatus->authenticationErrorText.length != 0))
+			{
+				msg.msgBase.msgKey.attribContainerType = RSSL_DT_ELEMENT_LIST;
+				
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgInit(pEncodeIter, (RsslMsg*)&msg, 0) == RSSL_RET_ENCODE_MSG_KEY_OPAQUE), ret, pError)) return RSSL_RET_FAILURE;
 
+				/*** Encode login attributes in msgKey.attrib ***/
+
+				rsslClearElementList(&elementList);
+				elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+
+				rsslClearElementEntry(&elementEntry);
+				
+				/* Authentication error code */
+				if(pLoginStatus->flags & RDM_LG_STF_HAS_AUTHN_ERROR_CODE)
+				{
+					elementEntry.dataType = RSSL_DT_UINT;
+					elementEntry.name = RSSL_ENAME_AUTHN_ERROR_CODE;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginStatus->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				}
+				
+				/* Authentication error text buffer */
+				if(pLoginStatus->flags & RDM_LG_STF_HAS_AUTHN_ERROR_TEXT && pLoginStatus->authenticationErrorText.length != 0)
+				{
+					elementEntry.dataType = RSSL_DT_ASCII_STRING;
+					elementEntry.name = RSSL_ENAME_AUTHN_ERROR_TEXT;
+					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginStatus->authenticationErrorText)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+				}
+
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+
+				/* complete encode key */
+				/* rsslEncodeMsgKeyAttribComplete finishes our key opaque, so it should return and indicate
+				   for us to encode our container/msg payload */
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgKeyAttribComplete(pEncodeIter, RSSL_TRUE) == RSSL_RET_SUCCESS), ret, pError)) return RSSL_RET_FAILURE;
+
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsgComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+			}
+			else
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMsg(pEncodeIter, (RsslMsg*)&msg) == RSSL_RET_SUCCESS), ret, pError)) return RSSL_RET_FAILURE;
+			
 			*pBytesWritten = rsslGetEncodedBufferLength(pEncodeIter);
 			pError->rsslErrorInfoCode = RSSL_EIC_SUCCESS;
 			return RSSL_RET_SUCCESS;
 		}
-
+		
 		default:
 			pError->rsslErrorInfoCode = RSSL_EIC_FAILURE;
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unknown login msg type %d\n", pLoginMsg->rdmMsgBase.rdmMsgType);
@@ -788,6 +905,34 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SEQ_NUM_RECOVERY;
 							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->sequenceNumberRecovery)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 						}
+						/* Authentication TT Reissue */
+						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TT_REISSUE))
+						{
+							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+							pLoginRefresh->flags |= RDM_LG_RFF_HAS_AUTHN_TT_REISSUE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->authenticationTTReissue)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						}
+						/* Authentication extended response */
+						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED_RESP))
+						{
+							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_BUFFER, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+							pLoginRefresh->flags |= RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP;
+							pLoginRefresh->authenticationExtendedResp = element.encData;
+						}
+						/* Authentication Error Code */
+						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_CODE))
+						{
+							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+							pLoginRefresh->flags |= RDM_LG_RFF_HAS_AUTHN_ERROR_CODE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+						}
+						/* Authentication Error Text */
+						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_TEXT))
+						{
+							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_BUFFER || element.dataType == RSSL_DT_ASCII_STRING, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+							pLoginRefresh->flags |= RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT;
+							pLoginRefresh->authenticationErrorText = element.encData;	
+						}
 					}
 				}
 			}
@@ -944,7 +1089,34 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 					pLoginStatus->flags |= RDM_LG_STF_HAS_USERNAME_TYPE;
 				}
 			}
+			
+			if (key && key->flags & RSSL_MKF_HAS_ATTRIB)
+			{
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMsgKeyAttrib(pIter, key)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
+				/* decode element list */
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+
+				/* decode each element entry in list */
+				while ((ret = rsslDecodeElementEntry(pIter, &element)) != RSSL_RET_END_OF_CONTAINER)
+				{
+					/* Authentication Error Code */
+					if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_CODE))
+					{
+						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+						pLoginStatus->flags |= RDM_LG_STF_HAS_AUTHN_ERROR_CODE;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginStatus->authenticationErrorCode)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
+					}
+					/* Authentication Error Text */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_ERROR_TEXT))
+					{
+						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_BUFFER || element.dataType == RSSL_DT_ASCII_STRING, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+						pLoginStatus->flags |= RDM_LG_STF_HAS_AUTHN_ERROR_TEXT;
+						pLoginStatus->authenticationErrorText = element.encData;
+					}
+				}
+			}
+		
 			break;
 		}
 		case RSSL_MC_POST:
@@ -1095,6 +1267,19 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 						pLoginRequest->flags |= RDM_LG_RQF_HAS_SUPPORT_PROV_DIC_DOWNLOAD;
 						if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRequest->supportProviderDictionaryDownload)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 					}
+					/* Authentication Token */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TOKEN))
+					{
+						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_ASCII_STRING || element.dataType == RSSL_DT_BUFFER, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+						pLoginRequest->userName = element.encData;
+					}
+					/* Authentication Token */
+					else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED))
+					{
+						if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_ASCII_STRING || element.dataType == RSSL_DT_BUFFER, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+						pLoginRequest->flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
+						pLoginRequest->authenticationExtended = element.encData;
+					}
 				}
 			}
 			break;
@@ -1208,6 +1393,9 @@ RSSL_VA_API RsslRet rsslCopyRDMLoginRequest(RsslRDMLoginRequest *pNewRequest, Rs
 
 	if ((pOldRequest->flags & RDM_LG_RQF_HAS_INSTANCE_ID) && !rsslCopyBufferMemory(&pNewRequest->instanceId, &pOldRequest->instanceId, pNewMemoryBuffer))
 		return RSSL_RET_BUFFER_TOO_SMALL;
+	
+	if ((pOldRequest->flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED) && !rsslCopyBufferMemory(&pNewRequest->authenticationExtended, &pOldRequest->authenticationExtended, pNewMemoryBuffer))
+		return RSSL_RET_BUFFER_TOO_SMALL;
 
 	return RSSL_RET_SUCCESS;
 }
@@ -1240,6 +1428,12 @@ RSSL_VA_API RsslRet rsslCopyRDMLoginRefresh(RsslRDMLoginRefresh *pNewRefresh, Rs
 		return RSSL_RET_BUFFER_TOO_SMALL;
 
 	if (!rsslCopyBufferMemory(&pNewRefresh->state.text, &pOldRefresh->state.text, pNewMemoryBuffer))
+		return RSSL_RET_BUFFER_TOO_SMALL;
+	
+	if ((pOldRefresh->flags & RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP) && !rsslCopyBufferMemory(&pNewRefresh->authenticationExtendedResp, &pOldRefresh->authenticationExtendedResp, pNewMemoryBuffer))
+		return RSSL_RET_BUFFER_TOO_SMALL;
+	
+	if ((pOldRefresh->flags & RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT) && !rsslCopyBufferMemory(&pNewRefresh->authenticationErrorText, &pOldRefresh->authenticationErrorText, pNewMemoryBuffer))
 		return RSSL_RET_BUFFER_TOO_SMALL;
 
 
@@ -1284,6 +1478,12 @@ RSSL_VA_API RsslRet rsslCopyRDMLoginStatus(RsslRDMLoginStatus *pNewStatus, RsslR
 	if (pOldStatus->flags & RDM_LG_STF_HAS_USERNAME)
 	{
 		if (!rsslCopyBufferMemory(&pNewStatus->userName, &pOldStatus->userName, pNewMemoryBuffer))
+			return RSSL_RET_BUFFER_TOO_SMALL;
+	}
+	
+	if (pOldStatus->flags & RDM_LG_STF_HAS_AUTHN_ERROR_TEXT)
+	{
+		if (!rsslCopyBufferMemory(&pNewStatus->authenticationErrorText, &pOldStatus->authenticationErrorText, pNewMemoryBuffer))
 			return RSSL_RET_BUFFER_TOO_SMALL;
 	}
 

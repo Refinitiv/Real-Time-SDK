@@ -11,6 +11,7 @@
 #include "rtr/rsslReactorImpl.h"
 #include "rtr/rsslHeapBuffer.h"
 #include "rtr/rsslReactorUtils.h"
+#include "rtr/bigBufferPool.h"
 
 #include <assert.h>
 
@@ -62,6 +63,18 @@ static RsslRet _tunnelStreamCheckReceivedCos(RsslClassOfService *pLocalCos, Rssl
 
 /* Returns a TunnelBufferImpl for use (no buffer space attached yet) */
 static TunnelBufferImpl *_tunnelStreamGetBufferImplObject(TunnelStreamImpl *pTunnelImpl, RsslErrorInfo *pErrorInfo);
+
+/* Handles a received fragmented message. */
+static RsslRet _tunnelStreamHandleFragmentedMsg(TunnelStreamImpl *pTunnelImpl, TunnelStreamData *pDataMsg, RsslBuffer *pFragmentedData, RsslErrorInfo *pErrorInfo);
+
+/* Gets message id for fragmentation. */
+static RsslUInt16 _tunnelStreamFragMsgId(TunnelStreamImpl *pTunnelImpl);
+
+/* Gets a buffer for fragmentation. */
+static TunnelBufferImpl* _tunnelStreamGetBufferForFragmentation(TunnelStreamImpl *pTunnelImpl, RsslUInt32 length, RsslUInt32 totalMsgLen, RsslUInt32 fragmentNumber,
+																RsslUInt16 msgId, RsslUInt8 containerType, RsslBool msgComplete, RsslErrorInfo *pErrorInfo);
+/* Handle a tunnel stream request retry if possible. */
+static RsslBool _tunnelStreamHandleRequestRetry(TunnelStreamImpl *pTunnelImpl);
 
 static void _tunnelStreamSetResponseTimerWithBackoff(TunnelStreamImpl *pTunnelImpl)
 {
@@ -134,7 +147,7 @@ static RsslBool _tunnelStreamCanSendMessage(TunnelStreamImpl *pTunnelImpl, Tunne
 }
 
 RsslTunnelStream* tunnelStreamOpen(TunnelManager *pManager, RsslTunnelStreamOpenOptions *pOpts,
-		RsslBool isProvider, RsslClassOfService *pRemoteCos, RsslErrorInfo *pErrorInfo)
+		RsslBool isProvider, RsslClassOfService *pRemoteCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo)
 {
 	TunnelStreamImpl *pTunnelImpl;
 	TunnelManagerImpl *pManagerImpl = (TunnelManagerImpl*)pManager;
@@ -236,6 +249,15 @@ RsslTunnelStream* tunnelStreamOpen(TunnelManager *pManager, RsslTunnelStreamOpen
 			return NULL;
 		}
 	}
+
+	rsslInitQueue(&pTunnelImpl->_fragmentationProgressQueue);
+	if (rsslHashTableInit(&pTunnelImpl->_fragmentationProgressHashTable, 11, rsslHashU16Sum, rsslHashU16Compare,
+				RSSL_TRUE, pErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		tunnelStreamDestroy((RsslTunnelStream*)pTunnelImpl);
+		return NULL;
+	}
+	rsslInitQueue(&pTunnelImpl->_pendingBigBufferList);
 
 	if (pTunnelImpl->base.classOfService.flowControl.type == RDM_COS_FC_BIDIRECTIONAL
 			&& pTunnelImpl->base.classOfService.flowControl.recvWindowSize == TS_USE_DEFAULT_RECV_WINDOW_SIZE)
@@ -384,6 +406,7 @@ RsslTunnelStream* tunnelStreamOpen(TunnelManager *pManager, RsslTunnelStreamOpen
 	rsslHashTableInsertLink(&pTunnelImpl->_manager->_streamIdToTunnelStreamTable, &pTunnelImpl->_managerHashLink, &pTunnelImpl->base.streamId, NULL);
 	rsslQueueAddLinkToBack(&pTunnelImpl->_manager->_tunnelStreamsOpen, &pTunnelImpl->_managerOpenLink);
 	pTunnelImpl->_flags |= TSF_ACTIVE;
+	pTunnelImpl->_streamVersion = streamVersion;
 
 	tunnelStreamSetNeedsDispatch(pTunnelImpl);
 
@@ -475,7 +498,7 @@ RsslRet tunnelStreamSubmitMsg(RsslTunnelStream *pTunnel,
 		return RSSL_RET_INVALID_ARGUMENT;
 	}
 
-	/* Handling an RDMMsg (either submitted as one or decoded from an RsslMsg). */
+	/* Handling an RDMMsg (either submitted as one or decoded from an RsslMsg that's a queue message). */
 	if (pRdmMsg != NULL)
 	{
 		if (isQueueMsg)
@@ -581,9 +604,9 @@ RsslRet tunnelStreamSubmitMsg(RsslTunnelStream *pTunnel,
 			RsslTunnelStreamGetBufferOptions bufferOpts;
 
 			rsslClearTunnelStreamGetBufferOptions(&bufferOpts);
-			bufferOpts.size = (RsslUInt32)pTunnelImpl->base.classOfService.common.maxMsgSize;
+			bufferOpts.size = (RsslUInt32)pTunnelImpl->base.classOfService.common.maxFragmentSize;
 			if ((pBuffer = (RsslBuffer*)tunnelStreamGetBuffer(pTunnelImpl,
-							(RsslUInt32)pTunnel->classOfService.common.maxMsgSize, RSSL_FALSE, RSSL_FALSE, pErrorInfo)) == NULL)
+				(RsslUInt32)pTunnel->classOfService.common.maxFragmentSize, RSSL_FALSE, RSSL_FALSE, pErrorInfo)) == NULL)
 				return pErrorInfo->rsslError.rsslErrorId;
 
 			rsslClearEncodeIterator(&eIter);
@@ -617,11 +640,47 @@ RsslRet tunnelStreamSubmitMsg(RsslTunnelStream *pTunnel,
 			return RSSL_RET_SUCCESS;
 		}
 	}
-	else
+	else // RsslMsg that's not a queue message
 	{
-		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
-				__FILE__, __LINE__, "No message provided.");
-		return RSSL_RET_INVALID_ARGUMENT;
+		// get encoded message size estimate
+		RsslUInt32 bufLength = _reactorMsgEncodedSize(pOpts->pRsslMsg);
+
+		// get buffer of estimated size
+		TunnelBufferImpl *pBufferImpl = tunnelStreamGetBuffer(pTunnelImpl, bufLength, RSSL_FALSE, RSSL_FALSE, pErrorInfo);
+
+		if (pBufferImpl != NULL)
+		{
+			RsslEncodeIterator eIter;
+			RsslRet ret;
+
+			// set encode iterator buffer
+			rsslClearEncodeIterator(&eIter);
+			rsslSetEncodeIteratorRWFVersion(&eIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
+			rsslSetEncodeIteratorBuffer(&eIter, &pBufferImpl->_poolBuffer.buffer);
+
+			// encode message into buffer
+			if ((ret = rsslEncodeMsg(&eIter, pOpts->pRsslMsg)) == RSSL_RET_SUCCESS)
+			{
+				RsslTunnelStreamSubmitOptions submitOptions;
+				rsslClearTunnelStreamSubmitOptions(&submitOptions);
+
+				// submit encoded buffer
+				submitOptions.containerType = RSSL_DT_MSG;
+				pBufferImpl->_poolBuffer.buffer.length = rsslGetEncodedBufferLength(&eIter);
+				if ((ret = tunnelStreamSubmitBuffer(pTunnel, &pBufferImpl->_poolBuffer.buffer, &submitOptions, pErrorInfo)) < RSSL_RET_SUCCESS)
+				{
+					return ret;
+				}
+			}
+			else
+			{
+				return ret;
+			}
+		}
+		else
+		{
+			return pErrorInfo->rsslError.rsslErrorId;
+		}
 	}
 
 	if (pTunnelImpl->_tunnelBufferTransmitList.count > 0)
@@ -677,55 +736,70 @@ RsslRet tunnelStreamSubmitBuffer(RsslTunnelStream *pTunnel, RsslBuffer *pBuffer,
 		return RSSL_RET_INVALID_ARGUMENT;
 	}
 
-
-	rsslClearDecodeIterator(&dIter);
-	rsslSetDecodeIteratorRWFVersion(&dIter, pTunnel->classOfService.common.protocolMajorVersion,
-			pTunnel->classOfService.common.protocolMinorVersion);
-	rsslSetDecodeIteratorBuffer(&dIter, pBuffer);
-
-	if (pOptions->containerType == RSSL_DT_MSG
-			&& pTunnel->classOfService.guarantee.type == RDM_COS_GU_PERSISTENT_QUEUE)
+	if (!pBufferImpl->_isBigBuffer) // not big buffer
 	{
-		if ((ret = rsslDecodeMsg(&dIter, &msg)) != RSSL_RET_SUCCESS)
-		{
-			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret, 
-					__FILE__, __LINE__, "Failed to decode submitted message.");
-			return RSSL_RET_INVALID_ARGUMENT;
-		}
+		rsslClearDecodeIterator(&dIter);
+		rsslSetDecodeIteratorRWFVersion(&dIter, pTunnel->classOfService.common.protocolMajorVersion,
+				pTunnel->classOfService.common.protocolMinorVersion);
+		rsslSetDecodeIteratorBuffer(&dIter, pBuffer);
 
-		switch(msg.msgBase.domainType)
+		if (pOptions->containerType == RSSL_DT_MSG
+				&& pTunnel->classOfService.guarantee.type == RDM_COS_GU_PERSISTENT_QUEUE)
 		{
-			case RSSL_DMT_LOGIN:
-			case RSSL_DMT_SOURCE:
-			case RSSL_DMT_DICTIONARY:
-			case RSSL_DMT_SYMBOL_LIST:
-				break;
-
-			default:
+			if ((ret = rsslDecodeMsg(&dIter, &msg)) != RSSL_RET_SUCCESS)
 			{
-				/* No extra memory needed to decode queue message. */
-				rsslClearBuffer(&memoryBuffer);
+				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret, 
+						__FILE__, __LINE__, "Failed to decode submitted message.");
+				return RSSL_RET_INVALID_ARGUMENT;
+			}
 
-				if ((ret = rsslDecodeRDMQueueMsg(&dIter, &msg, &queueMsg, &memoryBuffer, pErrorInfo)) 
-						!= RSSL_RET_SUCCESS)
-					return RSSL_RET_FAILURE;
+			switch(msg.msgBase.domainType)
+			{
+				case RSSL_DMT_LOGIN:
+				case RSSL_DMT_SOURCE:
+				case RSSL_DMT_DICTIONARY:
+				case RSSL_DMT_SYMBOL_LIST:
+					break;
 
-				rsslClearTunnelStreamSubmitMsgOptions(&submitOpts);
-				submitOpts.pRDMMsg = (RsslRDMMsg*)&queueMsg;
+				default:
+				{
+					/* No extra memory needed to decode queue message. */
+					rsslClearBuffer(&memoryBuffer);
 
-				if ((ret = tunnelStreamSubmitMsg(pTunnel, &submitOpts, pErrorInfo)) != RSSL_RET_SUCCESS)
-					return ret;
+					if ((ret = rsslDecodeRDMQueueMsg(&dIter, &msg, &queueMsg, &memoryBuffer, pErrorInfo)) 
+							!= RSSL_RET_SUCCESS)
+						return RSSL_RET_FAILURE;
 
-				/* This buffer no longer used, release it. */
-				tunnelStreamReleaseBuffer(pTunnelImpl, pBufferImpl);
+					rsslClearTunnelStreamSubmitMsgOptions(&submitOpts);
+					submitOpts.pRDMMsg = (RsslRDMMsg*)&queueMsg;
 
-				return RSSL_RET_SUCCESS;
+					if ((ret = tunnelStreamSubmitMsg(pTunnel, &submitOpts, pErrorInfo)) != RSSL_RET_SUCCESS)
+						return ret;
+
+					/* This buffer no longer used, release it. */
+					tunnelStreamReleaseBuffer(pTunnelImpl, pBufferImpl);
+
+					return RSSL_RET_SUCCESS;
+				}
 			}
 		}
-	}
 
-	if ((ret = tunnelStreamEnqueueBuffer(pTunnel, pBuffer, pOptions->containerType, pErrorInfo)) != RSSL_RET_SUCCESS)
-		return ret;
+		if ((ret = tunnelStreamEnqueueBuffer(pTunnel, pBuffer, pOptions->containerType, pErrorInfo)) != RSSL_RET_SUCCESS)
+			return ret;
+	}
+	else // big buffer
+	{
+		ret = tunnelStreamEnqueueBigBuffer(pTunnel, pBufferImpl, pOptions->containerType, pErrorInfo);
+		if (ret > RSSL_RET_SUCCESS)
+		{
+	    	// release big buffer since now fully fragmented
+			bigBufferPoolRelease(&pTunnelImpl->_bigBufferPool, &pBufferImpl->_poolBuffer);
+		}
+		else if (ret < RSSL_RET_SUCCESS)
+		{
+			return ret;
+		}
+	}
 
 	return RSSL_RET_SUCCESS;
 }
@@ -738,7 +812,7 @@ RsslRet tunnelStreamRead(RsslTunnelStream *pTunnel, RsslMsg *pMsg, RsslErrorInfo
 	RsslReactorChannel	*pReactorChannel = pTunnelImpl->_manager->base._pReactorChannel;
 	AckRangeList 		ackRangeList, nakRangeList;
 
-	if ((ret = tunnelStreamMsgDecode(pMsg, &streamMsg, &ackRangeList, &nakRangeList) != RSSL_RET_SUCCESS))
+	if ((ret = tunnelStreamMsgDecode(pMsg, &streamMsg, &ackRangeList, &nakRangeList, pTunnelImpl->_streamVersion) != RSSL_RET_SUCCESS))
 	{
 		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, 
 				ret, __FILE__, __LINE__,
@@ -759,10 +833,13 @@ RsslRet tunnelStreamRead(RsslTunnelStream *pTunnel, RsslMsg *pMsg, RsslErrorInfo
 
 		case TS_MC_STATUS:
 		{
-			if ((ret = tunnelStreamHandleState(pTunnelImpl, 
-							(streamMsg.statusHeader.flags & TS_STMF_HAS_STATE) ? &streamMsg.statusHeader.state : NULL,
-							pMsg, &streamMsg, NULL, RSSL_FALSE, pErrorInfo)) != RSSL_RET_SUCCESS)
-				return ret;
+        	if (!_tunnelStreamHandleRequestRetry(pTunnelImpl))
+			{
+				if ((ret = tunnelStreamHandleState(pTunnelImpl, 
+								(streamMsg.statusHeader.flags & TS_STMF_HAS_STATE) ? &streamMsg.statusHeader.state : NULL,
+								pMsg, &streamMsg, NULL, RSSL_FALSE, pErrorInfo)) != RSSL_RET_SUCCESS)
+					return ret;
+			}
 
 			break;
 		}
@@ -1242,9 +1319,16 @@ RsslRet tunnelStreamRead(RsslTunnelStream *pTunnel, RsslMsg *pMsg, RsslErrorInfo
 				}
 				else
 				{
-					if (tunnelStreamCallMsgCallback(pTunnelImpl, &pMsg->msgBase.encDataBody, NULL, pMsg->msgBase.containerType, pErrorInfo)
-						!= RSSL_RET_SUCCESS)
-						return RSSL_RET_FAILURE;
+					if (!(pDataMsg->flags & TS_DF_FRAGMENTED)) // non-fragmented message
+					{
+						if (tunnelStreamCallMsgCallback(pTunnelImpl, &pMsg->msgBase.encDataBody, NULL, pMsg->msgBase.containerType, pErrorInfo)
+							!= RSSL_RET_SUCCESS)
+							return RSSL_RET_FAILURE;
+					}
+					else // fragmented message
+					{
+						return _tunnelStreamHandleFragmentedMsg(pTunnelImpl, pDataMsg, &pMsg->msgBase.encDataBody, pErrorInfo);
+					}
 				}
 			}
 			else if (diff < 1)
@@ -1282,6 +1366,7 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 	RsslRet ret;
 	TunnelStreamImpl *pTunnelImpl = (TunnelStreamImpl*)pTunnel;
 	RsslReactorChannel	*pReactorChannel = pTunnelImpl->_manager->base._pReactorChannel;
+	RsslUInt32 pendingBigBufferListCount, i;
 
 	if (pTunnelImpl->_interfaceError && pTunnelImpl->_state <= TSS_OPEN)
 	{
@@ -1295,6 +1380,22 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 		pTunnelImpl->_interfaceError = RSSL_FALSE;
 
 		return tunnelStreamHandleState(pTunnelImpl, &state, NULL, NULL, NULL, RSSL_TRUE, pErrorInfo);
+	}
+
+    // if big buffer send in progress, process pending big buffers
+	pendingBigBufferListCount = rsslQueueGetElementCount(&pTunnelImpl->_pendingBigBufferList);
+	for (i = 0; i < pendingBigBufferListCount; i++)
+	{
+		RsslQueueLink *pQueueLink = rsslQueuePeekFront(&pTunnelImpl->_pendingBigBufferList);
+		TunnelBufferImpl *pBigBuffer = RSSL_QUEUE_LINK_TO_OBJECT(TunnelBufferImpl, _tbpLink, pQueueLink);
+		if (tunnelStreamEnqueueBigBuffer(pTunnel, pBigBuffer, pBigBuffer->_containerType, pErrorInfo) > RSSL_RET_SUCCESS)
+		{
+	    	// remove from pending big buffer list
+			rsslQueueRemoveLink(&pTunnelImpl->_pendingBigBufferList, pQueueLink);
+        		
+	    	// release big buffer since now fully fragmented
+			bigBufferPoolRelease(&pTunnelImpl->_bigBufferPool, &pBigBuffer->_poolBuffer);
+		}
 	}
 
 	switch(pTunnelImpl->_state)
@@ -1316,6 +1417,11 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 				tRequestMsg.name.data = pTunnelImpl->base.name;
 				tRequestMsg.name.length = pTunnelImpl->_nameLength;
 
+    			// decrement stream version if this is a retry
+    			if (pTunnelImpl->_requestRetryCount > 0)
+    			{
+					--pTunnelImpl->_streamVersion;
+    			}
 
 				if (((RsslReactorChannelImpl*)pReactorChannel)->pWatchlist == NULL)
 				{
@@ -1330,7 +1436,7 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 						return RSSL_RET_FAILURE;
 					}
 
-					if ((ret = tunnelStreamRequestEncode(&eIter, &tRequestMsg, &pTunnelImpl->base.classOfService, pErrorInfo))
+					if ((ret = tunnelStreamRequestEncode(&eIter, &tRequestMsg, &pTunnelImpl->base.classOfService, pTunnelImpl->_streamVersion, pErrorInfo))
 							!= RSSL_RET_SUCCESS) 
 						return ret;
 
@@ -1369,7 +1475,7 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 					rsslSetEncodeIteratorBuffer(&eIter, &cosBuffer);
 
 					tunnelStreamRequestSetRsslMsg(&tRequestMsg, &requestMsg, &pTunnelImpl->base.classOfService);
-					if (rsslEncodeClassOfService(&eIter, &pTunnelImpl->base.classOfService, requestMsg.msgBase.msgKey.filter, RSSL_FALSE, pErrorInfo)
+					if (rsslEncodeClassOfService(&eIter, &pTunnelImpl->base.classOfService, requestMsg.msgBase.msgKey.filter, RSSL_FALSE, pTunnelImpl->_streamVersion, pErrorInfo)
 							!= RSSL_RET_SUCCESS)
 						return RSSL_RET_FAILURE;
 
@@ -1432,7 +1538,7 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 				return RSSL_RET_FAILURE;
 			}
 
-			if ((ret = tunnelStreamRefreshEncode(&eIter, &tRefreshMsg, &pTunnelImpl->base.classOfService, pErrorInfo))
+			if ((ret = tunnelStreamRefreshEncode(&eIter, &tRefreshMsg, &pTunnelImpl->base.classOfService, pTunnelImpl->_streamVersion, pErrorInfo))
 					!= RSSL_RET_SUCCESS) 
 				return ret;
 
@@ -1478,7 +1584,7 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 			assert (pTunnelImpl->_pAuthLoginRequest != NULL);
 
 			if ((pBuffer = (RsslBuffer*)tunnelStreamGetBuffer(pTunnelImpl,
-							(RsslUInt32)pTunnelImpl->base.classOfService.common.maxMsgSize, RSSL_FALSE, RSSL_FALSE, pErrorInfo)) == NULL)
+				(RsslUInt32)pTunnelImpl->base.classOfService.common.maxFragmentSize, RSSL_FALSE, RSSL_FALSE, pErrorInfo)) == NULL)
 				return RSSL_RET_FAILURE;
 
 			rsslClearEncodeIterator(&eIter);
@@ -1930,6 +2036,74 @@ RsslRet tunnelStreamEnqueueBuffer(RsslTunnelStream *pTunnel,
 	return RSSL_RET_SUCCESS;
 }
 
+RsslRet tunnelStreamEnqueueBigBuffer(RsslTunnelStream *pTunnel,
+		TunnelBufferImpl *pBufferImpl, RsslUInt8 containerType, RsslErrorInfo *pErrorInfo)
+{
+	TunnelStreamImpl*	pTunnelImpl = (TunnelStreamImpl*)pTunnel;
+	RsslQueueLink *pQueueLink;
+
+	// fragment buffer
+	RsslUInt32 totalMsgLength = pBufferImpl->_poolBuffer.buffer.length;
+    RsslUInt32 bytesRemainingToSend = !pBufferImpl->_fragmentationInProgress ? totalMsgLength : pBufferImpl->_bytesRemainingToSend;
+    RsslUInt32 fragmentNumber = !pBufferImpl->_fragmentationInProgress ? 1 : pBufferImpl->_lastFragmentId;
+    RsslUInt16 messageId = !pBufferImpl->_fragmentationInProgress ? _tunnelStreamFragMsgId(pTunnelImpl) : pBufferImpl->_messageId;
+    if (rsslQueueGetElementCount(&pTunnelImpl->_pendingBigBufferList) == 0 || pBufferImpl->_fragmentationInProgress) // process if no pending big buffers in list or fragmentation has already started
+    {
+	    while (bytesRemainingToSend > 0)
+	    {
+	    	RsslUInt32 lengthOfFragment = bytesRemainingToSend >= pTunnelImpl->base.classOfService.common.maxFragmentSize ? (RsslUInt32)pTunnelImpl->base.classOfService.common.maxFragmentSize : bytesRemainingToSend;
+	    	RsslBool msgComplete = bytesRemainingToSend <= pTunnelImpl->base.classOfService.common.maxFragmentSize ? RSSL_TRUE	 : RSSL_FALSE;
+	    	TunnelBufferImpl *pTunnelBuffer = _tunnelStreamGetBufferForFragmentation(pTunnelImpl, lengthOfFragment, totalMsgLength, fragmentNumber++, messageId, containerType, msgComplete, pErrorInfo);
+	    	if (pTunnelBuffer != NULL)
+	    	{
+	    		// copy data to fragment buffer
+				memcpy(pTunnelBuffer->_poolBuffer.buffer.data, &pBufferImpl->_poolBuffer.buffer.data[totalMsgLength - bytesRemainingToSend], lengthOfFragment);
+	    			
+	    		// adjust bytesRemainingToSend
+	    		bytesRemainingToSend -= lengthOfFragment;
+	    		
+				// modify buffer for transmit
+				pTunnelBuffer->_poolBuffer.buffer.length += (RsslUInt32)(pTunnelBuffer->_poolBuffer.buffer.data - pTunnelBuffer->_startPos);
+				pTunnelBuffer->_poolBuffer.buffer.data = pTunnelBuffer->_startPos;
+				bufferPoolTrimUnusedLength(&pTunnelImpl->_memoryBufferPool, &pTunnelBuffer->_poolBuffer);
+
+				// queue for transmit
+				rsslQueueAddLinkToBack(&pTunnelImpl->_tunnelBufferTransmitList, &pTunnelBuffer->_tbpLink);
+				tunnelStreamSetNeedsDispatch(pTunnelImpl);
+	    	}
+	    	else // cannot fully fragment buffer
+	    	{
+	    		// save progress in big buffer and add to pending big buffer list if not already there
+	    		saveWriteProgress(pBufferImpl, totalMsgLength, bytesRemainingToSend, fragmentNumber - 1, messageId, containerType);
+				pQueueLink = rsslQueuePeekFront(&pTunnelImpl->_pendingBigBufferList); // assumes big buffer to fragment is always at top of list
+				if (pQueueLink == NULL || pBufferImpl != RSSL_QUEUE_LINK_TO_OBJECT(TunnelBufferImpl, _tbpLink, pQueueLink))
+				{
+					rsslQueueAddLinkToBack(&pTunnelImpl->_pendingBigBufferList, &pBufferImpl->_tbpLink);
+				}
+	    		break;
+	    	}
+	    }
+
+	    if (bytesRemainingToSend == 0)
+	    {
+			// return 1 to indicate finished with buffer
+			return 1;
+	    }
+    }
+    else // list already has pending big buffers
+    {
+		// save progress in big buffer and add to pending big buffer list if not already there
+		saveWriteProgress(pBufferImpl, totalMsgLength, bytesRemainingToSend, fragmentNumber, messageId, containerType);
+		pQueueLink = rsslQueuePeekFront(&pTunnelImpl->_pendingBigBufferList); // assumes big buffer to fragment is always at top of list
+		if (pQueueLink == NULL || pBufferImpl != RSSL_QUEUE_LINK_TO_OBJECT(TunnelBufferImpl, _tbpLink, pQueueLink))
+		{
+			rsslQueueAddLinkToBack(&pTunnelImpl->_pendingBigBufferList, &pBufferImpl->_tbpLink);
+		}
+    }
+
+	return RSSL_RET_SUCCESS;
+}
+
 void tunnelStreamSetNextExpireTime(TunnelStreamImpl *pTunnelImpl, RsslInt64 expireTime)
 {
 	RsslQueueLink *pLink;
@@ -2114,7 +2288,7 @@ static RsslRet _tunnelStreamSubmitChannelMsg(TunnelStreamImpl *pTunnelImpl,
 
 static RsslRet _tunnelStreamCheckReceivedCos(RsslClassOfService *pLocalCos, RsslClassOfService *pRemoteCos, RsslUInt streamVersion, RsslErrorInfo *pErrorInfo)
 {
-	if (streamVersion != COS_STREAM_VERSION)
+	if (streamVersion > COS_CURRENT_STREAM_VERSION)
 	{
 		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, 
 				__FILE__, __LINE__, "Negotiated tunnel stream version %llu is unknown", streamVersion);
@@ -2316,6 +2490,9 @@ RsslRet tunnelStreamHandleState(TunnelStreamImpl *pTunnelImpl, RsslState *pState
 							if (_tunnelStreamCheckReceivedCos(&pTunnelImpl->base.classOfService, &cos, streamVersion, pErrorInfo) != RSSL_RET_SUCCESS)
 								return tunnelStreamHandleError(pTunnelImpl, pErrorInfo);
 
+							/* Set stream version to that received */
+							pTunnelImpl->_streamVersion = streamVersion;
+
 							/* Use the negotiated CoS (but remember our own recvWindow). */
 							pTunnelImpl->base.classOfService = cos;
 							pTunnelImpl->base.classOfService.flowControl.recvWindowSize = recvWindowSize;
@@ -2510,6 +2687,34 @@ void tunnelStreamDestroy(RsslTunnelStream *pTunnel)
 
 	rsslHeapBufferCleanup(&pTunnelImpl->_memoryBuffer);
 	rsslHashTableCleanup(&pTunnelImpl->_substreamsById);
+
+	for (pLink = rsslQueueStart(&pTunnelImpl->_fragmentationProgressQueue); pLink != NULL;
+		 pLink = rsslQueueForth(&pTunnelImpl->_fragmentationProgressQueue))
+	{
+		TunnelStreamFragmentationProgress *pFragmentationProgress = RSSL_QUEUE_LINK_TO_OBJECT(TunnelStreamFragmentationProgress, fragmentationQueueLink, pLink);
+
+		rsslHashTableRemoveLink(&pTunnelImpl->_fragmentationProgressHashTable, &pFragmentationProgress->fragmentationHashLink);
+		rsslQueueRemoveLink(&pTunnelImpl->_fragmentationProgressQueue, &pFragmentationProgress->fragmentationQueueLink);
+
+		bigBufferPoolRelease(&pTunnelImpl->_bigBufferPool, &pFragmentationProgress->pBigBuffer->_poolBuffer);
+		free(pFragmentationProgress);
+	}
+	rsslHashTableCleanup(&pTunnelImpl->_fragmentationProgressHashTable);
+
+	for (pLink = rsslQueueStart(&pTunnelImpl->_pendingBigBufferList); pLink != NULL;
+		 pLink = rsslQueueForth(&pTunnelImpl->_pendingBigBufferList))
+	{
+		TunnelBufferImpl *pBigBuffer = RSSL_QUEUE_LINK_TO_OBJECT(TunnelBufferImpl, _tbpLink, pLink);
+
+		rsslQueueRemoveLink(&pTunnelImpl->_pendingBigBufferList, pLink);
+
+		bigBufferPoolRelease(&pTunnelImpl->_bigBufferPool, &pBigBuffer->_poolBuffer);
+	}
+	bigBufferPoolCleanup(&pTunnelImpl->_bigBufferPool);
+	pTunnelImpl->_streamVersion = COS_CURRENT_STREAM_VERSION;
+	pTunnelImpl->_requestRetryCount = 0;
+	pTunnelImpl->_messageId = 0;
+
 	if (pTunnelImpl->_isNameAllocated)
 		free(pTunnelImpl->base.name);
 	if (pTunnelImpl->_persistenceFilePath != NULL)
@@ -2622,55 +2827,64 @@ TunnelBufferImpl* tunnelStreamGetBuffer(
 		return NULL;
 	}
 
-	/* Get buffer object. */
-	if ((pBufferImpl = _tunnelStreamGetBufferImplObject(pTunnelImpl, pErrorInfo)) == NULL)
-		return NULL;
-
-
-	/* Get memory for buffer. */
-	if (bufferPoolGet(&pTunnelImpl->_memoryBufferPool,
-				&pBufferImpl->_poolBuffer, length + TS_HEADER_MAX_LENGTH, isAppBuffer,
-				isTranslationBuffer, pErrorInfo)
-			!= RSSL_RET_SUCCESS)
+	if (length <= pTunnelImpl->base.classOfService.common.maxFragmentSize) // not big buffer
 	{
-		rsslQueueAddLinkToBack(&pTunnelImpl->_manager->_tunnelBufferPool,
-				&pBufferImpl->_tbpLink);
-		return NULL;
+		/* Get buffer object. */
+		if ((pBufferImpl = _tunnelStreamGetBufferImplObject(pTunnelImpl, pErrorInfo)) == NULL)
+			return NULL;
+
+		/* Get memory for buffer. */
+		if (bufferPoolGet(&pTunnelImpl->_memoryBufferPool,
+					&pBufferImpl->_poolBuffer, length + TS_HEADER_MAX_LENGTH, isAppBuffer,
+					isTranslationBuffer, pErrorInfo)
+				!= RSSL_RET_SUCCESS)
+		{
+			rsslQueueAddLinkToBack(&pTunnelImpl->_manager->_tunnelBufferPool,
+					&pBufferImpl->_tbpLink);
+			return NULL;
+		}
+
+		pBufferImpl->_startPos = pBufferImpl->_poolBuffer.buffer.data;
+	}
+	else // big buffer
+	{
+		pBufferImpl = (TunnelBufferImpl *)bigBufferPoolGet(&pTunnelImpl->_bigBufferPool, length + TS_HEADER_MAX_LENGTH, pErrorInfo);
 	}
 
-	pBufferImpl->_startPos = pBufferImpl->_poolBuffer.buffer.data;
-
-	/* Encode tunnel header. */
-	tunnelStreamDataClear(&dataMsg);
-	dataMsg.base.streamId = pTunnelImpl->base.streamId;
-	dataMsg.base.domainType = pTunnelImpl->base.domainType;
-	dataMsg.seqNum = 0; /* (This will be replaced later) */
-
-	rsslClearEncodeIterator(&eIter);
-	rsslSetEncodeIteratorRWFVersion(&eIter, pTunnelImpl->base.pReactorChannel->majorVersion,
-		pTunnelImpl->base.pReactorChannel->minorVersion);
-	rsslSetEncodeIteratorBuffer(&eIter, &pBufferImpl->_poolBuffer.buffer);
-
-	if ((ret = tunnelStreamDataEncodeInit(&eIter, &dataMsg))
-			!= RSSL_RET_SUCCESS)
+	if (pBufferImpl != NULL)
 	{
-		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, 
-				ret, __FILE__, __LINE__,
-				"Failed to encode tunnel stream header.");
-		tunnelStreamReleaseBuffer(pTunnelImpl, pBufferImpl);
-		return NULL;
+		/* Encode tunnel header. */
+		tunnelStreamDataClear(&dataMsg);
+		dataMsg.base.streamId = pTunnelImpl->base.streamId;
+		dataMsg.base.domainType = pTunnelImpl->base.domainType;
+		dataMsg.seqNum = 0; /* (This will be replaced later) */
+
+		rsslClearEncodeIterator(&eIter);
+		rsslSetEncodeIteratorRWFVersion(&eIter, pTunnelImpl->base.pReactorChannel->majorVersion,
+			pTunnelImpl->base.pReactorChannel->minorVersion);
+		rsslSetEncodeIteratorBuffer(&eIter, &pBufferImpl->_poolBuffer.buffer);
+
+		if ((ret = tunnelStreamDataEncodeInit(&eIter, &dataMsg, pTunnelImpl->_streamVersion))
+				!= RSSL_RET_SUCCESS)
+		{
+			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, 
+					ret, __FILE__, __LINE__,
+					"Failed to encode tunnel stream header.");
+			tunnelStreamReleaseBuffer(pTunnelImpl, pBufferImpl);
+			return NULL;
+		}
+
+		assert(pBufferImpl->_poolBuffer.buffer.length >= rsslGetEncodedBufferLength(&eIter));
+		assert(rsslGetEncodedBufferLength(&eIter) < TS_HEADER_MAX_LENGTH);
+
+		/* Move buffer position to user's starting point. */
+		pBufferImpl->_poolBuffer.buffer.data += rsslGetEncodedBufferLength(&eIter);
+		pBufferImpl->_poolBuffer.buffer.length = length;
+		pBufferImpl->_dataStartPos = pBufferImpl->_poolBuffer.buffer.data;
+		pBufferImpl->_tunnel = (RsslTunnelStream*)pTunnelImpl;
+		pBufferImpl->_integrity = TS_BUFFER_INTEGRITY;
+		pBufferImpl->_maxLength = length;
 	}
-
-	assert(pBufferImpl->_poolBuffer.buffer.length >= rsslGetEncodedBufferLength(&eIter));
-	assert(rsslGetEncodedBufferLength(&eIter) < TS_HEADER_MAX_LENGTH);
-
-	/* Move buffer position to user's starting point. */
-	pBufferImpl->_poolBuffer.buffer.data += rsslGetEncodedBufferLength(&eIter);
-	pBufferImpl->_poolBuffer.buffer.length = length;
-	pBufferImpl->_dataStartPos = pBufferImpl->_poolBuffer.buffer.data;
-	pBufferImpl->_tunnel = (RsslTunnelStream*)pTunnelImpl;
-	pBufferImpl->_integrity = TS_BUFFER_INTEGRITY;
-	pBufferImpl->_maxLength = length;
 
 	return pBufferImpl;
 }
@@ -2678,28 +2892,35 @@ TunnelBufferImpl* tunnelStreamGetBuffer(
 void tunnelStreamReleaseBuffer(
 		TunnelStreamImpl *pTunnelImpl, TunnelBufferImpl *pBufferImpl)
 {
-	if (pBufferImpl->_bufferType == TS_BT_DATA)
+	if (!pBufferImpl->_isBigBuffer)
 	{
-		if (pBufferImpl->_substream && pBufferImpl->_flags & TBF_QUEUE_CLOSE)
+		if (pBufferImpl->_bufferType == TS_BT_DATA)
 		{
-			tunnelSubstreamDestroy(pBufferImpl->_substream);
-			pBufferImpl->_substream = NULL;
+			if (pBufferImpl->_substream && pBufferImpl->_flags & TBF_QUEUE_CLOSE)
+			{
+				tunnelSubstreamDestroy(pBufferImpl->_substream);
+				pBufferImpl->_substream = NULL;
+			}
+
+			/* Release buffer memory */
+			bufferPoolRelease(&pTunnelImpl->_memoryBufferPool,
+					&pBufferImpl->_poolBuffer);
+		}
+		else
+		{
+			/* An ack for our FIN was acknowledged. Stop the retransmission timer. */
+			_tunnelStreamUnsetResponseTimer(pTunnelImpl);
+			pTunnelImpl->_flags |= TSF_RECEIVED_ACK_OF_FIN;
 		}
 
-		/* Release buffer memory */
-		bufferPoolRelease(&pTunnelImpl->_memoryBufferPool,
-				&pBufferImpl->_poolBuffer);
+		/* Release buffer object. */
+		rsslQueueAddLinkToBack(&pTunnelImpl->_manager->_tunnelBufferPool,
+				&pBufferImpl->_tbpLink);
 	}
 	else
 	{
-		/* An ack for our FIN was acknowledged. Stop the retransmission timer. */
-		_tunnelStreamUnsetResponseTimer(pTunnelImpl);
-		pTunnelImpl->_flags |= TSF_RECEIVED_ACK_OF_FIN;
+		bigBufferPoolRelease(&pTunnelImpl->_bigBufferPool, &pBufferImpl->_poolBuffer);
 	}
-
-	/* Release buffer object. */
-	rsslQueueAddLinkToBack(&pTunnelImpl->_manager->_tunnelBufferPool,
-			&pBufferImpl->_tbpLink);
 }
 
 static RsslRet _tunnelStreamHandleEstablished(TunnelStreamImpl *pTunnelImpl, RsslErrorInfo *pErrorInfo)
@@ -2708,9 +2929,11 @@ static RsslRet _tunnelStreamHandleEstablished(TunnelStreamImpl *pTunnelImpl, Rss
 
 	if (initBufferPool(&pTunnelImpl->_memoryBufferPool,
 		pTunnelImpl->_guaranteedOutputBuffersAppLimit,
-		(RsslUInt32)pCos->common.maxMsgSize + TS_HEADER_MAX_LENGTH, pTunnelImpl->_guaranteedOutputBuffersAppLimit, pErrorInfo)
+		(RsslUInt32)pCos->common.maxFragmentSize + TS_HEADER_MAX_LENGTH, pTunnelImpl->_guaranteedOutputBuffersAppLimit, pErrorInfo)
 		!= RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
+
+	bigBufferPoolInit(&pTunnelImpl->_bigBufferPool, pCos->common.maxFragmentSize, pTunnelImpl->_guaranteedOutputBuffersAppLimit);
 
 	return RSSL_RET_SUCCESS;
 }
@@ -2883,3 +3106,218 @@ static RsslRet _tunnelStreamCallStatusEventCallback(TunnelStreamImpl *pTunnelImp
 	return RSSL_RET_SUCCESS;
 }
 
+static RsslRet _tunnelStreamHandleFragmentedMsg(TunnelStreamImpl *pTunnelImpl, TunnelStreamData *pDataMsg, RsslBuffer *pFragmentedData, RsslErrorInfo *pErrorInfo)
+{
+	RsslRet ret = RSSL_RET_SUCCESS;
+	TunnelBufferImpl *pBigBuffer;
+	RsslHashLink *pHashLink;
+	TunnelStreamFragmentationProgress *pFragmentationProgress;
+	if (pDataMsg->fragmentNumber > 1) // subsequent fragment
+	{
+		// look up message id in hash table and continue re-assembly
+		if ((pHashLink = rsslHashTableFind(&pTunnelImpl->_fragmentationProgressHashTable, &pDataMsg->messageId, NULL)) != NULL)
+			pFragmentationProgress = RSSL_HASH_LINK_TO_OBJECT(TunnelStreamFragmentationProgress, fragmentationHashLink, pHashLink);
+		else
+			pFragmentationProgress = NULL;
+
+		if (pFragmentationProgress == NULL)
+		{
+			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, 
+					__FILE__, __LINE__, "Received fragmented message with fragmentNumber > 1 but never received fragmentNumber of 1");
+			return RSSL_RET_FAILURE;
+		}
+
+		// copy received buffer contents
+		pBigBuffer = pFragmentationProgress->pBigBuffer;
+		memcpy(&pBigBuffer->_poolBuffer.buffer.data[pFragmentationProgress->bytesAlreadyCopied], pFragmentedData->data, pFragmentedData->length);
+
+		// update fragmentation progress structure
+		pFragmentationProgress->bytesAlreadyCopied += pFragmentedData->length;
+
+		// if all bytes received, call back user with re-assembled buffer and clean up
+		if (pFragmentationProgress->bytesAlreadyCopied == pDataMsg->totalMsgLength)
+		{
+			pBigBuffer->_poolBuffer.buffer.length = pDataMsg->totalMsgLength;
+
+			// call back user
+			if (pDataMsg->containerType != RSSL_DT_MSG)
+			{
+				ret = tunnelStreamCallMsgCallback(pTunnelImpl, &pBigBuffer->_poolBuffer.buffer, NULL, pDataMsg->containerType, pErrorInfo);
+			}
+			else
+			{
+				RsslDecodeIterator dIter;
+				RsslMsg msg;
+
+				rsslClearDecodeIterator(&dIter);
+				rsslSetDecodeIteratorRWFVersion(&dIter, pTunnelImpl->base.classOfService.common.protocolMajorVersion,
+						pTunnelImpl->base.classOfService.common.protocolMinorVersion);
+				rsslSetDecodeIteratorBuffer(&dIter, &pBigBuffer->_poolBuffer.buffer);
+
+				if ((ret = rsslDecodeMsg(&dIter, &msg)) != RSSL_RET_SUCCESS)
+				{
+					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, ret, 
+							__FILE__, __LINE__, "Failed to decode re-assembled message.");
+					return RSSL_RET_FAILURE;
+				}
+
+				ret = tunnelStreamCallMsgCallback(pTunnelImpl, &pBigBuffer->_poolBuffer.buffer, &msg, pDataMsg->containerType, pErrorInfo);
+			}
+
+			// remove from hash table
+			rsslHashTableRemoveLink(&pTunnelImpl->_fragmentationProgressHashTable, &pFragmentationProgress->fragmentationHashLink);
+
+			// remove from queue
+			rsslQueueRemoveLink(&pTunnelImpl->_fragmentationProgressQueue, &pFragmentationProgress->fragmentationQueueLink);
+
+			// free memory
+			bigBufferPoolRelease(&pTunnelImpl->_bigBufferPool, &pBigBuffer->_poolBuffer);
+			free(pFragmentationProgress);
+		}
+	}
+	else // first fragment
+	{
+		// check if re-assembly already in progress and overwrite previous re-assembly if it exists
+		if ((pHashLink = rsslHashTableFind(&pTunnelImpl->_fragmentationProgressHashTable, &pDataMsg->messageId, NULL)) != NULL)
+		{
+			pFragmentationProgress = RSSL_HASH_LINK_TO_OBJECT(TunnelStreamFragmentationProgress, fragmentationHashLink, pHashLink);
+
+			// release previous big buffer
+			bigBufferPoolRelease(&pTunnelImpl->_bigBufferPool, &pFragmentationProgress->pBigBuffer->_poolBuffer);
+
+			// reset progress
+			pFragmentationProgress->bytesAlreadyCopied = 0;
+		}
+		else
+		{
+			// create new structure to track fragmentation progress
+			pFragmentationProgress = (TunnelStreamFragmentationProgress *)malloc(sizeof(TunnelStreamFragmentationProgress));
+			clearTunnelStreamFragmentationProgress(pFragmentationProgress);
+		}
+
+		// create big buffer
+		pBigBuffer = (TunnelBufferImpl *)bigBufferPoolGet(&pTunnelImpl->_bigBufferPool, pDataMsg->totalMsgLength, pErrorInfo);
+		if (pBigBuffer == NULL)
+		{
+			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_BUFFER_NO_BUFFERS, 
+					__FILE__, __LINE__, "Unable to acquire a big buffer.");
+			return RSSL_RET_BUFFER_NO_BUFFERS;
+		}
+
+		// copy received buffer contents
+		memcpy(pBigBuffer->_poolBuffer.buffer.data, pFragmentedData->data, pFragmentedData->length);
+
+		// update fragmentation progress structure
+		pFragmentationProgress->pBigBuffer = pBigBuffer;
+		pFragmentationProgress->bytesAlreadyCopied = pFragmentedData->length;
+
+		// put fragmentation progress structure into hash table indexed by message id
+		rsslHashLinkInit(&pFragmentationProgress->fragmentationHashLink);
+		rsslHashTableInsertLink(&pTunnelImpl->_fragmentationProgressHashTable, &pFragmentationProgress->fragmentationHashLink, &pDataMsg->messageId, NULL);
+
+		// also insert into fragmentation queue
+		rsslQueueAddLinkToBack(&pTunnelImpl->_fragmentationProgressQueue, &pFragmentationProgress->fragmentationQueueLink);		
+	}
+
+	return ret;
+}
+
+static RsslUInt16 _tunnelStreamFragMsgId(TunnelStreamImpl *pTunnelImpl)
+{
+    // defined as unsigned short starting from 1
+    RsslUInt16 msgId = ++pTunnelImpl->_messageId;
+    if (msgId == 0)
+    {
+    	msgId = pTunnelImpl->_messageId = 1;
+    }
+    	
+    return msgId;
+}
+
+static TunnelBufferImpl* _tunnelStreamGetBufferForFragmentation(TunnelStreamImpl *pTunnelImpl, RsslUInt32 length, RsslUInt32 totalMsgLen, RsslUInt32 fragmentNumber,
+																RsslUInt16 msgId, RsslUInt8 containerType, RsslBool msgComplete, RsslErrorInfo *pErrorInfo)
+{
+    TunnelBufferImpl *pBufferImpl;
+	TunnelStreamData dataMsg;
+	RsslEncodeIterator eIter;
+    int ret;
+        
+	/* Get buffer object. */
+	if ((pBufferImpl = _tunnelStreamGetBufferImplObject(pTunnelImpl, pErrorInfo)) == NULL)
+		return NULL;
+
+	/* Get memory for buffer. */
+	if (bufferPoolGet(&pTunnelImpl->_memoryBufferPool, &pBufferImpl->_poolBuffer,
+					length + TS_HEADER_MAX_LENGTH, RSSL_TRUE, RSSL_FALSE, pErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		rsslQueueAddLinkToBack(&pTunnelImpl->_manager->_tunnelBufferPool,
+				&pBufferImpl->_tbpLink);
+		return NULL;
+	}
+
+	pBufferImpl->_startPos = pBufferImpl->_poolBuffer.buffer.data;
+
+	tunnelStreamDataClear(&dataMsg);
+	dataMsg.base.streamId = pTunnelImpl->base.streamId;
+	dataMsg.base.domainType = pTunnelImpl->base.domainType;
+	dataMsg.seqNum = 0; /* (This will be replaced later) */
+	if (totalMsgLen > pTunnelImpl->base.classOfService.common.maxFragmentSize)
+	{
+		dataMsg.flags |= TS_DF_FRAGMENTED;
+		dataMsg.totalMsgLength = totalMsgLen;
+		dataMsg.fragmentNumber = fragmentNumber;
+		dataMsg.messageId = msgId;
+		dataMsg.containerType = containerType;
+		dataMsg.msgComplete = msgComplete;
+	}
+	else
+	{
+		// let tunnelStreamDataEncodeInit() know tunnel stream data header container type
+		dataMsg.containerType = containerType;
+	}
+
+	rsslClearEncodeIterator(&eIter);
+	rsslSetEncodeIteratorRWFVersion(&eIter, pTunnelImpl->base.classOfService.common.protocolMajorVersion,
+			pTunnelImpl->base.classOfService.common.protocolMinorVersion);
+	rsslSetEncodeIteratorBuffer(&eIter, &pBufferImpl->_poolBuffer.buffer);
+
+	if ((ret = tunnelStreamDataEncodeInit(&eIter, &dataMsg, pTunnelImpl->_streamVersion))
+			!= RSSL_RET_SUCCESS)
+	{
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, 
+				ret, __FILE__, __LINE__,
+				"Failed to encode tunnel stream header.");
+		tunnelStreamReleaseBuffer(pTunnelImpl, pBufferImpl);
+		return NULL;
+	}
+
+	assert(pBufferImpl->_poolBuffer.buffer.length >= rsslGetEncodedBufferLength(&eIter));
+	assert(rsslGetEncodedBufferLength(&eIter) < TS_HEADER_MAX_LENGTH);
+
+	/* Move buffer position to user's starting point. */
+	pBufferImpl->_poolBuffer.buffer.data += rsslGetEncodedBufferLength(&eIter);
+	pBufferImpl->_poolBuffer.buffer.length = length;
+	pBufferImpl->_dataStartPos = pBufferImpl->_poolBuffer.buffer.data;
+	pBufferImpl->_tunnel = (RsslTunnelStream*)pTunnelImpl;
+	pBufferImpl->_integrity = TS_BUFFER_INTEGRITY;
+	pBufferImpl->_maxLength = length;
+
+	return pBufferImpl;
+}
+
+static RsslBool _tunnelStreamHandleRequestRetry(TunnelStreamImpl *pTunnelImpl)
+{
+	if (pTunnelImpl->_state != TSS_WAIT_REFRESH || pTunnelImpl->_requestRetryCount >= MAX_REQUEST_RETRIES)
+	{
+		pTunnelImpl->_requestRetryCount = 0;
+		return RSSL_FALSE;
+	}
+	else // retry request
+	{
+		// change back to SEND_REQUEST state to force retry with different stream version
+		pTunnelImpl->_state = TSS_SEND_REQUEST;
+		pTunnelImpl->_requestRetryCount++;
+        tunnelStreamSetNeedsDispatch(pTunnelImpl);
+		return RSSL_TRUE;
+	}
+}    

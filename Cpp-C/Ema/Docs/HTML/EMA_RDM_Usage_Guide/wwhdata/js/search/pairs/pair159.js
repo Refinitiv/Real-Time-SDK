@@ -1,17 +1,16 @@
 function FileData_Pairs(x)
 {
-x.t("payload","reqmsg");
-x.t("list","behaviors");
+x.t("curve","domain");
 x.t("api","edition");
-x.t("definition","itemlist");
-x.t("itemlist","symbol");
-x.t("behaviors","chapter");
-x.t("chapter","payload");
-x.t("reqmsg","view");
-x.t("reqmsg","elektron");
+x.t("10.4","special");
+x.t("none","chapter");
+x.t("domain","10.4");
+x.t("chapter","yield");
 x.t("message","api");
-x.t("view","definition");
+x.t("yield","curve");
 x.t("elektron","message");
-x.t("edition","chapter");
-x.t("symbol","list");
+x.t("semantics","none");
+x.t("semantics","elektron");
+x.t("edition","10.4");
+x.t("special","semantics");
 }

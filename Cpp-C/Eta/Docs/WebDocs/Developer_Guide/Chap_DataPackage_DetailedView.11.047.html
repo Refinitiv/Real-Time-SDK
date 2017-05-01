@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1016999">Example: Converting RMTES to UCS-2</a></div>
-      <div class="Body"><a name="1017988">The following example illustrates storing and converting RMTES content. This example converts from RMTES to UCS-2 and assumes that:</a></div>
+      <div class="Body"><a name="1473166">The following example illustrates storing and converting RMTES content. This example converts from RMTES to UCS-2 and assumes that:</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -66,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1017989">The input buffer is populated with RMTES content.</a></div>
+              <div class="bullet_ind_inner"><a name="1473167">The input buffer is populated with RMTES content.</a></div>
             </td>
           </tr>
         </table>
@@ -80,187 +80,187 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1017990">The allocated size of 100 bytes is sufficient for conversion and storage.</a></div>
+              <div class="bullet_ind_inner"><a name="1473168">The allocated size of 100 bytes is sufficient for conversion and storage.</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1017991">To simplify the example, some error handling is omitted.</a></div>
-      <div class="Blank_Line"><a name="1018064">&nbsp;</a></div>
+      <div class="Body"><a name="1473169">To simplify the example, some error handling is omitted.</a></div>
+      <div class="Blank_Line"><a name="1473239">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1018010">&nbsp;</a></div>
+            <div class="command"><a name="1473172">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1018012">/* create cache buffer for storing RMTES and applying partial updates */</a></span></div>
+            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1473174">/* create cache buffer for storing RMTES and applying partial updates */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018014">RsslRmtesCacheBuffer rmtesCache;</a></div>
+            <div class="command"><a name="1473176">RsslRmtesCacheBuffer rmtesCache;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018016">char cacheSpace[100];</a></div>
+            <div class="command"><a name="1473178">char cacheSpace[100];</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1018018">/* create RsslU16Buffer to convert into */</a></span></div>
+            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1473180">/* create RsslU16Buffer to convert into */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018020">RsslU16Buffer ucs2Buffer;</a></div>
+            <div class="command"><a name="1473182">RsslU16Buffer ucs2Buffer;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018022">RsslUInt16 convertSpace[100];</a></div>
+            <div class="command"><a name="1473184">RsslUInt16 convertSpace[100];</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018024">&nbsp;</a></div>
+            <div class="command"><a name="1473186">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1018026">/* populate cache and conversion buffers with created memory */</a></span></div>
+            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1473188">/* populate cache and conversion buffers with created memory */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018028">rmtesCache.data = cacheSpace;</a></div>
+            <div class="command"><a name="1473190">rmtesCache.data = cacheSpace;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018030">rmtesCache.length = 0;  </a><span class="Color_003aGreen">/* this is the used length, since cache starts out empty it should start at 0 */</span></div>
+            <div class="command"><a name="1473192">rmtesCache.length = 0;  </a><span class="Color_003aGreen">/* this is the used length, since cache starts out empty it should start at 0 */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018032">rmtesCache.allocatedLength = 100;</a></div>
+            <div class="command"><a name="1473194">rmtesCache.allocatedLength = 100;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018034">&nbsp;</a></div>
+            <div class="command"><a name="1473196">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018036">ucs2Buffer.data = convertSpace;</a></div>
+            <div class="command"><a name="1473198">ucs2Buffer.data = convertSpace;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018038">ucs2Buffer.length = 100;</a></div>
+            <div class="command"><a name="1473200">ucs2Buffer.length = 100;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018040">&nbsp;</a></div>
+            <div class="command"><a name="1473202">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1018042">/* apply RMTES content to cache, if successful convert to UCS-2 */</a></span></div>
+            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1473204">/* apply RMTES content to cache, if successful convert to UCS-2 */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><span class="Color_003aBlue"><a name="1018044">if</a></span> ((retVal = rsslRMTESApplyToCache(&amp;inputBuf, &amp;rmtesCache)) &lt; RSSL_RET_SUCCESS)</div>
+            <div class="command"><span class="Color_003aBlue"><a name="1473206">if</a></span> ((retVal = rsslRMTESApplyToCache(&amp;inputBuf, &amp;rmtesCache)) &lt; RSSL_RET_SUCCESS)</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018046">{</a></div>
+            <div class="command"><a name="1473208">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018048">	</a><span class="Color_003aGreen">/* error while applying to cache */</span></div>
+            <div class="command"><a name="1473210">	</a><span class="Color_003aGreen">/* error while applying to cache */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018050">	printf(</a><span class="Color_003aRed">"Error %s (%d) encountered while applying buffer to RMTES cache.  Error Text: %s\n"</span>, </div>
+            <div class="command"><a name="1473212">	printf(</a><span class="Color_003aRed">"Error %s (%d) encountered while applying buffer to RMTES cache.  Error Text: %s\n"</span>, </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018052">			rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal));</a></div>
+            <div class="command"><a name="1473214">			rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal));</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018054">}</a></div>
+            <div class="command"><a name="1473216">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><span class="Color_003aBlue"><a name="1018313">else if </a></span>((retVal = rsslRMTESToUCS2(&amp;rmtesCache, &amp;ucs2Buffer)) &lt; RSSL_RET_SUCCESS)</div>
+            <div class="command"><span class="Color_003aBlue"><a name="1473218">else if </a></span>((retVal = rsslRMTESToUCS2(&amp;rmtesCache, &amp;ucs2Buffer)) &lt; RSSL_RET_SUCCESS)</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018315">{</a></div>
+            <div class="command"><a name="1473220">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018317">	</a><span class="Color_003aGreen">/* error when converting */</span></div>
+            <div class="command"><a name="1473222">	</a><span class="Color_003aGreen">/* error when converting */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018319">	printf(</a><span class="Color_003aRed">"Error %s (%d) encountered while converting from RMTES to UCS-2.  Error Text: %s\n"</span>, </div>
+            <div class="command"><a name="1473224">	printf(</a><span class="Color_003aRed">"Error %s (%d) encountered while converting from RMTES to UCS-2.  Error Text: %s\n"</span>, </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018321">			rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal));</a></div>
+            <div class="command"><a name="1473226">			rsslRetCodeToString(retVal), retVal, rsslRetCodeInfo(retVal));</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018323">}</a></div>
+            <div class="command"><a name="1473228">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1018325">else</a></span></div>
+            <div class="command" style="font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aBlue"><a name="1473230">else</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018327">{</a></div>
+            <div class="command"><a name="1473232">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018425">	</a><span class="Color_003aGreen">/* SUCCESS: conversion was successful – application can now use converted content */</span></div>
+            <div class="command"><a name="1473234">	</a><span class="Color_003aGreen">/* SUCCESS: conversion was successful – application can now use converted content */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018434">}</a></div>
+            <div class="command"><a name="1473236">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1018436">&nbsp;</a></div>
+            <div class="command"><a name="1473238">&nbsp;</a></div>
           </td>
         </tr>
       </table>
-      <div class="CodeTitle">Code Example 22: <a name="1016974">Converting RMTES to UCS-2 Example</a></div>
+      <div class="CodeTitle">Code Example 22: <a name="1473300">Converting RMTES to UCS-2 Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

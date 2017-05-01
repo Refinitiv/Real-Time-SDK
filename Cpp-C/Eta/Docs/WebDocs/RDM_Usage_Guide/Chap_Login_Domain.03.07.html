@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.2.5 Login Status Message Use</title>
+    <title>3.2.5 Login Status Message</title>
     <link rel="StyleSheet" href="css/Chap_Login_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,10 +55,10 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1002588">Login Status Message Use</a></div>
+      <div class="H3"><a name="1002588">Login Status Message</a></div>
       <div class="Body"><a name="1003580">OMM provider and OMM non-interactive provider applications use the Login status message to convey state information associated with the login stream. Such state information can indicate that a login stream cannot be established or to inform a consumer of a state change associated with an open login stream.</a></div>
       <div class="Body"><a name="1003581">The Login status message can also be used to reject a login request or close an existing login stream. When a login stream is closed via a status, any other open streams associated with the user are also closed as a result.</a></div>
-      <div class="Blank_Line"><a name="1003321">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1090827">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
           <div class="TableTitle">Table 7: <a name="1003644">Login Status Message Member Use &nbsp;</a></div>
@@ -88,11 +88,11 @@
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="1">
             <div class="CellBody"><a name="1003612">state</a></div>
           </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1003891">When rejecting Login:</a></div>
+          <td style="border-bottom-color: none; border-bottom-style: none; border-bottom-width: 0.0pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1033353">When </a>rejecting Login:</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -174,7 +174,7 @@
             <div class="CellBody"><a name="1003632">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1004008">Optional. If present, a </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_NAME_TYPE</span> should be specified.</div>
+            <div class="CellBody"><a name="1142485">Optional. </a>If present, a <span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_NAME_TYPE</span> should be specified.</div>
             <div class="CellBody"><a name="1004009">Possible values:</a></div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt; vertical-align: baseline">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
@@ -185,7 +185,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004010">RDM_LOGIN_USER_NAME == 1</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004010">RDM_LOGIN_USER_NAME</a></span><span class="Parameter"> == 1</span></div>
                   </td>
                 </tr>
               </table>
@@ -199,7 +199,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004011">RDM_LOGIN_USER_EMAIL_ADDRESS == 2</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004011">RDM_LOGIN_USER_EMAIL_ADDRESS</a></span><span class="Parameter"> == 2</span></div>
                   </td>
                 </tr>
               </table>
@@ -213,7 +213,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004012">RDM_LOGIN_USER_TOKEN == 3</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004012">RDM_LOGIN_USER_TOKEN</a></span><span class="Parameter"> == 3</span></div>
                   </td>
                 </tr>
               </table>
@@ -227,13 +227,12 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004013">RDM_LOGIN_USER_COOKIE == 4</a></span></div>
+                    <div class="Bullet_Table_inner" style="color: #666666; font-family: Arial; font-style: normal; font-variant: normal; font-weight: bold; text-transform: none"><span class="Parameter"><a name="1004013">RDM_LOGIN_USER_COOKIE</a></span><span class="Parameter"> == 4</span></div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1004014">If </a><span class="CodeOrCommand">nameType</span> is not set then it is assumed to be a <span class="CodeOrCommand">nameType</span> of <span class="Parameter">RDM_LOGIN_USER_NAME</span>.</div>
-            <div class="CellBody"><a name="1004015">If present, </a><span class="CodeOrCommand">nameType</span> should match the type specified in the Login request.</div>
+            <div class="CellBody"><a name="1004015">If present, </a><span class="CodeOrCommand">msgKey.nameType</span> should match the type specified in the Login request. If <span class="CodeOrCommand">msgKey.nameType</span> is unspecified, it is assumed to be a <span class="CodeOrCommand">msgKey.nameType</span> of <span class="Parameter">RDM_LOGIN_USER_NAME</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -241,7 +240,7 @@
             <div class="CellBody"><a name="1003636">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1003638">Optional. If present, a </a><span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_NAME</span> should be specified. This should match the <span class="CodeOrCommand">name</span> specified in the Login request and should contain appropriate content corresponding to the <span class="CodeOrCommand">nameType</span> specification.</div>
+            <div class="CellBody"><a name="1003638">Optional. </a>A <span class="CodeOrCommand">msgKey.flags</span> value of <span class="Parameter">RSSL_MKF_HAS_NAME</span> should be specified and <span class="CodeOrCommand">msgKey.name</span> should match the one used in the Login request and should contain appropriate content corresponding to the <span class="CodeOrCommand">msgKey.nameType</span> specification.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -265,7 +264,8 @@
             <div class="CellBody"><a name="1003792">msgKey.attrib</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="1003794">Not used.</a></div>
+            <div class="CellBody"><a name="1142538">Optional.</a></div>
+            <div class="CellBody"><a name="1023602">If present, contains the </a><span class="CodeOrCommand">AuthenticationErrorCode</span> and any associated <span class="CodeOrCommand">AuthenticationErrorText</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -289,7 +289,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.03.html">3.2	Usage</a> : 3.2.5	Login Status Message Use</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.03.html">3.2	Usage</a> : 3.2.5	Login Status Message</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

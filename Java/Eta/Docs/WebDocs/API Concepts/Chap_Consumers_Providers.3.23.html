@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.3.1.5 Building an Interactive Provider</title>
+    <title>3.3.1.4 Private Streams</title>
     <link rel="StyleSheet" href="css/Chap_Consumers_Providers.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,108 +55,8 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="999377">Building an Interactive Provider</a></div>
-      <div class="Body"><a name="1042875">An OMM interactive provider application opens a listening socket on a well-known port allowing OMM consumer applications to connect. After connecting, consumers can request data from the interactive provider.</a></div>
-      <div class="Body"><a name="1042879">The following steps summarize this process</a><sup><a name="wwfootnote_inline_65" href="#65">1</a></sup>:</div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1042880">Establish network communication</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1042881">Accept incoming connections</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1042882">Handle login requests</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1042883">Provide source directory information</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1042884">Provide or download necessary dictionaries</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1042885">Handle requests and post messages</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Bullet_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bullet_Large">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Bullet_inner"><a name="1042886">Disconnect consumers and shut down</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Body"><a name="1042890">The </a>interactive provider example application included with the API package provides one way of implementing an OMM interactive provider. The application is written with simplicity in mind and demonstrates the use of the appropriate . Portions of the functionality are abstracted for easy reuse, though you might need to customize it to achieve your own unique performance and functionality goals.</div>
+      <div class="H4"><a name="1054256">Private Streams</a></div>
+      <div class="Body"><a name="1054257">In a typical private stream scenario, the interactive provider can receive requests for a private stream. Once established, interactive providers can receive any consumer-style request via a private stream, described in the consumer section of this document, including Batch requests, Views, Symbol Lists, Pause/Resume, Posting, etc. Provider applications should respond with a negative acknowledgment or response if the interactive application cannot provide the expected response to a request.</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -166,16 +66,10 @@
           document.writeln(WWHRelatedTopicsInlineHTML());
         // -->
       </script>
-      <hr />
-      <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="65" href="#wwfootnote_inline_65">1</a>
-      </div>
-      <div class="Footnote"><a name="1042878">Specific APIs might automatically rely on defaults unless overridden by the user.</a></div>
-      <br style="clear: both;" />
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.01.html">Chapter 3	Consumers and Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.17.html">3.3	Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.18.html">3.3.1	Interactive Providers</a> : 3.3.1.5	Building an Interactive Provider</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.01.html">Chapter 3	Consumers and Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.18.html">3.3	Providers</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Consumers_Providers.3.19.html">3.3.1	Interactive Providers</a> : 3.3.1.4	Private Streams</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

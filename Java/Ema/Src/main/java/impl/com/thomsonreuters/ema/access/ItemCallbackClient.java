@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.ema.access.OmmState.StreamState;
@@ -185,12 +186,6 @@ class TunnelItem<T> extends Item<T> {
 		while (STARTING_SUBITEM_STREAMID >= _subItems.size())
 			_subItems.add(null);
 		_returnedSubItemStreamIds = new LinkedList<IntObject>();
-	}
-
-	void returnStreamId()
-	{
-		if (_directory != null && _streamId != 0)
-			_directory.channelInfo().returnStreamId(_streamId);
 	}
 
 	int subItemStreamId()
@@ -373,6 +368,9 @@ class TunnelItem<T> extends Item<T> {
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
 				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 
 				scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
 
@@ -391,6 +389,13 @@ class TunnelItem<T> extends Item<T> {
 							.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
 
 				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+
+				scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
+
+				return true;
 			}
 		}
 
@@ -463,7 +468,8 @@ class TunnelItem<T> extends Item<T> {
 	boolean submit(TunnelStreamRequest tunnelStreamRequest)
 	{
 		_domainType = tunnelStreamRequest.domainType();
-		_streamId = _directory.channelInfo().nextStreamId(0);
+		_streamId = _baseImpl._itemCallbackClient.nextStreamId(0);
+		_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), this);
 
 		_baseImpl.rsslErrorInfo().clear();
 
@@ -718,8 +724,6 @@ class TunnelItem<T> extends Item<T> {
 		_subItems.clear();
 
 		_baseImpl.itemCallbackClient().removeFromMap(this);
-		this.itemIdObj().returnToPool();
-		this.returnToPool();
 	}
 
 	@Override
@@ -824,17 +828,22 @@ class SubItem<T> extends Item<T>
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append("Invalid attempt to open sub stream using serviceName.");
+			
+			/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
+			_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 
 			scheduleItemClosedStatus(_baseImpl.itemCallbackClient(), this, ((ReqMsgImpl) reqMsg).rsslMsg(),
 					temp.toString(), reqMsg.serviceName());
 
 			return true;
 		}
+		
 		if (reqMsg.streamId() == 0)
 		{
 			_streamId = ((TunnelItem<T>) (_parent)).addSubItem(this, 0);
 			reqMsg.streamId(_streamId);
-		} else
+		} 
+		else
 		{
 			if (reqMsg.streamId() < 0)
 			{
@@ -848,12 +857,14 @@ class SubItem<T> extends Item<T>
 				_baseImpl.handleInvalidUsage(temp.toString());
 
 				return false;
-			} else
+			}
+			else
 			{
 				_streamId = ((TunnelItem<T>) (_parent)).addSubItem(this, reqMsg.streamId());
 			}
 		}
 
+		_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 		_domainType = reqMsg.domainType();
 
 		return ((TunnelItem<T>) (_parent)).submitSubItemMsg(((ReqMsgImpl) reqMsg).rsslMsg());
@@ -906,8 +917,6 @@ class SubItem<T> extends Item<T>
 		((TunnelItem<T>) (_parent)).removeSubItem(_streamId);
 		((TunnelItem<T>) (_parent)).returnSubItemStreamId(_streamId);
 		_baseImpl.itemCallbackClient().removeFromMap(this);
-		this.itemIdObj().returnToPool();
-		this.returnToPool();
 	}
 
 	@Override
@@ -949,20 +958,32 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 TunnelStreamStatusEventCallback
 {
 	private static final String CLIENT_NAME = "ItemCallbackClient";
+	private static final int  CONSUMER_STARTING_STREAM_ID = 4;
+	private static final int CONSUMER_MAX_STREAM_ID_MINUSONE = Integer.MAX_VALUE -1;
 	
 	private HashMap<LongObject, Item<T>>	_itemMap;
+	private HashMap<IntObject, Item<T>>	_streamIdMap;
 	private LongObject _longObjHolder;
+	private IntObject _intObjHolder;
 	protected LoginMsg _rsslRDMLoginMsg;
+	private int	_nextStreamId;
+	boolean	_nextStreamIdWrapAround;
+	private ReentrantLock _streamIdAccessLock;
 
 	ItemCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
 		super(baseImpl, CLIENT_NAME);
 		
 		_itemMap = new HashMap<>(_baseImpl.activeConfig().itemCountHint == 0 ? 1024 : _baseImpl.activeConfig().itemCountHint);
-		
+		_streamIdMap = new HashMap<>(_baseImpl.activeConfig().itemCountHint == 0 ? 1024 : _baseImpl.activeConfig().itemCountHint);
+
 		_updateMsg = new UpdateMsgImpl(_baseImpl._objManager);
 		
 		_longObjHolder = new LongObject();
+		_intObjHolder = new IntObject();
+		
+		_nextStreamId = CONSUMER_STARTING_STREAM_ID;
+		_nextStreamIdWrapAround = false;
 	}
 
 	void initialize() {}
@@ -1117,6 +1138,7 @@ TunnelStreamStatusEventCallback
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public int defaultMsgCallback(TunnelStreamMsgEvent tunnelStreamMsgEvent)
 	{
 		_baseImpl.eventReceived();
@@ -1644,8 +1666,8 @@ TunnelStreamStatusEventCallback
 				case DomainTypes.LOGIN :
 				{
 					SingleItem<T> item = _baseImpl.loginCallbackClient().loginItem(reqMsg, client, closure);
-
-					return addToMap(LongIdGenerator.nextLongId(), item);
+					/* Assign an available handle to the request */
+					return addToItemMap(LongIdGenerator.nextLongId(), item);
 				}
 				case DomainTypes.DICTIONARY :
 				{
@@ -1696,13 +1718,11 @@ TunnelStreamStatusEventCallback
 					
 					if (!item.open(reqMsg))
 					{
-						item.returnToPool();
+						removeFromMap(item);
 						return 0;
 					}
 					else
-					{
-						return addToMap(LongIdGenerator.nextLongId(), item);
-					}
+						return item.itemId();
 				}
 				case DomainTypes.SOURCE :
 				{
@@ -1721,14 +1741,11 @@ TunnelStreamStatusEventCallback
 						
 						if (!item.open(reqMsg))
 						{
-							item.returnStreamId();
-							item.returnToPool();
+							removeFromMap(item);
 							return 0;
 						}
 						else
-						{
-							return addToMap(LongIdGenerator.nextLongId(), item);
-						}
+							return item.itemId();
 					}
 	
 					return 0;
@@ -1746,33 +1763,67 @@ TunnelStreamStatusEventCallback
 						else
 							batchItem.reset(_baseImpl, client, closure, null);
 						
+						/* Start splitting the batch request into individual item request if _nextStreamIdWrapAround is true. */
+						if (_baseImpl._itemCallbackClient.nextStreamIdWrapAround(((ReqMsgImpl)reqMsg).batchItemList().size()))
+						{
+							List<String> itemList = ((ReqMsgImpl)reqMsg).batchItemList();
+							SingleItem<T> item;
+							int flags =  requestMsg.flags();
+							flags &= ~RequestMsgFlags.HAS_BATCH;
+							requestMsg.flags(flags);
+							requestMsg.msgKey().applyHasName();
+							for (String itemName : itemList)
+							{
+								if ((item = (SingleItem<T>)_baseImpl._objManager._singleItemPool.poll()) == null)
+								{
+									item = new SingleItem<T>(_baseImpl, client, closure, null);
+									_baseImpl._objManager._singleItemPool.updatePool(item);
+								}
+								else
+									item.reset(_baseImpl, client, closure, null);
+								
+								requestMsg.msgKey().name().data(itemName);
+
+								if (!item.open(reqMsg))
+								{
+									removeFromMap(item);
+									return 0;
+								}
+							}
+							
+							addToItemMap(LongIdGenerator.nextLongId(), batchItem);
+							
+							/* Send stream close status for the batch stream */
+							int keyFlags = requestMsg.msgKey().flags();
+							keyFlags &= ~MsgKeyFlags.HAS_NAME;
+							requestMsg.msgKey().flags(keyFlags);
+							batchItem.scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
+									batchItem, requestMsg, "Stream closed for batch", reqMsg.serviceName());
+							
+							return batchItem.itemId();
+						}
+						else
+						{
 							batchItem.addBatchItems( ((ReqMsgImpl)reqMsg).batchItemList().size() );
 							List<SingleItem<T>> items = batchItem.singleItemList();
 							int numOfItem = items.size();
+							
 							if ( !batchItem.open( reqMsg ) )
 							{
 								SingleItem<T> item;
 								for ( int i = 1 ; i < numOfItem ; i++ )
 								{
 									item = items.get(i);
-									item.returnStreamId();
-									item.returnToPool();
+									removeFromMap(item);
 								}
-								
-								batchItem.returnStreamId();
-								batchItem.returnToPool();
+							
+								removeFromMap(batchItem);
 								
 								return 0;
 							}
 							else
-							{
-								addToMap(LongIdGenerator.nextLongId(), batchItem);
-
-								for ( int i = 0; i < numOfItem ; i++ )
-									addToMap(LongIdGenerator.nextLongId(), items.get(i));
-								
 								return batchItem.itemId();
-							}
+						}
 					}
 					else
 					{
@@ -1787,14 +1838,11 @@ TunnelStreamStatusEventCallback
 						
 						if (!item.open(reqMsg))
 						{
-							item.returnStreamId();
-							item.returnToPool();
+							removeFromMap(item);
 							return 0;
 						}
 						else
-						{
-							return addToMap(LongIdGenerator.nextLongId(), item);
-						}
+							return item.itemId();
 					}
 				}
 			}
@@ -1850,15 +1898,17 @@ TunnelStreamStatusEventCallback
 					((TunnelItem<T>) (parent)).removeSubItem(subItem.streamId());
 					((TunnelItem<T>) (parent)).returnSubItemStreamId(subItem.streamId());
 				}
-				subItem.returnToPool();
+				
+				removeFromMap(subItem);
 
 				return 0;
 			}
 
-			return addToMap(LongIdGenerator.nextLongId(), subItem);
+			return subItem.itemId();
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	long registerClient(TunnelStreamRequest tunnelStreamReq, T client, Object closure)
 	{
 		TunnelItem<T> item;
@@ -1872,11 +1922,10 @@ TunnelStreamStatusEventCallback
 
 		if (!item.open(tunnelStreamReq))
 		{
-			item.returnStreamId();
-			item.returnToPool();
+			removeFromMap(item);
 			return 0;
 		}
-		return addToMap(LongIdGenerator.nextLongId(), item);
+		return item.itemId();
 	}
 	
 	void reissue(com.thomsonreuters.ema.access.ReqMsg reqMsg, long handle)
@@ -2015,7 +2064,27 @@ TunnelStreamStatusEventCallback
 	long addToMap(long itemId, Item<T> item)
 	{
 		LongObject itemIdObj = _baseImpl._objManager.createLongObject().value(itemId);
-		item.itemId(itemId, itemIdObj);
+		IntObject streamIdObj = _baseImpl._objManager.createIntObject().value(item._streamId);
+		item.itemId(itemIdObj, streamIdObj);
+		_itemMap.put(itemIdObj, item);
+		_streamIdMap.put(streamIdObj, null);
+		
+		if (_baseImpl.loggerClient().isTraceEnabled())
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Added Item ").append(itemId).append(" of StreamId ").append(streamIdObj.value()).append(" to item map" ).append( OmmLoggerClient.CR )
+			.append( "Instance name " ).append( _baseImpl .instanceName() );
+			
+			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
+		}
+		
+		return itemId;
+	}
+	
+	long addToItemMap(long itemId, Item<T> item)
+	{
+		LongObject itemIdObj = _baseImpl._objManager.createLongObject().value(itemId);
+		item.itemId(itemIdObj, null);
 		_itemMap.put(itemIdObj, item);
 		
 		if (_baseImpl.loggerClient().isTraceEnabled())
@@ -2040,13 +2109,87 @@ TunnelStreamStatusEventCallback
 		if (_baseImpl.loggerClient().isTraceEnabled())
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
-			temp.append("Removed Item ").append(item._itemId).append(" from item map" ).append( OmmLoggerClient.CR )
+			if (item.streamIdObj() != null)
+				temp.append("Removed Item ").append(item._itemId).append(" of StreamId ").append(item.streamIdObj().value()).append(" from item map" ).append( OmmLoggerClient.CR )
+			.append( "Instance name " ).append( _baseImpl .instanceName() );
+			else
+				temp.append("Removed Item ").append(item._itemId).append(" from item map" ).append( OmmLoggerClient.CR )
 			.append( "Instance name " ).append( _baseImpl .instanceName() );
 			
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		}
 		
-		_itemMap.remove(item.itemIdObj());
+		try
+		{
+			_baseImpl.userLock().lock();
+			
+			_itemMap.remove(item.itemIdObj());
+			_streamIdMap.remove(item.streamIdObj());
+			item.backToPool();
+		}
+		finally
+		{
+			_baseImpl.userLock().unlock();
+		}
+	}
+
+	boolean isStreamIdInUse(int nextStreamId)
+	{
+		return (_streamIdMap.containsKey(_intObjHolder.value(nextStreamId)));
+	}
+	
+	int nextStreamId(int numOfItem)
+	{
+		if (_nextStreamId > CONSUMER_MAX_STREAM_ID_MINUSONE - numOfItem)
+		{
+			_nextStreamId = CONSUMER_STARTING_STREAM_ID;
+			_nextStreamIdWrapAround = true;
+			
+			if (_streamIdAccessLock == null)
+				_streamIdAccessLock = new java.util.concurrent.locks.ReentrantLock();
+			
+			if (_baseImpl.loggerClient().isTraceEnabled())
+				_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME,
+						"Reach max number available for next stream id, will wrap around", Severity.TRACE));
+		}
+		
+		if (!_nextStreamIdWrapAround)
+		{
+			if ( numOfItem > 0 )
+			{
+				int retVal = ++_nextStreamId;
+				_nextStreamId += numOfItem;
+				return retVal;
+			}
+	
+			return ++_nextStreamId;
+		}
+		else
+		{
+			_streamIdAccessLock.lock();
+			while (_baseImpl.itemCallbackClient().isStreamIdInUse(++_nextStreamId));
+			_streamIdAccessLock.unlock();
+			
+			if ( _nextStreamId < 0 )
+			{
+				StringBuilder tempErr = _baseImpl.strBuilder();
+				tempErr.append("Unable to obtain next available stream id for item request.");
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+				
+				if (_baseImpl.hasErrorClient())
+					_baseImpl.notifyErrorClient(_baseImpl.ommIUExcept().message(tempErr.toString()));
+				else
+					throw _baseImpl.ommIUExcept().message(tempErr.toString());
+			}
+				
+			return _nextStreamId;
+		}
+	}
+	
+	boolean nextStreamIdWrapAround(int numOfItem)
+	{
+		return (_nextStreamId > (CONSUMER_MAX_STREAM_ID_MINUSONE - numOfItem));
 	}
 }
 
@@ -2142,6 +2285,7 @@ abstract class Item<T> extends VaNode
 	OmmBaseImpl<T>			_baseImpl;
 	long 					_itemId;
 	LongObject _itemIdObj;
+	IntObject _streamIdObj;
 
 	Item() {}
 
@@ -2175,15 +2319,19 @@ abstract class Item<T> extends VaNode
 		return _baseImpl;
 	}
 	
-	void itemId(long itemId, LongObject itemIdObj)
+	void itemId(LongObject itemIdObj, IntObject streamIdObj)
 	{
-		_itemId = itemId;
+		_itemId = itemIdObj.value();
 		_itemIdObj = itemIdObj;
+		_streamIdObj = streamIdObj;
 	}
 	
-	void itemIdObj(LongObject itemIdObj)
+	void backToPool()
 	{
-		_itemIdObj = itemIdObj;
+		if (_itemIdObj != null) _itemIdObj.returnToPool();
+		if (_streamIdObj != null) _streamIdObj.returnToPool();
+		
+		returnToPool();
 	}
 	
 	long itemId()
@@ -2194,6 +2342,11 @@ abstract class Item<T> extends VaNode
 	LongObject itemIdObj()
 	{
 		return _itemIdObj;
+	}
+	
+	IntObject streamIdObj()
+	{
+		return _streamIdObj;
 	}
 	
 	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> parent)
@@ -2270,10 +2423,14 @@ class SingleItem<T> extends Item<T>
 			directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceName());
 			if (directory == null)
 			{
+				/* EMA is generating the status down response because the service is not valid */
 				StringBuilder temp = _baseImpl.strBuilder();
 	        	temp.append("Service name of '")
 	        		.append(reqMsg.serviceName())
 	        		.append("' is not found.");
+	        	
+	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 
 	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 											this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
@@ -2288,6 +2445,8 @@ class SingleItem<T> extends Item<T>
 				directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceId());
 			else
 			{
+				/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 				scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
 						"Passed in request message does not identify any service.",
@@ -2303,6 +2462,9 @@ class SingleItem<T> extends Item<T>
 	        	temp.append("Service id of '")
 	        		.append(reqMsg.serviceName())
 	        		.append("' is not found.");
+	        	
+	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
 	        	
 	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
@@ -2378,18 +2540,9 @@ class SingleItem<T> extends Item<T>
 			}
 			
 			_baseImpl.itemCallbackClient().removeFromMap(this);
-			this.itemIdObj().returnToPool();
-			this.returnStreamId();
-			this.returnToPool();
 		}
 	}
 
-	void returnStreamId()
-	{
-		if (_directory != null && _streamId != 0)
-			_directory.channelInfo().returnStreamId(_streamId);
-	}
-	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.RequestMsg rsslRequestMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
@@ -2424,8 +2577,9 @@ class SingleItem<T> extends Item<T>
 				List<SingleItem<T>> items = ((BatchItem<T>)this).singleItemList();
 				int numOfItem = items.size();
 
-				rsslRequestMsg.streamId(_directory.channelInfo().nextStreamId(numOfItem));
+				rsslRequestMsg.streamId(_baseImpl._itemCallbackClient.nextStreamId(numOfItem));
 				_streamId = rsslRequestMsg.streamId();
+				_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), this);
 				
 				SingleItem<T> item;
 				int itemStreamIdStart = _streamId;
@@ -2435,12 +2589,17 @@ class SingleItem<T> extends Item<T>
 					item._directory = _directory;
 					item._streamId = ++itemStreamIdStart;
 					item._domainType = domainType;
+					_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), item);
 				}
 			}
 			else
 			{
-				rsslRequestMsg.streamId(_directory.channelInfo().nextStreamId(0));
+				rsslRequestMsg.streamId(_baseImpl._itemCallbackClient.nextStreamId(0));
 				_streamId = rsslRequestMsg.streamId();
+				/* Here need to add the item to hashmap FIRST because the response for this item driven by dispatch thread could comes back before open() returns.
+				 * If it is the case, the response of closed state could call remove() without removing anything from the hashmap. It will leads to mem growth finally.
+				 */
+				_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), this);
 			}
 		}
 		else
@@ -2455,37 +2614,58 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
-	    {
-			StringBuilder temp = _baseImpl.strBuilder();
-			if (_baseImpl.loggerClient().isErrorEnabled())
-        	{
-				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-				
-	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RequestMsg)")
-	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-	    			.append(OmmLoggerClient.CR)
-	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-	    			.append("Error Text ").append(error.text());
-	        	
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	
-	        	temp.setLength(0);
-        	}
+		try
+		{
+			_baseImpl.userLock().unlock();
 			
-			temp.append("Failed to open or modify item request. Reason: ")
-				.append(ReactorReturnCodes.toString(ret))
-				.append(". Error text: ")
-				.append(rsslErrorInfo.error().text());
+			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
+		    {
+				StringBuilder temp = _baseImpl.strBuilder();
+				if (_baseImpl.loggerClient().isErrorEnabled())
+	        	{
+					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+					
+		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RequestMsg)")
+		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+		    			.append(OmmLoggerClient.CR)
+		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+		    			.append("Error Text ").append(error.text());
+		        	
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	
+		        	temp.setLength(0);
+	        	}
 				
-			_baseImpl.handleInvalidUsage(temp.toString());
-
-			return false;
-	    }
-        
-		return true;
+				temp.append("Failed to open or modify item request. Reason: ")
+					.append(ReactorReturnCodes.toString(ret))
+					.append(". Error text: ")
+					.append(rsslErrorInfo.error().text());
+					
+				_baseImpl.handleInvalidUsage(temp.toString());
+				return false;
+		    }
+	
+			return true;
+		}
+		catch(IllegalMonitorStateException excp)
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("Failed to submit message, received exception: '")
+				     .append(excp.getMessage())
+				     .append( "'. ");
+			
+		   if (_baseImpl.loggerClient().isErrorEnabled())
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+			   
+		   _baseImpl.handleInvalidUsage(tempErr.toString());
+		   return false;
+		}
+		finally
+		{
+			_baseImpl.userLock().lock();
+		}
 	}
 
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg)
@@ -2509,39 +2689,61 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
-	    {
-			StringBuilder temp = _baseImpl.strBuilder();
+		try
+		{
+			_baseImpl.userLock().unlock();
 			
-			if (_baseImpl.loggerClient().isErrorEnabled())
-	    	{
-				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
+		    {
+				StringBuilder temp = _baseImpl.strBuilder();
 				
-	        	temp.append("Internal error: ReactorChannel.submit() failed in SingleItem.submit(CloseMsg)")
-	        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-	    			.append(OmmLoggerClient.CR)
-	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-	    			.append("Error Text ").append(error.text());
-	        	
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	
-	        	temp.setLength(0);
-	    	}
+				if (_baseImpl.loggerClient().isErrorEnabled())
+		    	{
+					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+					
+		        	temp.append("Internal error: ReactorChannel.submit() failed in SingleItem.submit(CloseMsg)")
+		        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+		    			.append(OmmLoggerClient.CR)
+		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+		    			.append("Error Text ").append(error.text());
+		        	
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	
+		        	temp.setLength(0);
+		    	}
+				
+				temp.append("Failed to close item request. Reason: ")
+					.append(ReactorReturnCodes.toString(ret))
+					.append(". Error text: ")
+					.append(rsslErrorInfo.error().text());
+					
+	
+				_baseImpl.handleInvalidUsage(temp.toString());
+		
+				return false;
+		    }
+		
+			return true;
+		}
+		catch(IllegalMonitorStateException excp)
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("Failed to submit message, received exception: '")
+				     .append(excp.getMessage())
+				     .append( "'. ");
 			
-			temp.append("Failed to close item request. Reason: ")
-				.append(ReactorReturnCodes.toString(ret))
-				.append(". Error text: ")
-				.append(rsslErrorInfo.error().text());
-				
-
-			_baseImpl.handleInvalidUsage(temp.toString());
-	
-			return false;
-	    }
-	
-		return true;
+		   if (_baseImpl.loggerClient().isErrorEnabled())
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+			   
+		   _baseImpl.handleInvalidUsage(tempErr.toString());
+		   return false;
+		}
+		finally
+		{
+			_baseImpl.userLock().lock();
+		}
 	}
 
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.PostMsg rsslPostMsg)
@@ -2557,38 +2759,60 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))
-	    {
-			StringBuilder temp = _baseImpl.strBuilder();
-			if (_baseImpl.loggerClient().isErrorEnabled())
-        	{
-				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-				
-	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(PostMsg)")
-	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-	    			.append(OmmLoggerClient.CR)
-	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-	    			.append("Error Text ").append(error.text());
-	        	
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	
-	        	temp.setLength(0);
-        	}
+		try
+		{
+			_baseImpl.userLock().unlock();
 			
-			temp.append("Failed to submit PostMsg on item stream. Reason: ")
-				.append(ReactorReturnCodes.toString(ret))
-				.append(". Error text: ")
-				.append(rsslErrorInfo.error().text());
+			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))
+		    {
+				StringBuilder temp = _baseImpl.strBuilder();
+				if (_baseImpl.loggerClient().isErrorEnabled())
+	        	{
+					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+					
+		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(PostMsg)")
+		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+		    			.append(OmmLoggerClient.CR)
+		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+		    			.append("Error Text ").append(error.text());
+		        	
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	
+		        	temp.setLength(0);
+	        	}
 				
-
-			_baseImpl.handleInvalidUsage(temp.toString());
-
-			return false;
-	    }
-        
-		return true;
+				temp.append("Failed to submit PostMsg on item stream. Reason: ")
+					.append(ReactorReturnCodes.toString(ret))
+					.append(". Error text: ")
+					.append(rsslErrorInfo.error().text());
+					
+	
+				_baseImpl.handleInvalidUsage(temp.toString());
+	
+				return false;
+		    }
+	        
+			return true;
+		}
+		catch(IllegalMonitorStateException excp)
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("Failed to submit message, received exception: '")
+				     .append(excp.getMessage())
+				     .append( "'. ");
+			
+		   if (_baseImpl.loggerClient().isErrorEnabled())
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+			   
+		   _baseImpl.handleInvalidUsage(tempErr.toString());
+		   return false;
+		}
+		finally
+		{
+			_baseImpl.userLock().lock();
+		}
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.GenericMsg rsslGenericMsg)
@@ -2605,38 +2829,60 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslGenericMsg, rsslSubmitOptions, rsslErrorInfo)))
-	    {
-			StringBuilder temp = _baseImpl.strBuilder();
-			if (_baseImpl.loggerClient().isErrorEnabled())
-        	{
-				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-				
-	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(GenericMsg)")
-	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-	    			.append(OmmLoggerClient.CR)
-	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-	    			.append("Error Text ").append(error.text());
-	        	
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	
-	        	temp.setLength(0);
-        	}
+		try
+		{
+			_baseImpl.userLock().unlock();
 			
-			temp.append("Failed to submit GenericMsg on item stream. Reason: ")
-				.append(ReactorReturnCodes.toString(ret))
-				.append(". Error text: ")
-				.append(rsslErrorInfo.error().text());
+			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslGenericMsg, rsslSubmitOptions, rsslErrorInfo)))
+		    {
+				StringBuilder temp = _baseImpl.strBuilder();
+				if (_baseImpl.loggerClient().isErrorEnabled())
+	        	{
+					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+					
+		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(GenericMsg)")
+		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+		    			.append(OmmLoggerClient.CR)
+		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+		    			.append("Error Text ").append(error.text());
+		        	
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	
+		        	temp.setLength(0);
+	        	}
 				
-
-			_baseImpl.handleInvalidUsage(temp.toString());
-
-			return false;
-	    }
-        
-		return true;
+				temp.append("Failed to submit GenericMsg on item stream. Reason: ")
+					.append(ReactorReturnCodes.toString(ret))
+					.append(". Error text: ")
+					.append(rsslErrorInfo.error().text());
+					
+	
+				_baseImpl.handleInvalidUsage(temp.toString());
+	
+				return false;
+		    }
+	        
+			return true;
+		}
+		catch(IllegalMonitorStateException excp)
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("Failed to submit message, received exception: '")
+				     .append(excp.getMessage())
+				     .append( "'. ");
+			
+		   if (_baseImpl.loggerClient().isErrorEnabled())
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+			   
+		   _baseImpl.handleInvalidUsage(tempErr.toString());
+		   return false;
+		}
+		finally
+		{
+			_baseImpl.userLock().lock();
+		}
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg)
@@ -2652,38 +2898,60 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRefreshMsg, rsslSubmitOptions, rsslErrorInfo)))
-	    {
-			StringBuilder temp = _baseImpl.strBuilder();
-			if (_baseImpl.loggerClient().isErrorEnabled())
-        	{
-				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-				
-	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RefreshMsg)")
-	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-	    			.append(OmmLoggerClient.CR)
-	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-	    			.append("Error Text ").append(error.text());
-	        	
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	
-	        	temp.setLength(0);
-        	}
+		try
+		{
+			_baseImpl.userLock().unlock();
 			
-			temp.append("Failed to submit RefreshMsg on item stream. Reason: ")
-				.append(ReactorReturnCodes.toString(ret))
-				.append(". Error text: ")
-				.append(rsslErrorInfo.error().text());
+			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRefreshMsg, rsslSubmitOptions, rsslErrorInfo)))
+		    {
+				StringBuilder temp = _baseImpl.strBuilder();
+				if (_baseImpl.loggerClient().isErrorEnabled())
+	        	{
+					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+					
+		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RefreshMsg)")
+		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+		    			.append(OmmLoggerClient.CR)
+		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+		    			.append("Error Text ").append(error.text());
+		        	
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	
+		        	temp.setLength(0);
+	        	}
 				
-
-			_baseImpl.handleInvalidUsage(temp.toString());
-
-			return false;
-	    }
-        
-		return true;
+				temp.append("Failed to submit RefreshMsg on item stream. Reason: ")
+					.append(ReactorReturnCodes.toString(ret))
+					.append(". Error text: ")
+					.append(rsslErrorInfo.error().text());
+					
+	
+				_baseImpl.handleInvalidUsage(temp.toString());
+	
+				return false;
+		    }
+	        
+			return true;
+		}
+		catch(IllegalMonitorStateException excp)
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("Failed to submit message, received exception: '")
+				     .append(excp.getMessage())
+				     .append( "'. ");
+			
+		   if (_baseImpl.loggerClient().isErrorEnabled())
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+			   
+		   _baseImpl.handleInvalidUsage(tempErr.toString());
+		   return false;
+		}
+		finally
+		{
+			_baseImpl.userLock().lock();
+		}
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.UpdateMsg rsslUpateMsg)
@@ -2699,38 +2967,61 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpateMsg, rsslSubmitOptions, rsslErrorInfo)))
-	    {
-			StringBuilder temp = _baseImpl.strBuilder();
-			if (_baseImpl.loggerClient().isErrorEnabled())
-        	{
-				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-				
-	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(UpdateMsg)")
-	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-	    			.append(OmmLoggerClient.CR)
-	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-	    			.append("Error Text ").append(error.text());
-	        	
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	
-	        	temp.setLength(0);
-        	}
+		
+		try
+		{
+			_baseImpl.userLock().unlock();
 			
-			temp.append("Failed to submit UpdateMsg on item stream. Reason: ")
-				.append(ReactorReturnCodes.toString(ret))
-				.append(". Error text: ")
-				.append(rsslErrorInfo.error().text());
+			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpateMsg, rsslSubmitOptions, rsslErrorInfo)))
+		    {
+				StringBuilder temp = _baseImpl.strBuilder();
+				if (_baseImpl.loggerClient().isErrorEnabled())
+	        	{
+					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+					
+		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(UpdateMsg)")
+		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+		    			.append(OmmLoggerClient.CR)
+		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+		    			.append("Error Text ").append(error.text());
+		        	
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	
+		        	temp.setLength(0);
+	        	}
 				
-
-			_baseImpl.handleInvalidUsage(temp.toString());
-
-			return false;
-	    }
-        
-		return true;
+				temp.append("Failed to submit UpdateMsg on item stream. Reason: ")
+					.append(ReactorReturnCodes.toString(ret))
+					.append(". Error text: ")
+					.append(rsslErrorInfo.error().text());
+					
+	
+				_baseImpl.handleInvalidUsage(temp.toString());
+	
+				return false;
+		    }
+	        
+			return true;
+		}
+		catch(IllegalMonitorStateException excp)
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("Failed to submit message, received exception: '")
+				     .append(excp.getMessage())
+				     .append( "'. ");
+			
+		   if (_baseImpl.loggerClient().isErrorEnabled())
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+			   
+		   _baseImpl.handleInvalidUsage(tempErr.toString());
+		   return false;
+		}
+		finally
+		{
+			_baseImpl.userLock().lock();
+		}
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg)
@@ -2746,38 +3037,59 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslStatusMsg, rsslSubmitOptions, rsslErrorInfo)))
-	    {
-			StringBuilder temp = _baseImpl.strBuilder();
-			if (_baseImpl.loggerClient().isErrorEnabled())
-        	{
-				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-				
-	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(StatusMsg)")
-	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-	    			.append(OmmLoggerClient.CR)
-	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-	    			.append("Error Text ").append(error.text());
-	        	
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-	        	
-	        	temp.setLength(0);
-        	}
+		try
+		{
+			_baseImpl.userLock().unlock();
 			
-			temp.append("Failed to submit StatusMsg on item stream. Reason: ")
-				.append(ReactorReturnCodes.toString(ret))
-				.append(". Error text: ")
-				.append(rsslErrorInfo.error().text());
+			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslStatusMsg, rsslSubmitOptions, rsslErrorInfo)))
+		    {
+				StringBuilder temp = _baseImpl.strBuilder();
+				if (_baseImpl.loggerClient().isErrorEnabled())
+	        	{
+					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+					
+		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(StatusMsg)")
+		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+		    			.append(OmmLoggerClient.CR)
+		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+		    			.append("Error Text ").append(error.text());
+		        	
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+		        	
+		        	temp.setLength(0);
+	        	}
 				
-
-			_baseImpl.handleInvalidUsage(temp.toString());
-
-			return false;
-	    }
-        
-		return true;
+				temp.append("Failed to submit StatusMsg on item stream. Reason: ")
+					.append(ReactorReturnCodes.toString(ret))
+					.append(". Error text: ")
+					.append(rsslErrorInfo.error().text());
+					
+	
+				_baseImpl.handleInvalidUsage(temp.toString());
+	
+				return false;
+		    }
+	        
+			return true;
+		}
+		catch(IllegalMonitorStateException excp)
+		{
+			   if (_baseImpl.loggerClient().isErrorEnabled())
+        	   {
+        		   StringBuilder tempErr = _baseImpl.strBuilder();
+					tempErr.append("Failed to submit message, received exception: '")
+        				     .append(excp.getMessage())
+        				     .append( "'. ");
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
+        	   }
+			   return false;
+		}
+		finally
+		{
+			_baseImpl.userLock().lock();
+		}
 	}
 		
 	ClosedStatusClient<T> closedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
@@ -2957,7 +3269,7 @@ class BatchItem<T> extends SingleItem<T>
 	void decreaseItemCount()
 	{
 		if ( --_itemCount == 0 )
-			this.returnToPool();
+			_baseImpl.itemCallbackClient().removeFromMap(this);
 	}
 }
 
@@ -3050,7 +3362,10 @@ class ClosedStatusClient<T> implements TimeoutClient
 	
 		rsslStatusMsg.applyHasState();
 		rsslStatusMsg.state().streamState(StreamStates.CLOSED);
-		rsslStatusMsg.state().dataState(DataStates.SUSPECT);
+		if (_item.type() !=  Item.ItemType.BATCH_ITEM)
+			rsslStatusMsg.state().dataState(DataStates.SUSPECT);
+		else
+			rsslStatusMsg.state().dataState(DataStates.OK);
 		rsslStatusMsg.state().code(StateCodes.NONE);
 		rsslStatusMsg.state().text(_statusText);
 		    

@@ -56,21 +56,21 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="999261">Usage</a></div>
-      <div class="H3"><a name="999059">Yield Curve Request Message Use</a></div>
+      <div class="H3"><a name="999059">Yield Curve Request Message</a></div>
       <div class="Body"><a name="999360">A Yield Curve request message is encoded and sent by OMM consumer applications. The request specifies the name and attributes of the curve in which the consumer is interested.</a></div>
-      <div class="Body"><a name="999361">If a consumer wishes to receive updates, it may make a “streaming” request by setting the </a><span class="Parameter">RSSL_RQMF_STREAMING</span> flag. If the flag is not set, the consumer is requesting a “snapshot,” and the final part of the refresh (i.e., the refresh has the <span class="Parameter">RSSL_RFMF_REFRESH_COMPLETE</span> flag set) indicates all responses have been received for the snapshot. Updates may be received in either case if the refresh has multiple parts.</div>
+      <div class="Body"><a name="999361">To receive updates, the consumer makes a “streaming” request by setting the </a><span class="Parameter">RSSL_RQMF_STREAMING</span> flag. If the flag is not set, the consumer requests a “snapshot,” and the final part of the refresh (i.e., the refresh has the <span class="Parameter">RSSL_RFMF_REFRESH_COMPLETE</span> flag set) indicates all responses have been received for the snapshot. Updates may be received in either case if the refresh has multiple parts.</div>
       <div class="Body"><a name="999362">To stop updates, a consumer can pause an item (if the provider supports the pause feature). For additional details, refer to the </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
       <div class="Blank_Line"><a name="999348">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 67: <a name="999448">Yield Curve Request Message Member Use &nbsp;</a></div>
+          <div class="TableTitle">Table 69: <a name="999448">Yield Curve Request Message</a> Member Use &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading" style="text-align: Center"><a name="999384">COMPONENT</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="999384">COMPONENT</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading" style="text-align: Center"><a name="999386">DESCRIPTION / VALUE</a></div>
+            <div class="CellHeading" style="text-align: center"><a name="999386">DESCRIPTION / VALUE</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -131,27 +131,27 @@
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="1">
             <div class="CellBody"><a name="999416">msgKey.serviceId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="999418">Required</a></span>. This should be the Id associated with the service from which the consumer wishes to request the item.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="999418">Required</a></span>. Specifies the ID of the service from which the consumer wishes to request the item.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999420">msgKey.nameType</a></div>
+            <div class="CellBody"><a name="1010858">msgKey.nameType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
             <div class="CellBody"><a name="999422">Optional. When consuming from Thomson Reuters sources, typically set to </a><span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span> (the “Reuters Instrument Code”). If this is not specified, <span class="CodeOrCommand">msgKey.nameType</span> defaults to <span class="Parameter">RDM_INSTRUMENT_NAME_TYPE_RIC</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999424">msgKey.name</a></div>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top" rowspan="1">
+            <div class="CellBody"><a name="1010863">msgKey.name</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><span class="Color_003aRequired"><a name="999426">Required in initial request</a></span>, otherwise optional.The name of the requested item.</div>
+            <div class="CellBody"><span class="Color_003aRequired"><a name="999426">Required</a></span><span class="Color_003aRequired"> in initial request</span>, otherwise optional.Specifies the name of the requested item.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
@@ -183,8 +183,8 @@
             <div class="CellBody"><a name="999440">Payload</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
-            <div class="CellBody"><a name="999884">Optional. When leveraging such features as View (</a><span class="Parameter">RSSL_RQMF_HAS_VIEW</span>) or Batch (<span class="Parameter">RSSL_RQMF_HAS_BATCH</span>), the payload can contain information relevant to that feature.</div>
-            <div class="CellBody"><a name="999885">For more information, refer to </a><span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
+            <div class="CellBody"><a name="999884">Optional. When leveraging such features as View</a> (<span class="Parameter">RSSL_RQMF_HAS_VIEW</span>) or Batch (<span class="Parameter">RSSL_RQMF_HAS_BATCH</span>), the payload can contain information relevant to that feature.</div>
+            <div class="CellBody"><a name="999885">For more information, refer to</a> <span class="Doc_Link"><a href="javascript:WWHDoNothingHREF();" onclick="WWHShowALinksPopup(new Array(&quot;UCDEVG&quot;, &quot;UJDEVG&quot;), (document.all||document.getElementById||document.layers)?event:null);">Transport API C Edition Developers Guide</a></span>.</div>
           </td>
         </tr>
       </table>

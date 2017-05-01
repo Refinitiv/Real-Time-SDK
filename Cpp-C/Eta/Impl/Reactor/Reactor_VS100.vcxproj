@@ -202,6 +202,7 @@
 	<ClCompile Include="Watchlist\wlSymbolList.c"/>
 	<ClCompile Include="Watchlist\wlView.c"/>
 	<ClCompile Include="TunnelStream\bufferPool.c"/>
+	<ClCompile Include="TunnelStream\bigBufferPool.c"/>
 	<ClCompile Include="TunnelStream\tunnelManager.c"/>
 	<ClCompile Include="TunnelStream\msgQueueEncDec.c"/>
 	<ClCompile Include="TunnelStream\persistFile.c"/>
@@ -221,6 +222,7 @@
 	<ClInclude Include="..\..\Include\Reactor\rtr\rsslReactor.h"/>
 	<ClInclude Include="..\..\Include\Reactor\rtr\rsslTunnelStream.h"/>
 	<ClInclude Include="TunnelStream\rtr\bufferPool.h"/>
+	<ClInclude Include="TunnelStream\rtr\bigBufferPool.h"/>
 	<ClInclude Include="TunnelStream\rtr\msgQueueEncDec.h"/>
 	<ClInclude Include="TunnelStream\rtr\msgQueueHeader.h"/>
 	<ClInclude Include="TunnelStream\rtr\msgQueueSubstreamHeader.h"/>

@@ -56,34 +56,34 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1019724">RsslFieldSetDefEntry Structure Members</a></div>
-      <div class="Blank_Line"><a name="1362497">&nbsp;</a></div>
+      <div class="Blank_Line"><a name="1476927">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 147: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1362494">RsslFieldSetDefEntry</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 147: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1476924">RsslFieldSetDefEntry</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 133.49952pt">
-            <div class="CellHeading"><a name="1362427">Structure Member</a></div>
+            <div class="CellHeading"><a name="1476857">Structure Member</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 422.25048pt">
-            <div class="CellHeading"><a name="1362429">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1476859">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1362431">fieldId</a></div>
+            <div class="CellBody"><a name="1476861">fieldId</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1362433">The </a><span class="CodeOrCommand">fieldId</span> value that corresponds to this entry in the set-defined <span class="CodeOrCommand">RsslFieldList</span> content. <span class="CodeOrCommand">fieldId</span> is a signed, two-byte value that refers to specific name and type information defined by an external field dictionary, such as the <span class="FileOrDirectory">RDMFieldDictionary</span>. Negative <span class="CodeOrCommand">fieldId</span> values typically refer to user-defined values while positive <span class="CodeOrCommand">fieldId</span> values typically refer to Thomson Reuters-defined values. When encoding, the <span class="CodeOrCommand">RsslFieldEntry.fieldId</span> should match the value that the set definition expects. When decoding, the <span class="CodeOrCommand">RsslFieldEntry.fieldId</span> is populated with the <span class="CodeOrCommand">fieldId</span> value indicated in the set definition.</div>
-            <div class="CellBody"><span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold"><a name="1362443">fieldId</a></span> has an allowable range of -32,768 to 32,767 where positive values are Thomson Reuters-defined and negative values are user-defined. The <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">fieldId</span> value of <span style="font-weight: bold">0</span> is reserved to indicate <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">dictionaryId</span> changes, where the type of <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">fieldId</span> <span style="font-weight: bold">0</span> is an <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">Rssl</span><span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">Int</span>.</div>
+            <div class="CellBody"><a name="1476863">The </a><span class="CodeOrCommand">fieldId</span> value that corresponds to this entry in the set-defined <span class="CodeOrCommand">RsslFieldList</span> content. <span class="CodeOrCommand">fieldId</span> is a signed, two-byte value that refers to specific name and type information defined by an external field dictionary, such as the <span class="FileOrDirectory">RDMFieldDictionary</span>. Negative <span class="CodeOrCommand">fieldId</span> values typically refer to user-defined values while positive <span class="CodeOrCommand">fieldId</span> values typically refer to Thomson Reuters-defined values. When encoding, the <span class="CodeOrCommand">RsslFieldEntry.fieldId</span> should match the value that the set definition expects. When decoding, the <span class="CodeOrCommand">RsslFieldEntry.fieldId</span> is populated with the <span class="CodeOrCommand">fieldId</span> value indicated in the set definition.</div>
+            <div class="CellBody"><span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold"><a name="1476873">fieldId</a></span> has an allowable range of -32,768 to 32,767 where positive values are Thomson Reuters-defined and negative values are user-defined. The <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">fieldId</span> value of <span style="font-weight: bold">0</span> is reserved to indicate <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">dictionaryId</span> changes, where the type of <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">fieldId</span> <span style="font-weight: bold">0</span> is an <span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">Rssl</span><span style="color: #f2960c; font-family: &quot;Lucida Console&quot;; font-weight: bold">Int</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1362445">dataType</a></div>
+            <div class="CellBody"><a name="1476875">dataType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1362450">Defines </a>the <span class="CodeOrCommand">RsslDataType</span> of the entry as it encodes or decodes when using this set definition. This can be a base primitive type, a set-defined primitive type, or a container type.</div>
+            <div class="CellBody"><a name="1476880">Defines </a>the <span class="CodeOrCommand">RsslDataType</span> of the entry as it encodes or decodes when using this set definition. This can be a base primitive type, a set-defined primitive type, or a container type.</div>
             <div class="Bullet_Table_outer" style="margin-left: 0pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -93,7 +93,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1362454">While encoding, populate the </a><span class="CodeOrCommand">RsslFieldEntry.dataType</span> with the base primitive type or container type value that corresponds to the type contained in this definition.</div>
+                    <div class="Bullet_Table_inner"><a name="1476884">While encoding, populate the </a><span class="CodeOrCommand">RsslFieldEntry.dataType</span> with the base primitive type or container type value that corresponds to the type contained in this definition.</div>
                   </td>
                 </tr>
               </table>
@@ -107,12 +107,12 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="Bullet_Table_inner"><a name="1362461">While decoding, </a><span class="CodeOrCommand">RsslFieldEntry.dataType</span> is populated with the specific <span class="CodeOrCommand">RsslDataType</span> information as indicated by the Set Definition, where any set-defined primitive type is converted to the corresponding base primitive type.</div>
+                    <div class="Bullet_Table_inner"><a name="1476891">While decoding, </a><span class="CodeOrCommand">RsslFieldEntry.dataType</span> is populated with the specific <span class="CodeOrCommand">RsslDataType</span> information as indicated by the Set Definition, where any set-defined primitive type is converted to the corresponding base primitive type.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1362462">For a map of set-defined primitive types and their corresponding base primitive types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.118.html', '');" title="11.6.1 Set-Defined Primitive Types">Section 11.6.1</a>.</div>
+            <div class="CellBody"><a name="1476892">For a map of set-defined primitive types and their corresponding base primitive types, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.118.html', '');" title="11.6.1 Set-Defined Primitive Types">Section 11.6.1</a>.</div>
           </td>
         </tr>
       </table>

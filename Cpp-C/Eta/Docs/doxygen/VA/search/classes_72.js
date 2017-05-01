@@ -15,6 +15,8 @@ var searchData=
   ['rsslmemoryblock',['RsslMemoryBlock',['../structRsslMemoryBlock.html',1,'']]],
   ['rsslmemorypool',['RsslMemoryPool',['../structRsslMemoryPool.html',1,'']]],
   ['rsslmsgevent',['RsslMsgEvent',['../structRsslMsgEvent.html',1,'']]],
+  ['rsslnotifier',['RsslNotifier',['../structRsslNotifier.html',1,'']]],
+  ['rsslnotifierevent',['RsslNotifierEvent',['../structRsslNotifierEvent.html',1,'']]],
   ['rsslpayloadcacheconfigoptions',['RsslPayloadCacheConfigOptions',['../structRsslPayloadCacheConfigOptions.html',1,'']]],
   ['rsslrdmaddressportinfo',['RsslRDMAddressPortInfo',['../structRsslRDMAddressPortInfo.html',1,'']]],
   ['rsslrdmconsumerstatusservice',['RsslRDMConsumerStatusService',['../structRsslRDMConsumerStatusService.html',1,'']]],

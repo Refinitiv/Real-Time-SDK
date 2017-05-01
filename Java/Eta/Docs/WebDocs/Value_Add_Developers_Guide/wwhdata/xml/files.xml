@@ -38,295 +38,339 @@
     <h7 weight="2" />
   </ScoringPrefs>
   <DocumentInfo>
-    <Document title="Chapter 1 Introduction" href="ETAJ_ValueAddDevGuide.1.001.html" />
-    <Document title="1.1 About this Manual" href="ETAJ_ValueAddDevGuide.1.002.html" />
-    <Document title="1.2 Audience" href="ETAJ_ValueAddDevGuide.1.003.html" />
-    <Document title="1.3 Programming Language" href="ETAJ_ValueAddDevGuide.1.004.html" />
-    <Document title="1.4 References" href="ETAJ_ValueAddDevGuide.1.005.html" />
-    <Document title="1.5 Document Conventions" href="ETAJ_ValueAddDevGuide.1.006.html" />
-    <Document title="1.5.2 Document Structure" href="ETAJ_ValueAddDevGuide.1.007.html" />
-    <Document title="Chapter 2 Product Description" href="ETAJ_ValueAddDevGuide.1.008.html" />
-    <Document title="2.1 What is the Transport API?" href="ETAJ_ValueAddDevGuide.1.009.html" />
-    <Document title="2.2 What are Transport API Value Added Components?" href="ETAJ_ValueAddDevGuide.1.010.html" />
-    <Document title="2.3 Value Added Component Overview" href="ETAJ_ValueAddDevGuide.1.011.html" />
-    <Document title="2.3.1 Transport API Reactor" href="ETAJ_ValueAddDevGuide.1.012.html" />
-    <Document title="2.3.2 Administration Domain Model Representations" href="ETAJ_ValueAddDevGuide.1.013.html" />
-    <Document title="2.3.3 Value Added Utilities" href="ETAJ_ValueAddDevGuide.1.014.html" />
-    <Document title="2.3.4 Payload Cache" href="ETAJ_ValueAddDevGuide.1.015.html" />
-    <Document title="2.4 OMM Consumer Watchlist" href="ETAJ_ValueAddDevGuide.1.016.html" />
-    <Document title="2.4.1 Data Stream Aggregation and Recovery" href="ETAJ_ValueAddDevGuide.1.017.html" />
-    <Document title="2.4.2 Additional Features" href="ETAJ_ValueAddDevGuide.1.018.html" />
-    <Document title="2.4.3 Usage Notes" href="ETAJ_ValueAddDevGuide.1.019.html" />
-    <Document title="Chapter 3 Building an OMM Consumer" href="ETAJ_ValueAddDevGuide.1.020.html" />
-    <Document title="3.1 Overview" href="ETAJ_ValueAddDevGuide.1.021.html" />
-    <Document title="3.2 Leverage Existing or Create New Reactor" href="ETAJ_ValueAddDevGuide.1.022.html" />
-    <Document title="3.3 Implement Callbacks and Populate Role" href="ETAJ_ValueAddDevGuide.1.023.html" />
-    <Document title="3.4 Establish Connection using Reactor.connect" href="ETAJ_ValueAddDevGuide.1.024.html" />
-    <Document title="3.5 Issue Requests and/or Post Information" href="ETAJ_ValueAddDevGuide.1.025.html" />
-    <Document title="3.6 Log Out and Shut Down" href="ETAJ_ValueAddDevGuide.1.026.html" />
-    <Document title="3.7 Additional Consumer Details" href="ETAJ_ValueAddDevGuide.1.027.html" />
-    <Document title="Chapter 4 Building an OMM Interactive Provider" href="ETAJ_ValueAddDevGuide.1.028.html" />
-    <Document title="4.1 Overview" href="ETAJ_ValueAddDevGuide.1.029.html" />
-    <Document title="4.2 Leverage Existing or Create New Reactor" href="ETAJ_ValueAddDevGuide.1.030.html" />
-    <Document title="4.3 Create a Server" href="ETAJ_ValueAddDevGuide.1.031.html" />
-    <Document title="4.4 Implement Callbacks and Populate Role" href="ETAJ_ValueAddDevGuide.1.032.html" />
-    <Document title="4.5 Associate Incoming Connections Using Reactor.accept" href="ETAJ_ValueAddDevGuide.1.033.html" />
-    <Document title="4.6 Perform Login Process" href="ETAJ_ValueAddDevGuide.1.034.html" />
-    <Document title="4.7 Provide Source Directory Information" href="ETAJ_ValueAddDevGuide.1.035.html" />
-    <Document title="4.8 Provide or Download Necessary Dictionaries" href="ETAJ_ValueAddDevGuide.1.036.html" />
-    <Document title="4.9 Handle Requests and Post Messages" href="ETAJ_ValueAddDevGuide.1.037.html" />
-    <Document title="4.10 Disconnect Consumers and Shut Down" href="ETAJ_ValueAddDevGuide.1.038.html" />
-    <Document title="4.11 Additional Interactive Provider Details" href="ETAJ_ValueAddDevGuide.1.039.html" />
-    <Document title="Chapter 5 Building an OMM Non-Interactive Provider using Value Added Components" href="ETAJ_ValueAddDevGuide.1.040.html" />
-    <Document title="5.1 Overview" href="ETAJ_ValueAddDevGuide.1.041.html" />
-    <Document title="5.2 Leverage Existing or Create New Reactor" href="ETAJ_ValueAddDevGuide.1.042.html" />
-    <Document title="5.3 Implement Callbacks and Populate Role" href="ETAJ_ValueAddDevGuide.1.043.html" />
-    <Document title="5.4 Establish Connection using Reactor.connect" href="ETAJ_ValueAddDevGuide.1.044.html" />
-    <Document title="5.5 Download the Dictionary" href="ETAJ_ValueAddDevGuide.1.045.html" />
-    <Document title="5.6 Provide Content" href="ETAJ_ValueAddDevGuide.1.046.html" />
-    <Document title="5.7 Log Out and Shut Down" href="ETAJ_ValueAddDevGuide.1.047.html" />
-    <Document title="5.8 Additional Non-Interactive Provider Details" href="ETAJ_ValueAddDevGuide.1.048.html" />
-    <Document title="Chapter 6 Reactor Detailed View" href="ETAJ_ValueAddDevGuide.1.049.html" />
-    <Document title="6.1 Concepts" href="ETAJ_ValueAddDevGuide.1.050.html" />
-    <Document title="6.1.1 Reactor Error Handling" href="ETAJ_ValueAddDevGuide.1.051.html" />
-    <Document title="6.1.2 Reactor Error Info Codes" href="ETAJ_ValueAddDevGuide.1.052.html" />
-    <Document title="6.1.3 Transport API Reactor Application Lifecycle" href="ETAJ_ValueAddDevGuide.1.053.html" />
-    <Document title="6.2 Reactor Use" href="ETAJ_ValueAddDevGuide.1.054.html" />
-    <Document title="6.2.1 Reactor Creation" href="ETAJ_ValueAddDevGuide.1.055.html" />
-    <Document title="6.2.1.1 Reactor Creation" href="ETAJ_ValueAddDevGuide.1.056.html" />
-    <Document title="6.2.1.2 ReactorOptions Class Members" href="ETAJ_ValueAddDevGuide.1.057.html" />
-    <Document title="6.2.1.3 ReactorOptions Utility Method" href="ETAJ_ValueAddDevGuide.1.058.html" />
-    <Document title="6.2.2 Reactor Destruction" href="ETAJ_ValueAddDevGuide.1.059.html" />
-    <Document title="6.2.2.1 Reactor Destruction" href="ETAJ_ValueAddDevGuide.1.060.html" />
-    <Document title="6.2.2.2 Reactor Creation and Destruction Example" href="ETAJ_ValueAddDevGuide.1.061.html" />
-    <Document title="6.3 Reactor Channel Use" href="ETAJ_ValueAddDevGuide.1.062.html" />
-    <Document title="6.3.1 Reactor Channel Roles" href="ETAJ_ValueAddDevGuide.1.063.html" />
-    <Document title="6.3.1.1 Reactor Channel OMM Consumer Role" href="ETAJ_ValueAddDevGuide.1.064.html" />
-    <Document title="6.3.1.2 Reactor Channel OMM Provider Role" href="ETAJ_ValueAddDevGuide.1.065.html" />
-    <Document title="6.3.1.3 Reactor Channel OMM Non-Interactive Provider Role" href="ETAJ_ValueAddDevGuide.1.066.html" />
-    <Document title="6.3.2 Adding Reactor Channels" href="ETAJ_ValueAddDevGuide.1.067.html" />
-    <Document title="6.3.2.1 Reactor Connect" href="ETAJ_ValueAddDevGuide.1.068.html" />
-    <Document title="6.3.2.2 ReactorConnectOptions Class Members" href="ETAJ_ValueAddDevGuide.1.069.html" />
-    <Document title="6.3.2.3 ReactorConnectInfo Class Members" href="ETAJ_ValueAddDevGuide.1.070.html" />
-    <Document title="6.3.2.4 ReactorConnectOptions Utility Method" href="ETAJ_ValueAddDevGuide.1.071.html" />
-    <Document title="6.3.2.5 Reactor.connect Example" href="ETAJ_ValueAddDevGuide.1.072.html" />
-    <Document title="6.3.2.6 Reactor Accept" href="ETAJ_ValueAddDevGuide.1.073.html" />
-    <Document title="6.3.2.7 ReactorAcceptOptions Class Members" href="ETAJ_ValueAddDevGuide.1.074.html" />
-    <Document title="6.3.2.8 ReactorAcceptOptions Utility Method" href="ETAJ_ValueAddDevGuide.1.075.html" />
-    <Document title="6.3.2.9 Reactor.accept Example" href="ETAJ_ValueAddDevGuide.1.076.html" />
-    <Document title="6.3.3 Removing Reactor Channels" href="ETAJ_ValueAddDevGuide.1.077.html" />
-    <Document title="6.3.3.2 ReactorChannel.close Example" href="ETAJ_ValueAddDevGuide.1.078.html" />
-    <Document title="6.4 Dispatching Data" href="ETAJ_ValueAddDevGuide.1.079.html" />
-    <Document title="6.4.1 Reactor.dispatchAll Method" href="ETAJ_ValueAddDevGuide.1.080.html" />
-    <Document title="6.4.2 ReactorChannel.dispatch Method" href="ETAJ_ValueAddDevGuide.1.081.html" />
-    <Document title="6.4.3 Reactor Dispatch Options" href="ETAJ_ValueAddDevGuide.1.082.html" />
-    <Document title="6.4.4 ReactorDispatchOptions Utility Method" href="ETAJ_ValueAddDevGuide.1.083.html" />
-    <Document title="6.4.5 ReactorChannel.dispatch Example" href="ETAJ_ValueAddDevGuide.1.084.html" />
-    <Document title="6.4.6 Reactor Callback Methods" href="ETAJ_ValueAddDevGuide.1.085.html" />
-    <Document title="6.4.6.1 Reactor Channel Event Callback" href="ETAJ_ValueAddDevGuide.1.086.html" />
-    <Document title="6.4.6.2 Reactor Default Message Callback" href="ETAJ_ValueAddDevGuide.1.087.html" />
-    <Document title="6.4.6.3 Reactor RDM Login Message Callback" href="ETAJ_ValueAddDevGuide.1.088.html" />
-    <Document title="6.4.6.4 Reactor RDM Directory Message Callback" href="ETAJ_ValueAddDevGuide.1.089.html" />
-    <Document title="6.4.6.5 Reactor RDM Dictionary Message Callback" href="ETAJ_ValueAddDevGuide.1.090.html" />
-    <Document title="6.5 Writing Data" href="ETAJ_ValueAddDevGuide.1.091.html" />
-    <Document title="6.5.1 Writing Data using ReactorChannel.submit(Msg…)" href="ETAJ_ValueAddDevGuide.1.092.html" />
-    <Document title="6.5.1.1 ReactorChannel.submit(Msg…) Method" href="ETAJ_ValueAddDevGuide.1.093.html" />
-    <Document title="6.5.1.2 ReactorChannel.submit(Msg…) Return Codes" href="ETAJ_ValueAddDevGuide.1.094.html" />
-    <Document title="6.5.1.3 ReactorChannel.submit(Msg…) Example" href="ETAJ_ValueAddDevGuide.1.095.html" />
-    <Document title="6.5.2 Writing data using ReactorChannel.submit(TransportBuffer…)" href="ETAJ_ValueAddDevGuide.1.096.html" />
-    <Document title="6.5.2.1 Obtaining a Buffer for Writing" href="ETAJ_ValueAddDevGuide.1.097.html" />
-    <Document title="6.5.2.2 Writing Data using ReactorChannel.submit(TransportBuffer…)" href="ETAJ_ValueAddDevGuide.1.098.html" />
-    <Document title="6.5.2.3 Packing Additional Data into a Buffer" href="ETAJ_ValueAddDevGuide.1.099.html" />
-    <Document title="6.5.2.4 ReactorChannel.packBuffer Return Values" href="ETAJ_ValueAddDevGuide.1.100.html" />
-    <Document title="6.5.2.5 Example: ReactorChannel.getBuffer, ReactorChannel.packBuffer, and ReactorChannel.submit(TransportBuffer…)" href="ETAJ_ValueAddDevGuide.1.101.html" />
-    <Document title="6.6 Creating and Using Tunnel Streams" href="ETAJ_ValueAddDevGuide.1.102.html" />
-    <Document title="6.6.1 Authenticating a Tunnel Stream" href="ETAJ_ValueAddDevGuide.1.103.html" />
-    <Document title="6.6.2 Opening a Tunnel Stream" href="ETAJ_ValueAddDevGuide.1.104.html" />
-    <Document title="6.6.2.1 ReactorChannel.openTunnelStream Method" href="ETAJ_ValueAddDevGuide.1.105.html" />
-    <Document title="6.6.2.2 TunnelStreamOpenOptions" href="ETAJ_ValueAddDevGuide.1.106.html" />
-    <Document title="6.6.3 Negotiating Stream Behaviors: Class of Service" href="ETAJ_ValueAddDevGuide.1.107.html" />
-    <Document title="6.6.3.1 ClassOfService Common Members" href="ETAJ_ValueAddDevGuide.1.108.html" />
-    <Document title="6.6.3.2 ClassOfService Authentication Member" href="ETAJ_ValueAddDevGuide.1.109.html" />
-    <Document title="6.6.3.3 ClassOfService Flow Control Members" href="ETAJ_ValueAddDevGuide.1.110.html" />
-    <Document title="6.6.3.4 ClassOfService Data Integrity Member" href="ETAJ_ValueAddDevGuide.1.111.html" />
-    <Document title="6.6.3.5 ClassOfService Guarantee Members" href="ETAJ_ValueAddDevGuide.1.112.html" />
-    <Document title="6.6.4 Stream Callback Methods and Event Types" href="ETAJ_ValueAddDevGuide.1.113.html" />
-    <Document title="6.6.4.2 Tunnel Stream Callback Event Types" href="ETAJ_ValueAddDevGuide.1.114.html" />
-    <Document title="6.6.5 Code Sample: Opening and Managing a Tunnel Stream" href="ETAJ_ValueAddDevGuide.1.115.html" />
-    <Document title="6.6.6 Accepting Tunnel Streams" href="ETAJ_ValueAddDevGuide.1.116.html" />
-    <Document title="6.6.6.1 Reactor Tunnel Stream Listener Callback" href="ETAJ_ValueAddDevGuide.1.117.html" />
-    <Document title="6.6.6.2 ReactorChannel.acceptTunnelStream Method" href="ETAJ_ValueAddDevGuide.1.118.html" />
-    <Document title="6.6.6.3 TunnelStreamAcceptOptions" href="ETAJ_ValueAddDevGuide.1.119.html" />
-    <Document title="6.6.6.4 ReactorChannel.rejectTunnelStream" href="ETAJ_ValueAddDevGuide.1.120.html" />
-    <Document title="6.6.6.5 TunnelStreamRejectOptions" href="ETAJ_ValueAddDevGuide.1.121.html" />
-    <Document title="6.6.6.6 Accepting a Tunnel Stream Code Sample" href="ETAJ_ValueAddDevGuide.1.122.html" />
-    <Document title="6.6.6.7 Rejecting a Tunnel Stream Code Sample" href="ETAJ_ValueAddDevGuide.1.123.html" />
-    <Document title="6.6.7 Receiving Content on a TunnelStream" href="ETAJ_ValueAddDevGuide.1.124.html" />
-    <Document title="6.6.8 Sending Content on a TunnelStream" href="ETAJ_ValueAddDevGuide.1.125.html" />
-    <Document title="6.6.8.1 Tunnel Stream Buffer Methods" href="ETAJ_ValueAddDevGuide.1.126.html" />
-    <Document title="6.6.8.2 Tunnel Stream Submit" href="ETAJ_ValueAddDevGuide.1.127.html" />
-    <Document title="6.6.8.3 Submitting Content on a Tunnel Stream Code Sample" href="ETAJ_ValueAddDevGuide.1.128.html" />
-    <Document title="6.6.9 Closing a Tunnel Stream" href="ETAJ_ValueAddDevGuide.1.129.html" />
-    <Document title="6.6.9.1 Tunnel Stream Close" href="ETAJ_ValueAddDevGuide.1.130.html" />
-    <Document title="6.6.9.2 Closing a Tunnel Stream Sample" href="ETAJ_ValueAddDevGuide.1.131.html" />
-    <Document title="6.7 Reactor Utility Methods" href="ETAJ_ValueAddDevGuide.1.132.html" />
-    <Document title="6.7.1 General Reactor Utility Methods" href="ETAJ_ValueAddDevGuide.1.133.html" />
-    <Document title="6.7.2 ReactorChannelInfo Class Members" href="ETAJ_ValueAddDevGuide.1.134.html" />
-    <Document title="6.7.3 ReactorChannel.ioctl Option Values" href="ETAJ_ValueAddDevGuide.1.135.html" />
-    <Document title="Chapter 7 Administration Domain Models Detailed View" href="ETAJ_ValueAddDevGuide.1.136.html" />
-    <Document title="7.1 Concepts" href="ETAJ_ValueAddDevGuide.1.137.html" />
-    <Document title="7.2 Message Base" href="ETAJ_ValueAddDevGuide.1.138.html" />
-    <Document title="7.2.1 Message Base Members" href="ETAJ_ValueAddDevGuide.1.139.html" />
-    <Document title="7.2.2 Domain Representations Message Types" href="ETAJ_ValueAddDevGuide.1.140.html" />
-    <Document title="7.3 RDM Login Domain" href="ETAJ_ValueAddDevGuide.1.141.html" />
-    <Document title="7.3.1 Login Request" href="ETAJ_ValueAddDevGuide.1.142.html" />
-    <Document title="7.3.1.1 Login Request Members" href="ETAJ_ValueAddDevGuide.1.143.html" />
-    <Document title="7.3.1.2 Login Request Utility Methods" href="ETAJ_ValueAddDevGuide.1.144.html" />
-    <Document title="7.3.1.3 Login Request Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.145.html" />
-    <Document title="7.3.2 Login Refresh" href="ETAJ_ValueAddDevGuide.1.146.html" />
-    <Document title="7.3.2.1 Login Refresh Members" href="ETAJ_ValueAddDevGuide.1.147.html" />
-    <Document title="7.3.2.2 Login Refresh Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.148.html" />
-    <Document title="7.3.2.3 Login Support Feature Set Members" href="ETAJ_ValueAddDevGuide.1.149.html" />
-    <Document title="7.3.2.4 Login Support Feature Set Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.150.html" />
-    <Document title="7.3.2.5 Login Connection Config Members" href="ETAJ_ValueAddDevGuide.1.151.html" />
-    <Document title="7.3.2.6 Login Connection Config Methods" href="ETAJ_ValueAddDevGuide.1.152.html" />
-    <Document title="7.3.2.7 Server Info Members" href="ETAJ_ValueAddDevGuide.1.153.html" />
-    <Document title="7.3.2.8 Server Info Methods" href="ETAJ_ValueAddDevGuide.1.154.html" />
-    <Document title="7.3.2.9 Server Info Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.155.html" />
-    <Document title="7.3.3 Login Status" href="ETAJ_ValueAddDevGuide.1.156.html" />
-    <Document title="7.3.3.1 Login Status Members" href="ETAJ_ValueAddDevGuide.1.157.html" />
-    <Document title="7.3.3.2 Login Status Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.158.html" />
-    <Document title="7.3.4 Login Close" href="ETAJ_ValueAddDevGuide.1.159.html" />
-    <Document title="7.3.5 Login Consumer Connection Status" href="ETAJ_ValueAddDevGuide.1.160.html" />
-    <Document title="7.3.5.1 Login Consumer Connection Status Members" href="ETAJ_ValueAddDevGuide.1.161.html" />
-    <Document title="7.3.5.2 Login Consumer Connection Status Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.162.html" />
-    <Document title="7.3.5.3 Login Warm Standby Info Members" href="ETAJ_ValueAddDevGuide.1.163.html" />
-    <Document title="7.3.5.4 Login Warm Standby Info Methods" href="ETAJ_ValueAddDevGuide.1.164.html" />
-    <Document title="7.3.6 Login Post Message Use" href="ETAJ_ValueAddDevGuide.1.165.html" />
-    <Document title="7.3.7 Login Ack Message Use" href="ETAJ_ValueAddDevGuide.1.166.html" />
-    <Document title="7.3.8 Login Attributes" href="ETAJ_ValueAddDevGuide.1.167.html" />
-    <Document title="7.3.8.1 Login Attrib Members" href="ETAJ_ValueAddDevGuide.1.168.html" />
-    <Document title="7.3.8.2 Login Attrib Methods" href="ETAJ_ValueAddDevGuide.1.169.html" />
-    <Document title="7.3.8.3 Login Attrib Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.170.html" />
-    <Document title="7.3.9 Login Message" href="ETAJ_ValueAddDevGuide.1.171.html" />
-    <Document title="7.3.10 Login Message Utility Methods" href="ETAJ_ValueAddDevGuide.1.172.html" />
-    <Document title="7.3.11 Login Encoding and Decoding" href="ETAJ_ValueAddDevGuide.1.173.html" />
-    <Document title="7.3.11.2 Encoding a Login Request" href="ETAJ_ValueAddDevGuide.1.174.html" />
-    <Document title="7.3.11.3 Decoding a Login Request" href="ETAJ_ValueAddDevGuide.1.175.html" />
-    <Document title="7.3.11.4 Encoding a Login Refresh" href="ETAJ_ValueAddDevGuide.1.176.html" />
-    <Document title="7.3.11.5 Decoding a Login Refresh" href="ETAJ_ValueAddDevGuide.1.177.html" />
-    <Document title="7.4 RDM Source Directory Domain" href="ETAJ_ValueAddDevGuide.1.178.html" />
-    <Document title="7.4.1 Directory Request" href="ETAJ_ValueAddDevGuide.1.179.html" />
-    <Document title="7.4.1.1 Directory Request Members" href="ETAJ_ValueAddDevGuide.1.180.html" />
-    <Document title="7.4.1.2 Directory Request Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.181.html" />
-    <Document title="7.4.1.3 Directory Request Methods" href="ETAJ_ValueAddDevGuide.1.182.html" />
-    <Document title="7.4.2 Directory Refresh" href="ETAJ_ValueAddDevGuide.1.183.html" />
-    <Document title="7.4.2.1 Directory Refresh Members" href="ETAJ_ValueAddDevGuide.1.184.html" />
-    <Document title="7.4.2.2 Directory Refresh Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.185.html" />
-    <Document title="7.4.3 Directory Update" href="ETAJ_ValueAddDevGuide.1.186.html" />
-    <Document title="7.4.3.1 Directory Update Members" href="ETAJ_ValueAddDevGuide.1.187.html" />
-    <Document title="7.4.3.2 Directory Update Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.188.html" />
-    <Document title="7.4.4 Directory Status" href="ETAJ_ValueAddDevGuide.1.189.html" />
-    <Document title="7.4.4.1 Directory Status Members" href="ETAJ_ValueAddDevGuide.1.190.html" />
-    <Document title="7.4.4.2 Directory Status Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.191.html" />
-    <Document title="7.4.4.3 Directory Status Methods" href="ETAJ_ValueAddDevGuide.1.192.html" />
-    <Document title="7.4.5 Directory Close" href="ETAJ_ValueAddDevGuide.1.193.html" />
-    <Document title="7.4.6 Directory Consumer Status" href="ETAJ_ValueAddDevGuide.1.194.html" />
-    <Document title="7.4.6.1 Directory Consumer Status Members" href="ETAJ_ValueAddDevGuide.1.195.html" />
-    <Document title="7.4.6.2 Directory Consumer Status Service Members" href="ETAJ_ValueAddDevGuide.1.196.html" />
-    <Document title="7.4.7 Directory Service" href="ETAJ_ValueAddDevGuide.1.197.html" />
-    <Document title="7.4.7.1 Service Members" href="ETAJ_ValueAddDevGuide.1.198.html" />
-    <Document title="7.4.7.2 Service Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.199.html" />
-    <Document title="7.4.7.3 Service Methods" href="ETAJ_ValueAddDevGuide.1.200.html" />
-    <Document title="7.4.8 Directory Service Info Filter" href="ETAJ_ValueAddDevGuide.1.201.html" />
-    <Document title="7.4.8.1 Service Info Members" href="ETAJ_ValueAddDevGuide.1.202.html" />
-    <Document title="7.4.8.2 Service Info Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.203.html" />
-    <Document title="7.4.8.3 Service Info Methods" href="ETAJ_ValueAddDevGuide.1.204.html" />
-    <Document title="7.4.9 Directory Service State Filter" href="ETAJ_ValueAddDevGuide.1.205.html" />
-    <Document title="7.4.9.1 Service State Members" href="ETAJ_ValueAddDevGuide.1.206.html" />
-    <Document title="7.4.9.2 Service State Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.207.html" />
-    <Document title="7.4.9.3 Service State Methods" href="ETAJ_ValueAddDevGuide.1.208.html" />
-    <Document title="7.4.10 Directory Service Group State Filter" href="ETAJ_ValueAddDevGuide.1.209.html" />
-    <Document title="7.4.10.1 Service Group State Members" href="ETAJ_ValueAddDevGuide.1.210.html" />
-    <Document title="7.4.10.2 Service Group State Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.211.html" />
-    <Document title="7.4.10.3 Service Group State Methods" href="ETAJ_ValueAddDevGuide.1.212.html" />
-    <Document title="7.4.11 Directory Service Load Filter" href="ETAJ_ValueAddDevGuide.1.213.html" />
-    <Document title="7.4.11.1 Service Load Members" href="ETAJ_ValueAddDevGuide.1.214.html" />
-    <Document title="7.4.11.2 Service Load Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.215.html" />
-    <Document title="7.4.11.3 Service Load Methods" href="ETAJ_ValueAddDevGuide.1.216.html" />
-    <Document title="7.4.12 Directory Service Data Filter" href="ETAJ_ValueAddDevGuide.1.217.html" />
-    <Document title="7.4.12.1 Service Data Members" href="ETAJ_ValueAddDevGuide.1.218.html" />
-    <Document title="7.4.12.2 Service Load Data Enumeration Values" href="ETAJ_ValueAddDevGuide.1.219.html" />
-    <Document title="7.4.12.3 Service Data Methods" href="ETAJ_ValueAddDevGuide.1.220.html" />
-    <Document title="7.4.13 Directory Service Link Info Filter" href="ETAJ_ValueAddDevGuide.1.221.html" />
-    <Document title="7.4.13.1 Service Link Info Members" href="ETAJ_ValueAddDevGuide.1.222.html" />
-    <Document title="7.4.13.2 Service Link Info Methods" href="ETAJ_ValueAddDevGuide.1.223.html" />
-    <Document title="7.4.14 Directory Service Link" href="ETAJ_ValueAddDevGuide.1.224.html" />
-    <Document title="7.4.14.1 Service Link Members" href="ETAJ_ValueAddDevGuide.1.225.html" />
-    <Document title="7.4.14.2 Service Link Enumeration Values" href="ETAJ_ValueAddDevGuide.1.226.html" />
-    <Document title="7.4.14.3 Service Link Methods" href="ETAJ_ValueAddDevGuide.1.227.html" />
-    <Document title="7.4.15 Directory Message" href="ETAJ_ValueAddDevGuide.1.228.html" />
-    <Document title="7.4.16 Directory Message Utility Methods" href="ETAJ_ValueAddDevGuide.1.229.html" />
-    <Document title="7.4.17 Directory Encoding and Decoding" href="ETAJ_ValueAddDevGuide.1.230.html" />
-    <Document title="7.4.17.2 Encoding a Source Directory Request" href="ETAJ_ValueAddDevGuide.1.231.html" />
-    <Document title="7.4.17.3 Decoding a Source Directory Request" href="ETAJ_ValueAddDevGuide.1.232.html" />
-    <Document title="7.4.17.4 Encoding a Source Directory Refresh" href="ETAJ_ValueAddDevGuide.1.233.html" />
-    <Document title="7.4.17.5 Decoding a Source Directory Refresh" href="ETAJ_ValueAddDevGuide.1.234.html" />
-    <Document title="7.5 RDM Dictionary Domain" href="ETAJ_ValueAddDevGuide.1.235.html" />
-    <Document title="7.5.1 Dictionary Request" href="ETAJ_ValueAddDevGuide.1.236.html" />
-    <Document title="7.5.1.1 Dictionary Request Members" href="ETAJ_ValueAddDevGuide.1.237.html" />
-    <Document title="7.5.1.2 Dictionary Request Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.238.html" />
-    <Document title="7.5.2 Dictionary Refresh" href="ETAJ_ValueAddDevGuide.1.239.html" />
-    <Document title="7.5.2.1 Dictionary Refresh Members" href="ETAJ_ValueAddDevGuide.1.240.html" />
-    <Document title="7.5.2.2 Dictionary Refresh Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.241.html" />
-    <Document title="7.5.3 Dictionary Status" href="ETAJ_ValueAddDevGuide.1.242.html" />
-    <Document title="7.5.3.1 Dictionary Status Members" href="ETAJ_ValueAddDevGuide.1.243.html" />
-    <Document title="7.5.3.2 Dictionary Status Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.244.html" />
-    <Document title="7.5.4 Dictionary Close" href="ETAJ_ValueAddDevGuide.1.245.html" />
-    <Document title="7.5.5 Dictionary Messages" href="ETAJ_ValueAddDevGuide.1.246.html" />
-    <Document title="7.5.6 Dictionary Message: Utility Methods" href="ETAJ_ValueAddDevGuide.1.247.html" />
-    <Document title="7.5.7 Dictionary Encoding and Decoding" href="ETAJ_ValueAddDevGuide.1.248.html" />
-    <Document title="7.5.8 Dictionary Encoding and Decoding" href="ETAJ_ValueAddDevGuide.1.249.html" />
-    <Document title="7.5.8.2 Decoding a Dictionary Request" href="ETAJ_ValueAddDevGuide.1.250.html" />
-    <Document title="7.5.8.3 Encoding a Dictionary Refresh" href="ETAJ_ValueAddDevGuide.1.251.html" />
-    <Document title="7.5.8.4 Decoding a Dictionary Refresh" href="ETAJ_ValueAddDevGuide.1.252.html" />
-    <Document title="7.6 RDM Queue Messages" href="ETAJ_ValueAddDevGuide.1.253.html" />
-    <Document title="7.6.1 Queue Data Message Persistence" href="ETAJ_ValueAddDevGuide.1.254.html" />
-    <Document title="7.6.2 Queue Request" href="ETAJ_ValueAddDevGuide.1.255.html" />
-    <Document title="7.6.3 Queue Refresh" href="ETAJ_ValueAddDevGuide.1.256.html" />
-    <Document title="7.6.4 Queue Status" href="ETAJ_ValueAddDevGuide.1.257.html" />
-    <Document title="7.6.4.1 Queue Status Members" href="ETAJ_ValueAddDevGuide.1.258.html" />
-    <Document title="7.6.4.2 Queue Status Flag Enumeration Values" href="ETAJ_ValueAddDevGuide.1.259.html" />
-    <Document title="7.6.5 Queue Close" href="ETAJ_ValueAddDevGuide.1.260.html" />
-    <Document title="7.6.6 Queue Data" href="ETAJ_ValueAddDevGuide.1.261.html" />
-    <Document title="7.6.6.1 Queue Data Members" href="ETAJ_ValueAddDevGuide.1.262.html" />
-    <Document title="7.6.6.2 Queue Data Flags" href="ETAJ_ValueAddDevGuide.1.263.html" />
-    <Document title="7.6.6.3 Queue Data Message Timeout Codes" href="ETAJ_ValueAddDevGuide.1.264.html" />
-    <Document title="7.6.6.4 Queue Data Encoding" href="ETAJ_ValueAddDevGuide.1.265.html" />
-    <Document title="7.6.6.5 Queue Data Message Encoding Code Sample" href="ETAJ_ValueAddDevGuide.1.266.html" />
-    <Document title="7.6.7 QueueDataExpired" href="ETAJ_ValueAddDevGuide.1.267.html" />
-    <Document title="7.6.7.1 QueueDataExpired Structure Members" href="ETAJ_ValueAddDevGuide.1.268.html" />
-    <Document title="7.6.7.2 Queue Data Message Undeliverable Codes" href="ETAJ_ValueAddDevGuide.1.269.html" />
-    <Document title="7.6.8 Queue Ack" href="ETAJ_ValueAddDevGuide.1.270.html" />
-    <Document title="Chapter 8 Payload Cache Detailed View" href="ETAJ_ValueAddDevGuide.1.271.html" />
-    <Document title="8.1 Concepts" href="ETAJ_ValueAddDevGuide.1.272.html" />
-    <Document title="8.2 Payload Cache" href="ETAJ_ValueAddDevGuide.1.273.html" />
-    <Document title="8.2.1 Payload Cache Management" href="ETAJ_ValueAddDevGuide.1.274.html" />
-    <Document title="8.2.2 Cache Error Handling" href="ETAJ_ValueAddDevGuide.1.275.html" />
-    <Document title="8.2.3 Payload Cache Instances" href="ETAJ_ValueAddDevGuide.1.276.html" />
-    <Document title="8.2.4 Managing RDM Field Dictionaries for Payload Cache" href="ETAJ_ValueAddDevGuide.1.277.html" />
-    <Document title="8.2.4.1 Setting Methods" href="ETAJ_ValueAddDevGuide.1.278.html" />
-    <Document title="8.2.4.2 Setting Example" href="ETAJ_ValueAddDevGuide.1.279.html" />
-    <Document title="8.2.4.3 Extending the Cache Field Dictionary" href="ETAJ_ValueAddDevGuide.1.280.html" />
-    <Document title="8.2.5 Payload Cache Utilities" href="ETAJ_ValueAddDevGuide.1.281.html" />
-    <Document title="8.3 Payload Cache Entries" href="ETAJ_ValueAddDevGuide.1.282.html" />
-    <Document title="8.3.1 Managing Payload Cache Entries" href="ETAJ_ValueAddDevGuide.1.283.html" />
-    <Document title="8.3.2 Applying Data" href="ETAJ_ValueAddDevGuide.1.284.html" />
-    <Document title="8.3.3 Retrieving Data" href="ETAJ_ValueAddDevGuide.1.285.html" />
-    <Document title="8.3.3.1 Multi-Part Retrieval" href="ETAJ_ValueAddDevGuide.1.286.html" />
-    <Document title="8.3.3.2 Buffer Management" href="ETAJ_ValueAddDevGuide.1.287.html" />
-    <Document title="8.3.3.3 Example: Cache Retrieval with Multi-Part Support" href="ETAJ_ValueAddDevGuide.1.288.html" />
-    <Document title="Appendix A Value Added Utilities" href="ETAJ_ValueAddDevGuide.1.289.html" />
+    <Document title="Chapter 1 Value Added Components Developers Guide Introduction" href="Chap_API_Intro.1.01.html" />
+    <Document title="1.1 About this Manual" href="Chap_API_Intro.1.02.html" />
+    <Document title="1.2 Audience" href="Chap_API_Intro.1.03.html" />
+    <Document title="1.3 Programming Language" href="Chap_API_Intro.1.04.html" />
+    <Document title="1.4 Acronyms and Abbreviations" href="Chap_API_Intro.1.05.html" />
+    <Document title="1.5 Additional References and Resources" href="Chap_API_Intro.1.06.html" />
+    <Document title="1.6 Documentation Feedback" href="Chap_API_Intro.1.07.html" />
+    <Document title="1.7 Document Conventions" href="Chap_API_Intro.1.08.html" />
+    <Document title="1.7.1 Typographic" href="Chap_API_Intro.1.09.html" />
+    <Document title="1.7.2 Document Structure" href="Chap_API_Intro.1.10.html" />
+    <Document title="1.7.3 Diagrams" href="Chap_API_Intro.1.11.html" />
+    <Document title="Chapter 2 Product Description and Overview" href="Chap_ProdDescription.2.01.html" />
+    <Document title="2.1 What is the Transport API?" href="Chap_ProdDescription.2.02.html" />
+    <Document title="2.2 What are Transport API Value Added Components?" href="Chap_ProdDescription.2.03.html" />
+    <Document title="2.3 Transport API Reactor" href="Chap_ProdDescription.2.04.html" />
+    <Document title="2.4 OMM Consumer Watchlist" href="Chap_ProdDescription.2.05.html" />
+    <Document title="2.4.1 Data Stream Aggregation and Recovery" href="Chap_ProdDescription.2.06.html" />
+    <Document title="2.4.2 Additional Features" href="Chap_ProdDescription.2.07.html" />
+    <Document title="2.4.3 Usage Notes" href="Chap_ProdDescription.2.08.html" />
+    <Document title="2.5 Administration Domain Model Representations" href="Chap_ProdDescription.2.09.html" />
+    <Document title="2.6 Value Added Utilities" href="Chap_ProdDescription.2.10.html" />
+    <Document title="2.7 Payload Cache" href="Chap_ProdDescription.2.11.html" />
+    <Document title="Chapter 3 Building an OMM Consumer" href="Chap_Building_OMM_Consumer.3.1.html" />
+    <Document title="3.1 Building an OMM Consumer Overview" href="Chap_Building_OMM_Consumer.3.2.html" />
+    <Document title="3.2 Leverage Existing or Create New Reactor" href="Chap_Building_OMM_Consumer.3.3.html" />
+    <Document title="3.3 Implement Callbacks and Populate Role" href="Chap_Building_OMM_Consumer.3.4.html" />
+    <Document title="3.4 Establish Connection using Reactor.connect" href="Chap_Building_OMM_Consumer.3.5.html" />
+    <Document title="3.5 Issue Requests and/or Post Information" href="Chap_Building_OMM_Consumer.3.6.html" />
+    <Document title="3.6 Log Out and Shut Down" href="Chap_Building_OMM_Consumer.3.7.html" />
+    <Document title="3.7 Additional Consumer Details" href="Chap_Building_OMM_Consumer.3.8.html" />
+    <Document title="Chapter 4 Building an OMM Interactive Provider" href="Chap_Building_OMM_InteractiveProvider.4.01.html" />
+    <Document title="4.1 Building an OMM Interactive Provider Overview" href="Chap_Building_OMM_InteractiveProvider.4.02.html" />
+    <Document title="4.2 Leverage Existing or Create New Reactor" href="Chap_Building_OMM_InteractiveProvider.4.03.html" />
+    <Document title="4.3 Create a Server" href="Chap_Building_OMM_InteractiveProvider.4.04.html" />
+    <Document title="4.4 Implement Callbacks and Populate Role" href="Chap_Building_OMM_InteractiveProvider.4.05.html" />
+    <Document title="4.5 Associate Incoming Connections Using Reactor.accept" href="Chap_Building_OMM_InteractiveProvider.4.06.html" />
+    <Document title="4.6 Perform Login Process" href="Chap_Building_OMM_InteractiveProvider.4.07.html" />
+    <Document title="4.7 Provide Source Directory Information" href="Chap_Building_OMM_InteractiveProvider.4.08.html" />
+    <Document title="4.8 Provide or Download Necessary Dictionaries" href="Chap_Building_OMM_InteractiveProvider.4.09.html" />
+    <Document title="4.9 Handle Requests and Post Messages" href="Chap_Building_OMM_InteractiveProvider.4.10.html" />
+    <Document title="4.10 Disconnect Consumers and Shut Down" href="Chap_Building_OMM_InteractiveProvider.4.11.html" />
+    <Document title="4.11 Additional Interactive Provider Details" href="Chap_Building_OMM_InteractiveProvider.4.12.html" />
+    <Document title="Chapter 5 Building an OMM Non-Interactive Provider" href="Chap_Building_OMM_NonInteractiveProvider.5.1.html" />
+    <Document title="5.1 Building an OMM Non-Interactive Provider Overview" href="Chap_Building_OMM_NonInteractiveProvider.5.2.html" />
+    <Document title="5.2 Leverage Existing or Create New Reactor" href="Chap_Building_OMM_NonInteractiveProvider.5.3.html" />
+    <Document title="5.3 Implement Callbacks and Populate Role" href="Chap_Building_OMM_NonInteractiveProvider.5.4.html" />
+    <Document title="5.4 Establish Connection using Reactor.connect" href="Chap_Building_OMM_NonInteractiveProvider.5.5.html" />
+    <Document title="5.5 Download the Dictionary" href="Chap_Building_OMM_NonInteractiveProvider.5.6.html" />
+    <Document title="5.6 Provide Content" href="Chap_Building_OMM_NonInteractiveProvider.5.7.html" />
+    <Document title="5.7 Log Out and Shut Down" href="Chap_Building_OMM_NonInteractiveProvider.5.8.html" />
+    <Document title="5.8 Additional Non-Interactive Provider Details" href="Chap_Building_OMM_NonInteractiveProvider.5.9.html" />
+    <Document title="Chapter 6 Reactor Detailed View" href="Chap_Reactor_Detailed_View.6.001.html" />
+    <Document title="6.1 Concepts" href="Chap_Reactor_Detailed_View.6.002.html" />
+    <Document title="6.1.1 Functionality: Transport API Versus Transport API Reactor" href="Chap_Reactor_Detailed_View.6.003.html" />
+    <Document title="6.1.2 Reactor Error Handling" href="Chap_Reactor_Detailed_View.6.004.html" />
+    <Document title="6.1.3 Reactor Error Info Codes" href="Chap_Reactor_Detailed_View.6.005.html" />
+    <Document title="6.1.4 Transport API Reactor Application Lifecycle" href="Chap_Reactor_Detailed_View.6.006.html" />
+    <Document title="6.2 Reactor Use" href="Chap_Reactor_Detailed_View.6.007.html" />
+    <Document title="6.2.1 Creating a Reactor" href="Chap_Reactor_Detailed_View.6.008.html" />
+    <Document title="6.2.1.1 Reactor Creation" href="Chap_Reactor_Detailed_View.6.009.html" />
+    <Document title="6.2.1.2 ReactorOptions Class Members" href="Chap_Reactor_Detailed_View.6.010.html" />
+    <Document title="6.2.1.3 ReactorOptions Utility Method" href="Chap_Reactor_Detailed_View.6.011.html" />
+    <Document title="6.2.2 Destroying a Reactor" href="Chap_Reactor_Detailed_View.6.012.html" />
+    <Document title="6.2.2.1 Reactor Destruction" href="Chap_Reactor_Detailed_View.6.013.html" />
+    <Document title="6.2.2.2 Reactor Creation and Destruction Example" href="Chap_Reactor_Detailed_View.6.014.html" />
+    <Document title="6.3 Reactor Channel Use" href="Chap_Reactor_Detailed_View.6.015.html" />
+    <Document title="6.3.1 Reactor Channel Roles" href="Chap_Reactor_Detailed_View.6.016.html" />
+    <Document title="6.3.1.1 ReactorRole Class" href="Chap_Reactor_Detailed_View.6.017.html" />
+    <Document title="6.3.1.2 ReactorRoleType Enumerations" href="Chap_Reactor_Detailed_View.6.018.html" />
+    <Document title="6.3.2 Reactor Channel Role: OMM Consumer" href="Chap_Reactor_Detailed_View.6.019.html" />
+    <Document title="6.3.2.1 OMM Consumer Role" href="Chap_Reactor_Detailed_View.6.020.html" />
+    <Document title="6.3.2.2 OMM Consumer Role Dictionary Download Modes" href="Chap_Reactor_Detailed_View.6.021.html" />
+    <Document title="6.3.2.3 OMM Consumer Role Watchlist Options" href="Chap_Reactor_Detailed_View.6.022.html" />
+    <Document title="6.3.2.4 OMM Consumer Role Utility Method" href="Chap_Reactor_Detailed_View.6.023.html" />
+    <Document title="6.3.3 Reactor Channel Role: OMM Provider" href="Chap_Reactor_Detailed_View.6.024.html" />
+    <Document title="6.3.3.1 OMM Provider Role" href="Chap_Reactor_Detailed_View.6.025.html" />
+    <Document title="6.3.3.2 OMM Provider Role Utility Function" href="Chap_Reactor_Detailed_View.6.026.html" />
+    <Document title="6.3.4 Reactor Channel Role: OMM Non-Interactive Provider" href="Chap_Reactor_Detailed_View.6.027.html" />
+    <Document title="6.3.4.1 OMM Non-Interactive Role Members" href="Chap_Reactor_Detailed_View.6.028.html" />
+    <Document title="6.3.4.2 OMM Non-Interactive Provider Role Utility Method" href="Chap_Reactor_Detailed_View.6.029.html" />
+    <Document title="6.4 Managing Reactor Channels" href="Chap_Reactor_Detailed_View.6.030.html" />
+    <Document title="6.4.1.1 Reactor Connect" href="Chap_Reactor_Detailed_View.6.031.html" />
+    <Document title="6.4.1.2 ReactorConnectOptions Class Members" href="Chap_Reactor_Detailed_View.6.032.html" />
+    <Document title="6.4.1.3 ReactorConnectInfo Class members" href="Chap_Reactor_Detailed_View.6.033.html" />
+    <Document title="6.4.1.4 ReactorConnectOptions Utility Method" href="Chap_Reactor_Detailed_View.6.034.html" />
+    <Document title="6.4.1.5 Reactor.connect Example" href="Chap_Reactor_Detailed_View.6.035.html" />
+    <Document title="6.4.1.6 Reactor Accept" href="Chap_Reactor_Detailed_View.6.036.html" />
+    <Document title="6.4.1.7 ReactorAcceptOptions Class Members" href="Chap_Reactor_Detailed_View.6.037.html" />
+    <Document title="6.4.1.8 ReactorAcceptOptions Utility Function" href="Chap_Reactor_Detailed_View.6.038.html" />
+    <Document title="6.4.1.9 Reactor.accept Example" href="Chap_Reactor_Detailed_View.6.039.html" />
+    <Document title="6.4.2 Removing Reactor Channels" href="Chap_Reactor_Detailed_View.6.040.html" />
+    <Document title="6.4.2.2 ReactorChannel.close Example" href="Chap_Reactor_Detailed_View.6.041.html" />
+    <Document title="6.5 Dispatching Data" href="Chap_Reactor_Detailed_View.6.042.html" />
+    <Document title="6.5.1 Reactor Dispatch Methods" href="Chap_Reactor_Detailed_View.6.043.html" />
+    <Document title="6.5.1.1 Reactor Dispatch Options" href="Chap_Reactor_Detailed_View.6.044.html" />
+    <Document title="6.5.1.2 ReactorDispatchOptions Utility Function" href="Chap_Reactor_Detailed_View.6.045.html" />
+    <Document title="6.5.1.3 ReactorChannel.dispatch Example" href="Chap_Reactor_Detailed_View.6.046.html" />
+    <Document title="6.5.2 Reactor Callback Methods" href="Chap_Reactor_Detailed_View.6.047.html" />
+    <Document title="6.5.3 Reactor Callback: Channel Event" href="Chap_Reactor_Detailed_View.6.048.html" />
+    <Document title="6.5.3.1 Reactor Channel Event" href="Chap_Reactor_Detailed_View.6.049.html" />
+    <Document title="6.5.3.2 Reactor Channel Event Type Enumeration Values" href="Chap_Reactor_Detailed_View.6.050.html" />
+    <Document title="6.5.3.3 Reactor Channel Event Utility Methods" href="Chap_Reactor_Detailed_View.6.051.html" />
+    <Document title="6.5.3.4 Reactor Channel Event Callback Example" href="Chap_Reactor_Detailed_View.6.052.html" />
+    <Document title="6.5.4 Reactor Callback: Default Message" href="Chap_Reactor_Detailed_View.6.053.html" />
+    <Document title="6.5.4.1 Reactor Message Event" href="Chap_Reactor_Detailed_View.6.054.html" />
+    <Document title="6.5.4.2 Reactor Message Event Utility Methods" href="Chap_Reactor_Detailed_View.6.055.html" />
+    <Document title="6.5.4.3 Reactor Message Event Callback Example" href="Chap_Reactor_Detailed_View.6.056.html" />
+    <Document title="6.5.5 Reactor Callback: RDM Login Message" href="Chap_Reactor_Detailed_View.6.057.html" />
+    <Document title="6.5.5.1 Reactor RDM Login Message Event" href="Chap_Reactor_Detailed_View.6.058.html" />
+    <Document title="6.5.5.2 Reactor RDM Login Message Event Utility Method" href="Chap_Reactor_Detailed_View.6.059.html" />
+    <Document title="6.5.5.3 Reactor RDM Login Message Event Callback Example" href="Chap_Reactor_Detailed_View.6.060.html" />
+    <Document title="6.5.6 Reactor Callback: RDM Directory Message" href="Chap_Reactor_Detailed_View.6.061.html" />
+    <Document title="6.5.6.1 Reactor RDM Directory Message Event" href="Chap_Reactor_Detailed_View.6.062.html" />
+    <Document title="6.5.6.2 Reactor RDM Directory Message Event Utility Method" href="Chap_Reactor_Detailed_View.6.063.html" />
+    <Document title="6.5.6.3 Reactor RDM Directory Message Event Callback Example" href="Chap_Reactor_Detailed_View.6.064.html" />
+    <Document title="6.5.7 Reactor Callback: RDM Dictionary Message" href="Chap_Reactor_Detailed_View.6.065.html" />
+    <Document title="6.5.7.1 Reactor RDM Dictionary Message Event" href="Chap_Reactor_Detailed_View.6.066.html" />
+    <Document title="6.5.7.2 Reactor RDM Dictionary Message Event Utility Method" href="Chap_Reactor_Detailed_View.6.067.html" />
+    <Document title="6.5.7.3 Reactor RDM Dictionary Message Event Callback Example" href="Chap_Reactor_Detailed_View.6.068.html" />
+    <Document title="6.6 Writing Data" href="Chap_Reactor_Detailed_View.6.069.html" />
+    <Document title="6.6.1 Writing Data using ReactorChannel.submit(Msg…)" href="Chap_Reactor_Detailed_View.6.070.html" />
+    <Document title="6.6.1.1 ReactorChannel.submit(Msg…) Method" href="Chap_Reactor_Detailed_View.6.071.html" />
+    <Document title="6.6.1.2 Reactor Submit Options" href="Chap_Reactor_Detailed_View.6.072.html" />
+    <Document title="6.6.1.3 ReactorChannel.submit(Msg...) Return Codes" href="Chap_Reactor_Detailed_View.6.073.html" />
+    <Document title="6.6.1.4 ReactorRequestMsgOptions" href="Chap_Reactor_Detailed_View.6.074.html" />
+    <Document title="6.6.1.5 ReactorSubmitOptions Utility Method" href="Chap_Reactor_Detailed_View.6.075.html" />
+    <Document title="6.6.1.6 ReactorChannel.submit(Msg...) Example" href="Chap_Reactor_Detailed_View.6.076.html" />
+    <Document title="6.6.2 Writing Data Using ReactorChannel.submit(TransportBuffer...)" href="Chap_Reactor_Detailed_View.6.077.html" />
+    <Document title="6.6.2.1 Obtaining a Buffer: Overview" href="Chap_Reactor_Detailed_View.6.078.html" />
+    <Document title="6.6.2.2 Obtaining a Buffer: ReactorChannel Buffer Management Methods" href="Chap_Reactor_Detailed_View.6.079.html" />
+    <Document title="6.6.2.3 Obtaining a Buffer: ReactorChannel.getBuffer Return Values" href="Chap_Reactor_Detailed_View.6.080.html" />
+    <Document title="6.6.2.4 Writing Data: Overview" href="Chap_Reactor_Detailed_View.6.081.html" />
+    <Document title="6.6.2.5 Writing Data: ReactorChannel.submit(TransportBuffer…) Method" href="Chap_Reactor_Detailed_View.6.082.html" />
+    <Document title="6.6.2.6 Writing Data: Reactor Submit Options" href="Chap_Reactor_Detailed_View.6.083.html" />
+    <Document title="6.6.2.7 Writing Data: ReactorRequestMsgOptions" href="Chap_Reactor_Detailed_View.6.084.html" />
+    <Document title="6.6.2.8 Writing Data: ReactorChannel.submit(TransportBuffer…) Return Codes" href="Chap_Reactor_Detailed_View.6.085.html" />
+    <Document title="6.6.2.9 Writing Data: ReactorSubmitOptions Utility Function" href="Chap_Reactor_Detailed_View.6.086.html" />
+    <Document title="6.6.2.10 Example: ReactorChannel.getBuffer and ReactorChannel.submit(TransportBuffer…) Example" href="Chap_Reactor_Detailed_View.6.087.html" />
+    <Document title="6.6.2.11 Packing Additional Data into a Buffer" href="Chap_Reactor_Detailed_View.6.088.html" />
+    <Document title="6.6.2.12 ReactorChannel.packBuffer Return Values" href="Chap_Reactor_Detailed_View.6.089.html" />
+    <Document title="6.6.2.13 Example: ReactorChannel.getBuffer, ReactorChannel.packBuffer, and ReactorChannel.submit(TransportBuffer…)" href="Chap_Reactor_Detailed_View.6.090.html" />
+    <Document title="6.7 Creating and Using Tunnel Streams" href="Chap_Reactor_Detailed_View.6.091.html" />
+    <Document title="6.7.1 Authenticating a Tunnel Stream" href="Chap_Reactor_Detailed_View.6.092.html" />
+    <Document title="6.7.2 Opening a Tunnel Stream" href="Chap_Reactor_Detailed_View.6.093.html" />
+    <Document title="6.7.2.1 ReactorChannel.openTunnelStream Method" href="Chap_Reactor_Detailed_View.6.094.html" />
+    <Document title="6.7.2.2 TunnelStreamOpenOptions" href="Chap_Reactor_Detailed_View.6.095.html" />
+    <Document title="6.7.3 Negotiating Stream Behaviors: Class of Service" href="Chap_Reactor_Detailed_View.6.096.html" />
+    <Document title="6.7.3.1 ClassOfService Common Member" href="Chap_Reactor_Detailed_View.6.097.html" />
+    <Document title="6.7.3.2 ClassOfService Authentication Member" href="Chap_Reactor_Detailed_View.6.098.html" />
+    <Document title="6.7.3.3 ClassOfService Flow Control Members" href="Chap_Reactor_Detailed_View.6.099.html" />
+    <Document title="6.7.3.4 ClassOfService Data Integrity Member" href="Chap_Reactor_Detailed_View.6.100.html" />
+    <Document title="6.7.3.5 ClassOfService Guarantee Members" href="Chap_Reactor_Detailed_View.6.101.html" />
+    <Document title="6.7.4 Tunnel Stream Callback Methods and Event Types" href="Chap_Reactor_Detailed_View.6.102.html" />
+    <Document title="6.7.4.2 Tunnel Stream Callback Event Types" href="Chap_Reactor_Detailed_View.6.103.html" />
+    <Document title="6.7.5 Code Sample: Opening and Managing a Tunnel Stream" href="Chap_Reactor_Detailed_View.6.104.html" />
+    <Document title="6.7.6 Accepting Tunnel Streams" href="Chap_Reactor_Detailed_View.6.105.html" />
+    <Document title="6.7.6.1 Reactor Tunnel Stream Listener Callback" href="Chap_Reactor_Detailed_View.6.106.html" />
+    <Document title="6.7.6.2 ReactorChannel.acceptTunnelStream Method" href="Chap_Reactor_Detailed_View.6.107.html" />
+    <Document title="6.7.6.3 TunnelStreamAcceptOptions" href="Chap_Reactor_Detailed_View.6.108.html" />
+    <Document title="6.7.6.4 ReactorChannel.rejectTunnelStream" href="Chap_Reactor_Detailed_View.6.109.html" />
+    <Document title="6.7.6.5 TunnelStreamRejectOptions" href="Chap_Reactor_Detailed_View.6.110.html" />
+    <Document title="6.7.6.6 Accepting a Tunnel Stream Code Sample" href="Chap_Reactor_Detailed_View.6.111.html" />
+    <Document title="6.7.6.7 Rejecting a Tunnel Stream Code Sample" href="Chap_Reactor_Detailed_View.6.112.html" />
+    <Document title="6.7.7 Receiving Content on a TunnelStream" href="Chap_Reactor_Detailed_View.6.113.html" />
+    <Document title="6.7.8 Sending Content on a TunnelStream" href="Chap_Reactor_Detailed_View.6.114.html" />
+    <Document title="6.7.8.1 Tunnel Stream Buffer Methods" href="Chap_Reactor_Detailed_View.6.115.html" />
+    <Document title="6.7.8.2 Tunnel Stream Submit" href="Chap_Reactor_Detailed_View.6.116.html" />
+    <Document title="6.7.8.3 TunnelStream.submit Option" href="Chap_Reactor_Detailed_View.6.117.html" />
+    <Document title="6.7.8.4 Submitting Content on a Tunnel Stream Code Sample" href="Chap_Reactor_Detailed_View.6.118.html" />
+    <Document title="6.7.9 Closing a Tunnel Stream" href="Chap_Reactor_Detailed_View.6.119.html" />
+    <Document title="6.7.9.1 Tunnel Stream Close" href="Chap_Reactor_Detailed_View.6.120.html" />
+    <Document title="6.7.9.2 Closing a Tunnel Stream Sample" href="Chap_Reactor_Detailed_View.6.121.html" />
+    <Document title="6.8 Reactor Utility Methods" href="Chap_Reactor_Detailed_View.6.122.html" />
+    <Document title="6.8.1 General Reactor Utility Methods" href="Chap_Reactor_Detailed_View.6.123.html" />
+    <Document title="6.8.2 ReactorChannelInfo Class Members" href="Chap_Reactor_Detailed_View.6.124.html" />
+    <Document title="6.8.3 ReactorChannel.ioctl Option Values" href="Chap_Reactor_Detailed_View.6.125.html" />
+    <Document title="Chapter 7 Administration Domain Models Detailed View" href="Chap_AdminDomain_Models_Detailed_View.7.001.html" />
+    <Document title="7.1 Concepts" href="Chap_AdminDomain_Models_Detailed_View.7.002.html" />
+    <Document title="7.2 Message Base" href="Chap_AdminDomain_Models_Detailed_View.7.003.html" />
+    <Document title="7.2.1 Message Base Members" href="Chap_AdminDomain_Models_Detailed_View.7.004.html" />
+    <Document title="7.2.2 Message Base Method" href="Chap_AdminDomain_Models_Detailed_View.7.005.html" />
+    <Document title="7.2.3 RDM Message Types" href="Chap_AdminDomain_Models_Detailed_View.7.006.html" />
+    <Document title="7.3 RDM Login Domain" href="Chap_AdminDomain_Models_Detailed_View.7.007.html" />
+    <Document title="7.3.1 Login Request" href="Chap_AdminDomain_Models_Detailed_View.7.008.html" />
+    <Document title="7.3.1.1 Login Request Members" href="Chap_AdminDomain_Models_Detailed_View.7.009.html" />
+    <Document title="7.3.1.2 Login Request Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.010.html" />
+    <Document title="7.3.1.3 Login Request Utility Method" href="Chap_AdminDomain_Models_Detailed_View.7.011.html" />
+    <Document title="7.3.2 Login Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.012.html" />
+    <Document title="7.3.2.1 Login Refresh Members" href="Chap_AdminDomain_Models_Detailed_View.7.013.html" />
+    <Document title="7.3.2.2 Login Refresh Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.014.html" />
+    <Document title="7.3.2.3 Login Support Feature Set Members" href="Chap_AdminDomain_Models_Detailed_View.7.015.html" />
+    <Document title="7.3.2.4 Login Support Feature Set Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.016.html" />
+    <Document title="7.3.2.5 Login Connection Config Members" href="Chap_AdminDomain_Models_Detailed_View.7.017.html" />
+    <Document title="7.3.2.6 Login Connection Config Methods" href="Chap_AdminDomain_Models_Detailed_View.7.018.html" />
+    <Document title="7.3.2.7 Server Info Members" href="Chap_AdminDomain_Models_Detailed_View.7.019.html" />
+    <Document title="7.3.2.8 Server Info Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.020.html" />
+    <Document title="7.3.2.9 Server Info Methods" href="Chap_AdminDomain_Models_Detailed_View.7.021.html" />
+    <Document title="7.3.3 Login Status" href="Chap_AdminDomain_Models_Detailed_View.7.022.html" />
+    <Document title="7.3.3.1 Login Status Members" href="Chap_AdminDomain_Models_Detailed_View.7.023.html" />
+    <Document title="7.3.3.2 Login Status Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.024.html" />
+    <Document title="7.3.4 Login Close" href="Chap_AdminDomain_Models_Detailed_View.7.025.html" />
+    <Document title="7.3.5 Login Consumer Connection Status" href="Chap_AdminDomain_Models_Detailed_View.7.026.html" />
+    <Document title="7.3.5.1 Login Consumer Connection Status Members" href="Chap_AdminDomain_Models_Detailed_View.7.027.html" />
+    <Document title="7.3.5.2 Login Consumer Connection Status Flag Enumeration Value" href="Chap_AdminDomain_Models_Detailed_View.7.028.html" />
+    <Document title="7.3.5.3 Login Warm Standby Info Members" href="Chap_AdminDomain_Models_Detailed_View.7.029.html" />
+    <Document title="7.3.5.4 Login Warm Standby Info Methods" href="Chap_AdminDomain_Models_Detailed_View.7.030.html" />
+    <Document title="7.3.6 Login Post Message Use" href="Chap_AdminDomain_Models_Detailed_View.7.031.html" />
+    <Document title="7.3.7 Login Ack Message Use" href="Chap_AdminDomain_Models_Detailed_View.7.032.html" />
+    <Document title="7.3.8 Login Attributes" href="Chap_AdminDomain_Models_Detailed_View.7.033.html" />
+    <Document title="7.3.8.1 Login Attrib Members" href="Chap_AdminDomain_Models_Detailed_View.7.034.html" />
+    <Document title="7.3.8.2 Login Attrib Methods" href="Chap_AdminDomain_Models_Detailed_View.7.035.html" />
+    <Document title="7.3.8.3 Login Attrib Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.036.html" />
+    <Document title="7.3.9 Login Message" href="Chap_AdminDomain_Models_Detailed_View.7.037.html" />
+    <Document title="7.3.10 Login Message Utility Messages" href="Chap_AdminDomain_Models_Detailed_View.7.038.html" />
+    <Document title="7.3.11 Login Encoding and Decoding" href="Chap_AdminDomain_Models_Detailed_View.7.039.html" />
+    <Document title="7.3.11.2 Encoding a Login Request" href="Chap_AdminDomain_Models_Detailed_View.7.040.html" />
+    <Document title="7.3.11.3 Decoding a Login Request" href="Chap_AdminDomain_Models_Detailed_View.7.041.html" />
+    <Document title="7.3.11.4 Encoding a Login Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.042.html" />
+    <Document title="7.3.11.5 Decoding a Login Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.043.html" />
+    <Document title="7.4 RDM Source Directory Domain" href="Chap_AdminDomain_Models_Detailed_View.7.044.html" />
+    <Document title="7.4.1 Directory Request" href="Chap_AdminDomain_Models_Detailed_View.7.045.html" />
+    <Document title="7.4.1.1 Directory Request Members" href="Chap_AdminDomain_Models_Detailed_View.7.046.html" />
+    <Document title="7.4.1.2 Directory Request Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.047.html" />
+    <Document title="7.4.1.3 Directory Request Methods" href="Chap_AdminDomain_Models_Detailed_View.7.048.html" />
+    <Document title="7.4.2 Directory Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.049.html" />
+    <Document title="7.4.2.1 Directory Refresh Members" href="Chap_AdminDomain_Models_Detailed_View.7.050.html" />
+    <Document title="7.4.2.2 Directory Refresh Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.051.html" />
+    <Document title="7.4.3 Directory Update" href="Chap_AdminDomain_Models_Detailed_View.7.052.html" />
+    <Document title="7.4.3.1 Directory Update Members" href="Chap_AdminDomain_Models_Detailed_View.7.053.html" />
+    <Document title="7.4.3.2 Directory Update Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.054.html" />
+    <Document title="7.4.4 Directory Status" href="Chap_AdminDomain_Models_Detailed_View.7.055.html" />
+    <Document title="7.4.4.1 Directory Status Members" href="Chap_AdminDomain_Models_Detailed_View.7.056.html" />
+    <Document title="7.4.4.2 Directory Status Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.057.html" />
+    <Document title="7.4.4.3 Directory Status Methods" href="Chap_AdminDomain_Models_Detailed_View.7.058.html" />
+    <Document title="7.4.5 Directory Close" href="Chap_AdminDomain_Models_Detailed_View.7.059.html" />
+    <Document title="7.4.6 Directory Consumer Status" href="Chap_AdminDomain_Models_Detailed_View.7.060.html" />
+    <Document title="7.4.6.1 Directory Consumer Status Members" href="Chap_AdminDomain_Models_Detailed_View.7.061.html" />
+    <Document title="7.4.6.2 Directory Consumer Status Service Members" href="Chap_AdminDomain_Models_Detailed_View.7.062.html" />
+    <Document title="7.4.7 Directory Service" href="Chap_AdminDomain_Models_Detailed_View.7.063.html" />
+    <Document title="7.4.7.1 Service Members" href="Chap_AdminDomain_Models_Detailed_View.7.064.html" />
+    <Document title="7.4.7.2 Service Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.065.html" />
+    <Document title="7.4.7.3 Service Methods" href="Chap_AdminDomain_Models_Detailed_View.7.066.html" />
+    <Document title="7.4.8 Directory Service Info Filter" href="Chap_AdminDomain_Models_Detailed_View.7.067.html" />
+    <Document title="7.4.8.1 Service Info Members" href="Chap_AdminDomain_Models_Detailed_View.7.068.html" />
+    <Document title="7.4.8.2 Service Info Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.069.html" />
+    <Document title="7.4.8.3 Service Info Methods" href="Chap_AdminDomain_Models_Detailed_View.7.070.html" />
+    <Document title="7.4.9 Directory Service State Filter" href="Chap_AdminDomain_Models_Detailed_View.7.071.html" />
+    <Document title="7.4.9.1 Service State Members" href="Chap_AdminDomain_Models_Detailed_View.7.072.html" />
+    <Document title="7.4.9.2 Service State Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.073.html" />
+    <Document title="7.4.9.3 Service State Methods" href="Chap_AdminDomain_Models_Detailed_View.7.074.html" />
+    <Document title="7.4.10 Directory Service Group Filter" href="Chap_AdminDomain_Models_Detailed_View.7.075.html" />
+    <Document title="7.4.10.1 Service Group Members" href="Chap_AdminDomain_Models_Detailed_View.7.076.html" />
+    <Document title="7.4.10.2 Service Group Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.077.html" />
+    <Document title="7.4.10.3 Service Group Methods" href="Chap_AdminDomain_Models_Detailed_View.7.078.html" />
+    <Document title="7.4.11 Directory Service Load Filter" href="Chap_AdminDomain_Models_Detailed_View.7.079.html" />
+    <Document title="7.4.11.1 Service Load Members" href="Chap_AdminDomain_Models_Detailed_View.7.080.html" />
+    <Document title="7.4.11.2 Service Load Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.081.html" />
+    <Document title="7.4.11.3 Service Load Methods" href="Chap_AdminDomain_Models_Detailed_View.7.082.html" />
+    <Document title="7.4.12 Directory Service Data Filter" href="Chap_AdminDomain_Models_Detailed_View.7.083.html" />
+    <Document title="7.4.12.1 Service Data Members" href="Chap_AdminDomain_Models_Detailed_View.7.084.html" />
+    <Document title="7.4.12.2 Service Load Data Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.085.html" />
+    <Document title="7.4.12.3 Service Data Methods" href="Chap_AdminDomain_Models_Detailed_View.7.086.html" />
+    <Document title="7.4.13 Directory Service Link Info Filter" href="Chap_AdminDomain_Models_Detailed_View.7.087.html" />
+    <Document title="7.4.13.1 Service Link Info Members" href="Chap_AdminDomain_Models_Detailed_View.7.088.html" />
+    <Document title="7.4.13.2 Service Link Info Methods" href="Chap_AdminDomain_Models_Detailed_View.7.089.html" />
+    <Document title="7.4.14 Directory Service Link" href="Chap_AdminDomain_Models_Detailed_View.7.090.html" />
+    <Document title="7.4.14.1 Service Link Members" href="Chap_AdminDomain_Models_Detailed_View.7.091.html" />
+    <Document title="7.4.14.2 Service Link Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.092.html" />
+    <Document title="7.4.14.3 Service Link Methods" href="Chap_AdminDomain_Models_Detailed_View.7.093.html" />
+    <Document title="7.4.15 Directory Message" href="Chap_AdminDomain_Models_Detailed_View.7.094.html" />
+    <Document title="7.4.16 Directory Message Utility Methods" href="Chap_AdminDomain_Models_Detailed_View.7.095.html" />
+    <Document title="7.4.17 Directory Encoding and Decoding" href="Chap_AdminDomain_Models_Detailed_View.7.096.html" />
+    <Document title="7.4.17.2 Encoding a Source Directory Request" href="Chap_AdminDomain_Models_Detailed_View.7.097.html" />
+    <Document title="7.4.17.3 Decoding a Source Directory Request" href="Chap_AdminDomain_Models_Detailed_View.7.098.html" />
+    <Document title="7.4.17.4 Encoding a Source Directory Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.099.html" />
+    <Document title="7.4.17.5 Decoding a Source Directory Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.100.html" />
+    <Document title="7.5 RDM Dictionary Domain" href="Chap_AdminDomain_Models_Detailed_View.7.101.html" />
+    <Document title="7.5.1 Dictionary Request" href="Chap_AdminDomain_Models_Detailed_View.7.102.html" />
+    <Document title="7.5.1.1 Dictionary Request Members" href="Chap_AdminDomain_Models_Detailed_View.7.103.html" />
+    <Document title="7.5.1.2 Dictionary Request Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.104.html" />
+    <Document title="7.5.2 Dictionary Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.105.html" />
+    <Document title="7.5.2.1 Dictionary Refresh Members" href="Chap_AdminDomain_Models_Detailed_View.7.106.html" />
+    <Document title="7.5.2.2 Dictionary Refresh Flag Enumeration Values" href="Chap_AdminDomain_Models_Detailed_View.7.107.html" />
+    <Document title="7.5.3 Dictionary Status" href="Chap_AdminDomain_Models_Detailed_View.7.108.html" />
+    <Document title="7.5.3.1 Dictionary Status Members" href="Chap_AdminDomain_Models_Detailed_View.7.109.html" />
+    <Document title="7.5.3.2 Dictionary Status Flag Enumeration Value" href="Chap_AdminDomain_Models_Detailed_View.7.110.html" />
+    <Document title="7.5.4 Dictionary Close" href="Chap_AdminDomain_Models_Detailed_View.7.111.html" />
+    <Document title="7.5.5 Dictionary Messages" href="Chap_AdminDomain_Models_Detailed_View.7.112.html" />
+    <Document title="7.5.6 Dictionary Message: Utility Methods" href="Chap_AdminDomain_Models_Detailed_View.7.113.html" />
+    <Document title="7.5.7 Dictionary Encoding and Decoding" href="Chap_AdminDomain_Models_Detailed_View.7.114.html" />
+    <Document title="7.5.7.2 Encoding a Dictionary Request" href="Chap_AdminDomain_Models_Detailed_View.7.115.html" />
+    <Document title="7.5.7.3 Decoding a Dictionary Request" href="Chap_AdminDomain_Models_Detailed_View.7.116.html" />
+    <Document title="7.5.7.4 Encoding a Dictionary Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.117.html" />
+    <Document title="7.5.7.5 Decoding a Dictionary Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.118.html" />
+    <Document title="7.6 RDM Queue Messages" href="Chap_AdminDomain_Models_Detailed_View.7.119.html" />
+    <Document title="7.6.1 Queue Data Message Persistence" href="Chap_AdminDomain_Models_Detailed_View.7.120.html" />
+    <Document title="7.6.2 Queue Request" href="Chap_AdminDomain_Models_Detailed_View.7.121.html" />
+    <Document title="7.6.3 Queue Refresh" href="Chap_AdminDomain_Models_Detailed_View.7.122.html" />
+    <Document title="7.6.4 Queue Status" href="Chap_AdminDomain_Models_Detailed_View.7.123.html" />
+    <Document title="7.6.5 Queue Close" href="Chap_AdminDomain_Models_Detailed_View.7.124.html" />
+    <Document title="7.6.6 Queue Data" href="Chap_AdminDomain_Models_Detailed_View.7.125.html" />
+    <Document title="7.6.6.1 Queue Data Members" href="Chap_AdminDomain_Models_Detailed_View.7.126.html" />
+    <Document title="7.6.6.2 Queue Data Flag" href="Chap_AdminDomain_Models_Detailed_View.7.127.html" />
+    <Document title="7.6.6.3 Queue Message Timeout Codes" href="Chap_AdminDomain_Models_Detailed_View.7.128.html" />
+    <Document title="7.6.6.4 Queue Data Encoding" href="Chap_AdminDomain_Models_Detailed_View.7.129.html" />
+    <Document title="7.6.6.5 Queue Data Message Encoding Code Sample" href="Chap_AdminDomain_Models_Detailed_View.7.130.html" />
+    <Document title="7.6.7 QueueDataExpired" href="Chap_AdminDomain_Models_Detailed_View.7.131.html" />
+    <Document title="7.6.7.1 QueueDataExpired Members" href="Chap_AdminDomain_Models_Detailed_View.7.132.html" />
+    <Document title="7.6.7.2 Queue Data Message Undeliverable Codes" href="Chap_AdminDomain_Models_Detailed_View.7.133.html" />
+    <Document title="7.6.8 Queue Ack" href="Chap_AdminDomain_Models_Detailed_View.7.134.html" />
+    <Document title="Chapter 8 Payload Cache Detailed View" href="Chap_Payload_Cache_Detailed_View.8.01.html" />
+    <Document title="8.1 Concepts" href="Chap_Payload_Cache_Detailed_View.8.02.html" />
+    <Document title="8.2 Payload Cache" href="Chap_Payload_Cache_Detailed_View.8.03.html" />
+    <Document title="8.2.1 Payload Cache Management" href="Chap_Payload_Cache_Detailed_View.8.04.html" />
+    <Document title="8.2.2 Cache Error Handling" href="Chap_Payload_Cache_Detailed_View.8.05.html" />
+    <Document title="8.2.2.1 Cache Error Class Members" href="Chap_Payload_Cache_Detailed_View.8.06.html" />
+    <Document title="8.2.2.2 Clearing a Cache Error" href="Chap_Payload_Cache_Detailed_View.8.07.html" />
+    <Document title="8.2.3 Payload Cache Instances" href="Chap_Payload_Cache_Detailed_View.8.08.html" />
+    <Document title="8.2.3.1 Managing the Payload Cache Instance" href="Chap_Payload_Cache_Detailed_View.8.09.html" />
+    <Document title="8.2.3.2 Payload Cache Config Options" href="Chap_Payload_Cache_Detailed_View.8.10.html" />
+    <Document title="8.2.4 Managing RDM Field Dictionaries for Payload Cache" href="Chap_Payload_Cache_Detailed_View.8.11.html" />
+    <Document title="8.2.4.1 Setting Functions" href="Chap_Payload_Cache_Detailed_View.8.12.html" />
+    <Document title="8.2.4.2 Setting Example" href="Chap_Payload_Cache_Detailed_View.8.13.html" />
+    <Document title="8.2.4.3 Extending the Cache Field Dictionary" href="Chap_Payload_Cache_Detailed_View.8.14.html" />
+    <Document title="8.2.5 Payload Cache Utilities" href="Chap_Payload_Cache_Detailed_View.8.15.html" />
+    <Document title="8.3 Payload Cache Entries" href="Chap_Payload_Cache_Detailed_View.8.16.html" />
+    <Document title="8.3.1 Managing Payload Cache Entries" href="Chap_Payload_Cache_Detailed_View.8.17.html" />
+    <Document title="8.3.2 Applying Data" href="Chap_Payload_Cache_Detailed_View.8.18.html" />
+    <Document title="8.3.3 Retrieving Data" href="Chap_Payload_Cache_Detailed_View.8.19.html" />
+    <Document title="8.3.3.1 Multi-Part Retrieval" href="Chap_Payload_Cache_Detailed_View.8.20.html" />
+    <Document title="8.3.3.2 Buffer Management" href="Chap_Payload_Cache_Detailed_View.8.21.html" />
+    <Document title="8.3.3.3 Example: Cache Retrieval with Multi-Part Support" href="Chap_Payload_Cache_Detailed_View.8.22.html" />
+    <Document title="Appendix A Value Added Utilities" href="Appendix_ValueAddedUtilities.html" />
   </DocumentInfo>
   <TopicMap />
 </WebWorksHelpBook>

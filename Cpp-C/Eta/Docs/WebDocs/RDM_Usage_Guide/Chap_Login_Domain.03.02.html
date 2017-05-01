@@ -56,7 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="999121">Description</a></div>
-      <div class="Body"><a name="999123">The </a><span class="Concept">Login</span> domain registers a user with the system, after which the user can request<sup><a name="wwfootnote_inline_68" href="#68">1</a></sup>, post<sup><a name="wwfootnote_inline_69" href="#69">2</a></sup>, or provide<sup><a name="wwfootnote_inline_70" href="#70">3</a></sup> RDM content. A Login request may also be used to authenticate a user with the system.</div>
+      <div class="Body"><a name="999123">The </a><span class="Concept">Login</span> domain registers a user with the system, after which the user can request<sup><a name="wwfootnote_inline_78" href="#78">1</a></sup>, post<sup><a name="wwfootnote_inline_79" href="#79">2</a></sup>, or provide<sup><a name="wwfootnote_inline_80" href="#80">3</a></sup> RDM content. A Login request can also be used to authenticate a user with the system.</div>
       <div class="Bullet_outer" style="margin-left: 0pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -80,13 +80,68 @@
               </div>
             </td>
             <td width="100%">
-              <div class="Bullet_inner"><a name="999445">A non-interactive provider application must log into the system before providing any content. An interactive provider application is required to handle log in requests and provide Login response messages, possibly using DACS to authenticate users.</a></div>
+              <div class="Bullet_inner"><a name="999445">A non-interactive provider application must log into the system before providing any content.</a> An interactive provider application is required to handle log in requests and provide Login response messages, possibly using DACS to authenticate users.</div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="999298">The following sections detail the use of each message within the Login domain, while a brief summary of Login Handling is included in </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.15.html#999201', '');" title="3.4 Special Semantics">Section 3.4.1</a>.</div>
-      <div class="Body"><a name="1006450">For example layouts of login messages, refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.19.html', '');" title="3.5 Login Sample XML">Section 3.5</a>.</div>
+      <div class="Body"><a name="1024156">For further details:</a></div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.03.html', '');" title="3.2 Usage" name="999298">Section 3.2</a> details the use of each message within the Login domain.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.14.html', '');" title="3.3 Data" name="1024025">Section 3.3</a> presents the message payloads</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.16.html', '');" title="3.4 Special Semantics" name="1023985">Section 3.4</a> includes a brief summary of login handling and authentication</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="Bullet_outer" style="margin-left: 0pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="Bullet_inner" style="width: 18pt; white-space: nowrap">
+                <span class="Bullet_Large">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="Bullet_inner"><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_Login_Domain.03.20.html', '');" title="3.5 Login Sample XML" name="1141918">Section 3.5</a> includes example layouts of login messages</div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -98,19 +153,19 @@
       </script>
       <hr />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="68" href="#wwfootnote_inline_68">1</a>
+        <a name="78" href="#wwfootnote_inline_78">1</a>
       </div>
       <div class="Footnote"><a name="999380">Consumer applications can request content after logging into the system.</a></div>
       <br style="clear: both;" />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="69" href="#wwfootnote_inline_69">2</a>
+        <a name="79" href="#wwfootnote_inline_79">2</a>
       </div>
       <div class="Footnote"><a name="999401">Consumer applications can post content, which is similar to contribution or unmanaged publication, after logging into the system.</a></div>
       <br style="clear: both;" />
       <div style="font-size: smaller; float: left; padding-right: 10px;">
-        <a name="70" href="#wwfootnote_inline_70">3</a>
+        <a name="80" href="#wwfootnote_inline_80">3</a>
       </div>
-      <div class="Footnote"><a name="999422">Non-interactive provider applications.</a></div>
+      <div class="Footnote"><a name="1141904">Non-interactive provider applications.</a></div>
       <br style="clear: both;" />
     </blockquote>
     <hr align="left" />

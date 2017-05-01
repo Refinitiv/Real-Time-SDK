@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.5.2 Login Refresh Message Sample XML</title>
+    <title>3.5 Login Sample XML</title>
     <link rel="StyleSheet" href="css/Chap_Login_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,137 +55,133 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="999240">Login Refresh Message Sample XML</a></div>
-      <div class="Blank_Line"><a name="1012339">&nbsp;</a></div>
+      <div class="H2"><a name="1142104">Login Sample XML</a></div>
+      <div class="H3"><a name="1142106">Login Request Message Sample XML</a></div>
+      <div class="Blank_Line"><a name="1142156">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1012290">&lt;refreshMsg domainType="RSSL_DMT_LOGIN" streamId="1" containerType="RSSL_DT_NO_DATA" </a></div>
+            <div class="command"><a name="1142109">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012292">		flags="0x168" groupId ="0" dataState="RSSL_DATA_OK" streamState="RSSL_STREAM_OPEN"</a></div>
+            <div class="command"><a name="1142111">&lt;requestMsg domainType="RSSL_DMT_LOGIN" streamId="1" containerType="RSSL_DT_NO_DATA" flags="0x4"&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012294">		code="RSSL_SC_NONE" text="Login accepted by host."&gt;</a></div>
+            <div class="command"><a name="1142113">	&lt;key  flags="0x26" name="myUser" nameType="1" attribContainerType="RSSL_DT_ELEMENT_LIST"&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012296">	&lt;key  flags="0x26" name="myUser" nameType="1" attribContainerType="RSSL_DT_ELEMENT_LIST"&gt;</a></div>
+            <div class="command"><a name="1142115">		&lt;attrib&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012298">		&lt;attrib&gt;</a></div>
+            <div class="command"><a name="1142117">			&lt;elementList flags="0x8"&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012300">			&lt;elementList flags="0x8"&gt;</a></div>
+            <div class="command"><a name="1142119">				&lt;elementEntry name="ApplicationId" dataType="RSSL_DT_ASCII_STRING" data="256"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012302">				&lt;elementEntry name="AllowSuspectData" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1142121">				&lt;elementEntry name="ApplicationName" dataType="RSSL_DT_ASCII_STRING" </a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012304">				&lt;elementEntry name="ApplicationId" dataType="RSSL_DT_ASCII_STRING" data="256"/&gt;</a></div>
+            <div class="command"><a name="1142123">						data="rsslConsumer"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012306">				&lt;elementEntry name="ApplicationName" dataType="RSSL_DT_ASCII_STRING" data="ADS"/&gt;</a></div>
+            <div class="command"><a name="1142125">				&lt;elementEntry name="Position" dataType="RSSL_DT_ASCII_STRING" data="127.0.0.1/net"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012308">				&lt;elementEntry name="Position" dataType="RSSL_DT_ASCII_STRING" data="127.0.0.1/net"/&gt;</a></div>
+            <div class="command"><a name="1142127">				&lt;elementEntry name="Password" dataType="RSSL_DT_ASCII_STRING" data="myPassword"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012310">				&lt;elementEntry name="ProvidePermissionExpressions" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1142129">				&lt;elementEntry name="ProvidePermissionProfile" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012312">				&lt;elementEntry name="ProvidePermissionProfile" dataType="RSSL_DT_UINT" data="0"/&gt;</a></div>
+            <div class="command"><a name="1142131">				&lt;elementEntry name="ProvidePermissionExpressions" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012314">				&lt;elementEntry name="SingleOpen" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1142133">				&lt;elementEntry name="SingleOpen" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012316">				&lt;elementEntry name="SupportOMMPost" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1142135">				&lt;elementEntry name="AllowSuspectData" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012318">				&lt;elementEntry name="SupportStandby" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1142137">				&lt;elementEntry name="InstanceId" dataType="RSSL_DT_ASCII_STRING" data="myInstance"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012320">				&lt;elementEntry name="SupportBatchRequests" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1142139">				&lt;elementEntry name="Role" dataType="RSSL_DT_UINT" data="0"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012322">				&lt;elementEntry name="SupportViewRequests" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1142141">				&lt;elementEntry name="DownloadConnectionConfig" dataType="RSSL_DT_UINT" data="0"/&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012324">				&lt;elementEntry name="SupportOptimizedPauseResume" dataType="RSSL_DT_UINT" data="1"/&gt;</a></div>
+            <div class="command"><a name="1142143">			&lt;/elementList&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012326">			&lt;/elementList&gt;</a></div>
+            <div class="command"><a name="1142145">		&lt;attrib&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012328">		&lt;/attrib&gt;</a></div>
+            <div class="command"><a name="1142147">	&lt;/key&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012330">	&lt;/key&gt;</a></div>
+            <div class="command"><a name="1142149">	&lt;dataBody&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012332">	&lt;dataBody&gt;</a></div>
+            <div class="command"><a name="1142151">	&lt;/dataBody&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012334">	&lt;/dataBody&gt;</a></div>
+            <div class="command"><a name="1142153">&lt;/requestMsg&gt;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012336">&lt;/refreshMsg&gt;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1012338">&nbsp;</a></div>
+            <div class="command"><a name="1142155">&nbsp;</a></div>
           </td>
         </tr>
       </table>
-      <div class="CodeTitle">Code Example 2: <a name="999244">Login Refresh Message Sample XML Message Layout</a></div>
+      <div class="CodeTitle">Code Example 1: <a name="1142209">Login Request Message Sample XML Message Layout</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -198,7 +194,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.19.html">3.5	Login Sample XML</a> : 3.5.2	Login Refresh Message Sample XML</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : 3.5	Login Sample XML</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

@@ -26,6 +26,8 @@
 #include "Mutex.h"
 #include "Thread.h"
 #include "OmmLoggerClient.h"
+#include "OmmConsumerClient.h"
+#include "OmmProviderClient.h"
 #include "Pipe.h"
 #include "TimeOut.h"
 #include "ActiveConfig.h"
@@ -44,6 +46,8 @@ class LoginCallbackClient;
 class DirectoryCallbackClient;
 class DictionaryCallbackClient;
 class ItemCallbackClient;
+class OmmConsumerClient;
+class OmmProviderClient;
 class OmmLoggerClient;
 class TimeOut;
 class TunnelStreamRequest;
@@ -150,6 +154,8 @@ public :
 
 	void handleMee( const char* );
 
+	Mutex& getUserLock();
+
 protected:
 
 	friend class OmmBaseImplMap<OmmBaseImpl>;
@@ -157,8 +163,12 @@ protected:
 	friend class NiProviderLoginItem;
 
 	OmmBaseImpl( ActiveConfig& );
+	OmmBaseImpl(ActiveConfig&, OmmConsumerClient&, void* = 0);
+	OmmBaseImpl(ActiveConfig&, OmmProviderClient&, void* = 0);
 	OmmBaseImpl( ActiveConfig&, OmmConsumerErrorClient& );
+	OmmBaseImpl(ActiveConfig&, OmmConsumerClient&, OmmConsumerErrorClient&, void* = 0);
 	OmmBaseImpl( ActiveConfig&, OmmProviderErrorClient& );
+	OmmBaseImpl(ActiveConfig&, OmmProviderClient&, OmmProviderErrorClient&, void* = 0);
 	virtual ~OmmBaseImpl();
 
 	void initialize( EmaConfigImpl* );
@@ -226,6 +236,9 @@ protected:
 	DirectoryCallbackClient*	_pDirectoryCallbackClient;
 	DictionaryCallbackClient*	_pDictionaryCallbackClient;
 	ItemCallbackClient*			_pItemCallbackClient;
+	OmmConsumerClient&			_consAdminClient;
+	OmmProviderClient&			_provAdminClient;
+	void*						_adminClosure;
 	OmmLoggerClient*			_pLoggerClient;
 	Pipe						_pipe;
 	UInt32						_pipeWriteCount;
@@ -233,6 +246,8 @@ protected:
 	bool						_eventTimedOut;
 	bool						_bMsgDispatched;
 	bool						_bEventReceived;
+	bool						_hasConsAdminClient;
+	bool						_hasProvAdminClient;
 	ErrorClientHandler*			_pErrorClientHandler;
 	EmaList< TimeOut* >			_theTimeOuts;
 

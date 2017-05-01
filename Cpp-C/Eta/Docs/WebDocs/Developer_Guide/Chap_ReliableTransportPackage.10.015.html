@@ -56,34 +56,34 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1001239">RSSL Initialization and Uninitialization Functions</a></div>
-      <div class="Body"><a name="1220617">The following table provides additional information about the </a>RSSL Transport functions used for initializing and uninitializing.</div>
-      <div class="Blank_Line"><a name="1220665">&nbsp;</a></div>
+      <div class="Body"><a name="1245345">The following table provides additional information about the </a>RSSL Transport functions used for initializing and uninitializing.</div>
+      <div class="Blank_Line"><a name="1245393">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 18: <a name="1220662">RSSL </a>Initialization and Uninitialization Functions &nbsp;</div>
+          <div class="TableTitle">Table 18: <a name="1245390">RSSL </a>Initialization and Uninitialization Functions &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 98.24976pt">
-            <div class="CellHeading"><a name="1220623">function</a></div>
+            <div class="CellHeading"><a name="1245351">function</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 457.50024pt">
-            <div class="CellHeading"><a name="1220625">Description</a></div>
+            <div class="CellHeading"><a name="1245353">Description</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220630">rsslInitialize</a></div>
+            <div class="CellBody"><a name="1245358">rsslInitialize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220632">The first </a>RSSL Transport function that an application should call. This creates and initializes internal memory and structures, as well as performing any boot strapping for underlying dependencies. The <span class="CodeOrCommand">rsslInitialize</span> function also allows the user to specify the locking model they want applied to the RSSL Transport. For more information, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.017.html', '');" title="10.2.3 Transport Locking Models">Section 10.2.3</a>.</div>
+            <div class="CellBody"><a name="1245360">The first </a>RSSL Transport function that an application should call. This creates and initializes internal memory and structures, as well as performing any boot strapping for underlying dependencies. The <span class="CodeOrCommand">rsslInitialize</span> function also allows the user to specify the locking model they want applied to the RSSL Transport. For more information, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.017.html', '');" title="10.2.3 Transport Locking Models">Section 10.2.3</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220649">rsslUninitialize</a></div>
+            <div class="CellBody"><a name="1245377">rsslUninitialize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220654">The last </a>RSSL Transport function that an application should call. This uninitializes internal data structures and deletes any allocated memory.</div>
+            <div class="CellBody"><a name="1245382">The last </a>RSSL Transport function that an application should call. This uninitializes internal data structures and deletes any allocated memory.</div>
           </td>
         </tr>
       </table>

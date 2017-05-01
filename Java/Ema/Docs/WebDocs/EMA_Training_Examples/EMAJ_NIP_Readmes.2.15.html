@@ -56,60 +56,60 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1020352">360__MarketPrice__ConnectionRecovery</a></div>
-      <div class="Body"><a name="1031894">Summary</a></div>
-      <div class="Body"><a name="1031895">=======</a></div>
-      <div class="Body"><a name="1031896">&nbsp;</a></div>
-      <div class="Body"><a name="1031897">360__MarketPrice_ConnectionRecovery is an example of an OMM NiProvider application </a></div>
-      <div class="Body"><a name="1031898">written to the EMA library.</a></div>
-      <div class="Body"><a name="1031899">&nbsp;</a></div>
-      <div class="Body"><a name="1031900">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1031901">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1031902">&nbsp;</a></div>
-      <div class="Body"><a name="1031903">360__MarketPrice_ConnectionRecovery illustrates how to create and publish one OMM item,</a></div>
-      <div class="Body"><a name="1031904">and register for and process login events. The login events signify connection state.</a></div>
-      <div class="Body"><a name="1031905">For example, login status of Open / Suspect / None / “channel down” signifies a disconnect,</a></div>
-      <div class="Body"><a name="1031906">login status of Open / Ok / None / “channel up” signifies a successful reconnect.</a></div>
-      <div class="Body"><a name="1031907">This application uses source directory configured in the EmaConfig.xml file.</a></div>
-      <div class="Body"><a name="1031908"> </a></div>
-      <div class="Body"><a name="1031909">&nbsp;</a></div>
-      <div class="Body"><a name="1031910">&nbsp;</a></div>
-      <div class="Body"><a name="1031911">Detailed Description</a></div>
-      <div class="Body"><a name="1031912">====================</a></div>
-      <div class="Body"><a name="1031913">&nbsp;</a></div>
-      <div class="Body"><a name="1031914">360__MarketPrice__ConnectionRecovery implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1031915">&nbsp;</a></div>
-      <div class="Body"><a name="1031916">+ Implements OmmProviderClient class in AppClient</a></div>
-      <div class="Body"><a name="1031917">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1031918">  - the onStatusMsg() and onRefreshMsg() recognize the Open / Suspect and Open / Ok status</a></div>
-      <div class="Body"><a name="1031919">    as indication of the underlying connection state</a></div>
-      <div class="Body"><a name="1031920">+ Instantiates AppClient object that receives and processes login messages</a></div>
-      <div class="Body"><a name="1031921">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
-      <div class="Body"><a name="1031922">  - which reads in the EmaConfig.xml file with:</a></div>
-      <div class="Body"><a name="1031923">    - specified SourceDirectory of TEST_NI_PUB</a></div>
-      <div class="Body"><a name="1031924">	- specified Channel’s host and port</a></div>
-      <div class="Body"><a name="1031925">  - Sets the username to “user”</a></div>
-      <div class="Body"><a name="1031926">  - Sets the operationModel to UserDispatch.</a></div>
-      <div class="Body"><a name="1031927">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1031928">  - initializes the connection and logs into the configured ADH</a></div>
-      <div class="Body"><a name="1031929">  - sends down the source directory refresh message with TEST_NI_PUB service info</a></div>
-      <div class="Body"><a name="1031930">+ Registers for login stream</a></div>
-      <div class="Body"><a name="1031931">+ Creates streaming item (refresh and updates) and publishes it</a></div>
-      <div class="Body"><a name="1031932">  - MarketPrice TRI.N item on the TEST_NI_PUB service</a></div>
-      <div class="Body"><a name="1031933">+ Publishes updates 1 per second</a></div>
-      <div class="Body"><a name="1031934">  - items are not published if connection is down</a></div>
-      <div class="Body"><a name="1031935">+ Processes data received while calling OmmProvider::dispatch( NoWait )</a></div>
-      <div class="Body"><a name="1031936">  - All messages received are processed on the application’s main thread of control</a></div>
-      <div class="Body"><a name="1031937">+ Exits after 60 updates is sent out</a></div>
-      <div class="Body"><a name="1031938">&nbsp;</a></div>
-      <div class="Body"><a name="1031939">Note: Please refer to the EMA Configuration Guide for details on usage of the following</a></div>
-      <div class="Body"><a name="1031940">      configuration parameters: ‘RemoveItemsOnDisconnect’ and ‘RecoverUserSubmitSourceDirectory’.</a></div>
-      <div class="Body"><a name="1031941">&nbsp;</a></div>
-      <div class="Body"><a name="1031942">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1031943">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1031944">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1031945">&nbsp;</a></div>
-      <div class="Body"><a name="1031946">&nbsp;</a></div>
-      <div class="Body"><a name="1030186">&nbsp;</a></div>
+      <div class="Body"><a name="1032493">Summary</a></div>
+      <div class="Body"><a name="1032494">=======</a></div>
+      <div class="Body"><a name="1032495">&nbsp;</a></div>
+      <div class="Body"><a name="1032496">360__MarketPrice_ConnectionRecovery is an example of an OMM NiProvider application </a></div>
+      <div class="Body"><a name="1032497">written to the EMA library.</a></div>
+      <div class="Body"><a name="1032498">&nbsp;</a></div>
+      <div class="Body"><a name="1032499">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1032500">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
+      <div class="Body"><a name="1032501">&nbsp;</a></div>
+      <div class="Body"><a name="1032502">360__MarketPrice_ConnectionRecovery illustrates how to create and publish one OMM item,</a></div>
+      <div class="Body"><a name="1032503">and register for and process login events. The login events signify connection state.</a></div>
+      <div class="Body"><a name="1032504">For example, login status of Open / Suspect / None / “channel down” signifies a disconnect,</a></div>
+      <div class="Body"><a name="1032505">login status of Open / Ok / None / “channel up” signifies a successful reconnect.</a></div>
+      <div class="Body"><a name="1032506">This application uses source directory configured in the EmaConfig.xml file.</a></div>
+      <div class="Body"><a name="1032507"> </a></div>
+      <div class="Body"><a name="1032508">&nbsp;</a></div>
+      <div class="Body"><a name="1032509">&nbsp;</a></div>
+      <div class="Body"><a name="1032510">Detailed Description</a></div>
+      <div class="Body"><a name="1032511">====================</a></div>
+      <div class="Body"><a name="1032512">&nbsp;</a></div>
+      <div class="Body"><a name="1032513">360__MarketPrice__ConnectionRecovery implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1032514">&nbsp;</a></div>
+      <div class="Body"><a name="1032515">+ Implements OmmProviderClient class in AppClient</a></div>
+      <div class="Body"><a name="1032516">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1032517">  - the onStatusMsg() and onRefreshMsg() recognize the Open / Suspect and Open / Ok status</a></div>
+      <div class="Body"><a name="1032518">    as indication of the underlying connection state</a></div>
+      <div class="Body"><a name="1032519">+ Instantiates AppClient object that receives and processes login messages</a></div>
+      <div class="Body"><a name="1032520">+ Instantiates and modifies an OmmNiProviderConfig object:</a></div>
+      <div class="Body"><a name="1032521">  - which reads in the EmaConfig.xml file with:</a></div>
+      <div class="Body"><a name="1032522">    - specified SourceDirectory of TEST_NI_PUB</a></div>
+      <div class="Body"><a name="1032523">	- specified Channel’s host and port</a></div>
+      <div class="Body"><a name="1032524">  - Sets the username to “user”</a></div>
+      <div class="Body"><a name="1032525">  - Sets the operationModel to UserDispatch.</a></div>
+      <div class="Body"><a name="1032526">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1032527">  - initializes the connection and logs into the configured ADH</a></div>
+      <div class="Body"><a name="1032528">  - sends down the source directory refresh message with TEST_NI_PUB service info</a></div>
+      <div class="Body"><a name="1032529">+ Registers for login stream</a></div>
+      <div class="Body"><a name="1032530">+ Creates streaming item (refresh and updates) and publishes it</a></div>
+      <div class="Body"><a name="1032531">  - MarketPrice TRI.N item on the TEST_NI_PUB service</a></div>
+      <div class="Body"><a name="1032532">+ Publishes updates 1 per second</a></div>
+      <div class="Body"><a name="1032533">  - items are not published if connection is down</a></div>
+      <div class="Body"><a name="1032534">+ Processes data received while calling OmmProvider::dispatch( NoWait )</a></div>
+      <div class="Body"><a name="1032535">  - All messages received are processed on the application’s main thread of control</a></div>
+      <div class="Body"><a name="1032536">+ Exits after 60 updates is sent out</a></div>
+      <div class="Body"><a name="1032537">&nbsp;</a></div>
+      <div class="Body"><a name="1032538">Note: Please refer to the EMA Configuration Guide for details on usage of the following</a></div>
+      <div class="Body"><a name="1032539">      configuration parameters: ‘RemoveItemsOnDisconnect’ and ‘RecoverUserSubmitSourceDirectory’.</a></div>
+      <div class="Body"><a name="1032540">&nbsp;</a></div>
+      <div class="Body"><a name="1032541">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1032542">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1032543">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1032544">&nbsp;</a></div>
+      <div class="Body"><a name="1032545">&nbsp;</a></div>
+      <div class="Body"><a name="1031963">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

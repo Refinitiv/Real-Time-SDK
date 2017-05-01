@@ -56,6 +56,7 @@
     <hr align="left" />
     <blockquote>
       <div class="H2"><a name="999276">Conventions</a></div>
+      <div class="H3"><a name="999490">Typographic</a></div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -65,7 +66,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="999497">The Reuters Domain Models (RDMs) are described in terms of OMM concepts. Images and XML example layouts are provided as a reference in relavant sections.</a></div>
+              <div class="bullet_ind_inner"><a name="999497">The Reuters Domain Models (RDMs) are described in terms of OMM concepts. Images and XML example layouts are provided as a reference in relevant sections.</a></div>
             </td>
           </tr>
         </table>
@@ -79,7 +80,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="999498">Inline Classes, methods, and types are shown in </a><span class="CodeOrCommand">orange, Lucida Console</span> font.</div>
+              <div class="bullet_ind_inner"><a name="999498">In-line Classes, methods, and types are shown in </a><span class="CodeOrCommand">orange, Lucida Console</span> font.</div>
             </td>
           </tr>
         </table>
@@ -135,52 +136,31 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="999502">Verbose code examples (one or more lines of code) are show in Lucida Console font against an orange background. Comments in such code samples are formatted in green coloring. For example:</a></div>
+              <div class="bullet_ind_inner"><a name="999502">Verbose code examples (one or more lines of code) are shown in Lucida Console font against an orange background. Comments in such code samples are formatted in green coloring. For example:</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Blank_Line"><a name="1001038">&nbsp;</a></div>
-      <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
+      <div class="Blank_Line"><a name="1001492">&nbsp;</a></div>
+      <table class="Commands__5" style="width: 518.95008pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1001023">&nbsp;</a></div>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top; width: 518.95008pt">
+            <div class="command"><a name="1010478">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1001025">/* decode contents into the filter list structure */</a></span></div>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command" style="font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1010486">/* decode contents into the filter list object */</a></span></div>
+            <div class="command"><a name="1010487">if ((retVal = filterList.decode(decIter)) &gt;= CodecReturnCodes.SUCCESS)</a></div>
+            <div class="command"><a name="1010488">{</a></div>
+            <div class="command"><a name="1010489">&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">/* create single filter entry and reuse while decoding each entry */</span></div>
+            <div class="command"><a name="1010490">&nbsp;&nbsp;&nbsp;&nbsp;FilterEntry filterEntry = CodecFactory.createFilterEntry();</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1001027">if ((retVal = filterList.decode(dIter)) == CodecReturnCodes.SUCCESS)</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1001029">{</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1001031">	</a><span class="Color_003aGreen">/* create single filter entry and reuse while decoding each entry */</span></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1001033">	if ((retVal = filterEntry.decode(dIter)) != CodecReturnCodes.END_OF_CONTAINER)</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1001035">	{</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1001037">&nbsp;</a></div>
+          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 2pt; padding-top: 2pt; vertical-align: top">
+            <div class="command"><a name="1010510">&nbsp;</a></div>
           </td>
         </tr>
       </table>

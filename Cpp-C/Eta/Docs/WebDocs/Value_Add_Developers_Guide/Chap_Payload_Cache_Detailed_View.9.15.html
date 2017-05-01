@@ -56,42 +56,42 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1220935">Payload Cache Utilities</a></div>
-      <div class="Body"><a name="1221070">The functions in the following table describe additional tools available to the application for managing each cache instance. These utilities provide a count of the cache entries, and a list of handles to each cache entry.</a></div>
-      <div class="Blank_Line"><a name="1221072">&nbsp;</a></div>
+      <div class="Body"><a name="1240139">Use the following functions for managing cache instances. These utilities provide a count of the cache entries and a list of handles to each cache entry.</a></div>
+      <div class="Blank_Line"><a name="1240176">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 186: <a name="1224305">Payload Cache Utility Functions &nbsp;</a></div>
+          <div class="TableTitle">Table 187: <a name="1240173">Payload Cache </a>Utility Functions &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 167.25024pt">
-            <div class="CellHeading"><a name="1224289">FUNCTION NAME</a></div>
+            <div class="CellHeading"><a name="1240145">Function NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 388.49976pt">
-            <div class="CellHeading"><a name="1224291">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1240147">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224293">rsslPayloadCacheGetEntryCount</a></div>
+            <div class="CellBody"><a name="1240149">rsslPayloadCacheGetEntryCount </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224295">Returns the number of item payload entries in this cache instance (</a><span class="CodeOrCommand">RsslPayloadCacheHandle</span>). </div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224297">rsslPayloadCacheGetEntryList</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224299">Populates an array provided by the caller with entry handles (</a><span class="CodeOrCommand">RsslPayloadEntryHandle</span>) for this cache instance (<span class="CodeOrCommand">RsslPayloadCacheHandle</span>). An application would typically manage the set of entry handles, since each cache entry will likely be associated with an entry in the application’s item list. This utility provides access to the entire entry handle list if needed.</div>
+            <div class="CellBody"><a name="1240151">Returns the number of item payload entries in this cache instance</a> (<span class="CodeOrCommand">RsslPayloadCacheHandle</span>). </div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224301">rsslPayloadCacheClearAll</a></div>
+            <div class="CellBody"><a name="1240153">rsslPayloadCacheGetEntryList </a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1224303">Destroys all entries in the cache instance (</a><span class="CodeOrCommand">RsslPayloadCacheHandle</span>). The empty cache can be reused and remains bound to it’s data dictionary.</div>
+            <div class="CellBody"><a name="1240155">Populates an array </a>provided by the caller with entry handles (<span class="CodeOrCommand">RsslPayloadEntryHandle</span>) for this cache instance (<span class="CodeOrCommand">RsslPayloadCacheHandle</span>). Because each cache entry is likely associated with an entry in the application’s item list, an application would typically manage the set of entry handles. This utility provides access to the entire entry handle list if needed.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1240163">rsslPayloadCacheClearAll </a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1240165">Destroys all entries in the cache instance</a> (<span class="CodeOrCommand">RsslPayloadCacheHandle</span>). The empty cache can be reused and remains bound to it’s data dictionary.</div>
           </td>
         </tr>
       </table>

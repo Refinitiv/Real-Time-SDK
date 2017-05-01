@@ -56,55 +56,55 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1025457">rsslGetBuffer Return Values</a></div>
-      <div class="Body"><a name="1222309">The following table defines</a> return and error code values that can occur while using <span class="CodeOrCommand">rsslGetBuffer</span>.</div>
-      <div class="Blank_Line"><a name="1222398">&nbsp;</a></div>
+      <div class="Body"><a name="1247040">The following table defines</a> return and error code values that can occur while using <span class="CodeOrCommand">rsslGetBuffer</span>.</div>
+      <div class="Blank_Line"><a name="1247129">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 46: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1222395">rsslGetBuffer</a></span> Return Values &nbsp;</div>
+          <div class="TableTitle">Table 46: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1247126">rsslGetBuffer</a></span> Return Values &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 240.75pt">
-            <div class="CellHeading"><a name="1222315">RETURN CODE</a></div>
+            <div class="CellHeading"><a name="1247046">RETURN CODE</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 315pt">
-            <div class="CellHeading"><a name="1222317">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1247048">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222319">Valid buffer returned</a></div>
-            <div class="CellBody"><a name="1222320">Success Case</a></div>
+            <div class="CellBody"><a name="1247050">Valid buffer returned</a></div>
+            <div class="CellBody"><a name="1247051">Success Case</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222325">A</a>n <span class="CodeOrCommand">RsslBuffer</span> is returned to the user. The <span class="CodeOrCommand">RsslBuffer.length</span> indicates the number of bytes available to populate, and <span class="CodeOrCommand">RsslBuffer.data</span> provides a starting location for population.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222327">NULL buffer returned</a></div>
-            <div class="CellBody"><a name="1222328">Error Code:</a> <span class="Parameter">RSSL_RET_BUFFER_NO_BUFFERS</span></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222330">NULL is returned to the user. This value indicates that there are no buffers available to the user. See </a><span class="CodeOrCommand">RsslError</span> content for more details. </div>
-            <div class="CellBody"><a name="1222334">This typically occurs because all available buffers are queued and pending flushing to the connection. The application can use </a><span class="CodeOrCommand">rsslFlush</span> to attempt releasing buffers back to the pool (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.079.html', '');" title="10.10.2 rsslFlush Function">Section 10.10.2</a>). Additionally, the <span class="CodeOrCommand">rsslIoctl</span> function can be used to increase the number of <span class="CodeOrCommand">guaranteedOutputBuffers</span> (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.092.html', '');" title="10.14 Utility Functions">Section 10.14</a>).</div>
+            <div class="CellBody"><a name="1247056">A</a>n <span class="CodeOrCommand">RsslBuffer</span> is returned to the user. The <span class="CodeOrCommand">RsslBuffer.length</span> indicates the number of bytes available to populate, and <span class="CodeOrCommand">RsslBuffer.data</span> provides a starting location for population.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222357">NULL buffer returned</a></div>
-            <div class="CellBody"><a name="1222358">Error Code:</a><span class="Parameter"> RSSL_RET_FAILURE</span></div>
+            <div class="CellBody"><a name="1247058">NULL buffer returned</a></div>
+            <div class="CellBody"><a name="1247059">Error Code:</a> <span class="Parameter">RSSL_RET_BUFFER_NO_BUFFERS</span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222360">NULL is returned to the user. This value indicates that some type of general failure has occurred. The </a><span class="CodeOrCommand">RsslChannel</span> should be closed, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.090.html', '');" title="10.13 Closing Connections">Section 10.13</a>. See <span class="CodeOrCommand">RsslError</span> content for more details.</div>
+            <div class="CellBody"><a name="1247061">NULL is returned to the user. This value indicates that there are no buffers available to the user. See </a><span class="CodeOrCommand">RsslError</span> content for more details. </div>
+            <div class="CellBody"><a name="1247065">This typically occurs because all available buffers are queued and pending flushing to the connection. The application can use </a><span class="CodeOrCommand">rsslFlush</span> to attempt releasing buffers back to the pool (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.079.html', '');" title="10.10.2 rsslFlush Function">Section 10.10.2</a>). Additionally, the <span class="CodeOrCommand">rsslIoctl</span> function can be used to increase the number of <span class="CodeOrCommand">guaranteedOutputBuffers</span> (refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.092.html', '');" title="10.14 Utility Functions">Section 10.14</a>).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222374">NULL buffer returned</a></div>
-            <div class="CellBody"><a name="1222375">Error Code:</a> <span class="Parameter">RSSL_RET_INIT_NOT_INITIALIZED</span></div>
+            <div class="CellBody"><a name="1247088">NULL buffer returned</a></div>
+            <div class="CellBody"><a name="1247089">Error Code:</a><span class="Parameter"> RSSL_RET_FAILURE</span></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1222377">Indicates that the </a>RSSL Transport has not been initialized. See the <span class="CodeOrCommand">RsslError</span> content for more details. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.014.html', '');" title="10.2 Initializing and Uninitializing the Transport">Section 10.2</a>.</div>
+            <div class="CellBody"><a name="1247091">NULL is returned to the user. This value indicates that some type of general failure has occurred. The </a><span class="CodeOrCommand">RsslChannel</span> should be closed, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.090.html', '');" title="10.13 Closing Connections">Section 10.13</a>. See <span class="CodeOrCommand">RsslError</span> content for more details.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247105">NULL buffer returned</a></div>
+            <div class="CellBody"><a name="1247106">Error Code:</a> <span class="Parameter">RSSL_RET_INIT_NOT_INITIALIZED</span></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1247108">Indicates that the </a>RSSL Transport has not been initialized. See the <span class="CodeOrCommand">RsslError</span> content for more details. For information on initializing, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.014.html', '');" title="10.2 Initializing and Uninitializing the Transport">Section 10.2</a>.</div>
           </td>
         </tr>
       </table>

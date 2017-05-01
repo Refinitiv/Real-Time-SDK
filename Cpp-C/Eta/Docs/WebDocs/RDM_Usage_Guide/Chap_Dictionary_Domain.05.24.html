@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>5.9.2 DictionariesProvided and DictionariesUsed</title>
+    <title>5.6.2.4 Values Table Section</title>
     <link rel="StyleSheet" href="css/Chap_Dictionary_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,79 +55,59 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1002068">DictionariesProvided and DictionariesUsed</a></div>
-      <div class="Body"><a name="1002070">The Source Directory’s Info filter entry (refer to </a><a href="javascript:WWHClickedPopup('RDM_Usage_Guide', 'Chap_SourceDirectory_Domain.04.09.html', '');" title="4.3.1.1 Source Directory Info Filter Entry">Section 4.3.1.1</a>) includes two Elements related to Dictionaries: <span class="Parameter">DictionariesProvided</span> and <span class="Parameter">DictionariesUsed</span>. Both elements contain an <span class="CodeOrCommand">RsslArray</span> of <span class="Parameter">RSSL_DT_ASCII_STRING</span> dictionary names. These names can be used in <span class="CodeOrCommand">msgKey.name</span> to request the dictionaries.</div>
-      <div class="Procedure_Heading"><a name="1011440"><img class="Default" src="images/Chap_Dictionary_Domain.05.24.1.jpg" width="13" height="15" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /> To dynamically discover dictionaries while minimizing the amount of data downloaded:</a></div>
-      <div class="Step1_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Step1_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">1.	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Step1_inner"><a name="1011459">Parse the “DictionariesUsed” from each desired service in the Source Directory.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Stepnext_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">2.	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Stepnext_inner"><a name="1011431">Parse the “DictionariesProvided” from every service in the Source Directory.</a></div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Stepnext_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">3.	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Stepnext_inner"><a name="1011519">Make a streaming request for each Dictionary Name listed in </a><span class="Parameter">DictionariesUsed</span> from the service that lists the <span class="Parameter">DictionaryName</span> in <span class="Parameter">DictionariesProvided</span>. The <span class="CodeOrCommand">msgKey.filter</span> of each <span class="CodeOrCommand">RsslRequestMsg</span> should be set to <span class="Parameter">RDM_DICTIONARY_INFO</span> to request only the dictionary’s basic information (because dictionaries tend to be large, this setting prevents unnecessary network traffic).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Stepnext_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">4.	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Stepnext_inner"><a name="1011537">For each Dictionary response, parse the </a><span class="CodeOrCommand">summaryData</span> in the payload to obtain the Dictionary’s Type and Version. If a dictionary is of an unneeded Type, that dictionary stream can be closed.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="Stepnext_outer" style="margin-left: 0pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="Stepnext_inner" style="width: 18pt; white-space: nowrap">
-                <span class="Bold">5.	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="Stepnext_inner"><a name="1011535">Version information can be used to determine if the consumer needs to update its dictionary. If a dictionary is needed, a reissue request can be made where the </a><span class="CodeOrCommand">msgKey.filter</span> requests a higher verbosity (e.g. <span class="Parameter">RDM_DICTIONARY_NORMAL</span>).</div>
-            </td>
-          </tr>
-        </table>
-      </div>
+      <div class="H4"><a name="1008736">Values Table Section</a></div>
+      <div class="Body"><a name="1008716">The second section lists the value of each enumerated type and its corresponding display data.</a></div>
+      <div class="Blank_Line"><a name="1039825">&nbsp;</a></div>
+      <table class="Two_Column" style="width: 555.74856pt" cellspacing="0" summary="">
+        <caption style="caption-side: bottom">
+          <div class="TableTitle">Table 48: <a name="1010366">RWF EnumType Dictionary File Values </a></div>
+        </caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 69.74928pt">
+            <div class="CellHeading" style="text-align: center"><a name="1010350">Name</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 125.99928pt">
+            <div class="CellHeading" style="text-align: center"><a name="1010374">RWF Element Name</a></div>
+          </td>
+          <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: middle; width: 360pt">
+            <div class="CellHeading" style="text-align: center"><a name="1010352">Notes</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010354">VALUE</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010376">VALUE</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010356">The unsigned, integer value corresponding to the enumerated value. </a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010358">DISPLAY</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010378">DISPLAY</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1171526">Quoted alphanumeric for the expanded string value.</a></div>
+            <div class="CellBody"><a name="1039812">In cases where special characters are needed, the DISPLAY column uses a hexadecimal value, which is identified by using hash marks instead of quotation marks, e.g. </a><span class="CodeOrCommand">#42FE#</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010362">MEANING</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010380">MEANING</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 4pt; vertical-align: top">
+            <div class="CellBody"><a name="1010364">The meaning column is not required over the network and typically not provided.</a></div>
+          </td>
+        </tr>
+      </table>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -140,7 +120,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.23.html">5.9	Special Semantics</a> : 5.9.2	DictionariesProvided and DictionariesUsed</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.01.html">Chapter 5	Dictionary Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.19.html">5.6	Enumerated Types Dictionary</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Dictionary_Domain.05.20.html">5.6.2	Enumerated Types Dictionary File Format</a> : 5.6.2.4	Values Table Section</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

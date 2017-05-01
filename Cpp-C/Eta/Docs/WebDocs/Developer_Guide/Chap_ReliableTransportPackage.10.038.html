@@ -56,28 +56,28 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1009821">Accepting Connection Requests</a></div>
-      <div class="Body"><a name="1221354">After establishing a listening socket, the </a><span class="CodeOrCommand">RsslServer.socketId</span> can be registered with an I/O notification mechanism. An alert from the I/O notification mechanism on the server’s <span class="CodeOrCommand">socketId</span> indicates that a connection request has been detected. An application can begin the process of accepting or rejecting the connection by using the <span class="CodeOrCommand">rsslAccept</span> function.</div>
-      <div class="Blank_Line"><a name="1221430">&nbsp;</a></div>
+      <div class="Body"><a name="1246085">After establishing a listening socket, the </a><span class="CodeOrCommand">RsslServer.socketId</span> can be registered with an I/O notification mechanism. An alert from the I/O notification mechanism on the server’s <span class="CodeOrCommand">socketId</span> indicates that a connection request has been detected. An application can begin the process of accepting or rejecting the connection by using the <span class="CodeOrCommand">rsslAccept</span> function.</div>
+      <div class="Blank_Line"><a name="1246161">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 32: <span class="LucidaConsole"><a name="1221427">rsslAccept</a></span> Function &nbsp;</div>
+          <div class="TableTitle">Table 32: <span class="LucidaConsole"><a name="1246158">rsslAccept</a></span> Function &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 97.49952pt">
-            <div class="CellHeading"><a name="1221369">function NAME</a></div>
+            <div class="CellHeading"><a name="1246100">function NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 458.25048pt">
-            <div class="CellHeading"><a name="1221371">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1246102">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221376">rsslAccept</a></div>
+            <div class="CellBody"><a name="1246107">rsslAccept</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1221381">Uses the </a><span class="CodeOrCommand">RsslServer</span> that represents the listening socket connection and begins the process of accepting the incoming connection request. Returns an <span class="CodeOrCommand">RsslChannel</span> that represents the client connection. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">RsslError</span> structure.</div>
-            <div class="CellBody"><a name="1221394">The </a><span class="CodeOrCommand">rsslAccept</span> function can also begin the rejection process for a connection through the use of the <span class="CodeOrCommand">RsslAcceptOptions</span> structure as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.039.html', '');" title="10.4.2.1 RsslAcceptOptions Structure Member">Section 10.4.2.1</a>.</div>
-            <div class="CellBody"><a name="1221413">Once a connection is established and transitions to </a><span class="CodeOrCommand">RSSL_CH_STATE_ACTIVE</span>, this <span class="CodeOrCommand">RsslChannel</span> can be used for other transport operations. For more information about channel initialization, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.046.html', '');" title="10.5 Channel Initialization">Section 10.5</a>.</div>
+            <div class="CellBody"><a name="1246112">Uses the </a><span class="CodeOrCommand">RsslServer</span> that represents the listening socket connection and begins the process of accepting the incoming connection request. Returns an <span class="CodeOrCommand">RsslChannel</span> that represents the client connection. In the event of an error, NULL is returned and additional information can be found in the <span class="CodeOrCommand">RsslError</span> structure.</div>
+            <div class="CellBody"><a name="1246125">The </a><span class="CodeOrCommand">rsslAccept</span> function can also begin the rejection process for a connection through the use of the <span class="CodeOrCommand">RsslAcceptOptions</span> structure as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.039.html', '');" title="10.4.2.1 RsslAcceptOptions Structure Member">Section 10.4.2.1</a>.</div>
+            <div class="CellBody"><a name="1246144">Once a connection is established and transitions to </a><span class="CodeOrCommand">RSSL_CH_STATE_ACTIVE</span>, this <span class="CodeOrCommand">RsslChannel</span> can be used for other transport operations. For more information about channel initialization, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.046.html', '');" title="10.5 Channel Initialization">Section 10.5</a>.</div>
           </td>
         </tr>
       </table>

@@ -236,10 +236,10 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
                 _chnlInfo.tunnelStreamOpenSent = false;
                 _chnlInfo.tunnelStream = null;
                 _chnlInfo.isTunnelStreamUp = false;
-
+                
                 // reset message count
                 _msgCount = 0;
-
+                
                 break;
         }
 

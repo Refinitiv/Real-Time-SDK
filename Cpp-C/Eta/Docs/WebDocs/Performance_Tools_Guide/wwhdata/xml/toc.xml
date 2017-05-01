@@ -119,37 +119,38 @@
   </i>
   <i t="Chapter 10 Output File Details" l="93">
     <i t="10.1 Overview" l="94" />
-    <i t="10.2 Latency File" l="95" />
-    <i t="10.3 File Import" l="96" />
+    <i t="10.2 Output Files and Their Descriptions" l="95" />
+    <i t="10.3 Latency File" l="96" />
+    <i t="10.4 File Import" l="97" />
   </i>
-  <i t="Chapter 11 Performance Best Practices" l="97">
-    <i t="11.1 Overview" l="98" />
-    <i t="11.2 Transport Best Practices" l="99">
-      <i t="11.2.1 rsslRead" l="99#1222760" />
-      <i t="11.2.2 rsslWrite, rsslFlush" l="100" />
-      <i t="11.2.3 Packing" l="101" />
-      <i t="11.2.4 High-water Mark" l="102" />
-      <i t="11.2.5 Direct Socket Write" l="103" />
-      <i t="11.2.6 Nagle’s Algorithm" l="104" />
-      <i t="11.2.7 System Send and Receive Buffers" l="105" />
-      <i t="11.2.8 Transport API Buffering" l="106">
-        <i t="11.2.8.1 Input Buffering" l="107" />
-        <i t="11.2.8.2 Output Buffering" l="108" />
-        <i t="11.2.8.3 Fragmentation" l="109" />
+  <i t="Chapter 11 Performance Best Practices" l="98">
+    <i t="11.1 Overview" l="99" />
+    <i t="11.2 Transport Best Practices" l="100">
+      <i t="11.2.1 rsslRead" l="100#1222760" />
+      <i t="11.2.2 rsslWrite, rsslFlush" l="101" />
+      <i t="11.2.3 Packing" l="102" />
+      <i t="11.2.4 High-water Mark" l="103" />
+      <i t="11.2.5 Direct Socket Write" l="104" />
+      <i t="11.2.6 Nagle’s Algorithm" l="105" />
+      <i t="11.2.7 System Send and Receive Buffers" l="106" />
+      <i t="11.2.8 Transport API Buffering" l="107">
+        <i t="11.2.8.1 Input Buffering" l="108" />
+        <i t="11.2.8.2 Output Buffering" l="109" />
+        <i t="11.2.8.3 Fragmentation" l="110" />
       </i>
-      <i t="11.2.9 Compression" l="110" />
+      <i t="11.2.9 Compression" l="111" />
     </i>
-    <i t="11.3 Encoder and Decoder Best Practices" l="111">
-      <i t="11.3.1 Single-Pass Encoding" l="111#1223264" />
-      <i t="11.3.2 Clear Functions" l="112" />
+    <i t="11.3 Encoder and Decoder Best Practices" l="112">
+      <i t="11.3.1 Single-Pass Encoding" l="112#1223264" />
+      <i t="11.3.2 Clear Functions" l="113" />
     </i>
-    <i t="11.4 Other Practices: CPU Binding" l="113" />
+    <i t="11.4 Other Practices: CPU Binding" l="114" />
   </i>
-  <i t="Appendix A Troubleshooting" l="114">
-    <i t="A.1 Can’t Connect" l="114#1018101" />
-    <i t="A.2 Not Achieving Steady State" l="114#1020657" />
-    <i t="A.3 Consumer Tops Out but Not at 100% CPU" l="114#1020663" />
-    <i t="A.4 A.4 Initial Latencies Are High" l="114#1020771" />
-    <i t="A.5 A.5 Latency values Are Very High" l="114#1020774" />
+  <i t="Appendix A Troubleshooting" l="115">
+    <i t="A.1 Can’t Connect" l="115#1018101" />
+    <i t="A.2 Not Achieving Steady State" l="115#1020657" />
+    <i t="A.3 Consumer Tops Out but Not at 100% CPU" l="115#1020663" />
+    <i t="A.4 Initial Latencies Are High" l="115#1020771" />
+    <i t="A.5 Latency values Are Very High" l="115#1020774" />
   </i>
 </WebWorksHelpTOC>

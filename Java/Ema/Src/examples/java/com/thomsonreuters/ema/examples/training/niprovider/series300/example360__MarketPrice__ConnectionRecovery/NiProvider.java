@@ -93,11 +93,9 @@ public class NiProvider
 			OmmNiProviderConfig config = EmaFactory.createOmmNiProviderConfig();
 							
 			provider = EmaFactory.createOmmProvider(config.operationModel(OmmNiProviderConfig.OperationModel.USER_DISPATCH)
-					.username("user"));
+					.username("user"), appClient);
 
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
-				
-			long loginHandle = provider.registerClient(reqMsg.domainType(EmaRdm.MMT_LOGIN), appClient);
 				
             provider.dispatch( 1000000 );
                         

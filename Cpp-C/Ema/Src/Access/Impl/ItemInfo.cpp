@@ -236,12 +236,12 @@ bool ItemInfo::setRsslRequestMsg(RsslRequestMsg& requestMsg)
 		_name.set(requestMsg.msgBase.msgKey.name.data, requestMsg.msgBase.msgKey.name.length);
 	}
 
-	if (requestMsg.flags & RsslRequestFlags::RSSL_RQMF_STREAMING)
+	if (requestMsg.flags & RSSL_RQMF_STREAMING)
 	{
 		_flags |= ItemInfo::StreamingFlag;
 	}
 
-	if (requestMsg.flags & RsslRequestFlags::RSSL_RQMF_PRIVATE_STREAM)
+	if (requestMsg.flags & RSSL_RQMF_PRIVATE_STREAM)
 	{
 		_flags |= ItemInfo::PrivateStreamFlag;
 	}

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>9.2.3.1 Payload Cache Structure Member</title>
+    <title>9.2.3.1 Managing Payload Instances</title>
     <link rel="StyleSheet" href="css/Chap_Payload_Cache_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,26 +55,34 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1220554">Payload Cache Structure Member</a></div>
-      <div class="Blank_Line"><a name="1220556">&nbsp;</a></div>
+      <div class="H4"><a name="1220552">Managing Payload Instances</a></div>
+      <div class="Blank_Line"><a name="1220698">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 183: <a name="1220664">RsslPayloadCacheConfigOptions Structure Members &nbsp;</a></div>
+          <div class="TableTitle">Table 184: <a name="1220695">Functions for Managing Cache Instances &nbsp;</a></div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 152.24976pt">
-            <div class="CellHeading"><a name="1220624">STRUCTURE MEMBER</a></div>
+            <div class="CellHeading"><a name="1220683">Function NAME</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: middle; width: 403.50024pt">
-            <div class="CellHeading"><a name="1220626">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1220685">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220628">maxItems</a></div>
+            <div class="CellBody"><a name="1220687">rsslPayloadCacheCreate</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1220798">Sets the maximum number of entries allowed in the cache. There is no limit on the number of items when the value is zero. When the maximum number of items is reached, no new entries can be created in the cache until entries are removed. The </a><span class="CodeOrCommand">rsslPayloadEntryCreate</span> function will return a null <span class="CodeOrCommand">RsslPayloadEntryHandle</span> when the maximum number of items is reached. Refer to <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Payload_Cache_Detailed_View.9.17.html', '');" title="9.3.1 Managing Payload Cache Entries">Section 9.3.1</a>.</div>
+            <div class="CellBody"><a name="1220869">Creates a payload cache instance, and returns the </a><span class="CodeOrCommand">RsslPayloadCacheHandle</span>. All operations on the cache require this handle. Options are passed in via the <span class="CodeOrCommand">RsslPayloadCacheConfigOptions</span> defined in <a href="javascript:WWHClickedPopup('Value_Add_Developers_Guide', 'Chap_Payload_Cache_Detailed_View.9.10.html', '');" title="9.2.3.2 Payload Cache Structure Member">Section 9.2.3.2</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1220691">rsslPayloadCacheDestroy</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 3pt; padding-right: 3pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1220693">Destroys a payload cache instance. Any entries remaining in the cache are also destroyed at this time. </a></div>
           </td>
         </tr>
       </table>
@@ -90,7 +98,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Payload_Cache_Detailed_View.9.01.html">Chapter 9	Payload Cache Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Payload_Cache_Detailed_View.9.03.html">9.2	Payload Cache</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Payload_Cache_Detailed_View.9.08.html">9.2.3	Payload Cache Instances</a> : 9.2.3.1	Payload Cache Structure Member</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Payload_Cache_Detailed_View.9.01.html">Chapter 9	Payload Cache Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Payload_Cache_Detailed_View.9.03.html">9.2	Payload Cache</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Payload_Cache_Detailed_View.9.08.html">9.2.3	Payload Cache Instances</a> : 9.2.3.1	Managing Payload Instances</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

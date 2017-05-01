@@ -20,29 +20,28 @@ public class IntObject  extends VaNode
 	   
 	    public int hashCode()
 	    {
-	    	//TODO: Determine if this is the correct number of times _value should be shifted
-	        return (int)(_value ^ (_value >>> 32));
+	        return _value;
 	    }
 	    
 	    public boolean equals(Object obj)
 	    {
-	        if (obj == this)
-	        {
-	            return true;
-	        }
-	        
-	        IntObject intObj;
-	        
-	        try
-	        {
-	        	intObj = (IntObject)obj;
-	        }
-	        catch (ClassCastException e)
-	        {
-	            return false;
-	        }
-	        
-	        return (intObj._value == _value);
+	    	 if (obj == this)
+	         {
+	             return true;
+	         }
+	         
+	    	 IntObject intObj;
+	         
+	         try
+	         {
+	             intObj = (IntObject)obj;
+	         }
+	         catch (ClassCastException e)
+	         {
+	             return false;
+	         }
+	         
+	         return (intObj._value == _value);
 	    }
 	
 	    IntObject clear()

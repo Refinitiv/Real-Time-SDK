@@ -56,70 +56,70 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="1048008">RsslChannelInfo Structure Members</a></div>
-      <div class="Body"><a name="1223526">The following table describes the values available to the user through using the </a><span class="CodeOrCommand">rsslGetChannelInfo</span> function. This information is returned as part of the <span class="CodeOrCommand">RsslChannelInfo</span> structure.</div>
-      <div class="Blank_Line"><a name="1223764">&nbsp;</a></div>
+      <div class="Body"><a name="1248257">The following table describes the values available to the user through using the </a><span class="CodeOrCommand">rsslGetChannelInfo</span> function. This information is returned as part of the <span class="CodeOrCommand">RsslChannelInfo</span> structure.</div>
+      <div class="Blank_Line"><a name="1248495">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 63: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1223761">RsslChannelInfo</a></span> Structure Members &nbsp;</div>
+          <div class="TableTitle">Table 63: <span class="LucidaConsole" style="font-size: 10.0pt"><a name="1248492">RsslChannelInfo</a></span> Structure Members &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 126.74952pt">
-            <div class="CellHeading"><a name="1223538">Structure Member</a></div>
+            <div class="CellHeading"><a name="1248269">Structure Member</a></div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 429.00048pt">
-            <div class="CellHeading"><a name="1223540">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1248271">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223542">maxFragmentSize</a></div>
+            <div class="CellBody"><a name="1248273">maxFragmentSize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223544">The maximum allowed buffer size which can be written to the network. If a larger buffer is required, the </a>RSSL Transport will internally fragment the larger buffer into smaller buffers whose size is set to <span class="CodeOrCommand">maxFragmentSize</span>.</div>
-            <div class="CellBody"><a name="1223545">This is the largest size a user can request while still being ‘packable.’</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223547">numInputBuffers</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223552">The number of sequential input buffers into which the </a><span class="CodeOrCommand">RsslChannel</span> reads data. This controls the maximum number of bytes that can be handled with a single network read operation on each channel. Each input buffer can contain <span class="CodeOrCommand">maxFragmentSize</span> bytes. Input buffers are allocated at initialization time.</div>
+            <div class="CellBody"><a name="1248275">The maximum allowed buffer size which can be written to the network. If a larger buffer is required, the </a>RSSL Transport will internally fragment the larger buffer into smaller buffers whose size is set to <span class="CodeOrCommand">maxFragmentSize</span>.</div>
+            <div class="CellBody"><a name="1248276">This is the largest size a user can request while still being ‘packable.’</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223554">guaranteedOutputBuffers</a></div>
+            <div class="CellBody"><a name="1248278">numInputBuffers</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223559">The guaranteed number of buffers which this </a><span class="CodeOrCommand">RsslChannel</span> can use while writing data. Each buffer can contain <span class="CodeOrCommand">maxFragmentSize</span> bytes. Guaranteed output buffers are allocated at initialization time. For more details on obtaining a buffer, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.061.html', '');" title="10.8 Writing Data: Obtaining a Buffer">Section 10.8</a>.</div>
-            <div class="CellBody"><a name="1223571">You can configure </a><span class="CodeOrCommand">guaranteedOutputBuffers</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223577">maxOutputBuffers</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223582">The maximum number of output buffers which this </a><span class="CodeOrCommand">RsslChannel</span> can use. (<span class="CodeOrCommand">maxOutputBuffers</span> - <span class="CodeOrCommand">guaranteedOutputBuffers</span>) is equal to the number of shared pool buffers that this <span class="CodeOrCommand">RsslChannel</span> can use. Shared pool buffers are only used if all <span class="CodeOrCommand">guaranteedOutputBuffers</span> are unavailable. If <span class="CodeOrCommand">maxOutputBuffers</span> is equal to the <span class="CodeOrCommand">guaranteedOutputBuffers</span> value, shared pool buffers are unavailable.</div>
-            <div class="CellBody"><a name="1223594">You can configure </a><span class="CodeOrCommand">maxOutputBuffers</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
+            <div class="CellBody"><a name="1248283">The number of sequential input buffers into which the </a><span class="CodeOrCommand">RsslChannel</span> reads data. This controls the maximum number of bytes that can be handled with a single network read operation on each channel. Each input buffer can contain <span class="CodeOrCommand">maxFragmentSize</span> bytes. Input buffers are allocated at initialization time.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223597">pingTimeout</a></div>
+            <div class="CellBody"><a name="1248285">guaranteedOutputBuffers</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223599">The negotiated ping timeout value. Typically, the rule of thumb in handling heartbeats is to send a heartbeat every </a><span class="CodeOrCommand">pingTimeout</span>/3 seconds.</div>
-            <div class="CellBody"><a name="1223606">For more details on </a><span class="CodeOrCommand">pingTimeout</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.086.html', '');" title="10.12.1 Ping Timeout">Section 10.12.1</a>.</div>
+            <div class="CellBody"><a name="1248290">The guaranteed number of buffers which this </a><span class="CodeOrCommand">RsslChannel</span> can use while writing data. Each buffer can contain <span class="CodeOrCommand">maxFragmentSize</span> bytes. Guaranteed output buffers are allocated at initialization time. For more details on obtaining a buffer, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.061.html', '');" title="10.8 Writing Data: Obtaining a Buffer">Section 10.8</a>.</div>
+            <div class="CellBody"><a name="1248302">You can configure </a><span class="CodeOrCommand">guaranteedOutputBuffers</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223608">serverToClientPings</a></div>
+            <div class="CellBody"><a name="1248308">maxOutputBuffers</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223610">Sets whether server is expected to send heartbeat messages:</a></div>
+            <div class="CellBody"><a name="1248313">The maximum number of output buffers which this </a><span class="CodeOrCommand">RsslChannel</span> can use. (<span class="CodeOrCommand">maxOutputBuffers</span> - <span class="CodeOrCommand">guaranteedOutputBuffers</span>) is equal to the number of shared pool buffers that this <span class="CodeOrCommand">RsslChannel</span> can use. Shared pool buffers are only used if all <span class="CodeOrCommand">guaranteedOutputBuffers</span> are unavailable. If <span class="CodeOrCommand">maxOutputBuffers</span> is equal to the <span class="CodeOrCommand">guaranteedOutputBuffers</span> value, shared pool buffers are unavailable.</div>
+            <div class="CellBody"><a name="1248325">You can configure </a><span class="CodeOrCommand">maxOutputBuffers</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248328">pingTimeout</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248330">The negotiated ping timeout value. Typically, the rule of thumb in handling heartbeats is to send a heartbeat every </a><span class="CodeOrCommand">pingTimeout</span>/3 seconds.</div>
+            <div class="CellBody"><a name="1248337">For more details on </a><span class="CodeOrCommand">pingTimeout</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.086.html', '');" title="10.12.1 Ping Timeout">Section 10.12.1</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248339">serverToClientPings</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248341">Sets whether server is expected to send heartbeat messages:</a></div>
             <div class="bullet_ind_outer" style="margin-left: 18pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -129,7 +129,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1223614">If set to </a><span class="Parameter">RSSL_TRUE</span>, heartbeat messages must flow from server to client.</div>
+                    <div class="bullet_ind_inner"><a name="1248345">If set to </a><span class="Parameter">RSSL_TRUE</span>, heartbeat messages must flow from server to client.</div>
                   </td>
                 </tr>
               </table>
@@ -143,20 +143,20 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1223618">If set to </a><span class="Parameter">RSSL_FALSE</span>, the server is not required to send heartbeats.</div>
+                    <div class="bullet_ind_inner"><a name="1248349">If set to </a><span class="Parameter">RSSL_FALSE</span>, the server is not required to send heartbeats.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1223622">TREP and other Thomson Reuters components typically require this value to be set to </a><span class="Parameter">RSSL_TRUE</span>.</div>
+            <div class="CellBody"><a name="1248353">TREP and other Thomson Reuters components typically require this value to be set to </a><span class="Parameter">RSSL_TRUE</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223627">clientToServerPings</a></div>
+            <div class="CellBody"><a name="1248358">clientToServerPings</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223629">Sets whether the client is expected to send heartbeat messages:</a></div>
+            <div class="CellBody"><a name="1248360">Sets whether the client is expected to send heartbeat messages:</a></div>
             <div class="bullet_ind_outer" style="margin-left: 18pt">
               <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
                 <tr style="vertical-align: baseline">
@@ -166,7 +166,7 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1223633">If set to </a><span class="Parameter">RSSL_TRUE</span>, heartbeat messages must flow from client to server.</div>
+                    <div class="bullet_ind_inner"><a name="1248364">If set to </a><span class="Parameter">RSSL_TRUE</span>, heartbeat messages must flow from client to server.</div>
                   </td>
                 </tr>
               </table>
@@ -180,95 +180,95 @@
                     </div>
                   </td>
                   <td width="100%">
-                    <div class="bullet_ind_inner"><a name="1223637">If set to </a><span class="Parameter">RSSL_FALSE</span>, the client is not required to send heartbeats.</div>
+                    <div class="bullet_ind_inner"><a name="1248368">If set to </a><span class="Parameter">RSSL_FALSE</span>, the client is not required to send heartbeats.</div>
                   </td>
                 </tr>
               </table>
             </div>
-            <div class="CellBody"><a name="1223641">TREP and other Thomson Reuters components typically require this value to be set to </a><span class="Parameter">RSSL_TRUE</span>.</div>
+            <div class="CellBody"><a name="1248372">TREP and other Thomson Reuters components typically require this value to be set to </a><span class="Parameter">RSSL_TRUE</span>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223646">tcpSendBufSize</a></div>
+            <div class="CellBody"><a name="1248377">tcpSendBufSize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1223648">DEPRECATED</a></span>. To configure equivalent functionality, refer to <span class="CodeOrCommand">sysSendBufSize</span> (in this table).</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223650">sysSendBufSize</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223652">Sets the size of the send or output buffer associated with the underlying transport. The</a> RSSL Transport has additional output buffers, controlled by <span class="CodeOrCommand">maxOutputBuffers</span> and <span class="CodeOrCommand">guaranteedOutputBuffers</span>. For some connection types, you can configure <span class="CodeOrCommand">sysSendBufSize</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
+            <div class="CellBody"><span class="Bold"><a name="1248379">DEPRECATED</a></span>. To configure equivalent functionality, refer to <span class="CodeOrCommand">sysSendBufSize</span> (in this table).</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223663">tcpRecvBufSize</a></div>
+            <div class="CellBody"><a name="1248381">sysSendBufSize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><span class="Bold"><a name="1223665">DEPRECATED</a></span>. To configure equivalent functionality, refer to <span class="CodeOrCommand">sysRecvBufSize</span> in this table.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223667">sysRecvBufSize</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223669">Sets the size of the receive or input buffer associated with the underlying transport. The</a> RSSL Transport has an additional input buffer controlled by <span class="CodeOrCommand">numInputBuffers</span>.</div>
-            <div class="CellBody"><a name="1223673">For some connection types, you can configure </a><span class="CodeOrCommand">sysRecvBufSize</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
+            <div class="CellBody"><a name="1248383">Sets the size of the send or output buffer associated with the underlying transport. The</a> RSSL Transport has additional output buffers, controlled by <span class="CodeOrCommand">maxOutputBuffers</span> and <span class="CodeOrCommand">guaranteedOutputBuffers</span>. For some connection types, you can configure <span class="CodeOrCommand">sysSendBufSize</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223681">compressionType</a></div>
+            <div class="CellBody"><a name="1248394">tcpRecvBufSize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223683">Sets the type of compression to use on this connection.</a></div>
-            <div class="CellBody"><a name="1223690">Refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.042.html', '');" title="10.4.3 Compression Support">Section 10.4.3</a> for more information about supported compression types.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223692">compressionThreshold</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223694">Sets the compression threshold. Messages smaller than the threshold are not compressed; messages larger than the threshold are compressed.</a></div>
+            <div class="CellBody"><span class="Bold"><a name="1248396">DEPRECATED</a></span>. To configure equivalent functionality, refer to <span class="CodeOrCommand">sysRecvBufSize</span> in this table.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223699"><!--o--></a>priorityFlushStrategy<sup><a name="wwfootnote_inline_95" href="#95">1</a></sup></div>
+            <div class="CellBody"><a name="1248398">sysRecvBufSize</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223701">The currently priority level order used when flushing buffers to the connection, where </a><span class="Parameter">H</span> = High priority, <span class="Parameter">M</span> = Medium priority, and <span class="Parameter">L</span> = Low priority. When passed to <span class="CodeOrCommand">rsslWrite</span>, each buffer is associated with the priority level at which it should be written. The default <span class="CodeOrCommand">priorityFlushStrategy</span> writes buffers in the order: High, Medium, High, Low, High, Medium. This provides a slight advantage to the medium-priority level and a greater advantage to high-priority data. Data order is preserved within each priority level and if all buffers are written with the same priority, the order of data does not change.</div>
-            <div class="CellBody"><a name="1223710">You can configure </a><span class="CodeOrCommand">priorityFlushStrategy</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223724">multicastStats</a></div>
-          </td>
-          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223726">If using a connection type of</a> either <span class="Parameter">RSSL_CONN_TYPE_RELIABLE_MCAST</span> or <span class="Parameter">RSSL_CONN_TYPE_SEQ_MCAST</span>, this substructure reports information about sent and received packets, including any gap or retransmission information. For details on options used with <span class="CodeOrCommand">multicastStats</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.095.html', '');" title="10.14.3 multicastStats Options">Section 10.14.3</a>.</div>
+            <div class="CellBody"><a name="1248400">Sets the size of the receive or input buffer associated with the underlying transport. The</a> RSSL Transport has an additional input buffer controlled by <span class="CodeOrCommand">numInputBuffers</span>.</div>
+            <div class="CellBody"><a name="1248404">For some connection types, you can configure </a><span class="CodeOrCommand">sysRecvBufSize</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223734">componentInfoCount</a></div>
+            <div class="CellBody"><a name="1248412">compressionType</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223736">Indicates the number of </a><span class="CodeOrCommand">RsslComponentInfo</span> structures referred to by the <span class="CodeOrCommand">componentInfo</span> member. This information is only available when communicating with devices that support connected component versioning; otherwise this count is set to <span class="Parameter">0</span>.</div>
+            <div class="CellBody"><a name="1248414">Sets the type of compression to use on this connection.</a></div>
+            <div class="CellBody"><a name="1248421">Refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.042.html', '');" title="10.4.3 Compression Support">Section 10.4.3</a> for more information about supported compression types.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223738">componentInfo</a></div>
+            <div class="CellBody"><a name="1248423">compressionThreshold</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1223740">A pointer to an array of </a><span class="CodeOrCommand">RsslComponentInfo</span> structures. One <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">ComponentInfo</span> structure will be present for each connected device that supports connected component versioning. The count is indicated by the <span class="CodeOrCommand">componentInfoCount</span>. For more detailed information on the <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">ComponentInfo</span> structure, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.096.html', '');" title="10.14.4 ComponentInfo Option">Section 10.14.4</a>.</div>
+            <div class="CellBody"><a name="1248425">Sets the compression threshold. Messages smaller than the threshold are not compressed; messages larger than the threshold are compressed.</a></div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248430"><!--o--></a>priorityFlushStrategy<sup><a name="wwfootnote_inline_95" href="#95">1</a></sup></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248432">The currently priority level order used when flushing buffers to the connection, where </a><span class="Parameter">H</span> = High priority, <span class="Parameter">M</span> = Medium priority, and <span class="Parameter">L</span> = Low priority. When passed to <span class="CodeOrCommand">rsslWrite</span>, each buffer is associated with the priority level at which it should be written. The default <span class="CodeOrCommand">priorityFlushStrategy</span> writes buffers in the order: High, Medium, High, Low, High, Medium. This provides a slight advantage to the medium-priority level and a greater advantage to high-priority data. Data order is preserved within each priority level and if all buffers are written with the same priority, the order of data does not change.</div>
+            <div class="CellBody"><a name="1248441">You can configure </a><span class="CodeOrCommand">priorityFlushStrategy</span> using <span class="CodeOrCommand">rsslIoctl</span>, as described in <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.098.html', '');" title="10.14.6 rsslIoctl Option Values">Section 10.14.6</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248455">multicastStats</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248457">If using a connection type of</a> either <span class="Parameter">RSSL_CONN_TYPE_RELIABLE_MCAST</span> or <span class="Parameter">RSSL_CONN_TYPE_SEQ_MCAST</span>, this substructure reports information about sent and received packets, including any gap or retransmission information. For details on options used with <span class="CodeOrCommand">multicastStats</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.095.html', '');" title="10.14.3 multicastStats Options">Section 10.14.3</a>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248465">componentInfoCount</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248467">Indicates the number of </a><span class="CodeOrCommand">RsslComponentInfo</span> structures referred to by the <span class="CodeOrCommand">componentInfo</span> member. This information is only available when communicating with devices that support connected component versioning; otherwise this count is set to <span class="Parameter">0</span>.</div>
+          </td>
+        </tr>
+        <tr style="vertical-align: top">
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248469">componentInfo</a></div>
+          </td>
+          <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
+            <div class="CellBody"><a name="1248471">A pointer to an array of </a><span class="CodeOrCommand">RsslComponentInfo</span> structures. One <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">ComponentInfo</span> structure will be present for each connected device that supports connected component versioning. The count is indicated by the <span class="CodeOrCommand">componentInfoCount</span>. For more detailed information on the <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">ComponentInfo</span> structure, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_ReliableTransportPackage.10.096.html', '');" title="10.14.4 ComponentInfo Option">Section 10.14.4</a>.</div>
           </td>
         </tr>
       </table>
@@ -276,7 +276,7 @@
       <div style="font-size: smaller; float: left; padding-right: 10px;">
         <a name="95" href="#wwfootnote_inline_95">1</a>
       </div>
-      <div class="TableFootnote"><a name="1223698">Allows for up to 32 one-byte characters to be represented. ‘</a><span style="font-weight: bold">H</span>’ = high priority, ‘<span style="font-weight: bold">M</span>’ = medium priority, and ‘<span style="font-weight: bold">L</span>’ = low priority.</div>
+      <div class="TableFootnote"><a name="1248429">Allows for up to 32 one-byte characters to be represented. ‘</a><span style="font-weight: bold">H</span>’ = high priority, ‘<span style="font-weight: bold">M</span>’ = medium priority, and ‘<span style="font-weight: bold">L</span>’ = low priority.</div>
       <br style="clear: both;" />
       <script type="text/javascript" language="JavaScript1.2">
         <!--

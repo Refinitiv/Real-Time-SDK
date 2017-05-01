@@ -56,12 +56,12 @@
     <hr align="left" />
     <blockquote>
       <div class="H3"><a name="999305">Batch Close</a></div>
-      <div class="Body"><a name="1028106">Consumers may use a batch close to close multiple open streams using a single </a><span class="CodeOrCommand">RsslCloseMsg</span>. In a batch close message, the consumer specifies a list of <span class="CodeOrCommand">streamId</span>s in the message payload representing the streams it wishes to close. Batch closes can be leveraged across all non-Login domain model types.</div>
-      <div class="Body"><a name="1028110">A consumer application can issue a batch close by using an </a><span class="CodeOrCommand">RsslCloseMsg</span> with the <span class="Parameter">RSSL_</span><span class="Parameter">CLMF_HAS_BATCH</span> flag set and including a specifically formatted payload. The payload should contain an <span class="CodeOrCommand">RsslElementList</span> along with an <span class="CodeOrCommand">RsslElementEntry</span> named <span class="CodeOrCommand">:StreamIdList</span>.</div>
-      <div class="Body"><a name="1028123">The </a><span class="CodeOrCommand">:StreamIdList</span> contains an <span class="CodeOrCommand">RsslArray</span>, where the <span class="CodeOrCommand">RsslArray.primitiveType</span> is <span class="Parameter">RSSL_</span><span class="Parameter">DT_INT</span>. Each contained <span class="CodeOrCommand">streamId</span> (populated in an <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">Int</span>) corresponds to the <span class="CodeOrCommand">streamId</span> of an open stream which the consumer wishes to close.</div>
-      <div class="Body"><a name="1028124">The consumer application may specify </a><span class="CodeOrCommand">streamId</span>s from from any non-Login domain in the <span class="CodeOrCommand">:StreamIdList</span> of a batch close message; only the <span class="CodeOrCommand">streamId</span> is needed to identify the stream. The <span class="CodeOrCommand">domainType</span> is not used (Thomson Reuters recommends setting the <span class="CodeOrCommand">domainType</span> to <span class="Parameter">RSSL_</span><span class="Parameter">DMT_MARKET_PRICE</span>).As with a batch request, a provider should respond on the same stream with an <span class="CodeOrCommand">RsslStatusMsg</span> that acknowledges receipt of the batch by indicating the <span class="CodeOrCommand">dataState</span> is <span class="Parameter">OK</span> and <span class="CodeOrCommand">streamState</span> is <span class="Parameter">CLOSED</span>. If the provider is unable to process the batch message itself, it should use a <span class="Parameter">SUSPECT</span> <span class="CodeOrCommand">dataState</span> in the response to the batch message.</div>
-      <div class="Body"><a name="1028128">Consider the following interaction example:</a></div>
-      <div class="Body"><a name="1028132"><img class="Default" src="images/BatchCloseInterEx.jpg" width="566" height="188" style="display: inline; float: none; left: 0.0; top: 0.0" alt="" /></a></div>
+      <div class="Body"><a name="1037062">Consumers may use a batch close to close multiple open streams using a single </a><span class="CodeOrCommand">RsslCloseMsg</span>. In a batch close message, the consumer specifies a list of <span class="CodeOrCommand">streamId</span>s in the message payload representing the streams it wishes to close. Batch closes can be leveraged across all non-Login domain model types.</div>
+      <div class="Body"><a name="1037066">A consumer application can issue a batch close by using an </a><span class="CodeOrCommand">RsslCloseMsg</span> with the <span class="Parameter">RSSL_</span><span class="Parameter">CLMF_HAS_BATCH</span> flag set and including a specifically formatted payload. The payload should contain an <span class="CodeOrCommand">RsslElementList</span> along with an <span class="CodeOrCommand">RsslElementEntry</span> named <span class="CodeOrCommand">:StreamIdList</span>.</div>
+      <div class="Body"><a name="1037079">The </a><span class="CodeOrCommand">:StreamIdList</span> contains an <span class="CodeOrCommand">RsslArray</span>, where the <span class="CodeOrCommand">RsslArray.primitiveType</span> is <span class="Parameter">RSSL_</span><span class="Parameter">DT_INT</span>. Each contained <span class="CodeOrCommand">streamId</span> (populated in an <span class="CodeOrCommand">Rssl</span><span class="CodeOrCommand">Int</span>) corresponds to the <span class="CodeOrCommand">streamId</span> of an open stream which the consumer wishes to close.</div>
+      <div class="Body"><a name="1037080">The consumer application may specify </a><span class="CodeOrCommand">streamId</span>s from from any non-Login domain in the <span class="CodeOrCommand">:StreamIdList</span> of a batch close message; only the <span class="CodeOrCommand">streamId</span> is needed to identify the stream. The <span class="CodeOrCommand">domainType</span> is not used (Thomson Reuters recommends setting the <span class="CodeOrCommand">domainType</span> to <span class="Parameter">RSSL_</span><span class="Parameter">DMT_MARKET_PRICE</span>).As with a batch request, a provider should respond on the same stream with an <span class="CodeOrCommand">RsslStatusMsg</span> that acknowledges receipt of the batch by indicating the <span class="CodeOrCommand">dataState</span> is <span class="Parameter">OK</span> and <span class="CodeOrCommand">streamState</span> is <span class="Parameter">CLOSED</span>. If the provider is unable to process the batch message itself, it should use a <span class="Parameter">SUSPECT</span> <span class="CodeOrCommand">dataState</span> in the response to the batch message.</div>
+      <div class="Body"><a name="1037084">Consider the following interaction example:</a></div>
+      <div class="Body"><a name="1037088"><img class="Default" src="images/BatchCloseInterEx.jpg" width="566" height="188" style="display: inline; left: 0.0; top: 0.0" alt="" /></a></div>
       <div class="FigTitle_outer" style="margin-left: 21.6pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -69,12 +69,12 @@
               <div class="FigTitle_inner" style="width: 46.800000000000004pt; white-space: nowrap">Figure 41.  </div>
             </td>
             <td width="100%">
-              <div class="FigTitle_inner"><a name="1028136">Batch Close Interaction Example</a></div>
+              <div class="FigTitle_inner"><a name="1037092">Batch Close Interaction Example</a></div>
             </td>
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1028137">In the above figure, the consumer currently has streams open for three items with </a><span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span>. The consumer wishes to close these three streams, so it encodes <span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, <span class="Parameter">7</span>, in the <span class="CodeOrCommand">:StreamIdList</span> element of an <span class="CodeOrCommand">RsslCloseMsg</span> using an unused <span class="CodeOrCommand">streamId</span>, <span class="Parameter">8</span>. This message encoded the <span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span> in the <span class="CodeOrCommand">:StreamIdList</span> element. The provider then responds with an <span class="CodeOrCommand">RsslStatusMsg</span> on <span class="CodeOrCommand">streamId</span> 8 to acknowledge the reissue message. The provider then responds with an <span class="CodeOrCommand">RsslStatusMsg</span> to acknowledge the close message and considers streams <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span> to be closed.</div>
+      <div class="Body"><a name="1037093">In the above figure, the consumer currently has streams open for three items with </a><span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span>. The consumer wishes to close these three streams, so it encodes <span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, <span class="Parameter">7</span>, in the <span class="CodeOrCommand">:StreamIdList</span> element of an <span class="CodeOrCommand">RsslCloseMsg</span> using an unused <span class="CodeOrCommand">streamId</span>, <span class="Parameter">8</span>. This message encoded the <span class="CodeOrCommand">streamId</span>s <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span> in the <span class="CodeOrCommand">:StreamIdList</span> element. The provider then responds with an <span class="CodeOrCommand">RsslStatusMsg</span> on <span class="CodeOrCommand">streamId</span> 8 to acknowledge the reissue message. The provider then responds with an <span class="CodeOrCommand">RsslStatusMsg</span> to acknowledge the close message and considers streams <span class="Parameter">5</span>, <span class="Parameter">6</span>, and <span class="Parameter">7</span> to be closed.</div>
       <div class="bullet_ind_outer" style="margin-left: 18pt">
         <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
           <tr style="vertical-align: baseline">
@@ -84,21 +84,7 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1028150">For an example of encoding a batch close, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.18.html', '');" title="13.7.6 Batch Close Encoding Example">Section 13.7.6</a>.</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="bullet_ind_outer" style="margin-left: 18pt">
-        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
-          <tr style="vertical-align: baseline">
-            <td>
-              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
-                <span class="AG_bold">•	</span>
-              </div>
-            </td>
-            <td width="100%">
-              <div class="bullet_ind_inner"><a name="1028154">For more information about </a><span class="CodeOrCommand">RsslCloseMsg</span> and <span class="Parameter">RSSL_CLMF_HAS_BATCH</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.30.html', '');" title="12.2.5 RSSL Close Message Class">Section 12.2.5</a>.</div>
+              <div class="bullet_ind_inner"><a name="1037106">For an example of encoding a batch close, refer to </a><a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MessagesAdvancedConcepts.13.18.html', '');" title="13.7.6 Batch Close Encoding Example">Section 13.7.6</a>.</div>
             </td>
           </tr>
         </table>
@@ -112,7 +98,21 @@
               </div>
             </td>
             <td width="100%">
-              <div class="bullet_ind_inner"><a name="1028158">For more information about the </a><span class="CodeOrCommand">RsslElementList</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.2 RsslElementList">Section 11.3.2</a>.</div>
+              <div class="bullet_ind_inner"><a name="1037110">For more information about </a><span class="CodeOrCommand">RsslCloseMsg</span> and <span class="Parameter">RSSL_CLMF_HAS_BATCH</span> flag values, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_MsgPackage_DetailedView.12.30.html', '');" title="12.2.5 RSSL Close Message Class">Section 12.2.5</a>.</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="bullet_ind_outer" style="margin-left: 18pt">
+        <table border="0" cellspacing="0" cellpadding="0" summary="" role="presentation">
+          <tr style="vertical-align: baseline">
+            <td>
+              <div class="bullet_ind_inner" style="width: 18pt; white-space: nowrap">
+                <span class="AG_bold">•	</span>
+              </div>
+            </td>
+            <td width="100%">
+              <div class="bullet_ind_inner"><a name="1037114">For more information about the </a><span class="CodeOrCommand">RsslElementList</span>, refer to <a href="javascript:WWHClickedPopup('Developer_Guide', 'Chap_DataPackage_DetailedView.11.060.html', '');" title="11.3.2 RsslElementList">Section 11.3.2</a>.</div>
             </td>
           </tr>
         </table>

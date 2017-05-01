@@ -51,6 +51,8 @@
 
 #include <new>
 
+#define EMA_DECODER_TYPE_SIZE 271 
+
 using namespace thomsonreuters::ema::access;
 
 bool Decoder::setRsslData( Data* pData,
@@ -75,7 +77,7 @@ bool Decoder::setRsslData( Data* pData,
 		dType = msgDataType[ rsslExtractMsgClass( &decodeIter ) ];
 	}
 	else
-		dType = dataType[rsslType];
+		dType = (DataType::DataTypeEnum)rsslType;
 
 	if ( pData->getDataType() != dType )
 	{
@@ -84,7 +86,7 @@ bool Decoder::setRsslData( Data* pData,
 		create( pData, dType );
 	}
 
-	if ( dType >= DataType::OpaqueEnum && dType < DataType::ErrorEnum )
+	if ( (dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum)  || (dType == DataType::XmlEnum) || (dType == DataType::AnsiPageEnum))
 	{
 		if ( !pData->getDecoder().setRsslData( pDecodeIter, pRsslBuffer ) )
 			setRsslData( pData, pData->getDecoder().getErrorCode(), pDecodeIter, pRsslBuffer );
@@ -118,9 +120,9 @@ Data* Decoder::setRsslData( Data** pLoadPool, RsslDataType rsslType, RsslDecodeI
 		dType = msgDataType[ rsslExtractMsgClass( &decodeIter ) ];
 	}
 	else
-		dType = dataType[rsslType];
+		dType = (DataType::DataTypeEnum)rsslType;
 
-	if ( dType >= DataType::OpaqueEnum && dType < DataType::ErrorEnum )
+	if ((dType < DataType::NoDataEnum) || (dType == DataType::OpaqueEnum) || (dType == DataType::XmlEnum) || (dType == DataType::AnsiPageEnum))
 	{
 		if ( !pLoadPool[dType]->getDecoder().setRsslData( pDecodeIter, pRsslBuffer ) )
 		{
@@ -265,7 +267,12 @@ void Decoder::create( Data* pData, DataType::DataTypeEnum dType ) const
 
 void Decoder::createLoadPool( Data**& pLoadPool )
 {
-	pLoadPool = new Data*[34];
+	pLoadPool = new Data*[EMA_DECODER_TYPE_SIZE];
+
+	for (UInt32 index = 0; index < EMA_DECODER_TYPE_SIZE; index++)
+	{
+		pLoadPool[index] = 0;
+	}
 
 	pLoadPool[DataType::ReqMsgEnum] = new ReqMsg;
 	pLoadPool[DataType::RefreshMsgEnum] = new RefreshMsg;
@@ -307,8 +314,13 @@ void Decoder::destroyLoadPool( Data**& pLoadPool )
 {
 	if ( !pLoadPool ) return;
 
-	for ( UInt16 idx = 0; idx < 34; ++idx )
-		delete pLoadPool[idx];
+	for (UInt16 idx = 0; idx < EMA_DECODER_TYPE_SIZE; ++idx)
+	{
+		if (pLoadPool[idx] != 0)
+		{
+			delete pLoadPool[idx];
+		}
+	}
 
 	delete [] pLoadPool;
 

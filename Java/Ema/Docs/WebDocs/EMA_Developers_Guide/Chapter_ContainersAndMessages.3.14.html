@@ -69,103 +69,103 @@
           </tr>
         </table>
       </div>
-      <div class="Body"><a name="1043028">The following example illustrates how to extract information from the </a><span class="CodeOrCommand" style="font-size: 10.0pt">GenericMsg</span> class.</div>
-      <div class="Blank_Line"><a name="1043104">&nbsp;</a></div>
+      <div class="Body"><a name="1044006">The following example illustrates how to extract information from the </a><span class="CodeOrCommand" style="font-size: 10.0pt">GenericMsg</span> class.</div>
+      <div class="Blank_Line"><a name="1044082">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1043067">&nbsp;</a></div>
+            <div class="command"><a name="1044045">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><span class="Color_003aBlue"><a name="1043069">void</a></span> decode( GenericMsg genMsg )</div>
+            <div class="command"><span class="Color_003aBlue"><a name="1044047">void</a></span> decode( GenericMsg genMsg )</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043071">{</a></div>
+            <div class="command"><a name="1044049">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043073">&nbsp;&nbsp;&nbsp;&nbsp;if ( genMsg.hasName() )</a></div>
+            <div class="command"><a name="1044051">&nbsp;&nbsp;&nbsp;&nbsp;if ( genMsg.hasName() )</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043075">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Name: " + genMsg.name());</a></div>
+            <div class="command"><a name="1044053">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Name: " + genMsg.name());</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043077">&nbsp;</a></div>
+            <div class="command"><a name="1044055">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043079">&nbsp;&nbsp;&nbsp;&nbsp;if ( genMsg.hasExtendedHeader() )</a></div>
+            <div class="command"><a name="1044057">&nbsp;&nbsp;&nbsp;&nbsp;if ( genMsg.hasExtendedHeader() )</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043081">&nbsp;&nbsp;&nbsp;&nbsp;{</a></div>
+            <div class="command"><a name="1044059">&nbsp;&nbsp;&nbsp;&nbsp;{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043083">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ByteBuffer header = genMsg.extendedHeader();</a></div>
+            <div class="command"><a name="1044061">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ByteBuffer header = genMsg.extendedHeader();</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043085">&nbsp;&nbsp;&nbsp;&nbsp;}</a></div>
+            <div class="command"><a name="1044063">&nbsp;&nbsp;&nbsp;&nbsp;}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043087">&nbsp;</a></div>
+            <div class="command"><a name="1044065">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043089">&nbsp;&nbsp;&nbsp;&nbsp;switch ( genMsg.payload().dataType() )</a></div>
+            <div class="command"><a name="1044067">&nbsp;&nbsp;&nbsp;&nbsp;switch ( genMsg.payload().dataType() )</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043091">&nbsp;&nbsp;&nbsp;&nbsp;{</a></div>
+            <div class="command"><a name="1044069">&nbsp;&nbsp;&nbsp;&nbsp;{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043093">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case DataTypes.FIELD_LIST :</a></div>
+            <div class="command"><a name="1044071">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case DataTypes.FIELD_LIST :</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043095">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode( genMsg.payload().fieldList() );</a></div>
+            <div class="command"><a name="1044073">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode( genMsg.payload().fieldList() );</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043097">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</a></div>
+            <div class="command"><a name="1044075">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043099">&nbsp;&nbsp;&nbsp;&nbsp;}</a></div>
+            <div class="command"><a name="1044077">&nbsp;&nbsp;&nbsp;&nbsp;}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043101">}</a></div>
+            <div class="command"><a name="1044079">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1043103">&nbsp;</a></div>
+            <div class="command"><a name="1044081">&nbsp;</a></div>
           </td>
         </tr>
       </table>

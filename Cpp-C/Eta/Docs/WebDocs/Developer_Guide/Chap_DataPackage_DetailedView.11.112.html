@@ -56,34 +56,34 @@
     <hr align="left" />
     <blockquote>
       <div class="H4"><a name="1019438">Non-RWF Encode Functions</a></div>
-      <div class="Body"><a name="1361796">The Transport API provides utility functions to help encode non-RWF types. These functions work in conjunction with </a><span class="CodeOrCommand">RsslEncodeIterator</span> to provide appropriate encoding position and length data to the user, which can then be used with specific functions for the non-RWF type being encoded.</div>
-      <div class="Blank_Line"><a name="1361853">&nbsp;</a></div>
+      <div class="Body"><a name="1476226">The Transport API provides utility functions to help encode non-RWF types. These functions work in conjunction with </a><span class="CodeOrCommand">RsslEncodeIterator</span> to provide appropriate encoding position and length data to the user, which can then be used with specific functions for the non-RWF type being encoded.</div>
+      <div class="Blank_Line"><a name="1476283">&nbsp;</a></div>
       <table class="Two_Column" style="width: 555.75pt" cellspacing="0" summary="">
         <caption style="caption-side: bottom">
-          <div class="TableTitle">Table 144: <a name="1361850">Non-RWF Type Encode </a>Functions &nbsp;</div>
+          <div class="TableTitle">Table 144: <a name="1476280">Non-RWF Type Encode </a>Functions &nbsp;</div>
         </caption>
         <tr style="vertical-align: top">
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 198pt">
-            <div class="CellHeading"><a name="1361808">function</a> NAME</div>
+            <div class="CellHeading"><a name="1476238">function</a> NAME</div>
           </td>
           <td style="background-color: #F2960C; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: middle; width: 357.75pt">
-            <div class="CellHeading"><a name="1361810">DESCRIPTION</a></div>
+            <div class="CellHeading"><a name="1476240">DESCRIPTION</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1361812">rsslEncodeNonRWFDataTypeInit</a></div>
+            <div class="CellBody"><a name="1476242">rsslEncodeNonRWFDataTypeInit</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1361820">Uses the </a><span class="CodeOrCommand">RsslEncodeIterator</span> to populate an <span class="CodeOrCommand">RsslBuffer</span> with encoding information for the user. <span class="CodeOrCommand">RsslBuffer.data</span> contains the position where encoding begins and <span class="CodeOrCommand">RsslBuffer.length</span> contains the number of available bytes for encoding. You can populate this buffer using non-RWF encode functions.</div>
+            <div class="CellBody"><a name="1476250">Uses the </a><span class="CodeOrCommand">RsslEncodeIterator</span> to populate an <span class="CodeOrCommand">RsslBuffer</span> with encoding information for the user. <span class="CodeOrCommand">RsslBuffer.data</span> contains the position where encoding begins and <span class="CodeOrCommand">RsslBuffer.length</span> contains the number of available bytes for encoding. You can populate this buffer using non-RWF encode functions.</div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1361834">rsslEncodeNonRWFDataTypeComplete</a></div>
+            <div class="CellBody"><a name="1476264">rsslEncodeNonRWFDataTypeComplete</a></div>
           </td>
           <td style="border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-left-color: #000000; border-left-style: solid; border-left-width: 0.5pt; border-right-color: #000000; border-right-style: solid; border-right-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 4pt; padding-left: 6pt; padding-right: 6pt; padding-top: 6pt; vertical-align: top">
-            <div class="CellBody"><a name="1361839">Integrates content encoded into </a><span class="CodeOrCommand">RsslBuffer</span> with other pre-encoded information. <span class="CodeOrCommand">RsslBuffer.</span><span class="CodeOrCommand">length</span> should be set to the actual number of bytes encoded prior to this function being called.</div>
+            <div class="CellBody"><a name="1476269">Integrates content encoded into </a><span class="CodeOrCommand">RsslBuffer</span> with other pre-encoded information. <span class="CodeOrCommand">RsslBuffer.</span><span class="CodeOrCommand">length</span> should be set to the actual number of bytes encoded prior to this function being called.</div>
           </td>
         </tr>
       </table>

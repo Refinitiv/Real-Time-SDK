@@ -63,6 +63,9 @@ private :
 	EmaString		_applicationName;
 	EmaString		_instanceId;
 	EmaString		_toString;
+	EmaString		_authenticationErrorText;
+	EmaBuffer		_authenticationExtended;
+	EmaBuffer		_authenticationExtendedResp;
 	Channel*		_pChannel;
 	UInt64			_supportBatchRequest;
 	UInt64			_supportEnhancedSymbolList;
@@ -74,6 +77,8 @@ private :
 	UInt64			_permissionProfile;
 	UInt64			_supportViewRequest;
 	UInt64			_role;
+	UInt64			_authenticationTTReissue;
+	UInt64			_authenticationErrorCode;
 	UInt8			_userNameType;
 	UInt8			_streamState;
 	UInt8			_dataState;
@@ -86,6 +91,11 @@ private :
 	bool			_applicationNameSet;
 	bool			_instanceIdSet;
 	bool			_stateSet;
+	bool			_authenticationExtendedSet;
+	bool			_authenticationExtendedRespSet;
+	bool			_authenticationErrorTextSet;
+	bool			_authenticationErrorCodeSet;
+	bool			_authenticationTTReissueSet;
 
 	Login();
 	virtual ~Login();
@@ -138,7 +148,7 @@ public :
 
 private :
 
-	bool submit( RsslRequestMsg* );
+	bool submit( RsslRDMLoginRequest* );
 	bool submit( RsslGenericMsg* );
 	bool submit( RsslPostMsg* );
 
@@ -169,7 +179,7 @@ public:
 
 private:
 
-	bool submit( RsslRequestMsg* );
+	bool submit( RsslRDMLoginRequest * );
 	bool submit( RsslGenericMsg* );
 	bool submit( RsslPostMsg* );
 
@@ -200,6 +210,8 @@ public :
 
 	UInt32 sendLoginClose();
 
+	Login* getLogin();
+
 	LoginItem* getLoginItem( const ReqMsg&, OmmConsumerClient& , void* );
 
 	NiProviderLoginItem* getLoginItem( const ReqMsg&, OmmProviderClient&, void* );
@@ -216,6 +228,8 @@ public :
 
 	Channel* getActiveChannel();
 
+	void overlayLoginRequest(RsslRDMLoginRequest* pRequest);
+
 private :
 
 	static const EmaString			_clientName;
@@ -227,6 +241,8 @@ private :
 	RsslRDMLoginRequest				_loginRequestMsg;
 
 	char*							_loginRequestBuffer;
+
+	bool							_refreshReceived;
 
 	RefreshMsg						_refreshMsg;
 
@@ -242,9 +258,9 @@ private :
 
 	EmaVector< Item* >				_loginItems;
 
-	EmaVector< Item* >				_loginItemsOnChannelDown;
-
 	EmaString						_loginFailureMsg;
+
+	bool _notifyChannelDownReconnecting;			/* Used for recovery to check if the user has gotten the current status already */
 
 	RsslReactorCallbackRet processGenericMsg( RsslMsg*, RsslReactorChannel*, RsslRDMLoginMsgEvent* );
 	RsslReactorCallbackRet processRefreshMsg( RsslMsg*, RsslReactorChannel*, RsslRDMLoginMsgEvent* );

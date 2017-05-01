@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>6.7.6.7 Rejecting a Tunnel Stream Code Sample</title>
+    <title>6.7.6.6 Accepting a Tunnel Stream Code Sample</title>
     <link rel="StyleSheet" href="css/Chap_Reactor_Detailed_View.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,223 +55,148 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H4"><a name="1221217">Rejecting a Tunnel Stream Code Sample</a></div>
-      <div class="Body"><a name="1253091">The following code illustrates how to reject a tunnel stream requested by a consumer. The example presumes that a Reactor and Reactor Channel are already open and properly established.</a></div>
-      <div class="Blank_Line"><a name="1254901">&nbsp;</a></div>
+      <div class="H4"><a name="1221198">Accepting a Tunnel Stream Code Sample</a></div>
+      <div class="Body"><a name="1253088">The following code illustrates how to accept a tunnel stream requested by a consumer. The example presumes that a Reactor and Reactor Channel are already open and properly established.</a></div>
+      <div class="Blank_Line"><a name="1253852">&nbsp;</a></div>
       <table class="Commands" style="width: 554.95152pt" cellspacing="0" summary="">
         <caption></caption>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top; width: 554.95152pt">
-            <div class="command"><a name="1253149">&nbsp;</a></div>
+            <div class="command"><a name="1253097">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253151">RsslReactorCallbackRet tunnelStreamListenerCallback(RsslTunnelStreamRequestEvent *pEvent, </a></div>
+            <div class="command"><a name="1253099">RsslReactorCallbackRet tunnelStreamListenerCallback(RsslTunnelStreamRequestEvent *pEvent, </a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253153">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RsslErrorInfo *pErrorInfo)</a></div>
+            <div class="command"><a name="1253101">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RsslErrorInfo *pErrorInfo)</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253155">{</a></div>
+            <div class="command"><a name="1253103">{</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253157">&nbsp;&nbsp;&nbsp;&nbsp;RsslErrorInfo errorInfo;</a></div>
+            <div class="command"><a name="1253105">&nbsp;&nbsp;&nbsp;&nbsp;RsslErrorInfo errorInfo;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253159">&nbsp;&nbsp;&nbsp;&nbsp;RsslRet ret;</a></div>
+            <div class="command"><a name="1253107">&nbsp;&nbsp;&nbsp;&nbsp;RsslRet ret;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253161">&nbsp;&nbsp;&nbsp;&nbsp;RsslClassOfService cos;</a></div>
+            <div class="command"><a name="1253109">&nbsp;&nbsp;&nbsp;&nbsp;RsslClassOfService cos;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253163">&nbsp;</a></div>
+            <div class="command"><a name="1253111">&nbsp;&nbsp;&nbsp;&nbsp;RsslReactorAcceptTunnelStreamOptions acceptOpts;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253165">&nbsp;&nbsp;&nbsp;&nbsp;ret = rsslTunnelStreamRequestGetCos(pEvent, &amp;cos, &amp;errorInfo);</a></div>
+            <div class="command"><a name="1253669">&nbsp;&nbsp;&nbsp;&nbsp;ret = rsslTunnelStreamRequestGetCos(pEvent, &amp;cos, &amp;errorInfo);</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253167">&nbsp;</a></div>
+            <div class="command"><a name="1253113">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253169">&nbsp;&nbsp;&nbsp;&nbsp;/* Now presuming that the application wishes to reject the tunnel stream</a></div>
+            <div class="command" style="font-size: 9.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline"><span class="Color_003aGreen"><a name="1253115">&nbsp;&nbsp;&nbsp;&nbsp;/* Now presuming that the application wishes to accept the tunnel stream. */</a></span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253171">&nbsp;&nbsp;&nbsp;&nbsp; * Because it only communicates using the RWF protocol type. */</a></div>
+            <div class="command"><a name="1253117">&nbsp;&nbsp;&nbsp;&nbsp;rsslClearReactorAcceptTunnelStreamOptions(&amp;acceptOpts);</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253173">&nbsp;</a></div>
+            <div class="command"><a name="1253119">&nbsp;&nbsp;&nbsp;&nbsp;acceptOpts.statusEventCallback = tunnelStreamStatusEventCallback;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253175">&nbsp;&nbsp;&nbsp;&nbsp;if (cos.common.protocolType != RSSL_RWF_PROTOCOL_TYPE)</a></div>
+            <div class="command"><a name="1253121">&nbsp;&nbsp;&nbsp;&nbsp;acceptOpts.defaultMsgCallback = tunnelStreamDefaultMsgCallback;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253177">&nbsp;&nbsp;&nbsp;&nbsp;{</a></div>
+            <div class="command"><a name="1253123">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253179">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RsslReactorRejectTunnelStreamOptions rejectOpts;</a></div>
+            <div class="command"><a name="1253125">&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">/* Set desired ClassOfService options. */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253181">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RsslClassOfService expectedCos;</a></div>
+            <div class="command"><a name="1253127">&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">/* For this sample, set authentication to match consumer. */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253183">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsslClearReactorRejectTunnelStreamOptions(&amp;rejectOpts);</a></div>
+            <div class="command"><a name="1253129">&nbsp;&nbsp;&nbsp;&nbsp;acceptOpts.classOfService.authentication.type = cos.authentication.type;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253185">&nbsp;</a></div>
+            <div class="command"><a name="1253131">&nbsp;&nbsp;&nbsp;&nbsp;acceptOpts.classOfService.flowControl.type = RDM_COS_FC_BIDIRECTIONAL;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254244">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rejectOpts.state.streamState = RSSL_STREAM_CLOSED;</a></div>
+            <div class="command"><a name="1253133">&nbsp;&nbsp;&nbsp;&nbsp;acceptOpts.classOfService.dataIntegrity.type = RDM_COS_DI_RELIABLE;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254246">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rejectOpts.state.dataState = RSSL_DATA_SUSPECT;</a></div>
+            <div class="command"><a name="1253135">&nbsp;&nbsp;&nbsp;&nbsp;</a><span class="Color_003aGreen">/* ... (set additional members, based on what is desired by the provider) */</span></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254248">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rejectOpts.state.text.data = "This provider only communicates using the RWF protocol.";</a></div>
+            <div class="command"><a name="1253585">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254250">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rejectOpts.state.text.length = (RsslUInt32)strlen(rejectOpts.state.text.data);</a></div>
+            <div class="command"><a name="1253587">&nbsp;&nbsp;&nbsp;&nbsp;ret = rsslReactorAcceptTunnelStream(pEvent, &amp;acceptOpts, &amp;errorInfo);</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254252">&nbsp;</a></div>
+            <div class="command"><a name="1253589">&nbsp;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254254">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Set what the class of service is expected to be. */</a></div>
+            <div class="command"><a name="1253591">&nbsp;&nbsp;&nbsp;&nbsp;return RSSL_RC_CRET_SUCCESS;</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254256">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsslClearClassOfService(&amp;expectedCos);</a></div>
+            <div class="command"><a name="1253619">}</a></div>
           </td>
         </tr>
         <tr style="vertical-align: top">
           <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254258">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expectedCos.common.protocolType = RSSL_RWF_PROTOCOL_TYPE;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254260">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expectedCos.common.protocolMajorVersion = RSSL_RWF_MAJOR_VERSION;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254262">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expectedCos.common.protocolMinorVersion = RSSL_RWF_MINOR_VERSION;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254264">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expectedCos.authentication.type = RDM_COS_AU_NOT_REQUIRED;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254266">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expectedCos.flowControl.type = RDM_COS_FC_BIDIRECTIONAL;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254268">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expectedCos.dataIntegrity.type = RDM_COS_DI_RELIABLE;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254270">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* ... (set additional members, based on what is desired by the provider) */</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254272">&nbsp;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254274">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rejectOpts.pCos = &amp;expectedCos;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254276">&nbsp;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254278">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ret = rsslReactorRejectTunnelStream(pEvent, &amp;rejectOpts, &amp;errorInfo);</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254280">&nbsp;&nbsp;&nbsp;&nbsp;}</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254282">&nbsp;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254284">&nbsp;&nbsp;&nbsp;&nbsp;return RSSL_RC_CRET_SUCCESS;</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1254286">}</a></div>
-          </td>
-        </tr>
-        <tr style="vertical-align: top">
-          <td style="background-color: #FFF4E4; padding-bottom: 2pt; padding-left: 2pt; padding-right: 6pt; padding-top: 2pt; vertical-align: top">
-            <div class="command"><a name="1253187">&nbsp;</a></div>
+            <div class="command"><a name="1253593">&nbsp;</a></div>
           </td>
         </tr>
       </table>
-      <div class="CodeTitle">Code Example 17: <a name="1251880">Rejecting a Tunnel Stream Code Example</a></div>
+      <div class="CodeTitle">Code Example 16: <a name="1251877">Accepting a Tunnel Stream Code Example</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -284,7 +209,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.107.html">6.7.6	Accepting Tunnel Streams</a> : 6.7.6.7	Rejecting a Tunnel Stream Code Sample</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.001.html">Chapter 6	Reactor Detailed View</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.093.html">6.7	Creating and Using Tunnel Streams</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Reactor_Detailed_View.6.108.html">6.7.6	Accepting Tunnel Streams</a> : 6.7.6.6	Accepting a Tunnel Stream Code Sample</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

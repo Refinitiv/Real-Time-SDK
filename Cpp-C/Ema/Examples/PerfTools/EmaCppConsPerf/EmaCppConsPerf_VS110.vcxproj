@@ -9,25 +9,26 @@
       <Configuration>Release Shared MD</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-        <ProjectConfiguration Include="Release MD Assert|x64">
+    <ProjectConfiguration Include="Release MD Assert|x64">
       <Configuration>Release MD Assert</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-        <ProjectConfiguration Include="Release Shared MD Assert|x64">
+    <ProjectConfiguration Include="Release Shared MD Assert|x64">
       <Configuration>Release Shared MD Assert</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-        <ProjectConfiguration Include="Debug MDd|x64">
+    <ProjectConfiguration Include="Debug MDd|x64">
       <Configuration>Debug MDd</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-        <ProjectConfiguration Include="Debug Shared MDd|x64">
+    <ProjectConfiguration Include="Debug Shared MDd|x64">
       <Configuration>Debug Shared MDd</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>EmaCppConsPerf</ProjectName>
+    <ProjectGuid>{5B6092D4-645C-4938-8507-FA00E10FF89A}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="Configuration">
@@ -145,7 +146,6 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>
       </AssemblerListingLocation>
@@ -160,9 +160,11 @@
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS110\Release_MD;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Release_MD,%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS110\Release_MD;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Release_MD;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>
@@ -192,7 +194,6 @@ if not exist WIN_64_VS110\Release_MD\EmaConfig.xml mklink /h WIN_64_VS110\Releas
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>
       </AssemblerListingLocation>
@@ -209,7 +210,9 @@ if not exist WIN_64_VS110\Release_MD\EmaConfig.xml mklink /h WIN_64_VS110\Releas
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS110\Release_MD\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Release_MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS110\Release_MD\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Release_MD;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -242,7 +245,6 @@ if not exist WIN_64_VS110\Release_MD\Shared\EmaConfig.xml mklink /h WIN_64_VS110
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>
       </AssemblerListingLocation>
@@ -257,7 +259,9 @@ if not exist WIN_64_VS110\Release_MD\Shared\EmaConfig.xml mklink /h WIN_64_VS110
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS110\Release_MD_Assert;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS110\Release_MD_Assert;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Release_MD_Assert;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -289,7 +293,6 @@ if not exist WIN_64_VS110\Release_MD_Assert\EmaConfig.xml mklink /h WIN_64_VS110
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>
       </AssemblerListingLocation>
@@ -306,7 +309,9 @@ if not exist WIN_64_VS110\Release_MD_Assert\EmaConfig.xml mklink /h WIN_64_VS110
       <AdditionalDependencies>msvcprt.lib;msvcrt.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS110\Release_MD_Assert\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Release_MD_Assert;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS110\Release_MD_Assert\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Release_MD_Assert;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -339,7 +344,6 @@ if not exist WIN_64_VS110\Release_MD_Assert\Shared\EmaConfig.xml mklink /h WIN_6
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>
       </AssemblerListingLocation>
@@ -354,7 +358,9 @@ if not exist WIN_64_VS110\Release_MD_Assert\Shared\EmaConfig.xml mklink /h WIN_6
       <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS110\Debug_MDd;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS110\Debug_MDd;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Debug_MDd;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -386,7 +392,6 @@ if not exist WIN_64_VS110\Debug_MDd\EmaConfig.xml mklink /h WIN_64_VS110\Debug_M
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>
       </AssemblerListingLocation>
@@ -400,10 +405,12 @@ if not exist WIN_64_VS110\Debug_MDd\EmaConfig.xml mklink /h WIN_64_VS110\Debug_M
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; libema.lib; libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcprtd.lib;msvcrtd.lib; libema.lib;  libxml2.lib; ws2_32.lib; wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)EmaCppConsPerf.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\..\Libs\WIN_64_VS110\Debug_MDd\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Debug_MDd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      ..\..\..\Libs\WIN_64_VS110\Debug_MDd\Shared;..\..\..\..\Eta\Utils\Libxml2\WIN_64_VS110\Debug_MDd;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
@@ -433,8 +440,6 @@ if not exist WIN_64_VS110\Debug_MDd\Shared\EmaConfig.xml mklink /h WIN_64_VS110\
     <ClCompile Include="ConsPerfConfig.cpp" />
     <ClCompile Include="ConsumerThread.cpp" />
     <ClCompile Include="EmaCppConsPerf.cpp" />
-
-
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\AppUtil.h" />
@@ -448,15 +453,12 @@ if not exist WIN_64_VS110\Debug_MDd\Shared\EmaConfig.xml mklink /h WIN_64_VS110\
     <ClInclude Include="ConsPerfConfig.h" />
     <ClInclude Include="ConsumerThread.h" />
     <ClInclude Include="EmaCppConsPerf.h" />
-
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
     <None Include="EmaConfig.xml" />
-
   </ItemGroup>
   <ItemGroup>
-
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

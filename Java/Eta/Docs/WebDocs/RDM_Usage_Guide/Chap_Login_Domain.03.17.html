@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>3.4.3 Group and Service Status</title>
+    <title>3.4.2 Negotiating msgKey.attrib Parameters</title>
     <link rel="StyleSheet" href="css/Chap_Login_Domain.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,8 +55,19 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3"><a name="1001859">Group and Service Status</a></div>
-      <div class="Body"><a name="1001897">Group and service status messages do not apply to the Login domain.</a></div>
+      <div class="H3"><a name="1142087">Negotiating </a>msgKey.attrib Parameters</div>
+      <div class="Blank_Line"><a name="1142091">&nbsp;</a></div>
+      <table class="Note" style="width: 555.75pt" cellspacing="0" summary="">
+        <caption></caption>
+        <tr style="vertical-align: top">
+          <td style="background-color: #EFEFEF; border-bottom-color: #000000; border-bottom-style: solid; border-bottom-width: 0.5pt; border-top-color: #000000; border-top-style: solid; border-top-width: 0.5pt; padding-bottom: 6pt; padding-left: 0pt; padding-right: 0pt; padding-top: 6pt; vertical-align: top; width: 555.75pt">
+            <div class="Note">
+              <span class="Bold">Note: </span><a name="1142090">The consumer must support all parameters specified by the provider in its Login response.</a></div>
+          </td>
+        </tr>
+      </table>
+      <div class="Body"><a name="1142092">Several </a><span class="CodeOrCommand">ReqMsg.MsgKey.Attrib</span> parameters indicate how the provider should handle a connection including: <span class="Parameter">ProvidePermissionProfile</span>, <span class="Parameter">ProvidePermissionExpressions</span>, <span class="Parameter">SingleOpen</span>, <span class="Parameter">AllowSuspectData</span>, <span class="Parameter">InstanceId</span>, and <span class="Parameter">Role</span>. If the provider cannot support a specified value, it can change the value in the <span class="CodeOrCommand">RespMsg.MsgKey.Attrib</span>’s <span class="CodeOrCommand">ElementList</span> in its response to the consumer.</div>
+      <div class="Body"><a name="1142093">If the </a><span class="CodeOrCommand">RespMsg.MsgKey.Attrib</span> includes an <span class="CodeOrCommand">ElementList</span>, then the Elements should be checked to verify that the parameters have been accepted. If a request parameters differs from the response parameter, the consumer must support the parameters that the server provided in the <span class="CodeOrCommand">RespMsg</span>.</div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -69,7 +80,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.15.html">3.4	Special Semantics</a> : 3.4.3	Group and Service Status</div>
+      <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.01.html">Chapter 3	Login Domain</a> : <a class="WebWorks_Breadcrumb_Link" href="Chap_Login_Domain.03.16.html">3.4	Special Semantics</a> : 3.4.2	Negotiating msgKey.attrib Parameters</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

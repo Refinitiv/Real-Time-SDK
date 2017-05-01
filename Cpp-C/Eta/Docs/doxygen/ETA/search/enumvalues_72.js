@@ -75,6 +75,7 @@ var searchData=
   ['rdm_5flogin_5frole_5fprov',['RDM_LOGIN_ROLE_PROV',['../group__DomainLogin.html#gga62dfe3fe2232ff03b3013e3163af224ba149266b3105658480508430b31adb2ed',1,'rsslRDM.h']]],
   ['rdm_5flogin_5fserver_5ftype_5factive',['RDM_LOGIN_SERVER_TYPE_ACTIVE',['../group__DomainLogin.html#ggadf606125a80197bc322d96dfa51f017ca04abaac1c29f7f29ff5577cc68450b2c',1,'rsslRDM.h']]],
   ['rdm_5flogin_5fserver_5ftype_5fstandby',['RDM_LOGIN_SERVER_TYPE_STANDBY',['../group__DomainLogin.html#ggadf606125a80197bc322d96dfa51f017ca5c31d9833c24daa891c527793a9651ed',1,'rsslRDM.h']]],
+  ['rdm_5flogin_5fuser_5fauthn_5ftoken',['RDM_LOGIN_USER_AUTHN_TOKEN',['../group__DomainLogin.html#ggaf188fa62b9c62e2da16682170ea298afad68119b9e31c53a4958aaa91540310f7',1,'rsslRDM.h']]],
   ['rdm_5flogin_5fuser_5fcookie',['RDM_LOGIN_USER_COOKIE',['../group__DomainLogin.html#ggaf188fa62b9c62e2da16682170ea298afa547c9d0744f41f53487da4ce7bb90168',1,'rsslRDM.h']]],
   ['rdm_5flogin_5fuser_5femail_5faddress',['RDM_LOGIN_USER_EMAIL_ADDRESS',['../group__DomainLogin.html#ggaf188fa62b9c62e2da16682170ea298afa729b6b9171349c615a8b7651b34a35c6',1,'rsslRDM.h']]],
   ['rdm_5flogin_5fuser_5fname',['RDM_LOGIN_USER_NAME',['../group__DomainLogin.html#ggaf188fa62b9c62e2da16682170ea298afa00f03072d1421fa5ba5ce6de41ae0045',1,'rsslRDM.h']]],

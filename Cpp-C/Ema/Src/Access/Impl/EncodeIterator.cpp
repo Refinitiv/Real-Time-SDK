@@ -33,11 +33,11 @@ EncodeIterator::~EncodeIterator()
 		delete [] _rsslEncBuffer2.data;
 }
 
-void EncodeIterator::clear()
+void EncodeIterator::clear(UInt32 allocatedSize)
 {
 	if ( !_allocatedSize )
 	{
-		_allocatedSize = 4096;
+		_allocatedSize = allocatedSize;
 
 		try {
 			_rsslEncBuffer1.data = new char[ _allocatedSize ];
@@ -71,6 +71,10 @@ void EncodeIterator::clear()
 			const char* temp = "Failed to set RsslEncodeIterator buffer in EncodeIterator::clear().";
 			throwIueException( temp );
 		}
+	}
+	else if (_allocatedSize < allocatedSize)
+	{
+		reallocate( allocatedSize );
 	}
 	else
 	{

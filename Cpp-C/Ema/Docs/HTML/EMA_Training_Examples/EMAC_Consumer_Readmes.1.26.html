@@ -46,49 +46,49 @@
     <hr align="left" />
     <blockquote>
       <div class="H3_NoNum"><a name="1019291">310__MarketPrice__Rmtes</a></div>
-      <div class="Body"><a name="1041118">Summary</a></div>
-      <div class="Body"><a name="1041119">=======</a></div>
-      <div class="Body"><a name="1041120">&nbsp;</a></div>
-      <div class="Body"><a name="1041121">The 310__MarketPrice__Rmtes application is provided as an example of OMM Consumer</a></div>
-      <div class="Body"><a name="1041122">application written to the EMA library showcasing RWF RMTES_STRING processing.</a></div>
-      <div class="Body"><a name="1041123">&nbsp;</a></div>
-      <div class="Body"><a name="1041124">This application demonstrates basic usage of the EMA library for accessing and</a></div>
-      <div class="Body"><a name="1041125">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly</a></div>
-      <div class="Body"><a name="1041126">from an OMM Provider application, or from Thomson Reuters Advanced DistributionServer.</a></div>
-      <div class="Body"><a name="1041127">&nbsp;</a></div>
-      <div class="Body"><a name="1041128">The 310__MarketPrice__Rmtes showcases processing of RWF RMTES_STRING data</a></div>
-      <div class="Body"><a name="1041129">type.</a></div>
-      <div class="Body"><a name="1041130">&nbsp;</a></div>
-      <div class="Body"><a name="1041131"> </a></div>
-      <div class="Body"><a name="1041132">Detailed Description</a></div>
-      <div class="Body"><a name="1041133">====================</a></div>
-      <div class="Body"><a name="1041134">&nbsp;</a></div>
-      <div class="Body"><a name="1041135">The 310__MarketPrice__Rmtes implements the following high level steps:</a></div>
-      <div class="Body"><a name="1041136">&nbsp;</a></div>
-      <div class="Body"><a name="1041137">+ Implements OmmConsumerClient class in AppClient</a></div>
-      <div class="Body"><a name="1041138">  - overrides desired methods</a></div>
-      <div class="Body"><a name="1041139">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
-      <div class="Body"><a name="1041140">    - each of the method provided in this example use the ease of use</a></div>
-      <div class="Body"><a name="1041141">	  data extraction methods that are data type specific</a></div>
-      <div class="Body"><a name="1041142">+ Instantiates AppClient object that receives and processes item messages</a></div>
-      <div class="Body"><a name="1041143">+ Instantiates and modifies OmmConsumerConfig object</a></div>
-      <div class="Body"><a name="1041144">  - sets user name to “user”</a></div>
-      <div class="Body"><a name="1041145">  - sets operationModel to UserDispatchEnum</a></div>
-      <div class="Body"><a name="1041146">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
-      <div class="Body"><a name="1041147">  and logs into the specified server.</a></div>
-      <div class="Body"><a name="1041148">+ Opens a streaming item interest</a></div>
-      <div class="Body"><a name="1041149">  - MarketPrice N2_UBMS item from DIRECT_FEED service</a></div>
-      <div class="Body"><a name="1041150">+ Processes data received from API for 60 seconds</a></div>
-      <div class="Body"><a name="1041151">  - closes the item stream after a number of received update messages</a></div>
-      <div class="Body"><a name="1041152">  - all received messages are processed on API thread of control</a></div>
-      <div class="Body"><a name="1041153">+ Exits</a></div>
-      <div class="Body"><a name="1041154">&nbsp;</a></div>
-      <div class="Body"><a name="1041155">Note: if needed, these and other details may be modified to fit local</a></div>
-      <div class="Body"><a name="1041156">      environment using EmaConfig.xml file..</a></div>
-      <div class="Body"><a name="1041157">	  </a></div>
-      <div class="Body"><a name="1041158">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
-      <div class="Body"><a name="1041159">      standard configuration.</a></div>
-      <div class="Body"><a name="1028924">&nbsp;</a></div>
+      <div class="Body"><a name="1043283">Summary</a></div>
+      <div class="Body"><a name="1043284">=======</a></div>
+      <div class="Body"><a name="1043285">&nbsp;</a></div>
+      <div class="Body"><a name="1043286">The 310__MarketPrice__Rmtes application is provided as an example of OMM Consumer</a></div>
+      <div class="Body"><a name="1043287">application written to the EMA library showcasing RWF RMTES_STRING processing.</a></div>
+      <div class="Body"><a name="1043288">&nbsp;</a></div>
+      <div class="Body"><a name="1043289">This application demonstrates basic usage of the EMA library for accessing and</a></div>
+      <div class="Body"><a name="1043290">parsing of OMM MarketPrice data from Reuters Data Feed Direct (RDF-D), directly</a></div>
+      <div class="Body"><a name="1043291">from an OMM Provider application, or from Thomson Reuters Advanced DistributionServer.</a></div>
+      <div class="Body"><a name="1043292">&nbsp;</a></div>
+      <div class="Body"><a name="1043293">The 310__MarketPrice__Rmtes showcases processing of RWF RMTES_STRING data</a></div>
+      <div class="Body"><a name="1043294">type.</a></div>
+      <div class="Body"><a name="1043295">&nbsp;</a></div>
+      <div class="Body"><a name="1043296"> </a></div>
+      <div class="Body"><a name="1043297">Detailed Description</a></div>
+      <div class="Body"><a name="1043298">====================</a></div>
+      <div class="Body"><a name="1043299">&nbsp;</a></div>
+      <div class="Body"><a name="1043300">The 310__MarketPrice__Rmtes implements the following high level steps:</a></div>
+      <div class="Body"><a name="1043301">&nbsp;</a></div>
+      <div class="Body"><a name="1043302">+ Implements OmmConsumerClient class in AppClient</a></div>
+      <div class="Body"><a name="1043303">  - overrides desired methods</a></div>
+      <div class="Body"><a name="1043304">  - provides own methods as needed, e.g. decode( const FieldList&amp; )</a></div>
+      <div class="Body"><a name="1043305">    - each of the method provided in this example use the ease of use</a></div>
+      <div class="Body"><a name="1043306">	  data extraction methods that are data type specific</a></div>
+      <div class="Body"><a name="1043307">+ Instantiates AppClient object that receives and processes item messages</a></div>
+      <div class="Body"><a name="1043308">+ Instantiates and modifies OmmConsumerConfig object</a></div>
+      <div class="Body"><a name="1043309">  - sets user name to “user”</a></div>
+      <div class="Body"><a name="1043310">  - sets operationModel to UserDispatchEnum</a></div>
+      <div class="Body"><a name="1043311">+ Instantiates an OmmConsumer object which initializes the connection </a></div>
+      <div class="Body"><a name="1043312">  and logs into the specified server.</a></div>
+      <div class="Body"><a name="1043313">+ Opens a streaming item interest</a></div>
+      <div class="Body"><a name="1043314">  - MarketPrice N2_UBMS item from DIRECT_FEED service</a></div>
+      <div class="Body"><a name="1043315">+ Processes data received from API for 60 seconds</a></div>
+      <div class="Body"><a name="1043316">  - closes the item stream after a number of received update messages</a></div>
+      <div class="Body"><a name="1043317">  - all received messages are processed on API thread of control</a></div>
+      <div class="Body"><a name="1043318">+ Exits</a></div>
+      <div class="Body"><a name="1043319">&nbsp;</a></div>
+      <div class="Body"><a name="1043320">Note: if needed, these and other details may be modified to fit local</a></div>
+      <div class="Body"><a name="1043321">      environment using EmaConfig.xml file..</a></div>
+      <div class="Body"><a name="1043322">	  </a></div>
+      <div class="Body"><a name="1043323">Note: please refer to the EMA library ReadMe.txt file for details on</a></div>
+      <div class="Body"><a name="1043324">      standard configuration.</a></div>
+      <div class="Body"><a name="1041546">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics

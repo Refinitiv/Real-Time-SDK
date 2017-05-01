@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <!-- MOTW-DISABLED saved from url=(0014)about:internet -->
-    <title>240__SourceDirectory__Fanout</title>
+    <title>210__MarketByPrice__Streaming</title>
     <link rel="StyleSheet" href="css/EMAJ_IP_Readmes.css" type="text/css" media="all" />
     <link rel="StyleSheet" href="css/webworks.css" type="text/css" media="all" />
     <script type="text/javascript" language="JavaScript1.2" src="wwhdata/common/context.js"></script>
@@ -55,41 +55,41 @@
     <br clear="all" />
     <hr align="left" />
     <blockquote>
-      <div class="H3_NoNum"><a name="1031565">240__SourceDirectory__Fanout</a></div>
-      <div class="Body"><a name="1032917">Summary</a></div>
-      <div class="Body"><a name="1032918">=======</a></div>
-      <div class="Body"><a name="1032919">&nbsp;</a></div>
-      <div class="Body"><a name="1032920">240__SourceDirectory__Fanout is an example of an OMM Interactive Provider application </a></div>
-      <div class="Body"><a name="1032921">written to the EMA library.</a></div>
-      <div class="Body"><a name="1032922">&nbsp;</a></div>
-      <div class="Body"><a name="1032923">This application demonstrates the basic usage of the EMA library in providing</a></div>
-      <div class="Body"><a name="1032924">of OMM MarketPrice data to the Thomson Reuters Advanced Distribution Hub.</a></div>
-      <div class="Body"><a name="1032925">&nbsp;</a></div>
-      <div class="Body"><a name="1032926">240__SourceDirectory__Fanout illustrates how to create and publish a single OMM</a></div>
-      <div class="Body"><a name="1032927">streaming item. This application uses hardcoded source directory configuration.</a></div>
-      <div class="Body"><a name="1032928">&nbsp;</a></div>
-      <div class="Body"><a name="1032929">&nbsp;</a></div>
-      <div class="Body"><a name="1032930">Detailed Description</a></div>
-      <div class="Body"><a name="1032931">====================</a></div>
-      <div class="Body"><a name="1032932">&nbsp;</a></div>
-      <div class="Body"><a name="1032933">240__SourceDirectory__Fanout implements the following high-level steps:</a></div>
-      <div class="Body"><a name="1032934">&nbsp;</a></div>
-      <div class="Body"><a name="1032935">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
-      <div class="Body"><a name="1032936">  - Sets the listening  port to “14002”</a></div>
-      <div class="Body"><a name="1032937">+ Instantiates an OmmProvider object which:</a></div>
-      <div class="Body"><a name="1032938">  - listens on the above port</a></div>
-      <div class="Body"><a name="1032939">+ Accepts a login request</a></div>
-      <div class="Body"><a name="1032940">+ Processes an item request (MarketPrice) and creates requested item (streaming refresh)</a></div>
-      <div class="Body"><a name="1032941">  and publishes it on requested service</a></div>
-      <div class="Body"><a name="1032942">+ After submitting refresh and 10 updates,</a></div>
-      <div class="Body"><a name="1032943">  sends a directory update with service state change</a></div>
-      <div class="Body"><a name="1032944">+ All other domains are status closed</a></div>
-      <div class="Body"><a name="1032945">+ Exits</a></div>
-      <div class="Body"><a name="1032946">&nbsp;</a></div>
-      <div class="Body"><a name="1032947">Note: If needed, these and other details may be modified to fit your local</a></div>
-      <div class="Body"><a name="1032948">      environment. For details on standard configuration, refer to the EMA library</a></div>
-      <div class="Body"><a name="1032949">      ReadMe.txt file and EMA Configuration Guide.</a></div>
-      <div class="Body"><a name="1032107">&nbsp;</a></div>
+      <div class="H3_NoNum"><a name="1031563">210__MarketByPrice__Streaming</a></div>
+      <div class="Body"><a name="1033726">Summary</a></div>
+      <div class="Body"><a name="1033727">=======</a></div>
+      <div class="Body"><a name="1033728">&nbsp;</a></div>
+      <div class="Body"><a name="1033729">210__MarketByPrice__Streaming is an example of an OMM Interactive Provider application </a></div>
+      <div class="Body"><a name="1033730">written to the EMA library.</a></div>
+      <div class="Body"><a name="1033731">&nbsp;</a></div>
+      <div class="Body"><a name="1033732">This application demonstrates the basic usage of the EMA library in providing</a></div>
+      <div class="Body"><a name="1033733">of OMM MarketByPrice data to a Consumer application.</a></div>
+      <div class="Body"><a name="1033734">&nbsp;</a></div>
+      <div class="Body"><a name="1033735">210__MarketByPrice__Streaming illustrates how to create and publish a single OMM</a></div>
+      <div class="Body"><a name="1033736">streaming item. This application uses source directory configured in the EmaConfig.xml</a></div>
+      <div class="Body"><a name="1033737">file.</a></div>
+      <div class="Body"><a name="1033738">&nbsp;</a></div>
+      <div class="Body"><a name="1033739">&nbsp;</a></div>
+      <div class="Body"><a name="1033740">Detailed Description</a></div>
+      <div class="Body"><a name="1033741">====================</a></div>
+      <div class="Body"><a name="1033742">&nbsp;</a></div>
+      <div class="Body"><a name="1033743">210__MarketByPrice__Streaming implements the following high-level steps:</a></div>
+      <div class="Body"><a name="1033744">&nbsp;</a></div>
+      <div class="Body"><a name="1033745">+ Instantiates and modifies an OmmIProviderConfig object:</a></div>
+      <div class="Body"><a name="1033746">  - Set the operation model to use user dispatch</a></div>
+      <div class="Body"><a name="1033747">+ Instantiates an OmmProvider object which:</a></div>
+      <div class="Body"><a name="1033748">  - listens on the port from the EmaConfig.xml file</a></div>
+      <div class="Body"><a name="1033749">+ Accepts a login request</a></div>
+      <div class="Body"><a name="1033750">+ Processes an item request for MarketByPrice domain.</a></div>
+      <div class="Body"><a name="1033751"> - Creates streaming item (refresh and updates) and publishes them</a></div>
+      <div class="Body"><a name="1033752"> - Publishes updates 1 per second for 60 seconds.</a></div>
+      <div class="Body"><a name="1033753">+ Rejects subsequent item requests.</a></div>
+      <div class="Body"><a name="1033754">+ Exits</a></div>
+      <div class="Body"><a name="1033755">&nbsp;</a></div>
+      <div class="Body"><a name="1033756">Note: If needed, these and other details may be modified to fit your local</a></div>
+      <div class="Body"><a name="1033757">      environment. For details on standard configuration, refer to the EMA library</a></div>
+      <div class="Body"><a name="1033758">      ReadMe.txt file and EMA Configuration Guide.</a></div>
+      <div class="Body"><a name="1032912">&nbsp;</a></div>
       <script type="text/javascript" language="JavaScript1.2">
         <!--
           // Clear related topics
@@ -102,7 +102,7 @@
     </blockquote>
     <hr align="left" />
     <div class="WebWorks_Breadcrumbs" style="text-align: left;">
-      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.09.html">200 Series Examples</a> : 240__SourceDirectory__Fanout</div>
+      <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.01.html">EMA Java Interactive Provider Examples</a> : <a class="WebWorks_Breadcrumb_Link" href="EMAJ_IP_Readmes.3.10.html">200 Series Examples</a> : 210__MarketByPrice__Streaming</div>
     <br />
     <script type="text/javascript" language="JavaScript1.2">
       <!--

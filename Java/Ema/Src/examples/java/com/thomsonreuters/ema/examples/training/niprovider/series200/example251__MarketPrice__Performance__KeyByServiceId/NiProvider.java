@@ -16,6 +16,7 @@ import com.thomsonreuters.ema.access.OmmNiProviderConfig;
 import com.thomsonreuters.ema.access.OmmProvider;
 import com.thomsonreuters.ema.access.OmmReal;
 import com.thomsonreuters.ema.access.OmmState;
+import com.thomsonreuters.ema.access.UpdateMsg;
 
 public class NiProvider {
 
@@ -64,6 +65,7 @@ public class NiProvider {
 			
 			long midpoint = end = start = System.currentTimeMillis();
 			int updateCount = 0;
+			UpdateMsg updateMsg = EmaFactory.createUpdateMsg();
 			
 			while (start + 300000 > end)
 			{
@@ -76,7 +78,8 @@ public class NiProvider {
 					fieldList.add(EmaFactory.createFieldEntry().real(30, 10 + (((handle & 0x1) == 1) ? 10 : 20), OmmReal.MagnitudeType.EXPONENT_0));
 					fieldList.add(EmaFactory.createFieldEntry().rmtes(296, ByteBuffer.wrap("NAS".getBytes())));
 					
-					provider.submit( EmaFactory.createUpdateMsg().serviceId(serviceId).name("RTR" + handle + ".N").payload( fieldList ), handle );
+                    updateMsg.clear().serviceId(serviceId).name("RTR" + handle + ".N").payload( fieldList );
+					provider.submit( updateMsg, handle );
 					++updateCount;
 				}
 				
