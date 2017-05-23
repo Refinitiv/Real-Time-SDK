@@ -14,7 +14,6 @@ The Elektron-SDK will support multiple languages across different combinations o
 
 - [C++](Cpp-C)
 - [Java](Java)
-- [JavaScript (Preview Only)](https://github.com/thomsonreuters/Elektron-SDK/tree/Preview/Js)
 - [C# (Preview Only)](https://github.com/thomsonreuters/Elektron-SDK/tree/Preview/Cs)
 
 
