@@ -903,14 +903,14 @@ public interface Login
                    
         /**
          * Sets authenticationErrorCode.
-         * @param authenticationErrorCode long representing authenticationErrorCode.
+         * @param authenticationErrorCode representing authenticationErrorCode.
          * @return reference to this object.
          */
         public LoginStatus authenticationErrorCode( long authenticationErrorCode );
                    
         /**
          * Sets authenticationErrorText.
-         * @param authenticationErrorText String representing authenticationErrorText.
+         * @param authenticationErrorText representing authenticationErrorText.
          * @return reference to this object.
          */
         public LoginStatus authenticationErrorText( String authenticationErrorText );
