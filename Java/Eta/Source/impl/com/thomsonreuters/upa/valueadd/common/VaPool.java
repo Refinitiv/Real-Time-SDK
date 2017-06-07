@@ -31,6 +31,12 @@ public class VaPool
             _queue = new VaQueue();
     }
 
+    /**
+     * Instantiates a new va pool.
+     *
+     * @param useConcurrent the use concurrent
+     * @param debug the debug
+     */
     /* For turning on debug per pool. */
     public VaPool(boolean useConcurrent, boolean debug)
     {
@@ -68,8 +74,8 @@ public class VaPool
     /**
      * Updates the specified node to point to this pool. This would be called
      * when the node is created and assigns a pool to the node.
-     * 
-     * @param node
+     *
+     * @param node the node
      */
     public void updatePool(VaNode node)
     {

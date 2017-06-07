@@ -20,7 +20,6 @@ import com.thomsonreuters.upa.transport.TransportBuffer;
  * <code>DecodeIterator</code> reference can be used to decode the
  * {@link FieldList} and entries, and if desired, other iterators can be
  * used to decode the contents of each {@link FieldEntry}.
- * <p>
  * 
  * <p>
  * Before decoding begins, the iterator should be initialized to ready it for
@@ -41,8 +40,9 @@ import com.thomsonreuters.upa.transport.TransportBuffer;
  * <li class="blockList">
  * 
  * <pre>
+ * {@code
  * //Create DecodeIterator using CodecFactory
- * DecodeIterator decIter = CodecFactory.createDecodeIterator()}; 
+ * DecodeIterator decIter = CodecFactory.createDecodeIterator(); 
  * 
  * //Clear iterator 
  * clear();
@@ -58,6 +58,7 @@ import com.thomsonreuters.upa.transport.TransportBuffer;
  * 
  * //do decoding using iterator
  *  
+ * }
  * </pre>
  * 
  * </li>

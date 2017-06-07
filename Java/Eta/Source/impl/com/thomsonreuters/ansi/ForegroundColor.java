@@ -32,6 +32,11 @@ public final class ForegroundColor
     public final static ForegroundColor[] foregroundColor = {
       FColor0, FColor1, FColor2, FColor3, FColor4, FColor5, FColor6, FColor7};
 
+    /**
+     * To bytes.
+     *
+     * @return the byte[]
+     */
     public byte[] toBytes()
     {
         return _value;

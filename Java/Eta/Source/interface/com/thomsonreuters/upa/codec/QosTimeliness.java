@@ -5,6 +5,10 @@ package com.thomsonreuters.upa.codec;
  */
 public class QosTimeliness
 {
+    
+    /**
+     * Instantiates a new qos timeliness.
+     */
     // QosTimeliness class cannot be instantiated
     private QosTimeliness()
     {
@@ -40,9 +44,9 @@ public class QosTimeliness
 
     /**
      * Provides string representation for a Qos quality timeliness value.
-     * 
+     *
+     * @param timeliness the timeliness
      * @return string representation for a Qos quality timeliness value
-     * 
      * @see Qos
      */
     public static String toString(int timeliness)

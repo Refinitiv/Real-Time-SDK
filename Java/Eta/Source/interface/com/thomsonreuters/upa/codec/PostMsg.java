@@ -20,9 +20,9 @@ import com.thomsonreuters.upa.codec.Buffer;
 public interface PostMsg extends Msg
 {
     /**
-     * Checks the presence of the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Extended Header presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -31,9 +31,9 @@ public interface PostMsg extends Msg
     public boolean checkHasExtendedHdr();
 
     /**
-     * Checks the presence of the Post Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Post Id presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -42,9 +42,9 @@ public interface PostMsg extends Msg
     public boolean checkHasPostId();
 
     /**
-     * Checks the presence of the Message Key presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Message Key presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -53,9 +53,9 @@ public interface PostMsg extends Msg
     public boolean checkHasMsgKey();
 
     /**
-     * Checks the presence of the Sequence Number presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Sequence Number presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -64,9 +64,9 @@ public interface PostMsg extends Msg
     public boolean checkHasSeqNum();
 
     /**
-     * Checks the presence of the Part Number presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Part Number presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -75,9 +75,9 @@ public interface PostMsg extends Msg
     public boolean checkHasPartNum();
 
     /**
-     * Checks the presence of the Post Complete indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Post Complete indication flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -86,9 +86,9 @@ public interface PostMsg extends Msg
     public boolean checkPostComplete();
 
     /**
-     * Checks the presence of the Acknowledgment indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Acknowledgment indication flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -97,9 +97,9 @@ public interface PostMsg extends Msg
     public boolean checkAck();
 
     /**
-     * Checks the presence of the Permission Expression presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Permission Expression presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -108,9 +108,9 @@ public interface PostMsg extends Msg
     public boolean checkHasPermData();
 
     /**
-     * Checks the presence of the Post User Rights presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Post User Rights presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -119,81 +119,81 @@ public interface PostMsg extends Msg
     public boolean checkHasPostUserRights();
 
     /**
-     * Applies the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Extended Header presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasExtendedHdr();
 
     /**
-     * Applies the Post Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Post Id presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasPostId();
 
     /**
-     * Applies the Message Key presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Message Key presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasMsgKey();
 
     /**
-     * Applies the Sequence Number presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Sequence Number presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasSeqNum();
 
     /**
-     * Applies the Part Number presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Part Number presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasPartNum();
 
     /**
-     * Applies the Post Complete indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Post Complete indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyPostComplete();
 
     /**
-     * Applies the Acknowledgment indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Acknowledgment indication flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyAck();
 
     /**
-     * Applies the Permission Expression presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Permission Expression presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasPermData();
 
     /**
-     * Applies the Post User Rights presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Post User Rights presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */

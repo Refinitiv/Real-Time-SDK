@@ -28,6 +28,8 @@ public class TunnelStreamOpenOptions
     
     /**
      * Returns the domain type of the TunnelStream.
+     *
+     * @return the int
      */
     public int domainType()
     {
@@ -36,6 +38,8 @@ public class TunnelStreamOpenOptions
 
     /**
      * Sets the domain type of the TunnelStream.
+     *
+     * @param domainType the domain type
      */
     public void domainType(int domainType)
     {
@@ -44,6 +48,8 @@ public class TunnelStreamOpenOptions
 
     /**
      * Returns the stream id of the TunnelStream.
+     *
+     * @return the int
      */
     public int streamId()
     {
@@ -52,6 +58,8 @@ public class TunnelStreamOpenOptions
 
     /**
      * Sets the stream id of the TunnelStream.
+     *
+     * @param streamId the stream id
      */
     public void streamId(int streamId)
     {
@@ -60,6 +68,8 @@ public class TunnelStreamOpenOptions
 
     /**
      * Returns the service identifier of the TunnelStream.
+     *
+     * @return the int
      */
     public int serviceId()
     {
@@ -68,6 +78,8 @@ public class TunnelStreamOpenOptions
 
     /**
      * Sets the service identifier of the TunnelStream.
+     *
+     * @param serviceId the service id
      */
     public void serviceId(int serviceId)
     {
@@ -139,8 +151,8 @@ public class TunnelStreamOpenOptions
     /**
      * The TunnelStreamStatusEventCallback of the TunnelStream. Handles stream events
      * for tunnel stream.
-     * 
-     * @param callback
+     *
+     * @param callback the callback
      */
     public void statusEventCallback(TunnelStreamStatusEventCallback callback)
     {
@@ -161,8 +173,8 @@ public class TunnelStreamOpenOptions
     /**
      * The TunnelStreamDefaultMsgCallback of the TunnelStream. Handles message events
      * for tunnel stream.
-     * 
-     * @param callback
+     *
+     * @param callback the callback
      */
     public void defaultMsgCallback(TunnelStreamDefaultMsgCallback callback)
     {
@@ -183,8 +195,8 @@ public class TunnelStreamOpenOptions
     /**
      * The QueueMsgCallback of the TunnelStream. Handles message events
      * for queue message streams.
-     * 
-     * @param callback
+     *
+     * @param callback the callback
      */
     public void queueMsgCallback(TunnelStreamQueueMsgCallback callback)
     {
@@ -204,6 +216,8 @@ public class TunnelStreamOpenOptions
     
     /**
      * Returns the login request to send, if using authentication.
+     *
+     * @return the login request
      */
     public LoginRequest authLoginRequest()
     {
@@ -212,6 +226,8 @@ public class TunnelStreamOpenOptions
 
     /**
      * Sets the login request to send, if using authentication.
+     *
+     * @param loginRequest the login request
      */
     public void authLoginRequest(LoginRequest loginRequest)
     {
@@ -220,6 +236,8 @@ public class TunnelStreamOpenOptions
 
     /**
      * Returns the name of the TunnelStream.
+     *
+     * @return the string
      */
     public String name()
     {
@@ -229,6 +247,8 @@ public class TunnelStreamOpenOptions
     /**
      * Sets the name of the TunnelStream.
      * Length of the name must be in the range of 0-255.
+     *
+     * @param name the name
      */
     public void name(String name)
     {
@@ -237,6 +257,8 @@ public class TunnelStreamOpenOptions
 
     /**
      * Returns the user specified object to be set on the TunnelStream.
+     *
+     * @return the object
      */
     public Object userSpecObject()
     {
@@ -245,6 +267,8 @@ public class TunnelStreamOpenOptions
 
     /**
      * Sets a user specified object to be set on the TunnelStream.
+     *
+     * @param userSpecObject the user spec object
      */
     public void userSpecObject(Object userSpecObject)
     {
@@ -254,7 +278,8 @@ public class TunnelStreamOpenOptions
     /**
      * Returns the class of service of the TunnelStream.
      * Use to set class of service for the TunnelStream.
-     * 
+     *
+     * @return the class of service
      * @see ClassOfService
      */
     public ClassOfService classOfService()

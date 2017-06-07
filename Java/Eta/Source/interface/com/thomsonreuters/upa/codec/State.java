@@ -20,16 +20,17 @@ public interface State
     
     /**
      * Is State blank.
+     *
+     * @return true, if is blank
      */
     public boolean isBlank();
 
     /**
-     * Perform a deep copy into destState
-     * 
+     * Perform a deep copy into destState.
+     *
      * @param destState the value getting populated with the values of the calling Object.
      *         If Copying destState.text, the user must provide a {@link java.nio.ByteBuffer ByteBuffer}
      *         large enough to the hold the contents of this.text 
-     *
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if the destState is null. 
      *         {@link CodecReturnCodes#BUFFER_TOO_SMALL} if destination buffer is too small

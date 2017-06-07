@@ -7,6 +7,9 @@ class CredentialsImpl implements ICredentials, Cloneable
 {
     private final Map<String, String> _credentials = new HashMap<String, String>();
 
+    /**
+     * Instantiates a new credentials impl.
+     */
     protected CredentialsImpl()
     {
     }

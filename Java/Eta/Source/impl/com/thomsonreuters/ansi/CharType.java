@@ -48,6 +48,11 @@ public final class CharType implements Cloneable
     public char     c_attr;         /* color attrib */
     public char     c_fade_attr;    /* color fading */
 
+    /**
+     * Copy from.
+     *
+     * @param from the from
+     */
     public void copyFrom(CharType from)
     {
         ch = from.ch;
@@ -70,11 +75,17 @@ public final class CharType implements Cloneable
         return charType;
     }
 
+    /**
+     * Instantiates a new char type.
+     */
     public CharType()
     {
         clear();
     }
 
+    /**
+     * Clear.
+     */
     public void clear()
     {
         ch = ' ';
@@ -85,6 +96,12 @@ public final class CharType implements Cloneable
         c_fade_attr = MONO;
     }
   
+    /**
+     * Color for.
+     *
+     * @param i the i
+     * @return the color
+     */
     public static Color colorFor(int i)
     {
         Color c = null;

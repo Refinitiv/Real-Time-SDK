@@ -835,7 +835,7 @@ public interface Login
 		public boolean supportViewRequests();
 
 		/**
-		* @throw OmmInvalidUsageException if hasSupportStandby() returns false.
+		* @throws OmmInvalidUsageException if hasSupportStandby() returns false.
 		* @return true if Warm Standby is supported, false if not supported.
 		*/
 		public boolean supportStandby();
@@ -903,14 +903,14 @@ public interface Login
                    
         /**
          * Sets authenticationErrorCode.
-         * @param value long representing authenticationErrorCode.
+         * @param authenticationErrorCode long representing authenticationErrorCode.
          * @return reference to this object.
          */
         public LoginStatus authenticationErrorCode( long authenticationErrorCode );
                    
         /**
          * Sets authenticationErrorText.
-         * @param value String representing authenticationErrorText.
+         * @param authenticationErrorText String representing authenticationErrorText.
          * @return reference to this object.
          */
         public LoginStatus authenticationErrorText( String authenticationErrorText );

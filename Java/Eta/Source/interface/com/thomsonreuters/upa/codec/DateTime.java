@@ -16,13 +16,9 @@ public interface DateTime
      * Sets {@link DateTime} to blank. Sets all members in {@link DateTime} to
      * their respective blank values.
      * <p>
-     * <ul>
-     * <li>
-     * For date, all values are set to 0.</li>
-     * <li>
+     * For date, all values are set to 0.
      * For time, hour, minute, and second are set to 255 millisecond is set
-     * to 65535, microsecond and nanosecond are set to 2047.</li>
-     * </ul>
+     * to 65535, microsecond and nanosecond are set to 2047.
      */
     public void blank();
 

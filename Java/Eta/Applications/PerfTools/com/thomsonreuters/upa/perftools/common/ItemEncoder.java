@@ -54,8 +54,8 @@ public class ItemEncoder
 	 * @param itemInfo - market data item to encode post message for.
 	 * @param msgBuf  - TransportBuffer to encode post message into.
 	 * @param postUserInfo 
-	 * @param encodeStartTime - if >0, this is a latency timestamp to be included in the post message.
-	 * @return <0 if encoding fails, 0 otherwise.
+	 * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the post message.
+	 * @return &lt;0 if encoding fails, 0 otherwise.
 	 */
 	public int encodeItemPost(Channel channel, ItemInfo itemInfo, TransportBuffer msgBuf, PostUserInfo postUserInfo, long encodeStartTime)
 	{
@@ -124,8 +124,8 @@ public class ItemEncoder
      * @param postMsg - PostMsg to create post message into.
      * @param postBuffer - buffer for UpdateMsg in encoded data body.
      * @param postUserInfo 
-     * @param encodeStartTime - if >0, this is a latency timestamp to be included in the post message.
-     * @return <0 if encoding fails, 0 otherwise.
+     * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the post message.
+     * @return &lt;0 if encoding fails, 0 otherwise.
      */
     public int createItemPost(Channel channel, ItemInfo itemInfo, PostMsg postMsg, Buffer postBuffer, PostUserInfo postUserInfo, long encodeStartTime)
     {
@@ -186,8 +186,8 @@ public class ItemEncoder
 	 * @param channel - channel to encode generic message for.
 	 * @param itemInfo - market data item to encode generic message for.
 	 * @param msgBuf  - TransportBuffer to encode generic message into.
-	 * @param encodeStartTime - if >0, this is a latency timestamp to be included in the generic message.
-	 * @return <0 if encoding fails, 0 otherwise.
+	 * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the generic message.
+	 * @return &lt;0 if encoding fails, 0 otherwise.
 	 */
 	public int encodeItemGenMsg(Channel channel, ItemInfo itemInfo, TransportBuffer msgBuf, long encodeStartTime)
 	{
@@ -237,8 +237,8 @@ public class ItemEncoder
      * @param itemInfo - market data item to encode generic message for.
      * @param genericMsg - GenericMsg to create post message into.
      * @param genericBuffer - buffer for UpdateMsg in encoded data body.
-     * @param encodeStartTime - if >0, this is a latency timestamp to be included in the generic message.
-     * @return <0 if encoding fails, 0 otherwise.
+     * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the generic message.
+     * @return &lt;0 if encoding fails, 0 otherwise.
      */
     public int createItemGenMsg(Channel channel, ItemInfo itemInfo, GenericMsg genericMsg, Buffer genericBuffer, long encodeStartTime)
     {
@@ -390,9 +390,9 @@ public class ItemEncoder
      * @param itemInfo - market data item to encode update message for.
      * @param msgBuf  - TransportBuffer to encode update message into.
      * @param postUserInfo 
-     * @param encodeStartTime - if >0, this is a latency timestamp to be included in the update message.
+     * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the update message.
      * @param error - detailed error information in case of encoding failures.
-     * @return <0 if encoding fails, 0 otherwise.
+     * @return &lt;0 if encoding fails, 0 otherwise.
      */
 	public int encodeUpdate(Channel channel, 
 	        ItemInfo itemInfo, TransportBuffer msgBuf, PostUserInfo postUserInfo,
@@ -496,9 +496,9 @@ public class ItemEncoder
      * @param itemInfo - market data item to encode refresh message for.
      * @param msgBuf  - TransportBuffer to encode refresh message into.
      * @param postUserInfo 
-     * @param encodeStartTime - if >0, this is a latency timestamp to be included in the refresh message.
+     * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the refresh message.
      * @param error - detailed error information in case of encoding failures.
-     * @return <0 if encoding fails, 0 otherwise.
+     * @return &lt;0 if encoding fails, 0 otherwise.
      */
     public int encodeRefresh(Channel channel,
             ItemInfo itemInfo, TransportBuffer msgBuf, PostUserInfo postUserInfo, long encodeStartTime, Error error)

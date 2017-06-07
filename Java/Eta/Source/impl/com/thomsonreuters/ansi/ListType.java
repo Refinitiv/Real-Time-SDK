@@ -5,6 +5,9 @@ public final class ListType implements Cloneable
     public short index; /* num of entries in upd_list */
     public UpdateType upd_list[];
 
+    /**
+     * Instantiates a new list type.
+     */
     public ListType()
     {
         upd_list = new UpdateType[256];

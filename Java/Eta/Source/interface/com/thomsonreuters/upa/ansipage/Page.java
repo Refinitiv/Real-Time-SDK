@@ -42,6 +42,8 @@ public class Page implements Cloneable
 
   /**
    * Makes a copy of this Page. Changes to the copy will not affect the original and vice versa.
+   *
+   * @return the object
    */
   public Object clone()
   {
@@ -54,14 +56,16 @@ public class Page implements Cloneable
   /**
    * <P>The decode() method analyzes and parses the ANSI encoded update stream
    * and updates the PageUpdate list as well as the corresponding PageCell objects
-   * of the Page image.  </P>
-   * Decoding an ANSI stream is accomplished by using a finite
+   * of the Page image.  
+   * 
+   * <p>Decoding an ANSI stream is accomplished by using a finite
    * state machine.  Each of the ANSI escape sequences is parsed according to the state
    * into which the previous characters have the machine.  As the sequences are recognized,
    * the page image is modified. This allows the update list to be
    * sized without knowledge of the maximum amount of update information that a source
    * can communicate.  The page image should not be altered between calls to the decode()
-   * method.</P>
+   * method.
+   * 
    * <ul><li>As decode() is called, entries are added to the update list for the following
    *  reasons:
    * <li>For each repositioning of the cursor an entry with zero length is generated for that point.
@@ -144,8 +148,8 @@ public class Page implements Cloneable
   }
 
   /**
-   * The toString is used to output the content of each PageCell to a String object
-   * 
+   * The toString is used to output the content of each PageCell to a String object.
+   *
    * @return String object that contains the character is each PageCell
    */
   public String toString()
@@ -165,9 +169,8 @@ public class Page implements Cloneable
   /**
    * The toString is used to output the content of each PageCell to a String object.
    * If the drawBorder is set, the content will have a border.
-   * 
-   * @param drawBorder
-   * 
+   *
+   * @param drawBorder the draw border
    * @return String object that contains the character is each PageCell
    */
   public String toString(boolean drawBorder)
@@ -299,10 +302,11 @@ public class Page implements Cloneable
   }
 
   /**
+   * Checks for style.
+   *
    * @param nRow Row of the desired CellStyle
    * @param nColumn Column of the desired CellStyle
    * @param style style to look for in page
-   * 
    * @return true if any of the styles in <code>style</code> is enabled for the given cell
    */
   public boolean hasStyle(short nRow, short nColumn, CellStyle style)
@@ -315,10 +319,11 @@ public class Page implements Cloneable
 
 
   /**
+   * Checks for fade style.
+   *
    * @param nRow Row of the desired fade style
    * @param nColumn Column of the desired style CellStyle
    * @param style style to look for in page
-   * 
    * @return true if any of the styles in <code>style</code> is enabled for the given cell
    */
   public boolean hasFadeStyle(short nRow, short nColumn, CellStyle style)
@@ -433,11 +438,25 @@ public class Page implements Cloneable
     _page.status.initStatus();
   }
 
+  /**
+   * Gets the char type.
+   *
+   * @param nRow the n row
+   * @param nColumn the n column
+   * @return the char type
+   */
   private CharType getCharType(short nRow, short nColumn)
   {
       return _page.page[((((nRow) - 1) * _nNumberOfColumns) + ((nColumn) - 1))];
   }
 
+  /**
+   * Out of bounds.
+   *
+   * @param nRow the n row
+   * @param nColumn the n column
+   * @return true, if successful
+   */
   private boolean outOfBounds(short nRow, short nColumn)
   {
       return nRow > _nNumberOfRows ||

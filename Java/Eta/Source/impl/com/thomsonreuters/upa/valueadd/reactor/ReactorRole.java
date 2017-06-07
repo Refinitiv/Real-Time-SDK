@@ -22,8 +22,8 @@ public class ReactorRole
     /**
      * The ReactorChannelEventCallback associated with this role. Handles channel
      * events. Must be provided for all roles.
-     * 
-     * @param callback
+     *
+     * @param callback the callback
      */
     public void channelEventCallback(ReactorChannelEventCallback callback)
     {
@@ -45,8 +45,8 @@ public class ReactorRole
      * The DefaultMsgCallback associated with this role. Handles message events
      * that aren't handled by a specific domain callback. Must be provided for
      * all roles.
-     * 
-     * @param callback
+     *
+     * @param callback the callback
      */
     public void defaultMsgCallback(DefaultMsgCallback callback)
     {

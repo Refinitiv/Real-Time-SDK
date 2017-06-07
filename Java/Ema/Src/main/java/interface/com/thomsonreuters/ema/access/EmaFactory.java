@@ -167,6 +167,7 @@ public class EmaFactory
 	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumer}.
 	 * @param config OmmConsumerConfig providing configuration
+	 * @param client OmmConsumerClient that provides callback interfaces to be used for item processing
 	 * @return {@link com.thomsonreuters.ema.access.OmmConsumer}
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient client)
@@ -177,6 +178,8 @@ public class EmaFactory
 	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumer}.
 	 * @param config OmmConsumerConfig providing configuration
+	 * @param client OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @param closure Object specifies application defined identification
 	 * @return {@link com.thomsonreuters.ema.access.OmmConsumer}
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient client, Object closure)
@@ -201,7 +204,8 @@ public class EmaFactory
 	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumer}.
 	 * 
 	 * @param config OmmConsumerConfig providing configuration
-	 * @param errorClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @param adminClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @param errorClient OmmConsumerErrorClient that provides callback interfaces to be used for error reporting
 	 * @return {@link com.thomsonreuters.ema.access.OmmConsumer}
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient errorClient)
@@ -213,7 +217,9 @@ public class EmaFactory
 	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumer}.
 	 * 
 	 * @param config OmmConsumerConfig providing configuration
-	 * @param errorClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @param adminClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @param errorClient OmmConsumerErrorClient that provides callback interfaces to be used for error reporting
+	 * @param closure specifies application defined identification 
 	 * @return {@link com.thomsonreuters.ema.access.OmmConsumer}
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient errorClient, Object closure)
@@ -521,6 +527,7 @@ public class EmaFactory
 
 	    /**
 	     * Creates a {@link com.thomsonreuters.ema.domain.login.Login.LoginReq}.
+	     * @param reqMsg specifies ReqMsg to copy infomation from 
 	     * @return {@link com.thomsonreuters.ema.domain.login.Login.LoginReq}
 	     */
 	    public static LoginReq createLoginReq( ReqMsg reqMsg )
@@ -539,6 +546,7 @@ public class EmaFactory
 
 	    /**
 	     * Creates a {@link com.thomsonreuters.ema.domain.login.Login.LoginRefresh}.
+	     * @param refreshMsg specifies RefreshMsg to copy infomation from 
 	     * @return {@link com.thomsonreuters.ema.domain.login.Login.LoginRefresh}
 	     */
 	    public static LoginRefresh createLoginRefresh( RefreshMsg refreshMsg )
@@ -557,6 +565,7 @@ public class EmaFactory
 
 	    /**
 	     * Creates a {@link com.thomsonreuters.ema.domain.login.Login.LoginStatus}.
+	     * @param statusMsg specifies StatusMsg to copy information from
 	     * @return {@link com.thomsonreuters.ema.domain.login.Login.LoginStatus}
 	     */
 	    public static LoginStatus createLoginStatus( StatusMsg statusMsg )

@@ -140,6 +140,9 @@ public class Transport
         return ret;
     }
 
+    /**
+     * Instantiates a new transport.
+     */
     // Transport class cannot be instantiated
     private Transport()
     {
@@ -391,7 +394,8 @@ public class Transport
      * Programmatically extracts library and product version information that is compiled into this library.<BR>
      * 
      * User can call this method to programmatically extract version information.<BR>
-     * 
+     *
+     * @return the library version info
      * @see LibraryVersionInfo
      */
     public static LibraryVersionInfo queryVersion()
@@ -401,12 +405,11 @@ public class Transport
 
     /**
      * <b>WARNING: creates garbage</b>
-     * Returns a hex representation of the data in the provided {@link ByteBuffer}
-     * 
+     * Returns a hex representation of the data in the provided {@link ByteBuffer}.
+     *
      * @param buffer Contains the data to print
      * @param startPosition The starting position of the data in the buffer
      * @param length The length of the data
-     * 
      * @return String the hex representation of the data.
      */
     public static String toHexString(ByteBuffer buffer, final int startPosition, final int length)

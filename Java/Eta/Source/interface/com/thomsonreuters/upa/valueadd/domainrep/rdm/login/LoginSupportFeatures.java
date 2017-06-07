@@ -9,11 +9,12 @@ package com.thomsonreuters.upa.valueadd.domainrep.rdm.login;
  */
 public interface LoginSupportFeatures
 {
+    
     /**
      * The login support features flags. Populated by
      * {@link LoginSupportFeaturesFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 
@@ -42,17 +43,17 @@ public interface LoginSupportFeatures
     public int copy(LoginSupportFeatures destLoginSupportFeatures);
 
     /**
-     * Indicates whether the Provider supports Optimized Pause & Resume.
+     * Indicates whether the Provider supports Optimized Pause &amp; Resume.
      * 
      * @return supportOptimizedPauseResume. 1 - if provider supports Optimized
-     *         Pause & Resume. 0 - if not.
+     *         Pause &amp; Resume. 0 - if not.
      */
     public long supportOptimizedPauseResume();
 
     /**
-     * Indicates whether the Provider supports Optimized Pause & Resume.
-     * 
-     * @param supportOptimizedPauseResume
+     * Indicates whether the Provider supports Optimized Pause &amp; Resume.
+     *
+     * @param supportOptimizedPauseResume the support optimized pause resume
      */
     public void supportOptimizedPauseResume(long supportOptimizedPauseResume);
 
@@ -82,8 +83,8 @@ public interface LoginSupportFeatures
 
     /**
      * Indicates whether the Provider supports Post.
-     * 
-     * @param supportOMMPost
+     *
+     * @param supportOMMPost the support OMM post
      */
     public void supportOMMPost(long supportOMMPost);
 
@@ -115,8 +116,8 @@ public interface LoginSupportFeatures
     /**
      * Indicates whether the Provider supports Requests with Dynamic View
      * information.
-     * 
-     * @param supportViewRequests
+     *
+     * @param supportViewRequests the support view requests
      */
     public void supportViewRequests(long supportViewRequests);
 
@@ -242,8 +243,8 @@ public interface LoginSupportFeatures
 
     /**
      * Indicates whether the Provider may be used for Warm Standby.
-     * 
-     * @param supportStandby
+     *
+     * @param supportStandby the support standby
      */
     public void supportStandby(long supportStandby);
 
@@ -273,8 +274,8 @@ public interface LoginSupportFeatures
     
     /**
      * Indicates whether the non-interactive provider can request Dictionary.
-     * 
-     * @param supportProviderDictionaryDownload
+     *
+     * @param supportProviderDictionaryDownload the support provider dictionary download
      */    
     public void supportProviderDictionaryDownload(long supportProviderDictionaryDownload);
     
@@ -305,8 +306,8 @@ public interface LoginSupportFeatures
     
     /**
      * Indicates support for Enhanced Symbol List features.
-     * 
-     * @param supportEnhancedSymbolList
+     *
+     * @param supportEnhancedSymbolList the support enhanced symbol list
      */    
     public void supportEnhancedSymbolList(long supportEnhancedSymbolList);
     

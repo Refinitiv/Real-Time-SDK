@@ -33,8 +33,8 @@ public interface DictionaryRequest extends DictionaryMsg
      * buffer. Buffer used by this object's dictionaryName field will be set to
      * passed in buffer's data and position. Note that this creates garbage if
      * buffer is backed by String object.
-     * 
-     * @param dictionaryName
+     *
+     * @param dictionaryName the dictionary name
      */
     public void dictionaryName(Buffer dictionaryName);
     
@@ -50,8 +50,8 @@ public interface DictionaryRequest extends DictionaryMsg
     /**
      * verbosity - The verbosity of information desired. Populated by
      * {@link com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues}.
-     * 
-     * @param verbosity
+     *
+     * @param verbosity the verbosity
      */
     public void verbosity(int verbosity);
     
@@ -64,8 +64,8 @@ public interface DictionaryRequest extends DictionaryMsg
     
     /**
      * serviceId - The ID of the service to request the dictionary from.
-     * 
-     * @param serviceId
+     *
+     * @param serviceId the service id
      */
     public void serviceId(int serviceId);
     
@@ -78,8 +78,8 @@ public interface DictionaryRequest extends DictionaryMsg
     
     /**
      * The RDM Dictionary request flags. Populated by {@link DictionaryRequestFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
     

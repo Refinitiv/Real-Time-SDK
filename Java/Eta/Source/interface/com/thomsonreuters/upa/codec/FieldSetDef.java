@@ -66,8 +66,8 @@ public interface FieldSetDef
 
     /**
      * Performs a shallow copy from this FieldSetDef into the designated FieldSetDef.
-     * 
-     * @param destSetDef
+     *
+     * @param destSetDef the dest set def
      */
     public void copy(FieldSetDef destSetDef);
 }

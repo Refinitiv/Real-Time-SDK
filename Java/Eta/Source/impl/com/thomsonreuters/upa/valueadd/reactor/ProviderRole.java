@@ -14,16 +14,19 @@ public class ProviderRole extends ReactorRole
     RDMDictionaryMsgCallback _dictionaryMsgCallback = null;
     TunnelStreamListenerCallback _tunnelStreamListenerCallback = null;
     
+    /**
+     * Instantiates a new provider role.
+     */
     public ProviderRole()
     {
         _type = ReactorRoleTypes.PROVIDER;
     }
     
-    /** A callback function for processing RDMLoginMsgEvents received. If not present,
+    /**
+     *  A callback function for processing RDMLoginMsgEvents received. If not present,
      * the received message will be passed to the defaultMsgCallback.
-     * 
-     * @param callback
-     * 
+     *
+     * @param callback the callback
      * @see RDMLoginMsgCallback
      * @see RDMLoginMsgEvent
      */
@@ -42,11 +45,11 @@ public class ProviderRole extends ReactorRole
         return _loginMsgCallback;
     }
     
-    /** A callback function for processing RDMDirectoryMsgEvents received. If not present,
+    /**
+     *  A callback function for processing RDMDirectoryMsgEvents received. If not present,
      * the received message will be passed to the defaultMsgCallback.
-     * 
-     * @param callback
-     * 
+     *
+     * @param callback the callback
      * @see RDMDirectoryMsgCallback
      * @see RDMDirectoryMsgEvent
      */
@@ -65,11 +68,11 @@ public class ProviderRole extends ReactorRole
         return _directoryMsgCallback;
     }
     
-    /** A callback function for processing RDMDictionaryMsgEvents received. If not present,
+    /**
+     *  A callback function for processing RDMDictionaryMsgEvents received. If not present,
      * the received message will be passed to the defaultMsgCallback.
-     * 
-     * @param callback
-     * 
+     *
+     * @param callback the callback
      * @see RDMDictionaryMsgCallback
      * @see RDMDictionaryMsgEvent
      */
@@ -90,9 +93,8 @@ public class ProviderRole extends ReactorRole
     
     /**
      * A callback function to listen for incoming tunnel stream requests.
-     * 
-     * @param callback
-     * 
+     *
+     * @param callback the callback
      * @see TunnelStreamListenerCallback
      * @see TunnelStreamRequestEvent
      */

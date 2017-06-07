@@ -89,15 +89,16 @@ import com.thomsonreuters.upa.codec.Buffer;
  * <li class="blockList">
  * 
  * <pre>
+ * {@code
  * int retval;
  * 
- *  //decode array
- * if (array.decode(decIter) >= {@link CodecReturnCodes#SUCCESS})
+ * //decode array
+ * if (array.decode(decIter) >= CodecReturnCodes.SUCCESS)
  * {
  *    //decode array entry
- *    while((retval = arrayentry.decode(decIter, entrybuffer)) != {@link CodecReturnCodes#END_OF_CONTAINER})
+ *    while((retval = arrayentry.decode(decIter, entrybuffer)) != CodecReturnCodes.END_OF_CONTAINER)
  *    {
- *          if(retval < {@link CodecReturnCodes#SUCCESS})
+ *          if(retval < CodecReturnCodes.SUCCESS)
  *          {
  *              //decoding failure tends to be unrecoverable
  *          }
@@ -111,6 +112,7 @@ import com.thomsonreuters.upa.codec.Buffer;
  *    }
  * }
  * 
+ * }
  * </pre>
  * 
  * </li>
@@ -127,6 +129,8 @@ public interface Array extends XMLDecoder
     
     /**
      * Is Array blank.
+     *
+     * @return true, if is blank
      */
     public boolean isBlank();
 

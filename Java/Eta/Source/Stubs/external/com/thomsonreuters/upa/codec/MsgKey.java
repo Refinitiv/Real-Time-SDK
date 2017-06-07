@@ -14,9 +14,9 @@ import com.thomsonreuters.upa.codec.Buffer;
 public interface MsgKey
 {
     /**
-     * Checks the presence of the Service Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Service Id presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -26,9 +26,8 @@ public interface MsgKey
     public boolean checkHasServiceId();
 
     /**
-     * Checks the presence of the Name presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Name presence flag.
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -37,9 +36,9 @@ public interface MsgKey
     public boolean checkHasName();
 
     /**
-     * Checks the presence of the Name Type presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Name Type presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -48,9 +47,9 @@ public interface MsgKey
     public boolean checkHasNameType();
 
     /**
-     * Checks the presence of the Filter presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Filter presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -59,9 +58,9 @@ public interface MsgKey
     public boolean checkHasFilter();
 
     /**
-     * Checks the presence of the Identifier presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Identifier presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -70,9 +69,9 @@ public interface MsgKey
     public boolean checkHasIdentifier();
 
     /**
-     * Checks the presence of the Attribute presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Attribute presence flag.
+     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -81,54 +80,54 @@ public interface MsgKey
     public boolean checkHasAttrib();
 
     /**
-     * Applies the Service Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Service Id presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasServiceId();
 
     /**
-     * Applies the Name presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Name presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasName();
 
     /**
-     * Applies the Name Type presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Name Type presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasNameType();
 
     /**
-     * Applies the Filter presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Filter presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasFilter();
 
     /**
-     * Applies the Identifier presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Identifier presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasIdentifier();
 
     /**
-     * Applies the Attribute presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Attribute presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */

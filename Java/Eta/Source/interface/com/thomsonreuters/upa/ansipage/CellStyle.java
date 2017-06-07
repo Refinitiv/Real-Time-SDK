@@ -10,6 +10,12 @@ public final class CellStyle implements Cloneable{
   boolean _underlineEnable = false;
   boolean _immutable = false;
 
+  /**
+   * Instantiates a new cell style.
+   *
+   * @param name the name
+   * @param value the value
+   */
   private CellStyle(String name, byte value)
   {
     _name = name;
@@ -38,8 +44,8 @@ public final class CellStyle implements Cloneable{
   }
 
   /**
-   * Constructs a CellStyle using a byte value
-   * 
+   * Constructs a CellStyle using a byte value.
+   *
    * @param value - the value used to set the style of the CellStyle
    */
   public CellStyle(byte value)
@@ -97,10 +103,9 @@ public final class CellStyle implements Cloneable{
   public final static CellStyle bright = new CellStyle("bright", (byte)0x10);
 
   /**
-   * Used to enable the underline
-   * 
+   * Used to enable the underline.
+   *
    * @param bUnderlinEnable Enable/Disable the Underline style of the cell. Type: boolean
-   * 
    * @deprecated - replaced by {@link #setStyle(CellStyle) setStyle(CellStyle.underline)}
    */
   public void setUnderline(boolean bUnderlinEnable)
@@ -109,10 +114,9 @@ public final class CellStyle implements Cloneable{
   }
 
   /**
-   * Used to determine whether the Underline is enabled
-   * 
+   * Used to determine whether the Underline is enabled.
+   *
    * @return true if the Underline is enabled.
-   * 
    * @deprecated - replaced by {@link #hasStyle(CellStyle)}
    */
   public boolean getUnderline()
@@ -142,6 +146,9 @@ public final class CellStyle implements Cloneable{
   }
 
   /**
+   * Checks for style.
+   *
+   * @param c the c
    * @return true if this object contains the cell style any of the styles specified.
    */
     public boolean hasStyle(CellStyle c)
@@ -151,10 +158,10 @@ public final class CellStyle implements Cloneable{
 
     /**
      * Adds the style or styles to the existing cell styles stored in this object.
-     * 
-     * @throws UnsupportedOperationException if the object is one of the CellStyle constants (e.g. {@link #underline}).
+     *
+     * @param c the new style
      */
-    public void setStyle(CellStyle c)
+    public void setStyle(CellStyle c) 
     {
         if (_immutable)
             throw new UnsupportedOperationException("Cannot modify a CellStyle constant");

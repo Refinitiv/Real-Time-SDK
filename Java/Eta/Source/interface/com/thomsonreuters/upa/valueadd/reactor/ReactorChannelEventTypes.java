@@ -35,9 +35,8 @@ public class ReactorChannelEventTypes
     /**
      * Returns a String representation of the specified ReactorChannelEventTypes
      * type.
-     * 
-     * @param type
-     * 
+     *
+     * @param type the type
      * @return String representation of the specified ReactorChannelEventTypes
      *         type
      */

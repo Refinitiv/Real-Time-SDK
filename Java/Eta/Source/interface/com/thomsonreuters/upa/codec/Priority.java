@@ -1,6 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
+ * <p>
  * Consumers use {@link Priority} to indicate the stream's level of importance,
  * conveyed by the priority information.When a consumer is aggregating streams
  * on behalf of multiple users, the priority typically corresponds to the number
@@ -8,7 +9,6 @@ package com.thomsonreuters.upa.codec;
  * decrease a stream's associated priority information by issuing a subsequent
  * request message on an already open stream. Priority is represented by a
  * priorityClass value and a priorityCount value.
- * <p>
  * <ul>
  * <li>The priority class indicates the general importance of the stream to the
  * consumer.</li>

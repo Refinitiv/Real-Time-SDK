@@ -22,8 +22,8 @@ public interface LoginConsumerConnectionStatus extends LoginMsg
     /**
      * The Consumer Connection Status flags. Populated by
      * {@link LoginConsumerConnectionStatusFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 

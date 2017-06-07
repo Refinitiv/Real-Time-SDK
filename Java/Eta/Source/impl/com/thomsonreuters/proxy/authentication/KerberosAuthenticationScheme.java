@@ -57,6 +57,12 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
     private static HashMap<String, String> loginConfigOptions = new HashMap<String, String>();
 
     
+    /**
+     * Instantiates a new kerberos authentication scheme.
+     *
+     * @param proxyAuthenticator the proxy authenticator
+     * @throws NullPointerException the null pointer exception
+     */
     public KerberosAuthenticationScheme(IProxyAuthenticator proxyAuthenticator) throws NullPointerException
     {
         if (proxyAuthenticator == null)
@@ -156,6 +162,11 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
         }
     }
 
+    /**
+     * Do AS and TGS exchanges.
+     *
+     * @throws Exception the exception
+     */
     /* Use JAAS to do Authentication Server (AS) exchange, i.e. get the Ticket Granting Ticket (TGT)
      * and use GSSAPI(=Generic Security Service API) for to do Ticket-Granting Server (TGS) exchange, i.e get Kerberos service ticket
      */
@@ -220,6 +231,16 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
         loginContext.logout();
     }
 	
+    /**
+     * Krb 5 validate.
+     *
+     * @param username the username
+     * @param password the password
+     * @param krbfile the krbfile
+     * @param moduleName the module name
+     * @throws FileNotFoundException the file not found exception
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public static void krb5Validate(final String username, final String password, final String krbfile, final String moduleName)
                     throws FileNotFoundException, NoSuchAlgorithmException
     {
@@ -314,6 +335,13 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
         });     
     }
  
+    /**
+     * Gets the username password handler.
+     *
+     * @param username the username
+     * @param password the password
+     * @return the username password handler
+     */
     public static CallbackHandler getUsernamePasswordHandler(final String username, final String password)
     {
         final CallbackHandler handler = new CallbackHandler()
@@ -341,6 +369,17 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
         return handler;
     }
 
+    /**
+     * Gets the kerberos service ticket.
+     *
+     * @param userName the user name
+     * @param domain the domain
+     * @param service the service
+     * @param server the server
+     * @param loginContext the login context
+     * @return the kerberos service ticket
+     * @throws PrivilegedActionException the privileged action exception
+     */
     public byte[] getKerberosServiceTicket(String userName, String domain, String service, String server, LoginContext loginContext)
             throws PrivilegedActionException
     {
@@ -360,6 +399,11 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
         return serviceTicket;
     }
 
+    /**
+     * Prints the hex.
+     *
+     * @param data the data
+     */
     public static void printHex(byte[] data)
     {
         int i = 0, j = 0, k = 0; // loop counters

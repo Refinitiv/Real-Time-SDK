@@ -14,7 +14,8 @@ public class CosDataIntegrity
     
     /**
      * Returns the type of the data integrity class of service.
-     * 
+     *
+     * @return the int
      * @see ClassesOfService
      */
     public int type()
@@ -24,7 +25,8 @@ public class CosDataIntegrity
     
     /**
      * Sets the type of the data integrity class of service.
-     * 
+     *
+     * @param type the type
      * @see ClassesOfService
      */
     public void type(int type)

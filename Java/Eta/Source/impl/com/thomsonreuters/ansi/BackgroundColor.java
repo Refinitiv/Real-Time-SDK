@@ -37,11 +37,19 @@ public class BackgroundColor implements Cloneable
         return new BackgroundColor(_value);
     }
 
+    /**
+     * To bytes.
+     *
+     * @return the byte[]
+     */
     public byte[] toBytes()
     {
         return _value;
     }
   
+    /**
+     * Instantiates a new background color.
+     */
     public BackgroundColor()
     {
     }

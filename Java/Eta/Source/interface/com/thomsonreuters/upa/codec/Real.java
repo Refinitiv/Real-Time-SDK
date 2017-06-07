@@ -74,6 +74,8 @@ public interface Real
      * value and hint should be ignored, if false value and hint determine the resultant
      * value. This allows Real to be represented as blank when used as either a primitive
      * type or a set-defined primitive type.
+     *
+     * @return true, if is blank
      */
     public boolean isBlank();
 

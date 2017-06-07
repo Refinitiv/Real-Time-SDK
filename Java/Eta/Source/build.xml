@@ -115,7 +115,7 @@
             </fileset>
         </copy>
 
-		<javadoc sourcepath="${marshall.dir}" classpath="${ApacheClient.dir}/commons-codec-1.4.jar;${ApacheClient.dir}/httpclient-4.1.2.jar;${ApacheClient.dir}/httpclient-cache-4.1.2.jar;${ApacheClient.dir}/httpcore-4.1.2.jar;${ApacheClient.dir}/httpmime-4.1.2.jar" defaultexcludes="yes" destdir="${docs.refman.upaj.dir}" author="true" version="true" use="true" windowtitle="ETAJ API" additionalparam="-Xdoclint:none">
+		<javadoc sourcepath="${marshall.dir}" classpath="${ApacheClient.dir}/commons-codec-1.4.jar;${ApacheClient.dir}/httpclient-4.1.2.jar;${ApacheClient.dir}/httpclient-cache-4.1.2.jar;${ApacheClient.dir}/httpcore-4.1.2.jar;${ApacheClient.dir}/httpmime-4.1.2.jar" defaultexcludes="yes" destdir="${docs.refman.upaj.dir}" author="true" version="true" use="true" windowtitle="ETAJ API">
 			<doctitle>
 				<![CDATA[<h1>Elektron Transport API (ETA) 3.0 - Java Edition</h1>]]></doctitle>
 			<bottom>

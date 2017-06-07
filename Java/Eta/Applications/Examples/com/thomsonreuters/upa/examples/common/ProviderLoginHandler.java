@@ -224,7 +224,7 @@ public class ProviderLoginHandler
      * @param chnl - The channel to send close status message to
      * @param error - Error information in case of failure
      * @return {@link CodecReturnCodes#SUCCESS} if close status message sent
-     *         successfully, < {@link CodecReturnCodes#SUCCESS} when it fails.
+     *         successfully, &lt; {@link CodecReturnCodes#SUCCESS} when it fails.
      */
     public int sendCloseStatus(Channel chnl, Error error)
     {

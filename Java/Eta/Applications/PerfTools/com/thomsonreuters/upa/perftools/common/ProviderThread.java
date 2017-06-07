@@ -269,7 +269,7 @@ public class ProviderThread extends Thread
      * @param length - buffer size to get
      * @param error - error populated when get transport buffer fails
      * 
-     * @return <0 if get buffer fails, 0 otherwise.
+     * @return &lt;0 if get buffer fails, 0 otherwise.
      */
     public int getItemMsgBuffer(ProviderSession session, int length, Error error)
     {
@@ -384,7 +384,7 @@ public class ProviderThread extends Thread
      * @param session - client channel session 
      * @param allowPack - if false, write buffer without packing. if true, pack according to configuration.
      * @param error - error information populated in case of failure.
-     * @return <0 in case of error, 0 otherwise
+     * @return &lt;0 in case of error, 0 otherwise
      */
     public int sendItemMsgBuffer(ProviderSession session, boolean allowPack, Error error)
     {

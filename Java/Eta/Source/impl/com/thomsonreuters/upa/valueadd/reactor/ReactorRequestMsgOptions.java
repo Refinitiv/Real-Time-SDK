@@ -22,8 +22,8 @@ public class ReactorRequestMsgOptions
     
     /**
      * User-specified object to return as the application receives events related to this request.
-     * 
-     * @param userSpecObj
+     *
+     * @param userSpecObj the user spec obj
      */
     public void userSpecObj(Object userSpecObj)
     {

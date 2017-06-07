@@ -5,6 +5,10 @@ package com.thomsonreuters.upa.transport;
  */
 public class ChannelState
 {
+    
+    /**
+     * Instantiates a new channel state.
+     */
     // ChannelState class cannot be instantiated
     private ChannelState()
     {
@@ -40,7 +44,10 @@ public class ChannelState
     public static final int ACTIVE = 2;
 
     /**
-     * Returns a string representation of the specified state
+     * Returns a string representation of the specified state.
+     *
+     * @param state the state
+     * @return the string
      */
     public static final String toString(int state)
     {

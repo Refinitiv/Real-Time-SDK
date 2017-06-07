@@ -14,7 +14,7 @@ import com.thomsonreuters.upa.rdm.DomainTypes;
 /**
  * This is a hash map based WatchList for quick lookup of items and their
  * associated streamId and domainType when sending updates or reissuing
- * refreshes. It is a map of (streamId -> item info).
+ * refreshes. It is a map of (streamId -&gt; item info).
  */
 public class StreamIdWatchList implements Iterable<Map.Entry<Integer, WatchListEntry>>
 {

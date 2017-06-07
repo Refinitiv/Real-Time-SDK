@@ -32,6 +32,8 @@ public class CosCommon
     /**
      * Returns the maximum message size. Set by providers to convey the
      * maximum message size it supports.
+     *
+     * @return the int
      */
     public int maxMsgSize()
     {
@@ -42,6 +44,8 @@ public class CosCommon
      * Sets the maximum message size. Set by providers to convey the
      * maximum message size it supports. Must be a positive number up
      * to 2,147,483,647.
+     *
+     * @param maxMsgSize the max msg size
      */
     public void maxMsgSize(int maxMsgSize)
     {
@@ -51,6 +55,8 @@ public class CosCommon
     /**
      * Returns the maximum fragment size. Set by providers to convey the
      * maximum fragment size it supports.
+     *
+     * @return the int
      */
     public int maxFragmentSize()
     {
@@ -61,6 +67,8 @@ public class CosCommon
      * Sets the maximum fragment size. Set by providers to convey the
      * maximum fragment size it supports. Must be a positive number up
      * to 2,147,483,647.
+     *
+     * @param maxFragmentSize the max fragment size
      */
     public void maxFragmentSize(int maxFragmentSize)
     {
@@ -69,6 +77,8 @@ public class CosCommon
 
     /**
      * Returns the protocol type of the TunnelStream.
+     *
+     * @return the int
      */
     public int protocolType()
     {
@@ -77,6 +87,8 @@ public class CosCommon
 
     /**
      * Sets the protocol type of the TunnelStream.
+     *
+     * @param protocolType the protocol type
      */
     public void protocolType(int protocolType)
     {
@@ -85,6 +97,8 @@ public class CosCommon
 
     /**
      * Returns the protocol major version of the TunnelStream.
+     *
+     * @return the int
      */
     public int protocolMajorVersion()
     {
@@ -93,6 +107,8 @@ public class CosCommon
 
     /**
      * Sets the protocol major version of the TunnelStream.
+     *
+     * @param protocolMajorVersion the protocol major version
      */
     public void protocolMajorVersion(int protocolMajorVersion)
     {
@@ -101,6 +117,8 @@ public class CosCommon
 
     /**
      * Returns the protocol minor version of the TunnelStream.
+     *
+     * @return the int
      */
     public int protocolMinorVersion()
     {
@@ -109,27 +127,49 @@ public class CosCommon
 
     /**
      * Sets the protocol minor version of the TunnelStream.
+     *
+     * @param protocolMinorVersion the protocol minor version
      */
     public void protocolMinorVersion(int protocolMinorVersion)
     {
         _protocolMinorVersion = protocolMinorVersion;
     }
 
+    /**
+     * Stream version.
+     *
+     * @return the int
+     */
     int streamVersion()
     {
         return _streamVersion;
     }
     
+    /**
+     * Stream version.
+     *
+     * @param streamVersion the stream version
+     */
     void streamVersion(int streamVersion)
     {
         _streamVersion = streamVersion;
     }
 
+    /**
+     * Support fragmentation.
+     *
+     * @return the int
+     */
     int supportFragmentation()
     {
 		return _supportFragmentation;
 	}
 
+	/**
+	 * Support fragmentation.
+	 *
+	 * @param supportFragmentation the support fragmentation
+	 */
 	void supportFragmentation(int supportFragmentation)
 	{
 		_supportFragmentation = supportFragmentation;

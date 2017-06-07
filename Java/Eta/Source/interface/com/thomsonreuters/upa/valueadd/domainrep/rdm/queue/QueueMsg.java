@@ -41,16 +41,19 @@ public interface QueueMsg extends MsgBase
     
 	/**
      * Sets the domain type of the queue data message.
+     * @param domainType type of the queue data message
      */	
     public void domainType(int domainType);
     
 	/**
      * Sets the service id of the queue data message.
+     * @param serviceId of the queue data message
      */	    
     public void serviceId(int serviceId);
     
 	/**
      * Retrieves the service id of the queue data message.
+     * @return the service id of the queue data message
      */	    
     public int serviceId();	
 }

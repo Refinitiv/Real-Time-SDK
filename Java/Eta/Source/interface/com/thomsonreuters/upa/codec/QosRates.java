@@ -5,6 +5,10 @@ package com.thomsonreuters.upa.codec;
  */
 public class QosRates
 {
+    
+    /**
+     * Instantiates a new qos rates.
+     */
     // QosRates class cannot be instantiated
     private QosRates()
     {
@@ -29,9 +33,9 @@ public class QosRates
 
     /**
      * Provide string representation for a Qos quality rate value.
-     * 
+     *
+     * @param rate the rate
      * @return string representation for a Qos quality rate value
-     * 
      * @see Qos
      */
     public static String toString(int rate)
