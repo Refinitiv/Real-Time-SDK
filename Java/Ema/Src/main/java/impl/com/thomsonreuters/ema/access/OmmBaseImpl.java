@@ -993,7 +993,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			{
 				do
 				{
+					_userLock.lock();
 					ret = _rsslReactor.reactorChannel()  != null  ? _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo) : ReactorReturnCodes.SUCCESS;
+					_userLock.unlock();
 				}
 				while (ret > ReactorReturnCodes.SUCCESS && !_eventReceived && loopCount++ < 5);
 				
@@ -1053,7 +1055,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 							{
 								if (_pipeSelectKey == key) pipeRead();
 
+								_userLock.lock();
 								ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions,	_rsslErrorInfo);
+								_userLock.unlock();
 							}
 						}
 						catch (CancelledKeyException e)
