@@ -1,0 +1,10 @@
+# rssldatatest - encode an element list with two entries.
+#   the second entry rolled back.
+# ElementListInit
+#   entry1 - "uint type" UINT 1234
+#   entry2 - "container type" ElementList
+#     ElementListInit
+#       entry1: "string type" ASCII "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#     ElementListComplete FALSE
+# ElementListComplete
+0800 0109 7569 6e74 2074 7970 6504 0204 d2           ....uint type....

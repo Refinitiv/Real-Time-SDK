@@ -1,0 +1,20 @@
+The hex in this file contains the following message (shown as XML),
+but it has been modified to have an invalid message key length
+(a value of 2315 [0x89], instead of 0x80)
+
+<!-- rwfMajorVer="14" rwfMinorVer="0" -->
+<REQUEST domainType="MARKET_PRICE" streamId="1234" containerType="NO_DATA" flags="0x00" dataSize="0">
+    <key flags="0x07 (HAS_SERVICE_ID|HAS_NAME|HAS_NAME_TYPE)" serviceId="4321" name="TRI.N" nameType="1"/>
+    <dataBody>
+    </dataBody>
+</REQUEST>
+
+
+0000: 00 15 01 06 00 00 04 D2  00 00 89 0B 07 FE 10 E1   ................
+0010: 05 54 52 49 2E 4E 01 00  00 00 00 00 00 00 00 00   .TRI.N..........
+0020: 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ................
+0030: 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ................
+0040: 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ................
+0050: 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ................
+0060: 00 00 00 00   
+

@@ -1,0 +1,44 @@
+# Hand generated from RWF/OpenMessageModel-RWF.vsd, Vector/Map tab, rwfMap
+#
+# Map:
+#   flags: 0x1f = RsslMapFlags.HAS_SET_DEFS | HAS_SUMMARY_DATA | HAS_PER_ENTRY_PERM_DATA | HAS_TOTAL_COUNT_HINT | HAS_KEY_FIELD_ID
+#   keyDataType: 0x04 = RsslDataType.UINT 
+#   dataFormat: 0x04 = RsslDataType.FIELD_LIST(132) - RsslDataType.CONTAINER_TYPE_MIN(128)
+#   keyFieldId: 0x0001
+#   listSetDefLen (u15-rb): 0x18
+#   listSetDef: "000000001111111122222222"
+#   summaryLen (u15-rb): 0x1A
+#   summaryData: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#   totalHintCount (u30-rb): 0x02
+#   count: 0x03
+#   entry 1:
+#     flags: 0x12 = flags:4,action:4 (RsslMapEntryFlags.HAS_PERM_DATA(0x01) | RsslMapEntryActions.ADD(0x02))
+#     permExpLen (u15-rb): 0x04
+#     permData: "PERM"
+#     keyLen (u15-rb): 0x08
+#     keyData: "KEY00001"
+#     dataLen (u16-ob): 0x1A
+#     data: "ZYXWVUTSRQPONMLKJIHGFEDCBA"
+#   entry 2:
+#     flags: 0x01 = flags:4,action:4 (RsslMapEntryFlags.NONE(0x00)| RsslMapEntryActions.UPDATE(0x01))
+#     keyLen (u15-rb): 0x02
+#     keyData: "K2"
+#     dataLen (u16-ob): 0x1A
+#     data: "AAAAAAAAAAAAAAAAAAAAAAAAAA"
+#   entry 3:
+#     flags: 0x03 = flags:4,action:4 (RsslMapEntryFlags.NONE(0x00)| RsslMapEntryActions.DELETE(0x03))
+#     keyLen (u15-rb): 0x02
+#     keyData: "K3"
+#     dataLen (u16-ob): 0x00
+#
+
+
+1f04 0400 0118 3030  3030 3030 3030 3131
+3131 3131 3131 3232  3232 3232 3232 1a41
+4243 4445 4647 4849  4a4b 4c4d 4e4f 5051
+5253 5455 5657 5859  5a02 0003 1204 5045
+524d 084b 4559 3030  3030 311a 5a59 5857
+5655 5453 5251 504f  4e4d 4c4b 4a49 4847
+4645 4443 4241 0102  4b32 1a41 4141 4141
+4141 4141 4141 4141  4141 4141 4141 4141
+4141 4141 4103 024b  3300

@@ -1,0 +1,291 @@
+# The hex data has been created with UPAC rsslTrwfMessageTest.
+# The refreshMsgTest function is included after the hex data.
+# 
+# MsgInit:
+#   msgClass = REFRESH
+#   domain = MARKET_PRICE
+#   streamId = 2147483647
+#   reqFlags = REFRESH_COMPLETE | SOLICITIED | CLEAR_CACHE | DO_NOT_CACHE | QOS | PART_NUM | SEQ_NUM | EXTENDED_HEADER | PERM_DATA | POST_USER_INFO | MSG_KEY   
+#   dataFormat/containerType = FIELD_LIST
+#   State = streamState=Open, dataState=OK, code=NONE, text="some text info"
+#   GroupId = "10203040"
+#   QoS = RealTime/Tick_by_Tick
+#   PartNum = 32767
+#   SeqNum = 1234567890
+#   ExtendedHeader = data="EXTENDED HEADER", length=15
+#   PermData = data={0x10, 0x11, 0x12, 0x13}, length=4 
+#   PostUserInfo = Addr=0xFFFFFFFA, Id=0xFFFFFFFF
+#   Key:
+#     flags = NAME | NAME_TYPE | ATTRIB
+#     name = "TRI.N"
+#     nameType = RIC
+#     serviceId = 32639 (0x7f7f)
+#     opaqDataFormat = ELEMENT_LIST
+#       ElementListInit
+#         Entry: dataType=ASCII_STRING, name="ApplicationId", data="256"
+#         Entry: dataType=ASCII_STRING, name="ApplicationName", data="rsslConsumer"
+#         Entry: dataType=ASCII_STRING, name="position", data="localhost"
+#       ElementListComplete
+#   Payload:
+#     FieldListInit
+#        flags = HAS_INFO | HAS_STANDARD_DATA
+#        dictionaryId=2
+#        fieldListNum=3
+#        FieldEntry
+#          fieldId=10, dataType=REAL, BLANK
+#          fieldId=175, dataType=STRING, "ABCDEFG" (pre-encoded).
+#          fieldId=32, dataType=UINT, 554433
+#          fieldId=111, dataType=REAL, real.value=867564, real.hint=EXP_4
+#     FieldListComplete
+# MsgComplete
+
+00 9F 02 06 7F FF FF FF  9B FB 04 49 96 02 D2 09   ........ ...I....
+00 0E 73 6F 6D 65 20 74  65 78 74 20 69 6E 66 6F   ..some t ext info
+08 31 30 32 30 33 30 34  30 04 10 11 12 13 22 80   .1020304 0.....".
+56 27 FE 7F 7F 05 54 52  49 2E 4E 01 05 80 48 08   V'....TR I.N...H.
+00 03 0D 41 70 70 6C 69  63 61 74 69 6F 6E 49 64   ...Appli cationId
+11 03 32 35 36 0F 41 70  70 6C 69 63 61 74 69 6F   ..256.Ap plicatio
+6E 4E 61 6D 65 11 0C 72  73 73 6C 43 6F 6E 73 75   nName..r sslConsu
+6D 65 72 08 50 6F 73 69  74 69 6F 6E 11 09 6C 6F   mer.Posi tion..lo
+63 61 6C 68 6F 73 74 0F  45 58 54 45 4E 44 45 44   calhost. EXTENDED
+20 48 45 41 44 45 52 FF  FF FF FA FF FF FF FF FF    HEADER. ........
+FF 09 03 02 00 03 00 04  00 0A 00 00 AF 07 41 42   ........ ......AB
+43 44 45 46 47 00 20 03  08 75 C1 00 6F 04 0A 0D   CDEFG. . .u..o...
+3C EC                                              <.
+
+#void refreshMsgTest(RsslUInt32 repeat)
+#{
+#	RsslRefreshMsg refmsg = RSSL_INIT_REFRESH_MSG;
+#	RsslMsgKey key = RSSL_INIT_MSG_KEY;
+#	RsslElementList	elementList = RSSL_INIT_ELEMENT_LIST;
+#	RsslElementEntry    element = RSSL_INIT_ELEMENT_ENTRY;
+#	RsslFieldList	  fieldList = RSSL_INIT_FIELD_LIST;
+#	RsslFieldEntry	      field = RSSL_INIT_FIELD_ENTRY;
+#	RsslEncodeIterator encodeIter;
+#	RsslBuffer msgBuf = RSSL_INIT_BUFFER;
+#	RsslBuffer applicationId = RSSL_INIT_BUFFER;
+#	RsslBuffer applicationName = RSSL_INIT_BUFFER;
+#	RsslBuffer position = RSSL_INIT_BUFFER;
+#	RsslBuffer buffer = RSSL_INIT_BUFFER;
+#	RsslBuffer itemName = RSSL_INIT_BUFFER;
+#	RsslBuffer groupId = RSSL_INIT_BUFFER;
+#	char permData[] = {0x10, 0x11, 0x12, 0x13};
+#	RsslUInt uint;
+#	RsslFieldId id = 22;
+#	RsslReal real = RSSL_INIT_REAL;
+#	RsslBuffer preEncodedBuffer = RSSL_INIT_BUFFER;
+#
+#	int ret;
+#
+#	printf("refreshMsg Tests:\n");
+#
+#	rsslClearEncodeIterator(&encodeIter);
+#
+#	refmsg.msgBase.msgClass = RSSL_MC_REFRESH;
+#	refmsg.msgBase.streamId = 2147483647; // MAX_INT (signed)
+#	refmsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+#	refmsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+#	refmsg.flags = RSSL_RFMF_REFRESH_COMPLETE | RSSL_RFMF_SOLICITED | RSSL_RFMF_CLEAR_CACHE | RSSL_RFMF_DO_NOT_CACHE | RSSL_RFMF_HAS_QOS | RSSL_RFMF_HAS_PART_NUM | RSSL_RFMF_HAS_SEQ_NUM | RSSL_RFMF_HAS_POST_USER_INFO | RSSL_RFMF_HAS_MSG_KEY;
+#
+#	// state
+#	refmsg.state.streamState = RSSL_STREAM_OPEN;
+#	refmsg.state.dataState = RSSL_DATA_OK;
+#	refmsg.state.code = RSSL_SC_NONE;
+#	refmsg.state.text.length = 14;
+#	refmsg.state.text.data = "some text info";
+#
+#	// groupId
+#	refmsg.groupId.data = "10203040";
+#	refmsg.groupId.length = 8;
+#
+#	// qos
+#	refmsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+#	refmsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+#
+#	// set part number
+#	refmsg.partNum = 32767;
+#
+#	// set sequence number
+#	refmsg.seqNum = 1234567890L;
+#
+#	// set post user info
+#	refmsg.postUserInfo.postUserAddr = 0xFFFFFFFA;
+#	refmsg.postUserInfo.postUserId = 0xFFFFFFFF;
+#	
+#	/* set msgKey members */
+#	refmsg.msgBase.msgKey.flags = RSSL_MKF_HAS_ATTRIB | RSSL_MKF_HAS_NAME_TYPE | RSSL_MKF_HAS_NAME | RSSL_MKF_HAS_SERVICE_ID;
+#	refmsg.msgBase.msgKey.name.data = "TRI.N";
+#	refmsg.msgBase.msgKey.name.length = (RsslUInt32)5;
+#	refmsg.msgBase.msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC;
+#	refmsg.msgBase.msgKey.attribContainerType = RSSL_DT_ELEMENT_LIST;
+#	refmsg.msgBase.msgKey.serviceId = 32639; // 0x7f7f
+#
+#	/* set extended header */
+#	refmsg.extendedHeader.data = "EXTENDED HEADER";
+#	refmsg.extendedHeader.length = 15;
+#
+#	/* set perm data */
+#	refmsg.permData.data = permData;
+#	refmsg.permData.length = 4;
+#
+#	/* encode message */
+#	msgBuf.data = (char*)malloc(1024*sizeof(char));
+#	msgBuf.length = 1024;
+#	
+#	if((ret = rsslSetEncodeIteratorBuffer(&encodeIter, &msgBuf)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	//rsslSetEncodeIteratorRWFVersion(&encodeIter, chnl->majorVersion, chnl->minorVersion);
+#	/* since our msgKey has opaque that we want to encode, we need to use rsslEncodeMsgInit */
+#	/* rsslEncodeMsgInit should return and inform us to encode our key opaque */
+#	if ((ret = rsslEncodeMsgInit(&encodeIter, (RsslMsg*)&refmsg, 0)) != RSSL_RET_ENCODE_MSG_KEY_OPAQUE)
+#	{
+#		printf("rsslEncodeMsgInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	
+#	/* encode our msgKey opaque */
+#	/* encode the element list */
+#	rsslClearElementList(&elementList);
+#	elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
+#	if ((ret = rsslEncodeElementListInit(&encodeIter, &elementList, 0, 3)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementListInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	/* ApplicationId */
+#	applicationId.data = "256";
+#	applicationId.length = 3;
+#	element.dataType = RSSL_DT_ASCII_STRING;
+#	element.name = RSSL_ENAME_APPID;
+#	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &applicationId)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	/* ApplicationName */
+#	applicationName.data = "rsslConsumer";
+#	applicationName.length = 12;
+#	element.dataType = RSSL_DT_ASCII_STRING;
+#	element.name = RSSL_ENAME_APPNAME;
+#	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &applicationName)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	/* Position */
+#	position.data = "localhost";
+#	position.length = 9;
+#	element.dataType = RSSL_DT_ASCII_STRING;
+#	element.name = RSSL_ENAME_POSITION;
+#	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &position)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	
+#	/* complete encode element list */
+#	if ((ret = rsslEncodeElementListComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementListComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	/* complete encode key */
+#	/* rsslEncodeMsgKeyAttribComplete finishes our key opaque, so it should return and indicate
+#	   for us to encode our container/msg payload */
+#	if ((ret = rsslEncodeMsgKeyAttribComplete(&encodeIter, RSSL_TRUE)) != RSSL_RET_ENCODE_CONTAINER)
+#	{
+#		printf("rsslEncodeMsgKeyAttribComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	/* payload - fieldList */
+#	fieldList.dictionaryId = 2;
+#	fieldList.fieldListNum = 3;
+#	rsslFieldListApplyHasInfo(&fieldList);
+#	rsslFieldListApplyHasStandardData(&fieldList);
+#
+#	if ( (ret = rsslEncodeFieldListInit(&encodeIter, &fieldList, (RsslLocalFieldSetDefDb *)0, 0)) < 0)
+#	{
+#		printf("rsslEncodeFieldListInit failed %d\n", ret);
+#		return;
+#	}
+#
+#	// encode (10) REAL as Blank - blank to encoder.
+#	rsslClearFieldEntry(&field);
+#	field.fieldId = 10;
+#	field.dataType = RSSL_DT_REAL;
+#	if (rsslEncodeFieldEntry(&encodeIter, &field, NULL) != RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeFieldEntry() failed %d %d (%s)\n", RSSL_DT_REAL,
+#				id,
+#				rsslDataTypeToString(RSSL_DT_REAL));
+#		return;
+#	}
+#
+#	// encode (175) pre-encoded data
+#	field.fieldId = 175;
+#	field.dataType = RSSL_DT_ASCII_STRING;
+#	preEncodedBuffer.data = "ABCDEFG";
+#	preEncodedBuffer.length = 7;
+#	field.encData.data = preEncodedBuffer.data;
+#	field.encData.length = preEncodedBuffer.length;
+#	if (rsslEncodeFieldEntry(&encodeIter, &field, &preEncodedBuffer) != RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeFieldEntry() failed %d %d (%s)\n", RSSL_DT_REAL,
+#				id,
+#				rsslDataTypeToString(RSSL_DT_REAL));
+#		return;
+#	}
+#
+#	// encode (32) UINT 554433
+#	field.fieldId = 32;
+#	field.dataType = RSSL_DT_UINT;
+#	uint = 554433;
+#	if (rsslEncodeFieldEntry(&encodeIter, &field, &uint) != RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeFieldEntry() failed %d %d (%s)\n", RSSL_DT_REAL,
+#				id,
+#				rsslDataTypeToString(RSSL_DT_REAL));
+#		return;
+#	}
+#
+#	// encode (111) REAL 867564 Exponent_4.
+#	rsslClearFieldEntry(&field);
+#	field.fieldId = 111;
+#	field.dataType = RSSL_DT_REAL;
+#	rsslClearReal(&real);
+#	real.value = 867564;
+#	real.hint = RSSL_RH_EXPONENT_4;
+#	if (rsslEncodeFieldEntry(&encodeIter, &field, &real) != RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeFieldEntry() failed %d %d (%s)\n", RSSL_DT_REAL,
+#				id,
+#				rsslDataTypeToString(RSSL_DT_REAL));
+#		return;
+#	}
+#
+#	// fieldListComplete
+#	if ( (ret = rsslEncodeFieldListComplete(&encodeIter, 1)) < 0)
+#	{
+#		printf("rsslEncodeFieldListComplete failed %d\n", ret);
+#		return;
+#	}
+#	
+#	/* complete encode message */
+#	if ((ret = rsslEncodeMsgComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeMsgComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	msgBuf.length = rsslGetEncodedBufferLength(&encodeIter);
+#
+#	buffer.data = encodeIter._pBuffer->data; buffer.length = rsslGetEncodedBufferLength(&encodeIter);
+#	printf("rsslDataTestEncodeElementList: Hex Dump: Buffer Length %d\n",buffer.length);
+#	displayHexData(buffer.length, buffer.data);
+#
+#	printf("\n");
+#}

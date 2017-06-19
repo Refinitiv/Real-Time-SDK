@@ -1,0 +1,323 @@
+# The hex data has been created with UPAC rsslTrwfMessageTest.
+# The requestMsgTest function is included after the hex data.
+# 
+# MsgInit:
+#   msgClass = REQUEST
+#   domain = MARKET_PRICE
+#   streamId = 100
+#   reqFlags = STREAMING | CONF_INFO_IN_UPDATES | MSG_KEY_IN_UPDATES | PRIORITY | BATCH | VIEW | QOS | WORST_QOS | EXTENDED_HEADER 
+#   dataFormat/containerType = ELEMENT_LIST
+#   priority class=3 count=4
+#   QoS = RealTime/Tick_by_Tick
+#   WorstQos = Delayed (65532)/Time Conflated(65533)
+#   ExtendedHeader = data="EXTENDED HEADER", length=15
+#   Key:
+#     flags = NAME | NAME_TYPE | ATTRIB
+#     name = "Batch_Request"
+#     nameType = RIC
+#     opaqDataFormat = ELEMENT_LIST
+#       ElementListInit
+#         Entry: dataType=ASCII_STRING, name="ApplicationId", data="256"
+#         Entry: dataType=ASCII_STRING, name="ApplicationName", data="rsslConsumer"
+#         Entry: dataType=ASCII_STRING, name="position", data="localhost"
+#       ElementListComplete
+#   Payload:  
+#     ElementListInit
+#        EntryInit: dataType=ARRAY, name=":ItemList", value=0 (not used)
+#          ArrayInit: primitiveType=ASCII_STRING, length=0 // variable
+#            Array[0] = "TRI.N"
+#            Array[1] = "IBM.N"
+#            Array[2] = "CSCO.O"
+#          ArrayComplete
+#        EntryComplete
+#        Entry: dataType=UINT, name=":ViewType", value=1 (FIELD_ID_LIST)
+#        EntryInit: dataType=ARRAY, name=":ViewData", value=0 (not used)
+#          ArrayInit: primitiveType=UINT, length=2
+#            Array[0] = 22
+#            Array[0] = 25
+#          ArrayComplete
+#        EntryComplete
+#     ElementListComplete
+# MsgComplete
+
+00 7E 01 06 00 00 00 64  8C DF 05 03 04 22 66 FF   .~.....d ....."f.
+FC FF FD 80 5B 26 0D 42  61 74 63 68 5F 52 65 71   ....[&.B atch_Req
+75 65 73 74 01 05 80 48  08 00 03 0D 41 70 70 6C   uest...H ....Appl
+69 63 61 74 69 6F 6E 49  64 11 03 32 35 36 0F 41   icationI d..256.A
+70 70 6C 69 63 61 74 69  6F 6E 4E 61 6D 65 11 0C   pplicati onName..
+72 73 73 6C 43 6F 6E 73  75 6D 65 72 08 50 6F 73   rsslCons umer.Pos
+69 74 69 6F 6E 11 09 6C  6F 63 61 6C 68 6F 73 74   ition..l ocalhost
+0F 45 58 54 45 4E 44 45  44 20 48 45 41 44 45 52   .EXTENDE D HEADER
+08 00 03 09 3A 49 74 65  6D 4C 69 73 74 0F FE 00   ....:Ite mList...
+17 11 00 00 03 05 54 52  49 2E 4E 05 49 42 4D 2E   ......TR I.N.IBM.
+4E 06 43 53 43 4F 2E 4F  09 3A 56 69 65 77 54 79   N.CSCO.O .:ViewTy
+70 65 04 01 01 09 3A 56  69 65 77 44 61 74 61 0F   pe....:V iewData.
+FE 00 08 04 02 00 02 00  16 00 19                  ........ ...
+
+# The UPAC code has been included if needed to reproduce this data at a later date.
+#
+#void requestMsgTest(RsslUInt32 repeat)
+#{
+#	RsslRequestMsg reqmsg = RSSL_INIT_REQUEST_MSG;
+#	RsslMsgKey key = RSSL_INIT_MSG_KEY;
+#	RsslElementList	elementList = RSSL_INIT_ELEMENT_LIST;
+#	RsslElementEntry	element = RSSL_INIT_ELEMENT_ENTRY;
+#	RsslArray      elementArray = RSSL_INIT_ARRAY; 
+#	RsslEncodeIterator encodeIter;
+#	RsslBuffer msgBuf = RSSL_INIT_BUFFER;
+#	RsslBuffer applicationId = RSSL_INIT_BUFFER;
+#	RsslBuffer applicationName = RSSL_INIT_BUFFER;
+#	RsslBuffer position = RSSL_INIT_BUFFER;
+#	RsslBuffer buffer = RSSL_INIT_BUFFER;
+#	RsslBuffer itemName = RSSL_INIT_BUFFER;
+#	RsslUInt uint;
+#
+#	int ret;
+#
+#	printf("requestMsg Test:\n");
+#
+#	rsslClearEncodeIterator(&encodeIter);
+#
+#	reqmsg.msgBase.msgClass = RSSL_MC_REQUEST;
+#	reqmsg.msgBase.streamId = 100;
+#	reqmsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+#	reqmsg.msgBase.containerType = RSSL_DT_ELEMENT_LIST;
+#	reqmsg.flags = RSSL_RQMF_STREAMING | RSSL_RQMF_CONF_INFO_IN_UPDATES | RSSL_RQMF_MSG_KEY_IN_UPDATES | RSSL_RQMF_HAS_PRIORITY | RSSL_RQMF_HAS_QOS | RSSL_RQMF_HAS_WORST_QOS | RSSL_RQMF_HAS_BATCH | RSSL_RQMF_HAS_VIEW;
+#
+#	reqmsg.priorityClass = 3;
+#	reqmsg.priorityCount = 4;
+#		
+#	reqmsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+#	reqmsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+#		
+#	reqmsg.worstQos.rate = RSSL_QOS_RATE_TIME_CONFLATED;
+#	reqmsg.worstQos.rateInfo = 65533;
+#	reqmsg.worstQos.timeliness = RSSL_QOS_TIME_DELAYED;
+#	reqmsg.worstQos.timeInfo = 65532;
+#	
+#	/* set msgKey members */
+#	reqmsg.msgBase.msgKey.flags = RSSL_MKF_HAS_ATTRIB | RSSL_MKF_HAS_NAME_TYPE | RSSL_MKF_HAS_NAME;
+#	reqmsg.msgBase.msgKey.name.data = "Batch_Request";
+#	reqmsg.msgBase.msgKey.name.length = (RsslUInt32)13;
+#	reqmsg.msgBase.msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC;
+#	reqmsg.msgBase.msgKey.attribContainerType = RSSL_DT_ELEMENT_LIST;
+#
+#	/* set extended header */
+#	reqmsg.extendedHeader.data = "EXTENDED HEADER";
+#	reqmsg.extendedHeader.length = 15;
+#
+#	/* encode message */
+#	msgBuf.data = (char*)malloc(1024*sizeof(char));
+#	msgBuf.length = 1024;
+#	
+#	if((ret = rsslSetEncodeIteratorBuffer(&encodeIter, &msgBuf)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	//rsslSetEncodeIteratorRWFVersion(&encodeIter, chnl->majorVersion, chnl->minorVersion);
+#	/* since our msgKey has opaque that we want to encode, we need to use rsslEncodeMsgInit */
+#	/* rsslEncodeMsgInit should return and inform us to encode our key opaque */
+#	if ((ret = rsslEncodeMsgInit(&encodeIter, (RsslMsg*)&reqmsg, 0)) != RSSL_RET_ENCODE_MSG_KEY_OPAQUE)
+#	{
+#		printf("rsslEncodeMsgInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	
+#	/* encode our msgKey opaque */
+#	/* encode the element list */
+#	rsslClearElementList(&elementList);
+#	elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
+#	if ((ret = rsslEncodeElementListInit(&encodeIter, &elementList, 0, 3)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementListInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	/* ApplicationId */
+#	applicationId.data = "256";
+#	applicationId.length = 3;
+#	element.dataType = RSSL_DT_ASCII_STRING;
+#	element.name = RSSL_ENAME_APPID;
+#	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &applicationId)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	/* ApplicationName */
+#	applicationName.data = "rsslConsumer";
+#	applicationName.length = 12;
+#	element.dataType = RSSL_DT_ASCII_STRING;
+#	element.name = RSSL_ENAME_APPNAME;
+#	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &applicationName)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	/* Position */
+#	position.data = "localhost";
+#	position.length = 9;
+#	element.dataType = RSSL_DT_ASCII_STRING;
+#	element.name = RSSL_ENAME_POSITION;
+#	if ((ret = rsslEncodeElementEntry(&encodeIter, &element, &position)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	
+#	/* complete encode element list */
+#	if ((ret = rsslEncodeElementListComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementListComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	/* complete encode key */
+#	/* rsslEncodeMsgKeyAttribComplete finishes our key opaque, so it should return and indicate
+#	   for us to encode our container/msg payload */
+#	if ((ret = rsslEncodeMsgKeyAttribComplete(&encodeIter, RSSL_TRUE)) != RSSL_RET_ENCODE_CONTAINER)
+#	{
+#		printf("rsslEncodeMsgKeyAttribComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	/* For Batch requests, the message has a payload of an element list that contains an array of the requested items */
+#	rsslClearElementList(&elementList);
+#	elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
+#	if((ret = rsslEncodeElementListInit(&encodeIter, &elementList, 0, 0)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementListInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	rsslClearElementEntry(&element);
+#	element.name = RSSL_ENAME_BATCH_ITEM_LIST;
+#	element.dataType = RSSL_DT_ARRAY;
+#	if((ret = rsslEncodeElementEntryInit(&encodeIter, &element, 0)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntryInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	/* Encode the array of requested item names */
+#	elementArray.primitiveType = RSSL_DT_ASCII_STRING;
+#	elementArray.itemLength = 0;
+#	if((ret = rsslEncodeArrayInit(&encodeIter, &elementArray)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeArrayInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	// Start streamID at +1
+#	itemName.data = "TRI.N";
+#	itemName.length = 5;
+#	if((ret = rsslEncodeArrayEntry(&encodeIter, &itemName, 0)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeArrayEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	
+#	itemName.data = "IBM.N";
+#	itemName.length = 5;
+#	if((ret = rsslEncodeArrayEntry(&encodeIter, &itemName, 0)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeArrayEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	
+#	itemName.data = "CSCO.O";
+#	itemName.length = 6;
+#	if((ret = rsslEncodeArrayEntry(&encodeIter, &itemName, 0)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeArrayEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	
+#	if((ret = rsslEncodeArrayComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeArrayComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	if((ret = rsslEncodeElementEntryComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntryComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	/* 
+#	 *	Encode a view request into the list.
+#	 */
+#	rsslClearElementEntry(&element);
+#	element.name = RSSL_ENAME_VIEW_TYPE;
+#	element.dataType = RSSL_DT_UINT;
+#	uint = RDM_VIEW_TYPE_FIELD_ID_LIST;
+#	if((ret = rsslEncodeElementEntry(&encodeIter, &element, &uint)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	rsslClearElementEntry(&element);
+#	element.name = RSSL_ENAME_VIEW_DATA;
+#	element.dataType = RSSL_DT_ARRAY;
+#	if((ret = rsslEncodeElementEntryInit(&encodeIter, &element, 0)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntryInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	rsslClearArray(&elementArray);
+#	elementArray.primitiveType = RSSL_DT_UINT;
+#	elementArray.itemLength = 2;
+#	if((ret = rsslEncodeArrayInit(&encodeIter, &elementArray)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeArrayInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	uint = 22;
+#	if((ret = rsslEncodeArrayEntry(&encodeIter, 0, &uint)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeArrayEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	uint = 25;
+#	if((ret = rsslEncodeArrayEntry(&encodeIter, 0, &uint)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeArrayEntry() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	if ((ret = rsslEncodeArrayComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntryComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	/* complete encoding of complex element entry.  */
+#	if ((ret = rsslEncodeElementEntryComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementEntryComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	if((ret = rsslEncodeElementListComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeElementListComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	/* complete encode message */
+#	if ((ret = rsslEncodeMsgComplete(&encodeIter, RSSL_TRUE)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeMsgComplete() failed with return code: %d\n", ret);
+#		return;
+#	}
+#	msgBuf.length = rsslGetEncodedBufferLength(&encodeIter);
+#
+#	buffer.data = encodeIter._pBuffer->data; buffer.length = rsslGetEncodedBufferLength(&encodeIter);
+#	printf("rsslDataTestEncodeElementList: Hex Dump: Buffer Length %d\n",buffer.length);
+#	displayHexData(buffer.length, buffer.data);
+#
+#	printf("\n");
+#}

@@ -1,0 +1,17 @@
+# Hand generated from ReutersWireFormat.vsd, Structures tab, rwfArray
+#
+# structure: rwfArray
+# rwfUInt8     dataType
+# rwfUInt16-ob itemLength
+# rwfUInt16    itemCount
+# typearray    array[itemLength]
+#
+# dataType = (11) ASCII
+# itemLength = (0x0A) 10
+# itemCount = (0x00 0x03) 3
+# ArrayEntry[0] = Presidente
+# ArrayEntry[1] = VicePresid
+# ArrayEntry[2] = aSecretary
+11 0A 00 03 50 72 65 73  69 64 65 6E 74 65 56 69   ....PresidenteVi
+63 65 50 72 65 73 69 64  61 53 65 63 72 65 74 61   cePresidaSecreta
+72 79                                              ry

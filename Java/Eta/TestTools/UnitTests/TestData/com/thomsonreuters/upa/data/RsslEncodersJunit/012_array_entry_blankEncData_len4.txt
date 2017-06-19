@@ -1,0 +1,15 @@
+# Hand generated from ReutersWireFormat.vsd, Structures tab, rwfArray
+#
+# structure: rwfArray
+# rwfUInt8     dataType
+# rwfUInt16-ob itemLength
+# rwfUInt16    itemCount
+# typearray    array[itemLength]
+#
+# dataType = (0x10) 16=BUFFER
+# itemLength = (0x04) 4
+# itemCount = (0x00 0x03) 3
+# ArrayEntry[0] = (BLANK)
+# ArrayEntry[1] = (BLANK)
+# ArrayEntry[2] = (BLANK)
+10 04 00 03 00 00 00 00 00 00 00 00 00 00 00 00                             .......

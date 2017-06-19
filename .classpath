@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="Java/Eta/Source/impl"/>
+	<classpathentry kind="src" path="Java/Ema/TestTools/UnitTests/Tests"/>
+	<classpathentry kind="src" path="Java/Eta/TestTools/UnitTests/Tests"/>
 	<classpathentry kind="src" path="Java/Eta/Source/interface"/>
-	<classpathentry kind="src" path="Java/Eta/Source/test"/>
 	<classpathentry kind="src" path="Java/Eta/Applications/Examples"/>
 	<classpathentry kind="src" path="Java/Eta/Applications/PerfTools"/>
 	<classpathentry kind="src" path="Java/Eta/Applications/Shared"/>
@@ -27,5 +28,6 @@
 	<classpathentry kind="lib" path="Java/Ema/Libs/apache/org.apache.commons.collections.jar"/>
 	<classpathentry kind="lib" path="Java/Ema/Libs/SLF4J/slf4j-1.7.12/slf4j-api-1.7.12.jar"/>
 	<classpathentry kind="lib" path="Java/Ema/Libs/SLF4J/slf4j-1.7.12/slf4j-jdk14-1.7.12.jar"/>
+	<classpathentry kind="lib" path="Java/Eta/Libs/Mockito/mockito-all-1.9.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
