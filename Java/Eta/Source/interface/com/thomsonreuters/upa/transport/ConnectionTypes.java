@@ -6,6 +6,10 @@ package com.thomsonreuters.upa.transport;
  */
 public class ConnectionTypes
 {
+    
+    /**
+     * Instantiates a new connection types.
+     */
     // ConnectionTypes class cannot be instantiated
     private ConnectionTypes()
     {
@@ -57,7 +61,8 @@ public class ConnectionTypes
     
     /**
      * Provide string representation for a connection type value.
-     * 
+     *
+     * @param type the type
      * @return string representation for a connection type value
      */
     public static String toString(int type)

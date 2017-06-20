@@ -196,6 +196,15 @@ class RmtesDecoderImpl implements RmtesDecoder
         return _returnInfo.returnUTF8ToUCS2(0, c);
     }
 
+    /**
+     * Control parse.
+     *
+     * @param currPtr the curr ptr
+     * @param i the i
+     * @param endPtr the end ptr
+     * @param currentSet the current set
+     * @return the rmtes info
+     */
     /* Parses the characters for a control group sequence for conversion
      * (first character is between 0x00 and 0x1F(CL) or between 0x70 and 0x8F(CR) )
      * If error returned, this means that the sequence is either invalid,

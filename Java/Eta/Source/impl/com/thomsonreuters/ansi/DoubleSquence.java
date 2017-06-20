@@ -42,11 +42,19 @@ public final class DoubleSquence implements Cloneable
         return ds;
     }
 
+    /**
+     * To bytes.
+     *
+     * @return the byte[]
+     */
     public byte[] toBytes()
     {
         return _value;
     }
   
+    /**
+     * Instantiates a new double squence.
+     */
     public DoubleSquence()
     {
     }

@@ -9,10 +9,11 @@ import com.thomsonreuters.upa.codec.State;
  */
 public interface DictionaryStatus extends DictionaryMsg
 {
+    
     /**
      * The RDM Dictionary status flags. Populated by {@link DictionaryStatusFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 
@@ -48,8 +49,8 @@ public interface DictionaryStatus extends DictionaryMsg
     
     /**
      * Sets the state field for the dictionary status message.
-     * 
-     * @param state
+     *
+     * @param state the state
      */
     public void state(State state);
 

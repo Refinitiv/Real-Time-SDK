@@ -26,7 +26,6 @@ import com.thomsonreuters.upa.codec.Buffer;
  * method. To simplify the example, additional error handling is omitted,
  * though it should be performed.
  * 
- * <p>
  * <ul class="blockList">
  * <li class="blockList">
  * 
@@ -155,7 +154,7 @@ import com.thomsonreuters.upa.codec.Buffer;
  * method. An application could optionally use a new {@link DecodeIterator} by
  * setting the encData on a new iterator. To simplify the sample, some error
  * handling is omitted.
- * <p>
+ *
  * <ul class="blockList">
  * <li class="blockList">
  * 
@@ -295,100 +294,95 @@ public interface Map extends XMLDecoder
     public int decode(DecodeIterator iter);
 
     /**
-     * Checks the presence of the local Set Definition presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the local Set Definition presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true - if exists; false if does not exist.
+     * @see #flags()
      */
     public boolean checkHasSetDefs();
 
     /**
-     * Checks the presence of the Summary Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Summary Data presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true - if exists; false if does not exist.
+     * @see #flags()
      */
     public boolean checkHasSummaryData();
 
     /**
-     * Checks the presence of the Per Entry Permission presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Per Entry Permission presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true - if exists; false if does not exist.
+     * @see #flags()
      */
     public boolean checkHasPerEntryPermData();
 
     /**
-     * Checks the presence of the Total Count Hint presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Total Count Hint presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true - if exists; false if does not exist.
+     * @see #flags()
      */
     public boolean checkHasTotalCountHint();
 
     /**
-     * Checks the presence of the Key Field Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Key Field Id presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true - if key is fid; false if not.
+     * @see #flags()
      */
     public boolean checkHasKeyFieldId();
 
     /**
-     * Applies the local Set Definition presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the local Set Definition presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasSetDefs();
 
     /**
-     * Applies the Summary Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Summary Data presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasSummaryData();
 
     /**
-     * Applies the Per Entry Permission Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Per Entry Permission Data presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasPerEntryPermData();
 
     /**
-     * Applies the Total Count Hint presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Total Count Hint presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasTotalCountHint();
 
     /**
-     * Applies the Key Field Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Key Field Id presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */

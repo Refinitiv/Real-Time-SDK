@@ -17,6 +17,8 @@ public interface Enum
     
     /**
      * Is Enum blank.
+     *
+     * @return true, if is blank
      */
     public boolean isBlank();
 

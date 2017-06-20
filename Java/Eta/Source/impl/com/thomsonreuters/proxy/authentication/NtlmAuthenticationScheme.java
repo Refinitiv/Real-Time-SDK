@@ -26,6 +26,12 @@ class NtlmAuthenticationScheme implements IAuthenticationScheme
     private int ntlmResponseCount = 0;
     boolean stopScheme = false;
 
+    /**
+     * Instantiates a new ntlm authentication scheme.
+     *
+     * @param proxyAuthenticator the proxy authenticator
+     * @throws NullPointerException the null pointer exception
+     */
     protected NtlmAuthenticationScheme(IProxyAuthenticator proxyAuthenticator) throws NullPointerException
     {
         if (proxyAuthenticator == null)
@@ -266,6 +272,11 @@ class NtlmAuthenticationScheme implements IAuthenticationScheme
     }
 
 
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     */
     public static void main(String[] args)
     {
         messageGenerationDemo(); // no authentication, just message generation

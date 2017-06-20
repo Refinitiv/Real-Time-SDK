@@ -52,6 +52,9 @@ public class ConsumerRole extends ReactorRole
     static final long FILTER_TO_REQUEST = Directory.ServiceFilterFlags.INFO |
             Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP;
 
+    /**
+     * Instantiates a new consumer role.
+     */
     public ConsumerRole()
     {
         _type = ReactorRoleTypes.CONSUMER;
@@ -66,8 +69,8 @@ public class ConsumerRole extends ReactorRole
      * invoke {@link #initDefaultRDMLoginRequest()} to populate with default
      * information. If this parameter is left empty no login will be sent to
      * the system; useful for systems that do not require a login.
-     * 
-     * @param loginRequest
+     *
+     * @param loginRequest the login request
      */
     public void rdmLoginRequest(LoginRequest loginRequest)
     {
@@ -124,10 +127,12 @@ public class ConsumerRole extends ReactorRole
         return;
     }
     
-    /*
+    /**
      * The LoginClose to be sent to close the Login stream.
      * This corresponds to the LoginRequest sent during the
      * connection establishment process.
+     *
+     * @return the login close
      */
     LoginClose rdmLoginClose()
     {
@@ -145,12 +150,13 @@ public class ConsumerRole extends ReactorRole
         return _loginClose;
     }
     
-    /** A Directory Request to be sent during the setup of a Consumer-Provider
+    /**
+     *  A Directory Request to be sent during the setup of a Consumer-Provider
      * session. This can be populated with a user's specific information or
      * invoke {@link #initDefaultRDMDirectoryRequest()} to populate with default
      * information. Requires LoginRequest to be set.
-     * 
-     * @param directoryRequest
+     *
+     * @param directoryRequest the directory request
      */
     public void rdmDirectoryRequest(DirectoryRequest directoryRequest)
     {
@@ -198,10 +204,12 @@ public class ConsumerRole extends ReactorRole
         return;
     }
     
-    /*
+    /**
      * The DirectoryClose to be sent to close the Directory stream.
      * This corresponds to the DirectoryRequest sent during the
      * connection establishment process.
+     *
+     * @return the directory close
      */
     DirectoryClose rdmDirectoryClose()
     {
@@ -219,28 +227,39 @@ public class ConsumerRole extends ReactorRole
         return _directoryClose;
     }
 
+    /**
+     * Field dictionary name.
+     *
+     * @return the buffer
+     */
     Buffer fieldDictionaryName()
     {
         return _fieldDictionaryName;
     }
 
-    /* A Field Dictionary Request to be sent during the setup of a Consumer-Provider
+    /**
+     *  A Field Dictionary Request to be sent during the setup of a Consumer-Provider
      * session. Requires DirectoryRequest to be set.
+     *
+     * @param fieldDictionaryRequest the field dictionary request
      */
     void rdmFieldDictionaryRequest(DictionaryRequest fieldDictionaryRequest)
     {
     	_fieldDictionaryRequest = fieldDictionaryRequest;
     }
 
-    /* A Field Dictionary Request to be sent during the setup of a Consumer-Provider
+    /**
+     *  A Field Dictionary Request to be sent during the setup of a Consumer-Provider
      * session. Requires DirectoryRequest to be set.
+     *
+     * @return the dictionary request
      */
     DictionaryRequest rdmFieldDictionaryRequest()
     {
         return _fieldDictionaryRequest;
     }
 
-    /*
+    /**
      * Initializes the RDM Field DictionaryRequest with default information. If the
      * rdmFieldDictionaryRequest has already been defined, the rdmFieldDictionaryRequest
      * object will be reused.
@@ -275,10 +294,12 @@ public class ConsumerRole extends ReactorRole
         return;
     }
 
-    /*
+    /**
      * The DictionaryClose to be sent to close the Field Dictionary stream.
      * This corresponds to the Field DictionaryRequest sent during the
      * connection establishment process.
+     *
+     * @return the dictionary close
      */
     DictionaryClose rdmFieldDictionaryClose()
     {
@@ -296,28 +317,39 @@ public class ConsumerRole extends ReactorRole
         return _fieldDictionaryClose;
     }
 
+    /**
+     * Enum type dictionary name.
+     *
+     * @return the buffer
+     */
     Buffer enumTypeDictionaryName()
     {
         return _enumTypeDictionaryName;
     }
 
-    /* A EnumType Dictionary Request to be sent during the setup of a Consumer-Provider
+    /**
+     *  A EnumType Dictionary Request to be sent during the setup of a Consumer-Provider
      * session. Requires Field DictionaryRequest to be set.
+     *
+     * @param enumDictionaryRequest the enum dictionary request
      */
     void rdmEnumDictionaryRequest(DictionaryRequest enumDictionaryRequest)
     {
     	_enumDictionaryRequest = enumDictionaryRequest;
     }
 
-    /* A EnumType Dictionary Request to be sent during the setup of a Consumer-Provider
+    /**
+     *  A EnumType Dictionary Request to be sent during the setup of a Consumer-Provider
      * session. Requires Field DictionaryRequest to be set.
+     *
+     * @return the dictionary request
      */
     DictionaryRequest rdmEnumDictionaryRequest()
     {
         return _enumDictionaryRequest;
     }
 
-    /*
+    /**
      * Initializes the RDM EnumType DictionaryRequest with default information. If the
      * rdmEnumDictionaryRequest has already been defined, the rdmEnumDictionaryRequest
      * object will be reused.
@@ -353,10 +385,12 @@ public class ConsumerRole extends ReactorRole
         return;
     }
 
-    /*
+    /**
      * The DictionaryClose to be sent to close the EnumType Dictionary stream.
      * This corresponds to the EnumType DictionaryRequest sent during the
      * connection establishment process.
+     *
+     * @return the dictionary close
      */
     DictionaryClose rdmEnumDictionaryClose()
     {
@@ -400,31 +434,51 @@ public class ConsumerRole extends ReactorRole
         return _dictionaryDownloadMode;
     }
     
+    /**
+     * Received field dictionary resp.
+     *
+     * @param dictionaryReceived the dictionary received
+     */
     void receivedFieldDictionaryResp(boolean dictionaryReceived)
     {
     	_receivedFieldDictionaryResp = dictionaryReceived;
     }
     
+    /**
+     * Received field dictionary resp.
+     *
+     * @return true, if successful
+     */
     boolean receivedFieldDictionaryResp()
     {
     	return _receivedFieldDictionaryResp;
     }
 
+    /**
+     * Received enum dictionary resp.
+     *
+     * @param dictionaryReceived the dictionary received
+     */
     void receivedEnumDictionaryResp(boolean dictionaryReceived)
     {
     	_receivedEnumDictionaryResp = dictionaryReceived;
     }
     
+    /**
+     * Received enum dictionary resp.
+     *
+     * @return true, if successful
+     */
     boolean receivedEnumDictionaryResp()
     {
     	return _receivedEnumDictionaryResp;
     }
 
-    /** A callback function for processing RDMLoginMsgEvents received. If not present,
+    /**
+     *  A callback function for processing RDMLoginMsgEvents received. If not present,
      * the received message will be passed to the defaultMsgCallback.
-     * 
-     * @param callback
-     * 
+     *
+     * @param callback the callback
      * @see RDMLoginMsgCallback
      * @see RDMLoginMsgEvent
      */
@@ -443,11 +497,11 @@ public class ConsumerRole extends ReactorRole
         return _loginMsgCallback;
     }
 
-    /** A callback function for processing RDMDirectoryMsgEvents received. If not present,
+    /**
+     *  A callback function for processing RDMDirectoryMsgEvents received. If not present,
      * the received message will be passed to the defaultMsgCallback.
-     * 
-     * @param callback
-     * 
+     *
+     * @param callback the callback
      * @see RDMDirectoryMsgCallback
      * @see RDMDirectoryMsgEvent
      */
@@ -466,11 +520,11 @@ public class ConsumerRole extends ReactorRole
         return _directoryMsgCallback;
     }
 
-    /** A callback function for processing RDMDictionaryMsgEvents received. If not present,
+    /**
+     *  A callback function for processing RDMDictionaryMsgEvents received. If not present,
      * the received message will be passed to the defaultMsgCallback.
-     * 
-     * @param callback
-     * 
+     *
+     * @param callback the callback
      * @see RDMDictionaryMsgCallback
      * @see RDMDictionaryMsgEvent
      */

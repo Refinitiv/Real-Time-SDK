@@ -130,7 +130,7 @@ public class DictionaryProvider
      * @param dIter - The decode iterator
      * @param error - Error information in case of failure
      * @return {@link PerfToolsReturnCodes#SUCCESS} for successful request
-     *         processing, < {@link PerfToolsReturnCodes#SUCCESS} when request
+     *         processing, &lt; {@link PerfToolsReturnCodes#SUCCESS} when request
      */
     public int processMsg(ChannelHandler channelHandler, ClientChannelInfo clientChannelInfo, Msg msg, DecodeIterator dIter, Error error)
     {

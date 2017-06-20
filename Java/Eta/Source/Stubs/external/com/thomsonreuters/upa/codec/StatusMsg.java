@@ -20,9 +20,9 @@ import com.thomsonreuters.upa.codec.State;
 public interface StatusMsg extends Msg
 {
     /**
-     * Checks the presence of the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Extended Header presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -31,9 +31,9 @@ public interface StatusMsg extends Msg
     public boolean checkHasExtendedHdr();
 
     /**
-     * Checks the presence of the Permission Expression presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Permission Expression presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -42,9 +42,9 @@ public interface StatusMsg extends Msg
     public boolean checkHasPermData();
 
     /**
-     * Checks the presence of the Message Key presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Message Key presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -53,9 +53,9 @@ public interface StatusMsg extends Msg
     public boolean checkHasMsgKey();
 
     /**
-     * Checks the presence of the Group Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Group Id presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -64,9 +64,9 @@ public interface StatusMsg extends Msg
     public boolean checkHasGroupId();
 
     /**
-     * Checks the presence of the State presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the State presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -75,9 +75,9 @@ public interface StatusMsg extends Msg
     public boolean checkHasState();
 
     /**
-     * Checks the presence of the Clear Cache indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Clear Cache indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -86,9 +86,9 @@ public interface StatusMsg extends Msg
     public boolean checkClearCache();
 
     /**
-     * Checks the presence of the Private Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Private Stream indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -97,9 +97,9 @@ public interface StatusMsg extends Msg
     public boolean checkPrivateStream();
 
     /**
-     * Checks the presence of the Post User Information presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Post User Information presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -108,9 +108,9 @@ public interface StatusMsg extends Msg
     public boolean checkHasPostUserInfo();
 
     /**
-     * Checks the presence of the Qualified Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Qualified Stream indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -119,81 +119,81 @@ public interface StatusMsg extends Msg
     public boolean checkQualifiedStream();
 
     /**
-     * Applies the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Extended Header presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasExtendedHdr();
 
     /**
-     * Applies the Permission Expression presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Permission Expression presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasPermData();
 
     /**
-     * Applies the Message Key presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Message Key presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasMsgKey();
 
     /**
-     * Applies the Group Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Group Id presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasGroupId();
 
     /**
-     * Applies the State presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the State presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasState();
 
     /**
-     * Applies the Clear Cache indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Clear Cache indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyClearCache();
 
     /**
-     ** Applies the Private Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     ** Applies the Private Stream indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      **/
     public void applyPrivateStream();
 
     /**
-     * Applies the Post User Information presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Post User Information presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasPostUserInfo();
 
     /**
-     * Applies the Qualified Stream indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Qualified Stream indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      **/

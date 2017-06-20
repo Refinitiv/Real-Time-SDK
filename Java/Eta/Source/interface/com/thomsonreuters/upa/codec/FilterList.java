@@ -28,7 +28,6 @@ import com.thomsonreuters.upa.codec.Buffer;
  * method, and to simplify the example, omits additional error handling
  * (though it should be performed).
  * 
- * <p>
  * <ul class="blockList">
  * <li class="blockList">
  * 
@@ -138,7 +137,7 @@ import com.thomsonreuters.upa.codec.Buffer;
  * decoder method. Optionally, an application could use a new
  * {@link DecodeIterator} by setting the encData on a new iterator. To simplify
  * the example, some error handling is omitted.
- * <p>
+ *
  * <ul class="blockList">
  * <li class="blockList">
  * 
@@ -256,40 +255,38 @@ public interface FilterList extends XMLDecoder
     public int decode(DecodeIterator iter);
 
     /**
-     * Checks the presence of the Per Entry Permission presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Per Entry Permission presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true if exists, false if does not exist
+     * @see #flags()
      */
     public boolean checkHasPerEntryPermData();
 
     /**
-     * Checks the presence of the Total Count Hint presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Total Count Hint presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true if exists, false if does not exist
+     * @see #flags()
      */
     public boolean checkHasTotalCountHint();
 
     /**
-     * Applies the Per Entry Permission presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Per Entry Permission presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasPerEntryPermData();
 
     /**
-     * Applies the Total Count Hint presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Total Count Hint presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */

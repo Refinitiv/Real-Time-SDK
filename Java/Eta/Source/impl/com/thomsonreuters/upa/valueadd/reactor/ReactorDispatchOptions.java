@@ -14,6 +14,9 @@ public class ReactorDispatchOptions
     int DEFAULT_MAX_MESSAGES = 100;
     int _maxMessages = DEFAULT_MAX_MESSAGES;
 
+    /**
+     * Instantiates a new reactor dispatch options.
+     */
     public ReactorDispatchOptions()
     {
         _readArgs = TransportFactory.createReadArgs();
@@ -37,7 +40,8 @@ public class ReactorDispatchOptions
      * ReactorErrorInfo)} will return when there are no more events to
      * process. MaxMessages must be greater than zero. Default is 100, which
      * allows for up to 100 messages to be returned with a single call.
-     * 
+     *
+     * @param maxMessages the max messages
      * @return {@link ReactorReturnCodes#SUCCESS} if maxMessages is valid,
      *         otherwise {@link ReactorReturnCodes#PARAMETER_OUT_OF_RANGE} if
      *         the maxMessages is out of range

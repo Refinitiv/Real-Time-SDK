@@ -17,6 +17,9 @@ public class TunnelStreamRejectOptions
     State _state = CodecFactory.createState();
     ClassOfService _expectedClassOfService;
     
+    /**
+     * Instantiates a new tunnel stream reject options.
+     */
     public TunnelStreamRejectOptions()
     {
         _state.streamState(StreamStates.CLOSED_RECOVER);
@@ -25,7 +28,8 @@ public class TunnelStreamRejectOptions
     
     /**
      * Returns the expected class of service of the tunnel stream.
-     * 
+     *
+     * @return the class of service
      * @see ClassOfService
      */
     public ClassOfService expectedClassOfService()
@@ -35,7 +39,8 @@ public class TunnelStreamRejectOptions
 
     /**
      * Sets the expected class of service of the tunnel stream.
-     * 
+     *
+     * @param classOfService the class of service
      * @see ClassOfService
      */
     public void expectedClassOfService(ClassOfService classOfService)
@@ -46,6 +51,8 @@ public class TunnelStreamRejectOptions
     /**
      * Returns the the state of the rejected tunnel stream.
      * Use to retrieve and set the state.
+     *
+     * @return the state
      */
     public State state()
     {

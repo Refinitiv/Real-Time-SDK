@@ -62,8 +62,8 @@ public interface Service
 
     /**
      * Sets action associated with this service.
-     * 
-     * @param action
+     *
+     * @param action the action
      */
     public void action(int action);
 
@@ -76,8 +76,8 @@ public interface Service
 
     /**
      * Sets service state flags. Populate with {@link ServiceFlags}
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 
@@ -124,6 +124,8 @@ public interface Service
      * Checks the presence of the load field.
      * 
      * Flags may also be bulk-set via {@link #flags(int)}.
+     *
+     * @return true, if successful
      */
     public boolean checkHasLoad();
 
@@ -186,8 +188,8 @@ public interface Service
 
     /**
      * Sets serviceId - number identifying this service.
-     * 
-     * @param serviceId
+     *
+     * @param serviceId the service id
      */
     public void serviceId(int serviceId);
 
@@ -228,8 +230,8 @@ public interface Service
 
     /**
      * Sets group filter elements for this service.
-     * 
-     * @param groupStateList
+     *
+     * @param groupStateList the group state list
      */
     public void groupStateList(List<ServiceGroup> groupStateList);
 
@@ -328,6 +330,9 @@ public interface Service
         private ElementList elementList = CodecFactory.createElementList();
         private ElementEntry element = CodecFactory.createElementEntry();
 
+        /**
+         * Instantiates a new service data.
+         */
         public ServiceData()
         {
             data = CodecFactory.createBuffer();
@@ -360,11 +365,9 @@ public interface Service
          * Checks the presence of the data field.
          * 
          * Flags may also be bulk-set via {@link #flags(int)}.
-         * 
-         * @see #flags(int)
-         * 
+         *
          * @return true - if info field exists, false - if not.
-         * 
+         * @see #flags(int)
          */
         public boolean checkHasData()
         {
@@ -515,8 +518,8 @@ public interface Service
 
         /**
          * Sets service data flags. Populate with {@link ServiceDataFlags}.
-         * 
-         * @param flags
+         *
+         * @param flags the flags
          */
         public void flags(int flags)
         {
@@ -535,8 +538,8 @@ public interface Service
 
         /**
          * Sets action associated with data filter.
-         * 
-         * @param action
+         *
+         * @param action the action
          */
         public void action(int action)
         {
@@ -566,8 +569,8 @@ public interface Service
 
         /**
          * dataType - The OMM type of the data. Populated by {@link DataTypes}.
-         * 
-         * @param dataType
+         *
+         * @param dataType the data type
          */
         public void dataType(int dataType)
         {
@@ -586,8 +589,8 @@ public interface Service
 
         /**
          * Directory data type. Populated by {@link com.thomsonreuters.upa.rdm.Directory.DataTypes}.
-         * 
-         * @param type
+         *
+         * @param type the type
          */
         public void type(long type)
         {
@@ -610,8 +613,8 @@ public interface Service
          * buffer. Data and position of encoded data of this service will be set
          * to passed in buffer's data and position. Note that this creates
          * garbage if buffer is backed by String object.
-         * 
-         * @param data
+         *
+         * @param data the data
          */
         public void data(Buffer data)
         {
@@ -628,6 +631,9 @@ public interface Service
             return Directory.ServiceFilterIds.DATA;
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             stringBuf.setLength(0);
@@ -678,6 +684,9 @@ public interface Service
         /** (0x01) Indicates presen*ce of the type, dataType and data members. */
         public static final int HAS_DATA    = 0x01;  
         
+        /**
+         * Instantiates a new service data flags.
+         */
         private ServiceDataFlags()
         {
             throw new AssertionError();
@@ -709,6 +718,9 @@ public interface Service
         /** (0x10) Indicates presence of the linkInfo member. */
         public static final int HAS_LINK   = 0x10; 
           
+        /**
+         * Instantiates a new service flags.
+         */
         private ServiceFlags()
         {
             throw new AssertionError();
@@ -737,6 +749,9 @@ public interface Service
         private ElementEntry element = CodecFactory.createElementEntry();
         private com.thomsonreuters.upa.codec.State tmpStatus = CodecFactory.createState();
         
+        /**
+         * Instantiates a new service group.
+         */
         public ServiceGroup()
         {
             status = CodecFactory.createState();
@@ -776,17 +791,18 @@ public interface Service
          * Checks the presence of the status field.
          * 
          * Flags may also be bulk-set via {@link #flags(int)}.
-         * 
-         * @see #flags(int)
-         * 
+         *
          * @return true - if info field exists, false - if not.
-         * 
+         * @see #flags(int)
          */
         public boolean checkHasStatus()
         {
             return (flags & ServiceGroupFlags.HAS_STATUS) != 0;
         }
 
+        /**
+         * Apply has merged to group.
+         */
         public void applyHasMergedToGroup()
         {
             flags |= ServiceGroupFlags.HAS_MERGED_TO_GROUP;
@@ -796,17 +812,18 @@ public interface Service
          * Checks the presence of the mergedToGroup field.
          * 
          * Flags may also be bulk-set via {@link #flags(int)}.
-         * 
-         * @see #flags(int)
-         * 
+         *
          * @return true - if info field exists, false - if not.
-         * 
+         * @see #flags(int)
          */
         public boolean checkHasMergedToGroup()
         {
             return (flags & ServiceGroupFlags.HAS_MERGED_TO_GROUP) != 0;
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             stringBuf.setLength(0);
@@ -856,8 +873,8 @@ public interface Service
 
         /**
          * Sets service group flags. Populate with {@link ServiceGroupFlags}.
-         * 
-         * @param flags
+         *
+         * @param flags the flags
          */
         public void flags(int flags)
         {
@@ -876,8 +893,8 @@ public interface Service
 
         /**
          * Sets action associated with group state filter..
-         * 
-         * @param action
+         *
+         * @param action the action
          */
         public void action(int action)
         {
@@ -899,8 +916,8 @@ public interface Service
          * and position of group buffer of this service will be set to passed in
          * buffer's data and position. Note that this creates garbage if buffer
          * is backed by String object.
-         * 
-         * @param group
+         *
+         * @param group the group
          */
         public void group(Buffer group)
         {
@@ -925,8 +942,8 @@ public interface Service
          * Buffer used by this object's mergedToGroup field will be set to
          * passed in buffer's data and position. Note that this creates garbage
          * if buffer is backed by String object.
-         * 
-         * @param mergedToGroup
+         *
+         * @param mergedToGroup the merged to group
          */
         public void mergedToGroup(Buffer mergedToGroup)
         {
@@ -945,8 +962,8 @@ public interface Service
         
         /**
          * Sets status field for service group.
-         * 
-         * @param status
+         *
+         * @param status the status
          */
         public void status(State status)
         {
@@ -1142,6 +1159,9 @@ public interface Service
          */
         public static final int HAS_STATUS = 0x02;
 
+        /**
+         * Instantiates a new service group flags.
+         */
         private ServiceGroupFlags()
         {
             throw new AssertionError();
@@ -1185,6 +1205,9 @@ public interface Service
         
         private Qos bestQos;
 
+        /**
+         * Instantiates a new service info.
+         */
         public ServiceInfo()
         {
             capabilitiesList = new ArrayList<Long>();
@@ -1236,8 +1259,8 @@ public interface Service
          * buffer. Data and position of serviceName buffer will be set to passed
          * in buffer's data and position. Note that this creates garbage if
          * buffer is backed by String object.
-         * 
-         * @param serviceName
+         *
+         * @param serviceName the service name
          */
         public void serviceName(Buffer serviceName)
         {
@@ -1261,8 +1284,8 @@ public interface Service
          * and position of vendor field buffer will be set to passed in buffer's
          * data and position. Note that this creates garbage if buffer is backed
          * by String object.
-         * 
-         * @param vendor
+         *
+         * @param vendor the vendor
          */
         public void vendor(Buffer vendor)
         {
@@ -1309,8 +1332,8 @@ public interface Service
         /**
          * Sets isSource field that indicates whether the service is provided directly by a
          * publisher or consolidated from multiple sources.
-         * 
-         * @param isSource
+         *
+         * @param isSource the is source
          */
         public void isSource(long isSource)
         {
@@ -1356,8 +1379,8 @@ public interface Service
         /**
          * Sets supportsQosRange - Field that indicates whether items can be requested using a QoS
          * range(using both the qos and worstQos members of a {@link RequestMsg}).
-         * 
-         * @param supportsQosRange
+         *
+         * @param supportsQosRange the supports qos range
          */
         public void supportsQosRange(long supportsQosRange)
         {
@@ -1401,8 +1424,8 @@ public interface Service
         /**
          * supportsOutOfBandSnapshots - Field that indicates whether Snapshot(requests without
          * the STREAMING flag) can be made when the OpenLimit is reached.
-         * 
-         * @param supportsOutOfBandSnapshots
+         *
+         * @param supportsOutOfBandSnapshots the supports out of band snapshots
          */
         public void supportsOutOfBandSnapshots(long supportsOutOfBandSnapshots)
         {
@@ -1432,10 +1455,9 @@ public interface Service
         /**
          * Returns acceptingConsumerStatus - Field that indicates whether the service accepts messages
          * related to Source Mirroring.
-         * 
-         * @see DirectoryConsumerStatus
-         * 
+         *
          * @return acceptingConsumerStatus
+         * @see DirectoryConsumerStatus
          */
         public long acceptingConsumerStatus()
         {
@@ -1445,10 +1467,9 @@ public interface Service
         /**
          * Sets acceptingConsumerStatus - Field that indicates whether the service accepts messages
          * related to Source Mirroring.
-         * 
+         *
+         * @param acceptingConsumerStatus the accepting consumer status
          * @see DirectoryConsumerStatus
-         * 
-         * @param acceptingConsumerStatus
          */
         public void acceptingConsumerStatus(long acceptingConsumerStatus)
         {
@@ -1492,8 +1513,8 @@ public interface Service
          * position of itemList buffer will be set to passed in buffer's data
          * and position. Note that this creates garbage if buffer is backed by
          * String object.
-         * 
-         * @param itemList
+         *
+         * @param itemList the item list
          */
         public void itemList(Buffer itemList)
         {
@@ -1539,8 +1560,8 @@ public interface Service
 
         /**
          * Sets capabilities for this service.
-         * 
-         * @param capabilitiesList
+         *
+         * @param capabilitiesList the capabilities list
          */
         public void capabilitiesList(List<Long> capabilitiesList)
         {
@@ -1566,8 +1587,8 @@ public interface Service
 
         /**
          * Sets dictionary names provided by this service.
-         * 
-         * @param dictionariesProvidedList
+         *
+         * @param dictionariesProvidedList the dictionaries provided list
          */
         public void dictionariesProvidedList(List<String> dictionariesProvidedList)
         {
@@ -1618,8 +1639,8 @@ public interface Service
         /**
          * Sets dictionary names that a consumer will require to decode the
          * service's market data content.
-         * 
-         * @param dictionariesUsedList
+         *
+         * @param dictionariesUsedList the dictionaries used list
          */
         public void dictionariesUsedList(List<String> dictionariesUsedList)
         {
@@ -1667,8 +1688,8 @@ public interface Service
         
         /**
          * Sets qualities of service that this service provides.
-         * 
-         * @param qosList
+         *
+         * @param qosList the qos list
          */
         public void qosList(List<Qos> qosList)
         {
@@ -1760,8 +1781,8 @@ public interface Service
 
         /**
          * The service info flags. Populate with {@link ServiceInfoFlags}
-         * 
-         * @param flags
+         *
+         * @param flags the flags
          */
         public void flags(int flags)
         {
@@ -2334,6 +2355,9 @@ public interface Service
             return CodecReturnCodes.SUCCESS;
         }
         
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             stringBuf.setLength(0);
@@ -2471,6 +2495,9 @@ public interface Service
          */
         public static final int HAS_ACCEPTING_CONS_STATUS = 0x100;
 
+        /**
+         * Instantiates a new service info flags.
+         */
         private ServiceInfoFlags()
         {
             throw new AssertionError();
@@ -2503,6 +2530,9 @@ public interface Service
         private ElementEntry element = CodecFactory.createElementEntry();
         private UInt tmpUInt = CodecFactory.createUInt();
         
+        /**
+         * Instantiates a new service link.
+         */
         public ServiceLink()
         {
             text = CodecFactory.createBuffer();
@@ -2510,6 +2540,9 @@ public interface Service
             clear();
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             stringBuf.setLength(0);
@@ -2620,8 +2653,8 @@ public interface Service
          * position of name field buffer will be set to passed in buffer's data
          * and position. Note that this creates garbage if buffer is backed by
          * String object.
-         * 
-         * @param name
+         *
+         * @param name the name
          */
         public void name(Buffer name)
         {
@@ -2641,8 +2674,8 @@ public interface Service
 
         /**
          * Sets type of this service link. Populated by {@link com.thomsonreuters.upa.rdm.Directory.LinkTypes}
-         * 
-         * @param type
+         *
+         * @param type the type
          */
         public void type(long type)
         {
@@ -2662,8 +2695,8 @@ public interface Service
 
         /**
          * Sets linkState - Flag indicating whether the source is up or down. Populated by {@link com.thomsonreuters.upa.rdm.Directory.LinkStates}.
-         * 
-         * @param linkState
+         *
+         * @param linkState the link state
          */
         public void linkState(long linkState)
         {
@@ -2683,7 +2716,8 @@ public interface Service
         /**
          * Sets linkCode - Code indicating additional information about the status of the source. Populated by {@link com.thomsonreuters.upa.rdm.Directory.LinkCodes}.
          *  
-         * @param linkCode
+         *
+         * @param linkCode the link code
          */
         public void linkCode(long linkCode)
         {
@@ -2719,8 +2753,8 @@ public interface Service
          * buffer. Data and position of text field buffer will be set to
          * passed in buffer's data and position. Note that this creates garbage
          * if buffer is backed by String object.
-         * 
-         * @param text
+         *
+         * @param text the text
          */
         public void text(Buffer text)
         {
@@ -2740,8 +2774,8 @@ public interface Service
 
         /**
          * Sets service link flags. Populate with {@link ServiceLinkFlags}
-         * 
-         * @param flags
+         *
+         * @param flags the flags
          */
         public void flags(int flags)
         {
@@ -2950,6 +2984,8 @@ public interface Service
          * Returns the action associated with this link filter.
          * 
          * action - {@link MapEntryActions}
+         *
+         * @return the int
          */
         public int action()
         {
@@ -2987,6 +3023,9 @@ public interface Service
         /** (0x04) Indicates presence of link text. */
         public static final int HAS_TEXT    = 0x04;      
 
+        /**
+         * Instantiates a new service link flags.
+         */
         private ServiceLinkFlags()
         {
             throw new AssertionError();
@@ -3004,6 +3043,9 @@ public interface Service
         private List<ServiceLink> linkList;
         private int action; //filter entry action
 
+        /**
+         * Instantiates a new service link info.
+         */
         public ServiceLinkInfo()
         {
             linkList = new ArrayList<ServiceLink>();
@@ -3023,8 +3065,8 @@ public interface Service
         /**
          * Sets link information elements -List of entries with information
          * about upstream sources.
-         * 
-         * @param linkList
+         *
+         * @param linkList the link list
          */
         public void linkList(List<ServiceLink> linkList)
         {
@@ -3158,6 +3200,9 @@ public interface Service
             linkList.clear();
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             for (ServiceLink link : linkList)
@@ -3311,6 +3356,9 @@ public interface Service
         
         public ServiceSeqMcastInfo seqMcastInfo = new ServiceSeqMcastInfo();
         
+        /**
+         * Instantiates a new service seq mcast.
+         */
         public ServiceSeqMcast()
         {
             text = CodecFactory.createBuffer();
@@ -3318,11 +3366,19 @@ public interface Service
             clear();
         }
         
+        /**
+         * Seq mcast info.
+         *
+         * @return the service seq mcast info
+         */
         public ServiceSeqMcastInfo seqMcastInfo()
         {
             return seqMcastInfo;
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             stringBuf.setLength(0);
@@ -3428,8 +3484,8 @@ public interface Service
          * position of name field buffer will be set to passed in buffer's data
          * and position. Note that this creates garbage if buffer is backed by
          * String object.
-         * 
-         * @param name
+         *
+         * @param name the name
          */
         public void name(Buffer name)
         {
@@ -3449,8 +3505,8 @@ public interface Service
 
         /**
          * Sets type of this service link. Populated by {@link com.thomsonreuters.upa.rdm.Directory.LinkTypes}
-         * 
-         * @param type
+         *
+         * @param type the type
          */
         public void type(long type)
         {
@@ -3470,8 +3526,8 @@ public interface Service
 
         /**
          * Sets linkState - Flag indicating whether the source is up or down. Populated by {@link com.thomsonreuters.upa.rdm.Directory.LinkStates}.
-         * 
-         * @param linkState
+         *
+         * @param linkState the link state
          */
         public void linkState(long linkState)
         {
@@ -3491,7 +3547,8 @@ public interface Service
         /**
          * Sets linkCode - Code indicating additional information about the status of the source. Populated by {@link com.thomsonreuters.upa.rdm.Directory.LinkCodes}.
          *  
-         * @param linkCode
+         *
+         * @param linkCode the link code
          */
         public void linkCode(long linkCode)
         {
@@ -3515,8 +3572,8 @@ public interface Service
          * buffer. Data and position of text field buffer will be set to
          * passed in buffer's data and position. Note that this creates garbage
          * if buffer is backed by String object.
-         * 
-         * @param text
+         *
+         * @param text the text
          */
         public void text(Buffer text)
         {
@@ -3536,8 +3593,8 @@ public interface Service
 
         /**
          * Sets service link flags. Populate with {@link ServiceLinkFlags}
-         * 
-         * @param flags
+         *
+         * @param flags the flags
          */
         public void flags(int flags)
         {
@@ -3927,6 +3984,8 @@ public interface Service
          * Returns the action associated with this link filter.
          * 
          * action - {@link MapEntryActions}
+         *
+         * @return the int
          */
         public int action()
         {
@@ -3964,6 +4023,9 @@ public interface Service
         /** (0x04) Indicates presence of link text. */
         public static final int HAS_TEXT    = 0x04;      
 
+        /**
+         * Instantiates a new service seq mcast flags.
+         */
         private ServiceSeqMcastFlags()
         {
             throw new AssertionError();
@@ -3987,6 +4049,9 @@ public interface Service
         private List<ServiceLink> linkList;
         private int action; //filter entry action
 
+        /**
+         * Instantiates a new service seq mcast info.
+         */
         public ServiceSeqMcastInfo()
         {
             linkList = new ArrayList<ServiceLink>();
@@ -4006,8 +4071,8 @@ public interface Service
         /**
          * Sets link information elements -List of entries with information
          * about upstream sources.
-         * 
-         * @param linkList
+         *
+         * @param linkList the link list
          */
         public void linkList(List<ServiceLink> linkList)
         {
@@ -4133,6 +4198,9 @@ public interface Service
             linkList.clear();
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             for (ServiceLink link : linkList)
@@ -4191,71 +4259,141 @@ public interface Service
             return ret;
         }
         
+        /**
+         * Snapshot server address.
+         *
+         * @return the buffer
+         */
         public Buffer snapshotServerAddress()
         {
             return snapshotServer.address();
         }
         
+        /**
+         * Snapshot server port.
+         *
+         * @return the long
+         */
         public Long snapshotServerPort()
         {
             return snapshotServer.port();
         }
         
+        /**
+         * Ref data server address.
+         *
+         * @return the buffer
+         */
         public Buffer refDataServerAddress()
         {
             return refDataServer.address();
         }
         
+        /**
+         * Ref data server port.
+         *
+         * @return the long
+         */
         public Long refDataServerPort()
         {
             return refDataServer.port();
         }
         
+        /**
+         * Gap recovery server address.
+         *
+         * @return the buffer
+         */
         public Buffer gapRecoveryServerAddress()
         {
             return gapRecoveryServer.address();
         }
         
+        /**
+         * Gap recovery server port.
+         *
+         * @return the long
+         */
         public Long gapRecoveryServerPort()
         {
             return gapRecoveryServer.port();
         }
         
+        /**
+         * Gap M cast chan server list.
+         *
+         * @return the list
+         */
         public List<Buffer> gapMCastChanServerList()
         {
             return GapMCastChanServerList.addressList();
         }
         
+        /**
+         * Gap M cast chan server count.
+         *
+         * @return the int
+         */
         public int gapMCastChanServerCount()
         {
             return GapMCastChanServerCount;
         }
         
+        /**
+         * Gap M cast chan port list.
+         *
+         * @return the list
+         */
         public List<Long> gapMCastChanPortList()
         {
             return GapMCastChanServerList.port();
         }
         
+        /**
+         * Gap M cast chan domain list.
+         *
+         * @return the list
+         */
         public List<Long> gapMCastChanDomainList()
         {
             return GapMCastChanServerList.domain();
         }
         
+        /**
+         * Streaming M cast chan server list.
+         *
+         * @return the list
+         */
         public List<Buffer> streamingMCastChanServerList()
         {
             return StreamingMcastChanServerList.addressList();
         }
         
+        /**
+         * Streaming M cast chan port list.
+         *
+         * @return the list
+         */
         public List<Long> streamingMCastChanPortList()
         {
             return StreamingMcastChanServerList.port();
         }
         
+        /**
+         * Streaming M cast chan server count.
+         *
+         * @return the int
+         */
         public int streamingMCastChanServerCount()
         {
             return StreamingMCastChanServerCount;
         }
         
+        /**
+         * Streaming M cast chan domain list.
+         *
+         * @return the list
+         */
         public List<Long> streamingMCastChanDomainList()
         {
             return StreamingMcastChanServerList.domain();
@@ -4273,29 +4411,59 @@ public interface Service
         private Buffer address;
         private Long port;
 
+        /**
+         * Instantiates a new RDM address port info.
+         */
         RDMAddressPortInfo()
         {
             address = CodecFactory.createBuffer();
             port = new Long(0);
         }
         
+        /**
+         * Address.
+         *
+         * @return the buffer
+         */
         Buffer address() 
         {
             return address;
         }
+        
+        /**
+         * Address.
+         *
+         * @param setAddress the set address
+         */
         void address(Buffer setAddress)
         {
             address.data(ByteBuffer.allocate(setAddress.length()));
             setAddress.copy(address);
         }
+        
+        /**
+         * Port.
+         *
+         * @return the long
+         */
         Long port() 
         {
             return port;
         }
+        
+        /**
+         * Port.
+         *
+         * @param setPort the set port
+         */
         void port(Long setPort)
         {
             port = setPort;
         }
+        
+        /**
+         * Clear.
+         */
         void clear()
         {
             address = CodecFactory.createBuffer();
@@ -4316,6 +4484,9 @@ public interface Service
         private List<Long> domain;
         private int addressCount;
         
+        /**
+         * Instantiates a new RDMMC address port info.
+         */
         RDMMCAddressPortInfo()
         {
             address = new ArrayList<Buffer>();
@@ -4324,56 +4495,134 @@ public interface Service
             addressCount = 0;
         }
         
+        /**
+         * Address list.
+         *
+         * @return the list
+         */
         List<Buffer> addressList() {
             return address;
         }
 
+        /**
+         * Address.
+         *
+         * @param location the location
+         * @return the buffer
+         */
         Buffer address(int location) 
         {
             return address.get(location);
         }
+        
+        /**
+         * Address.
+         *
+         * @param setAddress the set address
+         * @param location the location
+         */
         void address(Buffer setAddress, int location)
         {
             address.add(location, CodecFactory.createBuffer());
             address.get(location).data(ByteBuffer.allocate(setAddress.length()));
             setAddress.copy(address.get(location));
         }
+        
+        /**
+         * Address count.
+         *
+         * @return the int
+         */
         int addressCount() 
         {
             return addressCount;
         }
+        
+        /**
+         * Address count.
+         *
+         * @param setAddressCount the set address count
+         */
         void addressCount(int setAddressCount)
         {
             addressCount = setAddressCount;
         }
+        
+        /**
+         * Increment address count.
+         */
         void incrementAddressCount()
         {
             addressCount += 1;
         }
+        
+        /**
+         * Port.
+         *
+         * @return the list
+         */
         List<Long> port()
         {
             return port;
         }
+        
+        /**
+         * Port.
+         *
+         * @param location the location
+         * @return the long
+         */
         Long port(int location) 
         {
             return port.get(location);
         }
+        
+        /**
+         * Port.
+         *
+         * @param setPort the set port
+         * @param location the location
+         */
         void port(Long setPort, int location)
         {
             port.add(location, setPort);
         }
+        
+        /**
+         * Domain.
+         *
+         * @return the list
+         */
         List<Long> domain()
         {
             return domain;
         }
+        
+        /**
+         * Domain.
+         *
+         * @param location the location
+         * @return the long
+         */
         Long domain(int location) 
         {
             return domain.get(location);
         }
+        
+        /**
+         * Domain.
+         *
+         * @param setDomains the set domains
+         * @param location the location
+         */
         void domain(Long setDomains, int location)
         {
             domain.add(location, setDomains);
         }
+        
+        /**
+         * Clear.
+         */
         void clear()
         {
             address.clear();
@@ -4405,6 +4654,9 @@ public interface Service
         private final static String eol = "\n";
         private final static String tab = "\t";
 
+        /**
+         * Instantiates a new service load.
+         */
         public ServiceLoad()
         {
             clear();
@@ -4426,6 +4678,9 @@ public interface Service
             loadFactor = 65535;
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             stringBuf.setLength(0);
@@ -4472,8 +4727,8 @@ public interface Service
 
         /**
          * Sets service load flags. Populate with {@link ServiceLoadFlags}
-         * 
-         * @param flags
+         *
+         * @param flags the flags
          */
         public void flags(int flags)
         {
@@ -4492,8 +4747,8 @@ public interface Service
 
         /**
          * Sets action associated with this Load filter.
-         * 
-         * @param action
+         *
+         * @param action the action
          */
         public void action(int action)
         {
@@ -4514,8 +4769,8 @@ public interface Service
         /**
          * Sets openLimit - The maximum number of items the Consumer is allowed to open
          * from this service.
-         * 
-         * @param openLimit
+         *
+         * @param openLimit the open limit
          */
         public void openLimit(long openLimit)
         {
@@ -4560,8 +4815,8 @@ public interface Service
         /**
          * Sets openWindow - The maximum number of items the Consumer may have
          * outstanding(i.e. waiting for a RefreshMsg) from this service.
-         * 
-         * @param openWindow
+         *
+         * @param openWindow the open window
          */
         public void openWindow(long openWindow)
         {
@@ -4607,7 +4862,7 @@ public interface Service
          * Sets load factor - a number indicating the current workload of
          * the source providing the data.
          *
-         * @param loadFactor
+         * @param loadFactor the load factor
          */
         public void loadFactor(long loadFactor)
         {
@@ -4853,6 +5108,9 @@ public interface Service
         /** (0x04) Indicates presence of a load factor. */
         public static final int HAS_LOAD_FACTOR  =  0x04;    
         
+        /**
+         * Instantiates a new service load flags.
+         */
         private ServiceLoadFlags()
         {
             throw new AssertionError();
@@ -4882,6 +5140,9 @@ public interface Service
         private UInt tmpUInt = CodecFactory.createUInt();
         private com.thomsonreuters.upa.codec.State tmpStatus = CodecFactory.createState();
         
+        /**
+         * Instantiates a new service state.
+         */
         public ServiceState()
         {
             status = CodecFactory.createState();
@@ -4916,8 +5177,8 @@ public interface Service
 
         /**
          * Sets service state flags. Populate with {@link ServiceStateFlags}.
-         * 
-         * @param flags
+         *
+         * @param flags the flags
          */
         public void flags(int flags)
         {
@@ -4999,6 +5260,9 @@ public interface Service
             return CodecReturnCodes.SUCCESS;
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             stringBuf.setLength(0);
@@ -5052,8 +5316,8 @@ public interface Service
 
         /**
          * Sets action - Action associated with this Service Info.
-         * 
-         * @param action
+         *
+         * @param action the action
          */
         public void action(int action)
         {
@@ -5072,8 +5336,8 @@ public interface Service
 
         /**
          * Sets current state of the service.
-         * 
-         * @param serviceState
+         *
+         * @param serviceState the service state
          */
         public void serviceState(long serviceState)
         {
@@ -5094,8 +5358,8 @@ public interface Service
         /**
          * Sets acceptingRequests - Flag indicating whether the service is
          * accepting item requests.
-         * 
-         * @param acceptingRequests
+         *
+         * @param acceptingRequests the accepting requests
          */
         public void acceptingRequests(long acceptingRequests)
         {
@@ -5139,8 +5403,8 @@ public interface Service
         /**
          * Sets status to be applied to all items being provided by this
          * service.
-         * 
-         * @param status
+         *
+         * @param status the status
          */
         public void status(State status)
         {
@@ -5325,6 +5589,9 @@ public interface Service
         /** (0x02) Indicates presence of the status member. */
         public static final int HAS_STATUS = 0x02;
 
+        /**
+         * Instantiates a new service state flags.
+         */
         private ServiceStateFlags()
         {
             throw new AssertionError();

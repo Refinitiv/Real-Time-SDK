@@ -44,6 +44,9 @@ public final class StatusType implements Cloneable
         return status;
     }
 
+    /**
+     * Inits the status.
+     */
     public void initStatus()
     {
         row = 1;

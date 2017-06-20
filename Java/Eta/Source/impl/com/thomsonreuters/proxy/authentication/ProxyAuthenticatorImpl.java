@@ -24,17 +24,31 @@ class ProxyAuthenticatorImpl implements IProxyAuthenticator
     boolean kerberosHasFailed = false;
     boolean ntlmHasFailed = false;	
 	
+    /**
+     * Instantiates a new proxy authenticator impl.
+     *
+     * @param credentials the credentials
+     * @param ProxyHost the proxy host
+     */
     protected ProxyAuthenticatorImpl(ICredentials credentials, String ProxyHost)
     {
         _credentials = credentials;
         _proxyHost = ProxyHost;
     }
 
+    /**
+     * Instantiates a new proxy authenticator impl.
+     *
+     * @param credentials the credentials
+     */
     protected ProxyAuthenticatorImpl(ICredentials credentials)
     {
         _credentials = credentials;
     }
 
+    /**
+     * Instantiates a new proxy authenticator impl.
+     */
     protected ProxyAuthenticatorImpl()
     {
         _credentials = CredentialsFactory.create();

@@ -11,6 +11,14 @@ public class AuthenticationSchemeFactory
 
     private static boolean valid;
 
+    /**
+     * Creates the.
+     *
+     * @param authenticationSchemes the authentication schemes
+     * @param authenticator the authenticator
+     * @return the i authentication scheme
+     * @throws ProxyAuthenticationException the proxy authentication exception
+     */
     public static IAuthenticationScheme create(List<String> authenticationSchemes, IProxyAuthenticator authenticator)
             throws ProxyAuthenticationException
     {

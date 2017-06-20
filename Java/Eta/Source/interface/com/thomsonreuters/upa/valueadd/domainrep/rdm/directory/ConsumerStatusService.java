@@ -30,9 +30,9 @@ public interface ConsumerStatusService
 
     /**
      * Decode a UPA message into an RDM message.
-     * 
+     *
      * @param dIter The Decode Iterator
-     * 
+     * @param msg the msg
      * @return UPA return value
      */
     public int decode(DecodeIterator dIter, Msg msg);
@@ -55,8 +55,8 @@ public interface ConsumerStatusService
 
     /**
      * serviceId - ID of the service this status concerns.
-     * 
-     * @param serviceId
+     *
+     * @param serviceId the service id
      */
     public void serviceId(long serviceId);
 
@@ -69,8 +69,8 @@ public interface ConsumerStatusService
 
     /**
      * action - Action associated with this status.
-     * 
-     * @param action
+     *
+     * @param action the action
      */
     public void action(int action);
 
@@ -87,8 +87,8 @@ public interface ConsumerStatusService
      * sourceMirroringMode - The Source Mirroring Mode for this service.
      * Populated by
      * {@link com.thomsonreuters.upa.rdm.Directory.SourceMirroringMode}.
-     * 
-     * @param sourceMirroringMode
+     *
+     * @param sourceMirroringMode the source mirroring mode
      */
     public void sourceMirroringMode(long sourceMirroringMode);
 

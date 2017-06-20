@@ -26,8 +26,8 @@ public class ConsumerWatchlistOptions
     
     /**
      * Enables the watchlist.
-     * 
-     * @param enableWatchlist 
+     *
+     * @param enableWatchlist the enable watchlist
      */
     public void enableWatchlist(boolean enableWatchlist)
     {
@@ -48,8 +48,8 @@ public class ConsumerWatchlistOptions
     /**
      * Callback function that is provided when a channel is first opened by Reactor.connect.
      * This is only allowed when a watchlist is enabled and is optional.
-     * 
-     * @param channelOpenCallback
+     *
+     * @param channelOpenCallback the channel open callback
      */
     public void channelOpenCallback(ReactorChannelEventCallback channelOpenCallback)
     {
@@ -68,8 +68,8 @@ public class ConsumerWatchlistOptions
 
     /**
      * Set to the number of items the application expects to request.
-     * 
-     * @param itemCountHint
+     *
+     * @param itemCountHint the item count hint
      */
     public void itemCountHint(int itemCountHint)
     {
@@ -108,8 +108,8 @@ public class ConsumerWatchlistOptions
 
     /**
      * Sets the maximum number of on-stream post acknowledgments that may be outstanding for the channel.
-     * 
-     * @param maxOutstandingPosts
+     *
+     * @param maxOutstandingPosts the max outstanding posts
      */
     public void maxOutstandingPosts(int maxOutstandingPosts)
     {
@@ -128,8 +128,8 @@ public class ConsumerWatchlistOptions
 
     /**
      * Time a stream will wait for acknowledgment of an on-stream post, in milliseconds.
-     * 
-     * @param postAckTimeout
+     *
+     * @param postAckTimeout the post ack timeout
      */
     public void postAckTimeout(int postAckTimeout)
     {
@@ -148,8 +148,8 @@ public class ConsumerWatchlistOptions
 
     /**
      * Time a requested stream will wait for a response from the provider, in milliseconds.
-     * 
-     * @param requestTimeout
+     *
+     * @param requestTimeout the request timeout
      */
     public void requestTimeout(int requestTimeout)
     {

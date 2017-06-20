@@ -48,6 +48,10 @@ public interface DataDictionary
      * object. Subsequent calls to this method may be made to the same
      * {@link DataDictionary} to load additional dictionaries (provided the
      * fields do not conflict).
+     *
+     * @param filename the filename
+     * @param error the error
+     * @return the int
      */
     public int loadFieldDictionary(String filename, Error error);
 
@@ -56,6 +60,10 @@ public interface DataDictionary
      * dictionary object. Subsequent calls to this method may be made to the
      * same {@link DataDictionary} to load additional dictionaries (provided
      * that there are no duplicate table references for any field).
+     *
+     * @param filename the filename
+     * @param error the error
+     * @return the int
      */
     public int loadEnumTypeDictionary(String filename, Error error);
 
@@ -95,7 +103,7 @@ public interface DataDictionary
      *            iterator must be cleared and initialized to the buffer to be used for encoding.
      * 
      * @param currentFid Tracks which fields have been encoded in case of
-     *            multi-part encoding. Must be initialized to dictionary->minFid
+     *            multi-part encoding. Must be initialized to {@literal dictionary->minFid}
      *            on the first call and is updated with each successfully encoded part.
      * 
      * @param verbosity The desired verbosity to encode.

@@ -27,8 +27,8 @@ public interface TunnelingInfo
 
     /**
      * If set to true, we are going through an HTTP proxy server for tunneling.
-     * 
-     * @param HTTPproxy
+     *
+     * @param HTTPproxy the HTT pproxy
      */
     public void HTTPproxy(boolean HTTPproxy);
 
@@ -87,8 +87,8 @@ public interface TunnelingInfo
      * Type of keystore for certificate file.
      * Defaults to the property keystore.type in the JDK security properties file (java.security).
      * Sun JDK default = JKS
-     * 
-     * @param KeystoreType
+     *
+     * @param KeystoreType the keystore type
      */
     public void KeystoreType(String KeystoreType);
 
@@ -103,8 +103,8 @@ public interface TunnelingInfo
 
     /**
      * Keystore file that contains your own private keys, and public key certificates you received from someone else.
-     * 
-     * @param KeystoreFile
+     *
+     * @param KeystoreFile the keystore file
      */
     public void KeystoreFile(String KeystoreFile);
 
@@ -117,8 +117,8 @@ public interface TunnelingInfo
 
     /**
      * Password for keystore file.
-     * 
-     * @param KeystorePasswd
+     *
+     * @param KeystorePasswd the keystore passwd
      */
     public void KeystorePasswd(String KeystorePasswd);
 
@@ -131,8 +131,8 @@ public interface TunnelingInfo
 
     /**
      * Cryptographic protocol used. Sun JDK default is TLS.
-     * 
-     * @param SecurityProtocol
+     *
+     * @param SecurityProtocol the security protocol
      */
     public void SecurityProtocol(String SecurityProtocol);
 
@@ -146,8 +146,8 @@ public interface TunnelingInfo
     /**
      * Java Cryptography Package provider.
      * Sun JDK default = SunJSSE
-     * 
-     * @param SecurityProvider
+     *
+     * @param SecurityProvider the security provider
      */
     public void SecurityProvider(String SecurityProvider);
 
@@ -164,8 +164,8 @@ public interface TunnelingInfo
      * Defaults to the property ssl.KeyManagerFactory.algorithm
      * in the JDK security properties file (java.security).
      * Sun JDK default = SunX509
-     * 
-     * @param KeyManagerAlgorithm
+     *
+     * @param KeyManagerAlgorithm the key manager algorithm
      */
     public void KeyManagerAlgorithm(String KeyManagerAlgorithm);
 
@@ -183,8 +183,8 @@ public interface TunnelingInfo
      * Java Trust Management algorithm.
      * Defaults to the property ssl.TrustManagerFactory.algorithm in the JDK security properties file (java.security).
      * Sun JDK default = PKIX
-     * 
-     * @param TrustManagerAlgorithm
+     *
+     * @param TrustManagerAlgorithm the trust manager algorithm
      */
     public void TrustManagerAlgorithm(String TrustManagerAlgorithm);
 

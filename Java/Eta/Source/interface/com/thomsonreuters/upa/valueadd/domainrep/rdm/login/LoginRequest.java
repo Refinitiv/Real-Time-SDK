@@ -12,10 +12,11 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
  */
 public interface LoginRequest extends LoginMsg
 {
+    
     /**
      * The RDM Login request flags. Populated by {@link LoginRequestFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 
@@ -39,8 +40,8 @@ public interface LoginRequest extends LoginMsg
     /**
      * Initializes a LoginRequest, clearing it and filling in a typical
      * userName, applicationName and position.
-     * 
-     * @param streamId
+     *
+     * @param streamId the stream id
      */
     public void initDefaultRequest(int streamId);
 
@@ -57,8 +58,8 @@ public interface LoginRequest extends LoginMsg
      * position. For TREP Authentication, this should contain the Authentication
      * Token. Note that this creates garbage if buffer is backed by String
      * object.
-     * 
-     * @param userName
+     *
+     * @param userName the user name
      */
     public void userName(Buffer userName);
 
@@ -74,8 +75,8 @@ public interface LoginRequest extends LoginMsg
      * userNameType - The type of the userName that was used with the Login
      * Request. Populated by
      * {@link com.thomsonreuters.upa.rdm.Login.UserIdTypes}
-     * 
-     * @param userNameType
+     *
+     * @param userNameType the user name type
      */
     public void userNameType(int userNameType);
 
@@ -174,8 +175,8 @@ public interface LoginRequest extends LoginMsg
      * downloadConnectionConfig - Indicates whether the Consumer desires
      * connection information. If available, a list of servers will be present
      * in the serverList field of the {@link LoginRefresh}.
-     * 
-     * @param downloadConnectionConfig
+     *
+     * @param downloadConnectionConfig the download connection config
      */
     public void downloadConnectionConfig(long downloadConnectionConfig);
 
@@ -209,8 +210,8 @@ public interface LoginRequest extends LoginMsg
      * Sets instance id. InstanceId can be used to differentiate applications
      * running on the same machine. Note that this creates garbage if buffer is
      * backed by String object.
-     * 
-     * @param instanceId
+     *
+     * @param instanceId the instance id
      */
     public void instanceId(Buffer instanceId);
 
@@ -303,8 +304,8 @@ public interface LoginRequest extends LoginMsg
      * Optionally used with the
      * {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login
      * userNameType.
-     * 
-     * @param authenticationExtended
+     *
+     * @param authenticationExtended the authentication extended
      */
     public void authenticationExtended(Buffer authenticationExtended);
 

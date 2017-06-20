@@ -98,9 +98,25 @@ public class TunnelStream
 	private TunnelStream _managerNext, _managerPrev;
 	static class ManagerLink implements Link<TunnelStream>
 	{
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#getPrev(java.lang.Object)
+		 */
 		public TunnelStream getPrev(TunnelStream thisPrev) { return thisPrev._managerPrev; }
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#setPrev(java.lang.Object, java.lang.Object)
+		 */
 		public void setPrev(TunnelStream thisPrev, TunnelStream thatPrev) { thisPrev._managerPrev = thatPrev; }
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#getNext(java.lang.Object)
+		 */
 		public TunnelStream getNext(TunnelStream thisNext) { return thisNext._managerNext; }
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#setNext(java.lang.Object, java.lang.Object)
+		 */
 		public void setNext(TunnelStream thisNext, TunnelStream thatNext) { thisNext._managerNext = thatNext; }
 	}
 	static final ManagerLink MANAGER_LINK = new ManagerLink();
@@ -109,9 +125,25 @@ public class TunnelStream
     private TunnelStream _dispatchNext, _dispatchPrev;
 	static class DispatchLink implements Link<TunnelStream>
 	{
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#getPrev(java.lang.Object)
+		 */
 		public TunnelStream getPrev(TunnelStream thisPrev) { return thisPrev._dispatchPrev; }
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#setPrev(java.lang.Object, java.lang.Object)
+		 */
 		public void setPrev(TunnelStream thisPrev, TunnelStream thatPrev) { thisPrev._dispatchPrev = thatPrev; }
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#getNext(java.lang.Object)
+		 */
 		public TunnelStream getNext(TunnelStream thisNext) { return thisNext._dispatchNext; }
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#setNext(java.lang.Object, java.lang.Object)
+		 */
 		public void setNext(TunnelStream thisNext, TunnelStream thatNext) { thisNext._dispatchNext = thatNext; }
 	}
 	static final DispatchLink DISPATCH_LINK = new DispatchLink();
@@ -120,9 +152,25 @@ public class TunnelStream
 	private TunnelStream _timeoutNext, _timeoutPrev;
 	static class TimeoutLink implements Link<TunnelStream>
 	{
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#getPrev(java.lang.Object)
+		 */
 		public TunnelStream getPrev(TunnelStream thisPrev) { return thisPrev._timeoutPrev; }
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#setPrev(java.lang.Object, java.lang.Object)
+		 */
 		public void setPrev(TunnelStream thisPrev, TunnelStream thatPrev) { thisPrev._timeoutPrev = thatPrev; }
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#getNext(java.lang.Object)
+		 */
 		public TunnelStream getNext(TunnelStream thisNext) { return thisNext._timeoutNext; }
+		
+		/* (non-Javadoc)
+		 * @see com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList.Link#setNext(java.lang.Object, java.lang.Object)
+		 */
 		public void setNext(TunnelStream thisNext, TunnelStream thatNext) { thisNext._timeoutNext = thatNext; }
 	}
 	static final TimeoutLink TIMEOUT_LINK = new TimeoutLink();
@@ -238,7 +286,12 @@ public class TunnelStream
     
     Msg _tempMsg; // temporary message for large re-assembled message callback  
 
-    /** Creates a consumer-side tunnel stream. */
+    /**
+     *  Creates a consumer-side tunnel stream.
+     *
+     * @param reactorChannel the reactor channel
+     * @param options the options
+     */
     public TunnelStream(ReactorChannel reactorChannel, TunnelStreamOpenOptions options)
     {
         this(reactorChannel);
@@ -261,7 +314,13 @@ public class TunnelStream
         _bigBufferPool = new TunnelStreamBigBufferPool(options.classOfService().common().maxFragmentSize(), options.guaranteedOutputBuffers());
     }
     
-    /** Creates a provider-side tunnel stream. */
+    /**
+     *  Creates a provider-side tunnel stream.
+     *
+     * @param reactorChannel the reactor channel
+     * @param event the event
+     * @param options the options
+     */
     public TunnelStream(ReactorChannel reactorChannel, TunnelStreamRequestEvent event, TunnelStreamAcceptOptions options)
     {
         this(reactorChannel);
@@ -278,6 +337,11 @@ public class TunnelStream
         _bigBufferPool = new TunnelStreamBigBufferPool(options.classOfService().common().maxFragmentSize(), options.guaranteedOutputBuffers());
     }
 
+    /**
+     * Instantiates a new tunnel stream.
+     *
+     * @param reactorChannel the reactor channel
+     */
     TunnelStream(ReactorChannel reactorChannel)
     {
         _reactorChannel = reactorChannel;
@@ -433,10 +497,10 @@ public class TunnelStream
     
     /**
      * Sends a buffer to the tunnel stream.
-     * 
+     *
      * @param buffer the buffer to send
+     * @param options the options
      * @param errorInfo error structure to be populated in the event of failure
-     * 
      * @return {@link ReactorReturnCodes#SUCCESS}, if submit succeeded or
      * {@link ReactorReturnCodes#PERSISTENCE_FULL}, if the persistence file is full or
      * {@link ReactorReturnCodes#INVALID_ENCODING}, if the buffer encoding is invalid or
@@ -499,6 +563,14 @@ public class TunnelStream
         }
     }
     
+    /**
+     * Handle RDM submit.
+     *
+     * @param reactorChannel the reactor channel
+     * @param rdmMsg the rdm msg
+     * @param errorInfo the error info
+     * @return the int
+     */
     private int handleRDMSubmit(ReactorChannel reactorChannel, MsgBase rdmMsg, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
@@ -576,6 +648,14 @@ public class TunnelStream
         return ReactorReturnCodes.SUCCESS;
     }
     
+    /**
+     * Handle queue msg RDM submit.
+     *
+     * @param reactorChannel the reactor channel
+     * @param queueMsg the queue msg
+     * @param errorInfo the error info
+     * @return the int
+     */
     private int handleQueueMsgRDMSubmit(ReactorChannel reactorChannel, QueueMsg queueMsg, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
@@ -679,6 +759,12 @@ public class TunnelStream
         return ReactorReturnCodes.SUCCESS;
     }
     
+    /**
+     * Queue data hdr buf size.
+     *
+     * @param queueMsg the queue msg
+     * @return the int
+     */
     int queueDataHdrBufSize(QueueData queueMsg)
     {
         return 128 + queueMsg.sourceName().length() + queueMsg.destName().length();
@@ -709,6 +795,14 @@ public class TunnelStream
         return handleMsgSubmit(_reactorChannel, msg, errorInfo);
     }
 
+    /**
+     * Handle msg submit.
+     *
+     * @param reactorChannel the reactor channel
+     * @param msg the msg
+     * @param errorInfo the error info
+     * @return the int
+     */
     private int handleMsgSubmit(ReactorChannel reactorChannel, Msg msg, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
@@ -786,6 +880,15 @@ public class TunnelStream
         return ReactorReturnCodes.SUCCESS;
     }
 
+    /**
+     * Handle buffer submit.
+     *
+     * @param reactorChannel the reactor channel
+     * @param buffer the buffer
+     * @param containerType the container type
+     * @param errorInfo the error info
+     * @return the int
+     */
     private int handleBufferSubmit(ReactorChannel reactorChannel, TransportBuffer buffer, int containerType, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
@@ -893,6 +996,15 @@ public class TunnelStream
         return ReactorReturnCodes.SUCCESS;
     }
 
+    /**
+     * Open queue msg stream.
+     *
+     * @param reactorChannel the reactor channel
+     * @param queueRequest the queue request
+     * @param serviceId the service id
+     * @param errorInfo the error info
+     * @return the int
+     */
     int openQueueMsgStream(ReactorChannel reactorChannel, QueueRequest queueRequest, int serviceId, ReactorErrorInfo errorInfo)
     {
         int retval = ReactorReturnCodes.SUCCESS;
@@ -931,6 +1043,13 @@ public class TunnelStream
         return ReactorReturnCodes.SUCCESS;
     }
 
+    /**
+     * Queue msg received.
+     *
+     * @param queueMsg the queue msg
+     * @param msg the msg
+     * @return the int
+     */
     int queueMsgReceived(QueueMsg queueMsg, Msg msg)
     {
         int retval = ReactorCallbackReturnCodes.SUCCESS;
@@ -943,6 +1062,13 @@ public class TunnelStream
         return retval;
     }
     
+    /**
+     * Queue msg acknowledged.
+     *
+     * @param queueAck the queue ack
+     * @param msg the msg
+     * @return the int
+     */
     int queueMsgAcknowledged(QueueAck queueAck, Msg msg)
     {
         int retval = ReactorCallbackReturnCodes.SUCCESS;
@@ -955,6 +1081,14 @@ public class TunnelStream
         return retval;
     }
 
+    /**
+     * Queue msg expired.
+     *
+     * @param buffer the buffer
+     * @param msg the msg
+     * @param code the code
+     * @return the int
+     */
     int queueMsgExpired(TunnelStreamBuffer buffer, Msg msg, int code)
     {
         int retval = ReactorCallbackReturnCodes.SUCCESS;
@@ -989,6 +1123,14 @@ public class TunnelStream
         return retval;
     }
     
+    /**
+     * Msg received.
+     *
+     * @param buffer the buffer
+     * @param msg the msg
+     * @param containerType the container type
+     * @return the int
+     */
     int msgReceived(TunnelStreamBuffer buffer, Msg msg, int containerType)
     {
         return _reactor.sendAndHandleTunnelStreamMsgCallback("TunnelStream.msgReceived", _reactorChannel, this, buffer, msg, containerType, _errorInfo);
@@ -1080,6 +1222,11 @@ public class TunnelStream
         return _queueMsgCallback;
     }
     
+    /**
+     * Auth login request.
+     *
+     * @return the login request
+     */
     LoginRequest authLoginRequest()
     {
         return _authLoginRequest;
@@ -1095,6 +1242,11 @@ public class TunnelStream
         return _name;
     }
 
+    /**
+     * Tunnel stream manager.
+     *
+     * @return the tunnel stream manager
+     */
     TunnelStreamManager tunnelStreamManager()
     {
         return _reactorChannel.tunnelStreamManager();
@@ -1133,28 +1285,51 @@ public class TunnelStream
     
     /**
      * Returns whether or not this is a provider tunnel stream.
+     *
+     * @return true, if is provider
      */
     public boolean isProvider()
     {
         return _isProvider;
     }
     
+    /**
+     * Xml tracing.
+     *
+     * @return true, if successful
+     */
     /* Returns whether or not XML tracing is enabled.  */
     boolean xmlTracing()
     {
         return _reactor._reactorOptions.xmlTracing();
     }
 
+	/**
+	 * Notifying.
+	 *
+	 * @param notifying the notifying
+	 */
 	void notifying(boolean notifying)
 	{
 		_notifying = notifying;
 	}
 
+	/**
+	 * Notifying.
+	 *
+	 * @return true, if successful
+	 */
 	boolean notifying()
 	{
 		return _notifying;
 	}
 	
+	/**
+	 * Open stream.
+	 *
+	 * @param error the error
+	 * @return the int
+	 */
 	int openStream(Error error)
 	{
 		_streamOpen = true;
@@ -1188,23 +1363,43 @@ public class TunnelStream
 		return ReactorReturnCodes.SUCCESS;
 	}
 
+	/**
+	 * Setup buffer pool.
+	 */
 	void setupBufferPool()
 	{	
 		_bufferPool = new SlicedBufferPool(_classOfService.common().maxFragmentSize(), guaranteedOutputBuffers());
 	}
 	
+    /**
+     * Force file reset.
+     *
+     * @param forceFileReset the force file reset
+     */
     // For testing only
     void forceFileReset(boolean forceFileReset)
     {
         _forceFileReset = forceFileReset;
     }
 
+    /**
+     * Force file reset.
+     *
+     * @return true, if successful
+     */
     // For testing only
     boolean forceFileReset()
     {
         return _forceFileReset;
     }
 
+    /**
+     * Open substream.
+     *
+     * @param requestMsg the request msg
+     * @param error the error
+     * @return the int
+     */
     int openSubstream(QueueRequest requestMsg, Error error)
     {
         int ret = ReactorReturnCodes.SUCCESS;
@@ -1278,6 +1473,12 @@ public class TunnelStream
         return ret;
     }
 	
+	/**
+	 * Stream closed.
+	 *
+	 * @param error the error
+	 * @return the int
+	 */
 	int streamClosed(Error error)
 	{
 	    int ret = ReactorReturnCodes.SUCCESS;
@@ -1327,6 +1528,13 @@ public class TunnelStream
 	    return ret;
 	}
 
+	/**
+	 * Close.
+	 *
+	 * @param finalStatusEvent the final status event
+	 * @param error the error
+	 * @return the int
+	 */
 	int close(boolean finalStatusEvent,  Error error)
 	{
         _streamOpen =  false;
@@ -1350,6 +1558,13 @@ public class TunnelStream
 		return ReactorReturnCodes.SUCCESS;
 	}
 
+	/**
+	 * Close substream.
+	 *
+	 * @param substreamId the substream id
+	 * @param error the error
+	 * @return the int
+	 */
 	int closeSubstream(int substreamId, Error error)
 	{
 		int ret;
@@ -1386,6 +1601,13 @@ public class TunnelStream
 	}
 
 	
+	/**
+	 * Release buffer.
+	 *
+	 * @param buffer the buffer
+	 * @param error the error
+	 * @return the int
+	 */
 	int releaseBuffer(TunnelStreamBuffer buffer, Error error)
 	{
 		if (!buffer.isBigBuffer()) // not big buffer
@@ -1403,6 +1625,15 @@ public class TunnelStream
 		return ReactorReturnCodes.SUCCESS;
 	}
 	
+    /**
+     * Gets the buffer.
+     *
+     * @param length the length
+     * @param isForUser the is for user
+     * @param addTunnelStreamHeader the add tunnel stream header
+     * @param error the error
+     * @return the buffer
+     */
     TunnelStreamBuffer getBuffer(int length, boolean isForUser, boolean addTunnelStreamHeader, Error error)
     {
         TunnelStreamBuffer tunnelBuffer = null;
@@ -1505,6 +1736,18 @@ public class TunnelStream
         return tunnelBuffer;
     }
     
+    /**
+     * Gets the buffer for fragmentation.
+     *
+     * @param length the length
+     * @param totalMsgLen the total msg len
+     * @param fragmentNumber the fragment number
+     * @param msgId the msg id
+     * @param containerType the container type
+     * @param msgComplete the msg complete
+     * @param error the error
+     * @return the buffer for fragmentation
+     */
     TunnelStreamBuffer getBufferForFragmentation(int length, int totalMsgLen, int fragmentNumber, int msgId, int containerType, boolean msgComplete, Error error)
     {
         TunnelStreamBuffer tunnelBuffer = null;
@@ -1617,6 +1860,14 @@ public class TunnelStream
         return tunnelBuffer;
     }
     
+    /**
+     * Submit.
+     *
+     * @param tunnelBuffer the tunnel buffer
+     * @param containerType the container type
+     * @param error the error
+     * @return the int
+     */
     int submit(TunnelStreamBuffer tunnelBuffer, int containerType,  Error error)
     {
         int ret;
@@ -1877,6 +2128,14 @@ public class TunnelStream
         }
     }
 
+    /**
+     * Fragment buffer.
+     *
+     * @param tunnelBigBuffer the tunnel big buffer
+     * @param containerType the container type
+     * @param error the error
+     * @return the int
+     */
     /* Fragments a big buffer and queues the fragments for sending on next dispatch.
      * If fragmentation cannot be completed, the progress is saved so it can be completed later. */
     private int fragmentBuffer(TunnelStreamBigBuffer tunnelBigBuffer, int containerType, Error error)
@@ -1941,6 +2200,13 @@ public class TunnelStream
 		return ReactorReturnCodes.SUCCESS;
 	}
 
+    /**
+     * Decode msg.
+     *
+     * @param buffer the buffer
+     * @param error the error
+     * @return the int
+     */
     private int decodeMsg(TunnelStreamBuffer buffer, Error error)
     {
         // decode TunnelStream message first
@@ -1951,6 +2217,13 @@ public class TunnelStream
         return (_decMsg.decode(_decIter));
     }
 
+	/**
+	 * Decode substream msg.
+	 *
+	 * @param buffer the buffer
+	 * @param error the error
+	 * @return the int
+	 */
 	private int decodeSubstreamMsg(TunnelStreamBuffer buffer, Error error)
     {
 	    _decSubIter.clear();
@@ -1959,6 +2232,12 @@ public class TunnelStream
         return _decSubMsg.decode(_decSubIter);
     }
 
+	/**
+	 * Dispatch.
+	 *
+	 * @param error the error
+	 * @return the int
+	 */
 	int dispatch(Error error)
 	{
 		int ret = ReactorReturnCodes.SUCCESS;
@@ -2543,6 +2822,12 @@ public class TunnelStream
 	}
 
 	
+    /**
+     * Handle transmit.
+     *
+     * @param error the error
+     * @return the int
+     */
     /* Send any data waiting to be transmitted, if possible. */
 	int handleTransmit(Error error)
 	{
@@ -2645,6 +2930,12 @@ public class TunnelStream
 	
 	
 	
+	/**
+	 * Send close msg.
+	 *
+	 * @param error the error
+	 * @return the int
+	 */
 	int sendCloseMsg(Error error)
 	{
 		int ret;
@@ -2697,6 +2988,13 @@ public class TunnelStream
         return ReactorReturnCodes.SUCCESS;
 	}
 	
+	/**
+	 * Encode tunnel stream header init.
+	 *
+	 * @param eIter the e iter
+	 * @param seqNum the seq num
+	 * @return the int
+	 */
 	int encodeTunnelStreamHeaderInit(EncodeIterator eIter, int seqNum)
 	{
 	    int ret; 
@@ -2742,12 +3040,20 @@ public class TunnelStream
         return ReactorReturnCodes.SUCCESS;
 	}
 	
+	/**
+	 * Dump timestamp.
+	 */
 	/* Print an XML comment containing the timestamp in UTC. */
 	private void dumpTimestamp()
 	{
 		System.out.println("<!-- " + _traceDateFormat.format(Calendar.getInstance().getTime()) + " (UTC) -->");
 	}
 
+	/**
+	 * Trace buffer to xml.
+	 *
+	 * @param tBuffer the t buffer
+	 */
 	/* Print an XML trace of a TunnelStream buffer. */
 	void traceBufferToXml(TransportBuffer tBuffer)
 	{
@@ -2768,6 +3074,12 @@ public class TunnelStream
 		traceMsgtoXml(_traceMsg, false);
 	}
 
+	/**
+	 * Trace msgto xml.
+	 *
+	 * @param msg the msg
+	 * @param timestamp the timestamp
+	 */
 	/* Print an XML trace of a TunnelStream message. */
 	void traceMsgtoXml(Msg msg, boolean timestamp)
 	{
@@ -2840,6 +3152,13 @@ public class TunnelStream
 		}
 	}
 
+	/**
+	 * Read msg.
+	 *
+	 * @param deliveredMsg the delivered msg
+	 * @param error the error
+	 * @return the int
+	 */
 	int readMsg(Msg deliveredMsg, Error error)
 	{
 		int ret;
@@ -3165,6 +3484,15 @@ public class TunnelStream
         }
 	}
 	
+	/**
+	 * Process ack.
+	 *
+	 * @param ackHeader the ack header
+	 * @param ackRangeList the ack range list
+	 * @param nakRangeList the nak range list
+	 * @param error the error
+	 * @return the int
+	 */
 	int processAck(TunnelStreamMsg.TunnelStreamAck ackHeader, AckRangeList ackRangeList, AckRangeList nakRangeList, Error error)
 	{
 	    int ret;
@@ -3346,6 +3674,11 @@ public class TunnelStream
 		return ReactorReturnCodes.SUCCESS;
 	}
 
+	/**
+	 * Free acked write buffer.
+	 *
+	 * @param buffer the buffer
+	 */
 	/* Free an acknowledged write buffer. */
 	void freeAckedWriteBuffer(TunnelStreamBuffer buffer)
 	{
@@ -3359,6 +3692,12 @@ public class TunnelStream
 		releaseBuffer(buffer, _errorInfo.error());
 	}
 
+	/**
+	 * Checks if is send window open.
+	 *
+	 * @param buffer the buffer
+	 * @return true, if is send window open
+	 */
 	/* Determine if the recvWindow has room for sending data
 	 * (or, if no buffer is given, whether a message might be possible to send). */
 	boolean isSendWindowOpen(TunnelStreamBuffer buffer)
@@ -3384,6 +3723,14 @@ public class TunnelStream
 		return retVal;
 	}
 
+    /**
+     * Gets the channel buffer.
+     *
+     * @param length the length
+     * @param packedBuffer the packed buffer
+     * @param error the error
+     * @return the channel buffer
+     */
     TransportBuffer getChannelBuffer(int length, boolean packedBuffer, Error error)
     {
         assert(_reactorChannel.tunnelStreamManager().reactorChannel().channel() != null);
@@ -3419,6 +3766,13 @@ public class TunnelStream
         return tBuffer;
     }
 	
+	/**
+	 * Release channel buffer.
+	 *
+	 * @param buffer the buffer
+	 * @param error the error
+	 * @return the int
+	 */
 	int releaseChannelBuffer(TransportBuffer buffer, Error error)
 	{
         assert(_reactorChannel.tunnelStreamManager().reactorChannel().channel() != null);
@@ -3428,6 +3782,13 @@ public class TunnelStream
         return channel.releaseBuffer(buffer, error);
 	}
 
+	/**
+	 * Write channel buffer.
+	 *
+	 * @param tBuffer the t buffer
+	 * @param error the error
+	 * @return the int
+	 */
 	int writeChannelBuffer(TransportBuffer tBuffer, Error error)
 	{
 		int ret;
@@ -3476,12 +3837,24 @@ public class TunnelStream
 		}
 	}
 
+	/**
+	 * Enable trace.
+	 *
+	 * @param traceFlags the trace flags
+	 * @return the int
+	 */
 	int enableTrace(int traceFlags)
 	{
 		_traceFlags = traceFlags;
 		return ReactorReturnCodes.SUCCESS;
 	}
 
+	/**
+	 * Gets the state info.
+	 *
+	 * @param info the info
+	 * @return the state info
+	 */
 	int getStateInfo(TunnelStreamStateInfo info)
 	{
 	    try
@@ -3504,6 +3877,13 @@ public class TunnelStream
 		return ReactorReturnCodes.SUCCESS;
 	}
 	
+    /**
+     * Handle timer.
+     *
+     * @param currentTimeNsec the current time nsec
+     * @param error the error
+     * @return the int
+     */
     int handleTimer(long currentTimeNsec, Error error)
     {
         switch(_tunnelStreamState)
@@ -3542,6 +3922,12 @@ public class TunnelStream
         return ReactorReturnCodes.SUCCESS;
     }
 
+    /**
+     * Insert timeout buffer.
+     *
+     * @param tunnelBuffer the tunnel buffer
+     * @param currentTimeNsec the current time nsec
+     */
     /* Insert buffer in order into timeout list */
     void insertTimeoutBuffer(TunnelStreamBuffer tunnelBuffer, long currentTimeNsec)
     {
@@ -3571,6 +3957,12 @@ public class TunnelStream
         updateTimeout(currentTimeNsec);
     }
 
+    /**
+     * Expire timeout messages.
+     *
+     * @param currentTimeNsec the current time nsec
+     * @param error the error
+     */
     /* Expire any timed-out buffers (e.g. QueueData messages). */
     void expireTimeoutMessages(long currentTimeNsec, Error error)
     {
@@ -3592,6 +3984,11 @@ public class TunnelStream
         updateTimeout(currentTimeNsec);
     }
 
+    /**
+     * Expire immediate messages.
+     *
+     * @param error the error
+     */
     /* Expire any messages with an IMMEDIATE timeout. Done in response to a queue stream
      * being closed before these messages were transmitted. */
     void expireImmediateMessages(Error error)
@@ -3608,6 +4005,11 @@ public class TunnelStream
         }
     }
 
+    /**
+     * Update timeout.
+     *
+     * @param currentTimeNsec the current time nsec
+     */
     /* Set tunnelstream timeout to match the next timeout event. */
     void updateTimeout(long currentTimeNsec)
     {
@@ -3622,16 +4024,47 @@ public class TunnelStream
             tunnelStreamManager().removeTunnelStreamFromTimeoutList(this);
     }
 
+	/**
+	 * Trace flags.
+	 *
+	 * @return the int
+	 */
 	int traceFlags() { return _traceFlags; }
 
+	/**
+	 * Next timeout nsec.
+	 *
+	 * @return the long
+	 */
 	long nextTimeoutNsec() { return _nextTimeoutNsec; }
 
+	/**
+	 * Checks for next timeout.
+	 *
+	 * @return true, if successful
+	 */
 	boolean hasNextTimeout() { return _hasNextTimeout; }
 
+	/**
+	 * Checks for next timeout.
+	 *
+	 * @param hasNextTimeout the has next timeout
+	 */
 	void hasNextTimeout(boolean hasNextTimeout) { _hasNextTimeout = hasNextTimeout; }
 
+	/**
+	 * Tunnel stream state.
+	 *
+	 * @return the tunnel stream state
+	 */
 	TunnelStreamState tunnelStreamState() { return _tunnelStreamState; }
 
+    /**
+     * Substream bind.
+     *
+     * @param tmpSubMsg the tmp sub msg
+     * @return the queue msg
+     */
     QueueMsg substreamBind(Msg tmpSubMsg)
     {	
     	switch (tmpSubMsg.msgClass())
@@ -3674,6 +4107,11 @@ public class TunnelStream
     	}  	    
 	}    
 
+    /**
+     * Channel stream id.
+     *
+     * @param channelStreamId the channel stream id
+     */
     /* Sets the channel-facing stream ID. This may be used with messages that are
      * safe to send directly to the channel (namely GenericMsgs for TunnelStream data and acking). */
     void channelStreamId(int channelStreamId)
@@ -3681,6 +4119,12 @@ public class TunnelStream
         _channelStreamId = channelStreamId;
     }
 
+    /**
+     * Error info to error.
+     *
+     * @param errorInfo the error info
+     * @param error the error
+     */
     /* Copy ReactorErrorInfo information to transport Error. */
     private void errorInfoToError(ReactorErrorInfo errorInfo, Error error)
     {
@@ -3692,16 +4136,31 @@ public class TunnelStream
             error.text(errorInfo.error().text());
     }
     
+    /**
+     * Table key.
+     *
+     * @param tableKey the table key
+     */
     void tableKey(WlInteger tableKey)
     {
         _tableKey = tableKey;
     }
     
+    /**
+     * Table key.
+     *
+     * @return the wl integer
+     */
     WlInteger tableKey()
     {
         return _tableKey;
     }
     
+    /**
+     * Message id.
+     *
+     * @return the int
+     */
     // gets message id for fragmentation
     int messageId()
     {
@@ -3715,6 +4174,12 @@ public class TunnelStream
     	return msgId;
     }
     
+    /**
+     * Encoded msg size.
+     *
+     * @param msg the msg
+     * @return the int
+     */
     // estimate encoded message size
     private int encodedMsgSize(Msg msg)
     {
@@ -3735,6 +4200,15 @@ public class TunnelStream
     	return msgSize;
     }
     
+    /**
+     * Handle tunnel stream fragmented msg.
+     *
+     * @param dataHeader the data header
+     * @param fragmentedBuffer the fragmented buffer
+     * @param containerType the container type
+     * @param errorInfo the error info
+     * @return the int
+     */
     int handleTunnelStreamFragmentedMsg(TunnelStreamMsg.TunnelStreamData dataHeader, ByteBuffer fragmentedBuffer, int containerType, ReactorErrorInfo errorInfo)
     {
     	int ret = ReactorReturnCodes.SUCCESS;
@@ -3817,6 +4291,11 @@ public class TunnelStream
     	return ret;
     }   
 
+	/**
+	 * Handle request retry.
+	 *
+	 * @return true, if successful
+	 */
 	boolean handleRequestRetry()
 	{
 		if (_tunnelStreamState != TunnelStreamState.WAITING_REFRESH || _requestRetryCount >= MAX_REQUEST_RETRIES)

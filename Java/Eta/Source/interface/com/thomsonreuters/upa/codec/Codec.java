@@ -58,7 +58,8 @@ public class Codec
      * compiled into this library.<BR>
      * 
      * User can call this method to programmatically extract version information.<BR>
-     * 
+     *
+     * @return the library version info
      * @see com.thomsonreuters.upa.transport.LibraryVersionInfo
      */
     public static LibraryVersionInfo queryVersion()

@@ -10,21 +10,20 @@ import java.util.List;
  */
 public interface DirectoryUpdate extends DirectoryMsg
 {
+    
     /**
      * The RDM Directory Update flags.
-     * 
+     *
+     * @param flags the flags
      * @see DirectoryUpdateFlags
-     * 
-     * @param flags
      */
     public void flags(int flags);
 
     /**
      * The RDM Directory Update flags.
-     * 
-     * @see DirectoryUpdateFlags
      *
      * @return flags.
+     * @see DirectoryUpdateFlags
      */
     public int flags();
 
@@ -68,8 +67,8 @@ public interface DirectoryUpdate extends DirectoryMsg
      * possible, this should match the consumer's request. Populated by
      * 
      * {@link com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags}.
-     * 
-     * @param filter
+     *
+     * @param filter the filter
      */
     public void filter(long filter);
 
@@ -77,11 +76,10 @@ public interface DirectoryUpdate extends DirectoryMsg
      * Checks the presence of the filter field.
      * 
      * Flags may also be bulk-set via {@link #flags(int)}.
-     * 
+     *
+     * @return true - if filter field exists, false - if not.
      * @see #flags(int)
      *      
-     * @return true - if filter field exists, false - if not.
-     * 
      */
     public boolean checkHasFilter();
 
@@ -103,8 +101,8 @@ public interface DirectoryUpdate extends DirectoryMsg
 
     /**
      * sequenceNumber - Sequence number of this message.
-     * 
-     * @param sequenceNumber
+     *
+     * @param sequenceNumber the sequence number
      */
     public void sequenceNumber(long sequenceNumber);
 
@@ -137,8 +135,8 @@ public interface DirectoryUpdate extends DirectoryMsg
      * serviceId - The ID of the service whose information is provided by this stream(if not
      * present, all services should be provided). Should match the Consumer's
      * request if possible.
-     * 
-     * @param serviceId
+     *
+     * @param serviceId the service id
      */
     public void serviceId(int serviceId);
 

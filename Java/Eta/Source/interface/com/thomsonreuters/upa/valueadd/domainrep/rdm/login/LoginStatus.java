@@ -11,10 +11,11 @@ import com.thomsonreuters.upa.codec.State;
  */
 public interface LoginStatus extends LoginMsg
 {
+    
     /**
      * The RDM Login Status flags. Populated by {@link LoginStatusFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 
@@ -46,8 +47,8 @@ public interface LoginStatus extends LoginMsg
      * position of userName buffer will be set to passed in buffer's data and
      * position. Note that this creates garbage if buffer is backed by String
      * object.
-     * 
-     * @param userName
+     *
+     * @param userName the user name
      */
     public void userName(Buffer userName);
 
@@ -78,8 +79,8 @@ public interface LoginStatus extends LoginMsg
     /**
      * nameType - The type of the userName that was used with the Login Request.Populated
      * by {@link com.thomsonreuters.upa.rdm.Login.UserIdTypes}
-     * 
-     * @param nameType
+     *
+     * @param nameType the name type
      */
     public void userNameType(int nameType);
 
@@ -145,8 +146,8 @@ public interface LoginStatus extends LoginMsg
      * 
      * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
      * login userNameType.
-     * 
-     * @param authenticationErrorCode
+     *
+     * @param authenticationErrorCode the authentication error code
      */
     public void authenticationErrorCode(long authenticationErrorCode);
 
@@ -182,8 +183,8 @@ public interface LoginStatus extends LoginMsg
      * Sets the authentication error text.
      * 
      * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN} login userNameType.
-     * 
-     * @param authenticationErrorText
+     *
+     * @param authenticationErrorText the authentication error text
      */
     public void authenticationErrorText(Buffer authenticationErrorText);
 

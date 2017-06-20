@@ -13,6 +13,8 @@ public interface Int
     
     /**
      * Is Int blank.
+     *
+     * @return true, if is blank
      */
     public boolean isBlank();
 

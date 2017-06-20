@@ -7,10 +7,11 @@ package com.thomsonreuters.upa.transport;
  */
 public interface BindOptions
 {
+    
     /**
      * A character representation of a component version information.
-     * 
-     * @param componentVersion
+     *
+     * @param componentVersion the component version
      */
     public void componentVersion(String componentVersion);
 	
@@ -510,8 +511,8 @@ public interface BindOptions
      * <BR>
      * If the UPA Codec package is being used, this should be set to
      * {@link com.thomsonreuters.upa.codec.Codec#protocolType()}.
-     * 
-     * 
+     *
+     * @param protocolType the protocol type
      * @see ConnectionTypes
      */
     public void protocolType(int protocolType);

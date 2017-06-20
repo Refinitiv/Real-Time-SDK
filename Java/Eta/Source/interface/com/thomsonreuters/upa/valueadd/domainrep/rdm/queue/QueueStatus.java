@@ -5,10 +5,11 @@ import com.thomsonreuters.upa.codec.State;
 /** The queue status message. */
 public interface QueueStatus extends QueueMsg
 {
+    
     /**
      * The Queue Status flags. Populated by {@link QueueStatusFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 
@@ -38,6 +39,8 @@ public interface QueueStatus extends QueueMsg
     /**
      * Returns the state of the queue status message. Use to
      * retrieve and set the state of the queue status message.
+     *
+     * @return the state
      */
     public State state();
 }

@@ -16,7 +16,8 @@ public class CosFlowControl
     
     /**
      * Returns the type of the flow control class of service.
-     * 
+     *
+     * @return the int
      * @see ClassesOfService
      */
     public int type()
@@ -26,7 +27,8 @@ public class CosFlowControl
     
     /**
      * Sets the type of the flow control class of service.
-     * 
+     *
+     * @param type the type
      * @see ClassesOfService
      */
     public void type(int type)
@@ -38,7 +40,8 @@ public class CosFlowControl
      * Returns the receive window size of the flow control class of service.
      * This is the largest amount of data that the remote end of the stream
      * should send at any time when performing flow control.
-     * 
+     *
+     * @return the int
      * @see ClassesOfService
      */
     public int recvWindowSize()
@@ -51,7 +54,8 @@ public class CosFlowControl
      * This is the largest amount of data that the remote end of the stream
      * should send at any time when performing flow control. Must be 0 or a
      * positive number up to 2,147,483,647.
-     * 
+     *
+     * @param recvWindowSize the recv window size
      * @see ClassesOfService
      */
     public void recvWindowSize(int recvWindowSize)
@@ -63,7 +67,8 @@ public class CosFlowControl
      * Returns the send window size of the flow control class of service.
      * This is the largest amount of data that this end of the stream should
      * send at any time when performing flow control.
-     * 
+     *
+     * @return the int
      * @see ClassesOfService
      */
     public int sendWindowSize()
@@ -71,6 +76,11 @@ public class CosFlowControl
         return _sendWindowSize;
     }
 
+    /**
+     * Send window size.
+     *
+     * @param sendWindowSize the send window size
+     */
     void sendWindowSize(int sendWindowSize)
     {
         _sendWindowSize = sendWindowSize;

@@ -71,8 +71,8 @@ public interface ElementSetDef
     
     /**
      * Performs a shallow copy from this ElementSetDef into the designated ElementSetDef.
-     * 
-     * @param destSetDef
+     *
+     * @param destSetDef the dest set def
      */
     public void copy(ElementSetDef destSetDef);
 }

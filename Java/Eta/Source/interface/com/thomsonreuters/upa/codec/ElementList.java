@@ -25,7 +25,6 @@ import com.thomsonreuters.upa.codec.Buffer;
  * The third encodes as a blank {@link Real} value.</li>
  * <li>
  * The fourth encodes as an {@link ElementList} container type.</li>
- * </li>
  * </ul>
  * <p>
  * The pattern used to encode the fourth entry can be used to encode any
@@ -33,7 +32,6 @@ import com.thomsonreuters.upa.codec.Buffer;
  * handling for the initial encode method. However, additional error handling
  * is omitted to simplify the example. This example shows the encoding of
  * standard name, dataType, and value data.
- * <p>
  * <ul class="blockList">
  * <li class="blockList">
  * 
@@ -132,12 +130,11 @@ import com.thomsonreuters.upa.codec.Buffer;
  * setting the encData on a new iterator. For simplification, the example omits
  * some error handling.
  * 
- * <p>
- * <p>
  * <ul class="blockList">
  * <li class="blockList">
  * 
  * <pre>
+ * {@code
  * //decode into the element list structure
  * if(retVal  = elementList.decode(decIter, localSetDefs)) >= CodecReturnCodes.SUCCESS)
  * {
@@ -169,6 +166,7 @@ import com.thomsonreuters.upa.codec.Buffer;
  *      //decoding failure tends to be unrecoverable
  * }
  * 
+ * }
  * </pre>
  * 
  * </li>
@@ -235,80 +233,76 @@ public interface ElementList extends XMLDecoder
     public int decode(DecodeIterator iter, LocalElementSetDefDb localSetDb);
 
     /**
-     * Checks the presence of the Information presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Information presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true - if exists; false if does not exist.
+     * @see #flags()
      */
     public boolean checkHasInfo();
 
     /**
-     * Checks the presence of the Standard Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Standard Data presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true - if exists; false if does not exist.
+     * @see #flags()
      */
     public boolean checkHasStandardData();
 
     /**
-     * Checks the presence of the Set Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Set Id presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true - if exists; false if does not exist.
+     * @see #flags()
      */
     public boolean checkHasSetId();
 
     /**
-     * Checks the presence of the Set Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Set Data presence flag.
      * 
-     * @see #flags()
-     * 
+     * <p>Flags may also be bulk-get via {@link #flags()}.
+     *
      * @return true - if exists; false if does not exist.
+     * @see #flags()
      */
     public boolean checkHasSetData();
 
     /**
-     * Applies the Information presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Information presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasInfo();
 
     /**
-     * Applies the Standard Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Standard Data presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasStandardData();
 
     /**
-     * Applies the Set Id presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Set Id presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasSetId();
 
     /**
-     * Applies the Set Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Set Data presence flag.
+     * 
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */

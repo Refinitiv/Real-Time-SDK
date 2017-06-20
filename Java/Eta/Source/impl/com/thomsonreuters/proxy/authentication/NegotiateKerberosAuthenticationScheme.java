@@ -30,6 +30,12 @@ public class NegotiateKerberosAuthenticationScheme extends KerberosAuthenticatio
 
     private static final String NEGOTIATEKERBEROS_RESPONSE_PREFIX = "NEGOTIATE ";	
 
+    /**
+     * Instantiates a new negotiate kerberos authentication scheme.
+     *
+     * @param proxyAuthenticator the proxy authenticator
+     * @throws NullPointerException the null pointer exception
+     */
     protected NegotiateKerberosAuthenticationScheme(IProxyAuthenticator proxyAuthenticator)
             throws NullPointerException
     {

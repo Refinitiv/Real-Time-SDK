@@ -16,8 +16,10 @@ public interface Double
     public void blank();
      
      /**
-     * Is Double blank.
-     */
+      * Is Double blank.
+      *
+      * @return true, if is blank
+      */
     public boolean isBlank();
 
     /**
@@ -39,12 +41,11 @@ public interface Double
     public double toDouble();
     
     /**
-     * Convert to a {@link Real} 
-     * 
+     * Convert to a {@link Real} .
+     *
      * @param hint {@link RealHints} enumeration hint value to use for converting double.
      * Must be in the range of {@link RealHints#EXPONENT_14} - {@link RealHints#MAX_DIVISOR}.
-     * 
-     * @return the value as {@link Real} 
+     * @return the value as {@link Real}
      */
     public Real toReal(int hint);
 

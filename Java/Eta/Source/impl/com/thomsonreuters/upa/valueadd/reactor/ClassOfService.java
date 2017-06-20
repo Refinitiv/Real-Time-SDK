@@ -52,6 +52,9 @@ public class ClassOfService
     private boolean _allCOSDecoded;
     private boolean _isServer;
     
+    /**
+     * Instantiates a new class of service.
+     */
     public ClassOfService()
     {
         _tempBuffer.data(ByteBuffer.allocate(512));
@@ -60,7 +63,8 @@ public class ClassOfService
     /**
      * Returns the common class of service properties.
      * Use to set common class of service properties.
-     * 
+     *
+     * @return the cos common
      * @see ClassesOfService
      */
     public CosCommon common()
@@ -71,7 +75,8 @@ public class ClassOfService
     /**
      * Returns the authentication class of service.
      * Use to set authentication class of service.
-     * 
+     *
+     * @return the cos authentication
      * @see ClassesOfService
      */
     public CosAuthentication authentication()
@@ -87,7 +92,8 @@ public class ClassOfService
     /**
      * Returns the flow control class of service.
      * Use to set flow control class of service.
-     * 
+     *
+     * @return the cos flow control
      * @see ClassesOfService
      */
     public CosFlowControl flowControl()
@@ -103,7 +109,8 @@ public class ClassOfService
     /**
      * Returns the data integrity class of service.
      * Use to set data integrity class of service.
-     * 
+     *
+     * @return the cos data integrity
      * @see ClassesOfService
      */
     public CosDataIntegrity dataIntegrity()
@@ -119,7 +126,8 @@ public class ClassOfService
     /**
      * Returns the guarantee class of service.
      * Use to set guarantee class of service.
-     * 
+     *
+     * @return the cos guarantee
      * @see ClassesOfService
      */
     public CosGuarantee guarantee()
@@ -134,7 +142,8 @@ public class ClassOfService
     
     /**
      * Returns the filter flags for this class of service.
-     * 
+     *
+     * @return the int
      * @see ClassesOfService
      */
     public int filterFlags()
@@ -164,6 +173,14 @@ public class ClassOfService
         return flags;
     }
     
+    /**
+     * Decode.
+     *
+     * @param reactorChannel the reactor channel
+     * @param encodedBuffer the encoded buffer
+     * @param errorInfo the error info
+     * @return the int
+     */
     /* decodes all classes of service */
     int decode(ReactorChannel reactorChannel, Buffer encodedBuffer, ReactorErrorInfo errorInfo)
     {
@@ -280,6 +297,14 @@ public class ClassOfService
         return ReactorReturnCodes.SUCCESS;         
     }
     
+    /**
+     * Decode common properties.
+     *
+     * @param reactorChannel the reactor channel
+     * @param encodedBuffer the encoded buffer
+     * @param errorInfo the error info
+     * @return the int
+     */
     /* decodes class of service common properties, returns when found and decoded */
     int decodeCommonProperties(ReactorChannel reactorChannel, Buffer encodedBuffer, ReactorErrorInfo errorInfo)
     {
@@ -416,6 +441,12 @@ public class ClassOfService
         return ReactorReturnCodes.SUCCESS;         
     }
     
+    /**
+     * Decode remainder.
+     *
+     * @param error the error
+     * @return the int
+     */
     /* decodes remainder of classes of service, must be called after decodeCommonProperties() method */
     int decodeRemainder(Error error)
     {
@@ -487,6 +518,12 @@ public class ClassOfService
         return ReactorReturnCodes.SUCCESS;         
     }
     
+    /**
+     * Encode.
+     *
+     * @param reactorChannel the reactor channel
+     * @return the buffer
+     */
     Buffer encode(ReactorChannel reactorChannel)
     {
         _eIter.clear();
@@ -820,6 +857,13 @@ public class ClassOfService
         return ret;
     }
 
+    /**
+     * Checks if is valid.
+     *
+     * @param isServer the is server
+     * @param errorInfo the error info
+     * @return true, if is valid
+     */
     boolean isValid(boolean isServer, ReactorErrorInfo errorInfo)
     {
         _isServer = isServer;
@@ -873,11 +917,21 @@ public class ClassOfService
         return true;
     }
     
+    /**
+     * Decoded properly.
+     *
+     * @return true, if successful
+     */
     boolean decodedProperly()
     {
         return _allCOSDecoded;
     }
     
+    /**
+     * Checks if is server.
+     *
+     * @param isServer the is server
+     */
     void isServer(boolean isServer)
     {
         _isServer = isServer;

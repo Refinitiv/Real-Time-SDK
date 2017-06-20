@@ -2028,6 +2028,13 @@ public class AnsiDecoder implements Ansi, Cloneable
         return PageRows;
     }
 	
+    /**
+     * Qa reset.
+     *
+     * @param page the page
+     * @param u_list the u list
+     * @return the short
+     */
     public short qa_reset(PageType page, ListType u_list)
     {
         short i;

@@ -11,6 +11,7 @@ package com.thomsonreuters.upa.codec;
  * <li class="blockList">
  * 
  * <pre>
+ * {@code
  * if ({@link Real#hint()} < {@link #FRACTION_1})
  * {
  *      outputValue = Real.value()*(pow(10,(Real.hint() - {@link #EXPONENT0})));
@@ -18,6 +19,7 @@ package com.thomsonreuters.upa.codec;
  * else
  * {
  *      outputValue = Real.value()*(pow(2,(Real.hint() - {@link #FRACTION_1})));
+ * }
  * }
  * </pre>
  * </li>
@@ -29,6 +31,7 @@ package com.thomsonreuters.upa.codec;
  * <li class="blockList">
  * 
  * <pre>
+ * {@code
  * if (inputHint < {@link #FRACTION_1})
  * {
  *      Real.value = (inputValue)/(pow(10,(inputHint - {@link #EXPONENT0})));
@@ -36,6 +39,7 @@ package com.thomsonreuters.upa.codec;
  * else
  * {
  *      Real.value = (inputValue)/(pow(2,(inputHint - {@link #FRACTION_1})));
+ * }
  * }
  * </pre>
  * </li>

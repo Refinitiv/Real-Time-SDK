@@ -5,6 +5,10 @@ package com.thomsonreuters.upa.valueadd.reactor;
  */
 public class ReactorReturnCodes
 {
+    
+    /**
+     * Instantiates a new reactor return codes.
+     */
     private ReactorReturnCodes()
     {
         throw new AssertionError();
@@ -73,9 +77,8 @@ public class ReactorReturnCodes
 
     /**
      * Returns a String representation of the specified ReactorReturnCodes type.
-     * 
-     * @param type
-     * 
+     *
+     * @param type the type
      * @return String representation of the specified ReactorReturnCodes type
      */
     public static String toString(int type)
