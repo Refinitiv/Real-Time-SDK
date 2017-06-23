@@ -9,6 +9,9 @@ class FieldSetDefImpl implements FieldSetDef
     int                _count;
     FieldSetDefEntry[] _entries;
     
+    /**
+     * Instantiates a new field set def impl.
+     */
     public FieldSetDefImpl()
     {
         clear();
@@ -75,6 +78,12 @@ class FieldSetDefImpl implements FieldSetDef
         destSetDef = newFieldSetDef;
     }
     
+    /**
+     * Allocate entries.
+     *
+     * @param count the count
+     * @return the int
+     */
     public int allocateEntries(int count)
     {
         if (_entries[0] != null)

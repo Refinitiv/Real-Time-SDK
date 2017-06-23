@@ -19,6 +19,9 @@ public class ReactorSubmitOptions
     String _serviceName;
     ReactorRequestMsgOptions _requestMsgOptions = null;
 
+    /**
+     * Instantiates a new reactor submit options.
+     */
     ReactorSubmitOptions()
     {
         _writeArgs = TransportFactory.createWriteArgs();
@@ -41,9 +44,9 @@ public class ReactorSubmitOptions
 
     /**
      * Service name to be associated with the message, if specifying the service by name 
-     * instead of by ID (watchlist enabled only)  
-     * 
-     *  @return serviceName
+     * instead of by ID (watchlist enabled only)  .
+     *
+     * @return service name
      */ 
     public String serviceName()
     {
@@ -52,9 +55,9 @@ public class ReactorSubmitOptions
     
     /**
      * Service name to be associated with the message, if specifying the service by name 
-     * instead of by ID (watchlist enabled only)  
-     * 
-     *  @param  serviceName
+     * instead of by ID (watchlist enabled only)  .
+     *
+     * @param serviceName the service name
      */
     public void serviceName(String serviceName)
     {

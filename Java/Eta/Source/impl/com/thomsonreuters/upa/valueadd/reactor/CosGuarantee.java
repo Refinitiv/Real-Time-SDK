@@ -16,7 +16,8 @@ public class CosGuarantee
     
     /**
      * Returns the type of the guarantee class of service.
-     * 
+     *
+     * @return the int
      * @see ClassesOfService
      */
     public int type()
@@ -26,7 +27,8 @@ public class CosGuarantee
     
     /**
      * Sets the type of the guarantee class of service.
-     * 
+     *
+     * @param type the type
      * @see ClassesOfService
      */
     public void type(int type)
@@ -39,6 +41,8 @@ public class CosGuarantee
      * Set the path for the guarantee class of service persistence file.
      * If not specified, the current working directory is used.
      * Use only when guarantee type is set to PERSISTENT_QUEUE.
+     *
+     * @param persistenceFilePath the persistence file path
      */
     public void persistenceFilePath(String persistenceFilePath)
     {
@@ -48,6 +52,8 @@ public class CosGuarantee
     /**
      * Returns the persistence file path for guarantee class of service.
      * Use only when guarantee type is set to PERSISTENT_QUEUE.
+     *
+     * @return the string
      */
     public String persistenceFilePath()
     {
@@ -57,6 +63,8 @@ public class CosGuarantee
     /**
      * Returns whether guarantee class of service will create local persistence files.
      * Use only when guarantee type is set to PERSISTENT_QUEUE.
+     *
+     * @return true, if successful
      */
     public boolean persistLocally()
     {
@@ -66,6 +74,8 @@ public class CosGuarantee
     /**
      * Enable or disable local file persistence. Default: Enabled.
      * Use only when guarantee class of service is set to PERSISTENT_QUEUE.
+     *
+     * @param persistLocally the persist locally
      */
     public void persistLocally(boolean persistLocally)
     {

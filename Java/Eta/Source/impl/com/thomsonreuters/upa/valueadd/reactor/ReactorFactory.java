@@ -27,6 +27,9 @@ public class ReactorFactory
     static VaPool _wlIntegerPool = new VaPool(true);
     static VaPool _wlViewPool = new VaPool(true);
     
+    /**
+     * Instantiates a new reactor factory.
+     */
     private ReactorFactory()
     {
         throw new AssertionError();
@@ -39,10 +42,9 @@ public class ReactorFactory
      * or {@link Reactor#accept(com.thomsonreuters.upa.transport.Server, ReactorAcceptOptions,
      * ReactorRole, ReactorErrorInfo)} to create new {@link ReactorChannel}.
      * Options are passed in via the {@link ReactorOptions}.
-     * 
-     * @param options
-     * @param errorInfo
-     * 
+     *
+     * @param options the options
+     * @param errorInfo the error info
      * @return a Reactor object or null. If null, check errorInfo for additional
      *         information regarding the failure
      */
@@ -253,11 +255,21 @@ public class ReactorFactory
         return new ClassOfService();
     }
 
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the tunnel stream auth info
+     */
     static TunnelStreamAuthInfo createTunnelStreamAuthInfo()
     {
         return new TunnelStreamAuthInfo();
     }
 
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the reactor channel
+     */
     static ReactorChannel createReactorChannel()
     {
         ReactorChannel reactorChannel = (ReactorChannel)_reactorChannelPool.poll();
@@ -273,6 +285,11 @@ public class ReactorFactory
         return reactorChannel;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the RDM login msg event
+     */
     static RDMLoginMsgEvent createRDMLoginMsgEvent()
     {
         RDMLoginMsgEvent rdmLoginMsgEvent = (RDMLoginMsgEvent)_rdmLoginMsgEventPool.poll();
@@ -288,6 +305,11 @@ public class ReactorFactory
         return rdmLoginMsgEvent;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the RDM directory msg event
+     */
     static RDMDirectoryMsgEvent createRDMDirectoryMsgEvent()
     {
         RDMDirectoryMsgEvent rdmDirectoryMsgEvent = (RDMDirectoryMsgEvent)_rdmDirectoryMsgEventPool.poll();
@@ -303,6 +325,11 @@ public class ReactorFactory
         return rdmDirectoryMsgEvent;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the RDM dictionary msg event
+     */
     static RDMDictionaryMsgEvent createRDMDictionaryMsgEvent()
     {
         RDMDictionaryMsgEvent rdmDictionaryMsgEvent = (RDMDictionaryMsgEvent)_rdmDictionaryMsgEventPool.poll();
@@ -318,6 +345,11 @@ public class ReactorFactory
         return rdmDictionaryMsgEvent;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the reactor msg event
+     */
     static ReactorMsgEvent createReactorMsgEvent()
     {
         ReactorMsgEvent reactorMsgEvent = (ReactorMsgEvent)_reactorMsgEventPool.poll();
@@ -333,6 +365,11 @@ public class ReactorFactory
         return reactorMsgEvent;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the reactor channel event
+     */
     static ReactorChannelEvent createReactorChannelEvent()
     {
         ReactorChannelEvent reactorChannelEvent = (ReactorChannelEvent)_reactorChannelEventPool.poll();
@@ -349,6 +386,11 @@ public class ReactorFactory
     }
     
 
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the tunnel stream status event
+     */
     public static TunnelStreamStatusEvent createTunnelStreamStatusEvent()
     {
         TunnelStreamStatusEvent tunnelStreamStatusEvent = (TunnelStreamStatusEvent)_tunnelStreamStatusEventPool.poll();
@@ -364,6 +406,11 @@ public class ReactorFactory
         return tunnelStreamStatusEvent;
     }
 
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the tunnel stream msg event
+     */
     static TunnelStreamMsgEvent createTunnelStreamMsgEvent()
     {
         TunnelStreamMsgEvent tunnelStreamMsgEvent = (TunnelStreamMsgEvent)_tunnelStreamMsgEventPool.poll();
@@ -379,6 +426,11 @@ public class ReactorFactory
         return tunnelStreamMsgEvent;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the tunnel stream queue msg event
+     */
     static TunnelStreamQueueMsgEvent createQueueMsgEvent()
     {
         TunnelStreamQueueMsgEvent queueMsgEvent = (TunnelStreamQueueMsgEvent)_queueMsgEventPool.poll();
@@ -394,6 +446,11 @@ public class ReactorFactory
         return queueMsgEvent;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the worker event
+     */
     static WorkerEvent createWorkerEvent()
     {
         WorkerEvent workerEvent = (WorkerEvent)_workerEventPool.poll();
@@ -409,6 +466,13 @@ public class ReactorFactory
         return workerEvent;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @param reactorChannel the reactor channel
+     * @param consumerRole the consumer role
+     * @return the watchlist
+     */
     static Watchlist createWatchlist(ReactorChannel reactorChannel, ConsumerRole consumerRole)
     {
         Watchlist watchlist = (Watchlist)_watchlistPool.poll();
@@ -426,6 +490,11 @@ public class ReactorFactory
         return watchlist;
     }
 
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the wl post timeout info
+     */
     static WlPostTimeoutInfo createWlPostTimeoutInfo()
     {
         WlPostTimeoutInfo postTimeoutInfo = (WlPostTimeoutInfo)_postTimeoutInfoPool.poll();
@@ -441,6 +510,11 @@ public class ReactorFactory
         return postTimeoutInfo;
     }
 
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the wl item aggregation key
+     */
     static WlItemAggregationKey createWlItemAggregationKey()
     {
         WlItemAggregationKey itemAggregationKey = (WlItemAggregationKey)_itemAggregationKeyPool.poll();
@@ -456,6 +530,11 @@ public class ReactorFactory
         return itemAggregationKey;
     }
 
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the wl stream
+     */
     static WlStream createWlStream()
     {
         WlStream wlStream = (WlStream)_wlStreamPool.poll();
@@ -471,6 +550,11 @@ public class ReactorFactory
         return wlStream;
     }
 
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the wl request
+     */
     static WlRequest createWlRequest()
     {
         WlRequest wlRequest = (WlRequest)_wlRequestPool.poll();
@@ -486,6 +570,11 @@ public class ReactorFactory
         return wlRequest;
     }
 
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the wl service
+     */
     static WlService createWlService()
     {
         WlService wlService = (WlService)_wlServicePool.poll();
@@ -501,6 +590,11 @@ public class ReactorFactory
         return wlService;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the wl item group
+     */
     static WlItemGroup createWlItemGroup()
     {
     	WlItemGroup wlItemGroup = (WlItemGroup)_wlItemGroupPool.poll();
@@ -516,6 +610,11 @@ public class ReactorFactory
     	return wlItemGroup;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the wl integer
+     */
     static WlInteger createWlInteger()
     {
         WlInteger wlInteger = (WlInteger)_wlIntegerPool.poll();
@@ -531,6 +630,11 @@ public class ReactorFactory
         return wlInteger;
     }
     
+    /**
+     * Creates a new Reactor object.
+     *
+     * @return the wl view
+     */
     static WlView createWlView()
     {
         WlView wlView = (WlView)_wlViewPool.poll();

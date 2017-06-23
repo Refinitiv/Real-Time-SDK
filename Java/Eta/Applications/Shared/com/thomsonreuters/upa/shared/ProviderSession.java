@@ -47,7 +47,7 @@ import com.thomsonreuters.upa.transport.WritePriorities;
  * <li>For new request from the client, call
  * {@link #read(Channel, Error, ReceivedMsgCallback)} that initializes client socket
  * channel to complete channel handshake and then read and processes the request
- * sage from the client channel.</li> </ul>
+ * sage from the client channel.</li> </ol>
  */
 public class ProviderSession
 {

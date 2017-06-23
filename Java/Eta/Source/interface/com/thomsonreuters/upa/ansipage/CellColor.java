@@ -190,6 +190,11 @@ public final class CellColor implements Cloneable
      white  ///< White
    };
 
+    /**
+     * Gets the color.
+     *
+     * @return the color
+     */
     public Color getColor()
     {
         return _color;

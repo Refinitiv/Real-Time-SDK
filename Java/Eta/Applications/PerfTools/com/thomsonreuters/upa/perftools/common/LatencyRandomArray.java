@@ -21,7 +21,7 @@ public class LatencyRandomArray
 	 * 
 	 * @param opts options for generating latency array.
 	 *  
-	 * @return < 0 if latency array options are invalid, 0 otherwise. 
+	 * @return &lt; 0 if latency array options are invalid, 0 otherwise. 
 	 */
 	public int create(LatencyRandomArrayOptions opts)
 	{

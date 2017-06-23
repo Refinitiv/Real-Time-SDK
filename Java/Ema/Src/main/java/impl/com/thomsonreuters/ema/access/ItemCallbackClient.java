@@ -474,7 +474,7 @@ class TunnelItem<T> extends Item<T> {
 		_baseImpl.rsslErrorInfo().clear();
 
 		TunnelStreamOpenOptions tsOpenOptions = ReactorFactory.createTunnelStreamOpenOptions();
-		;
+		
 		tsOpenOptions.clear();
 
 		tsOpenOptions.domainType(_domainType);
@@ -2614,58 +2614,36 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
-			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RequestMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to open or modify item request. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-				_baseImpl.handleInvalidUsage(temp.toString());
-				return false;
-		    }
-	
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RequestMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to open or modify item request. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+			_baseImpl.handleInvalidUsage(temp.toString());
+			return false;
+	    }
+
+		return true;
 	}
 
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg)
@@ -2689,61 +2667,40 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			
+			if (_baseImpl.loggerClient().isErrorEnabled())
+	    	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				if (_baseImpl.loggerClient().isErrorEnabled())
-		    	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: ReactorChannel.submit() failed in SingleItem.submit(CloseMsg)")
-		        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-		    	}
+	        	temp.append("Internal error: ReactorChannel.submit() failed in SingleItem.submit(CloseMsg)")
+	        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+	    	}
+			
+			temp.append("Failed to close item request. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
 				
-				temp.append("Failed to close item request. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
+
+			_baseImpl.handleInvalidUsage(temp.toString());
 	
-				_baseImpl.handleInvalidUsage(temp.toString());
-		
-				return false;
-		    }
-		
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
-			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			return false;
+	    }
+	
+		return true;
 	}
 
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.PostMsg rsslPostMsg)
@@ -2759,60 +2716,39 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(PostMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit PostMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(PostMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to submit PostMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.GenericMsg rsslGenericMsg)
@@ -2829,60 +2765,39 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslGenericMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(GenericMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslGenericMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit GenericMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(GenericMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to submit GenericMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg)
@@ -2898,60 +2813,39 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRefreshMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RefreshMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRefreshMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit RefreshMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RefreshMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to submit RefreshMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.UpdateMsg rsslUpateMsg)
@@ -2968,60 +2862,38 @@ class SingleItem<T> extends Item<T>
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
 		
-		try
-		{
-			_baseImpl.userLock().unlock();
-			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpateMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(UpdateMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpateMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit UpdateMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(UpdateMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to submit UpdateMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg)
@@ -3037,59 +2909,39 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslStatusMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(StatusMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslStatusMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit StatusMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			   if (_baseImpl.loggerClient().isErrorEnabled())
-        	   {
-        		   StringBuilder tempErr = _baseImpl.strBuilder();
-					tempErr.append("Failed to submit message, received exception: '")
-        				     .append(excp.getMessage())
-        				     .append( "'. ");
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-        	   }
-			   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(StatusMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
+			
+			temp.append("Failed to submit StatusMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 		
 	ClosedStatusClient<T> closedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)

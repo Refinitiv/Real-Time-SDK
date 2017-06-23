@@ -31,8 +31,8 @@ public interface DirectoryRequest extends DirectoryMsg
     /**
      * The RDM Directory request flags. Populated by
      * {@link DirectoryRequestFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 
@@ -79,8 +79,8 @@ public interface DirectoryRequest extends DirectoryMsg
     /**
      * A filter indicating which filters of information the Consumer is
      * interested in. Populated by {@link com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags}.
-     * 
-     * @param filter
+     *
+     * @param filter the filter
      */
     public void filter(long filter);
 
@@ -93,8 +93,8 @@ public interface DirectoryRequest extends DirectoryMsg
 
     /**
      * The ID of the service to request the directory from.
-     * 
-     * @param serviceId
+     *
+     * @param serviceId the service id
      */
     public void serviceId(int serviceId);
 }

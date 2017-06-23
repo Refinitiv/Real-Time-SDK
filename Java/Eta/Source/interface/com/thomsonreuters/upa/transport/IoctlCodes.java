@@ -10,6 +10,10 @@ package com.thomsonreuters.upa.transport;
  */
 public class IoctlCodes
 {
+    
+    /**
+     * Instantiates a new ioctl codes.
+     */
     // IoctlCodes class cannot be instantiated
     private IoctlCodes()
     {
@@ -69,9 +73,9 @@ public class IoctlCodes
     static final int RESERVED = 6;
 
     /**
+     * <p>
      * Allows a {@link Channel} to change its priorityFlushStrategy. Value
      * is a String, where each entry in the String is either:
-     * <p>
      * <ul>
      * <li>H for high priority</li>
      * <li>M for medium priority</li>

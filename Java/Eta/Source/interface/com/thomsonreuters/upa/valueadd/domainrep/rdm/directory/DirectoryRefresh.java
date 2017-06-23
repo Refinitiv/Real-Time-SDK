@@ -18,8 +18,8 @@ public interface DirectoryRefresh extends DirectoryMsg
     /**
      * The RDM Directory refresh flags. Populated by
      * {@link DirectoryRefreshFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 
@@ -41,8 +41,8 @@ public interface DirectoryRefresh extends DirectoryMsg
     public int copy(DirectoryRefresh destRefreshMsg);
 
     /**
-     * List of service entries
-     * 
+     * List of service entries.
+     *
      * @return service list
      */
     public List<Service> serviceList();
@@ -71,8 +71,8 @@ public interface DirectoryRefresh extends DirectoryMsg
      * possible, this should match the consumer's request. Populated by
      * 
      * {@link com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags}.
-     * 
-     * @param filter
+     *
+     * @param filter the filter
      */
     public void filter(long filter);
 
@@ -85,8 +85,8 @@ public interface DirectoryRefresh extends DirectoryMsg
 
     /**
      * sequenceNumber - Sequence number of this message.
-     * 
-     * @param sequenceNumber
+     *
+     * @param sequenceNumber the sequence number
      */
     public void sequenceNumber(long sequenceNumber);
 
@@ -121,8 +121,8 @@ public interface DirectoryRefresh extends DirectoryMsg
      * serviceId - The ID of the service whose information is provided by this stream(if not
      * present, all services should be provided). Should match the Consumer's
      * request if possible.
-     * 
-     * @param serviceId
+     *
+     * @param serviceId the service id
      */
     public void serviceId(int serviceId);
 
@@ -184,8 +184,8 @@ public interface DirectoryRefresh extends DirectoryMsg
     
     /**
      * Sets state for the directory refresh message.
-     * 
-     * @param state
+     *
+     * @param state the state
      */
     public void state(State state);
 }

@@ -151,7 +151,7 @@ public class ProviderSession
      * @param error - Error information populated when there is a failure to
      *            obtain buffers for measuring size.
      * 
-     * @return <0 if failure, 0 otherwise.
+     * @return &lt;0 if failure, 0 otherwise.
      */
     public int printEstimatedMsgSizes(Error error)
     {

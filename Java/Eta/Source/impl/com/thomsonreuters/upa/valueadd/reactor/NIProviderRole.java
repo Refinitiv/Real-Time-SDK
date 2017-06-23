@@ -52,6 +52,9 @@ public class NIProviderRole extends ReactorRole
 
     private Service _service = DirectoryMsgFactory.createService();
     
+    /**
+     * Instantiates a new NI provider role.
+     */
     public NIProviderRole()
     {
         _type = ReactorRoleTypes.NIPROVIDER;
@@ -64,8 +67,8 @@ public class NIProviderRole extends ReactorRole
      * invoke {@link #initDefaultRDMLoginRequest()} to populate with default
      * information. If this parameter is left empty no login will be sent to
      * the system; useful for systems that do not require a login.
-     * 
-     * @param loginRequest
+     *
+     * @param loginRequest the login request
      */
     public void rdmLoginRequest(LoginRequest loginRequest)
     {
@@ -120,6 +123,11 @@ public class NIProviderRole extends ReactorRole
         _loginRequest.role(Login.RoleTypes.PROV);
     }
     
+    /**
+     * Rdm login close.
+     *
+     * @return the login close
+     */
     /*
      * The LoginClose to be sent to close the Login stream.
      * This corresponds to the LoginRequest sent during the
@@ -141,12 +149,13 @@ public class NIProviderRole extends ReactorRole
         return _loginClose;
     }
     
-    /** A Directory Refresh to be sent during the setup of a Non-Interactive Provider
+    /**
+     *  A Directory Refresh to be sent during the setup of a Non-Interactive Provider
      * session. This can be populated with a user's specific information or
      * invoke {@link #initDefaultRDMDirectoryRefresh(String, int)} to populate with default
      * information. Requires LoginRequest to be set.
-     * 
-     * @param directoryRefresh
+     *
+     * @param directoryRefresh the directory refresh
      */
     public void rdmDirectoryRefresh(DirectoryRefresh directoryRefresh)
     {
@@ -330,6 +339,11 @@ public class NIProviderRole extends ReactorRole
         _directoryRefresh.serviceList().add(_service);
     }
     
+    /**
+     * Rdm directory close.
+     *
+     * @return the directory close
+     */
     /*
      * The DirectoryClose to be sent to close the Directory stream.
      * This corresponds to the DirectoryRefresh sent during the
@@ -351,11 +365,11 @@ public class NIProviderRole extends ReactorRole
         return _directoryClose;
     }
     
-    /** A callback function for processing RDMLoginMsgEvents received. If not present,
+    /**
+     *  A callback function for processing RDMLoginMsgEvents received. If not present,
      * the received message will be passed to the defaultMsgCallback.
-     * 
-     * @param callback
-     * 
+     *
+     * @param callback the callback
      * @see RDMLoginMsgCallback
      * @see RDMLoginMsgEvent
      */

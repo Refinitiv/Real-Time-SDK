@@ -45,7 +45,7 @@ public interface NetworkReplay
     
     /**
      * Returns the number of records remaining in the queue
-     * @return Number of remaining records
+     * @return the number of records remaining in the queue
      */
     int recordsInQueue();
 
@@ -56,7 +56,7 @@ public interface NetworkReplay
      * the number of bytes remaining in the buffer, that is, dst.remaining(),
      * at the moment this method is invoked.
      * <p>
-     * Suppose that a byte sequence of length n is read, where 0 <= n <= r.
+     * Suppose that a byte sequence of length n is read, where 0 &lt;= n &lt;= r.
      * This byte sequence will be transferred into the buffer so that the first byte in the sequence
      * is at index p and the last byte is at index p + n - 1,
      * where p is the buffer's position at the moment this method is invoked.

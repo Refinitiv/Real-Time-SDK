@@ -7,11 +7,13 @@ package com.thomsonreuters.upa.transport;
  */
 public interface SegmentedNetworkInfo
 {
+    
     /**
      * Configures the receive address or hostname to use in a segmented network configuration.
      * All content is received on this recvAddress:recvServiceName pair.
-     * 
+     *
      * @param recvAddress the recvAddress to set
+     * @return the segmented network info
      */
     public SegmentedNetworkInfo recvAddress(String recvAddress);
 
@@ -27,8 +29,9 @@ public interface SegmentedNetworkInfo
      * Configures the receive network's numeric port number or service name (as
      * defined in etc/services file) to use in a segmented network configuration.
      * All content is received on this recvAddress:recvServiceName pair.
-     * 
+     *
      * @param recvServiceName the recvServiceName to set
+     * @return the segmented network info
      */
     public SegmentedNetworkInfo recvServiceName(String recvServiceName);
 
@@ -48,8 +51,9 @@ public interface SegmentedNetworkInfo
      * connection types (ConnectionTypes.RELIABLE_MCAST). If multiple
      * connections or applications are running on the same host, this must be
      * unique for each connection.
-     * 
+     *
      * @param unicastServiceName the unicastServiceName to set
+     * @return the segmented network info
      */
     public SegmentedNetworkInfo unicastServiceName(String unicastServiceName);
 
@@ -67,8 +71,9 @@ public interface SegmentedNetworkInfo
     /**
      * Network interface card to bind to for send and recv networks.
      * If NULL, will use default NIC.
-     * 
+     *
      * @param interfaceName the interfaceName to set
+     * @return the segmented network info
      */
     public SegmentedNetworkInfo interfaceName(String interfaceName);
 
@@ -85,8 +90,9 @@ public interface SegmentedNetworkInfo
     /**
      * Configures the send address or hostname to use in a segmented network configuration.
      * All content is sent on this sendAddress:sendServiceName pair.
-     * 
+     *
      * @param sendAddress the sendAddress to set
+     * @return the segmented network info
      */
     public SegmentedNetworkInfo sendAddress(String sendAddress);
 
@@ -102,8 +108,9 @@ public interface SegmentedNetworkInfo
      * Configures the send network's numeric port number or service name (as
      * defined in etc/services file) to use in a segmented network configuration.
      * All content is sent on this sendAddress:sendServiceName pair.
-     * 
+     *
      * @param sendServiceName the sendServiceName to set
+     * @return the segmented network info
      */
     public SegmentedNetworkInfo sendServiceName(String sendServiceName);
 

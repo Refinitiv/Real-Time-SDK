@@ -23,9 +23,9 @@ import com.thomsonreuters.upa.rdm.UpdateEventTypes;
 public interface UpdateMsg extends Msg
 {
     /**
-     * Checks the presence of the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Extended Header presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -34,9 +34,9 @@ public interface UpdateMsg extends Msg
     public boolean checkHasExtendedHdr();
 
     /**
-     * Checks the presence of the Permission Expression presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Permission Expression presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -45,9 +45,9 @@ public interface UpdateMsg extends Msg
     public boolean checkHasPermData();
 
     /**
-     * Checks the presence of the Message Key presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Message Key presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -56,9 +56,9 @@ public interface UpdateMsg extends Msg
     public boolean checkHasMsgKey();
 
     /**
-     * Checks the presence of the Sequence Number presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Sequence Number presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -67,9 +67,9 @@ public interface UpdateMsg extends Msg
     public boolean checkHasSeqNum();
 
     /**
-     * Checks the presence of the Conflation Information presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Conflation Information presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -78,9 +78,9 @@ public interface UpdateMsg extends Msg
     public boolean checkHasConfInfo();
 
     /**
-     * Checks the presence of the Do Not Cache indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Do Not Cache indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -89,9 +89,9 @@ public interface UpdateMsg extends Msg
     public boolean checkDoNotCache();
 
     /**
-     * Checks the presence of the Do Not Conflate indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Do Not Conflate indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -100,9 +100,9 @@ public interface UpdateMsg extends Msg
     public boolean checkDoNotConflate();
 
     /**
-     * Checks the presence of the Do Not Ripple indication flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Do Not Ripple indication flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -111,9 +111,9 @@ public interface UpdateMsg extends Msg
     public boolean checkDoNotRipple();
 
     /**
-     * Checks the presence of the Post User Information presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Post User Information presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -122,9 +122,9 @@ public interface UpdateMsg extends Msg
     public boolean checkHasPostUserInfo();
 
     /**
-     * Checks the presence of the Discardable presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link Msg#flags()}.
+     * Checks the presence of the Discardable presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link Msg#flags()}.
      * 
      * @see Msg#flags()
      * 
@@ -133,90 +133,90 @@ public interface UpdateMsg extends Msg
     public boolean checkDiscardable();
 
     /**
-     * Applies the Extended Header presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Extended Header presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasExtendedHdr();
 
     /**
-     * Applies the Permission Expression presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Permission Expression presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasPermData();
 
     /**
-     * Applies the Message Key presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Message Key presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasMsgKey();
 
     /**
-     * Applies the Sequence Number presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Sequence Number presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasSeqNum();
 
     /**
-     * Applies the Conflation Info presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Conflation Info presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasConfInfo();
 
     /**
-     * Applies the Do Not Cache indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Do Not Cache indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyDoNotCache();
 
     /**
-     * Applies the Do Not Conflate indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Do Not Conflate indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyDoNotConflate();
 
     /**
-     * Applies the Do Not Ripple indication flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Do Not Ripple indication flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyDoNotRipple();
 
     /**
-     * Applies the Post User Info presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Post User Info presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */
     public void applyHasPostUserInfo();
 
     /**
-     * Applies the Discardable presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link Msg#flags(int)}.
+     * Applies the Discardable presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link Msg#flags(int)}.
      * 
      * @see Msg#flags(int)
      */

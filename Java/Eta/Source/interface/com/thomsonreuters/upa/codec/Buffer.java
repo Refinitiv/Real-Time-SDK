@@ -102,14 +102,13 @@ public interface Buffer
     /**
      * Copies this Buffer's data starting at this Buffer's position, for this
      * Buffer's length, into the destBuffer.
-     * 
+     *
      * @param destBuffer A byte[] large enough to hold the contents of this Buffer.
-     * 
+     * @param destOffset the dest offset
      * @return {@link CodecReturnCodes#SUCCESS} on success,
      *         {@link CodecReturnCodes#INVALID_ARGUMENT} if the destBuffer is
      *         null, or {@link CodecReturnCodes#BUFFER_TOO_SMALL} if the
      *         destBuffer is too small.
-     * 
      * @see Buffer#length()
      */
     public int copy(byte[] destBuffer, int destOffset);
@@ -189,7 +188,9 @@ public interface Buffer
     public void clear();
     
     /**
-     * Returns true if the Buffer has been decoded as blank. 
+     * Returns true if the Buffer has been decoded as blank.
+     *
+     * @return true, if is blank
      */
     public boolean isBlank();
 

@@ -1,5 +1,8 @@
 package com.thomsonreuters.ansi;
 
+/**
+ * The Class Attribute.
+ */
 public final class Attribute implements Cloneable
 {
     private byte[] _value;
@@ -86,6 +89,11 @@ public final class Attribute implements Cloneable
       Attribute24, Attribute25, Attribute26, Attribute27, Attribute28, Attribute29,
       Attribute30, Attribute31};
 
+    /**
+     * To bytes.
+     *
+     * @return the byte[]
+     */
     public byte[] toBytes()
     {
         return _value;
@@ -96,6 +104,9 @@ public final class Attribute implements Cloneable
         return new Attribute(_value);
     }
 
+    /**
+     * Instantiates a new attribute.
+     */
     public Attribute()
     {
     }

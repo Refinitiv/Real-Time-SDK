@@ -60,16 +60,15 @@ public interface DictionaryRefresh extends DictionaryMsg
      * Checks presence of the dictionaryId, version, and type fields .
      * 
      * Flags may also be bulk-get via {@link #flags()}.
-     * 
-     * @see #flags()
-     * 
+     *
      * @return true - if exists; false if does not exist.
+     * @see #flags()
      */
     public boolean checkHasInfo();
 
     /**
      * Applies the flag for presence of the dictionaryId, version, and type
-     * members .<br />
+     * members.<br>
      * 
      * This flag is typically not used as this information is automatically
      * added by the encode method when appropriate.
@@ -92,8 +91,8 @@ public interface DictionaryRefresh extends DictionaryMsg
     /**
      * encDictionary - When encoding the message, this points to the dictionary object that is
      * being encoded. When decoding, this is not used.
-     * 
-     * @param encDictionary
+     *
+     * @param encDictionary the enc dictionary
      */
     public void dictionary(DataDictionary encDictionary);
 
@@ -109,8 +108,8 @@ public interface DictionaryRefresh extends DictionaryMsg
      * buffer. Buffer used by this object's dictionaryName field will be set to
      * passed in buffer's data and position. Note that this creates garbage if
      * buffer is backed by String object.
-     * 
-     * @param dictionaryName
+     *
+     * @param dictionaryName the dictionary name
      */
     public void dictionaryName(Buffer dictionaryName);
 
@@ -123,8 +122,8 @@ public interface DictionaryRefresh extends DictionaryMsg
 
     /**
      * sequenceNumber - The sequence number of this message.
-     * 
-     * @param sequenceNumber
+     *
+     * @param sequenceNumber the sequence number
      */
     public void sequenceNumber(long sequenceNumber);
 
@@ -153,22 +152,22 @@ public interface DictionaryRefresh extends DictionaryMsg
 
     /**
      * serviceId - The ID of the service providing the dictionary.
-     * 
-     * @param serviceId
+     *
+     * @param serviceId the service id
      */
     public void serviceId(int serviceId);
 
     /**
-     * state - The current state of the stream
-     * 
+     * state - The current state of the stream.
+     *
      * @return state
      */
     public State state();
     
     /**
      * Sets the state field for the dictionary refresh message.
-     * 
-     * @param state
+     *
+     * @param state the state
      */
     public void state(State state);
 
@@ -181,8 +180,8 @@ public interface DictionaryRefresh extends DictionaryMsg
 
     /**
      * The type of the dictionary. Populated by  {@link com.thomsonreuters.upa.rdm.Dictionary.Types}.
-     * 
-     * @param dictionaryType
+     *
+     * @param dictionaryType the dictionary type
      */
     public void dictionaryType(int dictionaryType);
 
@@ -197,11 +196,11 @@ public interface DictionaryRefresh extends DictionaryMsg
     public Buffer dataBody();
 
     /**
-     * This field is initialized with dictionary->minFid and after encoding each
+     * This field is initialized with dictionary-&gt;minFid and after encoding each
      * part, updated with the start Fid for next encoded part. When decoding,
      * this is not used.
-     * 
-     * @param startFid
+     *
+     * @param startFid the start fid
      */
     public void startFid(int startFid);
 
@@ -209,13 +208,13 @@ public interface DictionaryRefresh extends DictionaryMsg
      * This field is initialized with 0 and after encoding each
      * part, updated with the start Enum Table Count for next encoded part. 
      * When decoding, this is not used.
-     * 
-     * @param startEnumTableCount
+     *
+     * @param startEnumTableCount the start enum table count
      */
     public void startEnumTableCount(int startEnumTableCount);    
 
     /**
-     * This field is initialized with dictionary->minFid and after encoding each
+     * This field is initialized with dictionary-&gt;minFid and after encoding each
      * part, updated with the start Fid for next encoded part. When decoding,
      * this is not used.
      * 

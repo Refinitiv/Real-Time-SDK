@@ -12,10 +12,11 @@ import com.thomsonreuters.upa.codec.State;
  */
 public interface LoginRefresh extends LoginMsg
 {
+    
     /**
      * The RDM Login refresh flags. Populated by {@link LoginRefreshFlags}.
-     * 
-     * @param flags
+     *
+     * @param flags the flags
      */
     public void flags(int flags);
 
@@ -48,8 +49,8 @@ public interface LoginRefresh extends LoginMsg
      * Sets userName for login to the user specified buffer. Data and position
      * of userName buffer will be set to passed in buffer's data and position.
      * Note that this creates garbage if buffer is backed by String object.
-     * 
-     * @param userName
+     *
+     * @param userName the user name
      */
     public void userName(Buffer userName);
 
@@ -112,8 +113,8 @@ public interface LoginRefresh extends LoginMsg
 
     /**
      * Sets state - current state of the login stream.
-     * 
-     * @param state
+     *
+     * @param state the state
      */
     public void state(State state);
 
@@ -126,8 +127,8 @@ public interface LoginRefresh extends LoginMsg
 
     /**
      * sequenceNumber - The sequence number of this message.
-     * 
-     * @param sequenceNumber
+     *
+     * @param sequenceNumber the sequence number
      */
     public void sequenceNumber(long sequenceNumber);
 
@@ -175,6 +176,8 @@ public interface LoginRefresh extends LoginMsg
      * Checks the presence of solicited flag.
      * 
      * This flag can also be bulk-get by {@link #flags()}
+     *
+     * @return true, if successful
      */
     public boolean checkSolicited();
 
@@ -241,8 +244,8 @@ public interface LoginRefresh extends LoginMsg
     
     /**
      * Sets connection config information.
-     * 
-     * @param connectionConfig
+     *
+     * @param connectionConfig the connection config
      */
     public void connectionConfig(LoginConnectionConfig connectionConfig);
 
@@ -274,8 +277,8 @@ public interface LoginRefresh extends LoginMsg
      * 
      * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
      * login userNameType.
-     * 
-     * @param authenticationTTReissue
+     *
+     * @param authenticationTTReissue the authentication TT reissue
      */
     public void authenticationTTReissue(long authenticationTTReissue);
 
@@ -311,8 +314,8 @@ public interface LoginRefresh extends LoginMsg
      * 
      * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
      * login userNameType.
-     * 
-     * @param authenticationExtendedResp
+     *
+     * @param authenticationExtendedResp the authentication extended resp
      */
     public void authenticationExtendedResp(Buffer authenticationExtendedResp);
 
@@ -349,8 +352,8 @@ public interface LoginRefresh extends LoginMsg
      * 
      * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
      * login userNameType.
-     * 
-     * @param authenticationErrorCode
+     *
+     * @param authenticationErrorCode the authentication error code
      */
     public void authenticationErrorCode(long authenticationErrorCode);
 
@@ -386,8 +389,8 @@ public interface LoginRefresh extends LoginMsg
      * 
      * Used with the {@link com.thomsonreuters.upa.rdm.ElementNames#AUTHN_TOKEN}
      * login userNameType.
-     * 
-     * @param authenticationErrorText
+     *
+     * @param authenticationErrorText the authentication error text
      */
     public void authenticationErrorText(Buffer authenticationErrorText);
 

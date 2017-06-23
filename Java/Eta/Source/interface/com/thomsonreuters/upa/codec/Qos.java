@@ -1,6 +1,7 @@
 package com.thomsonreuters.upa.codec;
 
 /**
+ * <p>
  * UPA Quality of Service class contains information rate and/or timeliness
  * information. Timeliness conveys information about the age of data. Rate
  * conveys information about the data's period of change. Some timeliness or
@@ -13,7 +14,7 @@ package com.thomsonreuters.upa.codec;
  * stream. When issuing a request, the QoS specified on the request typically
  * matches the advertised QoS of the service, as conveyed via the Source
  * Directory domain model.
- * <p>
+ *
  * <ul>
  * <li>
  * An initial request containing only {@link RequestMsg#qos()} indicates a
@@ -31,7 +32,7 @@ package com.thomsonreuters.upa.codec;
  * QoS has been established for the stream. Because QoS information is mostly
  * optional on a {@link RequestMsg} (Some components may require qos on initial
  * request and reissue messages):
- * <p>
+ *
  * <ul>
  * <li>If neither qos nor worstQos are specified on an initial request to open a
  * stream, it is assumed that any QoS will satisfy the request. Additionally, it
@@ -54,6 +55,8 @@ public interface Qos
     
     /**
      * Is Qos blank.
+     *
+     * @return true, if is blank
      */
     public boolean isBlank();
 

@@ -6,11 +6,12 @@ package com.thomsonreuters.upa.codec;
  * <b>Typical Use</b>
  * <p>
  * Conversion of {@link Real} to double/float is performed by the following formula:
- * <p>
+ *
  * <ul class="blockList">
  * <li class="blockList">
  * 
  * <pre>
+ * {@code
  * if ({@link Real#hint()} < {@link #FRACTION_1})
  * {
  *      outputValue = Real.value()*(pow(10,(Real.hint() - {@link #EXPONENT0})));
@@ -19,16 +20,18 @@ package com.thomsonreuters.upa.codec;
  * {
  *      outputValue = Real.value()*(pow(2,(Real.hint() - {@link #FRACTION_1})));
  * }
+ * }
  * </pre>
  * </li>
  * </ul>
  * <p>
  * Conversion of double/float to {@link Real} is performed by the following formula:
- * <p>
+ *
  * <ul class="blockList">
  * <li class="blockList">
  * 
  * <pre>
+ * {@code
  * if (inputHint < {@link #FRACTION_1})
  * {
  *      Real.value = (inputValue)/(pow(10,(inputHint - {@link #EXPONENT0})));
@@ -36,6 +39,7 @@ package com.thomsonreuters.upa.codec;
  * else
  * {
  *      Real.value = (inputValue)/(pow(2,(inputHint - {@link #FRACTION_1})));
+ * }
  * }
  * </pre>
  * </li>

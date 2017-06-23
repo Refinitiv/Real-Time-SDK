@@ -18,6 +18,12 @@ public class BasicAuthenticationScheme implements IAuthenticationScheme
     private int ntlmResponseCount = 0;
     boolean stopScheme = false;
 	
+    /**
+     * Instantiates a new basic authentication scheme.
+     *
+     * @param proxyAuthenticator the proxy authenticator
+     * @throws NullPointerException the null pointer exception
+     */
     protected BasicAuthenticationScheme(IProxyAuthenticator proxyAuthenticator) throws NullPointerException
     {
         if (proxyAuthenticator == null)

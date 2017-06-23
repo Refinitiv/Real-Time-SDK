@@ -17,6 +17,8 @@ public interface Float
  
     /**
      * Is Float blank.
+     *
+     * @return true, if is blank
      */
     public boolean isBlank();
 

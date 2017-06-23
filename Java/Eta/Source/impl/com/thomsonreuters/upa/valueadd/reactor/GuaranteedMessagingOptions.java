@@ -7,6 +7,9 @@ public class GuaranteedMessagingOptions
     boolean _persistLocally;
     boolean _enableTracing;
 
+    /**
+     * Instantiates a new guaranteed messaging options.
+     */
     public GuaranteedMessagingOptions()
     {
         _persistLocally = true;
@@ -15,6 +18,8 @@ public class GuaranteedMessagingOptions
     /**
      * Set the path for the guaranteed messaging persistence file.
      * If not specified, the current working directory is used.
+     *
+     * @param persistenceFilePath the persistence file path
      */
     public void persistenceFilePath(String persistenceFilePath)
     {
@@ -23,6 +28,8 @@ public class GuaranteedMessagingOptions
 
     /**
      * Returns the persistence file path for guaranteed messaging.
+     *
+     * @return the string
      */
     public String persistenceFilePath()
     {
@@ -31,6 +38,8 @@ public class GuaranteedMessagingOptions
 
     /**
      * Returns whether guaranteed messaging will create a local persistence files.
+     *
+     * @return true, if successful
      */
     public boolean persistLocally()
     {
@@ -39,6 +48,8 @@ public class GuaranteedMessagingOptions
 
     /**
      * Enable or disable local file persistence. Default: Enabled.
+     *
+     * @param persistLocally the persist locally
      */
     public void persistLocally(boolean persistLocally)
     {
@@ -47,6 +58,8 @@ public class GuaranteedMessagingOptions
     
     /**
      * Returns whether guaranteed messaging tracing is enabled.
+     *
+     * @return true, if successful
      */
     public boolean enableTracing()
     {
@@ -55,6 +68,8 @@ public class GuaranteedMessagingOptions
 
     /**
      * Enable or disable guaranteed messaging tracing.
+     *
+     * @param enableTracing the enable tracing
      */
     public void enableTracing(boolean enableTracing)
     {

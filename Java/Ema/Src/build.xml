@@ -162,17 +162,9 @@
 			<pathelement path="${apache.dir}/commons-configuration-1.10/commons-configuration-1.10.jar"/>
 		</path>
 
-		<!-- exclude impl -->
-		<copy todir="${marshall.dir}">
-			<fileset dir="${src.main.java.dir}">
-				<include name="**/*.*" />
-				<exclude name="com/thomsonreuters/ema/access/impl/**" />
-			</fileset>
-		</copy>
-
 		<!-- sourcepath for emajava javadoc -->
 		<path id="emaj.javadoc.emajava.sourcepath.interface">
-			<pathelement path="${marshall.dir}/interface"/>
+			<pathelement path="${src.main.java.dir}/interface"/>
 		</path>
 
 		<!-- packages to be grouped in javadocs -->
@@ -196,8 +188,6 @@
 				<![CDATA[<a href="http://about.reuters.com/developer" target=_top>Thomson Reuters</a>]]>
 			</footer>
 		</javadoc>
-
-		<delete dir="${marshall.dir}"/>
 
 		<!-- create ema-javadoc.jar -->
 		<echo message="Creating ema-javadoc.jar" />

@@ -18,11 +18,10 @@ public interface LoginWarmStandbyInfo
     public long warmStandbyMode();
 
     /**
-    *
-    * The desired Warm Standby Mode. Populated by RDMLoginServerTypes.
-    * 
-    * @param warmStandbyMode
-    */
+     * The desired Warm Standby Mode. Populated by RDMLoginServerTypes.
+     *
+     * @param warmStandbyMode the warm standby mode
+     */
     public void warmStandbyMode(long warmStandbyMode);
 
     /**
@@ -34,8 +33,8 @@ public interface LoginWarmStandbyInfo
 
     /**
      * Action associated with this information.
-     * 
-     * @param action
+     *
+     * @param action the action
      */
     public void action(int action);
     
@@ -57,9 +56,9 @@ public interface LoginWarmStandbyInfo
 
     /**
      * Decodes a {@link LoginWarmStandbyInfo}.
-     * 
+     *
      * @param dIter The Decode Iterator
-     * 
+     * @param msg the msg
      * @return UPA return value
      */
     public int decode(DecodeIterator dIter, Msg msg);

@@ -7,10 +7,11 @@ import com.thomsonreuters.upa.codec.Buffer;
  * information and user preferences between the components.
  */
 public interface LoginAttrib {
+	
 	/**
 	 * Sets login attrib flags. Populated by {@link LoginAttribFlags}.
-	 * 
-	 * @param flags
+	 *
+	 * @param flags the flags
 	 */
 	public void flags(int flags);
 
@@ -83,8 +84,8 @@ public interface LoginAttrib {
 	/**
 	 * Sets applicationName for the login message. Note that this method creates
 	 * garbage if buffer is backed by String object.
-	 * 
-	 * @param applicationName
+	 *
+	 * @param applicationName the application name
 	 */
 	public void applicationName(Buffer applicationName);
 
@@ -120,8 +121,8 @@ public interface LoginAttrib {
 	 * position. If present, this should match whatever was sent in the request
 	 * or be set to the IP address of the connected client. Note that this
 	 * method creates garbage if buffer is backed by String object.
-	 * 
-	 * @param position
+	 *
+	 * @param position the position
 	 */
 	public void position(Buffer position);
 
@@ -158,8 +159,8 @@ public interface LoginAttrib {
 	 * typically present because the login request message requested this
 	 * information. An application can use the permission profile to perform
 	 * proxy permissioning.
-	 * 
-	 * @param providePermissionProfile
+	 *
+	 * @param providePermissionProfile the provide permission profile
 	 */
 	public void providePermissionProfile(long providePermissionProfile);
 
@@ -199,8 +200,8 @@ public interface LoginAttrib {
 	 * is typically present because the login request message requested this
 	 * information. Permission expressions allow for items to be proxy
 	 * permissioned by a consumer via content-based entitlements.
-	 * 
-	 * @param providePermissionExpressions
+	 *
+	 * @param providePermissionExpressions the provide permission expressions
 	 */
 	public void providePermissionExpressions(long providePermissionExpressions);
 
@@ -234,8 +235,8 @@ public interface LoginAttrib {
 	 * Sets singleOpen field of the login message. Value of 1 indicated provider
 	 * drives stream recovery. 0 indicates provider does not drive stream
 	 * recovery; it is the responsibility of the downstream application.
-	 * 
-	 * @param singleOpen
+	 *
+	 * @param singleOpen the single open
 	 */
 	public void singleOpen(long singleOpen);
 
@@ -268,8 +269,8 @@ public interface LoginAttrib {
 	 * Sets allowSuspectData for the login message. Value of 1 indicated
 	 * provider application passes along suspect streamState information. 0
 	 * indicates provider application does not pass along suspect data.
-	 * 
-	 * @param allowSuspectData
+	 *
+	 * @param allowSuspectData the allow suspect data
 	 */
 	public void allowSuspectData(long allowSuspectData);
 
@@ -302,8 +303,8 @@ public interface LoginAttrib {
 	 * Sets supportProviderDictionaryDownload for the login message.
 	 * Value of 1 indicates that provider can request dictionary.
 	 * 0 indicates that provider cannot request dictionary.
-	 * 
-	 * @param supportProviderDictionaryDownload
+	 *
+	 * @param supportProviderDictionaryDownload the support provider dictionary download
 	 */
 	public void supportProviderDictionaryDownload(long supportProviderDictionaryDownload);
 	

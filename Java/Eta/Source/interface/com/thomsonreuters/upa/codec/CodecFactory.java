@@ -7,8 +7,9 @@ import java.nio.ByteBuffer;
  */
 public class CodecFactory
 {
+    
     /**
-     * This class is not instantiated
+     * This class is not instantiated.
      */
     private CodecFactory()
     {
@@ -538,11 +539,9 @@ public class CodecFactory
     
     /**
      * Creates {@link RmtesBuffer}.
-     * 
-     * @return RmtesBuffer object
-     * 
+     *
      * @param x - allocated length of RmtesBuffer
-     * 
+     * @return RmtesBuffer object
      * @see RmtesBuffer
      */
     public static RmtesBuffer createRmtesBuffer(int x)
@@ -552,13 +551,11 @@ public class CodecFactory
     
     /**
      * Creates {@link RmtesBuffer}.
-     * 
-     * @return RmtesBuffer object
-     * 
+     *
      * @param dataLength - length of data being stored
      * @param byteBuffer - ByteBuffer to store into RmtesBuffer
      * @param allocLength - allocated length set for RmtesBuffer
-     * 
+     * @return RmtesBuffer object
      * @see RmtesBuffer
      */
     public static RmtesBuffer createRmtesBuffer(int dataLength, ByteBuffer byteBuffer, int allocLength)
@@ -568,11 +565,9 @@ public class CodecFactory
     
     /**
      * Creates {@link RmtesCacheBuffer}.
-     * 
-     * @return RmtesCacheBuffer object
-     * 
+     *
      * @param x - allocated length of RmtesBuffer
-     * 
+     * @return RmtesCacheBuffer object
      * @see RmtesCacheBuffer
      */
     public static RmtesCacheBuffer createRmtesCacheBuffer(int x)
@@ -582,13 +577,11 @@ public class CodecFactory
     
     /**
      * Creates {@link RmtesCacheBuffer}.
-     * 
-     * @return RmtesCacheBuffer object
-     * 
+     *
      * @param dataLength - length of data being stored
      * @param byteBuffer - ByteBuffer to store into RmtesCacheBuffer
      * @param allocLength - allocated length set for RmtesCacheBuffer
-     * 
+     * @return RmtesCacheBuffer object
      * @see RmtesCacheBuffer
      */
     public static RmtesCacheBuffer createRmtesCacheBuffer(int dataLength, ByteBuffer byteBuffer, int allocLength)
@@ -598,9 +591,9 @@ public class CodecFactory
     
     /**
      * Creates {@link FieldSetDefDb}.
-     * 
+     *
+     * @param x the x
      * @return FieldSetDefDb object
-     * 
      * @see FieldSetDefDb
      */
     public static FieldSetDefDb createFieldSetDefDb(int x)
@@ -610,9 +603,9 @@ public class CodecFactory
     
     /**
      * Creates {@link ElementSetDefDb}.
-     * 
+     *
+     * @param x the x
      * @return ElementSetDefDb object
-     * 
      * @see ElementSetDefDb
      */
     public static ElementSetDefDb createElementSetDefDb(int x)

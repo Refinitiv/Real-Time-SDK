@@ -16,9 +16,8 @@ public class ReactorRoleTypes
 
     /**
      * Returns a String representation of the specified ReactorRoleTypes type.
-     * 
-     * @param type
-     * 
+     *
+     * @param type the type
      * @return String representation of the specified ReactorRoleTypes type
      */
     public static String toString(int type)

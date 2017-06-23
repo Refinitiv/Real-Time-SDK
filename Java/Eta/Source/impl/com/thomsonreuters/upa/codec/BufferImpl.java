@@ -346,6 +346,11 @@ class BufferImpl implements Buffer
         _isBlank = false;
     }
     
+    /**
+     * Append byte.
+     *
+     * @param b the b
+     */
     /* Appends a byte to the buffer. */
     public void appendByte(byte b)
     {

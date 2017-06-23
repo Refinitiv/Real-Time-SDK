@@ -24,7 +24,6 @@ import com.thomsonreuters.upa.codec.Buffer;
  * simplify the example, additional error handling is omitted, though it should
  * be performed.
  * 
- * <p>
  * <ul class="blockList">
  * <li class="blockList">
  * 
@@ -115,7 +114,6 @@ import com.thomsonreuters.upa.codec.Buffer;
  * {@link DecodeIterator} by setting encData on a new iterator. To simplify the
  * sample, some error handling is omitted.
  * 
- * <p>
  * <ul class="blockList">
  * <li class="blockList">
  * 
@@ -254,9 +252,9 @@ public interface Series extends XMLDecoder
     public int decode(DecodeIterator iter);
 
     /**
-     * Checks the presence of the Set Definition presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Set Definition presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -265,9 +263,9 @@ public interface Series extends XMLDecoder
     public boolean checkHasSetDefs();
 
     /**
-     * Checks the presence of the Summary Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Summary Data presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -276,9 +274,9 @@ public interface Series extends XMLDecoder
     public boolean checkHasSummaryData();
 
     /**
-     * Checks the presence of the Total Count Hint presence flag.<br />
-     * <br />
-     * Flags may also be bulk-get via {@link #flags()}.
+     * Checks the presence of the Total Count Hint presence flag.
+     *
+     * <p>Flags may also be bulk-get via {@link #flags()}.
      * 
      * @see #flags()
      * 
@@ -287,27 +285,27 @@ public interface Series extends XMLDecoder
     public boolean checkHasTotalCountHint();
 
     /**
-     * Applies the local Set Definition presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the local Set Definition presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasSetDefs();
 
     /**
-     * Applies the Summary Data presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Summary Data presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */
     public void applyHasSummaryData();
 
     /**
-     * Applies the Total Count Hint presence flag.<br />
-     * <br />
-     * Flags may also be bulk-set via {@link #flags(int)}.
+     * Applies the Total Count Hint presence flag.
+     *
+     * <p>Flags may also be bulk-set via {@link #flags(int)}.
      * 
      * @see #flags(int)
      */

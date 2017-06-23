@@ -38,6 +38,9 @@ public class NTLMEngineException extends AuthenticationException
 {
     private static final long serialVersionUID = 6027981323731768824L;
 
+    /**
+     * Instantiates a new NTLM engine exception.
+     */
     public NTLMEngineException()
     {
         super();

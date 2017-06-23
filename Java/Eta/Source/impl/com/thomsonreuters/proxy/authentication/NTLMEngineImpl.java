@@ -91,16 +91,14 @@ final class NTLMEngineImpl
 
     /**
      * Returns the response for the given message.
-     * 
+     *
      * @param message The message that was received from the server.
      * @param username The username to authenticate with.
      * @param password The password to authenticate with.
      * @param host The host.
      * @param domain The NT domain to authenticate in.
-     * 
      * @return The response.
-     * 
-     * @throws HttpException If the messages cannot be retrieved.
+     * @throws NTLMEngineException the NTLM engine exception
      */
     public final String getResponseFor(String message, String username, String password, String host, String domain)
             throws NTLMEngineException
@@ -1343,11 +1341,30 @@ final class NTLMEngineImpl
         }
     }
 
+    /**
+     * Generate type 1 msg.
+     *
+     * @param domain the domain
+     * @param workstation the workstation
+     * @return the string
+     * @throws NTLMEngineException the NTLM engine exception
+     */
     public String generateType1Msg(final String domain, final String workstation) throws NTLMEngineException
     {
         return getType1Message(workstation, domain);
     }
 
+    /**
+     * Generate type 3 msg.
+     *
+     * @param username the username
+     * @param password the password
+     * @param domain the domain
+     * @param workstation the workstation
+     * @param challenge the challenge
+     * @return the string
+     * @throws NTLMEngineException the NTLM engine exception
+     */
     public String generateType3Msg(final String username, final String password, final String domain,
             final String workstation, final String challenge)
             throws NTLMEngineException

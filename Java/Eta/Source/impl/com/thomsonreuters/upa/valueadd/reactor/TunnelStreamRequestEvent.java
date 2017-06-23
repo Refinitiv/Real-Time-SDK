@@ -18,12 +18,19 @@ public class TunnelStreamRequestEvent
     
     /**
      * Returns the ReactorChannel of the TunnelStream request.
+     *
+     * @return the reactor channel
      */
     public ReactorChannel reactorChannel()
     {
         return _reactorChannel;
     }
 
+    /**
+     * Reactor channel.
+     *
+     * @param reactorChannel the reactor channel
+     */
     void reactorChannel(ReactorChannel reactorChannel)
     {
         _reactorChannel = reactorChannel;
@@ -31,12 +38,19 @@ public class TunnelStreamRequestEvent
 
     /**
      * Returns the domain type of the TunnelStream request.
+     *
+     * @return the int
      */
     public int domainType()
     {
         return _domainType;
     }
 
+    /**
+     * Domain type.
+     *
+     * @param domainType the domain type
+     */
     void domainType(int domainType)
     {
         _domainType = domainType;
@@ -44,12 +58,19 @@ public class TunnelStreamRequestEvent
 
     /**
      * Returns the stream id of the TunnelStream request.
+     *
+     * @return the int
      */
     public int streamId()
     {
         return _streamId;
     }
 
+    /**
+     * Stream id.
+     *
+     * @param streamId the stream id
+     */
     void streamId(int streamId)
     {
         _streamId = streamId;
@@ -57,12 +78,19 @@ public class TunnelStreamRequestEvent
 
     /**
      * Returns the service identifier of the TunnelStream request.
+     *
+     * @return the int
      */
     public int serviceId()
     {
         return _serviceId;
     }
 
+    /**
+     * Service id.
+     *
+     * @param serviceId the service id
+     */
     void serviceId(int serviceId)
     {
         _serviceId = serviceId;
@@ -70,12 +98,19 @@ public class TunnelStreamRequestEvent
     
     /**
      * Returns the name of the TunnelStream request.
+     *
+     * @return the string
      */
     public String name()
     {
         return _name;
     }
 
+    /**
+     * Name.
+     *
+     * @param name the name
+     */
     void name(String name)
     {
         _name = name;
@@ -83,12 +118,19 @@ public class TunnelStreamRequestEvent
 
     /**
      * Returns the TunnelStream request message.
+     *
+     * @return the request msg
      */
     public RequestMsg msg()
     {
         return _msg;
     }
 
+    /**
+     * Msg.
+     *
+     * @param msg the msg
+     */
     void msg(RequestMsg msg)
     {
         _msg = msg;
@@ -104,6 +146,11 @@ public class TunnelStreamRequestEvent
         return _errorInfo;
     }
     
+    /**
+     * Error info.
+     *
+     * @param errorInfo the error info
+     */
     void errorInfo(ReactorErrorInfo errorInfo)
     {
         _errorInfo = errorInfo;
@@ -111,7 +158,8 @@ public class TunnelStreamRequestEvent
     
     /**
      * Returns the class of service of the TunnelStream request.
-     * 
+     *
+     * @return the class of service
      * @see ClassOfService
      */
     public ClassOfService classOfService()
@@ -122,7 +170,8 @@ public class TunnelStreamRequestEvent
     /**
      * Returns the class of service filter of the TunnelStream request.
      * These are a combination of the ClassesOfService.FilterFlags.
-     * 
+     *
+     * @return the long
      * @see ClassesOfService
      */
     public long classOfServiceFilter()
@@ -130,6 +179,11 @@ public class TunnelStreamRequestEvent
         return _classOfServiceFilter;
     }
     
+    /**
+     * Class of service filter.
+     *
+     * @param filter the filter
+     */
     void classOfServiceFilter(long filter)
     {
         _classOfServiceFilter = filter;

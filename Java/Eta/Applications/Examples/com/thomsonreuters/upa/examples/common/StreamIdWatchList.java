@@ -14,7 +14,7 @@ import com.thomsonreuters.upa.rdm.DomainTypes;
 
 /**
  * This is a hash map based WatchList for quick lookup of item states when
- * response is received. It is a map of (stream id -> item states). Initial
+ * response is received. It is a map of (stream id -&gt; item states). Initial
  * state for a stream when request is sent is unspecified. State is updated with
  * state from status and refresh message.
  */

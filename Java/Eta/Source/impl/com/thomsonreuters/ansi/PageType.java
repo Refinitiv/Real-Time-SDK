@@ -13,11 +13,21 @@ public final class PageType implements Cloneable
     AnsiDecoder _decoder = null;
     AnsiEncoder _encoder = null;
 
+    /**
+     * Gets the encoder.
+     *
+     * @return the encoder
+     */
     public AnsiEncoder getEncoder()
     {
         return _encoder;
     }
 
+    /**
+     * Gets the decoder.
+     *
+     * @return the decoder
+     */
     public AnsiDecoder getDecoder()
     {
         return _decoder;
@@ -43,6 +53,12 @@ public final class PageType implements Cloneable
     {
     }
 
+    /**
+     * Instantiates a new page type.
+     *
+     * @param _nNumberOfRows the n number of rows
+     * @param _nNumberOfColumns the n number of columns
+     */
     public PageType(short _nNumberOfRows, short _nNumberOfColumns)
     {
         _decoder = new AnsiDecoder();

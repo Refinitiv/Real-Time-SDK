@@ -5,6 +5,10 @@ package com.thomsonreuters.upa.transport;
  */
 public class CompressionTypes
 {
+    
+    /**
+     * Instantiates a new compression types.
+     */
     // CompressionTypes class cannot be instantiated
     private CompressionTypes()
     {
@@ -33,7 +37,8 @@ public class CompressionTypes
     
     /**
      * Provide string representation for a compression type value.
-     * 
+     *
+     * @param type the type
      * @return string representation for a compression type value
      */
     public static String toString(int type)

@@ -10,6 +10,8 @@ public class TunnelStreamSubmitOptions
     
     /**
      * Returns the container type of the submitted buffer.
+     *
+     * @return the int
      */
     public int containerType()
     {
@@ -18,6 +20,8 @@ public class TunnelStreamSubmitOptions
 
     /**
      * Sets the container type of the submitted buffer.
+     *
+     * @param containerType the container type
      */
     public void containerType(int containerType)
     {

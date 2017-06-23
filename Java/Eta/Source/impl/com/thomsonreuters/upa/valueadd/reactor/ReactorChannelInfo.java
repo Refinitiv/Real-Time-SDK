@@ -10,7 +10,11 @@ public class ReactorChannelInfo
 {
 	private ChannelInfo _chnlInfo = TransportFactory.createChannelInfo();
 
-	/** Channel information. */
+	/**
+	 *  Channel information.
+	 *
+	 * @return the channel info
+	 */
 	public ChannelInfo channelInfo()
 	{
 		return _chnlInfo;

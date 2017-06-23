@@ -19,7 +19,8 @@ public class TunnelStreamAcceptOptions
     /**
      * Returns the class of service of the TunnelStream.
      * Use to set class of service for the TunnelStream.
-     * 
+     *
+     * @return the class of service
      * @see ClassOfService
      */
     public ClassOfService classOfService()
@@ -30,8 +31,8 @@ public class TunnelStreamAcceptOptions
     /**
      * The TunnelStreamStatusEventCallback of the accepted TunnelStream. Handles stream events
      * for tunnel stream.
-     * 
-     * @param callback
+     *
+     * @param callback the callback
      */
     public void statusEventCallback(TunnelStreamStatusEventCallback callback)
     {
@@ -52,8 +53,8 @@ public class TunnelStreamAcceptOptions
     /**
      * The TunnelStreamDefaultMsgCallback of the accepted TunnelStream. Handles message events
      * for tunnel stream.
-     * 
-     * @param callback
+     *
+     * @param callback the callback
      */
     public void defaultMsgCallback(TunnelStreamDefaultMsgCallback callback)
     {
@@ -103,6 +104,8 @@ public class TunnelStreamAcceptOptions
 
     /**
      * Returns the user specified object to be set on the TunnelStream.
+     *
+     * @return the object
      */
     public Object userSpecObject()
     {
@@ -111,6 +114,8 @@ public class TunnelStreamAcceptOptions
 
     /**
      * Sets a user specified object to be set on the TunnelStream.
+     *
+     * @param userSpecObject the user spec object
      */
     public void userSpecObject(Object userSpecObject)
     {

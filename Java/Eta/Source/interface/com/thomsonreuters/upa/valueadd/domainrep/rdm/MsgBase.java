@@ -27,6 +27,8 @@ public interface MsgBase
     
     /**
      * Returns the domain type of the RDM message.
+     *
+     * @return the int
      */
     public int domainType();
 
@@ -41,9 +43,9 @@ public interface MsgBase
 
     /**
      * Decode a UPA message into an RDM message.
-     * 
+     *
      * @param dIter The Decode Iterator
-     * 
+     * @param msg the msg
      * @return UPA return value
      */
     public int decode(DecodeIterator dIter, Msg msg);

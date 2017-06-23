@@ -8,10 +8,11 @@ package com.thomsonreuters.upa.transport;
  */
 public interface ConnectOptions
 {
+    
     /**
      * A character representation of component version information.
-     * 
-     * @param componentVersion
+     *
+     * @param componentVersion the component version
      */
     public void componentVersion(String componentVersion);
 
@@ -337,6 +338,8 @@ public interface ConnectOptions
 	
     /**
      * Shared memory transport specific options (used by {@link ConnectionTypes#UNIDIR_SHMEM}).
+     *
+     * @return the shmem opts
      */
     public ShmemOpts shmemOpts();
 

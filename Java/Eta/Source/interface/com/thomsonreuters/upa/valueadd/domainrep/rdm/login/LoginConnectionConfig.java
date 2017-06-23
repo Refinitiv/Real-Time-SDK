@@ -39,15 +39,15 @@ public interface LoginConnectionConfig
 
     /**
      * Sets the number of standby servers.
-     * 
-     * @param numStandbyServers
+     *
+     * @param numStandbyServers the num standby servers
      */
     public void numStandbyServers(long numStandbyServers);
 
     /**
      * Sets list of {@link ServerInfo} for standby connection configuration.
-     * 
-     * @param serverInfo
+     *
+     * @param serverInfo the server info
      */
     public void serverList(List<ServerInfo> serverInfo);
 
@@ -80,6 +80,9 @@ public interface LoginConnectionConfig
         private final static String tab = "\t";
         private StringBuilder stringBuf = new StringBuilder();
 
+        /**
+         * Instantiates a new server info.
+         */
         public ServerInfo()
         {
             flags = 0;
@@ -91,8 +94,8 @@ public interface LoginConnectionConfig
 
         /**
          * Sets the server info flags. Populated by {@link ServerInfoFlags}.
-         * 
-         * @param flags
+         *
+         * @param flags the flags
          */
         public void flags(int flags)
         {
@@ -139,6 +142,9 @@ public interface LoginConnectionConfig
             return CodecReturnCodes.SUCCESS;
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             stringBuf.setLength(0);
@@ -183,6 +189,12 @@ public interface LoginConnectionConfig
             return stringBuf.toString();
         }
 
+        /**
+         * Copy references.
+         *
+         * @param srcServerInfo the src server info
+         * @return the int
+         */
         int copyReferences(ServerInfo srcServerInfo)
         {
             assert (srcServerInfo != null) : "srcServerInfo can not be null";
@@ -267,8 +279,8 @@ public interface LoginConnectionConfig
 
         /**
          * Sets Server's loadFactor.
-         * 
-         * @param loadFactor
+         *
+         * @param loadFactor the load factor
          */
         public void loadFactor(long loadFactor)
         {
@@ -311,8 +323,8 @@ public interface LoginConnectionConfig
 
         /**
          * Sets Server's serverType.
-         * 
-         * @param serverType
+         *
+         * @param serverType the server type
          */
         public void serverType(int serverType)
         {
@@ -345,8 +357,8 @@ public interface LoginConnectionConfig
 
         /**
          * Sets an index for the server.
-         * 
-         * @param serverIndex
+         *
+         * @param serverIndex the server index
          */
         public void serverIndex(long serverIndex)
         {

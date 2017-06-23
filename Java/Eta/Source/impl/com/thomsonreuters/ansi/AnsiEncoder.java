@@ -2,6 +2,9 @@ package com.thomsonreuters.ansi;
 
 import java.io.*;
 
+/**
+ * The Class AnsiEncoder.
+ */
 public class AnsiEncoder implements Cloneable
 {
     final static byte[] ESCCURSOROFF  = { '\033', '[', '?', '2', '5', 'l' };
@@ -66,10 +69,24 @@ public class AnsiEncoder implements Cloneable
         return encoder;
     }
 
+    /**
+     * Instantiates a new ansi encoder.
+     */
     public AnsiEncoder()
     {
     }
 
+    /**
+     * Qa encode.
+     *
+     * @param page the page
+     * @param text the text
+     * @param fadeEnable the fade enable
+     * @param updateList the update list
+     * @param _nNumberOfRows the n number of rows
+     * @param _nNumberOfColumns the n number of columns
+     * @return the long
+     */
     public long qa_encode(PageType page, ByteArrayOutputStream text, boolean fadeEnable, ListType updateList, short _nNumberOfRows,
             short _nNumberOfColumns)
     {

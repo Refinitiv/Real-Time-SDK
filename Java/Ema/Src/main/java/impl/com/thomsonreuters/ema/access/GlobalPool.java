@@ -89,11 +89,6 @@ class GlobalPool
 		return _DatePool.pop();
 	}
 	
-	static void returnDate(Date date)
-	{
-		_DatePool.push(date);
-	}
-	
 	static DateTime getDateTime()
 	{
 		if ( _DatePool.size() == 0)
@@ -104,11 +99,6 @@ class GlobalPool
 		return _DateTimePool.pop();
 	}
 	
-	static void returnDateTime(DateTime dateTime)
-	{
-		_DateTimePool.push(dateTime);
-	}
-
 	static Double getDouble()
 	{
 		if ( _DatePool.size() == 0)
@@ -117,11 +107,6 @@ class GlobalPool
 		}
 		
 		return _DoublePool.pop();
-	}
-	
-	static void returnDouble(Double doubleValue)
-	{
-		_DoublePool.push(doubleValue);
 	}
 	
 	static Enum getEnum()
@@ -134,11 +119,6 @@ class GlobalPool
 		return _EnumPool.pop();
 	}
 	
-	static void returnEnum(Enum enumValue)
-	{
-		_EnumPool.push(enumValue);
-	}
-	
 	static Float getFloat()
 	{
 		if ( _FloatPool.size() == 0)
@@ -147,11 +127,6 @@ class GlobalPool
 		}
 		
 		return _FloatPool.pop();
-	}
-	
-	static void returnFloat(Float floatValue)
-	{
-		_FloatPool.push(floatValue);
 	}
 	
 	static Int getInt()
@@ -164,11 +139,6 @@ class GlobalPool
 		return _IntPool.pop();
 	}
 	
-	static void returnInt(Int intValue)
-	{
-		_IntPool.push(intValue);
-	}
-	
 	static Qos getQos()
 	{
 		if ( _QosPool.size() == 0)
@@ -179,11 +149,6 @@ class GlobalPool
 		return _QosPool.pop();
 	}
 	
-	static void returnQos(Qos qosValue)
-	{
-		_QosPool.push(qosValue);
-	}
-
 	static Real getReal()
 	{
 		if ( _RealPool.size() == 0)
@@ -192,11 +157,6 @@ class GlobalPool
 		}
 		
 		return _RealPool.pop();
-	}
-	
-	static void returnReal(Real realValue)
-	{
-		_RealPool.push(realValue);
 	}
 	
 	static Buffer getBuffer()
@@ -209,11 +169,6 @@ class GlobalPool
 		return _BufferPool.pop();
 	}
 	
-	static void returnBuffer(Buffer buffer)
-	{
-		_BufferPool.push(buffer);
-	}
-	
 	static State getState()
 	{
 		if ( _StatePool.size() == 0)
@@ -222,11 +177,6 @@ class GlobalPool
 		}
 		
 		return _StatePool.pop();
-	}
-	
-	static void returnState(State state)
-	{
-		_StatePool.push(state);
 	}
 	
 	static Time getTime()
@@ -239,11 +189,6 @@ class GlobalPool
 		return _TimePool.pop();
 	}
 	
-	static void returnTime(Time time)
-	{
-		_TimePool.push(time);
-	}
-
 	static UInt getUInt()
 	{
 		if ( _UIntPool.size() == 0)
@@ -254,11 +199,6 @@ class GlobalPool
 		return _UIntPool.pop();
 	}
 	
-	static void returnUInt(UInt uint)
-	{
-		_UIntPool.push(uint);
-	}
-
 	static void returnPool(int dataType,Object value)
 	{
 		if ( dataType == com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
@@ -267,40 +207,40 @@ class GlobalPool
 		switch(dataType)
 		{
 		case com.thomsonreuters.upa.codec.DataTypes.DATE:
-			returnDate((Date)value);
+			_DatePool.push((Date)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.DATETIME:
-			returnDateTime((DateTime)value);
+			_DateTimePool.push((DateTime)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.DOUBLE:
-			returnDouble((Double)value);
+			_DoublePool.push((Double)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.ENUM:
-			returnEnum((Enum)value);
+			_EnumPool.push((Enum)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.FLOAT:
-			returnFloat((Float)value);
+			_FloatPool.push((Float)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.INT:
-			returnInt((Int)value);
+			_IntPool.push((Int)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.QOS:
-			returnQos((Qos)value);
+			_QosPool.push((Qos)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.REAL:
-			returnReal((Real)value);
+			_RealPool.push((Real)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.BUFFER:
-			returnBuffer((Buffer)value);
+			_BufferPool.push((Buffer)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.STATE:
-			returnState((State)value);
+			_StatePool.push((State)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.TIME:
-			returnTime((Time)value);
+			_TimePool.push((Time)value);
 			break;
 		case com.thomsonreuters.upa.codec.DataTypes.UINT:
-			returnUInt((UInt)value);
+			_UIntPool.push((UInt)value);
 			break;
 		default:
 			break;
