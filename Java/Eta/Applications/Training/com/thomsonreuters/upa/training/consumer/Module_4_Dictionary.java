@@ -262,7 +262,7 @@ public class Module_4_Dictionary
     
     
     
-    static UInt serviceDiscoveryInfo_serviceId;
+    static long  serviceDiscoveryInfo_serviceId;
 
 	static boolean serviceDiscoveryInfo_serviceNameFound = false;
 	static boolean serviceDiscoveryInfo_upalDMTDictionarySupported = false;
@@ -2147,7 +2147,7 @@ public class Module_4_Dictionary
 													foundServiceIndex = serviceCount;
 
 													System.out.printf("\tService name: %s (%d) is discovered by the OMM consumer. \n", serviceName, serviceId.toLong());
-													serviceDiscoveryInfo_serviceId = serviceId;
+													serviceDiscoveryInfo_serviceId = serviceId.toLong();
 													serviceDiscoveryInfo_serviceNameFound = true;
 												}
 											}
@@ -2818,7 +2818,7 @@ public class Module_4_Dictionary
          requestMsg.msgKey().applyHasServiceId();
          
          requestMsg.msgKey().name().data(dictionaryName);
-         requestMsg.msgKey().serviceId((int)serviceDiscoveryInfo_serviceId.toLong());
+         requestMsg.msgKey().serviceId((int)serviceDiscoveryInfo_serviceId);
          requestMsg.msgKey().filter(Dictionary.VerbosityValues.VERBOSE);
      	
          /* encode message - populate message and encode it */
