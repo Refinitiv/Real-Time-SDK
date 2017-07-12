@@ -75,6 +75,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	}
 	
 	private static int INSTANCE_ID = 0;
+	private final static int MIN_TIME_FOR_SELECT = 1000000;
 	
 	protected int _state = OmmImplState.NOT_INITIALIZED;
 	private Logger _loggerClient;
@@ -983,7 +984,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			else
 			{
 				userTimeoutExist = true;
-				timeOut = (userTimeout > 0 ? userTimeout : 1000000);
+				/*if userTimeout is less than 1000000, need to reset to 10000000 because
+				 *the select() call will wait forever and not return if timeout is 0 */
+				timeOut = (userTimeout > MIN_TIME_FOR_SELECT ? userTimeout : MIN_TIME_FOR_SELECT);
 			}
 		}
 
@@ -1028,8 +1031,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		
 						return _eventReceived ? true : false;
 					}
-					else if ( timeOut < 1000000  )
-							timeOut = 1000000;
+					else if ( timeOut < MIN_TIME_FOR_SELECT  )
+							timeOut = MIN_TIME_FOR_SELECT;
 				}
 			} // end if (_state >= OmmImplState.RSSLCHANNEL_UP)
 
@@ -1039,7 +1042,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			{
 				startTime = endTime;
 			
-				int selectCount = _selector.select(timeOut/1000000);
+				int selectCount = _selector.select(timeOut/MIN_TIME_FOR_SELECT);
 				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 				{
 					Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
@@ -1083,7 +1086,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				if ( timeOut > 0 )
 				{
 					timeOut -= ( endTime - startTime );
-					if (timeOut < 1000000) return false;
+					if (timeOut < MIN_TIME_FOR_SELECT) return false;
 				}
 				
 				if (Thread.currentThread().isInterrupted())
