@@ -1726,29 +1726,42 @@ TunnelStreamStatusEventCallback
 				}
 				case DomainTypes.SOURCE :
 				{
-					List<ChannelInfo> channels = _baseImpl.channelCallbackClient().channelList();
-					for(ChannelInfo eachChannel : channels)
+					ChannelInfo channel = _baseImpl.loginCallbackClient().activeChannelInfo();
+					if (channel == null)
 					{
-						DirectoryItem<T> item;
-						if ((item = (DirectoryItem<T>)_baseImpl._objManager._directoryItemPool.poll()) == null)
-						{
-							item = new DirectoryItem<T>(_baseImpl, client, closure);
-							_baseImpl._objManager._directoryItemPool.updatePool(item);
-						}
-						else
-							item.reset(_baseImpl, client, closure, null);
-						item.channelInfo(eachChannel);
-						
-						if (!item.open(reqMsg))
-						{
-							removeFromMap(item);
-							return 0;
-						}
-						else
-							return item.itemId();
-					}
+						StringBuilder temp = _baseImpl.strBuilder();
 	
-					return 0;
+						temp.append("Failed to send a directory request due to no active channel")
+						.append(". Instance name='").append(_baseImpl.instanceName()).append("' in registerClient().");;
+	
+						if (_baseImpl.loggerClient().isErrorEnabled())
+						{
+							_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
+									temp.toString(), Severity.ERROR));
+						}
+	
+						_baseImpl.handleInvalidUsage(temp.toString());
+						
+						return 0;
+					}
+						
+					DirectoryItem<T> item;
+					if ((item = (DirectoryItem<T>)_baseImpl._objManager._directoryItemPool.poll()) == null)
+					{
+						item = new DirectoryItem<T>(_baseImpl, client, closure);
+						_baseImpl._objManager._directoryItemPool.updatePool(item);
+					}
+					else
+						item.reset(_baseImpl, client, closure, null);
+					item.channelInfo(channel);
+					
+					if (!item.open(reqMsg))
+					{
+						removeFromMap(item);
+						return 0;
+					}
+					else
+						return item.itemId();
 				}
 				default :
 				{
@@ -2460,7 +2473,7 @@ class SingleItem<T> extends Item<T>
 				StringBuilder temp = _baseImpl.strBuilder();
 				
 	        	temp.append("Service id of '")
-	        		.append(reqMsg.serviceName())
+						.append(reqMsg.serviceId())
 	        		.append("' is not found.");
 	        	
 	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
