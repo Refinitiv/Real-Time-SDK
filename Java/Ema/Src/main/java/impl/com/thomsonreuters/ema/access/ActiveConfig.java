@@ -186,6 +186,22 @@ abstract class ActiveConfig extends BaseConfig
 		rsslFldDictRequest = null;
 		rsslEnumDictRequest = null;
 	}
+	
+	void reconnectAttemptLimit(long value) 
+	{
+		if (value >= 0)
+			reconnectAttemptLimit = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+	}
+	void reconnectMinDelay(long value)
+	{
+		if ( value > 0 )
+			reconnectMinDelay = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+	}
+	void reconnectMaxDelay(long value) 
+	{
+		if ( value > 0 )
+			reconnectMaxDelay = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+	}
 }
 
 abstract class ActiveServerConfig extends BaseConfig
@@ -304,12 +320,17 @@ class ChannelConfig
 		highWaterMark = ActiveConfig.DEFAULT_HIGH_WATER_MARK;
 		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;	
 	}
-
-	void guaranteedOutputBuffers(long value) { }
-	void numInputBuffers(long value) { }
-	void reconnectAttemptLimit(long value) { }
-	void reconnectMinDelay(long value) { }
-	void reconnectMaxDelay(long value) { }
+	
+	void guaranteedOutputBuffers(long value) 
+	{
+		if ( value > 0 )
+			guaranteedOutputBuffers = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+	}
+	void numInputBuffers(long value)
+	{
+		if ( value > 0 )
+			numInputBuffers = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+	}
 }
 
 class ServerConfig
@@ -348,8 +369,16 @@ class ServerConfig
 		connectionMinPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT;
 	}
 	
-	void guaranteedOutputBuffers(long value) { }
-	void numInputBuffers(long value) { }
+	void guaranteedOutputBuffers(long value) 
+	{
+		if ( value > 0 )
+			guaranteedOutputBuffers = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+	}
+	void numInputBuffers(long value)
+	{
+		if ( value > 0 )
+			numInputBuffers = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+	}
 }
 
 class SocketChannelConfig extends ChannelConfig

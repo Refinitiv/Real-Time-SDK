@@ -604,31 +604,31 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectAttemptLimit)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.reconnectAttemptLimit = ce.intValue();
+				_activeConfig.reconnectAttemptLimit(ce.intValue());
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMinDelay)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.reconnectMinDelay = ce.intValue();
+				_activeConfig.reconnectMinDelay(ce.intValue());
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMaxDelay)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.reconnectMaxDelay = ce.intValue();
+				_activeConfig.reconnectMaxDelay(ce.intValue());
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.MsgKeyInUpdates)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.msgKeyInUpdates = ce.booleanValue();
+				_activeConfig.msgKeyInUpdates = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_MSGKEYINUPDATES;
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.xmlTraceEnable = ce.booleanValue();
+				_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 			}
 		}
 
@@ -730,10 +730,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				socketChannelConfig.serviceName = tempService;
 			
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-				socketChannelConfig.tcpNodelay = ce.booleanValue();
+				socketChannelConfig.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
 
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelDirectSocketWrite)) != null)
-				socketChannelConfig.directWrite = ce.booleanValue();
+				socketChannelConfig.directWrite = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
 			
 			currentChannelConfig = socketChannelConfig;
 			
@@ -762,7 +762,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 //				httpChannelCfg.serviceName = tempService;
 //
 //			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-//				httpChannelCfg.tcpNodelay = ce.booleanValue();
+//				httpChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
 //
 //			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
 //				httpChannelCfg.objectName = ce.asciiValue();
@@ -794,7 +794,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 //				encryptedChannelCfg.serviceName = tempService;
 //
 //			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-//				encryptedChannelCfg.tcpNodelay = ce.booleanValue();
+//				encryptedChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
 //
 //			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
 //				encryptedChannelCfg.objectName = ce.asciiValue();
@@ -822,10 +822,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				currentChannelConfig.compressionType = ce.intValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_TYPE : ce.intValue();
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.GuaranteedOutputBuffers)) != null)
-				currentChannelConfig.guaranteedOutputBuffers = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_GUARANTEED_OUTPUT_BUFFERS : ce.intLongValue();
+				currentChannelConfig.guaranteedOutputBuffers(ce.intLongValue());
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.NumInputBuffers)) != null)
-				currentChannelConfig.numInputBuffers = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_NUM_INPUT_BUFFERS : ce.intLongValue();
+				currentChannelConfig.numInputBuffers(ce.intLongValue());
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
 			{
@@ -872,35 +872,35 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			{
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectAttemptLimit)) != null)
 				{
-						_activeConfig.reconnectAttemptLimit = ce.intValue();
+						_activeConfig.reconnectAttemptLimit(ce.intValue());
 						configImpl.errorTracker().append( "ChannelReconnectAttemptLimit is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMinDelay)) != null)
 				{
-						_activeConfig.reconnectMinDelay = ce.intValue();
+						_activeConfig.reconnectMinDelay(ce.intValue());
 						configImpl.errorTracker().append( "ChannelReconnectMinDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMaxDelay)) != null)
 				{
-						_activeConfig.reconnectMaxDelay = ce.intValue();
+						_activeConfig.reconnectMaxDelay(ce.intValue());
 						configImpl.errorTracker().append( "ChannelReconnectMaxDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
 				{
-						_activeConfig.msgKeyInUpdates = ce.booleanValue();
+						_activeConfig.msgKeyInUpdates = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_MSGKEYINUPDATES;
 						configImpl.errorTracker().append( "ChannelMsgKeyInUpdates is no longer configured on a per-channel basis; configure it instead in the Consumer instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 				{
-						_activeConfig.xmlTraceEnable = ce.booleanValue();
+						_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 						configImpl.errorTracker().append(  "XmlTraceToStdout is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.")
 						.create(Severity.WARNING);
 				}

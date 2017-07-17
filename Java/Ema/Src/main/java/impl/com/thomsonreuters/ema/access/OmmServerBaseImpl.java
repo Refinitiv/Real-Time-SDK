@@ -465,7 +465,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 			{
 				_activeServerConfig.isSetCorrectConfigGroup = true;
-				_activeServerConfig.xmlTraceEnable = ce.booleanValue();
+				_activeServerConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 			}
 		}
 
@@ -531,10 +531,10 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				socketServerConfig.serviceName = tempService;
 			
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ServerTcpNodelay)) != null)
-				socketServerConfig.tcpNodelay = ce.booleanValue();
+				socketServerConfig.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
 
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ServerDirectSocketWrite)) != null)
-				socketServerConfig.directWrite = ce.booleanValue();
+				socketServerConfig.directWrite = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
 			
 			break;
 		}
@@ -558,10 +558,10 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				currentServerConfig.compressionType = ce.intValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_TYPE : ce.intValue();
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.GuaranteedOutputBuffers)) != null)
-				currentServerConfig.guaranteedOutputBuffers = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_GUARANTEED_OUTPUT_BUFFERS : ce.intLongValue();
+				currentServerConfig.guaranteedOutputBuffers(ce.intLongValue());
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.NumInputBuffers)) != null)
-				currentServerConfig.numInputBuffers = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_NUM_INPUT_BUFFERS : ce.intLongValue();
+				currentServerConfig.numInputBuffers(ce.intLongValue());
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ServerCompressionThreshold)) != null)
 			{
@@ -600,7 +600,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			{
 					configImpl.errorTracker().append("XmlTraceToStdout is no longer configured on a per-server basis; configure it instead in the IProvider instance.")
 					.create(Severity.WARNING);
-					_activeServerConfig.xmlTraceEnable = ce.booleanValue();
+					_activeServerConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ConnectionPingTimeout)) != null)
