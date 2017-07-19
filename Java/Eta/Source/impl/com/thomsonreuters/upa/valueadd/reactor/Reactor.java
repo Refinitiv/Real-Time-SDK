@@ -2153,6 +2153,9 @@ public class Reactor
         // if none are specified, send channel_ready.
         if (reactorRole.type() == ReactorRoleTypes.CONSUMER)
         {            
+			if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN)
+				return;
+
             LoginRequest loginRequest = ((ConsumerRole)reactorRole).rdmLoginRequest();
             if (loginRequest != null)
             {
@@ -2181,6 +2184,9 @@ public class Reactor
         }
         else if (reactorRole.type() == ReactorRoleTypes.NIPROVIDER)
         {
+			if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN)
+				return;
+
 		    LoginRequest loginRequest = ((NIProviderRole)reactorRole).rdmLoginRequest();
 		    if (loginRequest != null)
 		    {
@@ -2216,7 +2222,14 @@ public class Reactor
     {
         // get a buffer for the login request
         Channel channel = reactorChannel.channel();
-
+        if (channel == null)
+        {
+            populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                              "Reactor.encodeAndWriteLoginRequest",
+                              "Failed to obtain an action channel");
+            return;
+        }
+        
         TransportBuffer msgBuf = channel.getBuffer(getMaxFragmentSize(reactorChannel, errorInfo), false,
                                                    errorInfo.error());
         if (msgBuf == null)
