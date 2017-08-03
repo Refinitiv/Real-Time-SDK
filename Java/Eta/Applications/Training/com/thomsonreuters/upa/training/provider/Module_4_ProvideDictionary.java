@@ -3201,7 +3201,7 @@ public class Module_4_ProvideDictionary
         /* find original request information associated with streamId */
         if (sourceDirectoryRequestInfo_StreamId == streamId)
         {
-            System.out.printf("Closing source directory stream id %d with service name: %s \n", loginRequestInfo_Username);
+            System.out.printf("Closing source directory stream id %d with service name: %s \n", streamId, sourceDirectoryRequestInfo_ServiceName);
 
             /* Clears the original source directory request information */
             clearSourceDirectoryReqInfo();
