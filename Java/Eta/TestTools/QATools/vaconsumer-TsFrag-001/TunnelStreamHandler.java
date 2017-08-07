@@ -74,6 +74,9 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
         _tunnelStreamOpenOptions.name("BasicTunnelStream");
         _tunnelStreamOpenOptions.classOfService().flowControl().type(ClassesOfService.FlowControlTypes.BIDIRECTIONAL);
         _tunnelStreamOpenOptions.classOfService().dataIntegrity().type(ClassesOfService.DataIntegrityTypes.RELIABLE);
+        // APIQA: tests that recvWindowSize automatically defaults to maxFragmentSize when less than maxFragmentSize
+        _tunnelStreamOpenOptions.classOfService().flowControl().recvWindowSize(10);
+        // END APIQA
         _tunnelStreamOpenOptions.streamId(TUNNEL_STREAM_STREAM_ID);
         _tunnelStreamOpenOptions.domainType(_tunnelDomain);
         _tunnelStreamOpenOptions.serviceId(_serviceId);

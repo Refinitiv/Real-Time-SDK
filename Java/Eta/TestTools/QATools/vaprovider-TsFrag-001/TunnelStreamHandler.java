@@ -75,6 +75,9 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
             // set class of service to what this provider supports
             _tunnelStreamAcceptOptions.classOfService().dataIntegrity().type(ClassesOfService.DataIntegrityTypes.RELIABLE);
             _tunnelStreamAcceptOptions.classOfService().flowControl().type((ClassesOfService.FlowControlTypes.BIDIRECTIONAL));
+            // APIQA: tests that recvWindowSize automatically defaults to maxFragmentSize when less than maxFragmentSize
+            _tunnelStreamAcceptOptions.classOfService().flowControl().recvWindowSize(10);
+            // END APIQA
 
 			// Set Authentication to match consumer. This provider will perform OMM Login authentication if requested.
             _tunnelStreamAcceptOptions.classOfService().authentication().type(event.classOfService().authentication().type());

@@ -937,6 +937,13 @@ public class ReactorChannel extends VaNode
             refreshMsg.msgKey().applyHasFilter();
             refreshMsg.msgKey().filter(options.classOfService().filterFlags());
             
+            /* If recvWindowSize was -1, set it to reflect actual default value. */
+            /* If recvWindowSize was less than maxFragmentSize, set it to received maxFragmentSize. */
+            if (options.classOfService().flowControl().recvWindowSize() == -1)
+                options.classOfService().flowControl().recvWindowSize(TunnelStream.DEFAULT_RECV_WINDOW);
+            if (options.classOfService().flowControl().recvWindowSize() < options.classOfService().common().maxFragmentSize())
+                options.classOfService().flowControl().recvWindowSize(options.classOfService().common().maxFragmentSize());
+
             refreshMsg.encodedDataBody(options.classOfService().encode(this));
             
             _reactorSubmitOptions.clear();
@@ -984,11 +991,10 @@ public class ReactorChannel extends VaNode
             tunnelStream.state().dataState(DataStates.OK);
             tunnelStream.state().code(StateCodes.NONE);
 
-            /* If recv/send window sizes were set to -1, set them to reflect actual default value. */
-            if (tunnelStream.classOfService().flowControl().recvWindowSize() == -1)
-                tunnelStream.classOfService().flowControl().recvWindowSize(TunnelStream.DEFAULT_RECV_WINDOW);
-            if (tunnelStream.classOfService().flowControl().sendWindowSize() == -1)
-                tunnelStream.classOfService().flowControl().sendWindowSize(TunnelStream.DEFAULT_RECV_WINDOW);
+            /* Use request recvWindowSize to set sendWindowSize. If less than maxFragmentSize, set it to received maxFragmentSize. */
+            tunnelStream.classOfService().flowControl().sendWindowSize(event.classOfService().flowControl().recvWindowSize());
+            if (tunnelStream.classOfService().flowControl().sendWindowSize() < tunnelStream.classOfService().common().maxFragmentSize())
+                tunnelStream.classOfService().flowControl().sendWindowSize(tunnelStream.classOfService().common().maxFragmentSize());
             
             return _reactor.sendAndHandleTunnelStreamStatusEventCallback("ReactorChannel.acceptTunnelStream",
                                                                          this,
