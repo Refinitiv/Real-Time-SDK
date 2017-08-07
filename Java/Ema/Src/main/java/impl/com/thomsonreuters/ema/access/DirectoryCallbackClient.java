@@ -774,16 +774,16 @@ class DirectoryItem<T> extends SingleItem<T>
 
 			if (directory == null)
 			{
+				/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+				
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Service name of '")
 					.append(reqMsg.serviceName()).append("' is not found.");
 
-				TimeoutClient client = closedStatusClient(_baseImpl.directoryCallbackClient(),
+				scheduleItemClosedStatus(_baseImpl.directoryCallbackClient(),
 															this, ((ReqMsgImpl)reqMsg).rsslMsg(),
 															temp.toString(), reqMsg.serviceName());
-				/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
-				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
-				_baseImpl.addTimeoutEvent(1000, client);
 				
 				return true;
 			}
@@ -796,16 +796,16 @@ class DirectoryItem<T> extends SingleItem<T>
 
 				if (directory == null)
 				{
+					/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Service id of '")
 						.append(reqMsg.serviceId()).append("' is not found.");
 
-					TimeoutClient client = closedStatusClient(_baseImpl.directoryCallbackClient(),
+					scheduleItemClosedStatus(_baseImpl.directoryCallbackClient(),
 							this, ((ReqMsgImpl)reqMsg).rsslMsg(), temp.toString(), null);
-					/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
-					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
-					_baseImpl.addTimeoutEvent(1000, client);
-
+				
 					return true;
 				}
 			}

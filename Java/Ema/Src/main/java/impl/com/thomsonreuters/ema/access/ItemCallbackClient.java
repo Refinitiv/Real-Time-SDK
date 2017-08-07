@@ -152,7 +152,6 @@ class TunnelItem<T> extends Item<T> {
 	private LinkedList<IntObject> _returnedSubItemStreamIds;
 	private Directory _directory;
 	private TunnelStream _rsslTunnelStream;
-	private ClosedStatusClient<T> _closedStatusClient;
 	private ArrayList<Item<T>> _subItems;
 	private static final int STARTING_SUBITEM_STREAMID = 5;
 
@@ -166,7 +165,6 @@ class TunnelItem<T> extends Item<T> {
 
 		_directory = null;
 		_rsslTunnelStream = null;
-		_closedStatusClient = null;
 		_nextSubItemStreamId = STARTING_SUBITEM_STREAMID;
 		_subItems = new ArrayList<Item<T>>(32);
 		while (STARTING_SUBITEM_STREAMID >= _subItems.size())
@@ -180,7 +178,6 @@ class TunnelItem<T> extends Item<T> {
 
 		_directory = null;
 		_rsslTunnelStream = null;
-		_closedStatusClient = null;
 		_nextSubItemStreamId = STARTING_SUBITEM_STREAMID;
 		_subItems = new ArrayList<Item<T>>(32);
 		while (STARTING_SUBITEM_STREAMID >= _subItems.size())
@@ -333,10 +330,7 @@ class TunnelItem<T> extends Item<T> {
 
 	void scheduleItemClosedStatus(TunnelStreamRequest tunnelStreamRequest, String text)
 	{
-		if (_closedStatusClient != null)
-		{
-			return;
-		}
+		if (_closedStatusClient != null) return;
 
 		_closedStatusClient = new ClosedStatusClient<T>(_baseImpl.itemCallbackClient(), this, tunnelStreamRequest,
 				text);
@@ -789,7 +783,6 @@ class SubItem<T> extends Item<T>
 {
 
 	private static final String CLIENT_NAME = "SubItem";
-	ClosedStatusClient<T> _closedStatusClient;
 	Directory _directory;
 
 	SubItem()
@@ -800,7 +793,6 @@ class SubItem<T> extends Item<T>
 	{
 		super((OmmBaseImpl<T>) baseImpl, consumerClient, closure, parent);
 		_directory = null;
-		_closedStatusClient = null;
 	}
 
 	@Override
@@ -808,17 +800,6 @@ class SubItem<T> extends Item<T>
 	{
 		super.reset((OmmBaseImpl<T>) baseImpl, consumerClient, closure, parent);
 		_directory = null;
-		_closedStatusClient = null;
-	}
-
-	void scheduleItemClosedStatus(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText,
-			String serviceName)
-	{
-		if (_closedStatusClient != null)
-			return;
-
-		_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
-		_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
 	}
 
 	@Override
@@ -1944,7 +1925,7 @@ TunnelStreamStatusEventCallback
 	void reissue(com.thomsonreuters.ema.access.ReqMsg reqMsg, long handle)
 	{
 		Item<T> item = _itemMap.get(_longObjHolder.value(handle));
-		if (item == null)
+		if (item == null || item._closedStatusClient != null)
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append("Attempt to use invalid Handle on reissue(). ").append("Instance name='")
@@ -2299,6 +2280,7 @@ abstract class Item<T> extends VaNode
 	long 					_itemId;
 	LongObject _itemIdObj;
 	IntObject _streamIdObj;
+	ClosedStatusClient<T>	_closedStatusClient;
 
 	Item() {}
 
@@ -2370,11 +2352,20 @@ abstract class Item<T> extends VaNode
 		_parent = parent;
 		_baseImpl = baseImpl;
 		_client = client;
+		_closedStatusClient = null;
 	}
 	
 	int streamId()
 	{
 		return _streamId;
+	}
+	
+	void scheduleItemClosedStatus(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
+	{
+		if (_closedStatusClient != null) return;
+    	
+		_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
+    	_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
 	}
 	
 	abstract boolean open(com.thomsonreuters.ema.access.ReqMsg reqMsg);
@@ -2395,8 +2386,6 @@ class SingleItem<T> extends Item<T>
 	private static final String 	CLIENT_NAME = "SingleItem";
 	
 	protected Directory	_directory;
-	protected ClosedStatusClient<T>		_closedStatusClient;
-	
 
 	SingleItem() {}
 	
@@ -2956,24 +2945,6 @@ class SingleItem<T> extends Item<T>
         
 		return true;
 	}
-		
-	ClosedStatusClient<T> closedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
-	{
-		if (_closedStatusClient == null)
-			_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
-		else
-			_closedStatusClient.reset(client, item, rsslMsg, statusText, serviceName);
-		
-		return _closedStatusClient;
-	}
-	
-	void scheduleItemClosedStatus(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
-	{
-		if (_closedStatusClient != null) return;
-    	
-		_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
-    	_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
-	}
 }
 
 class BatchItem<T> extends SingleItem<T>
@@ -3152,7 +3123,34 @@ class ClosedStatusClient<T> implements TimeoutClient
 	
 	ClosedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
 	{
-		reset(client, item, rsslMsg, statusText, serviceName);
+		_client = client;
+		_item = item;
+		_statusText.data(statusText);
+		_domainType = rsslMsg.domainType();
+		_rsslMsgKey.clear();
+		_serviceName = serviceName;
+		
+		if (rsslMsg.msgKey() != null)
+			rsslMsg.msgKey().copy(_rsslMsgKey);
+		
+		switch (rsslMsg.msgClass())
+	    {
+	     	case MsgClasses.REFRESH :
+	           	_isPrivateStream = (rsslMsg.flags() & RefreshMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+	           	break;
+	        case MsgClasses.STATUS :
+	        	_isPrivateStream = (rsslMsg.flags() & StatusMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+	        	break;
+	        case MsgClasses.REQUEST :
+	           	_isPrivateStream = (rsslMsg.flags() & RequestMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+	        	break;
+	        case MsgClasses.ACK :
+	           	_isPrivateStream = (rsslMsg.flags() & AckMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+	        	break;
+	        default :
+	           	_isPrivateStream = false;
+	        	break;
+	    }
 	}
 	
 	ClosedStatusClient(CallbackClient<T> client, Item<T> item, TunnelStreamRequest tunnelStreamRequest, String text)
@@ -3182,38 +3180,6 @@ class ClosedStatusClient<T> implements TimeoutClient
 		{
 			_serviceName = tunnelStreamRequest.serviceName();
 		}
-	}
-	
-	void reset(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
-	{
-		_client = client;
-		_item = item;
-		_statusText.data(statusText);
-		_domainType = rsslMsg.domainType();
-		_rsslMsgKey.clear();
-		_serviceName = serviceName;
-		
-		if (rsslMsg.msgKey() != null)
-			rsslMsg.msgKey().copy(_rsslMsgKey);
-		
-		switch (rsslMsg.msgClass())
-	    {
-	     	case MsgClasses.REFRESH :
-	           	_isPrivateStream = (rsslMsg.flags() & RefreshMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
-	           	break;
-	        case MsgClasses.STATUS :
-	        	_isPrivateStream = (rsslMsg.flags() & StatusMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
-	        	break;
-	        case MsgClasses.REQUEST :
-	           	_isPrivateStream = (rsslMsg.flags() & RequestMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
-	        	break;
-	        case MsgClasses.ACK :
-	           	_isPrivateStream = (rsslMsg.flags() & AckMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
-	        	break;
-	        default :
-	           	_isPrivateStream = false;
-	        	break;
-	    }
 	}
 	
 	@Override
