@@ -329,6 +329,7 @@ public class TunnelStreamJunit
         tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
         assertEquals(null, tsStatusEvent.authInfo());
         assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
+        assertEquals(StreamStates.CLOSED, tsStatusEvent.state().streamState());
         assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
         assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
         assertNotNull(tsStatusEvent.tunnelStream());
