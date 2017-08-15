@@ -257,7 +257,7 @@ public class TunnelStreamJunit
         else
             assertEquals(AuthenticationTypes.NOT_REQUIRED, provTunnelStream.classOfService().authentication().type());
         assertEquals(FlowControlTypes.BIDIRECTIONAL, provTunnelStream.classOfService().flowControl().type());
-        assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, provTunnelStream.classOfService().flowControl().sendWindowSize());
+        assertEquals(provTunnelStream.classOfService().common().maxFragmentSize(), provTunnelStream.classOfService().flowControl().sendWindowSize());
         assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, provTunnelStream.classOfService().flowControl().recvWindowSize());
         assertEquals(DataIntegrityTypes.RELIABLE, provTunnelStream.classOfService().dataIntegrity().type());
         assertEquals(GuaranteeTypes.NONE, provTunnelStream.classOfService().guarantee().type());
@@ -1574,7 +1574,7 @@ public class TunnelStreamJunit
             assertEquals(maxMsgSize, provTunnelStream.classOfService().common().maxMsgSize());
             assertEquals(AuthenticationTypes.NOT_REQUIRED, provTunnelStream.classOfService().authentication().type());
             assertEquals(FlowControlTypes.BIDIRECTIONAL, provTunnelStream.classOfService().flowControl().type());
-            assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, provTunnelStream.classOfService().flowControl().sendWindowSize());
+            assertEquals(provTunnelStream.classOfService().common().maxFragmentSize(), provTunnelStream.classOfService().flowControl().sendWindowSize());
             assertEquals(TunnelStream.DEFAULT_RECV_WINDOW, provTunnelStream.classOfService().flowControl().recvWindowSize());
             assertEquals(DataIntegrityTypes.RELIABLE, provTunnelStream.classOfService().dataIntegrity().type());
             assertEquals(GuaranteeTypes.NONE, provTunnelStream.classOfService().guarantee().type());
