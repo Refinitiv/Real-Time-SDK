@@ -122,13 +122,13 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	@Override
 	public OmmNiProviderConfig addAdminMsg(ReqMsg reqMsg) {
 		addAdminMsgInt(reqMsg);
-		return null;
+		return this;
 	}
 
 	@Override
 	public OmmNiProviderConfig addAdminMsg(RefreshMsg refreshMsg) {
 		addAdminMsgInt(refreshMsg);
-		return null;
+		return this;
 	}
 	
 	@Override
