@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 Definition of QATools: The purpose of QATools is to test variations of examples (see Applications/Examples). For each example that is altered to run a test, there will be a directory here to represent that variation. Example: If Series400Consumer410 was altered 2 times to do 2 different tests, there will be directories here, such as, "Series400Consumer410*01" and "Series400Consumer410*02". In each directory are the files that have been altered. These directories contain ONLY the files that were altered for that example.
 
 How to use QATools: For each QATool directory, user must copy or overlay the source files from that directory into the original location where the entire source for an example exists. The user must re-build the code to run the altered example.
+=======
+Definition QATools: The purpose of QATools is to test variations of examples (see Applications/Examples). For each example that is altered to run a test, there will be a directory here to represent that variation. Example: If VAConsumer was altered 2 times to do 2 different tests, there will be directories here, such as, "VAConsumer-*01" and "VAConsumer*02". In each directory are the files that have been altered. These directories contain ONLY the files that were altered for that example.
+
+How to use QATools: For each QATool direcotry, user must copy or overlay the source files from that directory into the original location in Applications/Examples where the entire source for an example exists.  The user must re-build the code to run the altered example.
+>>>>>>> origin/ESDK-652
 
 Disclaimer:  Please note that this is not a comprehensive list of all test variations used in test.
 
 List of altered code directories:
 -----------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 Module:  Series400Consumer410 
 ----------------------------------
 
@@ -34,3 +41,10 @@ Series400Consumer410-MultiThreaded-001:  Alters multi-threaded consumer to do th
 	+ Processes data received from in ConsumerInstance for 60 seconds
 	  - all received messages are processed on ApiDispatch thread or UserDispath thread control  
 	+ Exits 
+=======
+Module:  Series400NiProvider430
+-------------------------------
+Series400NiProvider430_TrepAuth-002
+   Alters NiProvider to use programmatic configuration to set host, port and instanceID instead of reading this from XML config file. 
+	
+>>>>>>> origin/ESDK-652

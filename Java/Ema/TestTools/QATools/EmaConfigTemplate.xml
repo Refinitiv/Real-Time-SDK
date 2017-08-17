@@ -18,10 +18,17 @@
 			<Channel value="Channel_1"/>
 
 			<!-- Logger is optional: defaulted to "File + Success"										-->
+<<<<<<< HEAD
 			<Logger value="LOGGER_INPUT"/>
 
 			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
 			<Dictionary value="DICT_INPUT"/>
+=======
+			<Logger value="Logger_7"/>
+
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Dictionary value="Dictionary_2"/>
+>>>>>>> origin/ESDK-652
 		</Consumer>
 		
 		<Consumer>
@@ -31,8 +38,13 @@
 			<!-- connect, one at a time, if the previous one fails to connect							-->
 			<ChannelSet value="Channel_1, Channel_2"/>
 			
+<<<<<<< HEAD
 			<Logger value="LOGGER_INPUT"/>
 			<Dictionary value="DICT_INPUT"/>
+=======
+			<Logger value="Logger_7"/>
+			<Dictionary value="Dictionary_2"/>
+>>>>>>> origin/ESDK-652
 		</Consumer>
 		
 	</ConsumerList>
@@ -62,9 +74,15 @@
 			<!-- the directory may also be specified using OmmNiProviderConfig::addAdminMsg().			-->
 			<!-- if desired the OmmNiProviderConfig::adminControlDirectory() to UserControlEnum			-->
 			<!-- which allows applications to specify and control the directory.						-->
+<<<<<<< HEAD
 			<Directory value="DIR_INPUT"/>
 			
 			<Logger value="LOGGER_INPUT"/>
+=======
+			<Directory value="Directory_1"/>
+			
+			<Logger value="Logger_7"/>
+>>>>>>> origin/ESDK-652
 		</NiProvider>
 		
 		<NiProvider>
@@ -72,9 +90,15 @@
 		
 			<Channel value="Channel_4"/>
 			
+<<<<<<< HEAD
 			<Directory value="DIR_INPUT"/>
 			
 			<Logger value="LOGGER_INPUT"/>
+=======
+			<Directory value="Directory_1"/>
+			
+			<Logger value="Logger_7"/>
+>>>>>>> origin/ESDK-652
 		</NiProvider>
 		
 	</NiProviderList>
@@ -100,8 +124,13 @@
             <!-- was set to ApiControlEnum                                                               -->
             <!-- this configuration also decides which dictionaries will be loaded at startup            -->
             <!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()              -->
+<<<<<<< HEAD
             <Directory value="DIR_INPUT"/>
             <Logger value="LOGGER_INPUT"/>
+=======
+            <Directory value="Directory_1"/>
+            <Logger value="Logger_7"/>
+>>>>>>> origin/ESDK-652
 
             <ItemCountHint value="10000"/>
 
@@ -147,8 +176,13 @@
 			<!-- TcpNodelay is optional: defaulted to 1 												-->
 			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set)					-->
 			<TcpNodelay value="1"/>
+<<<<<<< HEAD
 			<Host value="CONNECT_HOST"/>
 			<Port value="CONNECT_PORT"/>
+=======
+			<Host value="192.168.8.77"/>
+			<Port value="14173"/>
+>>>>>>> origin/ESDK-652
 			<XmlTraceToStdout value="1"/>		
 		</Channel>
 		<Channel>
@@ -190,8 +224,13 @@
             <Name value="Channel_6"/>
             <ChannelType value="ChannelType::RSSL_SOCKET"/>
             <GuaranteedOutputBuffers value="5000"/>
+<<<<<<< HEAD
             <Host value="CONNECT_HOST"/>
             <Port value="CONNECT_PORT"/>
+=======
+            <Host value="192.168.8.77"/>
+            <Port value="14173"/>
+>>>>>>> origin/ESDK-652
         </Channel>
 		<Channel>
 			<Name value="Channel_10"/>
@@ -199,8 +238,13 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="1"/>
+<<<<<<< HEAD
 			<Host value="ADH_HOST"/>
 			<Port value="ADH_PORT"/>
+=======
+			<Host value="192.168.8.77"/>
+			<Port value="15073"/>
+>>>>>>> origin/ESDK-652
 			<XmlTraceToStdout value="1"/>
 		</Channel>
 	</ChannelList>
@@ -449,11 +493,19 @@
                 <InfoFilter>
                     <ServiceId value="1"/>
                     <DictionariesProvided>
+<<<<<<< HEAD
                         <DictionariesProvidedEntry value="DICT_INPUT"/>
                     </DictionariesProvided>
 
                     <DictionariesUsed>
                         <DictionariesUsedEntry value="DICT_INPUT"/>
+=======
+                        <DictionariesProvidedEntry value="P_Dictionary_2"/>
+                    </DictionariesProvided>
+
+                    <DictionariesUsed>
+                        <DictionariesUsedEntry value="P_Dictionary_2"/>
+>>>>>>> origin/ESDK-652
                     </DictionariesUsed>
 
                     <Vendor value="company name"/>
