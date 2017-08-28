@@ -220,9 +220,9 @@ public class Consumer implements ConsumerCallback
     private final String ENUM_TABLE_FILE_NAME = "enumtype.def";
     private final String FIX_FIELD_DICTIONARY_FILE_NAME = "FDMFixFieldDictionary";
     private final String FIX_ENUM_TABLE_FILE_NAME = "FDMenumtypes.def";
-    
-    private final int MAX_QUEUE_DESTINATIONS = 10; 
-    
+
+    private final int MAX_QUEUE_DESTINATIONS = 10;
+
     private Reactor reactor;
     private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
     private ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
@@ -231,65 +231,65 @@ public class Consumer implements ConsumerCallback
     private Selector selector;
 
     private long runtime;
-    
+
     // default server host name
     private static final String defaultSrvrHostname = "localhost";
-    
+
     // default server port number
     private static final String defaultSrvrPortNo = "14002";
-    
+
     // default service name
     private static final String defaultServiceName = "DIRECT_FEED";
-    
+
     // default item name
     private static final String defaultItemName = "TRI.N";
-    
+
     // default item name 2
     private static final String defaultItemName2 = ".DJI";
-    
-    private Error error;    // error information
-    
+
+    private Error error; // error information
+
     private DataDictionary dictionary;
     private DataDictionary fixdictionary;
-    
+
     private boolean fieldDictionaryLoadedFromFile;
-	private boolean enumTypeDictionaryLoadedFromFile;
-	
-	ArrayList<ChannelInfo> chnlInfoList = new ArrayList<ChannelInfo>();
+    private boolean enumTypeDictionaryLoadedFromFile;
+
+    ArrayList<ChannelInfo> chnlInfoList = new ArrayList<ChannelInfo>();
 
     private QueueMsgHandler queueMsgHandler;
     private TunnelStreamHandler tunnelStreamHandler;
     private String qServiceName;
 
-	long cacheTime;
-	long cacheInterval;
-	StringBuilder cacheDisplayStr;
-	Buffer cacheEntryBuffer;
-	
-	boolean _finalStatusEvent;
-	private long closetime;
-	private long closeRunTime; 
-	boolean closeHandled;
+    long cacheTime;
+    long cacheInterval;
+    StringBuilder cacheDisplayStr;
+    Buffer cacheEntryBuffer;
+
+    boolean _finalStatusEvent;
+    private long closetime;
+    private long closeRunTime;
+    boolean closeHandled;
 
     private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-	
+
     public Consumer()
     {
         dictionary = CodecFactory.createDataDictionary();
         fixdictionary = CodecFactory.createDataDictionary();
-        
+
         error = TransportFactory.createError();
         dispatchOptions.maxMessages(1);
         _finalStatusEvent = true;
-        closetime = 10; // 10 sec 
+        closetime = 10; // 10 sec
         try
         {
             selector = Selector.open();
         }
         catch (Exception e)
         {
-        	System.out.println("Selector.open() failed: " + e.getLocalizedMessage());
-        	System.exit(ReactorReturnCodes.FAILURE);
+            System.out.println("Selector.open() failed: " + e.getLocalizedMessage());
+            System.exit(ReactorReturnCodes.FAILURE);
         }
     }
 
@@ -297,38 +297,30 @@ public class Consumer implements ConsumerCallback
     private void init(String[] args)
     {
         // parse command line
-    	if (!consumerCmdLineParser.parseArgs(args))
+        if (!consumerCmdLineParser.parseArgs(args))
         {
             System.err.println("\nError loading command line arguments:\n");
             consumerCmdLineParser.printUsage();
             System.exit(CodecReturnCodes.FAILURE);
         }
 
-    	// add default connections to arguments if none specified
+        // add default connections to arguments if none specified
         if (consumerCmdLineParser.connectionList().size() == 0)
         {
-        	// first connection - localhost:14002 DIRECT_FEED mp:TRI.N
-        	List<ItemArg> itemList = new ArrayList<ItemArg>();
-        	ItemArg itemArg = new ItemArg(DomainTypes.MARKET_PRICE, defaultItemName, false);
-        	itemList.add(itemArg);
-        	ConnectionArg connectionArg = new ConnectionArg(ConnectionTypes.SOCKET,
-        													defaultServiceName,
-        													defaultSrvrHostname,
-        													defaultSrvrPortNo,
-        													itemList);
-        	consumerCmdLineParser.connectionList().add(connectionArg);
+            // first connection - localhost:14002 DIRECT_FEED mp:TRI.N
+            List<ItemArg> itemList = new ArrayList<ItemArg>();
+            ItemArg itemArg = new ItemArg(DomainTypes.MARKET_PRICE, defaultItemName, false);
+            itemList.add(itemArg);
+            ConnectionArg connectionArg = new ConnectionArg(ConnectionTypes.SOCKET, defaultServiceName, defaultSrvrHostname, defaultSrvrPortNo, itemList);
+            consumerCmdLineParser.connectionList().add(connectionArg);
 
-        	// second connection - localhost:14002 DIRECT_FEED mp:TRI.N mp:.DJI
-        	List<ItemArg> itemList2 = new ArrayList<ItemArg>();
-        	ItemArg itemArg2 = new ItemArg(DomainTypes.MARKET_PRICE, defaultItemName2, false);
-        	itemList2.add(itemArg);
-        	itemList2.add(itemArg2);
-        	ConnectionArg connectionArg2 = new ConnectionArg(ConnectionTypes.SOCKET,
-        													defaultServiceName,
-        													defaultSrvrHostname,
-        													defaultSrvrPortNo,
-        													itemList2);
-        	consumerCmdLineParser.connectionList().add(connectionArg2);
+            // second connection - localhost:14002 DIRECT_FEED mp:TRI.N mp:.DJI
+            List<ItemArg> itemList2 = new ArrayList<ItemArg>();
+            ItemArg itemArg2 = new ItemArg(DomainTypes.MARKET_PRICE, defaultItemName2, false);
+            itemList2.add(itemArg);
+            itemList2.add(itemArg2);
+            ConnectionArg connectionArg2 = new ConnectionArg(ConnectionTypes.SOCKET, defaultServiceName, defaultSrvrHostname, defaultSrvrPortNo, itemList2);
+            consumerCmdLineParser.connectionList().add(connectionArg2);
         }
 
         // display product version information
@@ -337,322 +329,307 @@ public class Consumer implements ConsumerCallback
 
         runtime = System.currentTimeMillis() + consumerCmdLineParser.runtime() * 1000;
         closeRunTime = System.currentTimeMillis() + (consumerCmdLineParser.runtime() + closetime) * 1000;
-                
+
         // load dictionary
         loadDictionary();
-        
+
         // enable Reactor XML tracing if specified
         if (consumerCmdLineParser.enableXmlTracing())
         {
-        	reactorOptions.enableXmlTracing();
+            reactorOptions.enableXmlTracing();
         }
 
-		// create reactor
-	    reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
-	    if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
-	    {
-        	System.out.println("createReactor() failed: " + errorInfo.toString());
-        	System.exit(ReactorReturnCodes.FAILURE);	    	
-	    }
-	    
+        // create reactor
+        reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
+        if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
+        {
+            System.out.println("createReactor() failed: " + errorInfo.toString());
+            System.exit(ReactorReturnCodes.FAILURE);
+        }
+
         // register selector with reactor's reactorChannel.
         try
         {
-			reactor.reactorChannel().selectableChannel().register(selector,
-																SelectionKey.OP_READ,
-																reactor.reactorChannel());
-		}
+            reactor.reactorChannel().selectableChannel().register(selector, SelectionKey.OP_READ, reactor.reactorChannel());
+        }
         catch (ClosedChannelException e)
         {
-        	System.out.println("selector register failed: " + e.getLocalizedMessage());
-        	System.exit(ReactorReturnCodes.FAILURE);
-		}
-        
+            System.out.println("selector register failed: " + e.getLocalizedMessage());
+            System.exit(ReactorReturnCodes.FAILURE);
+        }
+
         /* create channel info, initialize channel info, and connect channels
          * for each connection specified */
-        
+
         for (ConnectionArg connectionArg : consumerCmdLineParser.connectionList())
         {
-        	// create channel info
-        	ChannelInfo chnlInfo = new ChannelInfo();
-        	chnlInfo.connectionArg = connectionArg;
-        	
-        	// initialize channel info
-        	initChannelInfo(chnlInfo);   
-	
-	        // connect channel
-	        int ret;
-	        if ((ret = reactor.connect(chnlInfo.connectOptions, (ReactorRole)chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
-	        {
-	        	System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
-	        	System.exit(ReactorReturnCodes.FAILURE);
-	        }
-	        
-	        // add to ChannelInfo list
-	        chnlInfoList.add(chnlInfo);
+            // create channel info
+            ChannelInfo chnlInfo = new ChannelInfo();
+            chnlInfo.connectionArg = connectionArg;
+
+            // initialize channel info
+            initChannelInfo(chnlInfo);
+
+            // connect channel
+            int ret;
+            if ((ret = reactor.connect(chnlInfo.connectOptions, (ReactorRole)chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
+            {
+                System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
+                System.exit(ReactorReturnCodes.FAILURE);
+            }
+
+            // add to ChannelInfo list
+            chnlInfoList.add(chnlInfo);
         }
-        
+
         // load FIX dictionary if queue messaging enabled
         if (queueMsgHandler != null)
         {
             loadFixDictionary();
         }
-        
+
         cacheInterval = consumerCmdLineParser.cacheInterval();
-        cacheTime = System.currentTimeMillis() + cacheInterval*1000;
+        cacheTime = System.currentTimeMillis() + cacheInterval * 1000;
     }
 
     /* Runs the Value Add consumer application. */
-	private void run()		
-	{		
-		int selectRetVal, selectTime = 1000;
-		while (true)
-		{
-	        Set<SelectionKey> keySet = null;
-	        try
-	        {
-	        	selectRetVal = selector.select(selectTime);
-	            if (selectRetVal > 0)
-	            {
-	                keySet = selector.selectedKeys();
-	            }
-	        }
-	        catch (IOException e)
-	        {
-	        	System.out.println("select failed: " + e.getLocalizedMessage());
-	        	System.exit(ReactorReturnCodes.FAILURE);
-	        }
-	
-	        long currentTime = System.currentTimeMillis();
-	        if (currentTime >= cacheTime && cacheInterval > 0)
-	        {
-	        	cacheTime = System.currentTimeMillis() + cacheInterval*1000;
-	        	
-	        	for (ChannelInfo chnlInfo : chnlInfoList)
-	        	{
-	        		if (chnlInfo.cacheInfo.useCache)
-	        			displayCache(chnlInfo);
-	        	}
-	        	
-	        	cacheTime = currentTime + cacheInterval*1000;
-	        }
-	        
+    private void run()
+    {
+        int selectRetVal, selectTime = 1000;
+        while (true)
+        {
+            Set<SelectionKey> keySet = null;
+            try
+            {
+                selectRetVal = selector.select(selectTime);
+                if (selectRetVal > 0)
+                {
+                    keySet = selector.selectedKeys();
+                }
+            }
+            catch (IOException e)
+            {
+                System.out.println("select failed: " + e.getLocalizedMessage());
+                System.exit(ReactorReturnCodes.FAILURE);
+            }
 
-	        // nothing to read
-	        if (keySet != null)
-			{
-				Iterator<SelectionKey> iter = keySet.iterator();
-				int ret = ReactorReturnCodes.SUCCESS;
-				while (iter.hasNext())
-				{
-					SelectionKey key = iter.next();
-					iter.remove();
-					try
-					{
-						if (key.isReadable())
-						{
-							// retrieve associated reactor channel and dispatch on that channel 
-							ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
+            long currentTime = System.currentTimeMillis();
+            if (currentTime >= cacheTime && cacheInterval > 0)
+            {
+                cacheTime = System.currentTimeMillis() + cacheInterval * 1000;
 
+                for (ChannelInfo chnlInfo : chnlInfoList)
+                {
+                    if (chnlInfo.cacheInfo.useCache)
+                        displayCache(chnlInfo);
+                }
 
-							// dispatch until no more messages
-							while ((ret = reactorChnl.dispatch(dispatchOptions, errorInfo)) > 0) {}
-							if (ret == ReactorReturnCodes.FAILURE)
-							{
-								if (reactorChnl.state() != ReactorChannel.State.CLOSED &&
-										reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
-								{
-									System.out.println("ReactorChannel dispatch failed: " + ret + "(" + errorInfo.error().text() + ")");
-									uninitialize();
-									System.exit(ReactorReturnCodes.FAILURE);
-								}
-							}
-						}
-					}
-					catch (CancelledKeyException e)
-					{
-					} // key can be canceled during shutdown
-				}
-			}
-	        
-	        // Handle run-time
+                cacheTime = currentTime + cacheInterval * 1000;
+            }
+
+            // nothing to read
+            if (keySet != null)
+            {
+                Iterator<SelectionKey> iter = keySet.iterator();
+                int ret = ReactorReturnCodes.SUCCESS;
+                while (iter.hasNext())
+                {
+                    SelectionKey key = iter.next();
+                    iter.remove();
+                    try
+                    {
+                        if (key.isReadable())
+                        {
+                            // retrieve associated reactor channel and dispatch
+                            // on that channel
+                            ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
+
+                            // dispatch until no more messages
+                            while ((ret = reactorChnl.dispatch(dispatchOptions, errorInfo)) > 0)
+                            {
+                            }
+                            if (ret == ReactorReturnCodes.FAILURE)
+                            {
+                                if (reactorChnl.state() != ReactorChannel.State.CLOSED && reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                                {
+                                    System.out.println("ReactorChannel dispatch failed: " + ret + "(" + errorInfo.error().text() + ")");
+                                    uninitialize();
+                                    System.exit(ReactorReturnCodes.FAILURE);
+                                }
+                            }
+                        }
+                    }
+                    catch (CancelledKeyException e)
+                    {
+                    } // key can be canceled during shutdown
+                }
+            }
+
+            // Handle run-time
             if (System.currentTimeMillis() >= runtime && !closeHandled)
             {
                 System.out.println("Consumer run-time expired, close now...");
                 handleClose();
-                closeHandled = true;                
+                closeHandled = true;
             }
-            else if (System.currentTimeMillis() >= closeRunTime )
+            else if (System.currentTimeMillis() >= closeRunTime)
             {
-            	 System.out.println("Consumer closetime expired, shutdown reactor.");
-            	 break;
+                System.out.println("Consumer closetime expired, shutdown reactor.");
+                break;
             }
-	        if (!closeHandled)
-	        {
-	        	handlePosting();
-	        	handleQueueMessaging();
-	        	handleTunnelStream();
-	        	
-	        // send login reissue if login reissue time has passed
-        	for (ChannelInfo chnlInfo : chnlInfoList)
-        	{
-	        		if (chnlInfo.reactorChannel == null ||
-	        	    	(chnlInfo.reactorChannel.state() != ReactorChannel.State.UP && 
-	        	    	chnlInfo.reactorChannel.state() != ReactorChannel.State.READY))
-        	    	{
-        	    		continue;
-        	    	}
-	        		
-        		if (chnlInfo.canSendLoginReissue &&
-        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
-        		{
-					LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-					submitOptions.clear();
-					if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) !=  CodecReturnCodes.SUCCESS)
-					{
-						System.out.println("Login reissue failed. Error: " + errorInfo.error().text());
-					}
-					else
-					{
-						System.out.println("Login reissue sent");
-					}
-					chnlInfo.canSendLoginReissue = false;
-        		}
-        	}
-	        }	        
-	        
-	        if(closeHandled && queueMsgHandler != null && queueMsgHandler._chnlInfo != null &&
-	 	           !queueMsgHandler._chnlInfo.isQueueStreamUp) 
-	        	break;
-	 
-	        if(closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null &&
-	           !tunnelStreamHandler._chnlInfo.isTunnelStreamUp) 
-	        	break;
-		}		
-	}
+            if (!closeHandled)
+            {
+                handlePosting();
+                handleQueueMessaging();
+                handleTunnelStream();
+
+                // send login reissue if login reissue time has passed
+                for (ChannelInfo chnlInfo : chnlInfoList)
+                {
+                    if (chnlInfo.reactorChannel == null || (chnlInfo.reactorChannel.state() != ReactorChannel.State.UP && chnlInfo.reactorChannel.state() != ReactorChannel.State.READY))
+                    {
+                        continue;
+                    }
+
+                    if (chnlInfo.canSendLoginReissue && System.currentTimeMillis() >= chnlInfo.loginReissueTime)
+                    {
+                        LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                        submitOptions.clear();
+                        if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) != CodecReturnCodes.SUCCESS)
+                        {
+                            System.out.println("Login reissue failed. Error: " + errorInfo.error().text());
+                        }
+                        else
+                        {
+                            System.out.println("Login reissue sent");
+                        }
+                        chnlInfo.canSendLoginReissue = false;
+                    }
+                }
+            }
+
+            if (closeHandled && queueMsgHandler != null && queueMsgHandler._chnlInfo != null && !queueMsgHandler._chnlInfo.isQueueStreamUp)
+                break;
+
+            if (closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null && !tunnelStreamHandler._chnlInfo.isTunnelStreamUp)
+                break;
+        }
+    }
 
     @Override
-	public int reactorChannelEventCallback(ReactorChannelEvent event)
-	{
-		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
-		
-		switch(event.eventType())
-		{
-    		case ReactorChannelEventTypes.CHANNEL_UP:
-    		{
-    			if (event.reactorChannel().selectableChannel() != null)
+    public int reactorChannelEventCallback(ReactorChannelEvent event)
+    {
+        ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+
+        switch (event.eventType())
+        {
+            case ReactorChannelEventTypes.CHANNEL_UP:
+            {
+                if (event.reactorChannel().selectableChannel() != null)
                     System.out.println("Channel Up Event: " + event.reactorChannel().selectableChannel());
                 else
                     System.out.println("Channel Up Event");
-    	        // register selector with channel event's reactorChannel
-    	        try
-    	        {
-    				event.reactorChannel().selectableChannel().register(selector,
-    																	SelectionKey.OP_READ,
-    																	event.reactorChannel());
-    			}
-    	        catch (ClosedChannelException e)
-    	        {
-    	        	System.out.println("selector register failed: " + e.getLocalizedMessage());
-    	        	return ReactorCallbackReturnCodes.SUCCESS;
-    			}
-    	        break;
-    		}
-    		case ReactorChannelEventTypes.FD_CHANGE:
-    		{
-    	        System.out.println("Channel Change - Old Channel: "
-    	                + event.reactorChannel().oldSelectableChannel() + " New Channel: "
-    	                + event.reactorChannel().selectableChannel());
-    	        
-    	        // cancel old reactorChannel select
+                // register selector with channel event's reactorChannel
+                try
+                {
+                    event.reactorChannel().selectableChannel().register(selector, SelectionKey.OP_READ, event.reactorChannel());
+                }
+                catch (ClosedChannelException e)
+                {
+                    System.out.println("selector register failed: " + e.getLocalizedMessage());
+                    return ReactorCallbackReturnCodes.SUCCESS;
+                }
+                break;
+            }
+            case ReactorChannelEventTypes.FD_CHANGE:
+            {
+                System.out.println("Channel Change - Old Channel: " + event.reactorChannel().oldSelectableChannel() + " New Channel: " + event.reactorChannel().selectableChannel());
+
+                // cancel old reactorChannel select
                 SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(selector);
                 if (key != null)
                     key.cancel();
-    
-    	        // register selector with channel event's new reactorChannel
-    	        try
-    	        {
-    	        	event.reactorChannel().selectableChannel().register(selector,
-    	        													SelectionKey.OP_READ,
-    	        													event.reactorChannel());
-    	        }
-    	        catch (Exception e)
-    	        {
-    	        	System.out.println("selector register failed: " + e.getLocalizedMessage());
-    	        	return ReactorCallbackReturnCodes.SUCCESS;
-    	        }
+
+                // register selector with channel event's new reactorChannel
+                try
+                {
+                    event.reactorChannel().selectableChannel().register(selector, SelectionKey.OP_READ, event.reactorChannel());
+                }
+                catch (Exception e)
+                {
+                    System.out.println("selector register failed: " + e.getLocalizedMessage());
+                    return ReactorCallbackReturnCodes.SUCCESS;
+                }
                 break;
-    		}
-    		case ReactorChannelEventTypes.CHANNEL_READY:
-    		{
-    			// set ReactorChannel on ChannelInfo
-    			chnlInfo.reactorChannel = event.reactorChannel();
-    			if (event.reactorChannel().selectableChannel() != null)
+            }
+            case ReactorChannelEventTypes.CHANNEL_READY:
+            {
+                // set ReactorChannel on ChannelInfo
+                chnlInfo.reactorChannel = event.reactorChannel();
+                if (event.reactorChannel().selectableChannel() != null)
                     System.out.println("Channel Ready Event: " + event.reactorChannel().selectableChannel());
                 else
                     System.out.println("Channel Ready Event");
-    			
-    			if (isRequestedServiceUp(chnlInfo))
-    			{
-        			checkAndInitPostingSupport(chnlInfo);
-        			
-        			if ( !chnlInfo.itemWatchList.isEmpty() )
-        			{
-        				chnlInfo.itemWatchList.clear();
-        				if (chnlInfo.cacheInfo.cache != null)
-        					chnlInfo.cacheInfo.cache.clear();
-        			}
-        			
-        			sendMPRequests(chnlInfo);
-        			sendMBORequests(chnlInfo);
-        			sendMBPRequests(chnlInfo);
-        			sendSymbolListRequests(chnlInfo);
-        			sendYieldCurveRequests(chnlInfo);
-        			chnlInfo.requestsSent = true;
-    			}
-    			
-    			if (isRequestedQServiceUp(chnlInfo))
-    			{
+
+                if (isRequestedServiceUp(chnlInfo))
+                {
+                    checkAndInitPostingSupport(chnlInfo);
+
+                    if (!chnlInfo.itemWatchList.isEmpty())
+                    {
+                        chnlInfo.itemWatchList.clear();
+                        if (chnlInfo.cacheInfo.cache != null)
+                            chnlInfo.cacheInfo.cache.clear();
+                    }
+
+                    sendMPRequests(chnlInfo);
+                    sendMBORequests(chnlInfo);
+                    sendMBPRequests(chnlInfo);
+                    sendSymbolListRequests(chnlInfo);
+                    sendYieldCurveRequests(chnlInfo);
+                    chnlInfo.requestsSent = true;
+                }
+
+                if (isRequestedQServiceUp(chnlInfo))
+                {
                     if (queueMsgHandler != null)
                     {
                         if (queueMsgHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                         {
-                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                             {
                                 uninitialize();
                                 System.exit(ReactorReturnCodes.FAILURE);
                             }
                         }
                     }
-                    
+
                     if (tunnelStreamHandler != null)
                     {
                         if (tunnelStreamHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                         {
-                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                             {
                                 uninitialize();
                                 System.exit(ReactorReturnCodes.FAILURE);
                             }
                         }
                     }
-    			}
+                }
                 break;
-    		}
-    		case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
-    		{
-    			if (event.reactorChannel().selectableChannel() != null)
-    				System.out.println("\nConnection down reconnecting: Channel " + event.reactorChannel().selectableChannel());
-    			else
-    				System.out.println("\nConnection down reconnecting");
-    
-    			if (event.errorInfo() != null && event.errorInfo().error().text() != null)
-    				System.out.println("	Error text: " + event.errorInfo().error().text() + "\n");
-    						
-    			// allow Reactor to perform connection recovery
-    			
+            }
+            case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
+            {
+                if (event.reactorChannel().selectableChannel() != null)
+                    System.out.println("\nConnection down reconnecting: Channel " + event.reactorChannel().selectableChannel());
+                else
+                    System.out.println("\nConnection down reconnecting");
+
+                if (event.errorInfo() != null && event.errorInfo().error().text() != null)
+                    System.out.println("	Error text: " + event.errorInfo().error().text() + "\n");
+
+                // allow Reactor to perform connection recovery
+
                 // unregister selectableChannel from Selector
                 if (event.reactorChannel().selectableChannel() != null)
                 {
@@ -660,41 +637,40 @@ public class Consumer implements ConsumerCallback
                     if (key != null)
                         key.cancel();
                 }
-    			
-    			// reset dictionary if not loaded from file
-    	        if (fieldDictionaryLoadedFromFile == false &&
-    	            enumTypeDictionaryLoadedFromFile == false)
-    	        {
-    	        	if (chnlInfo.dictionary != null)
-    	        	{
-    	        		chnlInfo.dictionary.clear();
-    	        	}
-    	        }
-    	        
-    	        // reset item request(s) sent flag
-    	        chnlInfo.requestsSent = false;
-    	        
-    	        // reset hasServiceInfo flag
-    	        chnlInfo.hasServiceInfo = false;
-    	        chnlInfo.hasQServiceInfo = false;
-    	        
-    	        // reset canSendLoginReissue flag
-    	        chnlInfo.canSendLoginReissue = false;
-    	        
-            	setItemState(chnlInfo, StreamStates.CLOSED_RECOVER, DataStates.SUSPECT, StateCodes.NONE );
-            	
+
+                // reset dictionary if not loaded from file
+                if (fieldDictionaryLoadedFromFile == false && enumTypeDictionaryLoadedFromFile == false)
+                {
+                    if (chnlInfo.dictionary != null)
+                    {
+                        chnlInfo.dictionary.clear();
+                    }
+                }
+
+                // reset item request(s) sent flag
+                chnlInfo.requestsSent = false;
+
+                // reset hasServiceInfo flag
+                chnlInfo.hasServiceInfo = false;
+                chnlInfo.hasQServiceInfo = false;
+
+                // reset canSendLoginReissue flag
+                chnlInfo.canSendLoginReissue = false;
+
+                setItemState(chnlInfo, StreamStates.CLOSED_RECOVER, DataStates.SUSPECT, StateCodes.NONE);
+
                 break;
-    		}
-    		case ReactorChannelEventTypes.CHANNEL_DOWN:
+            }
+            case ReactorChannelEventTypes.CHANNEL_DOWN:
             {
-    			if (event.reactorChannel().selectableChannel() != null)
+                if (event.reactorChannel().selectableChannel() != null)
                     System.out.println("\nConnection down: Channel " + event.reactorChannel().selectableChannel());
                 else
                     System.out.println("\nConnection down");
-    
+
                 if (event.errorInfo() != null && event.errorInfo().error().text() != null)
                     System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
-                
+
                 // unregister selectableChannel from Selector
                 if (event.reactorChannel().selectableChannel() != null)
                 {
@@ -718,17 +694,17 @@ public class Consumer implements ConsumerCallback
                 System.out.println("Unknown channel event!\n");
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
-		}
+        }
 
-		return ReactorCallbackReturnCodes.SUCCESS;
-	}
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
 
-	@Override
-	public int defaultMsgCallback(ReactorMsgEvent event)
-	{
-		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
-		Msg msg = event.msg();
-		
+    @Override
+    public int defaultMsgCallback(ReactorMsgEvent event)
+    {
+        ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+        Msg msg = event.msg();
+
         if (msg == null)
         {
             /* The message is not present because an error occurred while decoding it. Print 
@@ -753,85 +729,84 @@ public class Consumer implements ConsumerCallback
 
         // set response message
         chnlInfo.responseMsg = msg;
-        
+
         // set-up decode iterator if message has message body
         if (msg.encodedDataBody() != null && msg.encodedDataBody().data() != null)
         {
             // clear decode iterator
-    		chnlInfo.dIter.clear();
-    
+            chnlInfo.dIter.clear();
+
             // set buffer and version info
-    		chnlInfo.dIter.setBufferAndRWFVersion(msg.encodedDataBody(),
-    											event.reactorChannel().majorVersion(),
-    											event.reactorChannel().minorVersion());
+            chnlInfo.dIter.setBufferAndRWFVersion(msg.encodedDataBody(), event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion());
         }
 
         processResponse(chnlInfo);
 
-		return ReactorCallbackReturnCodes.SUCCESS;
-	}
-
-	@Override
-	public int rdmLoginMsgCallback(RDMLoginMsgEvent event)
-	{
-		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
-		LoginMsgType msgType = event.rdmLoginMsg().rdmMsgType();
-
-		switch (msgType)
-		{
-			case REFRESH:
-				System.out.println("Received Login Refresh for Username: " + ((LoginRefresh)event.rdmLoginMsg()).userName());
-				System.out.println(event.rdmLoginMsg().toString());
-				
-				// save loginRefresh
-				((LoginRefresh)event.rdmLoginMsg()).copy(chnlInfo.loginRefresh);
-					
-				// set login stream id in MarketPriceHandler and YieldCurveHandler
-				chnlInfo.marketPriceHandler.loginStreamId(event.rdmLoginMsg().streamId());
-				chnlInfo.yieldCurveHandler.loginStreamId(event.rdmLoginMsg().streamId());
-				
-				// get login reissue time from authenticationTTReissue
-				if (chnlInfo.loginRefresh.checkHasAuthenticationTTReissue())
-				{
-					chnlInfo.loginReissueTime = chnlInfo.loginRefresh.authenticationTTReissue() * 1000;
-					chnlInfo.canSendLoginReissue = true;
-				}
-				break;
-			case STATUS:
-				LoginStatus loginStatus = (LoginStatus)event.rdmLoginMsg();
-				System.out.println("Received Login StatusMsg");
-				if (loginStatus.checkHasState())
-		    	{
-					System.out.println("	" + loginStatus.state());
-		    	}
-				break;
-			default:
-				System.out.println("Received Unhandled Login Msg Type: " + msgType);
-				break;
-		}
-		
         return ReactorCallbackReturnCodes.SUCCESS;
-	}
+    }
 
-	@Override
-	public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)
-	{
-		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
-		DirectoryMsgType msgType = event.rdmDirectoryMsg().rdmMsgType();
+    @Override
+    public int rdmLoginMsgCallback(RDMLoginMsgEvent event)
+    {
+        ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+        LoginMsgType msgType = event.rdmLoginMsg().rdmMsgType();
 
-		switch (msgType)
-		{
-			case REFRESH:
-				DirectoryRefresh directoryRefresh = (DirectoryRefresh)event.rdmDirectoryMsg();
-				processServiceRefresh(directoryRefresh, chnlInfo);
+        switch (msgType)
+        {
+            case REFRESH:
+                System.out.println("Received Login Refresh for Username: " + ((LoginRefresh)event.rdmLoginMsg()).userName());
+                System.out.println(event.rdmLoginMsg().toString());
+
+                // save loginRefresh
+                ((LoginRefresh)event.rdmLoginMsg()).copy(chnlInfo.loginRefresh);
+
+                // set login stream id in MarketPriceHandler and
+                // YieldCurveHandler
+                chnlInfo.marketPriceHandler.loginStreamId(event.rdmLoginMsg().streamId());
+                chnlInfo.yieldCurveHandler.loginStreamId(event.rdmLoginMsg().streamId());
+
+                // get login reissue time from authenticationTTReissue
+                if (chnlInfo.loginRefresh.checkHasAuthenticationTTReissue())
+                {
+                    chnlInfo.loginReissueTime = chnlInfo.loginRefresh.authenticationTTReissue() * 1000;
+                    chnlInfo.canSendLoginReissue = true;
+                }
+                break;
+            case STATUS:
+                LoginStatus loginStatus = (LoginStatus)event.rdmLoginMsg();
+                System.out.println("Received Login StatusMsg");
+                if (loginStatus.checkHasState())
+                {
+                    System.out.println("	" + loginStatus.state());
+                }
+                break;
+            default:
+                System.out.println("Received Unhandled Login Msg Type: " + msgType);
+                break;
+        }
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
+
+    @Override
+    public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)
+    {
+        ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+        DirectoryMsgType msgType = event.rdmDirectoryMsg().rdmMsgType();
+
+        switch (msgType)
+        {
+            case REFRESH:
+                DirectoryRefresh directoryRefresh = (DirectoryRefresh)event.rdmDirectoryMsg();
+                processServiceRefresh(directoryRefresh, chnlInfo);
                 if (chnlInfo.serviceInfo.action() == MapEntryActions.DELETE)
                 {
                     error.text("rdmDirectoryMsgCallback(): DirectoryRefresh Failed: directory service is deleted");
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
-				break;
-			case UPDATE:
-				DirectoryUpdate directoryUpdate = (DirectoryUpdate)event.rdmDirectoryMsg();
+                break;
+            case UPDATE:
+                DirectoryUpdate directoryUpdate = (DirectoryUpdate)event.rdmDirectoryMsg();
                 processServiceUpdate(directoryUpdate, chnlInfo);
                 if (chnlInfo.serviceInfo.action() == MapEntryActions.DELETE)
                 {
@@ -841,14 +816,14 @@ public class Consumer implements ConsumerCallback
                 if (isRequestedServiceUp(chnlInfo) && !chnlInfo.requestsSent)
                 {
                     checkAndInitPostingSupport(chnlInfo);
-                    
-                    if ( !chnlInfo.itemWatchList.isEmpty() )
-        			{
-        				chnlInfo.itemWatchList.clear();
-        				if (chnlInfo.cacheInfo.cache != null)
-        					chnlInfo.cacheInfo.cache.clear();
-        			}
-                    
+
+                    if (!chnlInfo.itemWatchList.isEmpty())
+                    {
+                        chnlInfo.itemWatchList.clear();
+                        if (chnlInfo.cacheInfo.cache != null)
+                            chnlInfo.cacheInfo.cache.clear();
+                    }
+
                     sendMPRequests(chnlInfo);
                     sendMBORequests(chnlInfo);
                     sendMBPRequests(chnlInfo);
@@ -862,8 +837,7 @@ public class Consumer implements ConsumerCallback
                     {
                         if (queueMsgHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                         {
-                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                             {
                                 System.out.println(errorInfo.error().text());
                                 uninitialize();
@@ -872,13 +846,12 @@ public class Consumer implements ConsumerCallback
                         }
                     }
 
-                    if ((tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null && !tunnelStreamHandler._chnlInfo.isTunnelStreamUp) ||
-                    	(tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo == null))
+                    if ((tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null && !tunnelStreamHandler._chnlInfo.isTunnelStreamUp)
+                            || (tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo == null))
                     {
                         if (tunnelStreamHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                         {
-                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                             {
                                 System.out.println(errorInfo.error().text());
                                 uninitialize();
@@ -888,141 +861,139 @@ public class Consumer implements ConsumerCallback
                     }
                 }
 
-				break;
-			case CLOSE:
-				System.out.println("Received Source Directory Close");
-				break;
-			case STATUS:
-				DirectoryStatus directoryStatus = (DirectoryStatus)event.rdmDirectoryMsg();
-				System.out.println("\nReceived Source Directory StatusMsg");
-				if (directoryStatus.checkHasState())
-		    	{
-					System.out.println("	" + directoryStatus.state());
-		    	}
-				break;
-			default:
-				System.out.println("Received Unhandled Source Directory Msg Type: " + msgType);
-		    	break;
-		}
-		
-		return ReactorCallbackReturnCodes.SUCCESS;
-	}
+                break;
+            case CLOSE:
+                System.out.println("Received Source Directory Close");
+                break;
+            case STATUS:
+                DirectoryStatus directoryStatus = (DirectoryStatus)event.rdmDirectoryMsg();
+                System.out.println("\nReceived Source Directory StatusMsg");
+                if (directoryStatus.checkHasState())
+                {
+                    System.out.println("	" + directoryStatus.state());
+                }
+                break;
+            default:
+                System.out.println("Received Unhandled Source Directory Msg Type: " + msgType);
+                break;
+        }
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
 
     @Override
-	public int rdmDictionaryMsgCallback(RDMDictionaryMsgEvent event)
-	{
-		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
-		DictionaryMsgType msgType = event.rdmDictionaryMsg().rdmMsgType();
-		
-		// initialize dictionary
-		if (chnlInfo.dictionary == null)
-		{
-			chnlInfo.dictionary = CodecFactory.createDataDictionary();
-		}
-		
-		switch (msgType)
-		{
-			case REFRESH:
-				DictionaryRefresh dictionaryRefresh = (DictionaryRefresh)event.rdmDictionaryMsg();
+    public int rdmDictionaryMsgCallback(RDMDictionaryMsgEvent event)
+    {
+        ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+        DictionaryMsgType msgType = event.rdmDictionaryMsg().rdmMsgType();
 
-				if (dictionaryRefresh.checkHasInfo())
-				{
-					/* The first part of a dictionary refresh should contain information about its type.
-					 * Save this information and use it as subsequent parts arrive. */
-					switch(dictionaryRefresh.dictionaryType())
-					{
-						case Dictionary.Types.FIELD_DEFINITIONS:
-							chnlInfo.fieldDictionaryStreamId = dictionaryRefresh.streamId();
-							break;
-						case Dictionary.Types.ENUM_TABLES:
-							chnlInfo.enumDictionaryStreamId = dictionaryRefresh.streamId();
-							break;
-						default: 
-							System.out.println("Unknown dictionary type " + dictionaryRefresh.dictionaryType() + " from message on stream " + dictionaryRefresh.streamId());
-							chnlInfo.reactorChannel.close(errorInfo);
-							return ReactorCallbackReturnCodes.SUCCESS;
-					}
-				}
+        // initialize dictionary
+        if (chnlInfo.dictionary == null)
+        {
+            chnlInfo.dictionary = CodecFactory.createDataDictionary();
+        }
 
-				/* decode dictionary response */
+        switch (msgType)
+        {
+            case REFRESH:
+                DictionaryRefresh dictionaryRefresh = (DictionaryRefresh)event.rdmDictionaryMsg();
 
-		        // clear decode iterator
-				chnlInfo.dIter.clear();
+                if (dictionaryRefresh.checkHasInfo())
+                {
+                    /* The first part of a dictionary refresh should contain information about its type.
+                     * Save this information and use it as subsequent parts arrive. */
+                    switch (dictionaryRefresh.dictionaryType())
+                    {
+                        case Dictionary.Types.FIELD_DEFINITIONS:
+                            chnlInfo.fieldDictionaryStreamId = dictionaryRefresh.streamId();
+                            break;
+                        case Dictionary.Types.ENUM_TABLES:
+                            chnlInfo.enumDictionaryStreamId = dictionaryRefresh.streamId();
+                            break;
+                        default:
+                            System.out.println("Unknown dictionary type " + dictionaryRefresh.dictionaryType() + " from message on stream " + dictionaryRefresh.streamId());
+                            chnlInfo.reactorChannel.close(errorInfo);
+                            return ReactorCallbackReturnCodes.SUCCESS;
+                    }
+                }
 
-		        // set buffer and version info
-				chnlInfo.dIter.setBufferAndRWFVersion(dictionaryRefresh.dataBody(),
-													event.reactorChannel().majorVersion(),
-													event.reactorChannel().minorVersion());
+                /* decode dictionary response */
 
-				System.out.println("Received Dictionary Response: " + dictionaryRefresh.dictionaryName());
+                // clear decode iterator
+                chnlInfo.dIter.clear();
 
-				if (dictionaryRefresh.streamId() == chnlInfo.fieldDictionaryStreamId)
-				{
-					if (chnlInfo.dictionary.decodeFieldDictionary(chnlInfo.dIter, Dictionary.VerbosityValues.VERBOSE, error) == CodecReturnCodes.SUCCESS)
-					{
-						if (dictionaryRefresh.checkRefreshComplete())
-						{
-							if (chnlInfo.cacheInfo.useCache)
-								initializeCacheDictionary(chnlInfo.cacheInfo,chnlInfo.dictionary);
-							
-							System.out.println("Field Dictionary complete.");
-						}
-					}
-					else
-		    		{
-		    			System.out.println("Decoding Field Dictionary failed: " + error.text());
-						chnlInfo.reactorChannel.close(errorInfo);
-		    		}
-				}
-				else if (dictionaryRefresh.streamId() == chnlInfo.enumDictionaryStreamId)
-				{
-					if (chnlInfo.dictionary.decodeEnumTypeDictionary(chnlInfo.dIter, Dictionary.VerbosityValues.VERBOSE, error) == CodecReturnCodes.SUCCESS)
-					{
-						if (dictionaryRefresh.checkRefreshComplete())
-						{
-							System.out.println("EnumType Dictionary complete.");
-						}
-					}
-					else
-		    		{
-		    			System.out.println("Decoding EnumType Dictionary failed: " + error.text());
-						chnlInfo.reactorChannel.close(errorInfo);
-		    		}
-				}
-				else
-				{
-					System.out.println("Received unexpected dictionary message on stream " + dictionaryRefresh.streamId());
-				}
-				break;
-			case STATUS:
-				System.out.println("Received Dictionary StatusMsg");
-				break;
-			default:
-				System.out.println("Received Unhandled Dictionary Msg Type: " + msgType);
-				break;		
-		}
-		
-		return ReactorCallbackReturnCodes.SUCCESS;
-	}
-	
-	private void processServiceRefresh(DirectoryRefresh directoryRefresh, ChannelInfo chnlInfo)
-	{
+                // set buffer and version info
+                chnlInfo.dIter.setBufferAndRWFVersion(dictionaryRefresh.dataBody(), event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion());
+
+                System.out.println("Received Dictionary Response: " + dictionaryRefresh.dictionaryName());
+
+                if (dictionaryRefresh.streamId() == chnlInfo.fieldDictionaryStreamId)
+                {
+                    if (chnlInfo.dictionary.decodeFieldDictionary(chnlInfo.dIter, Dictionary.VerbosityValues.VERBOSE, error) == CodecReturnCodes.SUCCESS)
+                    {
+                        if (dictionaryRefresh.checkRefreshComplete())
+                        {
+                            if (chnlInfo.cacheInfo.useCache)
+                                initializeCacheDictionary(chnlInfo.cacheInfo, chnlInfo.dictionary);
+
+                            System.out.println("Field Dictionary complete.");
+                        }
+                    }
+                    else
+                    {
+                        System.out.println("Decoding Field Dictionary failed: " + error.text());
+                        chnlInfo.reactorChannel.close(errorInfo);
+                    }
+                }
+                else if (dictionaryRefresh.streamId() == chnlInfo.enumDictionaryStreamId)
+                {
+                    if (chnlInfo.dictionary.decodeEnumTypeDictionary(chnlInfo.dIter, Dictionary.VerbosityValues.VERBOSE, error) == CodecReturnCodes.SUCCESS)
+                    {
+                        if (dictionaryRefresh.checkRefreshComplete())
+                        {
+                            System.out.println("EnumType Dictionary complete.");
+                        }
+                    }
+                    else
+                    {
+                        System.out.println("Decoding EnumType Dictionary failed: " + error.text());
+                        chnlInfo.reactorChannel.close(errorInfo);
+                    }
+                }
+                else
+                {
+                    System.out.println("Received unexpected dictionary message on stream " + dictionaryRefresh.streamId());
+                }
+                break;
+            case STATUS:
+                System.out.println("Received Dictionary StatusMsg");
+                break;
+            default:
+                System.out.println("Received Unhandled Dictionary Msg Type: " + msgType);
+                break;
+        }
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+    }
+
+    private void processServiceRefresh(DirectoryRefresh directoryRefresh, ChannelInfo chnlInfo)
+    {
         String serviceName = chnlInfo.connectionArg.service();
         System.out.println("Received Source Directory Refresh");
         System.out.println(directoryRefresh.toString());
         for (Service service : directoryRefresh.serviceList())
         {
-            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.serviceInfo.serviceId() ) 
+            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.serviceInfo.serviceId())
             {
                 chnlInfo.serviceInfo.action(MapEntryActions.DELETE);
             }
-            
-            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId() ) 
+
+            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId())
             {
                 chnlInfo.qServiceInfo.action(MapEntryActions.DELETE);
             }
-            
-            if(service.info().serviceName().toString() != null)
+
+            if (service.info().serviceName().toString() != null)
             {
                 System.out.println("Received serviceName: " + service.info().serviceName() + "\n");
                 // cache service requested by the application
@@ -1033,11 +1004,10 @@ public class Consumer implements ConsumerCallback
                     {
                         System.out.println("Service.copy() failure");
                         uninitialize();
-                        System.exit(ReactorReturnCodes.FAILURE);                    
+                        System.exit(ReactorReturnCodes.FAILURE);
                     }
-					chnlInfo.hasServiceInfo = true;
-					setItemState(chnlInfo, service.state().status().streamState(), service.state().status().dataState(),
-	                		service.state().status().code() );
+                    chnlInfo.hasServiceInfo = true;
+                    setItemState(chnlInfo, service.state().status().streamState(), service.state().status().dataState(), service.state().status().code());
                 }
                 if (service.info().serviceName().toString().equals(qServiceName))
                 {
@@ -1046,15 +1016,15 @@ public class Consumer implements ConsumerCallback
                     {
                         System.out.println("Service.copy() failure");
                         uninitialize();
-                        System.exit(ReactorReturnCodes.FAILURE);                    
+                        System.exit(ReactorReturnCodes.FAILURE);
                     }
-                    
+
                     chnlInfo.hasQServiceInfo = true;
                 }
             }
         }
-	}
-	
+    }
+
     private void processServiceUpdate(DirectoryUpdate directoryUpdate, ChannelInfo chnlInfo)
     {
         String serviceName = chnlInfo.connectionArg.service();
@@ -1063,44 +1033,43 @@ public class Consumer implements ConsumerCallback
         System.out.println(directoryUpdate.toString());
         for (Service service : directoryUpdate.serviceList())
         {
-            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.serviceInfo.serviceId() ) 
+            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.serviceInfo.serviceId())
             {
                 chnlInfo.serviceInfo.action(MapEntryActions.DELETE);
             }
-            
-            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId() ) 
+
+            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId())
             {
                 chnlInfo.qServiceInfo.action(MapEntryActions.DELETE);
             }
-            
+
             boolean updateServiceInfo = false, updateQServiceInfo = false;
-            if(service.info().serviceName().toString() != null)
+            if (service.info().serviceName().toString() != null)
             {
                 System.out.println("Received serviceName: " + service.info().serviceName() + "\n");
-                // update service cache - assume cache is built with previous refresh message
-                if (service.info().serviceName().toString().equals(serviceName) ||
-                    service.serviceId() == chnlInfo.serviceInfo.serviceId())
+                // update service cache - assume cache is built with previous
+                // refresh message
+                if (service.info().serviceName().toString().equals(serviceName) || service.serviceId() == chnlInfo.serviceInfo.serviceId())
                 {
                     updateServiceInfo = true;
                 }
-                if (service.info().serviceName().toString().equals(qServiceName) ||
-                    service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+                if (service.info().serviceName().toString().equals(qServiceName) || service.serviceId() == chnlInfo.qServiceInfo.serviceId())
                 {
                     updateQServiceInfo = true;
                 }
             }
             else
             {
-            	if (service.serviceId() == chnlInfo.serviceInfo.serviceId())
-	            {
-	                updateServiceInfo = true;
-	            }
+                if (service.serviceId() == chnlInfo.serviceInfo.serviceId())
+                {
+                    updateServiceInfo = true;
+                }
                 if (service.serviceId() == chnlInfo.qServiceInfo.serviceId())
-	            {
-	                updateQServiceInfo = true;
-	            }
+                {
+                    updateQServiceInfo = true;
+                }
             }
-            
+
             if (updateServiceInfo)
             {
                 // update serviceInfo associated with requested service name
@@ -1108,11 +1077,10 @@ public class Consumer implements ConsumerCallback
                 {
                     System.out.println("Service.copy() failure");
                     uninitialize();
-                    System.exit(ReactorReturnCodes.FAILURE);                    
+                    System.exit(ReactorReturnCodes.FAILURE);
                 }
-                chnlInfo.hasServiceInfo = true;     
-                setItemState(chnlInfo, service.state().status().streamState(), service.state().status().dataState(),
-                		service.state().status().code() );
+                chnlInfo.hasServiceInfo = true;
+                setItemState(chnlInfo, service.state().status().streamState(), service.state().status().dataState(), service.state().status().code());
             }
             if (updateQServiceInfo)
             {
@@ -1121,26 +1089,24 @@ public class Consumer implements ConsumerCallback
                 {
                     System.out.println("Service.copy() failure");
                     uninitialize();
-                    System.exit(ReactorReturnCodes.FAILURE);                    
+                    System.exit(ReactorReturnCodes.FAILURE);
                 }
 
-                chnlInfo.hasQServiceInfo = true;                
+                chnlInfo.hasQServiceInfo = true;
             }
         }
     }
-    
+
     public boolean isRequestedServiceUp(ChannelInfo chnlInfo)
     {
-        return  chnlInfo.hasServiceInfo &&
-			chnlInfo.serviceInfo.checkHasState() && (!chnlInfo.serviceInfo.state().checkHasAcceptingRequests() ||
-                chnlInfo.serviceInfo.state().acceptingRequests() == 1) && chnlInfo.serviceInfo.state().serviceState() == 1;
+        return chnlInfo.hasServiceInfo && chnlInfo.serviceInfo.checkHasState() && (!chnlInfo.serviceInfo.state().checkHasAcceptingRequests() || chnlInfo.serviceInfo.state().acceptingRequests() == 1)
+                && chnlInfo.serviceInfo.state().serviceState() == 1;
     }
 
     public boolean isRequestedQServiceUp(ChannelInfo chnlInfo)
     {
-        return  chnlInfo.hasQServiceInfo &&
-            chnlInfo.qServiceInfo.checkHasState() && (!chnlInfo.qServiceInfo.state().checkHasAcceptingRequests() ||
-                chnlInfo.qServiceInfo.state().acceptingRequests() == 1) && chnlInfo.qServiceInfo.state().serviceState() == 1;
+        return chnlInfo.hasQServiceInfo && chnlInfo.qServiceInfo.checkHasState()
+                && (!chnlInfo.qServiceInfo.state().checkHasAcceptingRequests() || chnlInfo.qServiceInfo.state().acceptingRequests() == 1) && chnlInfo.qServiceInfo.state().serviceState() == 1;
     }
 
     private void checkAndInitPostingSupport(ChannelInfo chnlInfo)
@@ -1148,88 +1114,80 @@ public class Consumer implements ConsumerCallback
         if (!(chnlInfo.shouldOnStreamPost || chnlInfo.shouldOffStreamPost))
             return;
 
-        // set up posting if its enabled 
-        
+        // set up posting if its enabled
+
         // ensure that provider supports posting - if not, disable posting
-        if (!chnlInfo.loginRefresh.checkHasFeatures() ||
-                !chnlInfo.loginRefresh.features().checkHasSupportPost() ||
-                chnlInfo.loginRefresh.features().supportOMMPost() == 0)
+        if (!chnlInfo.loginRefresh.checkHasFeatures() || !chnlInfo.loginRefresh.features().checkHasSupportPost() || chnlInfo.loginRefresh.features().supportOMMPost() == 0)
         {
             // provider does not support posting, disable it
-        	chnlInfo.shouldOffStreamPost = false;
-        	chnlInfo.shouldOnStreamPost = false;
-        	chnlInfo.postHandler.enableOnstreamPost(false);
-        	chnlInfo.postHandler.enableOffstreamPost(false);
+            chnlInfo.shouldOffStreamPost = false;
+            chnlInfo.shouldOnStreamPost = false;
+            chnlInfo.postHandler.enableOnstreamPost(false);
+            chnlInfo.postHandler.enableOffstreamPost(false);
             System.out.println("Connected Provider does not support OMM Posting.  Disabling Post functionality.");
             return;
         }
-        
-        if ( consumerCmdLineParser.publisherId() != null && consumerCmdLineParser.publisherAddress() != null)
-        	chnlInfo.postHandler.setPublisherInfo(consumerCmdLineParser.publisherId(), consumerCmdLineParser.publisherAddress());
+
+        if (consumerCmdLineParser.publisherId() != null && consumerCmdLineParser.publisherAddress() != null)
+            chnlInfo.postHandler.setPublisherInfo(consumerCmdLineParser.publisherId(), consumerCmdLineParser.publisherAddress());
 
         // This sets up our basic timing so post messages will be sent
         // periodically
         chnlInfo.postHandler.initPostHandler();
     }
-	
+
     // on and off stream posting if enabled
     private void handlePosting()
     {
-    	for (ChannelInfo chnlInfo : chnlInfoList)
-    	{
-	    	if (chnlInfo.loginRefresh == null ||
-	    		chnlInfo.serviceInfo == null ||
-	    		chnlInfo.reactorChannel == null ||
-	    		chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
-	    	{
-	    		continue;
-	    	}
-	    	
-	        if (chnlInfo.postHandler.enableOnstreamPost())
-	        {
-	        	chnlInfo.postItemName.clear();
-	            int postStreamId = chnlInfo.marketPriceHandler.getFirstItem(chnlInfo.postItemName);
-	            if (postStreamId == 0 || chnlInfo.postItemName.length() == 0)
-	            {
-	                return;
-	            }
-	            chnlInfo.postHandler.streamId(postStreamId);
-	            chnlInfo.postHandler.serviceId(chnlInfo.serviceInfo.serviceId());
-	            chnlInfo.postHandler.dictionary(chnlInfo.dictionary);
-	            chnlInfo.postHandler.postItemName().data(chnlInfo.postItemName.data(), chnlInfo.postItemName.position(), chnlInfo.postItemName.length());
-	
-	            int ret = chnlInfo.postHandler.handlePosts(chnlInfo.reactorChannel, errorInfo);
-	            if (ret < CodecReturnCodes.SUCCESS)
-	                System.out.println("Error posting onstream: " + error.text());
-	        }
-	        if (chnlInfo.postHandler.enableOffstreamPost())
-	        {
-	        	chnlInfo.postHandler.streamId(chnlInfo.loginRefresh.streamId());
-	        	chnlInfo.postHandler.postItemName().data("OFFPOST");
-	        	chnlInfo.postHandler.serviceId(chnlInfo.serviceInfo.serviceId());
-	        	chnlInfo.postHandler.dictionary(chnlInfo.dictionary);
-	            int ret = chnlInfo.postHandler.handlePosts(chnlInfo.reactorChannel, errorInfo);
-	            if (ret < CodecReturnCodes.SUCCESS)
-	                System.out.println("Error posting offstream: " + error.text());
-	        }
-    	}
+        for (ChannelInfo chnlInfo : chnlInfoList)
+        {
+            if (chnlInfo.loginRefresh == null || chnlInfo.serviceInfo == null || chnlInfo.reactorChannel == null || chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
+            {
+                continue;
+            }
+
+            if (chnlInfo.postHandler.enableOnstreamPost())
+            {
+                chnlInfo.postItemName.clear();
+                int postStreamId = chnlInfo.marketPriceHandler.getFirstItem(chnlInfo.postItemName);
+                if (postStreamId == 0 || chnlInfo.postItemName.length() == 0)
+                {
+                    return;
+                }
+                chnlInfo.postHandler.streamId(postStreamId);
+                chnlInfo.postHandler.serviceId(chnlInfo.serviceInfo.serviceId());
+                chnlInfo.postHandler.dictionary(chnlInfo.dictionary);
+                chnlInfo.postHandler.postItemName().data(chnlInfo.postItemName.data(), chnlInfo.postItemName.position(), chnlInfo.postItemName.length());
+
+                int ret = chnlInfo.postHandler.handlePosts(chnlInfo.reactorChannel, errorInfo);
+                if (ret < CodecReturnCodes.SUCCESS)
+                    System.out.println("Error posting onstream: " + error.text());
+            }
+            if (chnlInfo.postHandler.enableOffstreamPost())
+            {
+                chnlInfo.postHandler.streamId(chnlInfo.loginRefresh.streamId());
+                chnlInfo.postHandler.postItemName().data("OFFPOST");
+                chnlInfo.postHandler.serviceId(chnlInfo.serviceInfo.serviceId());
+                chnlInfo.postHandler.dictionary(chnlInfo.dictionary);
+                int ret = chnlInfo.postHandler.handlePosts(chnlInfo.reactorChannel, errorInfo);
+                if (ret < CodecReturnCodes.SUCCESS)
+                    System.out.println("Error posting offstream: " + error.text());
+            }
+        }
     }
 
     private void handleQueueMessaging()
     {
         for (ChannelInfo chnlInfo : chnlInfoList)
         {
-            if (chnlInfo.loginRefresh == null ||
-                chnlInfo.serviceInfo == null ||
-                chnlInfo.reactorChannel == null ||
-                chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
+            if (chnlInfo.loginRefresh == null || chnlInfo.serviceInfo == null || chnlInfo.reactorChannel == null || chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
             {
                 continue;
             }
-            
+
             if (queueMsgHandler != null)
             {
-                queueMsgHandler.sendQueueMsg(chnlInfo.reactorChannel);                 
+                queueMsgHandler.sendQueueMsg(chnlInfo.reactorChannel);
             }
         }
     }
@@ -1238,17 +1196,14 @@ public class Consumer implements ConsumerCallback
     {
         for (ChannelInfo chnlInfo : chnlInfoList)
         {
-            if (chnlInfo.loginRefresh == null ||
-                chnlInfo.serviceInfo == null ||
-                chnlInfo.reactorChannel == null ||
-                chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
+            if (chnlInfo.loginRefresh == null || chnlInfo.serviceInfo == null || chnlInfo.reactorChannel == null || chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
             {
                 continue;
             }
-            
+
             if (tunnelStreamHandler != null)
             {
-                tunnelStreamHandler.sendMsg(chnlInfo.reactorChannel);                 
+                tunnelStreamHandler.sendMsg(chnlInfo.reactorChannel);
             }
         }
     }
@@ -1258,24 +1213,24 @@ public class Consumer implements ConsumerCallback
         switch (chnlInfo.responseMsg.domainType())
         {
             case DomainTypes.MARKET_PRICE:
-            	System.out.println("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
+                System.out.println("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
                 processMarketPriceResp(chnlInfo);
                 break;
             case DomainTypes.MARKET_BY_ORDER:
-            	System.out.print("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
+                System.out.print("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
                 processMarketByOrderResp(chnlInfo);
                 break;
             case DomainTypes.MARKET_BY_PRICE:
-            	System.out.print("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
+                System.out.print("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
                 processMarketByPriceResp(chnlInfo);
                 break;
             case DomainTypes.SYMBOL_LIST:
-            	System.out.println("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
+                System.out.println("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
                 processSymbolListResp(chnlInfo);
                 break;
             case DomainTypes.YIELD_CURVE:
-            	System.out.println("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
-            	processYieldCurveResp(chnlInfo);
+                System.out.println("(Channel " + chnlInfo.reactorChannel.selectableChannel() + "):");
+                processYieldCurveResp(chnlInfo);
                 break;
             default:
                 System.out.println("Unhandled Domain Type: " + chnlInfo.responseMsg.domainType());
@@ -1285,9 +1240,7 @@ public class Consumer implements ConsumerCallback
 
     private void processSymbolListResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.symbolListHandler.processResponse(chnlInfo.responseMsg,
-        											chnlInfo.dIter,
-        											chnlInfo.dictionary) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.symbolListHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
@@ -1297,11 +1250,7 @@ public class Consumer implements ConsumerCallback
 
     private void processMarketByPriceResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.marketByPriceHandler.processResponse(chnlInfo.responseMsg,
-        												chnlInfo.dIter,
-        												chnlInfo.dictionary,
-        												chnlInfo.cacheInfo,
-        												errorInfo) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.marketByPriceHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary, chnlInfo.cacheInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
@@ -1311,11 +1260,7 @@ public class Consumer implements ConsumerCallback
 
     private void processMarketByOrderResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.marketByOrderHandler.processResponse(chnlInfo.responseMsg,
-														chnlInfo.dIter,
-														chnlInfo.dictionary,
-														chnlInfo.cacheInfo,
-														errorInfo) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.marketByOrderHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary, chnlInfo.cacheInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
@@ -1325,40 +1270,31 @@ public class Consumer implements ConsumerCallback
 
     private void processMarketPriceResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.marketPriceHandler.processResponse(chnlInfo.responseMsg,
-														chnlInfo.dIter,
-														chnlInfo.dictionary,
-														chnlInfo.cacheInfo,
-														errorInfo) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.marketPriceHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary, chnlInfo.cacheInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
             System.exit(ReactorReturnCodes.FAILURE);
         }
     }
-    
+
     private void processYieldCurveResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.yieldCurveHandler.processResponse(chnlInfo.responseMsg,
-													chnlInfo.dIter,
-													chnlInfo.dictionary,
-													chnlInfo.cacheInfo,
-													errorInfo) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.yieldCurveHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary, chnlInfo.cacheInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
             System.exit(ReactorReturnCodes.FAILURE);
         }
     }
-    
+
     /* Load dictionary from file. */
-	void loadDictionary()
+    void loadDictionary()
     {
         dictionary.clear();
         if (dictionary.loadFieldDictionary(FIELD_DICTIONARY_FILE_NAME, error) < 0)
         {
-            System.out.println("Unable to load field dictionary.  Will attempt to download from provider.\n\tText: "
-                    + error.text());
+            System.out.println("Unable to load field dictionary.  Will attempt to download from provider.\n\tText: " + error.text());
         }
         else
         {
@@ -1367,61 +1303,58 @@ public class Consumer implements ConsumerCallback
 
         if (dictionary.loadEnumTypeDictionary(ENUM_TABLE_FILE_NAME, error) < 0)
         {
-            System.out.println("Unable to load enum dictionary.  Will attempt to download from provider.\n\tText: "
-                        + error.text());
+            System.out.println("Unable to load enum dictionary.  Will attempt to download from provider.\n\tText: " + error.text());
         }
         else
         {
             enumTypeDictionaryLoadedFromFile = true;
         }
     }
-	
-	// load FIX dictionary to support FIX Protocol
-	void loadFixDictionary()
-	{      
+
+    // load FIX dictionary to support FIX Protocol
+    void loadFixDictionary()
+    {
         fixdictionary.clear();
         if (fixdictionary.loadFieldDictionary(FIX_FIELD_DICTIONARY_FILE_NAME, error) < 0)
         {
-            System.out.println("\nUnable to load FIX field dictionary. \n\tText: "
-                        + error.text() + "\n");
+            System.out.println("\nUnable to load FIX field dictionary. \n\tText: " + error.text() + "\n");
             uninitialize();
             System.exit(ReactorReturnCodes.FAILURE);
         }
 
         if (fixdictionary.loadEnumTypeDictionary(FIX_ENUM_TABLE_FILE_NAME, error) < 0)
         {
-            System.out.println("\nUnable to load FIX enum dictionary. \n\tText: "
-                        + error.text() + "\n");
+            System.out.println("\nUnable to load FIX enum dictionary. \n\tText: " + error.text() + "\n");
             uninitialize();
             System.exit(ReactorReturnCodes.FAILURE);
-        }	    
-	}
+        }
+    }
 
-	private void initChannelInfo(ChannelInfo chnlInfo)
-	{
-        // set up consumer role   
-		chnlInfo.consumerRole.defaultMsgCallback(this);
-		chnlInfo.consumerRole.channelEventCallback(this);
-		chnlInfo.consumerRole.loginMsgCallback(this);
-		chnlInfo.consumerRole.directoryMsgCallback(this);
-        if (fieldDictionaryLoadedFromFile == false ||
-        	enumTypeDictionaryLoadedFromFile == false)
+    private void initChannelInfo(ChannelInfo chnlInfo)
+    {
+        // set up consumer role
+        chnlInfo.consumerRole.defaultMsgCallback(this);
+        chnlInfo.consumerRole.channelEventCallback(this);
+        chnlInfo.consumerRole.loginMsgCallback(this);
+        chnlInfo.consumerRole.directoryMsgCallback(this);
+        if (fieldDictionaryLoadedFromFile == false || enumTypeDictionaryLoadedFromFile == false)
         {
-        	chnlInfo.consumerRole.dictionaryMsgCallback(this);
+            chnlInfo.consumerRole.dictionaryMsgCallback(this);
         }
 
         // initialize consumer role to default
         chnlInfo.consumerRole.initDefaultRDMLoginRequest();
         chnlInfo.consumerRole.initDefaultRDMDirectoryRequest();
 
-		// use command line login user name if specified
+        // use command line login user name if specified
         if (consumerCmdLineParser.userName() != null && !consumerCmdLineParser.userName().equals(""))
         {
             LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
             loginRequest.userName().data(consumerCmdLineParser.userName());
         }
-        
-        // use command line authentication token and extended authentication information if specified
+
+        // use command line authentication token and extended authentication
+        // information if specified
         if (consumerCmdLineParser.authenticationToken() != null && !consumerCmdLineParser.authenticationToken().equals(""))
         {
             LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
@@ -1430,30 +1363,28 @@ public class Consumer implements ConsumerCallback
 
             if (consumerCmdLineParser.authenticationExtended() != null && !consumerCmdLineParser.authenticationExtended().equals(""))
             {
-            	loginRequest.applyHasAuthenticationExtended();
+                loginRequest.applyHasAuthenticationExtended();
                 loginRequest.authenticationExtended().data(consumerCmdLineParser.authenticationExtended());
             }
         }
-        
+
         // use command line application id if specified
         if (consumerCmdLineParser.applicationId() != null && !consumerCmdLineParser.applicationId().equals(""))
         {
             LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
             loginRequest.attrib().applicationId().data(consumerCmdLineParser.applicationId());
         }
-        
-        // if unable to load from file and no queue messaging, enable consumer to download dictionary
-        if ((fieldDictionaryLoadedFromFile == false ||
-            enumTypeDictionaryLoadedFromFile == false) &&
-            chnlInfo.connectionArg.qSource() == null)
+
+        // if unable to load from file and no queue messaging, enable consumer
+        // to download dictionary
+        if ((fieldDictionaryLoadedFromFile == false || enumTypeDictionaryLoadedFromFile == false) && chnlInfo.connectionArg.qSource() == null)
         {
-        	chnlInfo.consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
+            chnlInfo.consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
         }
 
-        if (fieldDictionaryLoadedFromFile == true &&
-        	enumTypeDictionaryLoadedFromFile == true)
+        if (fieldDictionaryLoadedFromFile == true && enumTypeDictionaryLoadedFromFile == true)
         {
-        	chnlInfo.dictionary = dictionary;
+            chnlInfo.dictionary = dictionary;
         }
         chnlInfo.shouldOffStreamPost = consumerCmdLineParser.enableOffpost();
         // this application requires at least one market price item to be
@@ -1461,18 +1392,18 @@ public class Consumer implements ConsumerCallback
         chnlInfo.shouldOnStreamPost = consumerCmdLineParser.enablePost();
         if (chnlInfo.shouldOnStreamPost)
         {
-        	boolean mpItemFound = false;
-        	if (chnlInfo.connectionArg.itemList() != null)
-        	{
-	        	for (ItemArg itemArg  : chnlInfo.connectionArg.itemList())
-	        	{
-	        		if (itemArg.domain() == DomainTypes.MARKET_PRICE)
-	        		{
-	        			mpItemFound = true;
-	        			break;
-	        		}
-	        	}
-        	}
+            boolean mpItemFound = false;
+            if (chnlInfo.connectionArg.itemList() != null)
+            {
+                for (ItemArg itemArg : chnlInfo.connectionArg.itemList())
+                {
+                    if (itemArg.domain() == DomainTypes.MARKET_PRICE)
+                    {
+                        mpItemFound = true;
+                        break;
+                    }
+                }
+            }
             if (mpItemFound == false)
             {
                 System.out.println("\nPosting will not be performed for this channel as no Market Price items were requested");
@@ -1480,7 +1411,6 @@ public class Consumer implements ConsumerCallback
             }
         }
 
-                 
         chnlInfo.postHandler.enableOnstreamPost(chnlInfo.shouldOnStreamPost);
         chnlInfo.postHandler.enableOffstreamPost(chnlInfo.shouldOffStreamPost);
         chnlInfo.marketPriceHandler.snapshotRequest(consumerCmdLineParser.enableSnapshot());
@@ -1491,9 +1421,10 @@ public class Consumer implements ConsumerCallback
         chnlInfo.marketPriceHandler.viewRequest(consumerCmdLineParser.enableView());
         // create item lists from those specified on command line
         createItemLists(chnlInfo);
-        
+
         // set up reactor connect options
-        chnlInfo.connectOptions.reconnectAttemptLimit(-1); // attempt to recover forever
+        chnlInfo.connectOptions.reconnectAttemptLimit(-1); // attempt to recover
+                                                           // forever
         chnlInfo.connectOptions.reconnectMinDelay(1000); // 1 second minimum
         chnlInfo.connectOptions.reconnectMaxDelay(60000); // 60 second maximum
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
@@ -1506,8 +1437,8 @@ public class Consumer implements ConsumerCallback
         // add backup connection if specified
         if (consumerCmdLineParser.backupHostname() != null && consumerCmdLineParser.backupPort() != null)
         {
-        	ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
-        	chnlInfo.connectOptions.connectionList().add(connectInfo);
+            ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+            chnlInfo.connectOptions.connectionList().add(connectInfo);
             chnlInfo.connectOptions.connectionList().get(1).connectOptions().majorVersion(Codec.majorVersion());
             chnlInfo.connectOptions.connectionList().get(1).connectOptions().minorVersion(Codec.minorVersion());
             chnlInfo.connectOptions.connectionList().get(1).connectOptions().connectionType(chnlInfo.connectionArg.connectionType());
@@ -1516,29 +1447,28 @@ public class Consumer implements ConsumerCallback
             chnlInfo.connectOptions.connectionList().get(1).connectOptions().userSpecObject(chnlInfo);
             chnlInfo.connectOptions.connectionList().get(1).connectOptions().guaranteedOutputBuffers(1000);
         }
-        
 
-        // handler encrypted or http connection 
+        // handler encrypted or http connection
         chnlInfo.shouldEnableEncrypted = consumerCmdLineParser.enableEncrypted();
-        chnlInfo.shouldEnableHttp = consumerCmdLineParser.enableHttp(); 
-         
+        chnlInfo.shouldEnableHttp = consumerCmdLineParser.enableHttp();
+
         if (chnlInfo.shouldEnableEncrypted)
         {
-        	ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(0).connectOptions();
-        	cOpt.connectionType(ConnectionTypes.ENCRYPTED);
-            cOpt.tunnelingInfo().tunnelingType("encrypted"); 
-            setEncryptedConfiguration(cOpt);        	           	        	
-        }        
+            ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(0).connectOptions();
+            cOpt.connectionType(ConnectionTypes.ENCRYPTED);
+            cOpt.tunnelingInfo().tunnelingType("encrypted");
+            setEncryptedConfiguration(cOpt);
+        }
         else if (chnlInfo.shouldEnableHttp)
         {
-        	ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(0).connectOptions();
+            ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(0).connectOptions();
             cOpt.connectionType(ConnectionTypes.HTTP);
-            cOpt.tunnelingInfo().tunnelingType("http"); 
+            cOpt.tunnelingInfo().tunnelingType("http");
             setHTTPConfiguration(cOpt);
-        } 
+        }
 
         // handle queue messaging and tunnel stream configuration
-        
+
         // exit program if both queue messaging and tunnel stream are configured
         if (chnlInfo.connectionArg.tunnel() && chnlInfo.connectionArg.qSource() != null && !chnlInfo.connectionArg.qSource().equals(""))
         {
@@ -1546,18 +1476,18 @@ public class Consumer implements ConsumerCallback
             uninitialize();
             System.exit(ReactorReturnCodes.FAILURE);
         }
-        
+
         // handle queue messaging configuration
         if (chnlInfo.connectionArg.qSource() != null && !chnlInfo.connectionArg.qSource().equals("") && queueMsgHandler == null)
         {
             if (chnlInfo.connectionArg.qDestList().size() <= MAX_QUEUE_DESTINATIONS)
             {
                 qServiceName = chnlInfo.connectionArg.qService();
-                queueMsgHandler = new QueueMsgHandler(chnlInfo.connectionArg.qSource(),
-                                                      chnlInfo.connectionArg.qDestList(),
-                                                      fixdictionary, chnlInfo.connectionArg.tunnelAuth(), chnlInfo.connectionArg.tunnelDomain() );
+                queueMsgHandler = new QueueMsgHandler(chnlInfo.connectionArg.qSource(), chnlInfo.connectionArg.qDestList(), fixdictionary, chnlInfo.connectionArg.tunnelAuth(),
+                        chnlInfo.connectionArg.tunnelDomain());
             }
-            else // exit if too many queue destinations entered
+            else
+            // exit if too many queue destinations entered
             {
                 System.err.println("\nError: Example only supports " + MAX_QUEUE_DESTINATIONS + " queue destination names.\n");
                 consumerCmdLineParser.printUsage();
@@ -1571,325 +1501,320 @@ public class Consumer implements ConsumerCallback
             qServiceName = chnlInfo.connectionArg.qService();
             tunnelStreamHandler = new TunnelStreamHandler(chnlInfo.connectionArg.tunnelAuth(), chnlInfo.connectionArg.tunnelDomain());
         }
-        
-        // APIQA:  Handle tunnel stream buffer size configuration
+
+        // APIQA: Handle tunnel stream buffer size configuration
         if (tunnelStreamHandler != null)
         {
-        	tunnelStreamHandler.setTunnelBufSize(consumerCmdLineParser.tunnelBufSize());
-        	tunnelStreamHandler.setTunnelFillSize(consumerCmdLineParser.tunnelFillSize());
+            tunnelStreamHandler.setTunnelBufSize(consumerCmdLineParser.tunnelBufSize());
+            tunnelStreamHandler.setTunnelFillSize(consumerCmdLineParser.tunnelFillSize());
         }
         // END APIQA:
-        
+
         if (consumerCmdLineParser.cacheOption())
         {
-        	initializeCache(chnlInfo.cacheInfo);
-        	if (chnlInfo.dictionary != null)
-        		initializeCacheDictionary(chnlInfo.cacheInfo, chnlInfo.dictionary);
-        	
-        	if (cacheDisplayStr == null)
-        	{
-        		cacheDisplayStr = new StringBuilder();
-        		cacheEntryBuffer = CodecFactory.createBuffer();
-        		cacheEntryBuffer.data(ByteBuffer.allocate(6144)); 
-        	}
+            initializeCache(chnlInfo.cacheInfo);
+            if (chnlInfo.dictionary != null)
+                initializeCacheDictionary(chnlInfo.cacheInfo, chnlInfo.dictionary);
+
+            if (cacheDisplayStr == null)
+            {
+                cacheDisplayStr = new StringBuilder();
+                cacheEntryBuffer = CodecFactory.createBuffer();
+                cacheEntryBuffer.data(ByteBuffer.allocate(6144));
+            }
         }
-	}
-	
-	/*
+    }
+
+    /*
      * initializeCache
      */
     private void initializeCache(CacheInfo cacheInfo)
     {
-    	cacheInfo.useCache = true;
-    	cacheInfo.cacheOptions.maxItems(10000);
-    	cacheInfo.cacheDictionaryKey.data("cacheDictionary1");
-    	
-    	cacheInfo.cache = CacheFactory.createPayloadCache(cacheInfo.cacheOptions, cacheInfo.cacheError);
-    	if (cacheInfo.cache == null)
-    	{
-			System.out.println("Error: Failed to create cache. Error (" + cacheInfo.cacheError.errorId() + 
-						") : " + cacheInfo.cacheError.text());
-			cacheInfo.useCache = false;
-		}
-    	
-    	cacheInfo.cursor = CacheFactory.createPayloadCursor();
-    	if (cacheInfo.cursor == null)
-    	{
-			System.out.println("Error: Failed to create cache entry cursor.");
-			cacheInfo.useCache = false;
-		}
+        cacheInfo.useCache = true;
+        cacheInfo.cacheOptions.maxItems(10000);
+        cacheInfo.cacheDictionaryKey.data("cacheDictionary1");
+
+        cacheInfo.cache = CacheFactory.createPayloadCache(cacheInfo.cacheOptions, cacheInfo.cacheError);
+        if (cacheInfo.cache == null)
+        {
+            System.out.println("Error: Failed to create cache. Error (" + cacheInfo.cacheError.errorId() + ") : " + cacheInfo.cacheError.text());
+            cacheInfo.useCache = false;
+        }
+
+        cacheInfo.cursor = CacheFactory.createPayloadCursor();
+        if (cacheInfo.cursor == null)
+        {
+            System.out.println("Error: Failed to create cache entry cursor.");
+            cacheInfo.useCache = false;
+        }
     }
-    
+
     /*
      * unintializeCache
      */
     private void uninitializeCache(CacheInfo cacheInfo)
     {
-    	if (cacheInfo.cache != null)
-    		cacheInfo.cache.destroy();
-    	cacheInfo.cache = null;
+        if (cacheInfo.cache != null)
+            cacheInfo.cache.destroy();
+        cacheInfo.cache = null;
 
-    	if (cacheInfo.cursor != null)
-    		cacheInfo.cursor.destroy();
-    	cacheInfo.cursor = null;
+        if (cacheInfo.cursor != null)
+            cacheInfo.cursor.destroy();
+        cacheInfo.cursor = null;
     }
-    
+
     /*
      * initalizeCacheDictionary
      */
     private void initializeCacheDictionary(CacheInfo cacheInfo, DataDictionary dictionary)
     {
-    	if (dictionary != null)
-		{
-    		if ( cacheInfo.cache.setDictionary(dictionary,	cacheInfo.cacheDictionaryKey.toString(),
-    										cacheInfo.cacheError) != CodecReturnCodes.SUCCESS )
-    		{
-    			System.out.println("Error: Failed to bind RDM Field dictionary to cache. Error (" + cacheInfo.cacheError.errorId() + 
-						") : " + cacheInfo.cacheError.text());
-				cacheInfo.useCache = false;
-    		}
-		}
-		else
-		{
-			System.out.println("Error: No RDM Field dictionary for cache.\n");
-			cacheInfo.useCache = false;
-		}
+        if (dictionary != null)
+        {
+            if (cacheInfo.cache.setDictionary(dictionary, cacheInfo.cacheDictionaryKey.toString(), cacheInfo.cacheError) != CodecReturnCodes.SUCCESS)
+            {
+                System.out.println("Error: Failed to bind RDM Field dictionary to cache. Error (" + cacheInfo.cacheError.errorId() + ") : " + cacheInfo.cacheError.text());
+                cacheInfo.useCache = false;
+            }
+        }
+        else
+        {
+            System.out.println("Error: No RDM Field dictionary for cache.\n");
+            cacheInfo.useCache = false;
+        }
     }
-    
+
     private void displayCache(ChannelInfo chnlInfo)
     {
-    	System.out.println("\nStarting Cache Display ");
+        System.out.println("\nStarting Cache Display ");
 
-    	if (chnlInfo.reactorChannel != null)
-    	{
-    		cacheDisplayStr.setLength(0);
-    		cacheDisplayStr.append("Channel :");
-    		cacheDisplayStr.append(chnlInfo.reactorChannel.channel().selectableChannel());
-    		System.out.println(cacheDisplayStr.toString());
-    	}
-    	
-    	if (chnlInfo.dictionary == null)
-    	{
-    		System.out.println("\tDictionary for decoding cache entries is not available\n");
-    		return;
-    	}
+        if (chnlInfo.reactorChannel != null)
+        {
+            cacheDisplayStr.setLength(0);
+            cacheDisplayStr.append("Channel :");
+            cacheDisplayStr.append(chnlInfo.reactorChannel.channel().selectableChannel());
+            System.out.println(cacheDisplayStr.toString());
+        }
 
-    	if (chnlInfo.cacheInfo.cache != null)
-    	{
-    		cacheDisplayStr.setLength(0);
-    		cacheDisplayStr.append("Total Items in Cache: ");
-    		cacheDisplayStr.append(chnlInfo.cacheInfo.cache.entryCount());
-    		cacheDisplayStr.append("\n");
-    		System.out.println(cacheDisplayStr.toString());
-    	}
+        if (chnlInfo.dictionary == null)
+        {
+            System.out.println("\tDictionary for decoding cache entries is not available\n");
+            return;
+        }
 
-    	displayCacheDomain(chnlInfo, DomainTypes.MARKET_PRICE, false);
-    	displayCacheDomain(chnlInfo, DomainTypes.MARKET_PRICE, true);
+        if (chnlInfo.cacheInfo.cache != null)
+        {
+            cacheDisplayStr.setLength(0);
+            cacheDisplayStr.append("Total Items in Cache: ");
+            cacheDisplayStr.append(chnlInfo.cacheInfo.cache.entryCount());
+            cacheDisplayStr.append("\n");
+            System.out.println(cacheDisplayStr.toString());
+        }
 
-    	displayCacheDomain(chnlInfo, DomainTypes.MARKET_BY_ORDER, false);
-    	displayCacheDomain(chnlInfo, DomainTypes.MARKET_BY_ORDER, true);
+        displayCacheDomain(chnlInfo, DomainTypes.MARKET_PRICE, false);
+        displayCacheDomain(chnlInfo, DomainTypes.MARKET_PRICE, true);
 
-    	displayCacheDomain(chnlInfo, DomainTypes.MARKET_BY_PRICE, false);
-    	displayCacheDomain(chnlInfo, DomainTypes.MARKET_BY_PRICE, true);
+        displayCacheDomain(chnlInfo, DomainTypes.MARKET_BY_ORDER, false);
+        displayCacheDomain(chnlInfo, DomainTypes.MARKET_BY_ORDER, true);
 
-    	displayCacheDomain(chnlInfo, DomainTypes.YIELD_CURVE, false);
-    	displayCacheDomain(chnlInfo, DomainTypes.YIELD_CURVE, true);
+        displayCacheDomain(chnlInfo, DomainTypes.MARKET_BY_PRICE, false);
+        displayCacheDomain(chnlInfo, DomainTypes.MARKET_BY_PRICE, true);
 
-    	System.out.println("Cache Display Complete\n");
+        displayCacheDomain(chnlInfo, DomainTypes.YIELD_CURVE, false);
+        displayCacheDomain(chnlInfo, DomainTypes.YIELD_CURVE, true);
+
+        System.out.println("Cache Display Complete\n");
     }
 
     private void displayCacheDomain(ChannelInfo chnlInfo, int domainType, boolean isPrivateStream)
     {
-		Iterator<Map.Entry<StreamIdKey, WatchListEntry>> iter = chnlInfo.itemWatchList.iterator();
-	    while (iter.hasNext())
-	    {
-	        WatchListEntry entry = iter.next().getValue();
-		
-			if (entry.cacheEntry != null && entry.domainType == domainType && entry.isPrivateStream == isPrivateStream)
-			{
-				cacheDisplayStr.setLength(0);
-				cacheDisplayStr.append("ItemName: ");
-				cacheDisplayStr.append(entry.itemName);
-		    	cacheDisplayStr.append("\n");
-		    	cacheDisplayStr.append("Domain:\t");
-		    	cacheDisplayStr.append(DomainTypes.toString(domainType));
-				if (isPrivateStream)
-					cacheDisplayStr.append("\tPrivate Stream");
-				cacheDisplayStr.append("\n");
+        Iterator<Map.Entry<StreamIdKey, WatchListEntry>> iter = chnlInfo.itemWatchList.iterator();
+        while (iter.hasNext())
+        {
+            WatchListEntry entry = iter.next().getValue();
 
-		    	cacheDisplayStr.append(entry.itemState.toString());
-		    	cacheDisplayStr.append("\n");
-		    	System.out.println(cacheDisplayStr.toString());
-		    	
-		    	int ret = decodeEntryFromCache(chnlInfo, entry.cacheEntry, domainType);
-				if (ret != CodecReturnCodes.SUCCESS)
-				{
-					cacheDisplayStr.setLength(0);
-					cacheDisplayStr.append("Error decoding cache content: "); 
-		    		cacheDisplayStr.append(ret);		
-		    		System.out.println(cacheDisplayStr.toString());
-				}
-			}
-			else if (entry.domainType == domainType && entry.isPrivateStream == isPrivateStream)
-			{
-				if ( entry.itemState.streamState() == StreamStates.CLOSED )
-					continue;
+            if (entry.cacheEntry != null && entry.domainType == domainType && entry.isPrivateStream == isPrivateStream)
+            {
+                cacheDisplayStr.setLength(0);
+                cacheDisplayStr.append("ItemName: ");
+                cacheDisplayStr.append(entry.itemName);
+                cacheDisplayStr.append("\n");
+                cacheDisplayStr.append("Domain:\t");
+                cacheDisplayStr.append(DomainTypes.toString(domainType));
+                if (isPrivateStream)
+                    cacheDisplayStr.append("\tPrivate Stream");
+                cacheDisplayStr.append("\n");
 
-				cacheDisplayStr.setLength(0);
-				cacheDisplayStr.append(entry.itemName); 
-	    		cacheDisplayStr.append("\tno data in cache\n");		
-	    		System.out.println(cacheDisplayStr.toString());
-			}
-		}
+                cacheDisplayStr.append(entry.itemState.toString());
+                cacheDisplayStr.append("\n");
+                System.out.println(cacheDisplayStr.toString());
+
+                int ret = decodeEntryFromCache(chnlInfo, entry.cacheEntry, domainType);
+                if (ret != CodecReturnCodes.SUCCESS)
+                {
+                    cacheDisplayStr.setLength(0);
+                    cacheDisplayStr.append("Error decoding cache content: ");
+                    cacheDisplayStr.append(ret);
+                    System.out.println(cacheDisplayStr.toString());
+                }
+            }
+            else if (entry.domainType == domainType && entry.isPrivateStream == isPrivateStream)
+            {
+                if (entry.itemState.streamState() == StreamStates.CLOSED)
+                    continue;
+
+                cacheDisplayStr.setLength(0);
+                cacheDisplayStr.append(entry.itemName);
+                cacheDisplayStr.append("\tno data in cache\n");
+                System.out.println(cacheDisplayStr.toString());
+            }
+        }
     }
-    
+
     private int decodeEntryFromCache(ChannelInfo chnlInfo, PayloadEntry cacheEntry, int domainType)
     {
-    	int ret = CodecReturnCodes.SUCCESS;
-    	EncodeIterator eIter = CodecFactory.createEncodeIterator();
-    	DecodeIterator dIter = CodecFactory.createDecodeIterator();
-    	int majorVersion;
-    	int minorVersion;
+        int ret = CodecReturnCodes.SUCCESS;
+        EncodeIterator eIter = CodecFactory.createEncodeIterator();
+        DecodeIterator dIter = CodecFactory.createDecodeIterator();
+        int majorVersion;
+        int minorVersion;
 
-    	cacheEntryBuffer.data().clear();
-    	if (chnlInfo.reactorChannel != null)
-    	{
-    		majorVersion = chnlInfo.reactorChannel.majorVersion();
-    		minorVersion = chnlInfo.reactorChannel.minorVersion();
-    	}
-    	else
-    	{
-    		majorVersion =  chnlInfo.connectOptions.connectionList().get(0).connectOptions().majorVersion();
-    		minorVersion =  chnlInfo.connectOptions.connectionList().get(0).connectOptions().minorVersion();
-    	}
+        cacheEntryBuffer.data().clear();
+        if (chnlInfo.reactorChannel != null)
+        {
+            majorVersion = chnlInfo.reactorChannel.majorVersion();
+            minorVersion = chnlInfo.reactorChannel.minorVersion();
+        }
+        else
+        {
+            majorVersion = chnlInfo.connectOptions.connectionList().get(0).connectOptions().majorVersion();
+            minorVersion = chnlInfo.connectOptions.connectionList().get(0).connectOptions().minorVersion();
+        }
 
-    	eIter.clear();
-    	eIter.setBufferAndRWFVersion(cacheEntryBuffer, majorVersion, minorVersion);
+        eIter.clear();
+        eIter.setBufferAndRWFVersion(cacheEntryBuffer, majorVersion, minorVersion);
 
-    	chnlInfo.cacheInfo.cursor.clear();
-    	if ( (ret = cacheEntry.retrieve(eIter, chnlInfo.cacheInfo.cursor, chnlInfo.cacheInfo.cacheError)) != CodecReturnCodes.SUCCESS)
-    	{
-    		cacheDisplayStr.setLength(0);
-	    	cacheDisplayStr.append("Failed retrieving cache entry.\n\tError ");
-	    	cacheDisplayStr.append(chnlInfo.cacheInfo.cacheError.errorId());
-	    	cacheDisplayStr.append(" : ");
-	    	cacheDisplayStr.append(chnlInfo.cacheInfo.cacheError.text());
-	    	System.out.println(cacheDisplayStr.toString());
-    		return ret;
-    	}
-    	else
-    	{
-    		dIter.clear();
-    		dIter.setBufferAndRWFVersion(cacheEntryBuffer, majorVersion, minorVersion);
-    		cacheDisplayStr.setLength(0);
-    		
-    		switch (domainType)
-    		{
-    		case DomainTypes.MARKET_PRICE:
-    			ret = chnlInfo.marketPriceHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
-    			break;
+        chnlInfo.cacheInfo.cursor.clear();
+        if ((ret = cacheEntry.retrieve(eIter, chnlInfo.cacheInfo.cursor, chnlInfo.cacheInfo.cacheError)) != CodecReturnCodes.SUCCESS)
+        {
+            cacheDisplayStr.setLength(0);
+            cacheDisplayStr.append("Failed retrieving cache entry.\n\tError ");
+            cacheDisplayStr.append(chnlInfo.cacheInfo.cacheError.errorId());
+            cacheDisplayStr.append(" : ");
+            cacheDisplayStr.append(chnlInfo.cacheInfo.cacheError.text());
+            System.out.println(cacheDisplayStr.toString());
+            return ret;
+        }
+        else
+        {
+            dIter.clear();
+            dIter.setBufferAndRWFVersion(cacheEntryBuffer, majorVersion, minorVersion);
+            cacheDisplayStr.setLength(0);
 
-    		case DomainTypes.MARKET_BY_ORDER:
-    			ret = chnlInfo.marketByOrderHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
-    			break;
+            switch (domainType)
+            {
+                case DomainTypes.MARKET_PRICE:
+                    ret = chnlInfo.marketPriceHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
+                    break;
 
-    		case DomainTypes.MARKET_BY_PRICE:
-    			ret = chnlInfo.marketByPriceHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
-    			break;
+                case DomainTypes.MARKET_BY_ORDER:
+                    ret = chnlInfo.marketByOrderHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
+                    break;
 
-    		case DomainTypes.YIELD_CURVE:
-    			ret = chnlInfo.yieldCurveHandler.decodePayload(dIter, dictionary);
-    			break;
+                case DomainTypes.MARKET_BY_PRICE:
+                    ret = chnlInfo.marketByPriceHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
+                    break;
 
-    		default:
-    			break;
-    		}
-    		if (ret > CodecReturnCodes.SUCCESS)
-    			ret = CodecReturnCodes.SUCCESS;
-    	}
+                case DomainTypes.YIELD_CURVE:
+                    ret = chnlInfo.yieldCurveHandler.decodePayload(dIter, dictionary);
+                    break;
 
-    	return ret;
+                default:
+                    break;
+            }
+            if (ret > CodecReturnCodes.SUCCESS)
+                ret = CodecReturnCodes.SUCCESS;
+        }
+
+        return ret;
     }
 
-    private void setItemState(ChannelInfo chnlInfo, int streamState, int dataState, int stateCode )
+    private void setItemState(ChannelInfo chnlInfo, int streamState, int dataState, int stateCode)
     {
-		Iterator<Map.Entry<StreamIdKey, WatchListEntry>> iter = chnlInfo.itemWatchList.iterator();
-	    while (iter.hasNext())
-	    {
-	        WatchListEntry entry = iter.next().getValue();
-	        entry.itemState.streamState(streamState);
-	        entry.itemState.dataState(dataState);
-	        entry.itemState.code(stateCode);
-	    }
+        Iterator<Map.Entry<StreamIdKey, WatchListEntry>> iter = chnlInfo.itemWatchList.iterator();
+        while (iter.hasNext())
+        {
+            WatchListEntry entry = iter.next().getValue();
+            entry.itemState.streamState(streamState);
+            entry.itemState.dataState(dataState);
+            entry.itemState.code(stateCode);
+        }
     }
-    
+
     private void setEncryptedConfiguration(ConnectOptions options)
     {
-    	setHTTPConfiguration(options);
-    	
-    	String keyFile = consumerCmdLineParser.keyStoreFile();
-    	String keyPasswd = consumerCmdLineParser.keystorePassword();
+        setHTTPConfiguration(options);
+
+        String keyFile = consumerCmdLineParser.keyStoreFile();
+        String keyPasswd = consumerCmdLineParser.keystorePassword();
         if (keyFile == null)
         {
-        	System.err.println("Error: Keystore file not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }                   
+            System.err.println("Error: Keystore file not provided.");
+            System.exit(CodecReturnCodes.FAILURE);
+        }
         if (keyPasswd == null)
         {
-        	System.err.println("Error: Keystore password not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }          
-    	    	
-    	options.tunnelingInfo().KeystoreFile(keyFile);
-        options.tunnelingInfo().KeystorePasswd(keyPasswd);   
+            System.err.println("Error: Keystore password not provided.");
+            System.exit(CodecReturnCodes.FAILURE);
+        }
+
+        options.tunnelingInfo().KeystoreFile(keyFile);
+        options.tunnelingInfo().KeystorePasswd(keyPasswd);
     }
 
-    
     private void setHTTPConfiguration(ConnectOptions options)
-    {    	
+    {
         options.tunnelingInfo().objectName("");
         options.tunnelingInfo().KeystoreType("JKS");
         options.tunnelingInfo().SecurityProtocol("TLS");
         options.tunnelingInfo().SecurityProvider("SunJSSE");
         options.tunnelingInfo().KeyManagerAlgorithm("SunX509");
         options.tunnelingInfo().TrustManagerAlgorithm("PKIX");
-    	
+
         if (consumerCmdLineParser.enableProxy())
         {
-         	String proxyHostName = consumerCmdLineParser.proxyHostname();
-            if ( proxyHostName == null)
+            String proxyHostName = consumerCmdLineParser.proxyHostname();
+            if (proxyHostName == null)
             {
-            	System.err.println("Error: Proxy hostname not provided.");  
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }           
+                System.err.println("Error: Proxy hostname not provided.");
+                System.exit(CodecReturnCodes.FAILURE);
+            }
             String proxyPort = consumerCmdLineParser.proxyPort();
-            if ( proxyPort == null)
+            if (proxyPort == null)
             {
-            	System.err.println("Error: Proxy port number not provided.");  
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }                             	
+                System.err.println("Error: Proxy port number not provided.");
+                System.exit(CodecReturnCodes.FAILURE);
+            }
 
-  
             options.tunnelingInfo().HTTPproxy(true);
             options.tunnelingInfo().HTTPproxyHostName(proxyHostName);
             try
             {
-            	options.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
+                options.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-               	System.err.println("Error: Proxy port number not provided.");  
-            	System.exit(CodecReturnCodes.FAILURE);            	
+                System.err.println("Error: Proxy port number not provided.");
+                System.exit(CodecReturnCodes.FAILURE);
             }
         }
-   
+
         // credentials
         if (options.tunnelingInfo().HTTPproxy())
         {
-            setCredentials(options);           
+            setCredentials(options);
         }
-    }    
-    
+    }
+
     /*
      * For BASIC authentication we need: HTTPproxyUsername, HTTPproxyPasswd For
      * NTLM authentication we need: HTTPproxyUsername, HTTPproxyPasswd,
@@ -1902,30 +1827,30 @@ public class Consumer implements ConsumerCallback
         String localIPaddress = null;
         String localHostName = null;
 
-    	String proxyUsername = consumerCmdLineParser.proxyUsername();
-        if ( proxyUsername == null)
+        String proxyUsername = consumerCmdLineParser.proxyUsername();
+        if (proxyUsername == null)
         {
-        	System.err.println("Error: Proxy username not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }    
-              
+            System.err.println("Error: Proxy username not provided.");
+            System.exit(CodecReturnCodes.FAILURE);
+        }
+
         String proxyPasswd = consumerCmdLineParser.proxyPassword();
-        if ( proxyPasswd == null)
+        if (proxyPasswd == null)
         {
-        	System.err.println("Error: Proxy password not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }     
+            System.err.println("Error: Proxy password not provided.");
+            System.exit(CodecReturnCodes.FAILURE);
+        }
         String proxyDomain = consumerCmdLineParser.proxyDomain();
-        if ( proxyDomain == null)
+        if (proxyDomain == null)
         {
-        	System.err.println("Error: Proxy domain not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }             
-    	    	
+            System.err.println("Error: Proxy domain not provided.");
+            System.exit(CodecReturnCodes.FAILURE);
+        }
+
         options.credentialsInfo().HTTPproxyUsername(proxyUsername);
         options.credentialsInfo().HTTPproxyPasswd(proxyPasswd);
         options.credentialsInfo().HTTPproxyDomain(proxyDomain);
-        
+
         try
         {
             localIPaddress = InetAddress.getLocalHost().getHostAddress();
@@ -1936,76 +1861,75 @@ public class Consumer implements ConsumerCallback
             localHostName = localIPaddress;
         }
         options.credentialsInfo().HTTPproxyLocalHostname(localHostName);
-        
+
         String proxyKrbfile = consumerCmdLineParser.krbFile();
         if (proxyKrbfile == null)
         {
-        	System.err.println("Error: Proxy krbfile not provided.");  
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }                              
-        options.credentialsInfo().HTTPproxyKRB5configFile(proxyKrbfile);          
-             
-    }	
-
-   
-	private void createItemLists(ChannelInfo chnlInfo)
-	{
-        // add specified items to item watch list
-	    if (chnlInfo.connectionArg.itemList() != null)
-	    {
-        for (ItemArg itemArg : chnlInfo.connectionArg.itemList())
-        {
-        	switch (itemArg.domain())
-        	{
-        		case DomainTypes.MARKET_PRICE:
-	        		if (!itemArg.enablePrivateStream())
-	        		{
-	        			chnlInfo.mpItemList.add(itemArg.itemName());
-	        		}
-	        		else
-	        		{
-	        			chnlInfo.mppsItemList.add(itemArg.itemName());	        			
-	        		}
-	        		break;
-        		case DomainTypes.MARKET_BY_ORDER:
-	        		if (!itemArg.enablePrivateStream())
-	        		{
-	        			chnlInfo.mboItemList.add(itemArg.itemName());
-	        		}
-	        		else
-	        		{
-	        			chnlInfo.mbopsItemList.add(itemArg.itemName());	        			
-	        		}
-	        		break;
-        		case DomainTypes.MARKET_BY_PRICE:
-	        		if (!itemArg.enablePrivateStream())
-	        		{
-	        			chnlInfo.mbpItemList.add(itemArg.itemName());
-	        		}
-	        		else
-	        		{
-	        			chnlInfo.mbppsItemList.add(itemArg.itemName());	        			
-	        		}
-	        		break;
-        		case DomainTypes.YIELD_CURVE:
-	        		if (!itemArg.enablePrivateStream())
-	        		{
-	        			chnlInfo.ycItemList.add(itemArg.itemName());
-	        		}
-	        		else
-	        		{
-	        			chnlInfo.ycpsItemList.add(itemArg.itemName());	        			
-	        		}
-	        		break;
-        		case DomainTypes.SYMBOL_LIST:
-        			chnlInfo.slItemList.add(itemArg.itemName());
-	        		break;
-        		default:
-	        		break;
-        	}
+            System.err.println("Error: Proxy krbfile not provided.");
+            System.exit(CodecReturnCodes.FAILURE);
         }
-	}
-	}
+        options.credentialsInfo().HTTPproxyKRB5configFile(proxyKrbfile);
+
+    }
+
+    private void createItemLists(ChannelInfo chnlInfo)
+    {
+        // add specified items to item watch list
+        if (chnlInfo.connectionArg.itemList() != null)
+        {
+            for (ItemArg itemArg : chnlInfo.connectionArg.itemList())
+            {
+                switch (itemArg.domain())
+                {
+                    case DomainTypes.MARKET_PRICE:
+                        if (!itemArg.enablePrivateStream())
+                        {
+                            chnlInfo.mpItemList.add(itemArg.itemName());
+                        }
+                        else
+                        {
+                            chnlInfo.mppsItemList.add(itemArg.itemName());
+                        }
+                        break;
+                    case DomainTypes.MARKET_BY_ORDER:
+                        if (!itemArg.enablePrivateStream())
+                        {
+                            chnlInfo.mboItemList.add(itemArg.itemName());
+                        }
+                        else
+                        {
+                            chnlInfo.mbopsItemList.add(itemArg.itemName());
+                        }
+                        break;
+                    case DomainTypes.MARKET_BY_PRICE:
+                        if (!itemArg.enablePrivateStream())
+                        {
+                            chnlInfo.mbpItemList.add(itemArg.itemName());
+                        }
+                        else
+                        {
+                            chnlInfo.mbppsItemList.add(itemArg.itemName());
+                        }
+                        break;
+                    case DomainTypes.YIELD_CURVE:
+                        if (!itemArg.enablePrivateStream())
+                        {
+                            chnlInfo.ycItemList.add(itemArg.itemName());
+                        }
+                        else
+                        {
+                            chnlInfo.ycpsItemList.add(itemArg.itemName());
+                        }
+                        break;
+                    case DomainTypes.SYMBOL_LIST:
+                        chnlInfo.slItemList.add(itemArg.itemName());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 
     private void sendSymbolListRequests(ChannelInfo chnlInfo)
     {
@@ -2037,16 +1961,15 @@ public class Consumer implements ConsumerCallback
         String cmdSLName = chnlInfo.slItemList.get(0);
         if (cmdSLName == null)
         {
-        	chnlInfo.symbolListHandler.symbolListName().data(info.itemList().data(), info.itemList().position(), info.itemList().length());
+            chnlInfo.symbolListHandler.symbolListName().data(info.itemList().data(), info.itemList().position(), info.itemList().length());
         }
         else
         {
-        	chnlInfo.symbolListHandler.symbolListName().data(cmdSLName);
+            chnlInfo.symbolListHandler.symbolListName().data(cmdSLName);
         }
         if (chnlInfo.symbolListHandler.sendRequest(chnlInfo.reactorChannel, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -2059,8 +1982,7 @@ public class Consumer implements ConsumerCallback
     {
         if (chnlInfo.marketByPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mbpItemList, false, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -2072,8 +1994,7 @@ public class Consumer implements ConsumerCallback
         {
             if (chnlInfo.marketByPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mbppsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
             {
-                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                    chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                 {
                     System.out.println(errorInfo.error().text());
                     uninitialize();
@@ -2088,8 +2009,7 @@ public class Consumer implements ConsumerCallback
     {
         if (chnlInfo.marketByOrderHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mboItemList, false, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -2101,8 +2021,7 @@ public class Consumer implements ConsumerCallback
         {
             if (chnlInfo.marketByOrderHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mbopsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
             {
-                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                    chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                 {
                     System.out.println(errorInfo.error().text());
                     uninitialize();
@@ -2117,8 +2036,7 @@ public class Consumer implements ConsumerCallback
     {
         if (chnlInfo.marketPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mpItemList, false, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -2130,8 +2048,7 @@ public class Consumer implements ConsumerCallback
         {
             if (chnlInfo.marketPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mppsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
             {
-                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                    chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                 {
                     System.out.println(errorInfo.error().text());
                     uninitialize();
@@ -2146,8 +2063,7 @@ public class Consumer implements ConsumerCallback
     {
         if (chnlInfo.yieldCurveHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.ycItemList, false, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -2159,8 +2075,7 @@ public class Consumer implements ConsumerCallback
         {
             if (chnlInfo.yieldCurveHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.ycpsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
             {
-                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                    chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                 {
                     System.out.println(errorInfo.error().text());
                     uninitialize();
@@ -2169,109 +2084,105 @@ public class Consumer implements ConsumerCallback
             }
             chnlInfo.ycpsRequestSent = true;
         }
-    }    
-    
+    }
+
     private void closeItemStreams(ChannelInfo chnlInfo)
     {
         // have offstream posting post close status
-    	if (chnlInfo.shouldOffStreamPost)
-    	{
-    		chnlInfo.postHandler.streamId(chnlInfo.loginRefresh.streamId());
-    		chnlInfo.postHandler.postItemName().data("OFFPOST");
-    		chnlInfo.postHandler.serviceId(chnlInfo.serviceInfo.serviceId());
-    		chnlInfo.postHandler.dictionary(chnlInfo.dictionary);
-    		chnlInfo.postHandler.closeOffStreamPost(chnlInfo.reactorChannel, errorInfo);
-    	}
+        if (chnlInfo.shouldOffStreamPost)
+        {
+            chnlInfo.postHandler.streamId(chnlInfo.loginRefresh.streamId());
+            chnlInfo.postHandler.postItemName().data("OFFPOST");
+            chnlInfo.postHandler.serviceId(chnlInfo.serviceInfo.serviceId());
+            chnlInfo.postHandler.dictionary(chnlInfo.dictionary);
+            chnlInfo.postHandler.closeOffStreamPost(chnlInfo.reactorChannel, errorInfo);
+        }
 
         // close item streams if opened
-    	chnlInfo.marketPriceHandler.closeStreams(chnlInfo.reactorChannel, errorInfo);
-    	chnlInfo.marketByOrderHandler.closeStreams(chnlInfo.reactorChannel, errorInfo);
-    	chnlInfo.marketByPriceHandler.closeStreams(chnlInfo.reactorChannel, errorInfo);
-    	chnlInfo.symbolListHandler.closeStream(chnlInfo.reactorChannel, errorInfo);
-    	chnlInfo.yieldCurveHandler.closeStreams(chnlInfo.reactorChannel, errorInfo);
-	}
+        chnlInfo.marketPriceHandler.closeStreams(chnlInfo.reactorChannel, errorInfo);
+        chnlInfo.marketByOrderHandler.closeStreams(chnlInfo.reactorChannel, errorInfo);
+        chnlInfo.marketByPriceHandler.closeStreams(chnlInfo.reactorChannel, errorInfo);
+        chnlInfo.symbolListHandler.closeStream(chnlInfo.reactorChannel, errorInfo);
+        chnlInfo.yieldCurveHandler.closeStreams(chnlInfo.reactorChannel, errorInfo);
+    }
 
     /* Uninitializes the Value Add consumer application. */
-	private void uninitialize()
-	{
+    private void uninitialize()
+    {
         System.out.println("Consumer unitializing and exiting...");
-        
-    	for (ChannelInfo chnlInfo : chnlInfoList)
-    	{
-	        // close items streams
-	        closeItemStreams(chnlInfo);
-	
-	        // close queue messaging streams
-            if (queueMsgHandler != null &&
-                chnlInfo.reactorChannel != null)
+
+        for (ChannelInfo chnlInfo : chnlInfoList)
+        {
+            // close items streams
+            closeItemStreams(chnlInfo);
+
+            // close queue messaging streams
+            if (queueMsgHandler != null && chnlInfo.reactorChannel != null)
             {
                 if (queueMsgHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
                 {
                     System.out.println("queueMsgHandler.closeStream() failed with errorText: " + errorInfo.error().text());
                 }
             }
-	
+
             // close tunnel streams
-            if (tunnelStreamHandler != null &&
-                chnlInfo.reactorChannel != null)
+            if (tunnelStreamHandler != null && chnlInfo.reactorChannel != null)
             {
                 if (tunnelStreamHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
                 {
                     System.out.println("tunnelStreamHandler.closeStream() failed with errorText: " + errorInfo.error().text());
                 }
             }
-    
-	        // close ReactorChannel
-	        if (chnlInfo.reactorChannel != null)
-	        {
-	        	chnlInfo.reactorChannel.close(errorInfo);
-	        }
-	        
-	        uninitializeCache(chnlInfo.cacheInfo);
-    	}
-        
+
+            // close ReactorChannel
+            if (chnlInfo.reactorChannel != null)
+            {
+                chnlInfo.reactorChannel.close(errorInfo);
+            }
+
+            uninitializeCache(chnlInfo.cacheInfo);
+        }
+
         // shutdown reactor
-    	if (reactor != null)
-    	{
-    	    reactor.shutdown(errorInfo);
-    	}
-	}
-	
-	
-	private void handleClose()
-	{
-		System.out.println("Consumer closes streams...");
-	        		 		                
-		for (ChannelInfo chnlInfo : chnlInfoList)
-		{
-			closeItemStreams(chnlInfo);
-		
-			// close queue messaging streams
-			if (queueMsgHandler != null && chnlInfo.reactorChannel != null)
-			{
-				if (queueMsgHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
-				{
-					System.out.println("queueMsgHandler.closeStream() failed with errorText: " + errorInfo.error().text());
-				}
-			}
-		
-			// close tunnel streams
-			if (tunnelStreamHandler != null && chnlInfo.reactorChannel != null)
-			{
-				if (tunnelStreamHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
-				{
-					System.out.println("tunnelStreamHandler.closeStream() failed with errorText: " + errorInfo.error().text());
-	            }
-	        }	    
-		}	        						
-	}	
-	
-	
-	public static void main(String[] args) throws Exception
-    {		
+        if (reactor != null)
+        {
+            reactor.shutdown(errorInfo);
+        }
+    }
+
+    private void handleClose()
+    {
+        System.out.println("Consumer closes streams...");
+
+        for (ChannelInfo chnlInfo : chnlInfoList)
+        {
+            closeItemStreams(chnlInfo);
+
+            // close queue messaging streams
+            if (queueMsgHandler != null && chnlInfo.reactorChannel != null)
+            {
+                if (queueMsgHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
+                {
+                    System.out.println("queueMsgHandler.closeStream() failed with errorText: " + errorInfo.error().text());
+                }
+            }
+
+            // close tunnel streams
+            if (tunnelStreamHandler != null && chnlInfo.reactorChannel != null)
+            {
+                if (tunnelStreamHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
+                {
+                    System.out.println("tunnelStreamHandler.closeStream() failed with errorText: " + errorInfo.error().text());
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception
+    {
         Consumer consumer = new Consumer();
         consumer.init(args);
-        consumer.run(); 
+        consumer.run();
         consumer.uninitialize();
         System.exit(0);
     }

@@ -33,18 +33,18 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 public class LoginHandler
 {
     public static final int LOGIN_STREAM_ID = 1;
-    
+
     public static int TRANSPORT_BUFFER_SIZE_REQUEST = ChannelSession.MAX_MSG_SIZE;
     public static int TRANSPORT_BUFFER_SIZE_CLOSE = ChannelSession.MAX_MSG_SIZE;
-    
+
     private ConsumerLoginState loginState = ConsumerLoginState.PENDING_LOGIN;
 
     // For requests
     private String userName;
     private String applicationName;
-	private String authenticationToken;
-	private String authenticationExtended;
-	private String applicationId;
+    private String authenticationToken;
+    private String authenticationExtended;
+    private String applicationId;
 
     private int role = Login.RoleTypes.CONS;
 
@@ -53,7 +53,7 @@ public class LoginHandler
 
     private LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
     private LoginStatus loginStatus = (LoginStatus)LoginMsgFactory.createMsg();
- 
+
     private EncodeIterator encIter = CodecFactory.createEncodeIterator();
 
     public LoginHandler()
@@ -63,7 +63,7 @@ public class LoginHandler
         loginStatus.rdmMsgType(LoginMsgType.STATUS);
         loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
     }
-    
+
     /**
      * Get the cached login refresh.
      * @return  Cached login refresh.
@@ -83,8 +83,6 @@ public class LoginHandler
     {
         return loginState;
     }
-    
-   
 
     /**
      * Sets the user name requested by the application.
@@ -172,18 +170,18 @@ public class LoginHandler
         {
             loginRequest.userName().data(userName);
         }
-        
+
         if (authenticationToken != null && !authenticationToken.isEmpty())
         {
-        	loginRequest.applyHasUserNameType();
-        	loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
-        	loginRequest.userName().data(authenticationToken);
-        	
-	        if (authenticationExtended != null && !authenticationExtended.isEmpty())
-	        {
-	        	loginRequest.applyHasAuthenticationExtended();
-	        	loginRequest.authenticationExtended().data(authenticationExtended);
-	        }
+            loginRequest.applyHasUserNameType();
+            loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+            loginRequest.userName().data(authenticationToken);
+
+            if (authenticationExtended != null && !authenticationExtended.isEmpty())
+            {
+                loginRequest.applyHasAuthenticationExtended();
+                loginRequest.authenticationExtended().data(authenticationExtended);
+            }
         }
 
         if (applicationId != null && !applicationId.isEmpty())
@@ -221,7 +219,7 @@ public class LoginHandler
         System.out.println(loginRequest.toString());
         return chnl.write(msgBuf, error);
     }
- 
+
     // APIQA: Method for sending a PAUSE ALL and RESUME ALL
     public int sendPauseResumeRequest(ChannelSession chnl, Error error, boolean pauseAll, boolean resumeAll)
     {
@@ -233,34 +231,34 @@ public class LoginHandler
         loginRequest.clear();
 
         loginRequest.initDefaultRequest(LOGIN_STREAM_ID);
-        
+
         if (pauseAll)
         {
-        	loginRequest.applyPause();
-        	loginRequest.applyNoRefresh();
+            loginRequest.applyPause();
+            loginRequest.applyNoRefresh();
         }
         if (resumeAll)
         {
-        	loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.PAUSE_ALL);
-        	loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.NO_REFRESH);
+            loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.PAUSE_ALL);
+            loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.NO_REFRESH);
         }
 
         if (userName != null && !userName.isEmpty())
         {
             loginRequest.userName().data(userName);
         }
-        
+
         if (authenticationToken != null && !authenticationToken.isEmpty())
         {
-        	loginRequest.applyHasUserNameType();
-        	loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
-        	loginRequest.userName().data(authenticationToken);
-        	
-	        if (authenticationExtended != null && !authenticationExtended.isEmpty())
-	        {
-	        	loginRequest.applyHasAuthenticationExtended();
-	        	loginRequest.authenticationExtended().data(authenticationExtended);
-	        }
+            loginRequest.applyHasUserNameType();
+            loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+            loginRequest.userName().data(authenticationToken);
+
+            if (authenticationExtended != null && !authenticationExtended.isEmpty())
+            {
+                loginRequest.applyHasAuthenticationExtended();
+                loginRequest.authenticationExtended().data(authenticationExtended);
+            }
         }
 
         if (applicationId != null && !applicationId.isEmpty())
@@ -298,6 +296,7 @@ public class LoginHandler
         System.out.println(loginRequest.toString());
         return chnl.write(msgBuf, error);
     }
+
     // END APIQA: Method for sending a PAUSE ALL and RESUME ALL
 
     /**
@@ -383,7 +382,7 @@ public class LoginHandler
 
         State state = loginStatus.state();
         System.out.println("	" + state);
-    
+
         if (state.streamState() == StreamStates.CLOSED_RECOVER)
         {
             error.text("Login stream is closed recover");
@@ -394,8 +393,7 @@ public class LoginHandler
             error.text("Login stream closed");
             this.loginState = ConsumerLoginState.CLOSED;
         }
-        else if (state.streamState() == StreamStates.OPEN
-                && state.dataState() == DataStates.SUSPECT)
+        else if (state.streamState() == StreamStates.OPEN && state.dataState() == DataStates.SUSPECT)
         {
             error.text("Login stream is suspect");
             this.loginState = ConsumerLoginState.SUSPECT;
@@ -415,12 +413,12 @@ public class LoginHandler
         }
         System.out.println("Received Login Response for Username: " + loginRefresh.userName());
         System.out.println(loginRefresh.toString());
-        
+
         State state = loginRefresh.state();
         if (state.streamState() == StreamStates.OPEN)
         {
-            if(state.dataState() == DataStates.OK)
-                this.loginState = ConsumerLoginState.OK_SOLICITED; 
+            if (state.dataState() == DataStates.OK)
+                this.loginState = ConsumerLoginState.OK_SOLICITED;
             else if (state.dataState() == DataStates.SUSPECT)
                 this.loginState = ConsumerLoginState.SUSPECT;
         }

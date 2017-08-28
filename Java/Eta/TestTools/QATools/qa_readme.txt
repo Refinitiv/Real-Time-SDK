@@ -17,7 +17,7 @@ consumer-Dict-001: Altered the code of the Consumer application to both read the
 Module:  Value Add Provider 
 ---------------------------
 
-vaprovider-TsFrag-001:  After VAProvider to validate incoming tunnel stream message content to have "1, 2, 3...255".  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-001.
+vaprovider-TsFrag-001:  Alter VAProvider to validate incoming tunnel stream message content to have "1, 2, 3...255".  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-001.
 
 vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream message as a generic message with opaque buffer data body of "1, 2, 3....255" repeated.  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-002.
 
@@ -44,3 +44,24 @@ wlconsumer-TrepAuth-002:  Alter WLConsumer to send PAUSE_ALL after 5 update and 
 wlconsumer-TrepAuth-003:  Alter WLConsumer to send item pause after 5 updates on stream id 5 and item pause after 10 updates on stream id 6. Altered code does an item resume after 20 updates on stream id 6. Also WLConsumer is altered to take a "-at2" input that permits user to specify a 2nd token used in a token renewal.  NOTE:  This test must be done with two like items and one different item. Example:  "-mp TRI -mp TRI -mp IBM"
 
 wlconsumer-TrepAuth-004:  Alter WLConsumer to send PAUSE_ALL after 5 updates. Also WLConsumer is altered to take a "-at2" input that permits user to specify a 2nd token used in a token renewal. NOTE: This is a slight variation on wlconsumer-TrepAuth-001 with the RESUME-ALL code removed.
+
+wlconsumer-ConsFunc-001:  Altered WLConsumer to accept new command line arguments.
+MP Items can now be requested as snapshot, private stream, and/or view. 
+Example: "-mp IBM:SPV3" is IBM with all three and viewId 3, 
+"-mp GOOG:V5P" requests GOOG with viewId 5 and private stream 
+(Order of SPV is not significant as long as viewId number immediatly follows the 'V'). 
+If neither snapshot, private stream, or view are needed, it can be written as "-mp IBM"
+List of MP Items in command line are treated as if indexed(starting at index 0), 
+and can be specified to be requested after a certain number of events.
+(3 events are defined: -e1 is for source directory updates, -e2 is for item update messages,
+-e3 is for channel_down_reconnecting events)
+Example: doing "-mp IBM -mp GOOG:PV3 -mp TRI:S -mp NFLX:PSV7 -AAPL -e2 7::1:2 -e2 9::4 -e3 8::3 " 
+will initially only request IBM, and after 7 update messages, 
+it will request mp items indexed 1 through 2, so GOOG and TRI. 
+After 8 channel-down-reconnecting events, it will request item indexed 3 only 
+since there is no end index given, it is not treated a a range (so just NFLX)
+Similarily, after 9 update events, it will request item indexed 4 (AAPL)
+Initial requests can be delayed until source dir refresh by specifying '-delayIntialRequest'
+Single open and allow suspect data can be specified by setting '-singleOpen 0(or 1)'
+and '-allowSuspect 0(or 1)' (default set to 1)
+
