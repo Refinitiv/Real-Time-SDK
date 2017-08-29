@@ -15,9 +15,15 @@
  */
 
 #define MAX_MARKET_BY_ORDER_ITEM_LIST_SIZE 100
+#define MAX_ITEM_INFO_STRLEN 128
 
 /* item information list */
 static RsslMarketByOrderItem marketByOrderItemList[MAX_MARKET_BY_ORDER_ITEM_LIST_SIZE];
+
+/* re-usable refresh and update messages and state text */
+RsslRefreshMsg refreshMsg;
+RsslUpdateMsg updateMsg;
+char stateText[MAX_ITEM_INFO_STRLEN];
 
 /*
  * Create a local set definition.
@@ -150,20 +156,15 @@ void updateMarketByOrderItemFields(RsslMarketByOrderItem* itemInfo)
 RsslRet encodeMarketByOrderResponseMsgInit(RsslNIItemInfo* itemInfo, RsslEncodeIterator *encodeIter, RsslInt32 streamId, RsslUInt16 serviceId, RsslBool buildRefresh)
 {
 	RsslRet ret = 0;
-	RsslRefreshMsg refreshMsg = RSSL_INIT_REFRESH_MSG;
-	RsslUpdateMsg updateMsg = RSSL_INIT_UPDATE_MSG;
 	RsslMsgBase* msgBase;
 	RsslMsg* msg;
-	char stateText[128];
-	char errTxt[256];
-	RsslBuffer errorText = {255, (char*)errTxt};
 
 	/* set-up message */
 	/* set message depending on whether refresh or update */
 	if (buildRefresh)
 	{
+		rsslClearRefreshMsg(&refreshMsg);
 		msgBase = &refreshMsg.msgBase;
-		msgBase->msgClass = RSSL_MC_REFRESH;
 		refreshMsg.state.streamState = RSSL_STREAM_OPEN;
 		refreshMsg.state.dataState = RSSL_DATA_OK;
 		refreshMsg.state.code = RSSL_SC_NONE;
@@ -188,8 +189,8 @@ RsslRet encodeMarketByOrderResponseMsgInit(RsslNIItemInfo* itemInfo, RsslEncodeI
 	}
 	else /* this is an update message */
 	{
+		rsslClearUpdateMsg(&updateMsg);
 		msgBase = &updateMsg.msgBase;
-		msgBase->msgClass = RSSL_MC_UPDATE;
 		msg = (RsslMsg *)&updateMsg;
 
 		updateMsg.flags = RSSL_UPMF_HAS_MSG_KEY;
