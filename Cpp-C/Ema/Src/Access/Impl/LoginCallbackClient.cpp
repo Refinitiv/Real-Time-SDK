@@ -890,6 +890,12 @@ void LoginCallbackClient::overlayLoginRequest(RsslRDMLoginRequest* pRequest)
 	}
 
 
+	if (pRequest->flags & RDM_LG_RQF_NO_REFRESH)
+	{
+		tempRequest.flags |= RDM_LG_RQF_NO_REFRESH;
+		bufferChange = true;
+	}
+
 
 	
 	/* Deep copy the tempRequest onto the previous request.  Since we're potentially pulling data from 
@@ -1592,8 +1598,8 @@ bool LoginItem::modify( const ReqMsg& reqMsg )
 	_ommBaseImpl.getLoginCallbackClient().overlayLoginRequest(&tempRequest);
 
 	ret = submit( _ommBaseImpl.getLoginCallbackClient().getLoginRequest() );
-	/* Unset the Pause flag on the cached request */
-	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~RDM_LG_RQF_PAUSE_ALL;
+	/* Unset the Pause and No Refresh flag on the cached request */
+	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~(RDM_LG_RQF_PAUSE_ALL | RDM_LG_RQF_NO_REFRESH);
 
 	return ret;
 
@@ -1861,8 +1867,8 @@ bool NiProviderLoginItem::modify( const ReqMsg& reqMsg )
 	_ommBaseImpl.getLoginCallbackClient().overlayLoginRequest(&tempRequest);
 
 	ret = submit(_ommBaseImpl.getLoginCallbackClient().getLoginRequest());
-	/* Unset the Pause flag on the cached request */
-	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~RDM_LG_RQF_PAUSE_ALL;
+	/* Unset the Pause and No Refresh flag on the cached request */
+	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~(RDM_LG_RQF_PAUSE_ALL | RDM_LG_RQF_NO_REFRESH);
 
 	return ret;
 }
