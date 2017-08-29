@@ -68,7 +68,7 @@
             </fileset>
         </copy>
 
-		<javadoc sourcepath="${marshall.dir}" classpath="${libs.dir}/upa.jar;${libs.dir}/upaValueAdd.jar;${libs.dir}/ansipage.jar;${submodule.dir}/upaValueAddCache.jar;${submodule.dir}/jdacsUpalib.jar" defaultexcludes="yes" destdir="${docs.refman.upajexamples.dir}" author="true" version="true" use="true" windowtitle="ETAJ Examples" additionalparam="-Xdoclint:none">
+		<javadoc sourcepath="${marshall.dir}" classpath="${libs.dir}/upa.jar;${libs.dir}/upaValueAdd.jar;${libs.dir}/ansipage.jar;${submodule.dir}/upaValueAddCache.jar;${submodule.dir}/jdacsUpalib.jar;${libs.dir}/upaValueAddCache.jar;${libs.dir}/jdacsUpalib.jar" defaultexcludes="yes" destdir="${docs.refman.upajexamples.dir}" author="true" version="true" use="true" windowtitle="ETAJ Examples" additionalparam="-Xdoclint:none">
 			<doctitle>
 				<![CDATA[<h1>Elektron Transport API (ETA) 3.0 - Java Edition Examples</h1>]]></doctitle>
 			<bottom>
