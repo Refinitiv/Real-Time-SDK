@@ -1420,7 +1420,9 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 	UInt64 loopCount = 0;
 	do
 	{
+		_userLock.lock();
 		reactorRetCode = _pRsslReactor ? rsslReactorDispatch( _pRsslReactor, &dispatchOpts, &_reactorDispatchErrorInfo ) : RSSL_RET_SUCCESS;
+		_userLock.unlock();
 		++loopCount;
 	}
 	while ( reactorRetCode > RSSL_RET_SUCCESS && !bMsgDispRcvd && loopCount < 5 );
@@ -1536,7 +1538,9 @@ Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& b
 			loopCount = 0;
 			do
 			{
+				_userLock.lock();
 				reactorRetCode = _pRsslReactor ? rsslReactorDispatch( _pRsslReactor, &dispatchOpts, &_reactorDispatchErrorInfo ) : RSSL_RET_SUCCESS;
+				_userLock.unlock();
 				++loopCount;
 			}
 			while ( reactorRetCode > RSSL_RET_SUCCESS && !bMsgDispRcvd && loopCount < 5 );
