@@ -298,6 +298,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider332", "IProvider\3
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider332", "IProvider\300_Series_Examples\332__Dictionary__UserControl\IProvider332_VS140.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C8D}"
+        ProjectSection(ProjectDependencies) = postProject
+                {DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
+        EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider380", "IProvider\300_Series_Examples\380__MarketPrice__ConnectionLost\IProvider380_VS140.vcxproj", "{2F207300-017C-0AE2-1D54-010126A84C8C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
