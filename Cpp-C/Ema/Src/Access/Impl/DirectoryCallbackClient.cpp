@@ -1408,9 +1408,7 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 			EmaString temp( "Service name of '" );
 			temp.append( reqMsgEncoder.getServiceName() ).append( "' is not found." );
 
-			_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, temp );
-			new TimeOut( _ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
-
+			scheduleItemClosedStatus(reqMsgEncoder, temp);
 			return true;
 		}
 	}
@@ -1426,9 +1424,7 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 				temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId ).
 				append( "' is not found." );
 
-				_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, temp );
-				new TimeOut( _ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
-
+				scheduleItemClosedStatus(reqMsgEncoder, temp);
 				return true;
 			}
 		}

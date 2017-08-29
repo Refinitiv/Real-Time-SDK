@@ -44,6 +44,7 @@ class OmmState;
 class Item;
 class TunnelStreamRequest;
 class StreamId;
+class ClosedStatusInfo;
 
 class ItemList
 {
@@ -115,11 +116,16 @@ public :
 	virtual void onAckMsg( const AckMsg& ) = 0;
 	virtual void onGenericMsg( const GenericMsg& ) = 0;
 
+	void scheduleItemClosedStatus(const ReqMsgEncoder&, const EmaString&);
+	ClosedStatusInfo*	getClosedStatusInfo();
+
 protected :
 
 	UInt8				_domainType;
 	Int32				_streamId;
 	OmmBaseImpl&		_ommBaseImpl;
+	ClosedStatusInfo*	_closedStatusInfo;
+
 
 	Item( OmmBaseImpl& );
 	virtual ~Item();
@@ -236,7 +242,6 @@ public :
 	void remove();
 
 	ItemType getType() const;
-	void scheduleItemClosedStatus(const ReqMsgEncoder&, const EmaString&);
 
 protected :
 
@@ -254,7 +259,6 @@ private :
 	static const EmaString		_clientName;
 
 	const Directory*			_pDirectory;
-	ClosedStatusInfo*			_closedStatusInfo;
 
 	SingleItem();
 	SingleItem( const SingleItem& );
@@ -275,14 +279,12 @@ public:
 	void remove();
 
 	ItemType getType() const;
-
+	
 protected:
 
 	NiProviderSingleItem( OmmBaseImpl&, OmmProviderClient&, void* , Item* );
 
 	virtual ~NiProviderSingleItem();
-
-	void scheduleItemClosedStatus( const ReqMsgEncoder&, const EmaString& );
 
 private:
 
@@ -292,8 +294,6 @@ private:
 	bool submit( RsslPostMsg* );
 
 	static const EmaString		_clientName;
-
-	ClosedStatusInfo*			_closedStatusInfo;
 
 	NiProviderSingleItem();
 	NiProviderSingleItem( const NiProviderSingleItem& );
@@ -383,7 +383,6 @@ private :
 	EmaList< StreamId* >        returnedSubItemStreamIds;
 	const Directory*			_pDirectory;
 	RsslTunnelStream*			_pRsslTunnelStream;
-	ClosedStatusInfo*			_closedStatusInfo;
 	EmaVector< Item* >			_subItems;
     static const Int32          _startingSubItemStreamId = 5;
 };
@@ -411,13 +410,9 @@ protected :
 
 	virtual ~SubItem();
 
-	void scheduleItemClosedStatus( const ReqMsgEncoder& , const EmaString& );
-
 private :
 
 	static const EmaString		_clientName;
-
-	ClosedStatusInfo*			_closedStatusInfo;
 };
 
 typedef Item* ItemPtr;

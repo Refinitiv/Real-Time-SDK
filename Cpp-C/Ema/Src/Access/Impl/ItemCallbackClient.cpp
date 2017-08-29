@@ -63,13 +63,20 @@ const EmaString UnknownItemString( "UnknownItem" );
 Item::Item( OmmBaseImpl& ommBaseImpl ) :
 	_domainType( 0 ),
 	_streamId( 0 ),
-	_ommBaseImpl( ommBaseImpl )
+	_ommBaseImpl( ommBaseImpl ),
+	_closedStatusInfo(0)
 {
 }
 
 Item::~Item()
 {
 	_ommBaseImpl.getItemCallbackClient().removeFromMap( this );
+
+	if (_closedStatusInfo)
+	{
+		delete _closedStatusInfo;
+		_closedStatusInfo = 0;
+	}
 }
 
 void Item::destroy( Item*& pItem )
@@ -118,6 +125,20 @@ Int32 Item::getStreamId() const
 OmmBaseImpl& Item::getImpl()
 {
 	return _ommBaseImpl;
+}
+
+ClosedStatusInfo* Item::getClosedStatusInfo()
+{
+	return _closedStatusInfo;
+}
+
+void Item::scheduleItemClosedStatus(const ReqMsgEncoder& reqMsgEncoder, const EmaString& text)
+{
+	if (_closedStatusInfo) return;
+
+	_closedStatusInfo = new ClosedStatusInfo(this, reqMsgEncoder, text);
+
+	new TimeOut(_ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true);
 }
 
 ConsumerItem::ConsumerItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* pParentItem ) :
@@ -227,20 +248,13 @@ SingleItem* SingleItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& omm
 
 SingleItem::SingleItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* pParentItem ) :
 	ConsumerItem( ommBaseImpl, ommConsClient, closure, pParentItem ),
-	_pDirectory( 0 ),
-	_closedStatusInfo( 0 )
+	_pDirectory( 0 )
 {
 }
 
 SingleItem::~SingleItem()
 {
 	_ommBaseImpl.getItemCallbackClient().removeFromList( this );
-
-	if ( _closedStatusInfo )
-	{
-		delete _closedStatusInfo;
-		_closedStatusInfo = 0;
-	}
 }
 
 Item::ItemType SingleItem::getType() const 
@@ -627,20 +641,13 @@ NiProviderSingleItem* NiProviderSingleItem::create( OmmBaseImpl& ommBaseImpl, Om
 }
 
 NiProviderSingleItem::NiProviderSingleItem( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure, Item* ) :
-	NiProviderItem( ommBaseImpl, ommProvClient, closure ),
-	_closedStatusInfo( 0 )
+	NiProviderItem( ommBaseImpl, ommProvClient, closure )
 {
 }
 
 NiProviderSingleItem::~NiProviderSingleItem()
 {
 	_ommBaseImpl.getItemCallbackClient().removeFromList( this );
-
-	if ( _closedStatusInfo )
-	{
-		delete _closedStatusInfo;
-		_closedStatusInfo = 0;
-	}
 }
 
 Item::ItemType NiProviderSingleItem::getType() const
@@ -900,15 +907,6 @@ bool NiProviderSingleItem::submit( RsslPostMsg* pRsslPostMsg )
 	return false;
 }
 
-void NiProviderSingleItem::scheduleItemClosedStatus( const ReqMsgEncoder& reqMsgEncoder, const EmaString& text )
-{
-	if ( _closedStatusInfo ) return;
-
-	_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, text );
-
-	new TimeOut( _ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
-}
-
 void ItemCallbackClient::sendItemClosedStatus( void* pInfo )
 {
 	if ( !pInfo ) return;
@@ -957,15 +955,6 @@ void ItemCallbackClient::sendItemClosedStatus( void* pInfo )
 	item->onStatusMsg( statusMsg );
 
 	item->remove();
-}
-
-void SingleItem::scheduleItemClosedStatus( const ReqMsgEncoder& reqMsgEncoder, const EmaString& text )
-{
-	if ( _closedStatusInfo ) return;
-
-	_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, text );
-
-	new TimeOut( _ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 }
 
 ClosedStatusInfo::ClosedStatusInfo( Item* pItem, const ReqMsgEncoder& reqMsgEncoder, const EmaString& text ) :
@@ -1188,7 +1177,6 @@ TunnelItem::TunnelItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClie
 	ConsumerItem( ommBaseImpl, ommConsClient, closure, 0 ),
 	_pDirectory( 0 ),
 	_pRsslTunnelStream( 0 ),
-	_closedStatusInfo( 0 ),
 	nextSubItemStreamId( _startingSubItemStreamId ),
 	_subItems( 32 )
 {
@@ -1201,12 +1189,6 @@ TunnelItem::~TunnelItem()
 	for ( UInt32 i = 0; i < _subItems.size(); ++i )
 		if ( _subItems[ i ] )
 			removeSubItem (_subItems[ i ]->getStreamId() );
-
-	if ( _closedStatusInfo )
-	{
-		delete _closedStatusInfo;
-		_closedStatusInfo = 0;
-	}
 
     StreamId* streamId = returnedSubItemStreamIds.pop_back();
 
@@ -1737,8 +1719,7 @@ SubItem* SubItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsCl
 }
 
 SubItem::SubItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, Item* parent ) :
-	ConsumerItem( ommBaseImpl, ommConsClient, closure, parent ),
-	_closedStatusInfo( 0 )
+	ConsumerItem( ommBaseImpl, ommConsClient, closure, parent )
 {
 }
 
@@ -1747,12 +1728,6 @@ SubItem::~SubItem()
 	reinterpret_cast<TunnelItem*>( _event.getParentHandle() )->removeSubItem( _streamId );
 
 	_ommBaseImpl.getItemCallbackClient().removeFromList( this );
-
-	if ( _closedStatusInfo )
-	{
-		delete _closedStatusInfo;
-		_closedStatusInfo = 0;
-	}
 
 	/*Need to set to 0 to avoid remove a wrong SingleItem of the same stream id from _streamIdMap*/
 	_streamId = 0;
@@ -1766,15 +1741,6 @@ Item::ItemType SubItem::getType() const
 const Directory* SubItem::getDirectory()
 {
 	return 0;
-}
-
-void SubItem::scheduleItemClosedStatus( const ReqMsgEncoder& reqMsgEncoder, const EmaString& text )
-{
-	if ( _closedStatusInfo ) return;
-
-	_closedStatusInfo = new ClosedStatusInfo( this, reqMsgEncoder, text );
-
-	new TimeOut( _ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true );
 }
 
 bool SubItem::open( const ReqMsg& reqMsg )
@@ -2908,7 +2874,7 @@ UInt64 ItemCallbackClient::registerClient( const TunnelStreamRequest& tunnelStre
 
 void ItemCallbackClient::reissue( const ReqMsg& reqMsg, UInt64 handle )
 {
-	if ( !_itemMap.find( handle ) )
+	if ( !_itemMap.find( handle ) || ((Item*)handle)->getClosedStatusInfo())
 	{
 		EmaString temp( "Attempt to use invalid Handle on reissue(). " );
 		temp.append( "Instance name='" ).append( _ommBaseImpl .getInstanceName() ).append( "'." );
