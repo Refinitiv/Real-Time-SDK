@@ -2611,33 +2611,37 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 				return (UInt64)pItem;
 			}
 		case RSSL_DMT_SOURCE :
+		{
+			Channel* c( _ommBaseImpl.getLoginCallbackClient().getActiveChannel() );
+			if ( !c )
 			{
-				const ChannelList& channels( _ommBaseImpl.getChannelCallbackClient().getChannelList() );
-				Channel* c( channels.front() );
+				_ommBaseImpl.handleIue( "Failed to send a directory request due to no active channel on registerClient()." );
+				return 0;
+			}
 
-				DirectoryItem* pItem = DirectoryItem::create( _ommBaseImpl, ommConsClient, closure, c );
+			DirectoryItem* pItem = DirectoryItem::create( _ommBaseImpl, ommConsClient, closure, c );
 
-				if ( pItem )
-				{
-					try {
-						if ( !pItem->open( reqMsg ) )
-							Item::destroy( (Item*&)pItem );
-						else
-						{
-							addToList( pItem );
-							addToMap( pItem );
-						}
-					}
-					catch ( ... )
-					{
+			if ( pItem )
+			{
+				try {
+					if ( !pItem->open( reqMsg ) )
 						Item::destroy( (Item*&)pItem );
-						throw;
+					else
+					{
+						addToList( pItem );
+						addToMap( pItem );
 					}
 				}
-
-				return (UInt64)pItem;
-
+				catch ( ... )
+				{
+					Item::destroy( (Item*&)pItem );
+					throw;
+				}
 			}
+
+			return (UInt64)pItem;
+
+		}
 		default :
 			{
 				SingleItem* pItem = 0;
