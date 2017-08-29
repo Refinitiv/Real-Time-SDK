@@ -28,6 +28,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryReques
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+
 //END APIQA
 
 /**
@@ -99,8 +100,7 @@ public class DictionaryHandler
 // END APIQA
         if (dictionary.loadFieldDictionary(FIELD_DICTIONARY_FILE_NAME, error) < 0)
         {
-            System.out.println("Unable to load field dictionary.  Will attempt to download from provider.\n\tText: "
-                    + error.text());
+            System.out.println("Unable to load field dictionary.  Will attempt to download from provider.\n\tText: " + error.text());
         }
         else
         {
@@ -112,8 +112,7 @@ public class DictionaryHandler
 
         if (dictionary.loadEnumTypeDictionary(ENUM_TABLE_FILE_NAME, error) < 0)
         {
-            System.out.println("Unable to load enum dictionary.  Will attempt to download from provider.\n\tText: "
-                        + error.text());
+            System.out.println("Unable to load enum dictionary.  Will attempt to download from provider.\n\tText: " + error.text());
         }
         else
         {
@@ -191,8 +190,7 @@ public class DictionaryHandler
             states[0].dataState(DataStates.NO_CHANGE);
             states[0].streamState(StreamStates.UNSPECIFIED);
 
-            int ret = sendRequest(chnl, FIELD_DICTIONARY_DOWNLOAD_NAME, FIELD_DICTIONARY_STREAM_ID,
-                                  serviceId, error);
+            int ret = sendRequest(chnl, FIELD_DICTIONARY_DOWNLOAD_NAME, FIELD_DICTIONARY_STREAM_ID, serviceId, error);
             if (ret != CodecReturnCodes.SUCCESS)
             {
                 return ret;
@@ -204,8 +202,7 @@ public class DictionaryHandler
             states[1].dataState(DataStates.NO_CHANGE);
             states[1].streamState(StreamStates.UNSPECIFIED);
 
-            int ret = sendRequest(chnl, ENUM_TABLE_DOWNLOAD_NAME, ENUM_TYPE_DICTIONARY_STREAM_ID,
-                                  serviceId, error);
+            int ret = sendRequest(chnl, ENUM_TABLE_DOWNLOAD_NAME, ENUM_TYPE_DICTIONARY_STREAM_ID, serviceId, error);
             if (ret != CodecReturnCodes.SUCCESS)
             {
                 return ret;
@@ -241,8 +238,8 @@ public class DictionaryHandler
             }
 
             System.out.println(dictionaryRequest.toString());
-            
-            //send request
+
+            // send request
             return chnl.write(msgBuf, error);
         }
         else
@@ -267,9 +264,9 @@ public class DictionaryHandler
     {
         switch (msg.msgClass())
         {
-            case MsgClasses.REFRESH:             
+            case MsgClasses.REFRESH:
                 return handleDictRefresh(msg, dIter, error);
-                
+
             case MsgClasses.STATUS:
                 System.out.println("Received StatusMsg for dictionary");
                 StatusMsg statusMsg = (StatusMsg)msg;
@@ -279,15 +276,15 @@ public class DictionaryHandler
                     State state = statusMsg.state();
                     if (msg.streamId() == fieldDictionaryStreamId)
                     {
-                    	states[0].dataState(state.dataState());
-                    	states[0].streamState(state.streamState());
+                        states[0].dataState(state.dataState());
+                        states[0].streamState(state.streamState());
                     }
                     else if (msg.streamId() == enumDictionaryStreamId)
                     {
-                    	states[1].dataState(state.dataState());
-                    	states[1].streamState(state.streamState());
+                        states[1].dataState(state.dataState());
+                        states[1].streamState(state.streamState());
                     }
-                }                
+                }
                 break;
 
             default:
@@ -327,8 +324,7 @@ public class DictionaryHandler
                     enumDictionaryStreamId = dictionaryRefresh.streamId();
                     break;
                 default:
-                    error.text("Received unexpected dictionary message on stream " +
-                            msg.streamId());
+                    error.text("Received unexpected dictionary message on stream " + msg.streamId());
                     return CodecReturnCodes.FAILURE;
             }
         }
@@ -340,7 +336,7 @@ public class DictionaryHandler
         {
             RefreshMsg refreshMsg = (RefreshMsg)msg;
             states[0].dataState(refreshMsg.state().dataState());
-            states[0].streamState(refreshMsg.state().streamState());        	
+            states[0].streamState(refreshMsg.state().streamState());
 // APIQA: decode the network dictionary
             ret = dictionaryFromNetwork.decodeFieldDictionary(dIter, Dictionary.VerbosityValues.VERBOSE, error);
 // END APIQA
@@ -351,7 +347,7 @@ public class DictionaryHandler
 
             if (dictionaryRefresh.checkRefreshComplete())
             {
-                fieldDictionaryLoaded = true;              
+                fieldDictionaryLoaded = true;
                 if (!isEnumTypeDictionaryLoaded())
                     System.out.println("Field Dictionary complete, waiting for Enum Table...");
             }
@@ -360,9 +356,9 @@ public class DictionaryHandler
         {
             RefreshMsg refreshMsg = (RefreshMsg)msg;
             states[1].dataState(refreshMsg.state().dataState());
-            states[1].streamState(refreshMsg.state().streamState());               
+            states[1].streamState(refreshMsg.state().streamState());
 // APIQA: decode the network dictionary
-             ret = dictionaryFromNetwork.decodeEnumTypeDictionary(dIter, Dictionary.VerbosityValues.VERBOSE, error);
+            ret = dictionaryFromNetwork.decodeEnumTypeDictionary(dIter, Dictionary.VerbosityValues.VERBOSE, error);
 // END APIQA
             if (ret != CodecReturnCodes.SUCCESS)
             {
@@ -371,76 +367,74 @@ public class DictionaryHandler
 
             if (dictionaryRefresh.checkRefreshComplete())
             {
-            	enumTypeDictionaryLoaded = true;
+                enumTypeDictionaryLoaded = true;
                 if (!isFieldDictionaryLoaded())
                     System.out.println("Enumerated Types Dictionary complete, waiting for Field Dictionary...");
             }
         }
         else
         {
-            error.text("Received unexpected dictionary message on stream " +
-                    msg.streamId());
+            error.text("Received unexpected dictionary message on stream " + msg.streamId());
             return CodecReturnCodes.FAILURE;
         }
 // APIQA: This code compares the downloaded dictionary with the 
 // dictionary from the file dictionary
-		String strDictionary;
+        String strDictionary;
 
-		if (isFieldDictionaryLoaded() && isEnumTypeDictionaryLoaded()) {
-			// first checking if the number of tables and entries matches
-			if (dictionary.enumTableCount() == dictionaryFromNetwork
-					.enumTableCount()
-					&& dictionary.numberOfEntries() == dictionaryFromNetwork
-							.numberOfEntries()) {
-				// Do some string replace to remove the unique strings to the
-				// file dictionary
-				strDictionary = (dictionary.toString())
-						.replaceAll("meaning=\"(.+)\"", "meaning=\"null\"")
-						.replaceAll("Filename=\"(.+)\"", "Filename=\"null\"")
-						.replaceAll("meaning=\"\"", "meaning=\"null\"")
-						.replaceAll("Desc=\"(.+)\"", "Desc=\"null\"")
-						.replaceAll("Build=\"(.+)\"", "Build=\"null\"")
-						.replaceAll("Date=\"(.+)\"", "Date=\"null\"");
+        if (isFieldDictionaryLoaded() && isEnumTypeDictionaryLoaded())
+        {
+            // first checking if the number of tables and entries matches
+            if (dictionary.enumTableCount() == dictionaryFromNetwork.enumTableCount() && dictionary.numberOfEntries() == dictionaryFromNetwork.numberOfEntries())
+            {
+                // Do some string replace to remove the unique strings to the
+                // file dictionary
+                strDictionary = (dictionary.toString()).replaceAll("meaning=\"(.+)\"", "meaning=\"null\"").replaceAll("Filename=\"(.+)\"", "Filename=\"null\"")
+                        .replaceAll("meaning=\"\"", "meaning=\"null\"").replaceAll("Desc=\"(.+)\"", "Desc=\"null\"").replaceAll("Build=\"(.+)\"", "Build=\"null\"")
+                        .replaceAll("Date=\"(.+)\"", "Date=\"null\"");
 
-				// Compare the dictionaries using the toString methods.
-				if (strDictionary.equals(dictionaryFromNetwork.toString())) {
-					System.out
-							.println("Dictionary from file and from network are the same");
-				} else {
-					System.out
-							.println("ERROR: Dictionary from file is different than from the network");
-				}
+                // Compare the dictionaries using the toString methods.
+                if (strDictionary.equals(dictionaryFromNetwork.toString()))
+                {
+                    System.out.println("Dictionary from file and from network are the same");
+                }
+                else
+                {
+                    System.out.println("ERROR: Dictionary from file is different than from the network");
+                }
 
-				// Write out the 3 different files for manual comparison in case
-				// the test fails.
+                // Write out the 3 different files for manual comparison in case
+                // the test fails.
 
-				BufferedWriter bw = null;
-				FileWriter fw = null;
+                BufferedWriter bw = null;
+                FileWriter fw = null;
 
-				try {
-					fw = new FileWriter("network_dictionary_dump.txt");
-					bw = new BufferedWriter(fw);
-					bw.write(dictionaryFromNetwork.toString());
-					bw.close();
+                try
+                {
+                    fw = new FileWriter("network_dictionary_dump.txt");
+                    bw = new BufferedWriter(fw);
+                    bw.write(dictionaryFromNetwork.toString());
+                    bw.close();
 
-					fw = new FileWriter("altered_local_dictionary_dump.txt");
-					bw = new BufferedWriter(fw);
-					bw.write(strDictionary);
-					bw.close();
+                    fw = new FileWriter("altered_local_dictionary_dump.txt");
+                    bw = new BufferedWriter(fw);
+                    bw.write(strDictionary);
+                    bw.close();
 
-					fw = new FileWriter("local_dictionary_dump.txt");
-					bw = new BufferedWriter(fw);
-					bw.write(dictionary.toString());
-					bw.close();
+                    fw = new FileWriter("local_dictionary_dump.txt");
+                    bw = new BufferedWriter(fw);
+                    bw.write(dictionary.toString());
+                    bw.close();
 
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else
-				System.out
-						.println("ERROR: Dictionary from file is different than from the network, number of entries does not match");
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            else
+                System.out.println("ERROR: Dictionary from file is different than from the network, number of entries does not match");
 
-		}
+        }
 // END APIQA  
         return CodecReturnCodes.SUCCESS;
     }
@@ -500,8 +494,7 @@ public class DictionaryHandler
              */
             if (fieldDictStreamState.isFinal())
                 return TransportReturnCodes.SUCCESS;
-            int ret = closeStream(channel,
-                                  FIELD_DICTIONARY_STREAM_ID, error);
+            int ret = closeStream(channel, FIELD_DICTIONARY_STREAM_ID, error);
             if (ret != TransportReturnCodes.SUCCESS)
                 return ret;
         }
@@ -514,8 +507,7 @@ public class DictionaryHandler
              */
             if (enumDictStreamState.isFinal())
                 return TransportReturnCodes.SUCCESS;
-            int ret = closeStream(channel,
-                                  ENUM_TYPE_DICTIONARY_STREAM_ID, error);
+            int ret = closeStream(channel, ENUM_TYPE_DICTIONARY_STREAM_ID, error);
             if (ret != TransportReturnCodes.SUCCESS)
                 return ret;
         }

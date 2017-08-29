@@ -54,8 +54,8 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
     private LoginRequest _loginRequest = (LoginRequest)LoginMsgFactory.createMsg();
     private LoginRefresh _loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
     private TunnelStreamSubmitOptions _tunnelStreamSubmitOptions = ReactorFactory.createTunnelStreamSubmitOptions();
-    private boolean _finalStatusEvent; 
-    
+    private boolean _finalStatusEvent;
+
     public TunnelStreamHandler()
     {
         // set the expected class of service for this provider (use defaults for common properties)
@@ -64,7 +64,7 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
         _expectedClassOfService.dataIntegrity().type(ClassesOfService.DataIntegrityTypes.RELIABLE);
     }
 
-    // application id 
+    // application id
     private static String applicationId = "256";
 
     // application name
@@ -72,66 +72,64 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
 
     void processNewStream(TunnelStreamRequestEvent event)
     {
-    	int ret;
-    	
-        if (isFilterValid(event.classOfServiceFilter()) &&
-                isClassOfServiceValid(event.classOfService()))
+        int ret;
+
+        if (isFilterValid(event.classOfServiceFilter()) && isClassOfServiceValid(event.classOfService()))
         {
             _tunnelStreamAcceptOptions.clear();
-            
+
             // set class of service to what this provider supports
             _tunnelStreamAcceptOptions.classOfService().dataIntegrity().type(ClassesOfService.DataIntegrityTypes.RELIABLE);
             _tunnelStreamAcceptOptions.classOfService().flowControl().type((ClassesOfService.FlowControlTypes.BIDIRECTIONAL));
 
-			// Set Authentication to match consumer. This provider will perform OMM Login authentication if requested.
+            // Set Authentication to match consumer. This provider will perform
+            // OMM Login authentication if requested.
             _tunnelStreamAcceptOptions.classOfService().authentication().type(event.classOfService().authentication().type());
-            
+
             _tunnelStreamAcceptOptions.statusEventCallback(this);
             _tunnelStreamAcceptOptions.defaultMsgCallback(this);
-                   
+
             if ((ret = event.reactorChannel().acceptTunnelStream(event, _tunnelStreamAcceptOptions, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
             {
                 System.out.println("acceptTunnelStream() failed with return code: " + ret + " <" + event.errorInfo().error().text() + ">");
-            }           
+            }
         }
-        else // invalid tunnel stream request
+        else
+        // invalid tunnel stream request
         {
             _tunnelStreamRejectOptions.clear();
-            
-			// Since we're rejecting due to a Class-of-Service mismatch,
-			// send a redirect to the consumer.
-			_tunnelStreamRejectOptions.expectedClassOfService(_expectedClassOfService);
-			_tunnelStreamRejectOptions.state().streamState(StreamStates.REDIRECTED);
-			_tunnelStreamRejectOptions.state().dataState(DataStates.SUSPECT);
-			_tunnelStreamRejectOptions.state().code(StateCodes.NONE);
+
+            // Since we're rejecting due to a Class-of-Service mismatch,
+            // send a redirect to the consumer.
+            _tunnelStreamRejectOptions.expectedClassOfService(_expectedClassOfService);
+            _tunnelStreamRejectOptions.state().streamState(StreamStates.REDIRECTED);
+            _tunnelStreamRejectOptions.state().dataState(DataStates.SUSPECT);
+            _tunnelStreamRejectOptions.state().code(StateCodes.NONE);
             _tunnelStreamRejectOptions.state().text().data("Unsupported TunnelStream class of service");
 
             if ((ret = event.reactorChannel().rejectTunnelStream(event, _tunnelStreamRejectOptions, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
             {
                 System.out.println("rejectTunnelStream() failed with return code: " + ret + " <" + event.errorInfo().error().text() + ">");
-            }            
+            }
         }
     }
 
     private boolean isClassOfServiceValid(ClassOfService classOfService)
     {
-        return (classOfService.common().maxMsgSize() == _expectedClassOfService.common().maxMsgSize() &&
-                classOfService.common().protocolType() == _expectedClassOfService.common().protocolType() &&
-                classOfService.common().protocolMajorVersion() == _expectedClassOfService.common().protocolMajorVersion() &&
-                classOfService.common().protocolMinorVersion() == _expectedClassOfService.common().protocolMinorVersion() &&
-                (classOfService.authentication().type() == _expectedClassOfService.authentication().type() ||
-				 classOfService.authentication().type() == ClassesOfService.AuthenticationTypes.NOT_REQUIRED) &&
-                classOfService.flowControl().type() == _expectedClassOfService.flowControl().type() &&
-                classOfService.dataIntegrity().type() == _expectedClassOfService.dataIntegrity().type() &&
-                classOfService.guarantee().type() == _expectedClassOfService.guarantee().type());
+        return (classOfService.common().maxMsgSize() == _expectedClassOfService.common().maxMsgSize()
+                && classOfService.common().protocolType() == _expectedClassOfService.common().protocolType()
+                && classOfService.common().protocolMajorVersion() == _expectedClassOfService.common().protocolMajorVersion()
+                && classOfService.common().protocolMinorVersion() == _expectedClassOfService.common().protocolMinorVersion()
+                && (classOfService.authentication().type() == _expectedClassOfService.authentication().type() || classOfService.authentication().type() == ClassesOfService.AuthenticationTypes.NOT_REQUIRED)
+                && classOfService.flowControl().type() == _expectedClassOfService.flowControl().type() && classOfService.dataIntegrity().type() == _expectedClassOfService.dataIntegrity().type() && classOfService
+                .guarantee().type() == _expectedClassOfService.guarantee().type());
     }
 
     private boolean isFilterValid(long filter)
     {
-        // this provider must have authentication, flow control and data integrity turned on and persistence turned off
-        return ((filter & ClassesOfService.FilterFlags.FLOW_CONTROL) > 0 &&
-                (filter & ClassesOfService.FilterFlags.DATA_INTEGRITY) > 0 &&
-                (filter & ClassesOfService.FilterFlags.GUARANTEE) == 0);
+        // this provider must have authentication, flow control and data
+        // integrity turned on and persistence turned off
+        return ((filter & ClassesOfService.FilterFlags.FLOW_CONTROL) > 0 && (filter & ClassesOfService.FilterFlags.DATA_INTEGRITY) > 0 && (filter & ClassesOfService.FilterFlags.GUARANTEE) == 0);
     }
 
     @Override
@@ -139,22 +137,21 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
     {
         int ret;
         _decodeIter.clear();
-		_decodeIter.setBufferAndRWFVersion(event.transportBuffer(), event.tunnelStream().classOfService().common().protocolMajorVersion(),
-				event.tunnelStream().classOfService().common().protocolMinorVersion());
+        _decodeIter.setBufferAndRWFVersion(event.transportBuffer(), event.tunnelStream().classOfService().common().protocolMajorVersion(), event.tunnelStream().classOfService().common()
+                .protocolMinorVersion());
         if (event.containerType() == DataTypes.MSG)
         {
             _msg.decode(_decodeIter);
         }
-        
+
         // check for login request
-        if (event.containerType() == DataTypes.MSG &&
-            event.tunnelStream().classOfService().authentication().type() == ClassesOfService.AuthenticationTypes.OMM_LOGIN &&
-            _msg.domainType() == DomainTypes.LOGIN && _msg.msgClass() == MsgClasses.REQUEST)
+        if (event.containerType() == DataTypes.MSG && event.tunnelStream().classOfService().authentication().type() == ClassesOfService.AuthenticationTypes.OMM_LOGIN
+                && _msg.domainType() == DomainTypes.LOGIN && _msg.msgClass() == MsgClasses.REQUEST)
         {
             _loginRequest.clear();
             _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
             _loginRequest.decode(_decodeIter, _msg);
-            
+
             // send login refresh
             _loginRefresh.clear();
             _loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
@@ -180,7 +177,7 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
             _loginRefresh.attrib().applyHasApplicationName();
             _loginRefresh.attrib().applicationName().data(applicationName);
 
-            if(_loginRequest.checkHasAttrib() && _loginRequest.attrib().checkHasPosition())
+            if (_loginRequest.checkHasAttrib() && _loginRequest.attrib().checkHasPosition())
             {
                 _loginRefresh.attrib().applyHasPosition();
                 _loginRefresh.attrib().position().data(_loginRequest.attrib().position().data(), _loginRequest.attrib().position().position(), _loginRequest.attrib().position().length());
@@ -189,8 +186,8 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
             // this provider does not support
             // singleOpen behavior
             _loginRefresh.attrib().applyHasSingleOpen();
-            _loginRefresh.attrib().singleOpen(0); 
-            
+            _loginRefresh.attrib().singleOpen(0);
+
             TransportBuffer buffer = _tunnelStream.getBuffer(1024, event.errorInfo());
             if (buffer == null)
             {
@@ -199,8 +196,8 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
             }
 
             _encodeIter.clear();
-            ret = _encodeIter.setBufferAndRWFVersion(buffer, event.tunnelStream().classOfService().common().protocolMajorVersion(),
-					event.tunnelStream().classOfService().common().protocolMinorVersion());
+            ret = _encodeIter.setBufferAndRWFVersion(buffer, event.tunnelStream().classOfService().common().protocolMajorVersion(), event.tunnelStream().classOfService().common()
+                    .protocolMinorVersion());
             if (ret != CodecReturnCodes.SUCCESS)
             {
                 System.out.println("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
@@ -218,8 +215,7 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
             _tunnelStreamSubmitOptions.containerType(DataTypes.MSG);
             if ((ret = _tunnelStream.submit(buffer, _tunnelStreamSubmitOptions, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
             {
-                System.out.println("TunnelStream.submit() failed : " + CodecReturnCodes.toString(ret)
-                        + "(" + event.errorInfo().error().text() + ")");
+                System.out.println("TunnelStream.submit() failed : " + CodecReturnCodes.toString(ret) + "(" + event.errorInfo().error().text() + ")");
                 _tunnelStream.releaseBuffer(buffer, event.errorInfo());
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
@@ -231,48 +227,49 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
         {
             // put buffer into generic message if received message is generic
             if (_msg.msgClass() == MsgClasses.GENERIC)
-        {
-            boolean testPassed = true;
-            byte b = 0;
-            for (int i = event.msg().encodedDataBody().position(); i < event.msg().encodedDataBody().length(); i++, b++)
             {
-            	if (b == 256)
-            	{
-            		b = 0;
-            	}
-            	if (event.msg().encodedDataBody().data().get(i) != b)
-            	{
-            		testPassed =  false;
-            		break;
-            	}
-            }
+                boolean testPassed = true;
+                byte b = 0;
+                for (int i = event.msg().encodedDataBody().position(); i < event.msg().encodedDataBody().length(); i++, b++)
+                {
+                    if (b == 256)
+                    {
+                        b = 0;
+                    }
+                    if (event.msg().encodedDataBody().data().get(i) != b)
+                    {
+                        testPassed = false;
+                        break;
+                    }
+                }
 
-            String resultString = testPassed ? "TEST PASSED" : "TEST FAILED";
-            System.out.println("Provider TunnelStreamHandler received MSG data: " + resultString + "\n");
-        	
-            // get buffer to encode message into
-            Buffer buffer = CodecFactory.createBuffer();
-            buffer.data(resultString);
-            
-            	GenericMsg genericMsg = (GenericMsg)CodecFactory.createMsg();
-            genericMsg.clear();
-            genericMsg.msgClass(MsgClasses.GENERIC);
+                String resultString = testPassed ? "TEST PASSED" : "TEST FAILED";
+                System.out.println("Provider TunnelStreamHandler received MSG data: " + resultString + "\n");
+
+                // get buffer to encode message into
+                Buffer buffer = CodecFactory.createBuffer();
+                buffer.data(resultString);
+
+                GenericMsg genericMsg = (GenericMsg)CodecFactory.createMsg();
+                genericMsg.clear();
+                genericMsg.msgClass(MsgClasses.GENERIC);
                 genericMsg.streamId(_msg.streamId());
                 genericMsg.domainType(_msg.domainType());
-            genericMsg.containerType(DataTypes.OPAQUE);
-            genericMsg.encodedDataBody(buffer);
+                genericMsg.containerType(DataTypes.OPAQUE);
+                genericMsg.encodedDataBody(buffer);
 
-            // submit the encoded data buffer to the tunnel stream
-            _tunnelStreamSubmitOptions.clear();
-            _tunnelStreamSubmitOptions.containerType(DataTypes.OPAQUE);
-            if ((ret = event.tunnelStream().submit(genericMsg, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
-            {
-                System.out.println("TunnelStream.submit() failed: " + CodecReturnCodes.toString(ret)
-                        + "(" + event.errorInfo().error().text() + ")");
-                return ReactorCallbackReturnCodes.SUCCESS;
+                // submit the encoded data buffer to the tunnel stream
+                _tunnelStreamSubmitOptions.clear();
+                _tunnelStreamSubmitOptions.containerType(DataTypes.OPAQUE);
+                if ((ret = event.tunnelStream().submit(genericMsg, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
+                {
+                    System.out.println("TunnelStream.submit() failed: " + CodecReturnCodes.toString(ret) + "(" + event.errorInfo().error().text() + ")");
+                    return ReactorCallbackReturnCodes.SUCCESS;
                 }
             }
-            else if (_msg.msgClass() == MsgClasses.REQUEST) // just send refresh message if request
+            else if (_msg.msgClass() == MsgClasses.REQUEST) // just send refresh
+                                                            // message if
+                                                            // request
             {
                 RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
                 refreshMsg.clear();
@@ -289,13 +286,12 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
                 refreshMsg.msgKey().serviceId(_msg.msgKey().serviceId());
                 refreshMsg.msgKey().applyHasName();
                 refreshMsg.msgKey().name(_msg.msgKey().name());
-    
+
                 // submit the encoded data buffer to the tunnel stream
                 _tunnelStreamSubmitOptions.clear();
                 if ((ret = event.tunnelStream().submit(refreshMsg, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
                 {
-                    System.out.println("TunnelStream.submit() failed: " + CodecReturnCodes.toString(ret)
-                            + "(" + event.errorInfo().error().text() + ")");
+                    System.out.println("TunnelStream.submit() failed: " + CodecReturnCodes.toString(ret) + "(" + event.errorInfo().error().text() + ")");
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
             }
@@ -308,36 +304,39 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
             byte b = 0;
             for (int i = 0; i < event.transportBuffer().length(); i++, b++)
             {
-            	if (b == 256)
-            	{
-            		b = 0;
-            	}
-            	if (event.transportBuffer().data().get(i) != b)
-            	{
-            		testPassed =  false;
-            		break;
-            	}
+                if (b == 256)
+                {
+                    b = 0;
+                }
+                if (event.transportBuffer().data().get(i) != b)
+                {
+                    testPassed = false;
+                    break;
+                }
             }
 
             String resultString = testPassed ? "TEST PASSED" : "TEST FAILED";
             System.out.println("Provider TunnelStreamHandler received OPAQUE data: " + resultString + "\n");
-            //byte[] msgBytes = new byte[event.transportBuffer().length()];
-            //event.transportBuffer().data().get(msgBytes);
-            //String msgString = new String(msgBytes);
-            //System.out.println("Provider TunnelStreamHandler received OPAQUE data: " + msgString + "\n");
+            // byte[] msgBytes = new byte[event.transportBuffer().length()];
+            // event.transportBuffer().data().get(msgBytes);
+            // String msgString = new String(msgBytes);
+            // System.out.println("Provider TunnelStreamHandler received OPAQUE data: "
+            // + msgString + "\n");
 // END APIQA:
-            
+
             // get buffer to encode response message into
 // APIQA
             TransportBuffer buffer = _tunnelStream.getBuffer(resultString.length(), event.errorInfo());
-            //TransportBuffer buffer = _tunnelStream.getBuffer(msgString.length() + " Response".length(), event.errorInfo());
+            // TransportBuffer buffer =
+            // _tunnelStream.getBuffer(msgString.length() +
+            // " Response".length(), event.errorInfo());
 // END APIQA:
             if (buffer == null)
             {
                 System.out.println("defaultMsgCallback failed: Unable to get a buffer from TunnelStream <" + event.errorInfo().error().text() + ">");
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
-            
+
             // put basic text message in buffer
 // APIQA
             buffer.data().put(resultString.getBytes());
@@ -349,13 +348,13 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
             _tunnelStreamSubmitOptions.containerType(DataTypes.OPAQUE);
             if ((ret = _tunnelStream.submit(buffer, _tunnelStreamSubmitOptions, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
             {
-                System.out.println("TunnelStream.submit() failed : " + CodecReturnCodes.toString(ret)
-                        + "(" + event.errorInfo().error().text() + ")");
+                System.out.println("TunnelStream.submit() failed : " + CodecReturnCodes.toString(ret) + "(" + event.errorInfo().error().text() + ")");
                 _tunnelStream.releaseBuffer(buffer, event.errorInfo());
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
         }
-        else // not a login or opaque
+        else
+        // not a login or opaque
         {
             System.out.println("TunnelStreamHandler received unsupported container type");
         }
@@ -368,33 +367,33 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
     {
         int ret;
         State state = event.state();
-        
+
         System.out.println("Received TunnelStreamStatusEvent for Stream ID " + event.tunnelStream().streamId() + " with " + state + "\n");
-        
-        switch(state.streamState())
+
+        switch (state.streamState())
         {
             case StreamStates.OPEN:
 
                 if (state.dataState() == DataStates.OK && _tunnelStream == null)
                 {
                     // Stream is open and ready for use.
-                    _tunnelStream = event.tunnelStream();                    
+                    _tunnelStream = event.tunnelStream();
                 }
                 break;
 
             case StreamStates.CLOSED_RECOVER:
             case StreamStates.CLOSED:
             default:
-                // For other stream states such as Closed & ClosedRecover, close the tunnel stream. 
+                // For other stream states such as Closed & ClosedRecover, close
+                // the tunnel stream.
                 if ((ret = event.tunnelStream().close(_finalStatusEvent, event.errorInfo())) < ReactorReturnCodes.SUCCESS)
                 {
-                    System.out.println("Failed to close TunnelStream:"
-                            + ReactorReturnCodes.toString(ret) + "(" + event.errorInfo().error().text() + ")");
+                    System.out.println("Failed to close TunnelStream:" + ReactorReturnCodes.toString(ret) + "(" + event.errorInfo().error().text() + ")");
                 }
-                
+
                 // Remove our tunnel information if the tunnel was open.
                 _tunnelStream = null;
-                
+
                 break;
         }
 
@@ -403,20 +402,20 @@ class TunnelStreamHandler implements TunnelStreamStatusEventCallback, TunnelStre
 
     int closeStream(boolean finalStatusEvent, ReactorErrorInfo errorInfo)
     {
-    	int ret = ReactorReturnCodes.SUCCESS;
-    	_finalStatusEvent = finalStatusEvent; 
-    	
+        int ret = ReactorReturnCodes.SUCCESS;
+        _finalStatusEvent = finalStatusEvent;
+
         if (_tunnelStream != null)
         {
             ret = _tunnelStream.close(finalStatusEvent, errorInfo);
             _tunnelStream = null;
         }
-        
+
         return ret;
     }
-    
+
     boolean isStreamClosed()
     {
-    	return _tunnelStream == null;
+        return _tunnelStream == null;
     }
 }

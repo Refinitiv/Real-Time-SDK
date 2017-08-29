@@ -174,7 +174,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 public class Consumer implements ResponseCallback
 {
     private static final int CONSUMER_CONNECTION_RETRY_TIME = 15; // seconds
-    
+
     private ChannelSession channelSession;
     private ChannelInfo channelInfo;
     private boolean postInit = false;
@@ -187,38 +187,39 @@ public class Consumer implements ResponseCallback
     private PostHandler postHandler;
     private SymbolListHandler symbolListHandler;
     private YieldCurveHandler yieldCurveHandler;
- 
+
     private boolean shouldOffStreamPost = false;
-    private boolean shouldOnStreamPost = false;   
+    private boolean shouldOnStreamPost = false;
     private Buffer postItemName;
     private StreamIdWatchList itemWatchList;
 
     // indicates if requested service is up
     private boolean requestsSent;
-    
+
     private long runtime;
-    
+
     // default server host name
     private static final String defaultSrvrHostname = "localhost";
-    
+
     // default server port number
     private static final String defaultSrvrPortNo = "14002";
-    
+
     // default service name
     private static final String defaultServiceName = "DIRECT_FEED";
-    
+
     // default item name
     private static final String defaultItemName = "TRI.N";
-    
+
     // consumer run-time in seconds
     private static final int defaultRuntime = 600;
 
-    private Error error;    // error information
+    private Error error; // error information
 
     private DecodeIterator dIter = CodecFactory.createDecodeIterator();
     private Msg responseMsg = CodecFactory.createMsg();
-    
-    // private streams items are non-recoverable, it is not sent again after recovery
+
+    // private streams items are non-recoverable, it is not sent again after
+    // recovery
     private boolean mppsRequestSent = false;
     private boolean mbopsRequestSent = false;
     private boolean mbppsRequestSent = false;
@@ -228,12 +229,13 @@ public class Consumer implements ResponseCallback
     private String _localHostName = null;
     private String _localIPaddress = null;
 
-	//APIQA:  adding a variable to count updates received
-	private long updatesReceived;
-	private int updateCount;
-	// END APIQA
+    // APIQA: adding a variable to count updates received
+    private long updatesReceived;
+    private int updateCount;
 
-	public Consumer()
+    // END APIQA
+
+    public Consumer()
     {
         channelInfo = TransportFactory.createChannelInfo();
         itemWatchList = new StreamIdWatchList();
@@ -287,23 +289,12 @@ public class Consumer implements ResponseCallback
                 closeChannel();
                 return;
             }
-            System.out.printf("Channel Info:\n" +
-                    "  Max Fragment Size: %d\n" +
-                    "  Output Buffers: %d Max, %d Guaranteed\n" +
-                    "  Input Buffers: %d\n" +
-                    "  Send/Recv Buffer Sizes: %d/%d\n" +
-                    "  Ping Timeout: %d\n",
-                              channelInfo.maxFragmentSize(),
-                              channelInfo.maxOutputBuffers(), channelInfo.guaranteedOutputBuffers(),
-                              channelInfo.numInputBuffers(),
-                              channelInfo.sysSendBufSize(), channelInfo.sysRecvBufSize(),
-                              channelInfo.pingTimeout()
-                    );
-            System.out.println( "  Client To Server Pings: " + channelInfo.clientToServerPings() +
-					"\n  Server To Client Pings: " + channelInfo.serverToClientPings() +
-					"\n");
+            System.out.printf("Channel Info:\n" + "  Max Fragment Size: %d\n" + "  Output Buffers: %d Max, %d Guaranteed\n" + "  Input Buffers: %d\n" + "  Send/Recv Buffer Sizes: %d/%d\n"
+                                      + "  Ping Timeout: %d\n", channelInfo.maxFragmentSize(), channelInfo.maxOutputBuffers(), channelInfo.guaranteedOutputBuffers(), channelInfo.numInputBuffers(),
+                              channelInfo.sysSendBufSize(), channelInfo.sysRecvBufSize(), channelInfo.pingTimeout());
+            System.out.println("  Client To Server Pings: " + channelInfo.clientToServerPings() + "\n  Server To Client Pings: " + channelInfo.serverToClientPings() + "\n");
             System.out.printf("  Connected component version: ");
-            
+
             int count = channelInfo.componentInfo().size();
             if (count == 0)
                 System.out.printf("(No component info)");
@@ -324,14 +315,14 @@ public class Consumer implements ResponseCallback
             channelSession.isLoginReissue = false;
             if (loginHandler.sendRequest(channelSession, error) != CodecReturnCodes.SUCCESS)
             {
-            	System.err.println("Error sending Login request, exit.");
+                System.err.println("Error sending Login request, exit.");
                 closeChannel();
                 System.exit(TransportReturnCodes.FAILURE);
             }
 
             // Initialize ping handler
             pingHandler.initPingHandler(channelSession.channel().pingTimeout());
-                        
+
             // this is the message processing loop
             readAndProcessResp(pingHandler);
         }
@@ -347,7 +338,7 @@ public class Consumer implements ResponseCallback
         while (System.currentTimeMillis() < runtime && channelSession.shouldRecoverConnection())
         {
             System.out.println("Starting connection...");
-            
+
             requestsSent = false;
 
             // get connect options from the channel session
@@ -404,11 +395,11 @@ public class Consumer implements ResponseCallback
                 System.exit(TransportReturnCodes.FAILURE);
             }
 
-            //  break out of message processing loop if connection should recover
+            // break out of message processing loop if connection should recover
             if (channelSession.shouldRecoverConnection())
                 break;
 
-            //Handle pings
+            // Handle pings
             if (pingHandler.handlePings(channelSession.channel(), error) != CodecReturnCodes.SUCCESS)
             {
                 closeChannel();
@@ -419,21 +410,20 @@ public class Consumer implements ResponseCallback
 
             handlePosting();
 
-	        // send login reissue if login reissue time has passed
-    		if (channelSession.canSendLoginReissue &&
-        		System.currentTimeMillis() >= channelSession.loginReissueTime)
-    		{
-	        	channelSession.isLoginReissue = true;
-				if (loginHandler.sendRequest(channelSession, error) !=  CodecReturnCodes.SUCCESS)
-				{
-					System.out.println("Login reissue failed. Error: " + error.text());
-				}
-				else
-				{
-					System.out.println("Login reissue sent");
-				}
-				channelSession.canSendLoginReissue = false;
-	        }
+            // send login reissue if login reissue time has passed
+            if (channelSession.canSendLoginReissue && System.currentTimeMillis() >= channelSession.loginReissueTime)
+            {
+                channelSession.isLoginReissue = true;
+                if (loginHandler.sendRequest(channelSession, error) != CodecReturnCodes.SUCCESS)
+                {
+                    System.out.println("Login reissue failed. Error: " + error.text());
+                }
+                else
+                {
+                    System.out.println("Login reissue sent");
+                }
+                channelSession.canSendLoginReissue = false;
+            }
         }
     }
 
@@ -530,26 +520,26 @@ public class Consumer implements ResponseCallback
         postHandler.enableOnstreamPost(shouldOnStreamPost);
 
         String value = CommandLine.value("publisherInfo");
-        if (value!= null) 
+        if (value != null)
         {
-        	String [] pieces = value.split(",");
-        		
-        	if( pieces.length > 1 )
+            String[] pieces = value.split(",");
+
+            if (pieces.length > 1)
             {
-        		String publisherId = pieces[0];
-            		
-        		String publisherAddress = pieces[1];
-            	
-            	postHandler.setPublisherInfo(publisherId, publisherAddress);            		
-            }  
-        	else
-        	{
+                String publisherId = pieces[0];
+
+                String publisherAddress = pieces[1];
+
+                postHandler.setPublisherInfo(publisherId, publisherAddress);
+            }
+            else
+            {
                 System.err.println("Error loading command line arguments for publisherInfo [id, address]:\t");
                 System.out.println("Consumer exits...");
-                System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        	}
+                System.exit(CodecReturnCodes.FAILURE);
+            }
         }
-                       
+
         loginHandler.userName(CommandLine.value("uname"));
         loginHandler.authenticationToken(CommandLine.value("at"));
         loginHandler.authenticationExtended(CommandLine.value("ax"));
@@ -571,7 +561,7 @@ public class Consumer implements ResponseCallback
             System.out.println("Consumer exits...");
             System.exit(error.errorId());
         }
-        
+
         String connectionType = CommandLine.value("connectionType");
         if (connectionType.equals("encrypted"))
         {
@@ -603,53 +593,53 @@ public class Consumer implements ResponseCallback
         if (CommandLine.booleanValue("proxy"))
         {
             options.tunnelingInfo().HTTPproxy(true);
-            
+
             String proxyHost = CommandLine.value("ph");
-            if ( proxyHost == null)
+            if (proxyHost == null)
             {
-            	System.err.println("Error: Proxy hostname not provided.");  
-            	System.out.println("Consumer exits...");
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }           
+                System.err.println("Error: Proxy hostname not provided.");
+                System.out.println("Consumer exits...");
+                System.exit(CodecReturnCodes.FAILURE);
+            }
             String proxyPort = CommandLine.value("pp");
-            if ( proxyPort == null)
+            if (proxyPort == null)
             {
-            	System.err.println("Error: Proxy port number not provided.");
-            	 System.out.println("Consumer exits...");
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }                                   
-                        
-            options.tunnelingInfo().HTTPproxyHostName(proxyHost);  
+                System.err.println("Error: Proxy port number not provided.");
+                System.out.println("Consumer exits...");
+                System.exit(CodecReturnCodes.FAILURE);
+            }
+
+            options.tunnelingInfo().HTTPproxyHostName(proxyHost);
             try
             {
-            	options.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));                   	
+                options.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-               	System.err.println("Error: Proxy port number not provided."); 
+                System.err.println("Error: Proxy port number not provided.");
                 System.out.println("Consumer exits...");
-            	System.exit(CodecReturnCodes.FAILURE);    
+                System.exit(CodecReturnCodes.FAILURE);
             }
         }
-        
+
         String keyFile = CommandLine.value("keyfile");
         if (keyFile == null)
         {
-        	System.err.println("Error: Keystore file is missing for connectionType of encryption.");
-        	System.out.println("Consumer exits...");
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+            System.err.println("Error: Keystore file is missing for connectionType of encryption.");
+            System.out.println("Consumer exits...");
+            System.exit(CodecReturnCodes.FAILURE);
         }
-        
+
         String keyPasswd = CommandLine.value("keypasswd");
         if (keyPasswd == null)
         {
-        	System.err.println("Error: Keystore Password is missing for connectionType of encryption.");
-        	System.out.println("Consumer exits...");
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
+            System.err.println("Error: Keystore Password is missing for connectionType of encryption.");
+            System.out.println("Consumer exits...");
+            System.exit(CodecReturnCodes.FAILURE);
         }
-                
+
         options.tunnelingInfo().KeystoreFile(keyFile);
-        options.tunnelingInfo().KeystorePasswd(keyPasswd);        
+        options.tunnelingInfo().KeystorePasswd(keyPasswd);
         channelSession.tunnelingConnectOptions(_tunnelingConnectOpts);
 
         // credentials
@@ -667,30 +657,30 @@ public class Consumer implements ResponseCallback
             options.tunnelingInfo().HTTPproxy(true);
 
             String proxyHost = CommandLine.value("ph");
-            if ( proxyHost == null)
+            if (proxyHost == null)
             {
-            	System.err.println("Error: Proxy hostname not provided."); 
-            	System.out.println("Consumer exits...");
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }           
+                System.err.println("Error: Proxy hostname not provided.");
+                System.out.println("Consumer exits...");
+                System.exit(CodecReturnCodes.FAILURE);
+            }
             String proxyPort = CommandLine.value("pp");
-            if ( proxyPort == null)
+            if (proxyPort == null)
             {
-            	System.err.println("Error: Proxy port number not provided."); 
-            	System.out.println("Consumer exits...");
-            	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-            }                       
-                        
+                System.err.println("Error: Proxy port number not provided.");
+                System.out.println("Consumer exits...");
+                System.exit(CodecReturnCodes.FAILURE);
+            }
+
             options.tunnelingInfo().HTTPproxyHostName(proxyHost);
             try
             {
-            	options.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));            
+                options.tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-            	System.err.println("Error: Proxy port number not provided."); 
-            	System.out.println("Consumer exits...");
-            	System.exit(CodecReturnCodes.FAILURE);       
+                System.err.println("Error: Proxy port number not provided.");
+                System.out.println("Consumer exits...");
+                System.exit(CodecReturnCodes.FAILURE);
             }
         }
         channelSession.tunnelingConnectOptions(_tunnelingConnectOpts);
@@ -712,32 +702,32 @@ public class Consumer implements ResponseCallback
      */
     private void setCredentials(ConnectOptions options)
     {
-    	String proxyUsername = CommandLine.value("plogin");
-        if ( proxyUsername == null)
+        String proxyUsername = CommandLine.value("plogin");
+        if (proxyUsername == null)
         {
-        	System.err.println("Error: Proxy username not provided.");  
-        	System.out.println("Consumer exits...");
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }         	
+            System.err.println("Error: Proxy username not provided.");
+            System.out.println("Consumer exits...");
+            System.exit(CodecReturnCodes.FAILURE);
+        }
         String proxyPasswd = CommandLine.value("ppasswd");
-        if ( proxyPasswd == null)
+        if (proxyPasswd == null)
         {
-        	System.err.println("Error: Proxy password not provided.");  
-        	System.out.println("Consumer exits...");
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }     
+            System.err.println("Error: Proxy password not provided.");
+            System.out.println("Consumer exits...");
+            System.exit(CodecReturnCodes.FAILURE);
+        }
         String proxyDomain = CommandLine.value("pdomain");
-        if ( proxyDomain == null)
+        if (proxyDomain == null)
         {
-        	System.err.println("Error: Proxy domain not provided.");  
-        	System.out.println("Consumer exits...");
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }             
-    	    	
+            System.err.println("Error: Proxy domain not provided.");
+            System.out.println("Consumer exits...");
+            System.exit(CodecReturnCodes.FAILURE);
+        }
+
         options.credentialsInfo().HTTPproxyUsername(proxyUsername);
         options.credentialsInfo().HTTPproxyPasswd(proxyPasswd);
         options.credentialsInfo().HTTPproxyDomain(proxyDomain);
-        
+
         try
         {
             _localIPaddress = InetAddress.getLocalHost().getHostAddress();
@@ -748,33 +738,28 @@ public class Consumer implements ResponseCallback
             _localHostName = _localIPaddress;
         }
         options.credentialsInfo().HTTPproxyLocalHostname(_localHostName);
-        
+
         String proxyKrbfile = CommandLine.value("krbfile");
         if (proxyKrbfile == null)
         {
-        	System.err.println("Error: Proxy krbfile not provided.");  
-        	System.out.println("Consumer exits...");
-        	System.exit(CodecReturnCodes.FAILURE);        		        		        		
-        }                              
-        options.credentialsInfo().HTTPproxyKRB5configFile(proxyKrbfile);        
+            System.err.println("Error: Proxy krbfile not provided.");
+            System.out.println("Consumer exits...");
+            System.exit(CodecReturnCodes.FAILURE);
+        }
+        options.credentialsInfo().HTTPproxyKRB5configFile(proxyKrbfile);
     }
 
     private boolean isMarketPriceArgSpecified()
     {
-        return (CommandLine.hasArg("mp") ||
-                CommandLine.hasArg("mpps") ||
-                CommandLine.hasArg("mbp") ||
-                CommandLine.hasArg("mbpps") ||
-                CommandLine.hasArg("mbo") ||
-                CommandLine.hasArg("mbops") || CommandLine.hasArg("sl"));
+        return (CommandLine.hasArg("mp") || CommandLine.hasArg("mpps") || CommandLine.hasArg("mbp") || CommandLine.hasArg("mbpps") || CommandLine.hasArg("mbo") || CommandLine.hasArg("mbops") || CommandLine
+                .hasArg("sl"));
     }
 
     private boolean isYieldCurveArgSpecified()
     {
-        return (CommandLine.hasArg("yc") ||
-                CommandLine.hasArg("ycps"));
-    }    
-    
+        return (CommandLine.hasArg("yc") || CommandLine.hasArg("ycps"));
+    }
+
     /**
      * Call back method to process responses from channel. Processing responses
      * consists of performing a high level decode of the message and then
@@ -793,10 +778,9 @@ public class Consumer implements ResponseCallback
         int ret = responseMsg.decode(dIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
-            System.out.println("\nDecodeMsg(): Error " + ret + " on SessionData Channel="
-                    + chnl.channel().selectableChannel() + "  Size " + (buffer.data().limit() - buffer.data().position()));
+            System.out.println("\nDecodeMsg(): Error " + ret + " on SessionData Channel=" + chnl.channel().selectableChannel() + "  Size " + (buffer.data().limit() - buffer.data().position()));
             closeChannel();
-        	System.out.println("Consumer exits...");
+            System.out.println("Consumer exits...");
             System.exit(TransportReturnCodes.FAILURE);
         }
 
@@ -832,7 +816,7 @@ public class Consumer implements ResponseCallback
                 processSymbolListResp(responseMsg, dIter);
                 break;
             case DomainTypes.YIELD_CURVE:
-            	processYieldCurveResp(responseMsg, dIter);
+                processYieldCurveResp(responseMsg, dIter);
                 break;
             default:
                 System.out.println("Unhandled Domain Type: " + responseMsg.domainType());
@@ -852,8 +836,7 @@ public class Consumer implements ResponseCallback
 
     private void processMarketByPriceResp(Msg responseMsg, DecodeIterator dIter)
     {
-        if (marketByPriceHandler.processResponse(responseMsg, dIter, dictionaryHandler
-                .dictionary(), error) != CodecReturnCodes.SUCCESS)
+        if (marketByPriceHandler.processResponse(responseMsg, dIter, dictionaryHandler.dictionary(), error) != CodecReturnCodes.SUCCESS)
         {
             closeChannel();
             System.err.println("Error processing marketByPrice response, exit.");
@@ -863,8 +846,7 @@ public class Consumer implements ResponseCallback
 
     private void processMarketByOrderResp(Msg responseMsg, DecodeIterator dIter)
     {
-        if (marketByOrderHandler.processResponse(responseMsg, dIter, dictionaryHandler
-                .dictionary(), error) != CodecReturnCodes.SUCCESS)
+        if (marketByOrderHandler.processResponse(responseMsg, dIter, dictionaryHandler.dictionary(), error) != CodecReturnCodes.SUCCESS)
         {
             System.err.println("Error processing marketByOrder response, exit.");
             closeChannel();
@@ -874,28 +856,31 @@ public class Consumer implements ResponseCallback
 
     private void processMarketPriceResp(Msg responseMsg, DecodeIterator dIter)
     {
-        if (marketPriceHandler.processResponse(responseMsg, dIter, dictionaryHandler
-                .dictionary(), error) != CodecReturnCodes.SUCCESS)
+        if (marketPriceHandler.processResponse(responseMsg, dIter, dictionaryHandler.dictionary(), error) != CodecReturnCodes.SUCCESS)
         {
             System.err.println("Error processing marketPrice response, exit.");
             closeChannel();
             System.exit(TransportReturnCodes.FAILURE);
         }
-        
-		// APIQA:  Incrementing update counter
+
+        // APIQA: Incrementing update counter
         if (responseMsg.msgClass() == MsgClasses.UPDATE)
         {
-			updatesReceived++;
-			// APIQA: Send a login reissue with PAUSE ALL
-			if ( updatesReceived == 2 ) {
-				if (loginHandler.sendPauseResumeRequest(channelSession, error, true, false) != CodecReturnCodes.SUCCESS) {
-					System.out.println("------------APIQA: attempted login reissue failed. Error: " + error.text());
-				} else {
-					System.out.println("------------APIQA: PAUSE-ALL login reissue done.");
-				}
-			}
+            updatesReceived++;
+            // APIQA: Send a login reissue with PAUSE ALL
+            if (updatesReceived == 2)
+            {
+                if (loginHandler.sendPauseResumeRequest(channelSession, error, true, false) != CodecReturnCodes.SUCCESS)
+                {
+                    System.out.println("------------APIQA: attempted login reissue failed. Error: " + error.text());
+                }
+                else
+                {
+                    System.out.println("------------APIQA: PAUSE-ALL login reissue done.");
+                }
+            }
         }
-		// END APIQA: Send a login reissue with PAUSE ALL
+        // END APIQA: Send a login reissue with PAUSE ALL
     }
 
     private void processDictionaryResp(ChannelSession chnl, Msg responseMsg, DecodeIterator dIter)
@@ -907,9 +892,7 @@ public class Consumer implements ResponseCallback
             System.exit(TransportReturnCodes.FAILURE);
         }
 
-        if (dictionaryHandler.isFieldDictionaryLoaded() &&
-                dictionaryHandler.isEnumTypeDictionaryLoaded() &&
-                responseMsg.msgClass() == MsgClasses.REFRESH)
+        if (dictionaryHandler.isFieldDictionaryLoaded() && dictionaryHandler.isEnumTypeDictionaryLoaded() && responseMsg.msgClass() == MsgClasses.REFRESH)
         {
             System.out.println("Dictionary ready, requesting item(s)...");
 
@@ -947,34 +930,37 @@ public class Consumer implements ResponseCallback
 
             System.out.println("Requested service '" + CommandLine.value("s") + "' not up. Waiting for service to be up...");
         }
-        
-		// APIQA: Send a login reissue with RESUME ALL
+
+        // APIQA: Send a login reissue with RESUME ALL
         if (responseMsg.msgClass() == MsgClasses.UPDATE)
         {
-        	updateCount++;
-			if (updateCount == 1) {
-				// Do a RESUME
-				if (loginHandler.sendPauseResumeRequest(channelSession, error, false, true) != CodecReturnCodes.SUCCESS) {
-					System.out.println("------------APIQA: attempted login reissue failed. Error: " + error.text());
-				} else {
-					System.out.println("------------APIQA: RESUME-ALL login reissue done.");
-				}
-			}
+            updateCount++;
+            if (updateCount == 1)
+            {
+                // Do a RESUME
+                if (loginHandler.sendPauseResumeRequest(channelSession, error, false, true) != CodecReturnCodes.SUCCESS)
+                {
+                    System.out.println("------------APIQA: attempted login reissue failed. Error: " + error.text());
+                }
+                else
+                {
+                    System.out.println("------------APIQA: RESUME-ALL login reissue done.");
+                }
+            }
         }
-		// END APIQA
+        // END APIQA
     }
 
     private void processYieldCurveResp(Msg responseMsg, DecodeIterator dIter)
     {
-        if (yieldCurveHandler.processResponse(responseMsg, dIter, dictionaryHandler
-                .dictionary(), error) != CodecReturnCodes.SUCCESS)
+        if (yieldCurveHandler.processResponse(responseMsg, dIter, dictionaryHandler.dictionary(), error) != CodecReturnCodes.SUCCESS)
         {
             System.err.println("Error processing yieldCurve response, exit.");
             closeChannel();
             System.exit(TransportReturnCodes.FAILURE);
         }
     }
-    
+
     private void sendRequests(ChannelSession chnl)
     {
         if (requestsSent)
@@ -1061,8 +1047,8 @@ public class Consumer implements ResponseCallback
         }
         if (symbolListHandler.sendRequest(chnl, error) != CodecReturnCodes.SUCCESS)
         {
-        	System.out.println(error.text());
-        	System.err.println("Error sending symbolList request, exit...");
+            System.out.println(error.text());
+            System.err.println("Error sending symbolList request, exit...");
             closeChannel();
             System.exit(TransportReturnCodes.FAILURE);
         }
@@ -1072,7 +1058,7 @@ public class Consumer implements ResponseCallback
     {
         if (marketByPriceHandler.sendItemRequests(chnl, CommandLine.values("mbp"), false, loginHandler.refreshInfo(), srcDirHandler.serviceInfo(), error) != CodecReturnCodes.SUCCESS)
         {
-        	System.err.println("Error sending MBP request, exit.");
+            System.err.println("Error sending MBP request, exit.");
             System.out.println(error.text());
             closeChannel();
             System.exit(TransportReturnCodes.FAILURE);
@@ -1084,7 +1070,7 @@ public class Consumer implements ResponseCallback
             {
                 System.out.println(error.text());
                 closeChannel();
-            	System.out.println("Consumer exits...");
+                System.out.println("Consumer exits...");
                 System.exit(TransportReturnCodes.FAILURE);
             }
             mbppsRequestSent = true;
@@ -1095,7 +1081,7 @@ public class Consumer implements ResponseCallback
     {
         if (marketByOrderHandler.sendItemRequests(chnl, CommandLine.values("mbo"), false, loginHandler.refreshInfo(), srcDirHandler.serviceInfo(), error) != CodecReturnCodes.SUCCESS)
         {
-        	System.err.println("Error sending MBO request, exit.");
+            System.err.println("Error sending MBO request, exit.");
             System.out.println(error.text());
             closeChannel();
             System.exit(TransportReturnCodes.FAILURE);
@@ -1105,7 +1091,7 @@ public class Consumer implements ResponseCallback
         {
             if (marketByOrderHandler.sendItemRequests(chnl, CommandLine.values("mbops"), true, loginHandler.refreshInfo(), srcDirHandler.serviceInfo(), error) != CodecReturnCodes.SUCCESS)
             {
-            	System.err.println("Error sending MBO request, exit.");
+                System.err.println("Error sending MBO request, exit.");
                 System.out.println(error.text());
                 closeChannel();
                 System.exit(TransportReturnCodes.FAILURE);
@@ -1118,7 +1104,7 @@ public class Consumer implements ResponseCallback
     {
         if (marketPriceHandler.sendItemRequests(chnl, CommandLine.values("mp"), false, loginHandler.refreshInfo(), srcDirHandler.serviceInfo(), error) != CodecReturnCodes.SUCCESS)
         {
-        	System.err.println("Error sending MP request, exit.");
+            System.err.println("Error sending MP request, exit.");
             System.out.println(error.text());
             closeChannel();
             System.exit(TransportReturnCodes.FAILURE);
@@ -1128,7 +1114,7 @@ public class Consumer implements ResponseCallback
         {
             if (marketPriceHandler.sendItemRequests(chnl, CommandLine.values("mpps"), true, loginHandler.refreshInfo(), srcDirHandler.serviceInfo(), error) != CodecReturnCodes.SUCCESS)
             {
-            	System.err.println("Error sending MP request, exit...");
+                System.err.println("Error sending MP request, exit...");
                 System.out.println(error.text());
                 closeChannel();
                 System.exit(TransportReturnCodes.FAILURE);
@@ -1141,7 +1127,7 @@ public class Consumer implements ResponseCallback
     {
         if (yieldCurveHandler.sendItemRequests(chnl, CommandLine.values("yc"), false, loginHandler.refreshInfo(), srcDirHandler.serviceInfo(), error) != CodecReturnCodes.SUCCESS)
         {
-        	System.err.println("Error sending YC request, exit.");
+            System.err.println("Error sending YC request, exit.");
             System.out.println(error.text());
             closeChannel();
             System.exit(TransportReturnCodes.FAILURE);
@@ -1151,19 +1137,18 @@ public class Consumer implements ResponseCallback
         {
             if (yieldCurveHandler.sendItemRequests(chnl, CommandLine.values("ycps"), true, loginHandler.refreshInfo(), srcDirHandler.serviceInfo(), error) != CodecReturnCodes.SUCCESS)
             {
-            	System.err.println("Error sending YC request, exit...");
+                System.err.println("Error sending YC request, exit...");
                 System.out.println(error.text());
                 closeChannel();
                 System.exit(TransportReturnCodes.FAILURE);
             }
             ycpsRequestSent = true;
         }
-    }    
-    
+    }
+
     private boolean isDictionariesLoaded()
     {
-        return dictionaryHandler.isFieldDictionaryLoaded()
-                && dictionaryHandler.isEnumTypeDictionaryLoaded();
+        return dictionaryHandler.isFieldDictionaryLoaded() && dictionaryHandler.isEnumTypeDictionaryLoaded();
     }
 
     private void checkAndInitPostingSupport()
@@ -1171,12 +1156,10 @@ public class Consumer implements ResponseCallback
         if (!(shouldOnStreamPost || shouldOffStreamPost) || postInit)
             return;
 
-        // set up posting if its enabled 
-        
+        // set up posting if its enabled
+
         // ensure that provider supports posting - if not, disable posting
-        if (!loginHandler.refreshInfo().checkHasFeatures() ||
-                !loginHandler.refreshInfo().features().checkHasSupportPost() ||
-                loginHandler.refreshInfo().features().supportOMMPost() == 0)
+        if (!loginHandler.refreshInfo().checkHasFeatures() || !loginHandler.refreshInfo().features().checkHasSupportPost() || loginHandler.refreshInfo().features().supportOMMPost() == 0)
         {
             // provider does not support posting, disable it
             shouldOffStreamPost = false;
@@ -1187,7 +1170,8 @@ public class Consumer implements ResponseCallback
             return;
         }
 
-        // This sets up our basic timing so post messages will be sent periodically
+        // This sets up our basic timing so post messages will be sent
+        // periodically
         postHandler.initPostHandler();
 
         // posting has been initialized
@@ -1199,7 +1183,7 @@ public class Consumer implements ResponseCallback
         int ret = loginHandler.processResponse(responseMsg, dIter, error);
         if (ret != CodecReturnCodes.SUCCESS)
         {
-        	System.err.println("Error processing Login response, exit.");
+            System.err.println("Error processing Login response, exit.");
             System.out.println(error.text());
             closeChannel();
             System.exit(TransportReturnCodes.FAILURE);
@@ -1231,7 +1215,7 @@ public class Consumer implements ResponseCallback
         {
             System.out.println(error.text());
             closeChannel();
-        	System.out.println("Consumer exits...");
+            System.out.println("Consumer exits...");
             System.exit(TransportReturnCodes.FAILURE);
         }
         else if (loginState == ConsumerLoginState.CLOSED_RECOVERABLE)
@@ -1240,14 +1224,18 @@ public class Consumer implements ResponseCallback
             if (ret != CodecReturnCodes.SUCCESS)
             {
                 System.out.println("Error recovering connection: " + error.text());
-            	System.out.println("Consumer exits...");
+                System.out.println("Consumer exits...");
                 System.exit(TransportReturnCodes.FAILURE);
             }
         }
         else if (loginState == ConsumerLoginState.SUSPECT)
         {
-            if (!loginHandler.refreshInfo().checkHasAttrib() || // default behavior when singleopen attrib not set
-            loginHandler.refreshInfo().attrib().singleOpen() == 0)
+            if (!loginHandler.refreshInfo().checkHasAttrib() || // default
+                                                                // behavior when
+                                                                // singleopen
+                                                                // attrib not
+                                                                // set
+                    loginHandler.refreshInfo().attrib().singleOpen() == 0)
             {
                 // login suspect from no single-open provider: 1) close source
                 // directory stream and item streams. 2) reopen streams
@@ -1260,32 +1248,31 @@ public class Consumer implements ResponseCallback
                 {
                     System.out.println("Error closing directory stream: " + error.text());
                     closeChannel();
-                	System.out.println("Consumer exits...");
+                    System.out.println("Consumer exits...");
                     System.exit(TransportReturnCodes.FAILURE);
                 }
 
-            	if (!chnl.isLoginReissue)
-            	{
-                ret = srcDirHandler.sendRequest(chnl, error);
-                if (ret != CodecReturnCodes.SUCCESS)
+                if (!chnl.isLoginReissue)
                 {
-                    System.out.println("Error sending directory request: " + error.text());
-                    closeChannel();
-                	System.out.println("Consumer exits...");
-                    System.exit(TransportReturnCodes.FAILURE);
+                    ret = srcDirHandler.sendRequest(chnl, error);
+                    if (ret != CodecReturnCodes.SUCCESS)
+                    {
+                        System.out.println("Error sending directory request: " + error.text());
+                        closeChannel();
+                        System.out.println("Consumer exits...");
+                        System.exit(TransportReturnCodes.FAILURE);
+                    }
                 }
-            }
             }
             // login suspect from single-open provider: provider handles
             // recovery. consumer does nothing in this case.
         }
-        
-		// get login reissue time from authenticationTTReissue
-        if (responseMsg.msgClass() == MsgClasses.REFRESH &&
-        	loginHandler.refreshInfo().checkHasAuthenticationTTReissue())
+
+        // get login reissue time from authenticationTTReissue
+        if (responseMsg.msgClass() == MsgClasses.REFRESH && loginHandler.refreshInfo().checkHasAuthenticationTTReissue())
         {
-			chnl.loginReissueTime = loginHandler.refreshInfo().authenticationTTReissue() * 1000;
-			chnl.canSendLoginReissue = true;
+            chnl.loginReissueTime = loginHandler.refreshInfo().authenticationTTReissue() * 1000;
+            chnl.canSendLoginReissue = true;
         }
     }
 
@@ -1318,7 +1305,7 @@ public class Consumer implements ResponseCallback
         if (channelSession.channel() == null)
         {
             channelSession.uninit(error);
-        	System.out.println("Consumer exits...");
+            System.out.println("Consumer exits...");
             System.exit(TransportReturnCodes.SUCCESS);
         }
 
@@ -1347,8 +1334,7 @@ public class Consumer implements ResponseCallback
 
         if (retval < TransportReturnCodes.SUCCESS)
         {
-            System.out.println("Flush() failed with return code " + retval + "- <" + error
-                    .text() + ">");
+            System.out.println("Flush() failed with return code " + retval + "- <" + error.text() + ">");
         }
     }
 
@@ -1371,7 +1357,7 @@ public class Consumer implements ResponseCallback
         CommandLine.addOption("view", "Specifies each request using a basic dynamic view. Default is false.");
         CommandLine.addOption("post", "Specifies that the application should attempt to send post messages on the first requested Market Price item (i.e., on-stream). Default is false.");
         CommandLine.addOption("offpost", "Specifies that the application should attempt to send post messages on the login stream (i.e., off-stream).");
-        CommandLine.addOption("publisherInfo", "Specifies that the application should add user provided publisher Id and publisher ipaddress when posting");       
+        CommandLine.addOption("publisherInfo", "Specifies that the application should add user provided publisher Id and publisher ipaddress when posting");
         CommandLine.addOption("snapshot", "Specifies each request using non-streaming. Default is false(i.e. streaming requests.)");
         CommandLine.addOption("sl", "Requests symbol list using Symbol List domain. (symbol list name optional). Default is no symbol list requests.");
         CommandLine.addOption("h", defaultSrvrHostname, "Server host name");
@@ -1383,16 +1369,16 @@ public class Consumer implements ResponseCallback
 
         CommandLine.addOption("runtime", defaultRuntime, "Program runtime in seconds");
         CommandLine.addOption("x", "Provides XML tracing of messages.");
-        
-        CommandLine.addOption("proxy", "Specifies that the application will make a tunneling connection (http or encrypted) through a proxy server, default is false");         
+
+        CommandLine.addOption("proxy", "Specifies that the application will make a tunneling connection (http or encrypted) through a proxy server, default is false");
         CommandLine.addOption("ph", "", "Proxy server host name");
-        CommandLine.addOption("pp", "", "Proxy port number");         
+        CommandLine.addOption("pp", "", "Proxy port number");
         CommandLine.addOption("plogin", "", "User Name on proxy server");
         CommandLine.addOption("ppasswd", "", "Password on proxy server");
         CommandLine.addOption("pdomain", "", "Proxy server domain");
         CommandLine.addOption("krbfile", "", "KRB File location and name");
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
-        CommandLine.addOption("keypasswd", "", "Keystore password");        
+        CommandLine.addOption("keypasswd", "", "Keystore password");
         CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
         CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
         CommandLine.addOption("aid", "", "Specifies the Application ID.");
