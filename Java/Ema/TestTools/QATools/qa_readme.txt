@@ -120,6 +120,10 @@ Series300Consumer300-ConsFunc-001
 Module:  Series300Consumer331
 -----------------------------
 
+Series300Consumer331-GenM-001
+   Alters consumer send genericMsg with connection status on directory stream, should proccess 
+   genericMsg from provider. Need to run with Series300Provider320-GenM-001 provider qatool.
+
 Series300Consumer331-SrcReissue-001
 	Alters consumer to create a directory handle with an invalid serviceId. 
 	Then this code attempts to send a reissue on the invalid handle.
@@ -146,6 +150,11 @@ Series300Consumer332-Dict-005
 Series300Consumer332-Dict-006
 	Alters consumer to request invalid the dictionary. Uses dictionary name RWFEnum1
 
+Module:  Series300Consumer333 
+Series300Consumer333-GenM-001
+   Alters consumer send genericMsg with connection status on login stream to provider,
+   also proccess genericMsg from provider. Need to run with Series300Provider320-GenM-001 
+   provider qatool.
 
 Module:  Series400Consumer410 
 ---------------------------
@@ -359,6 +368,11 @@ Series300Provider320-ProvFunc-005
 Series300Provider320-ProvFunc-006
 	Alters Interactive Provider to send a dictionary in fragments starting at size 9600 
 	bytes and incrementing subsequent fragments by 10000 bytes.
+
+Series300Provider320-GenM-001
+    Alters Interactive Provider which can process genericMsg on login stream and directory Stream,
+    after receive genericMsg from consumer it send a genericMsg back to consumer. 
+    Need to run with Series300Consumer331-GenM-001 or Series300Consumer333-GenM-001. 
 
 
 Module:  Series100NiProvider100
