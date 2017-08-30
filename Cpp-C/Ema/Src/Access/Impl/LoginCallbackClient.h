@@ -27,6 +27,8 @@ namespace ema {
 
 namespace access {
 
+#define	EMA_LOGIN_STREAM_ID 1
+
 class Channel;
 class OmmBaseImpl;
 
@@ -220,6 +222,8 @@ public :
 
 	RsslReactorCallbackRet processAckMsg( RsslMsg*, RsslReactorChannel*, RsslRDMLoginMsgEvent* );
 
+	RsslReactorCallbackRet processGenericMsg(RsslMsg*, RsslReactorChannel*, RsslRDMLoginMsgEvent*);
+
 	static void handleLoginItemCallback( void* );
 
 	const EmaString& getLoginFailureMessage();
@@ -262,7 +266,6 @@ private :
 
 	bool _notifyChannelDownReconnecting;			/* Used for recovery to check if the user has gotten the current status already */
 
-	RsslReactorCallbackRet processGenericMsg( RsslMsg*, RsslReactorChannel*, RsslRDMLoginMsgEvent* );
 	RsslReactorCallbackRet processRefreshMsg( RsslMsg*, RsslReactorChannel*, RsslRDMLoginMsgEvent* );
 	RsslReactorCallbackRet processStatusMsg( RsslMsg*, RsslReactorChannel*, RsslRDMLoginMsgEvent* );
 	bool convertRdmLoginToRsslBuffer( RsslReactorChannel*, RsslRDMLoginMsgEvent*, RsslBuffer* );

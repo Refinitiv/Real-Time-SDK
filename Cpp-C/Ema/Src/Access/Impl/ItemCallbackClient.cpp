@@ -2336,7 +2336,7 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 		return RSSL_RC_CRET_SUCCESS;
 	}
 
-	if ( pRsslMsg->msgBase.streamId != 1 && 
+	if ( pRsslMsg->msgBase.streamId != EMA_LOGIN_STREAM_ID &&
 		( !pEvent->pStreamInfo || !pEvent->pStreamInfo->pUserSpec ) )
 	{
 		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -2357,12 +2357,15 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 	switch ( pRsslMsg->msgBase.msgClass )
 	{
 	case RSSL_MC_ACK :
-		if ( pRsslMsg->msgBase.streamId == 1 )
+		if ( pRsslMsg->msgBase.streamId == EMA_LOGIN_STREAM_ID)
 			return _ommBaseImpl.getLoginCallbackClient().processAckMsg( pRsslMsg, pRsslReactorChannel, 0 );
 		else
 			return processAckMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	case RSSL_MC_GENERIC :
-		return processGenericMsg( pRsslMsg, pRsslReactorChannel, pEvent );
+		if (pRsslMsg->msgBase.streamId == EMA_LOGIN_STREAM_ID)
+			return _ommBaseImpl.getLoginCallbackClient().processGenericMsg(pRsslMsg, pRsslReactorChannel, 0);
+		else
+			return processGenericMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	case RSSL_MC_REFRESH :
 		return processRefreshMsg( pRsslMsg, pRsslReactorChannel, pEvent );
 	case RSSL_MC_STATUS :

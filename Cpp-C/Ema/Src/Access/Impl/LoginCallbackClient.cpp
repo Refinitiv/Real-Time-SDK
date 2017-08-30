@@ -527,7 +527,7 @@ bool Login::populate( RsslRefreshMsg& refresh, RsslBuffer& buffer )
 
 	buffer.length = rsslGetEncodedBufferLength( &eIter );
 
-	refresh.msgBase.streamId = 1;
+	refresh.msgBase.streamId = EMA_LOGIN_STREAM_ID;
 	refresh.msgBase.domainType = RSSL_DMT_LOGIN;
 	refresh.msgBase.containerType = RSSL_DT_NO_DATA;
 	refresh.msgBase.encDataBody.data = 0;
@@ -553,7 +553,7 @@ bool Login::populate( RsslStatusMsg& status, RsslBuffer& buffer )
 {
 	rsslClearStatusMsg( &status );
 
-	status.msgBase.streamId = 1;
+	status.msgBase.streamId = EMA_LOGIN_STREAM_ID;
 	status.msgBase.domainType = RSSL_DMT_LOGIN;
 	status.msgBase.containerType = RSSL_DT_NO_DATA;
 	status.msgBase.encDataBody.data = 0;
@@ -576,7 +576,7 @@ void Login::sendLoginClose()
 	RsslCloseMsg rsslCloseMsg;
 	rsslClearCloseMsg( &rsslCloseMsg );
 
-	rsslCloseMsg.msgBase.streamId = 1;
+	rsslCloseMsg.msgBase.streamId = EMA_LOGIN_STREAM_ID;
 	rsslCloseMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 	rsslCloseMsg.msgBase.domainType = RSSL_DMT_LOGIN;
 
@@ -1546,7 +1546,7 @@ LoginItem::LoginItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient
 	SingleItem( ommBaseImpl, ommConsClient, closure, 0 ),
 	_loginList( &loginList )
 {
-	_streamId = 1;
+	_streamId = EMA_LOGIN_STREAM_ID;
 }
 
 LoginItem::~LoginItem()
@@ -1813,7 +1813,7 @@ NiProviderLoginItem::NiProviderLoginItem( OmmBaseImpl& ommBaseImpl, OmmProviderC
 	NiProviderSingleItem( ommBaseImpl, ommProvClient, closure, 0 ),
 	_loginList( &loginList )
 {
-	_streamId = 1;
+	_streamId = EMA_LOGIN_STREAM_ID;
 }
 
 NiProviderLoginItem::~NiProviderLoginItem()

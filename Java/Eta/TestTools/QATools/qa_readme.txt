@@ -21,6 +21,12 @@ vaprovider-TsFrag-001:  Alter VAProvider to validate incoming tunnel stream mess
 
 vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream message as a generic message with opaque buffer data body of "1, 2, 3....255" repeated.  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-002.
 
+vaprovider-GenM-001:   Alters VAProvider to send genericMsg on login, directory and market price streams. 
+GenericMsg contains ElementList with one ElementEntry. 
+Also added is the ability to decode genericMsg from a consumer. 
+This VAProvider works in conjuction with the watchlist consumer code change from wlconsumer-GenM-001
+$
+
 Module:  Value Add Consumer 
 ---------------------------
 
@@ -65,3 +71,7 @@ Initial requests can be delayed until source dir refresh by specifying '-delayIn
 Single open and allow suspect data can be specified by setting '-singleOpen 0(or 1)'
 and '-allowSuspect 0(or 1)' (default set to 1)
 
+wlconsumer-GenM-001:  Alters WLConsumer to send genericMsg on login, directory and market price streams. 
+GenericMsg contains ElementList with one ElementEntry. 
+Also added is the ability to decode genericMsg from a provider. 
+This works in conjuction with the VAProvider code change from vaprovider-GenM-001

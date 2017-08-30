@@ -716,6 +716,34 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 
 			return RSSL_RET_SUCCESS;
 		}
+		case RDM_LG_MT_CONSUMER_CONNECTION_STATUS:
+		{
+			WlLoginRequest *pLoginRequest = (WlLoginRequest*)pLogin->pRequest;
+			if (!pLoginRequest || !pLogin->pStream)
+			{
+				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT,
+					__FILE__, __LINE__, "Login stream not open.");
+
+				return RSSL_RET_INVALID_ARGUMENT;
+			}
+
+			if (pLogin->pStream->base.requestState != WL_STRS_NONE)
+			{
+				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+					"Generic message submitted to Login stream that is not established.");
+
+				return RSSL_RET_INVALID_ARGUMENT;
+			}
+
+			if (pLoginMsg->rdmMsgBase.streamId != pLogin->pRequest->base.streamId)
+			{
+				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT,
+					__FILE__, __LINE__, "Stream ID does not match login stream.");
+				return RSSL_RET_INVALID_ARGUMENT;
+			}
+
+			return RSSL_RET_SUCCESS;
+		}
 
 		default:
 			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 

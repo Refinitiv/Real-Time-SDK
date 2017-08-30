@@ -114,6 +114,11 @@ Note: Only single digit viewId's are supported;
 Note: Up to 9 mp arguments can be given when used with the event specified delay request
 (so, if no -e1/e2/e3 etc arguments are given, then more than 9 mp items are fine)
 
+wlconsumer-GenM-001:  Alters WLConsumer to send genericMsg on login, directory and 
+market price streams. 
+GenericMsg contains ElementList with one ElementEntry. 
+Also added is the ability to decode genericMsg from a provider. 
+This works in conjuction with the VAProvider code change from vaprovider-GenM-001 
 
 Module:  Provider 
 -----------------
@@ -128,6 +133,13 @@ Module:  VA Provider
 -----------------
 
 vaprovider-TunnelStream-001: Alters VAProvider to process a generic message with a nested market price request and respond with a generic messagae which contains a market price refresh message. Altered code is in simpleTunnelMsgHandler.c. However, all files are saved to build a standalone VAProvider. 
+
+vaprovider-GenM-001:  Alters VAProvider to send genericMsg on login, directory and 
+market price streams. 
+GenericMsg contains ElementList with one ElementEntry. 
+Also added is the ability to decode genericMsg from a consumer. 
+This VAProvider works in conjuction with the watchlist consumer code change from 
+wlconsumer-GenM-001 
 
 vaprovider-TsFrag-001:  Alter VAProvider to validate incoming tunnel stream message content to have "1, 2, 3...255".  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-001.
 

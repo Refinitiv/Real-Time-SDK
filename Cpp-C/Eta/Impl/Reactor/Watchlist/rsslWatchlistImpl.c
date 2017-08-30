@@ -3156,6 +3156,14 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 				{
 
 					case WL_LGCA_NONE:
+
+						if (pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_CONSUMER_CONNECTION_STATUS)
+						{
+							if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, NULL,
+								(RsslRDMMsg*)pLoginMsg, RSSL_FALSE, NULL, pErrorInfo)) != RSSL_RET_SUCCESS)
+								return ret;
+						}
+
 						break;
 
 					case WL_LGCA_PAUSE_ALL:

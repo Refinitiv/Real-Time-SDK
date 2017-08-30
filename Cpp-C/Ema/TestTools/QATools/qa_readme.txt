@@ -111,6 +111,9 @@ Series100Consumer110-ConsFunc-008
 
 Module:  Series300Consumer331
 ---------------------------
+Series300Consumer331-GenM-001
+   Alters consumer send genericMsg with connection status on directory stream, should proccess
+   genericMsg from provider. Need to run with Series300Provider320-GenM-001 provider tool.
 
 Series300Consumer331-SrcReissue-001
 	Alters consumer to create a directory handle with an invalid serviceId. 
@@ -134,6 +137,15 @@ Series300Consumer332-Dict-004
 
 Series300Consumer332-Dict-005
 	Alters consumer to request the dictionary only, with no item requests.
+
+Module:  Series300Consumer333
+-----------------------------
+
+Series300Consumer333-GenM-001
+   Alters consumer send genericMsg with connection status on login stream to provider,
+   also proccess genericMsg from provider. Need to run with Series300Provider320-GenM-001
+   provider tool.
+
 
 Module:  Series400Consumer410 
 ---------------------------
@@ -333,6 +345,10 @@ Series100Provider100-ProvFunc-005
 
 Module:  Series300Provider320
 ---------------------------
+Series300Provider320-GenM-001
+    Alters Interactive Provider which can process genericMsg on login stream and directory Stream,
+    after receive genericMsg from consumer it send a genericMsg back to consumer.
+    Need to run with Series300Consumer331-GenM-001 or Series300Consumer333-GenM-001.
 
 Series300Provider320-ProvFunc-001
 	Alters Interactive Provider to do two things after sending some item updates:
