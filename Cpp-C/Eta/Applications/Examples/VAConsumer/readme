@@ -108,7 +108,7 @@ only data payload.
 
 Specifying the -offpost option will enable the consumer application to attempt off-stream
 posting to the VAprovider.  When a VAprovider supports posting, the consumer will post to 
-the login stream. 
+the login stream.
 
 Specifying the -snapshot option results in a non-streaming or "snapshot" request for
 all items.
@@ -189,6 +189,9 @@ set LINKTYPE=Shared.
 To compile, run the gmake command.
 
 Gmake can be obtained at http://www.gnu.org/software/make/
+
+For windows platform, using Visual Studio, open one of the included vcxproj project
+files and build.
 
 ----------------
 Example Content:

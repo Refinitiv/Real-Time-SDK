@@ -43,7 +43,7 @@ is not intended to be used for measuring performance.
 Application Name:
 -----------------
 
-rsslProvider
+Provider
 
 ------------------
 Setup Environment:
@@ -57,17 +57,17 @@ cannot be found, the provider application exits.
 Command line usage:
 -------------------  
 
-rsslProvider
+Provider
 (runs with a default set of parameters (-p 14002 -s DIRECT_FEED -id 1))
 
 or
 
-rsslProvider [ -p <PortNo> ] [ -s <ServiceName> ] [ -id <ServiceId> ] [-runtime <seconds>]
+Provider [ -p <PortNo> ] [ -s <ServiceName> ] [ -id <ServiceId> ] [-runtime <seconds>]
 
 Specifying the -runtime option controls the time the application will run
 before exiting, in seconds.
 
-- rsslProvider -? displays command line options.  
+- Provider -? displays command line options.  
 
 - Pressing the CTRL+C buttons terminates the program.  
 
@@ -89,6 +89,9 @@ set LINKTYPE=Shared.
 To compile, run the gmake command.
 
 Gmake can be obtained at http://www.gnu.org/software/make/
+
+For windows platform, using Visual Studio, open one of the included vcxproj project
+files and build.
 
 ----------------
 Example Content:

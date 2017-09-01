@@ -79,6 +79,9 @@ If using Reliable Multicast:
 [-ra <RecvAddress>] [-rp <RecvPort>]
 [-u <UnicastPort>] [-i <Interface>]
 
+If using Host Stat Messages on a Reliable Multicast connection:
+  [-hsmAddr <Address>] [-hsmPort <Port>] [-hsmInterface <Interface>] [-hsmInterval <Seconds>]
+
 The user can specify multiple -mp instances, where each occurrence is associated with
 a single item. For example, specifying -mp TRI -mp GOOG will provide content for two
 MarketPrice items.
@@ -104,6 +107,9 @@ Specifying the -u option configures the unicast port of the reliable multicast n
 
 Specifying the -i option configures the network interface of the reliable multicast network.
 
+Specifying the -runtime option controls the time the application will run
+before exiting, in seconds.
+
 Specifying the -at option configures the token used for TREP Authentication.  This should be used 
 in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
 will verify the token against a token validator.  For more information about the TREP Authentication
@@ -112,9 +118,6 @@ feature, please see the Developers guide and the TREP Authentication guide.
 Specifying the -ax option configures the authentication extended information used for TREP Authentication.
 
 Specifying the -aid option configures the Application Id.
-
-Specifying the -runtime option controls the time the application will run
-before exiting, in seconds.
 
 - NIProvider -? displays command line options.
 
@@ -138,6 +141,9 @@ set LINKTYPE=Shared.
 To compile, run the gmake command.
 
 Gmake can be obtained at http://www.gnu.org/software/make/
+
+For windows platform, using Visual Studio, open one of the included vcxproj project
+files and build.
 
 ----------------
 Example Content:

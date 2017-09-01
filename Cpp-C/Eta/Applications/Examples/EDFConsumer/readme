@@ -64,7 +64,7 @@ the application will request the dictionaries from the Reference Data Server.
 Command line usage:
 -------------------  
 
-Usage: ./rsslEDFConsumer -rtda <address> -rtdp <port> [ -rtif <address | name> ] -ssa <address> -ssp <port> -grsa <address> -grsp <port> -gfsa <address> -gfsp <port> -gfif <address | name> -rdsa <address> -rfsp <port> -serviceId <id> [-mp <MarketPrice ItemName>] [-mbo <MarketByOrder ItemName>] [ -setdef <filename> ] [ -runTime <seconds> ] [ -rdx ] [ -rtdx ]
+Usage: EDFConsumer -rtda <address> -rtdp <port> [ -rtif <address | name> ] -ssa <address> -ssp <port> -grsa <address> -grsp <port> -gfsa <address> -gfsp <port> -gfif <address | name> -rdsa <address> -rfsp <port> -serviceId <id> [-mp <MarketPrice ItemName>] [-mbo <MarketByOrder ItemName>] [ -setdef <filename> ] [ -runTime <seconds> ] [ -rdx ] [ -rtdx ]
   -rtda specifies the address of the Realtime data feed.
   -rtdp specifies the port of the Realtime data feed.
   -rtif specifies the network interface (address or name) of the Realtime data feed.
@@ -108,6 +108,10 @@ set LINKTYPE=Shared.
 To compile, run the gmake command.
 
 Gmake can be obtained at http://www.gnu.org/software/make/
+
+
+For windows platform, using Visual Studio, open one of the included vcxproj project
+files and build.
 
 ----------------
 Example Content:

@@ -187,6 +187,13 @@
 			<UnicastPort value="UNICAST_PORT"/>
 			<InterfaceName value="INTERFACE_NAME"/>
 		</Channel>
+        <Channel>
+            <Name value="Channel_6"/>
+            <ChannelType value="ChannelType::RSSL_SOCKET"/>
+            <GuaranteedOutputBuffers value="5000"/>
+            <Host value="CONNECT_HOST"/>
+            <Port value="CONNECT_PORT"/>
+        </Channel>
 		<Channel>
 			<Name value="Channel_10"/>
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
