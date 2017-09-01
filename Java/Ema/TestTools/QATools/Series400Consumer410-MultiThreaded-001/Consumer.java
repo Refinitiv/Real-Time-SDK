@@ -207,9 +207,9 @@ class ResultValidation
         _testResultPrint.append("_numRequestOpen = ").append(_numRequestOpen).append(" \n_numRefreshReceived = ").append(_numRefreshReceived);
 
         if (ResultValidation._numInvalidClosure > 0)
-            _testResultPrint.append("\n\n>>Clousure validation failed \n").append("_numInvalidClosure = ").append(_numInvalidClosure);
+            _testResultPrint.append("\n\n>>Closure validation failed \n").append("_numInvalidClosure = ").append(_numInvalidClosure);
         else
-            _testResultPrint.append("\n\n>>Clousure validation succeeded \n").append("_numValidClosure = ").append(_numValidClosure);
+            _testResultPrint.append("\n\n>>Closure validation succeeded \n").append("_numValidClosure = ").append(_numValidClosure);
 
         _testResultPrint.append("\n\n>>Update msg validation\n").append("_numUpdateReceived = ").append(_numUpdateReceived);
 
