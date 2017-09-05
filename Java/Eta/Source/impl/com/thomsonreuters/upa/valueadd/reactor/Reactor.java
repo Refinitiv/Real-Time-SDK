@@ -2892,6 +2892,7 @@ public class Reactor
                     && ((LoginRefresh)_loginMsg).state().streamState() == StreamStates.OPEN
                     && ((LoginRefresh)_loginMsg).state().dataState() == DataStates.OK)
             {
+
                 DirectoryRefresh directoryRefresh = ((NIProviderRole)reactorRole).rdmDirectoryRefresh();
 		        if (directoryRefresh != null)
 		        {
