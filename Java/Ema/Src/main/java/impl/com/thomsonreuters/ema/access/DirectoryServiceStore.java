@@ -1400,6 +1400,8 @@ abstract class DirectoryServiceStore
 						if ( cacheService == null)
 						{
 							cacheService = DirectoryMsgFactory.createService();
+							cacheService.serviceId(submittedService.serviceId());
+							
 							if ( !applyService(cacheService, submittedService, clientSession, errorText) )
 							{
 								return false;
