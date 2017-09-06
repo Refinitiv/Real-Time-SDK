@@ -1149,7 +1149,6 @@ public class ReactorChannel extends VaNode
 		_reconnectAttempts = 0;
 		_reconnectDelay = 0;
 		_nextRecoveryTime = 0;
-		_listIndex = 0;
     }
 
     /* Returns whether this channel has reached its number of reconnect attempts. */
