@@ -27,6 +27,7 @@ import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
+import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StateCodes;
@@ -1018,7 +1019,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 	@Override
 	boolean submit(PostMsg postMsg)
 	{
-		return submit(((PostMsgImpl) postMsg).rsslMsg());
+		return submit(((PostMsgImpl) postMsg).rsslMsg(), postMsg.hasServiceName() ? postMsg.serviceName() : null );
 	}
 	
 	@Override
@@ -1113,7 +1114,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 		return true;
 	}
 
-	boolean submit(com.thomsonreuters.upa.codec.PostMsg rsslPostMsg)
+	boolean submit( com.thomsonreuters.upa.codec.PostMsg rsslPostMsg, String serviceName )
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
@@ -1124,7 +1125,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 		
 	    for (ChannelInfo entry : _loginChannelList)
 		{
-	    	rsslSubmitOptions.serviceName(null);
+			rsslSubmitOptions.serviceName( serviceName );
 			rsslSubmitOptions.requestMsgOptions().clear();
 			rsslErrorInfo.clear();
 			if (ReactorReturnCodes.SUCCESS > (ret = entry.rsslReactorChannel().submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))

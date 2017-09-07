@@ -152,7 +152,7 @@ private :
 
 	bool submit( RsslRDMLoginRequest* );
 	bool submit( RsslGenericMsg* );
-	bool submit( RsslPostMsg* );
+	bool submit( RsslPostMsg*, RsslBuffer* );
 
 	static const EmaString		_clientName;
 

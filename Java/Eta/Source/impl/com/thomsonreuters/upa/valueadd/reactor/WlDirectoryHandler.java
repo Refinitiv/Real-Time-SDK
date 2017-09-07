@@ -164,11 +164,31 @@ class WlDirectoryHandler implements WlHandler
                 {
                     // replace service id if message submitted with service name 
                     if (submitOptions.serviceName() != null &&
-                        ((GenericMsg)msg).checkHasMsgKey() &&
-                        ((GenericMsg)msg).msgKey().checkHasServiceId())
+                        ((GenericMsg)msg).checkHasMsgKey())
                     {
-                        int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
-                        ((GenericMsg)msg).msgKey().serviceId(serviceId);
+                    	if (!((GenericMsg)msg).msgKey().checkHasServiceId())
+                    	{
+                    		int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
+                    		if (serviceId < ReactorReturnCodes.SUCCESS)
+                    		{
+                    			return _watchlist.reactor().populateErrorInfo(errorInfo,
+                    					serviceId,
+                    					"WlDirectoryHandler.submitMsg",
+                    					"Message submitted with unknown service name " + submitOptions.serviceName() + ".");                	
+                    		}
+                    		else
+                    		{
+                    			((GenericMsg)msg).msgKey().applyHasServiceId();
+                    			((GenericMsg)msg).msgKey().serviceId(serviceId);
+                    		}
+                    	}
+                    	else
+                    	{
+							return _watchlist.reactor().populateErrorInfo(errorInfo,
+									ReactorReturnCodes.INVALID_USAGE,
+									"WlDirectoryHandler.submitMsg",
+									"Message submitted with both service name and service ID.");
+                    	}
                     }
                     
                     // replace stream id with aggregated stream id

@@ -126,7 +126,7 @@ class WlServiceCache
     /* Retrieve service id from service name. */
     int serviceId(String serviceName)
     {
-        int serviceId = -1;
+        int serviceId = ReactorReturnCodes.PARAMETER_INVALID;
         
         WlService wlService = service(serviceName);
         

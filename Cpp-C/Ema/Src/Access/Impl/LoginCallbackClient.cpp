@@ -7,6 +7,7 @@
  */
 
 #include "LoginCallbackClient.h"
+#include "DirectoryCallbackClient.h"
 #include "OmmBaseImpl.h"
 #include "StaticDecoder.h"
 #include "OmmState.h"
@@ -1607,7 +1608,22 @@ bool LoginItem::modify( const ReqMsg& reqMsg )
 
 bool LoginItem::submit( const PostMsg& postMsg )
 {
-	return submit( static_cast<const PostMsgEncoder&>( postMsg.getEncoder() ).getRsslPostMsg() );
+	const PostMsgEncoder& postMsgEncoder = static_cast<const PostMsgEncoder&>( postMsg.getEncoder() );
+
+	RsslPostMsg* pRsslPostMsg = postMsgEncoder.getRsslPostMsg();
+
+	/* if the PostMsg has the Service Name */
+	if ( postMsgEncoder.hasServiceName() )
+	{
+		EmaString serviceName = postMsgEncoder.getServiceName();
+		RsslBuffer serviceNameBuffer;
+		serviceNameBuffer.data = (char*) serviceName.c_str();
+		serviceNameBuffer.length = serviceName.length();
+			
+		return submit( pRsslPostMsg, &serviceNameBuffer );
+	}
+
+	return submit( static_cast<const PostMsgEncoder&>( postMsg.getEncoder() ).getRsslPostMsg(), NULL );
 }
 
 bool LoginItem::submit( const GenericMsg& genMsg )
@@ -1712,7 +1728,7 @@ bool LoginItem::submit( RsslGenericMsg* pRsslGenericMsg )
 	return true;
 }
 
-bool LoginItem::submit( RsslPostMsg* pRsslPostMsg )
+bool LoginItem::submit( RsslPostMsg* pRsslPostMsg, RsslBuffer* pServiceName )
 {
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	pRsslPostMsg->msgBase.streamId = _streamId;
@@ -1722,6 +1738,7 @@ bool LoginItem::submit( RsslPostMsg* pRsslPostMsg )
 	{
 		rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 
+		submitMsgOpts.pServiceName = pServiceName;
 		submitMsgOpts.pRsslMsg = ( RsslMsg* )pRsslPostMsg;
 
 		submitMsgOpts.majorVersion = _loginList->operator[]( idx )->getChannel()->getRsslChannel()->majorVersion;

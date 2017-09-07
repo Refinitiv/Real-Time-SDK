@@ -24,7 +24,7 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 		refreshMsg.getState().getStreamState() == OmmState::OpenEnum &&
 		refreshMsg.getState().getDataState() == OmmState::OkEnum )
 	{
-		_pOmmConsumer->submit( PostMsg().postId( 1 ).serviceId( 1501 ).name( "TRI.N" ).solicitAck( true ).complete().payload( 
+		_pOmmConsumer->submit( PostMsg().postId( 1 ).serviceName( "DIRECT_FEED" ).name( "TRI.N" ).solicitAck( true ).complete().payload(
 		RefreshMsg().payload( FieldList().addReal( 25, 35, OmmReal::ExponentPos1Enum ).complete() ).complete() ), ommEvent.getHandle() );
 	}
 
