@@ -277,7 +277,12 @@ RsslRet _reactorWorkerHandleChannelFailure(RsslReactorImpl *pReactorImpl, RsslRe
 		}
 	}
 
-	_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.inactiveChannels, pReactorChannel);
+	/* The RsslReactorChannelImpl must not be moved to RsslReactorWorker.inactiveChannels when the channel is closed by the users as it will be returned to the 
+	channel pool of RsslReactorImpl for reusing later. */  
+	if (pReactorChannel->workerParentList != NULL)
+	{
+		_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.inactiveChannels, pReactorChannel);
+	}
 
 	rsslClearReactorChannelEventImpl(pEvent);
 
