@@ -884,7 +884,14 @@ void EmaConfigImpl::getChannelName( const EmaString& instanceName, EmaString& re
 	nodeName.append( instanceName );
 	nodeName.append( "|Channel" );
 
-	get<EmaString>( nodeName, retVal );
+	if ( !get<EmaString>(nodeName, retVal) )
+	{
+		EmaString nodeName( _instanceNodeName );
+		nodeName.append( instanceName );
+		nodeName.append( "|ChannelSet" );
+
+		get<EmaString>( nodeName, retVal );
+	}
 }
 
 void EmaConfigImpl::addLoginReqMsg( RsslRequestMsg* pRsslRequestMsg )

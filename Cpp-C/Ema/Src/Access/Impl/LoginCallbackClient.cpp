@@ -620,6 +620,27 @@ void LoginList::removeLogin( Login* pLogin )
 	_list.remove( pLogin );
 }
 
+void LoginList::removeLogin(RsslReactorChannel* pRsslChannel)
+{
+	if (pRsslChannel)
+	{
+		Login* prevLogin = _list.back();
+		Login* login;
+
+		while (prevLogin)
+		{
+			login = prevLogin;
+			prevLogin = login->previous();
+
+			if (login->getChannel()->getRsslChannel() == pRsslChannel)
+			{
+				_list.remove(login);
+				Login::destroy(login);
+			}
+		}
+	}
+}
+
 Login* LoginList::getLogin( Channel* pChannel )
 {
 	Login* login = _list.front();
@@ -968,6 +989,8 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		Login* pLogin = _loginList.getLogin( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
 		if ( !pLogin )
 		{
+			_loginList.removeLogin(pRsslReactorChannel);
+
 			pLogin = Login::create( _ommBaseImpl );
 			_loginList.addLogin( pLogin );
 		}
@@ -1018,6 +1041,9 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		{
 			_ommBaseImpl.setState( OmmBaseImpl::LoginStreamOpenOkEnum );
 
+			_ommBaseImpl.setActiveRsslReactorChannel( (Channel*)(pRsslReactorChannel->userSpecPtr) );
+			_ommBaseImpl.reLoadDirectory();
+
 			if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString tempState( 0, 256 );
@@ -1040,9 +1066,11 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		_loginItemLock.unlock();
 
-		if ( closeChannel )
-			_ommBaseImpl.closeChannel( pRsslReactorChannel );
-
+		if (closeChannel)
+		{
+			_ommBaseImpl.unsetActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
+			_ommBaseImpl.closeChannel(pRsslReactorChannel);
+		}
 		break;
 	}
 	case RDM_LG_MT_STATUS:
@@ -1090,6 +1118,9 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			}
 			else
 			{
+				_ommBaseImpl.setActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
+				_ommBaseImpl.reLoadDirectory();
+
 				if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 				{
 					EmaString tempState( 0, 256 );
@@ -1126,8 +1157,11 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		_loginItemLock.unlock();
 
-		if ( closeChannel )
-			_ommBaseImpl.closeChannel( pRsslReactorChannel );
+		if (closeChannel)
+		{
+			_ommBaseImpl.unsetActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
+			_ommBaseImpl.closeChannel(pRsslReactorChannel);
+		}
 
 		break;
 	}
@@ -1287,8 +1321,6 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 	{
 	case RSSL_RC_CET_CHANNEL_READY:
 	{
-		_ommBaseImpl.reLoadDirectory();
-
 		if (!_notifyChannelDownReconnecting)
 			break;
 
@@ -1520,6 +1552,11 @@ Channel* LoginCallbackClient::getActiveChannel()
 	}
 
 	return size > 0? (_loginList.operator[](size -1)->getChannel()) : NULL;
+}
+
+void LoginCallbackClient::removeChannel(RsslReactorChannel* pRsslReactorChannel)
+{
+	_loginList.removeLogin(pRsslReactorChannel);
 }
 
 const EmaString& LoginCallbackClient::getLoginFailureMessage()

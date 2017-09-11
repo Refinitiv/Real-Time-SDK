@@ -144,6 +144,10 @@ public :
 
 	virtual void processChannelEvent( RsslReactorChannelEvent* ) = 0;
 
+	virtual void setActiveRsslReactorChannel( Channel* activeChannel ) {};
+
+	virtual void unsetActiveRsslReactorChannel(Channel* cancelChannel) {};
+
 	void handleIue( const EmaString& );
 
 	void handleIue( const char* );

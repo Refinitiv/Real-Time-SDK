@@ -34,7 +34,6 @@ import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
@@ -52,6 +51,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	private OmmNiProviderDirectoryStore _ommNiProviderDirectoryStore;
 	private OmmProviderClient _adminClient;
 	private Object _adminClosure;
+	private ChannelInfo _activeChannelInfo;
     
 	OmmNiProviderImpl(OmmProviderConfig config)
 	{
@@ -64,6 +64,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_adminClient = null;
 		_adminClosure = null;
+		_activeChannelInfo = null;
 		
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
@@ -84,6 +85,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
 		_adminClient = client;
 		_adminClosure = null;
+		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
@@ -103,6 +105,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
 		_adminClient = client;
 		_adminClosure = closure;
+		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
@@ -122,6 +125,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_adminClient = null;
 		_adminClosure = null;
+		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
 		_providerErrorClient = client;
@@ -144,6 +148,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
 		_adminClient = adminClient;
 		_adminClosure = null;
+		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
 		_providerErrorClient = errorClient;
@@ -166,6 +171,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
 		_adminClient = adminClient;
 		_adminClosure = closure;
+		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
 		_providerErrorClient = errorClient;
@@ -273,14 +279,12 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			return;
 		}
 		
-		if(_channelCallbackClient.channelList().size() == 0)
+		if(_activeChannelInfo == null)
 		{
 			userLock().unlock();
 			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString());
 			return;
 		}
-		
-		ChannelInfo channel = _channelCallbackClient.channelList().get(0);
 		
 		RefreshMsgImpl refreshMsgImpl = (RefreshMsgImpl)refreshMsg;
 		
@@ -458,7 +462,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_rsslErrorInfo.clear();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = channel.rsslReactorChannel().submit(refreshMsgImpl._rsslMsg, _rsslSubmitOptions, _rsslErrorInfo)))
+		if (ReactorReturnCodes.SUCCESS > (ret = _activeChannelInfo.rsslReactorChannel().submit(refreshMsgImpl._rsslMsg, _rsslSubmitOptions, _rsslErrorInfo)))
 	    {
 			if (bHandleAdded)
 			{
@@ -521,14 +525,12 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			return;
 		}
 		
-		if(_channelCallbackClient.channelList().size() == 0)
+		if(_activeChannelInfo == null)
 		{
 			userLock().unlock();
 			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString());
 			return;
 		}
-		
-		ChannelInfo channel = _channelCallbackClient.channelList().get(0);
 		
 		UpdateMsgImpl updateMsgImpl = (UpdateMsgImpl)updateMsg;
 		
@@ -704,7 +706,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_rsslErrorInfo.clear();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = channel.rsslReactorChannel().submit(updateMsgImpl._rsslMsg, _rsslSubmitOptions, _rsslErrorInfo)))
+		if (ReactorReturnCodes.SUCCESS > (ret = _activeChannelInfo.rsslReactorChannel().submit(updateMsgImpl._rsslMsg, _rsslSubmitOptions, _rsslErrorInfo)))
 	    {
 			if (bHandleAdded)
 			{
@@ -754,14 +756,12 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			return;
 		}
 		
-		if(_channelCallbackClient.channelList().size() == 0)
+		if(_activeChannelInfo == null)
 		{
 			userLock().unlock();
 			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString());
 			return;
 		}
-		
-		ChannelInfo channel = _channelCallbackClient.channelList().get(0);
 		
 		StatusMsgImpl statusMsgImpl = (StatusMsgImpl)statusMsg;
 		
@@ -925,7 +925,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_rsslErrorInfo.clear();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = channel.rsslReactorChannel().submit(statusMsgImpl._rsslMsg, _rsslSubmitOptions, _rsslErrorInfo)))
+		if (ReactorReturnCodes.SUCCESS > (ret = _activeChannelInfo.rsslReactorChannel().submit(statusMsgImpl._rsslMsg, _rsslSubmitOptions, _rsslErrorInfo)))
 	    {
 			if (bHandleAdded)
 			{
@@ -980,14 +980,12 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			return;
 		}
 		
-		if(_channelCallbackClient.channelList().size() == 0)
+		if(_activeChannelInfo == null)
 		{
 			userLock().unlock();
 			handleInvalidUsage(strBuilder().append("No active channel to send message.").toString());
 			return;
 		}
-		
-		ChannelInfo channel = _channelCallbackClient.channelList().get(0);
 		
 		if ( loggerClient().isTraceEnabled() )
 		{
@@ -1014,7 +1012,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_rsslErrorInfo.clear();
 		int ret;
-		if (ReactorReturnCodes.SUCCESS > (ret = channel.rsslReactorChannel().submit(((GenericMsgImpl)genericMsg)._rsslMsg, _rsslSubmitOptions, _rsslErrorInfo)))
+		if (ReactorReturnCodes.SUCCESS > (ret = _activeChannelInfo.rsslReactorChannel().submit(((GenericMsgImpl)genericMsg)._rsslMsg, _rsslSubmitOptions, _rsslErrorInfo)))
 	    {
 			if (loggerClient().isErrorEnabled())
         	{
@@ -1131,8 +1129,12 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		{
 		case ReactorChannelEventTypes.CHANNEL_DOWN:
 		case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
+			userLock().lock();
 			if ( _activeConfig.removeItemsOnDisconnect )
 				removeItems();
+			
+			_activeChannelInfo = null;
+			userLock().unlock();
 			break;
 		default:
 			break;
@@ -1297,9 +1299,15 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			remapServiceIdAndServcieName(directoryRefresh);
 		}
 		
+		if(_activeChannelInfo == null)
+		{
+			errorText.append("No active channel to send message.");
+			handleInvalidUsage(errorText.toString());
+			return CodecReturnCodes.FAILURE;
+		}
+		
 		_rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _channelCallbackClient.channelList().get(0).rsslReactorChannel();
-		if (ReactorReturnCodes.SUCCESS > (retCode = rsslChannel.submit(rsslRefreshMsg, _rsslSubmitOptions, _rsslErrorInfo)))
+		if (ReactorReturnCodes.SUCCESS > (retCode = _activeChannelInfo.rsslReactorChannel().submit(rsslRefreshMsg, _rsslSubmitOptions, _rsslErrorInfo)))
 	    {			
 			StringBuilder temp = strBuilder();
 			if (loggerClient().isErrorEnabled())
@@ -1440,6 +1448,17 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	void returnProviderStreamId(int streamId)
 	{ 
 		_reusedProviderStreamIds.add(_objManager.createIntObject().value(streamId));
+	}
+	
+	void setActiveRsslReactorChannel(ChannelInfo activeChannelInfo)
+	{
+		_activeChannelInfo = activeChannelInfo;
+	}
+	
+	void unsetActiveRsslReactorChannel(ChannelInfo cancelChannelInfo)
+	{
+		if (_activeChannelInfo == cancelChannelInfo)
+			_activeChannelInfo = null;
 	}
 	
 	class StreamInfo extends VaNode

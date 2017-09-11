@@ -117,6 +117,8 @@ public :
 	void addLogin( Login* );
 
 	void removeLogin( Login* );
+	
+	void removeLogin(RsslReactorChannel* pRsslChannel);
 
 	Login* getLogin( Channel* );
 
@@ -231,6 +233,8 @@ public :
 	void processChannelEvent( RsslReactorChannelEvent* );
 
 	Channel* getActiveChannel();
+	
+	void removeChannel(RsslReactorChannel* pRsslReactorChannel);
 
 	void overlayLoginRequest(RsslRDMLoginRequest* pRequest);
 

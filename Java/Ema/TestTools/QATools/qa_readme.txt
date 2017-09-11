@@ -387,6 +387,18 @@ Series100NiProvider100-TrepAuth-002
 	Alters NiProvider to send a market price item refresh after stream state 
 	changes from up to down (recovery).
 
+Module:  Series300NiProvider360
+----------------------------------
+Series300NiProvider360-ProvFunc-001:  Alters Series300NiProvider360 to provide the following optional
+command line arguments to the tool:
+    -numOfUpdatesForApp <value; default=600>
+    Sends a total of specified number of item updates
+
+    -userDispatch < true|false ; default=false >
+    If set to true, tool uses UserDispatch Operation Model; otherwise, tool uses API Dispatch Operation Model
+
+    -dirAdminControl < true|false ; default=false >
+    If set to true, tool will send a source directory response; otherwise, the EMA layer will send one on behalf of tool.
 
 Module:  Series400NiProvider430
 ---------------------------
