@@ -425,9 +425,10 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 				}
     			
+    			_baseImpl.processChannelEvent( event );
+    			
     			if ( _bInitialChannelReadyEventReceived )
     			{
-    				_baseImpl.processChannelEvent( event );
     				_baseImpl.loginCallbackClient().processChannelEvent(event);
     			}
     			else
@@ -927,8 +928,12 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	
 	void removeChannel(ChannelInfo chanInfo)
 	{
-		_channelList.remove( chanInfo );
-		_channelPool.add( chanInfo );
+		if (chanInfo != null)
+		{
+			_baseImpl.loginCallbackClient().removeChannelInfo(chanInfo.rsslReactorChannel());
+			_channelList.remove( chanInfo );
+			_channelPool.add( chanInfo );
+		}
 	}
 
 	void closeChannels()

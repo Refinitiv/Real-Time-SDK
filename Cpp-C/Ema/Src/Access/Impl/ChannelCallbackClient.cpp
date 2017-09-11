@@ -701,8 +701,11 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 
 void ChannelCallbackClient::removeChannel( RsslReactorChannel* pRsslReactorChannel )
 {
-	if ( pRsslReactorChannel )
-		_channelList.removeChannel( ( Channel* )pRsslReactorChannel->userSpecPtr );
+	if (pRsslReactorChannel)
+	{
+		_ommBaseImpl.getLoginCallbackClient().removeChannel(pRsslReactorChannel);
+		_channelList.removeChannel((Channel*)pRsslReactorChannel->userSpecPtr);
+	}
 }
 
 RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRsslReactor,
@@ -943,9 +946,10 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 
 		pChannel->setChannelState( Channel::ChannelReadyEnum );
 
+		_ommBaseImpl.processChannelEvent( pEvent );
+
 		if ( _bInitialChannelReadyEventReceived )
 		{
-			_ommBaseImpl.processChannelEvent( pEvent );
 			_ommBaseImpl.getLoginCallbackClient().processChannelEvent( pEvent );
 		}
 		else

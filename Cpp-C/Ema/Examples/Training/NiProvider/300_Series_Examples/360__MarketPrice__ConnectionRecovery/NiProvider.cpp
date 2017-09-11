@@ -73,6 +73,7 @@ int main( int argc, char* argv[] )
 		RefreshMsg refresh;
 		UpdateMsg update;
 		FieldList fieldList;
+		bool sendRefreshMsg = false;
 
 		provider.dispatch( 1000000 );		// calls to onRefreshMsg(), or onStatusMsg() execute on this thread
 
@@ -92,13 +93,34 @@ int main( int argc, char* argv[] )
 		{
 			if ( appClient.isConnectionUp() )
 			{
-				provider.submit( update.clear().serviceName( "NI_PUB" ).name( "TRI.N" )
-					.payload( fieldList.clear()
-						.addReal( 22, 4100 + i, OmmReal::ExponentNeg2Enum )
-						.addReal( 30, 21 + i, OmmReal::Exponent0Enum )
-						.complete() ), triHandle );
+				if (sendRefreshMsg)
+				{
+					provider.submit(refresh.clear().serviceName("NI_PUB").name("TRI.N")
+						.state(OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "UnSolicited Refresh Completed")
+						.payload(fieldList.clear()
+							.addReal(22, 4100, OmmReal::ExponentNeg2Enum)
+							.addReal(25, 4200, OmmReal::ExponentNeg2Enum)
+							.addReal(30, 20, OmmReal::Exponent0Enum)
+							.addReal(31, 40, OmmReal::Exponent0Enum)
+							.complete())
+						.complete(), triHandle);
 
-				i++;
+					sendRefreshMsg = false;
+				}
+				else
+				{
+					provider.submit(update.clear().serviceName("NI_PUB").name("TRI.N")
+						.payload(fieldList.clear()
+							.addReal(22, 4100 + i, OmmReal::ExponentNeg2Enum)
+							.addReal(30, 21 + i, OmmReal::Exponent0Enum)
+							.complete()), triHandle);
+
+					i++;
+				}
+			}
+			else
+			{
+				sendRefreshMsg = true;
 			}
 
 			provider.dispatch( 1000000 );

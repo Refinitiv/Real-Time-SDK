@@ -85,6 +85,10 @@ public :
 
 	bool getServiceName( UInt64 , EmaString& );
 
+	void setActiveRsslReactorChannel( Channel* activeChannel );
+
+	void unsetActiveRsslReactorChannel( Channel* cancelChannel);
+
 private :
 
 	void reLoadConfigSourceDirectory();
@@ -160,6 +164,7 @@ private :
 
 	Int32				    						_nextProviderStreamId;
 	EmaList<StreamId*>			 					_reusedProviderStreamIds;
+	Channel*										_activeChannel;
 };
 
 }

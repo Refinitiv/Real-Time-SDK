@@ -1289,4 +1289,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	{
 		_eventReceived = true;
 	}
-}
+	
+	void setActiveRsslReactorChannel(ChannelInfo activeChannelInfo) {}
+	
+	void unsetActiveRsslReactorChannel(ChannelInfo cancelChannelInfo) {}
+	
+	}

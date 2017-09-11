@@ -485,53 +485,40 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 		ppc->retrieveLoggerConfig( _activeConfig.loggerConfig.loggerName , _activeConfig );
 	}
 
-	EmaString channelSet;
+	EmaString channelOrChannelSet;
 	EmaString channelName;
 
-	pConfigImpl->getChannelName( _activeConfig.configuredName, channelName );
-
-	if ( channelName.trimWhitespace().empty() )
+	pConfigImpl->getChannelName( _activeConfig.configuredName, channelOrChannelSet);
+	if (channelOrChannelSet.trimWhitespace().length() > 0 )
 	{
-		EmaString nodeName( "ConsumerGroup|ConsumerList|Consumer." );
-		nodeName.append( _activeConfig.configuredName );
-		nodeName.append( "|ChannelSet" );
-
-		if ( pConfigImpl->get<EmaString>( nodeName, channelSet ) )
+		char* pToken = NULL;
+		char* pNextToken = NULL;
+		pToken = strtok( const_cast<char*>(channelOrChannelSet.c_str() ), "," );
+		do
 		{
-			char* pToken = NULL;
-			char* pNextToken = NULL;
-			pToken = strtok( const_cast<char*>( channelSet.c_str() ), "," );
-			do
+			if ( pToken )
 			{
-				if ( pToken )
-				{
-					channelName = pToken;
-					pNextToken = strtok(NULL, ",");
-					ChannelConfig* newChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ), (pNextToken == NULL ? true : false) );
-					_activeConfig.configChannelSet.push_back( newChannelConfig );
+				channelName = pToken;
+				pNextToken = strtok(NULL, ",");
+				ChannelConfig* newChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ), (pNextToken == NULL ? true : false) );
+				_activeConfig.configChannelSet.push_back( newChannelConfig );
 
-				}
-
-				pToken = pNextToken;
 			}
-			while ( pToken != NULL );
+
+			pToken = pNextToken;
 		}
-		else
-		{
-			useDefaultConfigValues( EmaString( "Channel" ), pConfigImpl->getUserSpecifiedHostname(), pConfigImpl->getUserSpecifiedPort().userSpecifiedValue );
-		}
+		while ( pToken != NULL );
 	}
 	else
 	{
-		ChannelConfig* newChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ), true );
-		_activeConfig.configChannelSet.push_back( newChannelConfig );
+		useDefaultConfigValues( EmaString( "Channel" ), pConfigImpl->getUserSpecifiedHostname(), pConfigImpl->getUserSpecifiedPort().userSpecifiedValue );
 	}
 
 	if ( ProgrammaticConfigure* ppc  = pConfigImpl->getProgrammaticConfigure() )
 	{
 		ppc->retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
 		bool isProgmaticCfgChannelName = ppc->getActiveChannelName( _activeConfig.configuredName, channelName.trimWhitespace() );
-		bool isProgramatiCfgChannelset = ppc->getActiveChannelSet( _activeConfig.configuredName, channelSet.trimWhitespace() );
+		bool isProgramatiCfgChannelset = ppc->getActiveChannelSet( _activeConfig.configuredName, channelOrChannelSet.trimWhitespace() );
 		unsigned int posInProgCfg  = 0;
 
 		if ( isProgmaticCfgChannelName )
@@ -553,7 +540,7 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 			_activeConfig.configChannelSet.clear();
 			char* pToken = NULL;
 			char* pNextToken = NULL;
-			pToken = strtok( const_cast<char*>( channelSet.c_str() ), "," );
+			pToken = strtok( const_cast<char*>(channelOrChannelSet.c_str() ), "," );
 			while ( pToken != NULL )
 			{
 				channelName = pToken;

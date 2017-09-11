@@ -758,7 +758,14 @@ bool NiProviderSingleItem::submit( RsslRequestMsg* pRsslRequestMsg )
 
 	submitMsgOpts.pServiceName = 0;
 
-	Channel* pChannel = _ommBaseImpl.getChannelCallbackClient().getChannelList().front();
+	Channel* pChannel = _ommBaseImpl.getLoginCallbackClient().getActiveChannel();
+	if ( pChannel == NULL )
+	{
+		EmaString temp( "No active channel to send message." );
+		_ommBaseImpl.handleIue( temp );
+
+		return false;
+	}
 
 	submitMsgOpts.majorVersion = pChannel->getRsslChannel()->majorVersion;
 	submitMsgOpts.minorVersion = pChannel->getRsslChannel()->minorVersion;
@@ -818,7 +825,14 @@ bool NiProviderSingleItem::submit( RsslCloseMsg* pRsslCloseMsg )
 
 	submitMsgOpts.pRsslMsg = (RsslMsg*) pRsslCloseMsg;
 
-	Channel* pChannel = _ommBaseImpl.getChannelCallbackClient().getChannelList().front();
+	Channel* pChannel = _ommBaseImpl.getLoginCallbackClient().getActiveChannel();
+	if ( pChannel == NULL )
+	{
+		EmaString temp( "No active channel to send message." );
+		_ommBaseImpl.handleIue( temp );
+
+		return false;
+	}
 
 	submitMsgOpts.majorVersion = pChannel->getRsslChannel()->majorVersion;
 	submitMsgOpts.minorVersion = pChannel->getRsslChannel()->minorVersion;
@@ -862,7 +876,14 @@ bool NiProviderSingleItem::submit( RsslGenericMsg* pRsslGenericMsg )
 
 	submitMsgOpts.pRsslMsg = (RsslMsg*) pRsslGenericMsg;
 
-	Channel* pChannel = _ommBaseImpl.getChannelCallbackClient().getChannelList().front();
+	Channel* pChannel = _ommBaseImpl.getLoginCallbackClient().getActiveChannel();
+	if ( pChannel == NULL )
+	{
+		EmaString temp( "No active channel to send message." );
+		_ommBaseImpl.handleIue( temp );
+
+		return false;
+	}
 
 	submitMsgOpts.majorVersion = pChannel->getRsslChannel()->majorVersion;
 	submitMsgOpts.minorVersion = pChannel->getRsslChannel()->minorVersion;

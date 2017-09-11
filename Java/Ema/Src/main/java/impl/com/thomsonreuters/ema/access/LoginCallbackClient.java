@@ -9,6 +9,7 @@ package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -27,7 +28,6 @@ import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
-import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StateCodes;
@@ -135,8 +135,11 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 			case REFRESH :
 			{
 				if (!_loginChannelList.contains(chnlInfo))
+				{
+					removeChannelInfo(event.reactorChannel());
 					_loginChannelList.add(chnlInfo);
-					
+				}
+				
 				if (_rsslRefreshMsg == null)
 				{
 					_rsslRefreshMsg = (RefreshMsg)CodecFactory.createMsg();
@@ -193,6 +196,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				{
 					_baseImpl.ommImplState(OmmImplState.LOGIN_STREAM_OPEN_OK);
 	
+					_baseImpl.setActiveRsslReactorChannel(chnlInfo);
+					_baseImpl.reLoadDirectory();
+					
 					if (_baseImpl.loggerClient().isTraceEnabled())
 		        	{
 			        	StringBuilder temp = _baseImpl.strBuilder();
@@ -208,7 +214,10 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				processRefreshMsg(msg, rsslReactorChannel, loginMsg);
 	
 				if (closeChannel)
+				{
+					_baseImpl.unsetActiveRsslReactorChannel(chnlInfo);
 					_baseImpl.closeRsslChannel(rsslReactorChannel);
+				}
 	
 				break;
 			}
@@ -257,6 +266,9 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 					}
 					else
 					{
+						_baseImpl.setActiveRsslReactorChannel(chnlInfo);
+						_baseImpl.reLoadDirectory();
+						
 						if (_baseImpl.loggerClient().isTraceEnabled())
 			        	{
 				        	StringBuilder temp = _baseImpl.strBuilder();
@@ -286,7 +298,10 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 				processStatusMsg(msg, rsslReactorChannel, loginMsg);
 	
 				if (closeChannel)
+				{
+					_baseImpl.unsetActiveRsslReactorChannel(chnlInfo);
 					_baseImpl.closeRsslChannel(rsslReactorChannel);
+				}
 	
 				break;
 			}
@@ -511,6 +526,22 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		}
 		
 		return null;
+	}
+	
+	void removeChannelInfo(ReactorChannel rsslChannel)
+	{
+		if (_loginChannelList != null)
+		{
+			Iterator<ChannelInfo> iter = _loginChannelList.iterator();
+			ChannelInfo eachOne;
+        	
+        	while(iter.hasNext())
+        	{
+        		eachOne = iter.next();
+				if (eachOne.rsslReactorChannel() == rsslChannel)
+					iter.remove();
+			}
+		}
 	}
 	
 	RefreshMsg rsslRefreshMsg()
@@ -812,8 +843,6 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		{
 		case ReactorChannelEventTypes.CHANNEL_READY:
 
-			_baseImpl.reLoadDirectory();
-			
 			if(!_notifyChannelDownReconnecting)
 				break;
 

@@ -203,6 +203,24 @@
 			<Port value="ADH_PORT"/>
 			<XmlTraceToStdout value="1"/>
 		</Channel>
+		<Channel>
+			<Name value="Channel_11"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="ADH2_HOST"/>
+			<Port value="ADH2_PORT"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_12"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="ADH3_HOST"/>
+			<Port value="ADH3_PORT"/>
+		</Channel>
 	</ChannelList>
 </ChannelGroup>
 
