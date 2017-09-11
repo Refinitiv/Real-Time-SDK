@@ -3826,9 +3826,11 @@ class WlItemHandler implements WlHandler
 		{		
 			case ViewTypes.FIELD_ID_LIST:
 				_wlViewHandler._viewFieldIdListPool.add(wlRequest._viewFieldIdList);
+				wlRequest._viewFieldIdList = null;
 				break;
 			case ViewTypes.ELEMENT_NAME_LIST:				
-				_wlViewHandler._viewElementNameListPool.add(wlRequest._viewElementNameList);				
+				_wlViewHandler._viewElementNameListPool.add(wlRequest._viewElementNameList);		
+				wlRequest._viewElementNameList = null;
 				break;
 		}
 		wlRequest.view().returnToPool();
