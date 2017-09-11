@@ -14,6 +14,7 @@ class DataDictionaryImpl implements DataDictionary
     private final int MAX_FID = 32767;
     private final int ENUM_TABLE_MAX_COUNT = ((MAX_FID) - (MIN_FID) + 1);
     private final int MAX_ENUM_TYPE_COUNT = 2500;
+    private final int INIT_TO_STRING_SIZE = 2000000;
 
     // Dictionary - Element names that should be hidden
     private final Buffer ENUM_FID = CodecFactory.createBuffer();
@@ -103,8 +104,8 @@ class DataDictionaryImpl implements DataDictionary
     FieldSetDef newSetDef = CodecFactory.createFieldSetDef();
     LocalFieldSetDefDb fieldSetDef = CodecFactory.createLocalFieldSetDefDb();
 
-    String dictionaryString; // for toString method
-
+    StringBuilder dictionaryString; // for toString method
+    String	toString;
     {
         ENUM_FID.data("FID");
         VALUES.data("VALUES");
@@ -196,6 +197,9 @@ class DataDictionaryImpl implements DataDictionary
     public void clear()
     {
         _isInitialized = false;
+        
+        if ( dictionaryString != null )
+        	dictionaryString.setLength(0);
     }
     
     @Override
@@ -442,6 +446,9 @@ class DataDictionaryImpl implements DataDictionary
 
             return CodecReturnCodes.FAILURE;
         }
+        
+        if ( dictionaryString != null )
+        	dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
@@ -643,6 +650,9 @@ class DataDictionaryImpl implements DataDictionary
         {
             return CodecReturnCodes.FAILURE;
         }
+        
+        if ( dictionaryString != null )
+        	dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
@@ -1556,6 +1566,9 @@ class DataDictionaryImpl implements DataDictionary
                 return CodecReturnCodes.FAILURE;
             newDictEntry = null;
         }
+        
+        if ( dictionaryString != null )
+        	dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
@@ -2229,6 +2242,9 @@ class DataDictionaryImpl implements DataDictionary
             setError(error, "encodeSeriesComplete failed " + ret);
             return CodecReturnCodes.FAILURE;
         }
+        
+        if ( dictionaryString != null )
+        	dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
@@ -2499,6 +2515,9 @@ class DataDictionaryImpl implements DataDictionary
             fidsCount = 0;
             _enumTypeArrayCount = -1;
         }
+        
+        if ( dictionaryString != null )
+        	dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
@@ -3343,36 +3362,39 @@ class DataDictionaryImpl implements DataDictionary
     {
         if (!_isInitialized)
             return null;
+        
+        if ( dictionaryString == null )
+        	dictionaryString = new StringBuilder(INIT_TO_STRING_SIZE);
 
-        if (dictionaryString == null)
+        if ( dictionaryString.length() == 0 )
         {
-            StringBuilder sb = new StringBuilder();
+        	dictionaryString = new StringBuilder(INIT_TO_STRING_SIZE);
 
-            sb.append("Data Dictionary Dump: MinFid=" + _minFid + " MaxFid=" + _maxFid + " NumEntries " + _numberOfEntries + "\n\n");
+        	dictionaryString.append("Data Dictionary Dump: MinFid=" + _minFid + " MaxFid=" + _maxFid + " NumEntries " + _numberOfEntries + "\n\n");
 
-            sb.append("Tags:\n  DictionaryId=\"" + _infoDictionaryId + "\"\n\n");
+        	dictionaryString.append("Tags:\n  DictionaryId=\"" + _infoDictionaryId + "\"\n\n");
 
-            sb.append("  [Field Dictionary Tags]\n" +
+        	dictionaryString.append("  [Field Dictionary Tags]\n" +
                       "      Filename=\"" + _infoFieldFilename + "\"\n" +
                       "          Desc=\"" + _infoFieldDesc + "\"\n" +
                       "       Version=\"" + _infoFieldVersion + "\"\n" +
                       "         Build=\"" + _infoFieldBuild + "\"\n" +
                       "          Date=\"" + _infoFieldDate + "\"\n\n");
 
-            sb.append("  [Enum Type Dictionary Tags]\n" +
+        	dictionaryString.append("  [Enum Type Dictionary Tags]\n" +
                       "      Filename=\"" + _infoEnumFilename + "\"\n" +
                       "          Desc=\"" + _infoEnumDesc + "\"\n" +
                       "    RT_Version=\"" + _infoEnumRTVersion + "\"\n" +
                       "    DT_Version=\"" + _infoEnumDTVersion + "\"\n" +
                       "          Date=\"" + _infoEnumDate + "\"\n\n");
 
-            sb.append("Field Dictionary:\n");
+        	dictionaryString.append("Field Dictionary:\n");
 
             for (int i = 0; i <= MAX_FID - MIN_FID; i++)
             {
                 if (_entriesArray[i] != null && _entriesArray[i].rwfType() != DataTypes.UNKNOWN)
                 {
-                    sb.append("  Fid=" + _entriesArray[i].fid() + " '" + _entriesArray[i].acronym() + "' '" + _entriesArray[i].ddeAcronym() +
+                	dictionaryString.append("  Fid=" + _entriesArray[i].fid() + " '" + _entriesArray[i].acronym() + "' '" + _entriesArray[i].ddeAcronym() +
                               "' Type=" + _entriesArray[i].fieldType() +
                               " RippleTo=" + _entriesArray[i].rippleToField() + " Len=" + _entriesArray[i].length() +
                               " EnumLen=" + _entriesArray[i].enumLength() +
@@ -3382,14 +3404,14 @@ class DataDictionaryImpl implements DataDictionary
 
             /* Enum Tables Dump */
 
-            sb.append("\nEnum Type Tables:\n");
+            dictionaryString.append("\nEnum Type Tables:\n");
 
             for (int i = 0; i < _enumTableCount; ++i)
             {
                 EnumTypeTable table = _enumTables[i];
 
                 for (int j = 0; j < table.fidReferenceCount(); ++j)
-                    sb.append("(Referenced by Fid " + table.fidReferences()[j] + ")\n");
+                	dictionaryString.append("(Referenced by Fid " + table.fidReferences()[j] + ")\n");
 
                 for (int j = 0; j <= table.maxValue(); ++j)
                 {
@@ -3397,42 +3419,18 @@ class DataDictionaryImpl implements DataDictionary
 
                     if (enumType != null)
                     {
-                        sb.append("value=" + enumType.value() +
+                    	dictionaryString.append("value=" + enumType.value() +
                                   " display=\"" + enumType.display() +
                                   "\" meaning=\"" + enumType.meaning() + "\"\n");
                     }
                 }
 
-                sb.append("\n");
+                dictionaryString.append("\n");
             }
-
-            sb.append("\nField Set Defs Tables:\n");
-
-            for (int i = 0; i < _enumTableCount; ++i)
-            {
-                EnumTypeTable table = _enumTables[i];
-
-                for (int j = 0; j < table.fidReferenceCount(); ++j)
-                    sb.append("(Referenced by Fid " + table.fidReferences()[j] + ")\n");
-
-                for (int j = 0; j <= table.maxValue(); ++j)
-                {
-                    EnumType enumType = table.enumTypes()[j];
-
-                    if (enumType != null)
-                    {
-                        sb.append("value=" + enumType.value() +
-                                  " display=\"" + enumType.display() +
-                                  "\" meaning=\"" + enumType.meaning() + "\"\n");
-                    }
-                }
-
-                sb.append("\n");
-            }
-
-            dictionaryString = sb.toString();
+            
+            toString = dictionaryString.toString();
         }
 
-        return dictionaryString;
+        return toString;
     }
 }
