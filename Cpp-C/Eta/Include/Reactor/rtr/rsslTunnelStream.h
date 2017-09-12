@@ -112,7 +112,7 @@ typedef struct
 	RsslUInt8			domainType;				/*!< Domain type of the requested tunnel stream. */
 	RsslInt16			serviceId;				/*!< Service ID  of the requested tunnel stream. */
 	char*				name;					/*!< Name of the requested tunnel stream. */
-	RsslUInt16			classOfServiceFilter;	/*!< Filter indicating what categories of information are present in the request. See RsslTunnelStreamCoSFilterFlags. */
+	RsslUInt16			classOfServiceFilter;	/*!< Filter indicating what categories of information are present in the request. See RDMClassOfServiceFilterFlags. */
 } RsslTunnelStreamRequestEvent;
 
 /**

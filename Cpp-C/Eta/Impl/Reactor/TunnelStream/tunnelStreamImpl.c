@@ -369,6 +369,8 @@ RsslTunnelStream* tunnelStreamOpen(TunnelManager *pManager, RsslTunnelStreamOpen
 		{
 			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
 					__FILE__, __LINE__, "Tunnel stream name is too long.");
+			tunnelStreamDestroy((RsslTunnelStream*)pTunnelImpl);
+			return NULL;
 		}
 
 		if (!isProvider)
@@ -496,6 +498,10 @@ RsslRet tunnelStreamSubmitMsg(RsslTunnelStream *pTunnel,
 					pRdmMsg = pOpts->pRDMMsg;
 					break;
 			}
+		}
+		else
+		{
+			pRdmMsg = pOpts->pRDMMsg;
 		}
 	}
 	else
@@ -2437,7 +2443,23 @@ RsslRet tunnelStreamHandleState(TunnelStreamImpl *pTunnelImpl, RsslState *pState
 					else
 					{
 						 /* This is due to an internal error, go straight to closing the stream. */
+						/* If consumer and request not yet sent, just send CLOSED_RECOVER status event. */
 						RsslState state = *pState;
+						if (pTunnelImpl->_state == TSS_SEND_REQUEST)
+						{
+							pTunnelImpl->base.state.streamState = state.streamState = RSSL_STREAM_CLOSED_RECOVER;
+							pTunnelImpl->base.state.dataState = state.dataState = RSSL_DATA_SUSPECT;
+
+							rsslHashTableRemoveLink(&pManagerImpl->_streamIdToTunnelStreamTable, &pTunnelImpl->_managerHashLink);
+							rsslQueueRemoveLink(&pManagerImpl->_tunnelStreamsOpen, &pTunnelImpl->_managerOpenLink);
+							pTunnelImpl->_state = TSS_CLOSED;
+
+							if (_tunnelStreamCallStatusEventCallback(pTunnelImpl, &state, pRsslMsg, pAuthInfo, pErrorInfo)
+								!= RSSL_RET_SUCCESS)
+								return ret;
+						}
+						else
+						{
 						pTunnelImpl->base.state.streamState = state.streamState = RSSL_STREAM_OPEN;
 						pTunnelImpl->base.state.dataState = state.dataState = RSSL_DATA_SUSPECT;
 
@@ -2448,6 +2470,7 @@ RsslRet tunnelStreamHandleState(TunnelStreamImpl *pTunnelImpl, RsslState *pState
 						if (_tunnelStreamCallStatusEventCallback(pTunnelImpl, &state, pRsslMsg, pAuthInfo, pErrorInfo)
 							!= RSSL_RET_SUCCESS)
 							return ret;
+					}
 					}
 
 					return RSSL_RET_SUCCESS;
