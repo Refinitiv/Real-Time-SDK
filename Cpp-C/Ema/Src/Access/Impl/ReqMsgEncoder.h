@@ -71,6 +71,8 @@ public :
 
 	bool getPrivateStream() const;
 
+	bool isDomainTypeSet() const;
+
 private :
 
 	void checkBatchView( RsslBuffer* );
@@ -78,6 +80,8 @@ private :
 	RsslMsg* getRsslMsg() const;
 
 	RsslRequestMsg			_rsslRequestMsg;
+
+	bool					_domainTypeSet;
 };
 
 class ReqMsgEncoderPool : public EncoderPool< ReqMsgEncoder >

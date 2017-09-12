@@ -32,6 +32,15 @@ class OmmCommonImpl
 {
 public:
 
+		enum ImplementationType
+		{
+			ConsumerEnum,
+			NiProviderEnum,
+			IProviderEnum
+		};
+
+		virtual ImplementationType getImplType() = 0;
+
 		virtual void handleIue(const EmaString&) = 0;
 
 		virtual void handleIue(const char*) = 0;
@@ -42,11 +51,21 @@ public:
 
 		virtual void handleMee(const char*) = 0;
 
+		virtual LoggerConfig& getActiveLoggerConfig() = 0;
+
 		virtual OmmLoggerClient& getOmmLoggerClient() = 0;
 
 		virtual ErrorClientHandler& getErrorClientHandler() = 0;
 
 		virtual bool hasErrorClientHandler() const = 0;
+
+		virtual const EmaString& getInstanceName() const = 0;
+
+		virtual void msgDispatched(bool value = true) = 0;
+
+		virtual Mutex& getUserMutex() = 0;
+
+		virtual bool isAtExit() = 0;
 };
 
 template <class T> class OmmBaseImplMap

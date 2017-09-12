@@ -163,7 +163,11 @@ protected :
 	friend class NiProviderLoginItem;
 	friend class SingleItem;
 	friend class NiProviderSingleItem;
+	friend class IProviderSingleItem;
 	friend class DictionaryItem;
+	friend class NiProviderDictionaryItem;
+	friend class IProviderDictionaryItem;
+	friend class ProviderItem;
 	friend class TunnelItem;
 	friend class TunnelStreamLoginReqMsgImpl;
 	friend class SubItem;

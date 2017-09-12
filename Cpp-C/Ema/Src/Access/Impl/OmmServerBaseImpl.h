@@ -54,6 +54,7 @@ class ClientSession;
 class ItemInfo;
 class EmaConfigServerImpl;
 class DirectoryServiceStore;
+class ItemCallbackClient;
 
 typedef ItemInfo* ItemInfoPtr;
 
@@ -89,6 +90,8 @@ public:
 
 	void eventReceived(bool value = true);
 
+	ItemCallbackClient& getItemCallbackClient();
+
 	MarketItemHandler& getMarketItemHandler();
 
 	DictionaryHandler& getDictionaryHandler();
@@ -102,6 +105,8 @@ public:
 	OmmLoggerClient& getOmmLoggerClient();
 
 	ActiveServerConfig& getActiveConfig();
+
+	LoggerConfig& getActiveLoggerConfig();
 
 	ErrorClientHandler& getErrorClientHandler();
 
@@ -126,6 +131,10 @@ public:
 	void handleIhe(UInt64, const char*);
 
 	void handleMee(const char*);
+
+	virtual void processChannelEvent(RsslReactorChannelEvent*) = 0;
+
+	bool isAtExit();
 
 protected:
 
@@ -216,6 +225,7 @@ protected:
 	DirectoryHandler*			_pDirectoryHandler;
 	DictionaryHandler*			_pDictionaryHandler;
 	MarketItemHandler*			_pMarketItemHandler;
+	ItemCallbackClient*			_pItemCallbackClient;
 	OmmLoggerClient*			_pLoggerClient;
 	Pipe						_pipe;
 	UInt32						_pipeWriteCount;
@@ -241,6 +251,7 @@ private:
 	friend class DictionaryHandler;
 	friend class MarketItemHandler;
 	friend class ClientSession;
+	friend class ItemCallbackClient;
 
 	OmmServerBaseImpl( const OmmServerBaseImpl& );
 	OmmServerBaseImpl& operator=( const OmmServerBaseImpl& );

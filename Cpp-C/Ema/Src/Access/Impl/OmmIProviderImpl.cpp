@@ -12,6 +12,7 @@
 #include "ClientSession.h"
 #include "OmmProvider.h"
 #include "RefreshMsgEncoder.h"
+#include "ReqMsgEncoder.h"
 #include "UpdateMsgEncoder.h"
 #include "StatusMsgEncoder.h"
 #include "GenericMsgEncoder.h"
@@ -34,7 +35,8 @@ OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderC
 	OmmProviderImpl(ommProvider),
 	OmmServerBaseImpl(_ommIProviderActiveConfig, ommProviderClient, closure),
 	_ommIProviderActiveConfig(),
-	_ommIProviderDirectoryStore(*this, _ommIProviderActiveConfig)
+	_ommIProviderDirectoryStore(*this, _ommIProviderActiveConfig),
+	_itemWatchList()
 {
 	_ommIProviderActiveConfig.operationModel = ommIProviderConfig._pImpl->getOperationModel();
 	_ommIProviderActiveConfig.dictionaryAdminControl = ommIProviderConfig._pImpl->getAdminControlDictionary();
@@ -60,7 +62,8 @@ OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderC
 	OmmServerBaseImpl(_ommIProviderActiveConfig, ommProviderClient, ommProviderErrorClient, closure),
 	_ommIProviderActiveConfig(),
 	_ommIProviderDirectoryStore(*this, _ommIProviderActiveConfig),
-	_storeUserSubmitted(false)
+	_storeUserSubmitted(false),
+	_itemWatchList()
 {
 	_ommIProviderActiveConfig.operationModel = ommIProviderConfig._pImpl->getOperationModel();
 	_ommIProviderActiveConfig.dictionaryAdminControl = ommIProviderConfig._pImpl->getAdminControlDictionary();
@@ -178,22 +181,58 @@ void OmmIProviderImpl::readCustomConfig(EmaConfigServerImpl* pConfigImpl)
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnumTypeFragmentSize", tmp))
 		_ommIProviderActiveConfig.maxEnumTypeFragmentSize = tmp > 0xFFFFFFFF ? 0xFFFFFFFF : (UInt32)tmp;
 
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "RequestTimeout", tmp))
+		_ommIProviderActiveConfig.requestTimeOut = tmp > 0xFFFFFFFF ? 0xFFFFFFFF : (UInt32)tmp;
+
 	if (ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure())
 	{
 		// Todo: Retrieve from programmatic configure
 	}
 }
 
-UInt64 OmmIProviderImpl::registerClient(const ReqMsg&, OmmProviderClient&, void* closure, UInt64 parentHandle)
+UInt64 OmmIProviderImpl::registerClient(const ReqMsg& reqMsg, OmmProviderClient& client, void* closure, UInt64 parentHandle)
 {
-	handleIue("Calling the OmmIProviderImpl::registerClient() method is not support in this release.");
-	return 0;
+	_userLock.lock();
+
+	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() );
+
+	if ( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY )
+	{
+		_userLock.unlock();
+		handleIue( "OMM Interactive provider supports registering DICTIONARY domain type only." );
+		return 0;
+	}
+
+	if ( getServerChannelHandler().getClientSessionList().size() == 0 )
+	{
+		_userLock.unlock();
+		handleIue("There is no active client session available for registering.");
+		return 0;
+	}
+
+	UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient(reqMsg, client, closure, parentHandle) : 0;
+
+	_userLock.unlock();
+
+	return handle;
 }
 
-void OmmIProviderImpl::reissue(const ReqMsg&, UInt64 handle)
+void OmmIProviderImpl::reissue(const ReqMsg& reqMsg, UInt64 handle)
 {
-	handleIue("Calling the OmmIProviderImpl::reissue() method is not support in this release.");
-	return;
+	_userLock.lock();
+
+	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder());
+
+	if ( reqMsgEncoder.isDomainTypeSet() && reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY )
+	{
+		_userLock.unlock();
+		handleIue( "OMM Interactive provider supports reissuing DICTIONARY domain type only." );
+		return;
+	}
+
+	if ( _pItemCallbackClient ) _pItemCallbackClient->reissue(reqMsg, handle);
+
+	_userLock.unlock();
 }
 
 void OmmIProviderImpl::submit(const GenericMsg& genericMsg, UInt64 handle)
@@ -500,7 +539,8 @@ void OmmIProviderImpl::submit(const RefreshMsg& refreshMsg, UInt64 handle)
 
 	itemInfo->setSentRefresh();
 
-	handleItemInfo(submitMsgOpts.pRsslMsg->msgBase.domainType, handle, submitMsgOpts.pRsslMsg->refreshMsg.state);
+	handleItemInfo(submitMsgOpts.pRsslMsg->msgBase.domainType, handle, submitMsgOpts.pRsslMsg->refreshMsg.state, 
+		( submitMsgOpts.pRsslMsg->refreshMsg.flags & RSSL_RFMF_REFRESH_COMPLETE ) != 0 ? true : false );
 
 	_userLock.unlock();
 }
@@ -1032,7 +1072,8 @@ bool OmmIProviderImpl::submit(RsslReactorSubmitMsgOptions submitMsgOptions, cons
 		{
 		case RSSL_MC_REFRESH:
 			itemInfo->isSentRefresh();
-			handleItemInfo(pRsslMsg->msgBase.domainType, itemInfo->getHandle(), pRsslMsg->refreshMsg.state);
+			handleItemInfo(pRsslMsg->msgBase.domainType, itemInfo->getHandle(), pRsslMsg->refreshMsg.state, 
+				( pRsslMsg->refreshMsg.flags & RSSL_RFMF_REFRESH_COMPLETE ) != 0 ? true : false);
 			break;
 		case RSSL_MC_STATUS:
 			handleItemInfo(pRsslMsg->msgBase.domainType, itemInfo->getHandle(), pRsslMsg->statusMsg.state);
@@ -1043,9 +1084,10 @@ bool OmmIProviderImpl::submit(RsslReactorSubmitMsgOptions submitMsgOptions, cons
 	return true;
 }
 
-void OmmIProviderImpl::handleItemInfo(int domainType, UInt64 handle, RsslState& state)
+void OmmIProviderImpl::handleItemInfo(int domainType, UInt64 handle, RsslState& state, bool refreshComplete)
 {
-	if ( state.streamState != RSSL_STREAM_OPEN )
+	if ( ( state.streamState == RSSL_STREAM_CLOSED ) || ( state.streamState == RSSL_STREAM_CLOSED_RECOVER ) || ( state.streamState == RSSL_STREAM_REDIRECTED ) ||
+		( state.streamState == RSSL_STREAM_NON_STREAMING && refreshComplete ) )
 	{
 		ItemInfoPtr itemInfo = getItemInfo(handle);
 
@@ -1055,6 +1097,7 @@ void OmmIProviderImpl::handleItemInfo(int domainType, UInt64 handle, RsslState& 
 			{
 			case ema::rdm::MMT_LOGIN:
 			{
+				_itemWatchList.processCloseLogin(itemInfo->getClientSession());
 				_pServerChannelHandler->closeChannel(itemInfo->getClientSession()->getChannel());
 			}
 			break;
@@ -1113,9 +1156,13 @@ Int64 OmmIProviderImpl::dispatch(Int64 timeOut)
 	return OmmProvider::TimeoutEnum;
 }
 
-void OmmIProviderImpl::unregister(UInt64)
+void OmmIProviderImpl::unregister(UInt64 handle)
 {
-	handleIue("Calling the OmmIProviderImpl::unregister(UInt64) method is not support in this release.");
+	_userLock.lock();
+
+	if ( _pItemCallbackClient ) _pItemCallbackClient->unregister( handle );
+
+	_userLock.unlock();
 }
 
 void OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle)
@@ -1195,6 +1242,7 @@ void OmmIProviderImpl::onServiceDelete(ClientSession* clientSession, RsslUInt se
 	if (clientSession)
 	{
 		removeServiceId(clientSession, serviceId);
+		_itemWatchList.processServiceDelete(clientSession,serviceId);
 	}
 	else
 	{
@@ -1205,6 +1253,7 @@ void OmmIProviderImpl::onServiceDelete(ClientSession* clientSession, RsslUInt se
 			for (UInt32 itemInfoIndex = 0; itemInfoIndex < itemInfoList.size(); itemInfoIndex++)
 			{
 				removeServiceId(itemInfoList[itemInfoIndex]->getClientSession(), serviceId);
+				_itemWatchList.processServiceDelete(itemInfoList[itemInfoIndex]->getClientSession(), serviceId);
 			}
 		}
 	}
@@ -1289,3 +1338,53 @@ void OmmIProviderImpl::onServiceGroupChange(ClientSession* clientSession, RsslUI
 	}
 }
 
+OmmCommonImpl::ImplementationType OmmIProviderImpl::getImplType()
+{
+	return IProviderEnum;
+}
+
+ItemWatchList& OmmIProviderImpl::getItemWatchList()
+{
+	return _itemWatchList;
+}
+
+
+bool OmmIProviderImpl::getServiceId(const EmaString& serviceName, UInt64& serviceId)
+{
+	bool retCode = false;
+
+	UInt64* pServiceId = _ommIProviderDirectoryStore.getServiceIdByName(&serviceName);
+
+	if (pServiceId)
+	{
+		serviceId = *pServiceId;
+		retCode = true;
+	}
+
+	return retCode;
+}
+
+bool OmmIProviderImpl::getServiceName(UInt64 serviceId, EmaString& serviceName)
+{
+	bool retCode = false;
+
+	EmaStringPtr* pServiceName = _ommIProviderDirectoryStore.getServiceNameById(serviceId);
+
+	if (pServiceName)
+	{
+		serviceName = **pServiceName;
+		retCode = true;
+	}
+
+	return retCode;
+}
+
+void OmmIProviderImpl::processChannelEvent(RsslReactorChannelEvent* pEvent)
+{
+	_itemWatchList.processChannelEvent(pEvent);
+}
+
+UInt32 OmmIProviderImpl::getRequestTimeout()
+{
+	return _ommIProviderActiveConfig.requestTimeOut;
+}

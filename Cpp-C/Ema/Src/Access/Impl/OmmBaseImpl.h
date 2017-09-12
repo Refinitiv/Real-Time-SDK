@@ -120,6 +120,8 @@ public :
 
 	ActiveConfig& getActiveConfig();
 
+	LoggerConfig& getActiveLoggerConfig();
+
 	ErrorClientHandler& getErrorClientHandler();
 
 	bool hasErrorClientHandler() const;
@@ -158,7 +160,9 @@ public :
 
 	void handleMee( const char* );
 
-	Mutex& getUserLock();
+	Mutex& getUserMutex();
+
+	bool isAtExit();
 
 protected:
 

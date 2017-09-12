@@ -127,6 +127,11 @@ void TimeOut::cancel()
 	if ( _allocatedOnHeap ) delete this;
 }
 
+bool TimeOut::isCanceled()
+{
+	return _canceled;
+}
+
 void TimeOut::execute( TimeOutClient& timeOutClient )
 {
 	MutexLocker ml(timeOutClient.getTimeOutMutex());

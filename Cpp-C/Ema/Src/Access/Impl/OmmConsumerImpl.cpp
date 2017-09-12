@@ -322,3 +322,8 @@ bool OmmConsumerImpl::isApiDispatching() const
 {
 	return _activeConfig.operationModel == OmmConsumerConfig::ApiDispatchEnum ? true : false;
 }
+
+OmmCommonImpl::ImplementationType OmmConsumerImpl::getImplType()
+{
+	return OmmCommonImpl::ConsumerEnum;
+}

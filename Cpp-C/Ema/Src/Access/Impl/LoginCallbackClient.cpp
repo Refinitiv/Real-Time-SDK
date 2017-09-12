@@ -19,6 +19,7 @@
 #include <new>
 
 using namespace thomsonreuters::ema::access;
+using namespace thomsonreuters::ema::rdm;
 
 const EmaString LoginCallbackClient::_clientName( "LoginCallbackClient" );
 const EmaString LoginItem::_clientName( "LoginItem" );
@@ -1864,9 +1865,10 @@ NiProviderLoginItem* NiProviderLoginItem::create( OmmBaseImpl& ommBaseImpl, OmmP
 }
 
 NiProviderLoginItem::NiProviderLoginItem( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure, const LoginList& loginList ) :
-	NiProviderSingleItem( ommBaseImpl, ommProvClient, closure, 0 ),
+	NiProviderSingleItem( ommBaseImpl, ommProvClient, 0, closure, 0 ),
 	_loginList( &loginList )
 {
+	_domainType = MMT_LOGIN;
 	_streamId = EMA_LOGIN_STREAM_ID;
 }
 

@@ -1278,13 +1278,13 @@ void XMLnode::getServiceNameList( const EmaString& directoryName, EmaVector< Ema
 		EmaList< NameString* > theNames;
 		serviceList->getNames( theNames );
 
-		NameString* pTempName = theNames.pop_front();
+		NameString* pTempName = theNames.pop_back();
 
 		while ( pTempName )
 		{
 			serviceNames.push_back( *pTempName );
 			delete pTempName;
-			pTempName = theNames.pop_front();
+			pTempName = theNames.pop_back();
 		}
 	}
 }

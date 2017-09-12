@@ -257,7 +257,6 @@ public :
 	ReqMsg attributes that may change are Priority(), InitialImage(), InterestAfterRefresh(),
 	Pause() and Payload ViewData(). The second formal parameter is a handle that identifies
 	the open stream to be modified.
-	@note This function can only be used with a Non-Interactive Provider.
 	@param[in] reqMsg specifies modifications to the open item stream
 	@param[in] handle identifies item to be modified
 	@return void

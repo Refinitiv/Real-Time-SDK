@@ -166,7 +166,7 @@ class Directory : public ListLinks< Directory >
 {
 public :
 
-	static Directory* create( OmmBaseImpl& );
+	static Directory* create( OmmCommonImpl& );
 
 	static void destroy( Directory*& );
 
@@ -324,7 +324,8 @@ private :
 
 	const Channel*				_channel;
 	const Directory*			_pDirectory;
-	ClosedStatusInfo*			_closedStatusInfo;
+
+	void scheduleItemClosedStatus(const ReqMsgEncoder&, const EmaString& );
 
 	bool submit( RsslRequestMsg* );
 	bool submit( RsslCloseMsg* );

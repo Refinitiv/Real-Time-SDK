@@ -67,7 +67,7 @@ public :
 
 private :
 
-	friend class NiProviderItem;
+	friend class ProviderItem;
 	friend class LoginHandler;
 	friend class DictionaryHandler;
 	friend class DirectoryHandler;

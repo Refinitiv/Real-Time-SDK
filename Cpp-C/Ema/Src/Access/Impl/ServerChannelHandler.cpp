@@ -45,18 +45,23 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 
 			clientSession->setChannel(pRsslReactorChannel);
 
+			RsslRet retChanInfo;
+			retChanInfo = rsslReactorGetChannelInfo(pRsslReactorChannel, &channelInfo, &rsslErrorInfo);
+			EmaString componentInfo("Connected component version: ");
+			for (unsigned int i = 0; i < channelInfo.rsslChannelInfo.componentInfoCount; ++i)
+			{
+				componentInfo.append(channelInfo.rsslChannelInfo.componentInfo[i]->componentVersion.data);
+				if (i < (channelInfo.rsslChannelInfo.componentInfoCount - 1))
+					componentInfo.append(", ");
+			}
+
+			if ( componentInfo.find("adh") != -1  )
+			{
+				clientSession->setADHSession(true);
+			}
+
 			if (OmmLoggerClient::SuccessEnum >= ommServerBase->getActiveConfig().loggerConfig.minLoggerSeverity)
 			{
-				RsslRet retChanInfo;
-				retChanInfo = rsslReactorGetChannelInfo(pRsslReactorChannel, &channelInfo, &rsslErrorInfo);
-				EmaString componentInfo("Connected component version: ");
-				for (unsigned int i = 0; i < channelInfo.rsslChannelInfo.componentInfoCount; ++i)
-				{
-					componentInfo.append(channelInfo.rsslChannelInfo.componentInfo[i]->componentVersion.data);
-					if (i < (channelInfo.rsslChannelInfo.componentInfoCount - 1))
-						componentInfo.append(", ");
-				}
-
 				EmaString temp("Received ChannelUp event on client handle ");
 				temp.append(clientSession->getClientHandle()).append(CR)
 					.append("Instance Name ").append(ommServerBase->getInstanceName());
@@ -291,6 +296,7 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 			if (ommServerBase->getState() != OmmServerBaseImpl::UnInitializingEnum)
 			{
 				ommServerBase->getLoginHandler().notifyChannelDown(clientSession);
+				ommServerBase->processChannelEvent(pRsslReactorChannelEvent);
 			}
 
 			ommServerBase->getServerChannelHandler().closeChannel(pRsslReactorChannel);
@@ -449,4 +455,32 @@ size_t ServerChannelHandler::UInt64rHasher::operator()(const UInt64& value) cons
 bool ServerChannelHandler::UInt64Equal_To::operator()(const UInt64& x, const UInt64& y) const
 {
 	return x == y ? true : false;
+}
+
+ClientSessionPtr ServerChannelHandler::getClientSessionForDictReq() const
+{
+	ClientSessionPtr clientSession = 0;
+
+	if (!_clientSessionList.empty())
+	{
+		ClientSessionPtr clientSessionTemp = _clientSessionList.front();
+
+		while (clientSessionTemp)
+		{
+			if ( clientSessionTemp->isADHSession() )
+			{
+				clientSession = clientSessionTemp;
+				break;
+			}
+
+			clientSessionTemp = clientSessionTemp->next();
+		}
+
+		if ( !clientSession )
+		{
+			clientSession = _clientSessionList.front();
+		}
+	}
+
+	return clientSession;
 }

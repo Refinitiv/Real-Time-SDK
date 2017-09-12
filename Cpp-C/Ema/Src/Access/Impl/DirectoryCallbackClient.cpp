@@ -432,7 +432,7 @@ const EmaString& State::toString() const
 	return _toString;
 }
 
-Directory* Directory::create( OmmBaseImpl& ommBaseImpl )
+Directory* Directory::create( OmmCommonImpl& ommCommonImpl )
 {
 	Directory* pDirectory = 0;
 
@@ -443,7 +443,7 @@ Directory* Directory::create( OmmBaseImpl& ommBaseImpl )
 	catch ( std::bad_alloc ) {}
 
 	if ( !pDirectory )
-		ommBaseImpl.handleMee( "Failed to create Directory." );
+		ommCommonImpl.handleMee("Failed to create Directory.");
 
 	return pDirectory;
 }
@@ -465,7 +465,8 @@ Directory::Directory() :
 	_id( 0 ),
 	_hasInfo( false ),
 	_hasState( false ),
-	_toStringSet( false )
+	_toStringSet( false ),
+	_pChannel( 0 )
 {
 }
 
@@ -482,6 +483,7 @@ Directory& Directory::clear()
 	_hasInfo = false;
 	_hasState = false;
 	_toStringSet = false;
+	_pChannel = 0;
 	return *this;
 }
 
@@ -1357,7 +1359,6 @@ const EmaString DirectoryItem::_clientName( "DirectoryCallbackClient" );
 DirectoryItem::DirectoryItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, const Channel* channel ) :
 	ConsumerItem( ommBaseImpl, ommConsClient, closure, 0 ),
 	_channel( channel ),
-	_closedStatusInfo( 0 ),
 	_pDirectory( 0 )
 {
 }
@@ -1365,12 +1366,6 @@ DirectoryItem::DirectoryItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommCo
 DirectoryItem::~DirectoryItem()
 {
 	_ommBaseImpl.getItemCallbackClient().removeFromList( this );
-
-	if ( _closedStatusInfo )
-	{
-		delete _closedStatusInfo;
-		_closedStatusInfo = 0;
-	}
 }
 
 DirectoryItem* DirectoryItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient, void* closure, const Channel* channel )
@@ -1651,3 +1646,13 @@ bool DirectoryItem::submit( RsslCloseMsg* pRsslCloseMsg )
 
 	return true;
 }
+
+void DirectoryItem::scheduleItemClosedStatus(const ReqMsgEncoder& reqMsgEncoder, const EmaString& text)
+{
+	if (_closedStatusInfo) return;
+
+	_closedStatusInfo = new ClosedStatusInfo(this, reqMsgEncoder, text);
+
+	new TimeOut(_ommBaseImpl, 1000, ItemCallbackClient::sendItemClosedStatus, _closedStatusInfo, true);
+}
+

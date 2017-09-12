@@ -7,6 +7,7 @@
  */
 
 #include "OmmConsumerImpl.h"
+#include "OmmServerBaseImpl.h"
 #include "ChannelCallbackClient.h"
 #include "DictionaryCallbackClient.h"
 #include "DirectoryCallbackClient.h"
@@ -15,6 +16,9 @@
 #include "ReqMsgEncoder.h"
 #include "StaticDecoder.h"
 #include "Decoder.h"
+#include "OmmNiProviderImpl.h"
+#include "OmmIProviderImpl.h"
+#include "EmaRdm.h"
 
 #include <new>
 
@@ -22,6 +26,7 @@
 #define DEFAULT_DICTIONARY_RESP_HEADER_SIZE 20480
 
 using namespace thomsonreuters::ema::access;
+using namespace thomsonreuters::ema::rdm;
 
 const EmaString DictionaryCallbackClient::_clientName( "DictionaryCallbackClient" );
 const EmaString DictionaryCallbackClient::_rwfFldName("RWFFld");
@@ -29,6 +34,8 @@ const EmaString DictionaryCallbackClient::_rwfEnumName("RWFEnum");
 const EmaString LocalDictionary::_clientName( "LocalDictionary" );
 const EmaString ChannelDictionary::_clientName( "ChannelDictionary" );
 const EmaString DictionaryItem::_clientName( "DictionaryItem" );
+const EmaString NiProviderDictionaryItem::_clientName("NiProviderDictionaryItem");
+const EmaString IProviderDictionaryItem::_clientName("IProviderDictionaryItem");
 
 Dictionary::Dictionary() :
 	_fldStreamId( 0 ),
@@ -1832,4 +1839,72 @@ RsslRet DictionaryItem::encodeDataDictionaryResp( DictionaryItem& dictionaryItem
 	msgBuf.length = rsslGetEncodedBufferLength( &encodeIter );
 
 	return dictionaryComplete ? RSSL_RET_SUCCESS : RSSL_RET_DICT_PART_ENCODED;
+}
+
+NiProviderDictionaryItem::NiProviderDictionaryItem(OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, ItemWatchList* pItemWatchList, void* closure) :
+	NiProviderSingleItem(ommBaseImpl, ommProvClient, pItemWatchList, closure, 0)
+{
+}
+
+NiProviderDictionaryItem::~NiProviderDictionaryItem()
+{
+}
+
+NiProviderDictionaryItem* NiProviderDictionaryItem::create(OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure)
+{
+	NiProviderDictionaryItem* pItem = 0;
+
+	try
+	{
+		pItem = new NiProviderDictionaryItem(ommBaseImpl, ommProvClient, &static_cast<OmmNiProviderImpl&>(ommBaseImpl).getItemWatchList() ,closure);
+	}
+	catch (std::bad_alloc) {}
+
+	if (!pItem)
+		ommBaseImpl.handleMee("Failed to create NiProviderDictionaryItem");
+
+	return pItem;
+}
+
+bool NiProviderDictionaryItem::modify( const ReqMsg& reqMsg )
+{
+	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder());
+
+	reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType = MMT_DICTIONARY;
+
+	return ProviderItem::modify( reqMsg );
+}
+
+IProviderDictionaryItem::IProviderDictionaryItem(OmmServerBaseImpl& ommServerBaseImpl, OmmProviderClient& ommProvClient, ItemWatchList* pItemWatchList, void* closure) :
+	IProviderSingleItem( ommServerBaseImpl, ommProvClient, pItemWatchList, closure, 0 )
+{
+}
+
+IProviderDictionaryItem::~IProviderDictionaryItem()
+{
+}
+
+IProviderDictionaryItem* IProviderDictionaryItem::create(OmmServerBaseImpl& ommServerBaseImpl, OmmProviderClient& ommProvClient, void* closure)
+{
+	IProviderDictionaryItem* pItem = 0;
+
+	try
+	{
+		pItem = new IProviderDictionaryItem( ommServerBaseImpl, ommProvClient, &static_cast<OmmIProviderImpl&>(ommServerBaseImpl).getItemWatchList(), closure );
+	}
+	catch (std::bad_alloc) {}
+
+	if (!pItem)
+		ommServerBaseImpl.handleMee("Failed to create IProviderDictionaryItem");
+
+	return pItem;
+}
+
+bool IProviderDictionaryItem::modify(const ReqMsg& reqMsg)
+{
+	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder());
+
+	reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType = MMT_DICTIONARY;
+
+	return ProviderItem::modify( reqMsg );
 }

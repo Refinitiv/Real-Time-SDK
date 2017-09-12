@@ -52,6 +52,10 @@ public:
 
 	void setLogin(bool isLogin);
 
+	bool isADHSession() const;
+
+	void setADHSession(bool adhSession = true);
+
 	const EmaString& toString() const;
 
 	const EmaList< ItemInfo* >& getItemInfoList();
@@ -144,6 +148,7 @@ private:
 	bool				_isLogin;
 	OmmServerBaseImpl*  _pOmmServerBaseImpl;
 	bool                _removingInCloseAll;
+	bool				_isADHSession;
 };
 
 }

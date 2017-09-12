@@ -376,6 +376,28 @@ Series300Provider320-ProvFunc-006
 	Alters Interactive Provider to send a dictionary in fragments starting at size 9600 
 	bytes and incrementing subsequent fragments by 10000 bytes.
 
+Module:  Series300Provider350
+----------------------------------
+Series300Provider350-ProvFunc-001:  Alters Series300Provider350 to request dictionary
+as a snapshot with specified filter using command line argument: -filter. Values to -filter
+can be INFO, NORMAL, MINIMAL or VERBOSE. Additionally, this tool also unregisters dictionary
+handles after sending 6 updates.
+
+Series300Provider350-ProvFunc-002:  Alters Series300Provider350 to make 3 additional
+requests for both dictionaries
+
+Series300Provider350-ProvFunc-003:  Alters Series300Provider350 send Login Close Status message
+after it receive MarketPrice Request from consumer
+
+Series300Provider350-ProvFunc-004:  Alters Series300Provider350 to request dictionaries
+using invalid serviceName, also request dictionaries using invalid serviceId.
+
+Series300Provider350-Reissue-001:  Alters Series300Provider350 send reissue on both dictionary
+handles with no changes in filter after sending 6 updates, send reissue on both dictionary handles
+with change in filter to NORMAL after sending 8 updates, also send update on source directory with
+delete service after sending 9 updates.
+
+
 
 Module:  Series100NiProvider100
 ---------------------------
@@ -392,6 +414,25 @@ Series100NiProvider100-NiFunc-002
 Series100NiProvider100-TrepAuth-002
 	Alters NiProvider sends a market price item refresh after stream state 
 	changes from up to down (recovery).
+
+
+Module:  Series300NiProvider350
+----------------------------------
+Series300NiProvider350-ProvFunc-001:  Alters Series300NiProvider350 to request dictionary
+as a snapshot with specified filter using command line argument: -filter. Values to -filter
+can be INFO, NORMAL, MINIMAL or VERBOSE. Additionally, this tool also unregisters dictionary
+handles after sending 6 updates.
+
+Series300NiProvider350-ProvFunc-002:  Alters Series300NiProvider350 to make 3 additional
+requests for both dictionaries
+
+Series300NiProvider350-ProvFunc-004:  Alters Series300NiProvider350 to request dictionaries
+using invalid serviceName, also request dictionaries using invalid serviceId.
+
+Series300NiProvider350-Reissue-001:  Alters Series300NiProvider350 send reissue on both dictionary
+handles with no changes in filter after sending 6 updates, send reissue on both dictionary handles
+with change in filter to NORMAL after sending 8 updates, also send update on source directory with
+delete service after sending 9 updates.
 
 Module:  Series300NiProvider360
 ---------------------------

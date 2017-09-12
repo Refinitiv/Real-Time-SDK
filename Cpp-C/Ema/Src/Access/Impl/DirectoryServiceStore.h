@@ -234,9 +234,9 @@ class DirectoryServiceStoreClient
 public:
 	virtual void onServiceDelete(ClientSession* clientSession, RsslUInt serviceId) = 0;
 
-	virtual void onServiceStateChange(ClientSession* clientSession, RsslUInt serviceId, const RsslRDMServiceState&) = 0;
+	virtual void onServiceStateChange(ClientSession* clientSession, RsslUInt serviceId, const RsslRDMServiceState&)  {}
 
-	virtual void onServiceGroupChange(ClientSession* clientSession, RsslUInt serviceId, RsslRDMServiceGroupState*&, RsslUInt32 groupStateCount) = 0;
+	virtual void onServiceGroupChange(ClientSession* clientSession, RsslUInt serviceId, RsslRDMServiceGroupState*&, RsslUInt32 groupStateCount) {}
 };
 
 class DirectoryServiceStore

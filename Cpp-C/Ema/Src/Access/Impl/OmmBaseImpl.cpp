@@ -1296,6 +1296,8 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 		if ( !calledFromInit ) _userLock.unlock();
 		return;
 	}
+	 
+	_atExit = true;
 
 	if ( isApiDispatching() && !caughtExcep )
 	{
@@ -1379,6 +1381,11 @@ void OmmBaseImpl::setAtExit()
 	eventReceived();
 	msgDispatched();
 	pipeWrite();
+}
+
+bool OmmBaseImpl::isAtExit()
+{
+	return _atExit;
 }
 
 Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& bMsgDispRcvd )
@@ -1778,7 +1785,12 @@ ActiveConfig& OmmBaseImpl::getActiveConfig()
 	return _activeConfig;
 }
 
-Mutex& OmmBaseImpl::getUserLock()
+LoggerConfig& OmmBaseImpl::getActiveLoggerConfig()
+{
+	return _activeConfig.loggerConfig;
+}
+
+Mutex& OmmBaseImpl::getUserMutex()
 {
 	return _userLock;
 }
