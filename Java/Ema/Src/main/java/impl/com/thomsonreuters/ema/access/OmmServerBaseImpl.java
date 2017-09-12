@@ -49,6 +49,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ProviderRole;
 import com.thomsonreuters.upa.valueadd.reactor.Reactor;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorAcceptOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorDispatchOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
@@ -125,8 +126,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	protected LoginHandler _loginHandler;
 	protected MarketItemHandler _marketItemHandler;
 	protected ServerChannelHandler _serverChannelHandler;
-	
-	abstract String instanceName();
+	protected ItemCallbackClient<OmmProviderClient> _itemCallbackClient;
 	
 	abstract OmmProvider provider();
 	
@@ -139,6 +139,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	abstract void readCustomConfig(EmaConfigServerImpl config);
 	
 	abstract DirectoryServiceStore directoryServiceStore();
+	
+	abstract void processChannelEvent( ReactorChannelEvent reactorChannelEvent);
 	
 	OmmServerBaseImpl(OmmProviderClient ommProviderClient, Object closure)
 	{
@@ -245,6 +247,9 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			
 			_marketItemHandler = new MarketItemHandler(this);
 			_marketItemHandler.initialize();
+			
+			 _itemCallbackClient = new ItemCallbackClientProvider(this);
+			 _itemCallbackClient.initialize();
 			
 			_providerRole.channelEventCallback(_serverChannelHandler);
 			_providerRole.loginMsgCallback(_loginHandler);
@@ -484,7 +489,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if (socketServerConfig.rsslConnectionType == ConnectionTypes.SOCKET)
 			{
 				String tempService = config.getUserSpecifiedPort();
-				if (tempService == null)
+				if (tempService != null)
 					socketServerConfig.serviceName = tempService;
 			}
 			_activeServerConfig.serverConfig = socketServerConfig;
@@ -641,7 +646,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		return _activeServerConfig;
 	}
 	
-	StringBuilder strBuilder()
+	@Override
+	public StringBuilder strBuilder()
 	{
 		_strBuilder.setLength(0);
 		return _strBuilder;
@@ -705,7 +711,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		return _loggerClient;
 	}
 	
-	ReentrantLock userLock()
+	@Override
+	public ReentrantLock userLock()
 	{
 		return _userLock;
 	}
@@ -1275,7 +1282,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		return DispatchReturn.TIMEOUT;
 	}
 	
-	void eventReceived()
+	@Override
+	public void eventReceived()
 	{
 		_eventReceived = true;
 	}
@@ -1303,6 +1311,12 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	public ServerChannelHandler serverChannelHandler()
 	{
 		return _serverChannelHandler;
+	}
+	
+	@SuppressWarnings("unchecked")
+	<T> ItemCallbackClient<T> itemCallbackClient()
+	{
+		return (ItemCallbackClient<T>) _itemCallbackClient;
 	}
 	
 	public ReqMsgImpl reqMsg()
@@ -1355,5 +1369,12 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		_rsslReqMsg.msgClass(MsgClasses.REQUEST);
 		return _rsslReqMsg;
 	}
-	
+
+	public ReactorSubmitOptions rsslSubmitOptions() {
+		return _rsslSubmitOptions;
+	}
+
+	public ReactorErrorInfo rsslErrorInfo() {
+		return _rsslErrorInfo;
+	}
 }

@@ -46,6 +46,13 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
 interface OmmCommonImpl
 {
+	static class ImplementationType
+	{
+		final static int CONSUMER = 0;
+		final static int NIPROVIDER = 1;
+		final static int IPROVIDER = 2;
+	}
+	
 	void handleInvalidUsage(String text);
 	
 	void handleInvalidHandle(long handle, String text);
@@ -53,6 +60,20 @@ interface OmmCommonImpl
 	Logger loggerClient();
 	
 	String formatLogMessage(String clientName, String temp, int level);
+	
+	EmaObjectManager objManager();
+	
+	String instanceName();
+	
+	StringBuilder strBuilder();
+	
+	void eventReceived();
+	
+	ReentrantLock userLock();
+	
+	int implType();
+	
+	long nextLongId();
 }
 
 abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
@@ -910,7 +931,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		_activeConfig.channelConfigSet.add( currentChannelConfig );
 	}
 	
-	StringBuilder strBuilder()
+	@Override
+	public StringBuilder strBuilder()
 	{
 		_strBuilder.setLength(0);
 		return _strBuilder;
@@ -1185,8 +1207,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		return null;
 	}
 
-	abstract String instanceName();
-
 	@Override
 	public void run() 
 	{
@@ -1211,7 +1231,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		return _loggerClient;
 	}
 	
-	ReentrantLock userLock()
+	@Override
+	public ReentrantLock userLock()
 	{
 		return _userLock;
 	}
@@ -1285,13 +1306,18 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	void reLoadDirectory() {}
 	
-	void eventReceived()
+	@Override
+	public void eventReceived()
 	{
 		_eventReceived = true;
 	}
 	
+	public EmaObjectManager objManager()
+	{
+		return _objManager;
+	}
+
 	void setActiveRsslReactorChannel(ChannelInfo activeChannelInfo) {}
 	
 	void unsetActiveRsslReactorChannel(ChannelInfo cancelChannelInfo) {}
-	
-	}
+}

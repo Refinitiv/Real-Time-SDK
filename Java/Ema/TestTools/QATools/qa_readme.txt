@@ -1,6 +1,6 @@
-Definition QATools: The purpose of QATools is to test variations of examples (see Applications/Examples). For each example that is altered to run a test, there will be a directory here to represent that variation. Example: If VAConsumer was altered 2 times to do 2 different tests, there will be directories here, such as, "VAConsumer-*01" and "VAConsumer*02". In each directory are the files that have been altered. These directories contain ONLY the files that were altered for that example.
+Definition of QATools: The purpose of QATools is to test variations of examples (see Applications/Examples). For each example that is altered to run a test, there will be a directory here to represent that variation. Example: If Series400Consumer410 was altered 2 times to do 2 different tests, there will be directories here, such as, "Series400Consumer410*01" and "Series400Consumer410*02". In each directory are the files that have been altered. These directories contain ONLY the files that were altered for that example.
 
-How to use QATools: For each QATool direcotry, user must copy or overlay the source files from that directory into the original location in Applications/Examples where the entire source for an example exists.  The user must re-build the code to run the altered example.
+How to use QATools: For each QATool directory, user must copy or overlay the source files from that directory into the original location where the entire source for an example exists. The user must re-build the code to run the altered example.
 
 Disclaimer:  Please note that this is not a comprehensive list of all test variations used in test.
 
@@ -423,3 +423,41 @@ emalibs-Cons-001
 	 Alters ema library, specifically ItemCallbackClient.cpp, to change 
 	 CONSUMER_STARTING_STREAM_ID from 4 to 2147483636.  
 
+Module:  Series300NiProvider350
+----------------------------------
+Series300NiProvider350-ProvFunc-001:  Alters Series300NiProvider350 to request dictionary 
+as a snapshot with specified filter using command line argument: -filter. Values to -filter
+can be INFO, NORMAL, MINIMAL or VERBOSE. Additionally, this tool also unregisters dictionary 
+handles after sending 6 updates.
+
+Series300NiProvider350-ProvFunc-002:  Alters Series300NiProvider350 to make 3 additional 
+requests for both dictionaries 
+
+Series300NiProvider350-ProvFunc-004:  Alters Series300NiProvider350 to request dictionaries 
+using invalid serviceName, also request dictionaries using invalid serviceId. 
+
+Series300NiProvider350-Reissue-001:  Alters Series300NiProvider350 send reissue on both dictionary
+handles with no changes in filter after sending 6 updates, send reissue on both dictionary handles
+with change in filter to NORMAL after sending 8 updates, also send update on source directory with 
+delete service after sending 9 updates.
+
+Module:  Series300Provider350
+----------------------------------
+Series300Provider350-ProvFunc-001:  Alters Series300Provider350 to request dictionary 
+as a snapshot with specified filter using command line argument: -filter. Values to -filter
+can be INFO, NORMAL, MINIMAL or VERBOSE. Additionally, this tool also unregisters dictionary 
+handles after sending 6 updates.
+
+Series300Provider350-ProvFunc-002:  Alters Series300Provider350 to make 3 additional 
+requests for both dictionaries 
+
+Series300Provider350-ProvFunc-003:  Alters Series300Provider350 send Login Close Status message 
+after it receive MarketPrice Request from consumer 
+
+Series300Provider350-ProvFunc-004:  Alters Series300Provider350 to request dictionaries 
+using invalid serviceName, also request dictionaries using invalid serviceId. 
+
+Series300Provider350-Reissue-001:  Alters Series300Provider350 send reissue on both dictionary
+handles with no changes in filter after sending 6 updates, send reissue on both dictionary handles
+with change in filter to NORMAL after sending 8 updates, also send update on source directory with 
+delete service after sending 9 updates.

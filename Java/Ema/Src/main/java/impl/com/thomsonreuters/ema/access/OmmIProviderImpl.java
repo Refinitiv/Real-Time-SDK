@@ -30,6 +30,8 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceState;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 
 class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, DirectoryServiceStoreClient
@@ -39,6 +41,12 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	private OmmIProviderDirectoryStore _ommIProviderDirectoryStore;
 	private boolean _storeUserSubmitted;
 	private DirectoryMsg	_fanoutDirectoryMsg;
+	protected EmaObjectManager _objManager = new EmaObjectManager();
+	private ItemWatchList	_itemWatchList;
+	private static final long MIN_LONG_VALUE = 1;
+    private static final long MAX_LONG_VALUE = Long.MAX_VALUE;
+    
+	private static long _longId = Integer.MAX_VALUE;
 	
 	OmmIProviderImpl(OmmProviderConfig config, OmmProviderClient ommProviderClient, Object closure)
 	{
@@ -55,6 +63,8 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		_ommIProviderDirectoryStore.setClient(this);
 		
 		super.initialize(_activeConfig, (OmmIProviderConfigImpl)config);
+		
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
 		
 		_storeUserSubmitted = _activeConfig.directoryAdminControl == OmmIProviderConfig.AdminControl.API_CONTROL ? true : false;
 		
@@ -76,6 +86,8 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		_ommIProviderDirectoryStore.setClient(this);
 		
 		super.initialize(_activeConfig, (OmmIProviderConfigImpl)config);
+		
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
 		
 		_storeUserSubmitted = _activeConfig.directoryAdminControl == OmmIProviderConfig.AdminControl.API_CONTROL ? true : false;
 		
@@ -183,7 +195,17 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
             {
                 _activeConfig.maxEnumTypeFragmentSize = OmmIProviderActiveConfig.DEFAULT_ENUM_TYPE_FRAGMENT_SIZE;
             }
-	            
+            
+            element = (ConfigElement)iProviderAttributes.getElement(ConfigManager.RequestTimeout);
+            
+            if (element != null)
+            {
+            	 if ( element.intLongValue()  > maxInt )
+                     _activeConfig.requestTimeout = maxInt;
+                 else
+                     _activeConfig.requestTimeout = element.intLongValue() < 0 ? OmmIProviderActiveConfig.DEFAULT_REQUEST_TIMEOUT : element.intLongValue();
+            }
+                 
 		}
 
 		// TODO: add handling for programmatic configuration
@@ -192,19 +214,58 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmProviderClient client)
 	{
-		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.registerClient() method is not supported in this release.");
+		return  registerClient(reqMsg, client, null);
 	}
 
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmProviderClient client, Object closure)
 	{
-		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.registerClient() method is not supported in this release.");
+		userLock().lock();
+		
+		if ( reqMsg.domainType() != EmaRdm.MMT_DICTIONARY )
+		{
+			StringBuilder temp = strBuilder();
+			temp.append("OMM Interactive provider supports registering DICTIONARY domain type only.");
+			userLock().unlock();
+			handleInvalidUsage(temp.toString());
+			return 0;
+		}
+		
+		if ( serverChannelHandler().clientSessionMap().size() == 0 )
+		{
+			StringBuilder temp = strBuilder();
+			temp.append("There is no active client session available for registering.");
+			userLock().unlock();
+			handleInvalidUsage(temp.toString());
+			return 0;
+		}
+		
+		long handle = _itemCallbackClient.registerClient(reqMsg, client, closure, 0);
+		
+		userLock().unlock();
+		
+		return handle;
 	}
 	
 	@Override
 	public void reissue(ReqMsg reqMsg, long handle) 
 	{
-		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.reissue() method is not supported in this release.");
+		userLock().lock();
+		
+		ReqMsgImpl reqMsgImpl = (ReqMsgImpl)reqMsg;
+		
+		if ( reqMsgImpl.domainTypeSet() && reqMsgImpl.domainType() != EmaRdm.MMT_DICTIONARY )
+		{
+			userLock().unlock();
+			StringBuilder temp = strBuilder();
+			temp.append("OMM Interactive provider supports reissuing DICTIONARY domain type only.");
+			handleInvalidUsage(temp.toString());
+			return;
+		}
+		
+		_itemCallbackClient.reissue(reqMsg, handle);
+		
+		userLock().unlock();
 	}
 
 	@Override
@@ -452,7 +513,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		
 		itemInfo.setSentRefresh();
 		
-		handleItemInfo(rsslRefreshMsg.domainType(), handle, rsslRefreshMsg.state());
+		handleItemInfo(rsslRefreshMsg.domainType(), handle, rsslRefreshMsg.state(), rsslRefreshMsg.checkRefreshComplete());
 		
 		userLock().unlock();
 	}
@@ -785,14 +846,15 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			return;
 		}
 		
-		handleItemInfo(statusMsgImpl.domainType(), handle, ((com.thomsonreuters.upa.codec.StatusMsg )statusMsgImpl._rsslMsg).state());
+		handleItemInfo(statusMsgImpl.domainType(), handle, ((com.thomsonreuters.upa.codec.StatusMsg )statusMsgImpl._rsslMsg).state(), false);
 		
 		userLock().unlock();
 	}
 	
-	void handleItemInfo(int domainType, long handle, State state )
+	void handleItemInfo(int domainType, long handle, State state, boolean refreshComplete )
 	{
-		if  ( state.streamState() != StreamStates.OPEN )
+		if  ( ( state.streamState() == StreamStates.CLOSED ) || ( state.streamState() == StreamStates.CLOSED_RECOVER ) || 
+				( state.streamState() == StreamStates.REDIRECTED ) ||  ( state.streamState() == StreamStates.NON_STREAMING &&  refreshComplete ) )
 		{
 			ItemInfo itemInfo = getItemInfo(handle);
 			
@@ -803,6 +865,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					case EmaRdm.MMT_LOGIN:
 					{
 						_serverChannelHandler.closeChannel(itemInfo.clientSession().channel());
+						_itemWatchList.processCloseLogin(itemInfo.clientSession());
 					}
 					break;
 					case EmaRdm.MMT_DIRECTORY:
@@ -1012,10 +1075,11 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			{
 			case MsgClasses.REFRESH:
 				itemInfo.setSentRefresh();
-				handleItemInfo(msgImpl._rsslMsg.domainType(), itemInfo.handle().value(), ((com.thomsonreuters.upa.codec.RefreshMsg)msgImpl._rsslMsg).state());
+				com.thomsonreuters.upa.codec.RefreshMsg refreshMsg =  (com.thomsonreuters.upa.codec.RefreshMsg)msgImpl._rsslMsg;
+				handleItemInfo(msgImpl._rsslMsg.domainType(), itemInfo.handle().value(), refreshMsg.state(), refreshMsg.checkRefreshComplete());
 				break;
 			case MsgClasses.STATUS:
-				handleItemInfo(msgImpl._rsslMsg.domainType(),  itemInfo.handle().value(),((com.thomsonreuters.upa.codec.StatusMsg)msgImpl._rsslMsg).state());
+				handleItemInfo(msgImpl._rsslMsg.domainType(),  itemInfo.handle().value(),((com.thomsonreuters.upa.codec.StatusMsg)msgImpl._rsslMsg).state(), false);
 				break;
 			}
 		}
@@ -1157,7 +1221,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	@Override
 	public void unregister(long handle)
 	{
-		throw new UnsupportedOperationException("Calling the OmmIProviderImpl.unregister() method is not support in this release.");	
+		_itemCallbackClient.unregister(handle);
 	}
 
 	@Override
@@ -1199,7 +1263,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	}
 
 	@Override
-	String instanceName()
+	public String instanceName()
 	{
 		return _activeConfig.instanceName;
 	}
@@ -1216,16 +1280,20 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		if ( clientSession != null )
 		{
 			removeServiceId(clientSession, serviceId);
+			_itemWatchList.processServiceDelete(clientSession, serviceId);
 		}
 		else
 		{
 			if ( _directoryHandler != null )
 			{
 				List<ItemInfo> itemInfoList = _directoryHandler.getItemInfoList();
-				
+					
 				for(int itemInfoIndex = 0; itemInfoIndex < itemInfoList.size(); itemInfoIndex++ )
 				{
-					removeServiceId(itemInfoList.get(itemInfoIndex).clientSession(), serviceId);
+					clientSession = itemInfoList.get(itemInfoIndex).clientSession();
+					
+					removeServiceId(clientSession, serviceId);
+					_itemWatchList.processServiceDelete(clientSession, serviceId);
 				}
 			}
 		}
@@ -1308,6 +1376,63 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					}
 				}
 			}
+		}
+	}
+
+	@Override
+	public EmaObjectManager objManager() {
+		return _objManager;
+	}
+
+	@Override
+	public int implType() {
+		return OmmCommonImpl.ImplementationType.IPROVIDER;
+	}
+
+	@Override
+	public long nextLongId() {
+		
+		long id = _longId;
+		
+		while( getItemInfo(id) != null && itemCallbackClient().getItem(id) != null )
+		{
+			if ( _longId == MAX_LONG_VALUE )
+			{
+				_longId = MIN_LONG_VALUE;
+			}
+			else
+			{
+				id = ++_longId;
+			}
+		}
+		
+		++_longId;
+		
+		return id;
+	}
+	
+	ItemWatchList itemWatchList() {
+		return _itemWatchList;
+	}
+	
+	int requestTimeout() {
+		return _activeConfig.requestTimeout;
+	}
+	
+	@Override
+	void processChannelEvent( ReactorChannelEvent reactorChannelEvent)
+	{
+		switch ( reactorChannelEvent.eventType() )
+		{
+		case ReactorChannelEventTypes.CHANNEL_DOWN:
+		case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
+			
+			if ( _itemWatchList != null )
+				_itemWatchList.processChannelEvent(reactorChannelEvent);
+			
+			break;
+		default:
+			break;
 		}
 	}
 }

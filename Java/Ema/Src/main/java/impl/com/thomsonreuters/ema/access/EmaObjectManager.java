@@ -66,6 +66,8 @@ class EmaObjectManager
 	VaPool _subItemPool = new VaPool(false);
 	VaPool _tunnelItemPool = new VaPool(false);
 	VaPool _dictionaryItemPool = new VaPool(false);
+	VaPool _niproviderDictionaryItemPool = new VaPool(false);
+	VaPool _iproviderDictionaryItemPool = new VaPool(false);
 	VaPool _directoryItemPool = new VaPool(false);
 	VaPool _loginItemPool = new VaPool(false);
 	VaPool _longObjectPool = new VaPool(false);

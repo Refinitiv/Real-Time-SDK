@@ -342,6 +342,7 @@ abstract class DirectoryServiceStore
 				boolean result = false;
 				Service service = null;
 				String serviceName = null;
+				int generateServiceId = 0;
 				
 				for(int i = 0; i < directoryNode.children().size() ; i++ )
 				{
@@ -389,6 +390,29 @@ abstract class DirectoryServiceStore
 								result = readServiceStateFilter(config, service,stateFilterNode);
 							}
 							
+							if( unspecifiedIdList.size() > 0 )
+							{
+								for(int index = 0; index < unspecifiedIdList.size(); ++index )
+								{
+									while(serviceIdSet.contains(generateServiceId))
+									{
+										++generateServiceId;
+									}
+									
+									if( generateServiceId > ConfigManager.MAX_UINT16 )
+									{
+										config.errorTracker().append("EMA ran out of assignable service ids. Will drop rest of the services").create(Severity.ERROR);
+										break;
+									}
+									
+									unspecifiedIdList.get(index).serviceId(generateServiceId);
+									serviceIdSet.add(generateServiceId);
+									++generateServiceId;
+								}
+								
+								unspecifiedIdList.clear();
+							}
+							
 							if ( result )
 							{
 								serviceNameSet.add(serviceName);
@@ -406,29 +430,6 @@ abstract class DirectoryServiceStore
 				if ( ( directoryCache != null) && directoryCache.serviceList().size() == 0 )
 				{					
 					useDefaultService(config, directoryCache);
-				}
-				
-				if( unspecifiedIdList.size() > 0 )
-				{
-					int serviceId = 0;
-					
-					for(int index = 0; index < unspecifiedIdList.size(); ++index )
-					{
-						while(serviceIdSet.contains(serviceId))
-						{
-							++serviceId;
-						}
-						
-						if( serviceId > ConfigManager.MAX_UINT16 )
-						{
-							config.errorTracker().append("EMA ran out of assignable service ids. Will drop rest of the services").create(Severity.ERROR);
-							break;
-						}
-						
-						unspecifiedIdList.get(index).serviceId(serviceId);
-						serviceIdSet.add(serviceId);
-						++serviceId;
-					}
 				}
 			}
 			else

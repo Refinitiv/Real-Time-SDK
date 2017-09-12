@@ -19,10 +19,12 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.EncodeIterator;
+import com.thomsonreuters.upa.codec.RefreshMsgFlags;
 import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.RequestMsgFlags;
 import com.thomsonreuters.upa.codec.StateCodes;
+import com.thomsonreuters.upa.codec.StatusMsgFlags;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.transport.Error;
@@ -496,6 +498,62 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
                
                break;
             }
+            case  REFRESH:
+            {
+				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
+	        	{
+					StringBuilder temp = _ommServerBaseImpl.strBuilder();
+					temp.append("Received refresh message.")
+					.append(OmmLoggerClient.CR).append("Stream Id ").append(event.msg().streamId())
+                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
+                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
+					
+					_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
+		        			temp.toString(), Severity.TRACE));
+	        	}
+				
+				DataDictionary dataDictionary = null;
+
+				if ( (event.msg().flags() & RefreshMsgFlags.HAS_MSG_KEY)  != 0)
+				{
+					if ( event.msg().msgKey().checkHasServiceId() )
+					{
+						dataDictionary = _ommServerBaseImpl.dictionaryHandler().getDictionaryByServiceId(event.msg().msgKey().serviceId());
+					}
+				}
+					
+				_ommServerBaseImpl.itemCallbackClient().processIProviderMsgCallback(event, dataDictionary);
+				
+				break;
+            }
+			case STATUS:
+			{
+				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
+	        	{
+					StringBuilder temp = _ommServerBaseImpl.strBuilder();
+					temp.append("Received status message.")
+					.append(OmmLoggerClient.CR).append("Stream Id ").append(event.msg().streamId())
+                	.append(OmmLoggerClient.CR).append("Client handle ").append(clientSession.clientHandle().value())
+                	.append(OmmLoggerClient.CR).append("Instance Name ").append(_ommServerBaseImpl.instanceName());
+					
+					_ommServerBaseImpl.loggerClient().trace(_ommServerBaseImpl.formatLogMessage(CLIENT_NAME,
+		        			temp.toString(), Severity.TRACE));
+	        	}
+				
+				DataDictionary dataDictionary = null;
+				
+				if ( (event.msg().flags() & StatusMsgFlags.HAS_MSG_KEY)  != 0)
+				{
+					if ( event.msg().msgKey().checkHasServiceId() )
+					{
+						dataDictionary = _ommServerBaseImpl.dictionaryHandler().getDictionaryByServiceId(event.msg().msgKey().serviceId());
+					}
+				}
+					
+				_ommServerBaseImpl.itemCallbackClient().processIProviderMsgCallback(event, dataDictionary);
+						
+				break;
+			}
             default:
             {
             	StringBuilder temp = _ommServerBaseImpl.strBuilder();

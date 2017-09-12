@@ -34,24 +34,32 @@ import com.thomsonreuters.upa.transport.WritePriorities;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceState;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 
-class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmProvider {
+class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmProvider, DirectoryServiceStoreClient {
 	
 	private OmmProviderErrorClient _providerErrorClient = null;
 	private OmmNiProviderActiveConfig _activeConfig = null;
-	private HashMap<Long, StreamInfo> _handleToStreamInfo = new HashMap<>();
+	private HashMap<LongObject, StreamInfo> _handleToStreamInfo = new HashMap<>();
 	private boolean _bIsStreamIdZeroRefreshSubmitted = false;
 	private ReqMsg loginRequest = EmaFactory.createReqMsg();
 	private int _nextProviderStreamId;
 	private List<IntObject> _reusedProviderStreamIds;
-	
+	private LongObject _longObject = new LongObject();
+	private ItemWatchList	_itemWatchList;
 	private OmmNiProviderDirectoryStore _ommNiProviderDirectoryStore;
 	private OmmProviderClient _adminClient;
 	private Object _adminClosure;
 	private ChannelInfo _activeChannelInfo;
+	
+	private static final long MIN_LONG_VALUE = 1;
+    private static final long MAX_LONG_VALUE = Long.MAX_VALUE;
+    
+	private static long _longId = Integer.MAX_VALUE;
     
 	OmmNiProviderImpl(OmmProviderConfig config)
 	{
@@ -60,13 +68,22 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
 		
+		if ( _activeConfig.directoryAdminControl == OmmNiProviderConfig.AdminControl.API_CONTROL )
+		{
+			_bIsStreamIdZeroRefreshSubmitted = true;
+		}
+		
 		_ommNiProviderDirectoryStore = new OmmNiProviderDirectoryStore(_objManager, this, _activeConfig);
+		
+		_ommNiProviderDirectoryStore.setClient(this);
 		
 		_adminClient = null;
 		_adminClosure = null;
 		_activeChannelInfo = null;
 		
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
+		
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
 		
@@ -81,12 +98,22 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
 		
+		if ( _activeConfig.directoryAdminControl == OmmNiProviderConfig.AdminControl.API_CONTROL )
+		{
+			_bIsStreamIdZeroRefreshSubmitted = true;
+		}
+		
 		_ommNiProviderDirectoryStore = new OmmNiProviderDirectoryStore(_objManager, this, _activeConfig);
+		
+		_ommNiProviderDirectoryStore.setClient(this);
+		
 		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
 		_adminClient = client;
 		_adminClosure = null;
 		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
+		
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
 		
@@ -101,12 +128,22 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
 		
+		if ( _activeConfig.directoryAdminControl == OmmNiProviderConfig.AdminControl.API_CONTROL )
+		{
+			_bIsStreamIdZeroRefreshSubmitted = true;
+		}
+		
 		_ommNiProviderDirectoryStore = new OmmNiProviderDirectoryStore(_objManager, this, _activeConfig);
+		
+		_ommNiProviderDirectoryStore.setClient(this);
+		
 		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
 		_adminClient = client;
 		_adminClosure = closure;
 		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
+		
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
 		
@@ -121,15 +158,23 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
 		
+		if ( _activeConfig.directoryAdminControl == OmmNiProviderConfig.AdminControl.API_CONTROL )
+		{
+			_bIsStreamIdZeroRefreshSubmitted = true;
+		}
+		
 		_ommNiProviderDirectoryStore = new OmmNiProviderDirectoryStore(_objManager, this, _activeConfig);
+		
+		_ommNiProviderDirectoryStore.setClient(this);
 		
 		_adminClient = null;
 		_adminClosure = null;
 		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
-		_providerErrorClient = client;
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
 		
+		_providerErrorClient = client;
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
 		
@@ -144,16 +189,25 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
 		
+		if ( _activeConfig.directoryAdminControl == OmmNiProviderConfig.AdminControl.API_CONTROL )
+		{
+			_bIsStreamIdZeroRefreshSubmitted = true;
+		}
+		
 		_ommNiProviderDirectoryStore = new OmmNiProviderDirectoryStore(_objManager, this, _activeConfig);
+		
+		_ommNiProviderDirectoryStore.setClient(this);
+		
 		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
 		_adminClient = adminClient;
 		_adminClosure = null;
 		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
 		
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
+		
 		_providerErrorClient = errorClient;
 
-		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
 		
 		_nextProviderStreamId = 0;	
@@ -167,12 +221,22 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
 		
+		if ( _activeConfig.directoryAdminControl == OmmNiProviderConfig.AdminControl.API_CONTROL )
+		{
+			_bIsStreamIdZeroRefreshSubmitted = true;
+		}
+		
 		_ommNiProviderDirectoryStore = new OmmNiProviderDirectoryStore(_objManager, this, _activeConfig);
+		
+		_ommNiProviderDirectoryStore.setClient(this);
+		
 		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
 		_adminClient = adminClient;
 		_adminClosure = closure;
 		_activeChannelInfo = null;
 		super.initialize(_activeConfig, (OmmNiProviderConfigImpl)config);
+		
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
 		
 		_providerErrorClient = errorClient;
 		
@@ -204,6 +268,15 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	{
 		userLock().lock();
 		
+		if ( reqMsg.domainType() != EmaRdm.MMT_LOGIN && reqMsg.domainType() != EmaRdm.MMT_DICTIONARY )
+		{
+			StringBuilder temp = strBuilder();
+			temp.append("OMM Interactive provider supports registering LOGIN and DICTIONARY domain type only.");
+			userLock().unlock();
+			handleInvalidUsage(temp.toString());
+			return 0;
+		}
+		
 		long handle = super.registerClient(reqMsg, client, closure);
 		
 		if (handle != 0)
@@ -211,16 +284,17 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			StreamInfo streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 	    	if (streamInfo == null)
 	    	{
-	    		streamInfo = new StreamInfo(_itemCallbackClient.getItem(handle).streamId());
+	    		streamInfo = new StreamInfo(StreamType.CONSUMING, _itemCallbackClient.getItem(handle).streamId(), 0, reqMsg.domainType());
 	    		_objManager._streamInfoPool.updatePool(streamInfo);
 	    	}
 	    	else
 	    	{
 	    		streamInfo.clear();
-	    		streamInfo.set(_itemCallbackClient.getItem(handle).streamId());
+	    		streamInfo.set(StreamType.CONSUMING , _itemCallbackClient.getItem(handle).streamId(), reqMsg.domainType());
 	    	}
 	    	
-	    	_handleToStreamInfo.put(handle, streamInfo);
+	    	streamInfo.handle(handle);
+	    	_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 		}
 		
 		userLock().unlock();
@@ -229,6 +303,16 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	
 	public void reissue(ReqMsg reqMsg, long handle)
 	{
+		ReqMsgImpl reqMsgImpl = (ReqMsgImpl)reqMsg;
+		
+		if  ( reqMsgImpl.domainTypeSet() && ( reqMsg.domainType() != EmaRdm.MMT_LOGIN && reqMsg.domainType() != EmaRdm.MMT_DICTIONARY ) )
+		{
+			StringBuilder temp = strBuilder();
+			temp.append("OMM Interactive provider supports reissuing LOGIN and DICTIONARY domain type only.");
+			handleInvalidUsage(temp.toString());
+			return;
+		}
+		
 		super.reissue(reqMsg, handle);
 	}
 	
@@ -243,7 +327,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	{
 		userLock().lock();
 		
-		StreamInfo streamInfo = _handleToStreamInfo.get(handle);
+		StreamInfo streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
 		
 		if ( streamInfo == null )
 		{
@@ -251,14 +335,15 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			return;
 		}
 		
-		if ( streamInfo.streamId() < 0 )
+		if ( streamInfo.streamType() != StreamType.CONSUMING )
 		{
 			userLock().unlock();
 			handleInvalidHandle(handle, "Attempt to unregister a handle that was not registered.");
 			return;
 		}
 		
-		_handleToStreamInfo.remove(handle);
+		_handleToStreamInfo.remove(_longObject.value(handle));
+		streamInfo.returnToPool();
 		
 		super.unregister(handle);
 		
@@ -269,7 +354,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	public void submit(RefreshMsg refreshMsg, long handle)
 	{
 		boolean bHandleAdded = false;
-		StreamInfo streamInfo;
+		StreamInfo streamInfo = null;
 		
 		userLock().lock();
 		
@@ -331,9 +416,9 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			}
 			else
 			{
-				if (_handleToStreamInfo.containsKey(handle))
+				streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
+				if (streamInfo != null)
 				{
-					streamInfo = _handleToStreamInfo.get(handle);
 					refreshMsgImpl._rsslMsg.streamId(streamInfo.streamId());
 				}
 				else
@@ -341,17 +426,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 			    	if (streamInfo == null)
 			    	{
-			    		streamInfo = new StreamInfo(nextProviderStreamId());
+			    		streamInfo = new StreamInfo(StreamType.PROVIDING, nextProviderStreamId());
+			    		streamInfo.handle(handle);
 			    		_objManager._streamInfoPool.updatePool(streamInfo);
 			    	}
 			    	else
 			    	{
 			    		streamInfo.clear();
-			    		streamInfo.set(nextProviderStreamId());
+			    		streamInfo.set(StreamType.PROVIDING, nextProviderStreamId());
+			    		streamInfo.handle(handle);
 			    	}
 			    	
 			    	refreshMsgImpl._rsslMsg.streamId(streamInfo.streamId());
-					_handleToStreamInfo.put(handle, streamInfo);
+					_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 					
 					bHandleAdded = true;
 				}
@@ -365,7 +452,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					.append(handle).append(", user assigned streamId = ").append(refreshMsgImpl.streamId()).append(".").toString(), Severity.TRACE));
 			}
 			
-			streamInfo = _handleToStreamInfo.get(handle);
+			streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
 			
 			if ( streamInfo != null )
 			{
@@ -403,17 +490,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(nextProviderStreamId(),serviceId.value(), refreshMsgImpl.domainType());
+		    		streamInfo = new StreamInfo(StreamType.PROVIDING, nextProviderStreamId(),serviceId.value(), refreshMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
 		    	{
 		    		streamInfo.clear();
-		    		streamInfo.set(nextProviderStreamId(),serviceId.value());
+		    		streamInfo.set(StreamType.PROVIDING, nextProviderStreamId(),serviceId.value(), refreshMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    	}
 		    	
 		    	refreshMsgImpl._rsslMsg.streamId(streamInfo.streamId());
-		    	_handleToStreamInfo.put(handle, streamInfo);
+		    	_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 				
 				bHandleAdded = true;
 				
@@ -438,17 +527,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-					streamInfo = new StreamInfo(nextProviderStreamId(), serviceId, refreshMsgImpl.domainType());
+					streamInfo = new StreamInfo(StreamType.PROVIDING, nextProviderStreamId(), serviceId, refreshMsgImpl.domainType());
+					streamInfo.handle(handle);
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
 		    	{
 		    		streamInfo.clear();
-		    		streamInfo.set(nextProviderStreamId(),serviceId);
+		    		streamInfo.set(StreamType.PROVIDING, nextProviderStreamId(),serviceId, refreshMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    	}
 		    	
 		    	refreshMsgImpl._rsslMsg.streamId(streamInfo.streamId());
-		    	_handleToStreamInfo.put(handle, streamInfo);
+		    	_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 				
 		    	bHandleAdded = true;
 			}
@@ -466,7 +557,8 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	    {
 			if (bHandleAdded)
 			{
-				_handleToStreamInfo.remove(handle);
+				_handleToStreamInfo.remove(_longObject.value(handle));
+				streamInfo.returnToPool();
 				returnProviderStreamId(refreshMsgImpl._rsslMsg.streamId());
 			}
 			
@@ -497,9 +589,11 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		
 		if (refreshMsgImpl.state().streamState() == OmmState.StreamState.CLOSED || 
 				refreshMsgImpl.state().streamState() == OmmState.StreamState.CLOSED_RECOVER || 
-				refreshMsgImpl.state().streamState() == OmmState.StreamState.CLOSED_REDIRECTED)
+				refreshMsgImpl.state().streamState() == OmmState.StreamState.CLOSED_REDIRECTED ||
+				( refreshMsgImpl.state().streamState() == OmmState.StreamState.NON_STREAMING && refreshMsgImpl.complete() ) )
 		{
-			_handleToStreamInfo.remove(handle);
+			_handleToStreamInfo.remove(_longObject.value(handle));
+			streamInfo.returnToPool();
 			returnProviderStreamId(refreshMsgImpl._rsslMsg.streamId());
 		}
 		
@@ -515,7 +609,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	public void submit(UpdateMsg updateMsg, long handle)
 	{
 		boolean bHandleAdded = false;
-		StreamInfo streamInfo;
+		StreamInfo streamInfo = null;
 		
 		userLock().lock();
 		
@@ -582,9 +676,9 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			}
 			else
 			{
-				if (_handleToStreamInfo.containsKey(handle))
+				streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
+				if (streamInfo != null)
 				{
-					streamInfo = _handleToStreamInfo.get(handle);
 					updateMsgImpl._rsslMsg.streamId(streamInfo.streamId());
 				}
 				else
@@ -592,17 +686,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 			    	if (streamInfo == null)
 			    	{
-			    		streamInfo = new StreamInfo(nextProviderStreamId());
+			    		streamInfo = new StreamInfo(StreamType.PROVIDING, nextProviderStreamId());
+			    		streamInfo.handle(handle);
 			    		_objManager._streamInfoPool.updatePool(streamInfo);
 			    	}
 			    	else
 			    	{
 			    		streamInfo.clear();
-			    		streamInfo.set(nextProviderStreamId());
+			    		streamInfo.set(StreamType.PROVIDING, nextProviderStreamId());
+			    		streamInfo.handle(handle);
 			    	}
 			    	
 			    	updateMsgImpl._rsslMsg.streamId(streamInfo.streamId());
-					_handleToStreamInfo.put(handle, streamInfo);
+					_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 					
 					bHandleAdded = true;
 				}
@@ -616,7 +712,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 						.append(handle).append(", user assigned streamId = ").append(updateMsgImpl.streamId()).append(".").toString(), Severity.TRACE));
 			}
 			
-			streamInfo = _handleToStreamInfo.get(handle);
+			streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
 			
 			if ( streamInfo != null )
 			{
@@ -650,17 +746,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(nextProviderStreamId(),serviceId.value(), updateMsgImpl.domainType());
+		    		streamInfo = new StreamInfo(StreamType.PROVIDING, nextProviderStreamId(),serviceId.value(), updateMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
 		    	{
 		    		streamInfo.clear();
-		    		streamInfo.set(nextProviderStreamId(),serviceId.value());
+		    		streamInfo.set(StreamType.PROVIDING, nextProviderStreamId(),serviceId.value(), updateMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    	}
 		    	
 		    	updateMsgImpl._rsslMsg.streamId(streamInfo.streamId());
-		    	_handleToStreamInfo.put(handle, streamInfo);
+		    	_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 				
 				bHandleAdded = true;
 				
@@ -682,17 +780,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-					streamInfo = new StreamInfo(nextProviderStreamId(), serviceId, updateMsgImpl.domainType());
+					streamInfo = new StreamInfo(StreamType.PROVIDING, nextProviderStreamId(), serviceId, updateMsgImpl.domainType());
+					streamInfo.handle(handle);
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
 		    	{
 		    		streamInfo.clear();
-		    		streamInfo.set(nextProviderStreamId(),serviceId);
+		    		streamInfo.set(StreamType.PROVIDING, nextProviderStreamId(),serviceId, updateMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    	}
 		    	
 		    	updateMsgImpl._rsslMsg.streamId(streamInfo.streamId());
-		    	_handleToStreamInfo.put(handle, streamInfo);
+		    	_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 				
 		    	bHandleAdded = true;
 			}
@@ -710,7 +810,8 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	    {
 			if (bHandleAdded)
 			{
-				_handleToStreamInfo.remove(handle);
+				_handleToStreamInfo.remove(_longObject.value(handle));
+				streamInfo.returnToPool();
 				returnProviderStreamId(updateMsgImpl._rsslMsg.streamId());
 			}
 			
@@ -746,7 +847,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	public void submit(StatusMsg statusMsg, long handle)
 	{
 		boolean bHandleAdded = false;
-		StreamInfo streamInfo;
+		StreamInfo streamInfo = null;
 		
         userLock().lock();
 		
@@ -802,9 +903,9 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			}
 			else
 			{
-				if (_handleToStreamInfo.containsKey(handle))
+				streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
+				if (streamInfo != null)
 				{
-					streamInfo = _handleToStreamInfo.get(handle);
 					statusMsgImpl._rsslMsg.streamId(streamInfo.streamId());
 				}
 				else
@@ -812,17 +913,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 			    	if (streamInfo == null)
 			    	{
-			    		streamInfo = new StreamInfo(nextProviderStreamId());
+			    		streamInfo = new StreamInfo(StreamType.PROVIDING, nextProviderStreamId());
+			    		streamInfo.handle(handle);
 			    		_objManager._streamInfoPool.updatePool(streamInfo);
 			    	}
 			    	else
 			    	{
 			    		streamInfo.clear();
-			    		streamInfo.set(nextProviderStreamId());
+			    		streamInfo.set(StreamType.PROVIDING, nextProviderStreamId());
+			    		streamInfo.handle(handle);
 			    	}
 			    	
 			    	statusMsgImpl._rsslMsg.streamId(streamInfo.streamId());
-					_handleToStreamInfo.put(handle, streamInfo);
+					_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 					
 					bHandleAdded = true;
 				}
@@ -836,7 +939,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 						.append(handle).append(", user assigned streamId = ").append(statusMsgImpl.streamId()).append(".").toString(), Severity.TRACE));
 			}
 			
-			streamInfo = _handleToStreamInfo.get(handle);
+			streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
 			
 			if ( streamInfo != null )
 			{
@@ -869,17 +972,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(nextProviderStreamId(),serviceId.value(),  statusMsgImpl.domainType());
+		    		streamInfo = new StreamInfo(StreamType.PROVIDING, nextProviderStreamId(),serviceId.value(),  statusMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
 		    	{
 		    		streamInfo.clear();
-		    		streamInfo.set(nextProviderStreamId(),serviceId.value());
+		    		streamInfo.set(StreamType.PROVIDING, nextProviderStreamId(),serviceId.value(), statusMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    	}
 		    	
 		    	statusMsgImpl._rsslMsg.streamId(streamInfo.streamId());
-		    	_handleToStreamInfo.put(handle, streamInfo);
+		    	_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 				
 				bHandleAdded = true;
 				
@@ -901,17 +1006,19 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				streamInfo = (StreamInfo)_objManager._streamInfoPool.poll();
 		    	if (streamInfo == null)
 		    	{
-		    		streamInfo = new StreamInfo(nextProviderStreamId(),serviceId, statusMsgImpl.domainType());
+		    		streamInfo = new StreamInfo(StreamType.PROVIDING  ,nextProviderStreamId(),serviceId, statusMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    		_objManager._streamInfoPool.updatePool(streamInfo);
 		    	}
 		    	else
 		    	{
 		    		streamInfo.clear();
-		    		streamInfo.set(nextProviderStreamId(),serviceId);
+		    		streamInfo.set(StreamType.PROVIDING, nextProviderStreamId(),serviceId, statusMsgImpl.domainType());
+		    		streamInfo.handle(handle);
 		    	}
 		    	
 		    	statusMsgImpl._rsslMsg.streamId(streamInfo.streamId());
-		    	_handleToStreamInfo.put(handle, streamInfo);
+		    	_handleToStreamInfo.put(streamInfo.handle(), streamInfo);
 				
 		    	bHandleAdded = true;
 			}
@@ -929,7 +1036,8 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	    {
 			if (bHandleAdded)
 			{
-				_handleToStreamInfo.remove(handle);
+				_handleToStreamInfo.remove(_longObject.value(handle));
+				streamInfo.returnToPool();
 				returnProviderStreamId(statusMsgImpl._rsslMsg.streamId());
 			}
 			
@@ -962,7 +1070,8 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 				statusMsgImpl.state().streamState() == OmmState.StreamState.CLOSED_RECOVER || 
 						statusMsgImpl.state().streamState() == OmmState.StreamState.CLOSED_REDIRECTED)
 		{
-			_handleToStreamInfo.remove(handle);
+			_handleToStreamInfo.remove(_longObject.value(handle));
+			streamInfo.returnToPool();
 			returnProviderStreamId(statusMsgImpl._rsslMsg.streamId());
 		}
 		
@@ -993,7 +1102,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 					.append(handle).append(", user assigned streamId = ").append(genericMsg.streamId()).append(".").toString(), Severity.TRACE));
 		}
 		
-		StreamInfo streamInfo = _handleToStreamInfo.get(handle);
+		StreamInfo streamInfo = _handleToStreamInfo.get(_longObject.value(handle));
 		
 		if ( streamInfo != null )
 		{
@@ -1067,7 +1176,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	}
 
 	@Override
-	String instanceName() 
+	public String instanceName() 
 	{
 		return _activeConfig.instanceName;
 	}
@@ -1118,6 +1227,16 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			{
 				_activeConfig.removeItemsOnDisconnect = element.intLongValue() > 0 ? true : false;
 			}
+			
+			element = (ConfigElement)niProviderAttributes.getElement(ConfigManager.RequestTimeout);
+	            
+            if (element != null)
+            {
+            	 if ( element.intLongValue()  > Integer.MAX_VALUE )
+                     _activeConfig.requestTimeout = Integer.MAX_VALUE;
+                 else
+                     _activeConfig.requestTimeout = element.intLongValue() < 0 ? ActiveConfig.DEFAULT_REQUEST_TIMEOUT : element.intLongValue();
+            }
 		}
 		
 		// TODO: add handling for programmatic configuration
@@ -1130,6 +1249,10 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		case ReactorChannelEventTypes.CHANNEL_DOWN:
 		case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
 			userLock().lock();
+			
+			if ( _itemWatchList != null )
+				_itemWatchList.processChannelEvent(reactorChannelEvent);
+			
 			if ( _activeConfig.removeItemsOnDisconnect )
 				removeItems();
 			
@@ -1146,9 +1269,9 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	{
 		_bIsStreamIdZeroRefreshSubmitted = false;
 		
-		Set<Entry<Long, StreamInfo>> entrySet = _handleToStreamInfo.entrySet();
+		Set<Entry<LongObject, StreamInfo>> entrySet = _handleToStreamInfo.entrySet();
 		
-		for (Entry<Long, StreamInfo> entry : entrySet)
+		for (Entry<LongObject, StreamInfo> entry : entrySet)
 		{
 			_objManager._streamInfoPool.add(entry.getValue());
 		}
@@ -1429,8 +1552,17 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	
 	int nextProviderStreamId()
 	{		
-		if ( _reusedProviderStreamIds.size() == 0 ) 
+		if ( _reusedProviderStreamIds.size() == 0 )
+		{
+			if ( _nextProviderStreamId == Integer.MIN_VALUE )
+			{
+				StringBuilder temp = strBuilder();
+				temp.append("Unable to obtain next available stream id for submitting item.");
+				handleInvalidUsage(temp.toString());
+			}
+			
 			return --_nextProviderStreamId;
+		}
 		else
 		{
 			IntObject streamId = _reusedProviderStreamIds.remove(0);
@@ -1460,35 +1592,71 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		if (_activeChannelInfo == cancelChannelInfo)
 			_activeChannelInfo = null;
 	}
+
+	static class StreamType
+	{
+		final static int CONSUMING = 1;
+		final static int PROVIDING = 2;
+	}
 	
 	class StreamInfo extends VaNode
 	{
 		private int _streamId;
 		private int _serviceId;
 		private int _domainType;
+		private int _streamType;
+		private LongObject _handle;
 		
-		StreamInfo(int streamId)
+		StreamInfo(int streamType, int streamId)
 		{
+			_streamType = streamType;
 			_streamId = streamId;
 			_serviceId = 0;
+			_handle = new LongObject();
 		}
 		
-		StreamInfo(int streamId, int serviceId, int domainType)
+		StreamInfo(int streamType, int streamId, int domainType)
 		{
+			_streamType = streamType;
+			_streamId = streamId;
+			_serviceId = 0;
+			_domainType = domainType;
+			_handle = new LongObject();
+		}
+		
+		StreamInfo(int streamType, int streamId, int serviceId, int domainType)
+		{
+			_streamType = streamType;
+			_streamId = streamId;
+			_serviceId = serviceId;
+			_domainType = domainType;
+			_handle = new LongObject();
+		}
+		
+		void set(int streamType, int streamId)
+		{
+			_streamType = streamType;
+			_streamId = streamId;
+		}
+		
+		void set(int streamType, int streamId, int serviceId)
+		{
+			_streamType = streamType;
+			_streamId = streamId;
+			_serviceId = serviceId;
+		}
+		
+		void set(int streamType, int streamId, int serviceId, int domainType)
+		{
+			_streamType = streamType;
 			_streamId = streamId;
 			_serviceId = serviceId;
 			_domainType = domainType;
 		}
 		
-		void set(int streamId)
+		void handle(long handle)
 		{
-			_streamId = streamId;
-		}
-		
-		void set(int streamId, int serviceId)
-		{
-			_streamId = streamId;
-			_serviceId = serviceId;
+			_handle.value(handle);
 		}
 		
 		void clear()
@@ -1496,6 +1664,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			_streamId = 0;
 			_serviceId = 0;
 			_domainType = 0;
+			_streamType = 0;
 		}
 		
 		StreamInfo(StreamInfo other)
@@ -1503,6 +1672,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			_streamId = other._streamId;
 			_serviceId = other._serviceId;
 			_domainType = other._domainType;
+			_streamType = other._streamType;
 		}
 		
 		int streamId()
@@ -1519,5 +1689,64 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		{
 			return _domainType;
 		}
+		
+		int streamType()
+		{
+			return _streamType;
+		}
+		
+		LongObject handle()
+		{
+			return _handle;
+		}
+	}
+	
+	DirectoryServiceStore directoryServiceStore()
+	{
+		return _ommNiProviderDirectoryStore;
+	}
+
+	@Override
+	public int implType() {
+		return OmmCommonImpl.ImplementationType.NIPROVIDER;
+	}
+
+	@Override
+	public long nextLongId() {
+		
+		long id = _longId;
+		
+		while( _handleToStreamInfo.containsKey(_longObject.value(id)) )
+		{
+			id = ++_longId;
+			
+			if ( _longId == MAX_LONG_VALUE )
+			{
+				_longId = MIN_LONG_VALUE;
+			}
+		}
+		
+		return id;
+	}
+
+	ItemWatchList itemWatchList() {
+		return _itemWatchList;
+	}
+	
+	int requestTimeout() {
+		return _activeConfig.requestTimeout;
+	}
+
+	@Override
+	public void onServiceDelete(ClientSession clientSession, int serviceId) {
+		_itemWatchList.processServiceDelete(clientSession, serviceId);
+	}
+
+	@Override
+	public void onServiceStateChange(ClientSession clientSession, int serviceId, ServiceState serviceState) {
+	}
+
+	@Override
+	public void onServiceGroupChange(ClientSession clientSession, int serviceId, List<ServiceGroup> serviceGroupList) {
 	}
 }

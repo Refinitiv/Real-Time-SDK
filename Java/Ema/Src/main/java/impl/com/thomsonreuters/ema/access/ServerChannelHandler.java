@@ -22,7 +22,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 
 class ServerChannelHandler implements ReactorChannelEventCallback
 {
-    HashMap<LongObject, ClientSession> _clientSessionMap = new HashMap<LongObject, ClientSession>();
+    private HashMap<LongObject, ClientSession> _clientSessionMap = new HashMap<LongObject, ClientSession>();
     OmmServerBaseImpl _serverImpl;
     ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
 
@@ -180,25 +180,29 @@ class ServerChannelHandler implements ReactorChannelEventCallback
 
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
+                
+                List<ComponentInfo> componentInfoList = reactorChannelInfo.channelInfo().componentInfo();
+                
+                String componentInfoString = "";
+                
+                if ( componentInfoList.size() != 0 )
+                {
+                	componentInfoString = componentInfoList.get(0).componentVersion().toString();
+                	
+                	if ( componentInfoString.indexOf("adh") != -1 )
+                	{
+                		clientSession.isADHSession(true);
+                	}
+                }
 
                 if (_serverImpl.loggerClient().isInfoEnabled())
-                {
-                	List<ComponentInfo> componentInfoList = reactorChannelInfo.channelInfo().componentInfo();
-                	
+                {  	
                     StringBuilder temp = _serverImpl.strBuilder();
                     temp.append("Received ChannelUp event on ClientHandle ");
                     temp.append(clientSession.clientHandle().value()).append(OmmLoggerClient.CR)
-                        .append("Instance Name ").append(_serverImpl.activeConfig().instanceName).append(OmmLoggerClient.CR);
-                        
-                        if (componentInfoList.size() != 0 )
-                        {
-                        	temp.append("Component Version ").append(componentInfoList.get(0).componentVersion().toString());
-                        }
-                        else
-                        {
-                        	temp.append("Component Version ").append("");
-                        }
-                        
+                        .append("Instance Name ").append(_serverImpl.activeConfig().instanceName).append(OmmLoggerClient.CR)
+                        .append("Component Version ").append(componentInfoString);
+                    
                     _serverImpl.loggerClient().info(_serverImpl.formatLogMessage(ServerChannelHandler.CLIENT_NAME, temp.toString(), Severity.INFO));
                 }
 
@@ -310,44 +314,6 @@ class ServerChannelHandler implements ReactorChannelEventCallback
 
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
-            case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
-            {
-                try
-                {
-                    SelectionKey key = event.reactorChannel().selectableChannel().keyFor(_serverImpl.selector());
-                    if (key != null)
-                        key.cancel();
-                }
-                catch (Exception e)
-                {
-                }
-
-                if (_serverImpl.loggerClient().isWarnEnabled())
-                {
-                    ReactorErrorInfo errorInfo = event.errorInfo();
-
-                    StringBuilder temp = _serverImpl.strBuilder();
-                    temp.append("Received ChannelDownReconnecting event on client handle ").append(clientSession.clientHandle().value()).append(OmmLoggerClient.CR);
-                    
-                    if (rsslReactorChannel != null && rsslReactorChannel.channel() != null)
-                    {
-                        temp.append("RsslReactor ").append("@").append(Integer.toHexString(rsslReactorChannel.reactor().hashCode())).append(OmmLoggerClient.CR)
-                        .append("RsslChannel ").append("@").append(Integer.toHexString(rsslReactorChannel.channel().hashCode())).append(OmmLoggerClient.CR);
-                    }
-                    else
-                    {
-                        temp.append("RsslReactor Channel is null").append(OmmLoggerClient.CR);
-                    }
-
-                    temp.append("Error Id ").append(event.errorInfo().error().errorId()).append(OmmLoggerClient.CR).append("Internal sysError ")
-                    .append(errorInfo.error().sysError()).append(OmmLoggerClient.CR).append("Error Location ").append(errorInfo.location()).append(OmmLoggerClient.CR)
-                    .append("Error text ").append(errorInfo.error().text());
-
-                    _serverImpl.loggerClient().warn(_serverImpl.formatLogMessage(ServerChannelHandler.CLIENT_NAME, temp.toString(), Severity.WARNING));
-                }
-
-                return ReactorCallbackReturnCodes.SUCCESS;
-            }
             case ReactorChannelEventTypes.CHANNEL_DOWN:
             {
                 ReactorErrorInfo errorInfo = event.errorInfo();
@@ -388,6 +354,7 @@ class ServerChannelHandler implements ReactorChannelEventCallback
                 if ( _serverImpl.state() != OmmServerBaseImpl.OmmImplState.UNINITIALIZING)
                 {
                 	_serverImpl.loginHandler().notifyChannelDown(clientSession);
+                	_serverImpl.processChannelEvent(event);
                 }
 
                 closeChannel(rsslReactorChannel);
@@ -501,10 +468,14 @@ class ServerChannelHandler implements ReactorChannelEventCallback
         clientSession.closeAllItemInfo();
         removeClientSession(clientSession);
     }
+    
+    HashMap<LongObject, ClientSession> clientSessionMap()
+    {
+    	return _clientSessionMap;
+    }
 
     public void initialize()
     {
-
     }
 
     public void closeActiveSessions()
@@ -518,5 +489,32 @@ class ServerChannelHandler implements ReactorChannelEventCallback
         }
         
         _clientSessionMap.clear();
+    }
+    
+    ClientSession clientSessionForDictReq()
+    {
+    	ClientSession clientSession = null;
+    	
+    	if ( _clientSessionMap.size() != 0 )
+    	{
+	    	Iterator<Entry<LongObject, ClientSession>> iter = _clientSessionMap.entrySet().iterator();
+	        while (iter.hasNext())
+	        {
+	        	ClientSession clientSessionTemp = iter.next().getValue();
+	        	
+	        	if ( clientSessionTemp.isADHSession() )
+	        	{
+	        		clientSession = clientSessionTemp;
+	        		break;
+	        	}
+	        }
+	        
+	        if ( clientSession == null )
+	        {
+	        	clientSession = _clientSessionMap.entrySet().iterator().next().getValue();
+	        }
+    	}
+        
+        return clientSession;
     }
 }

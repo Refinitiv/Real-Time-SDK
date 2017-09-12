@@ -12,7 +12,7 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 {
 	Item<T> _item;
 	OmmProvider _ommProvider;
-	LongObject _clientHandle;
+	LongObject _clientHandle = new LongObject().value(0);
 	Object 	_closure;
 	LongObject _handle;
 	

@@ -467,11 +467,11 @@
                 <InfoFilter>
                     <ServiceId value="1"/>
                     <DictionariesProvided>
-                        <DictionariesProvidedEntry value="DICT_INPUT"/>
+                        <DictionariesProvidedEntry value="P_DICT_INPUT"/>
                     </DictionariesProvided>
 
                     <DictionariesUsed>
-                        <DictionariesUsedEntry value="DICT_INPUT"/>
+                        <DictionariesUsedEntry value="P_DICT_INPUT"/>
                     </DictionariesUsed>
 
                     <Vendor value="company name"/>

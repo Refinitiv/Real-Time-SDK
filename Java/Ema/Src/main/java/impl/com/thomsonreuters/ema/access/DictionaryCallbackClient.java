@@ -12,8 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.thomsonreuters.ema.access.DirectoryServiceStore.ServiceIdInteger;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.upa.codec.Buffer;
+import com.thomsonreuters.upa.codec.CloseMsg;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataDictionary;
@@ -44,7 +47,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
-
 class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictionaryMsgCallback
 {
 	private static final String CLIENT_NAME 				= "DictionaryCallbackClient";
@@ -58,17 +60,20 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 	private com.thomsonreuters.upa.codec.Buffer 			_rsslEncBuffer;
 	private com.thomsonreuters.upa.transport.Error			_rsslError;
 	private com.thomsonreuters.upa.codec.Int 				_rsslCurrentFid;
+	private OmmBaseImpl<T>									_ommBaseImpl;
 	
 	DictionaryCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
 		super(baseImpl, CLIENT_NAME);
+		
+		_ommBaseImpl = baseImpl;
 	}
 	
 	void initialize()
 	{
-		if (_baseImpl.activeConfig().rsslFldDictRequest != null && _baseImpl.activeConfig().rsslEnumDictRequest != null)
-			_baseImpl.activeConfig().dictionaryConfig.isLocalDictionary = false;
-		else if (_baseImpl.activeConfig().rsslFldDictRequest != null && _baseImpl.activeConfig().rsslEnumDictRequest == null)
+		if (_ommBaseImpl.activeConfig().rsslFldDictRequest != null && _ommBaseImpl.activeConfig().rsslEnumDictRequest != null)
+			_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary = false;
+		else if (_ommBaseImpl.activeConfig().rsslFldDictRequest != null && _ommBaseImpl.activeConfig().rsslEnumDictRequest == null)
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			
@@ -80,9 +85,9 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(),
 												Severity.ERROR).toString());
 
-			throw (_baseImpl.ommIUExcept().message(temp.toString()));
+			throw (_ommBaseImpl.ommIUExcept().message(temp.toString()));
 		}
-		else if (_baseImpl.activeConfig().rsslFldDictRequest == null && _baseImpl.activeConfig().rsslEnumDictRequest != null)
+		else if (_ommBaseImpl.activeConfig().rsslFldDictRequest == null && _ommBaseImpl.activeConfig().rsslEnumDictRequest != null)
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			
@@ -94,19 +99,20 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(),
 												Severity.ERROR).toString());
 
-			throw (_baseImpl.ommIUExcept().message(temp.toString()));
+			throw (_ommBaseImpl.ommIUExcept().message(temp.toString()));
 		}
 		
-		if (_baseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
+		if (_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
 			loadDictionaryFromFile();
 		else
 		{
 			_channelDictList = new ArrayList<>();
 			_channelDictPool = new ArrayList<>();
-			_channelDictPool.add(new ChannelDictionary<T>(_baseImpl));
+			_channelDictPool.add(new ChannelDictionary<T>(_ommBaseImpl));
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public int rdmDictionaryMsgCallback(RDMDictionaryMsgEvent event)
 	{
@@ -147,22 +153,22 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 			case MsgClasses.REFRESH:
 			{	
 				if (_refreshMsg == null)
-					_refreshMsg = new RefreshMsgImpl(_baseImpl._objManager);
+					_refreshMsg = new RefreshMsgImpl(_baseImpl.objManager());
 				
 				_refreshMsg.decode(msg, rsslChannel.majorVersion(), rsslChannel.minorVersion(), null);
 				
-				_baseImpl.dictionaryCallbackClient().processRefreshMsg(_refreshMsg, item );
+				processRefreshMsg(_refreshMsg, item );
 				
 				return ReactorCallbackReturnCodes.SUCCESS;
 			}
 			case MsgClasses.STATUS:
 			{	
 				if (_statusMsg == null)
-					_statusMsg = new StatusMsgImpl(_baseImpl._objManager);
+					_statusMsg = new StatusMsgImpl(_baseImpl.objManager());
 				
 				_statusMsg.decode(msg, rsslChannel.majorVersion(), rsslChannel.minorVersion(), null );
 				
-				_baseImpl.dictionaryCallbackClient().processStatusMsg(_statusMsg, item );
+				processStatusMsg(_statusMsg, item );
 				
 				return ReactorCallbackReturnCodes.SUCCESS;
 			}
@@ -193,14 +199,14 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 			_rsslLocalDictionary.clear();
 
 		rsslError();
-		if (_rsslLocalDictionary.loadFieldDictionary(_baseImpl.activeConfig().dictionaryConfig.rdmfieldDictionaryFileName, _rsslError) < 0)
+		if (_rsslLocalDictionary.loadFieldDictionary(_ommBaseImpl.activeConfig().dictionaryConfig.rdmfieldDictionaryFileName, _rsslError) < 0)
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			
 			if (_baseImpl.loggerClient().isErrorEnabled())
 			{
 				temp.append("Unable to load RDMFieldDictionary from file named ")
-					.append(_baseImpl.activeConfig().dictionaryConfig.rdmfieldDictionaryFileName)
+					.append(_ommBaseImpl.activeConfig().dictionaryConfig.rdmfieldDictionaryFileName)
 					.append(OmmLoggerClient.CR)
 					.append("Current working directory ")
 					.append(System.getProperty("user.dir"))  
@@ -217,12 +223,12 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 			return;
 		}
 		
-		if (_rsslLocalDictionary.loadEnumTypeDictionary(_baseImpl.activeConfig().dictionaryConfig.enumtypeDefFileName, _rsslError) < 0)
+		if (_rsslLocalDictionary.loadEnumTypeDictionary(_ommBaseImpl.activeConfig().dictionaryConfig.enumtypeDefFileName, _rsslError) < 0)
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			if (_baseImpl.loggerClient().isErrorEnabled())
 			{
-				temp.append(_baseImpl.activeConfig().dictionaryConfig.enumtypeDefFileName)
+				temp.append(_ommBaseImpl.activeConfig().dictionaryConfig.enumtypeDefFileName)
 					.append(OmmLoggerClient.CR)
 					.append("Current working directory ")
 					.append(System.getProperty("user.dir"))  
@@ -244,10 +250,10 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 			temp.append("Successfully loaded local dictionaries: ")
 				.append(OmmLoggerClient.CR)
 				.append("RDMFieldDictionary file named ")
-				.append(_baseImpl.activeConfig().dictionaryConfig.rdmfieldDictionaryFileName)
+				.append(_ommBaseImpl.activeConfig().dictionaryConfig.rdmfieldDictionaryFileName)
 				.append(OmmLoggerClient.CR)
 				.append("EnumTypeDef file named ")
-				.append(_baseImpl.activeConfig().dictionaryConfig.enumtypeDefFileName);
+				.append(_ommBaseImpl.activeConfig().dictionaryConfig.enumtypeDefFileName);
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(),
 																		Severity.TRACE).toString());
 		}
@@ -297,7 +303,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 	
 	private void specifyServiceNameFromId(MsgImpl msgImpl)
 	{
-		Directory directory = _baseImpl.directoryCallbackClient().directory(msgImpl._rsslMsg.msgKey().serviceId());
+		Directory directory = _ommBaseImpl.directoryCallbackClient().directory(msgImpl._rsslMsg.msgKey().serviceId());
 			
 		if ( directory != null )
 		{
@@ -368,20 +374,20 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 
 	boolean downloadDictionary(Directory directory)
 	{
-		if (_baseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
+		if (_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
 		{
 			if (_rsslLocalDictionary != null && _rsslLocalDictionary.numberOfEntries() > 0)
 				directory.channelInfo().rsslDictionary(_rsslLocalDictionary);
 			return true;
 		}
 		
-		if (directory.channelInfo().rsslDictionary() != null || _baseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
+		if (directory.channelInfo().rsslDictionary() != null || _ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
 			return true;
 		
-		if (_baseImpl.activeConfig().rsslFldDictRequest != null && _baseImpl.activeConfig().rsslEnumDictRequest != null)
+		if (_ommBaseImpl.activeConfig().rsslFldDictRequest != null && _ommBaseImpl.activeConfig().rsslEnumDictRequest != null)
 		{
-			if (_baseImpl.activeConfig().rsslFldDictRequest.serviceId() == directory.service().serviceId() ||
-					( _baseImpl.activeConfig().fldDictReqServiceName != null && _baseImpl.activeConfig().fldDictReqServiceName.equals(directory.serviceName())))
+			if (_ommBaseImpl.activeConfig().rsslFldDictRequest.serviceId() == directory.service().serviceId() ||
+					( _ommBaseImpl.activeConfig().fldDictReqServiceName != null && _ommBaseImpl.activeConfig().fldDictReqServiceName.equals(directory.serviceName())))
 				downloadDictionaryFromService(directory);
 			
 			return true;
@@ -397,11 +403,11 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		msgKey.applyHasFilter();
 		msgKey.filter(com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues.NORMAL);
 
-		ChannelDictionary<T> dictionary = pollChannelDict(_baseImpl);
+		ChannelDictionary<T> dictionary = pollChannelDict(_ommBaseImpl);
 		dictionary.channelInfo(directory.channelInfo());
 		
-		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
-		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
+		ReactorSubmitOptions rsslSubmitOptions = _ommBaseImpl.rsslSubmitOptions();
+		ReactorErrorInfo rsslErrorInfo = _ommBaseImpl.rsslErrorInfo();
 		ReactorChannel rsslChannel = directory.channelInfo().rsslReactorChannel();
 		
 		rsslSubmitOptions.serviceName(directory.serviceName());
@@ -467,7 +473,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		rsslRequestMsg.domainType(DomainTypes.DICTIONARY);
 		rsslRequestMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.NO_DATA);
 		
-		DictionaryRequest rsslDictRequest = _baseImpl.activeConfig().rsslFldDictRequest;
+		DictionaryRequest rsslDictRequest = _ommBaseImpl.activeConfig().rsslFldDictRequest;
 		if (rsslDictRequest.checkStreaming())
 			rsslRequestMsg.applyStreaming();
 		
@@ -478,11 +484,11 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		msgKey.name(rsslDictRequest.dictionaryName());
 		rsslRequestMsg.streamId(3);
 
-		ChannelDictionary<T> dictionary = pollChannelDict(_baseImpl);
+		ChannelDictionary<T> dictionary = pollChannelDict(_ommBaseImpl);
 		dictionary.channelInfo(directory.channelInfo());
 		
-		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
-		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
+		ReactorSubmitOptions rsslSubmitOptions = _ommBaseImpl.rsslSubmitOptions();
+		ReactorErrorInfo rsslErrorInfo = _ommBaseImpl.rsslErrorInfo();
 		ReactorChannel rsslChannel = directory.channelInfo().rsslReactorChannel();
 		
 		rsslSubmitOptions.serviceName(directory.serviceName());
@@ -532,7 +538,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
         rsslRequestMsg.domainType(DomainTypes.DICTIONARY);
         rsslRequestMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.NO_DATA);
 		
-		DictionaryRequest rsslEnumDictRequest = _baseImpl.activeConfig().rsslEnumDictRequest;
+		DictionaryRequest rsslEnumDictRequest = _ommBaseImpl.activeConfig().rsslEnumDictRequest;
 		if (rsslEnumDictRequest.checkStreaming())
 			rsslRequestMsg.applyStreaming();
 		
@@ -678,6 +684,8 @@ class DictionaryCallbackClientProvider extends DictionaryCallbackClient<OmmProvi
 {
 	DictionaryCallbackClientProvider(OmmBaseImpl<OmmProviderClient> baseImpl) {
 		super(baseImpl);
+		
+		_eventImpl._ommProvider = (OmmProvider)baseImpl;
 	}
 	
 	@Override
@@ -1274,7 +1282,7 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 		else
 		{
 			/* This ensures that a valid handle is assigned to the request. */
-			_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+			_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
 
 			DataDictionary rsslDictionary = dictCBClient.defaultRsslDictionary();
 	
@@ -1669,6 +1677,442 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 			return retCode;
 		
 		return complete ? CodecReturnCodes.SUCCESS : CodecReturnCodes.DICT_PART_ENCODED;
+	}
+}
+
+class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
+{
+	private static final String 	CLIENT_NAME = "NiProviderDictionaryItem";
+	
+	protected MsgKey 			_rsslMsgKey = CodecFactory.createMsgKey();
+	protected ItemWatchList		_itemWatchList;
+	protected int				_serviceId;
+	protected boolean			_isPrivateStream;
+	protected boolean 			_specifiedServiceInReq;
+	private TimeoutEvent		_reqTimeoutEvent;
+	private boolean				_receivedInitResp;
+	
+	NiProviderDictionaryItem(OmmBaseImpl<T> baseImpl, T client, Object closure)
+	{
+		super(baseImpl, client, closure, null);
+		_itemWatchList = ((OmmNiProviderImpl)baseImpl).itemWatchList();
+	}
+	
+	@Override
+	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> item)
+	{
+		super.reset(baseImpl, client, closure, null);
+		
+		_itemWatchList = ((OmmNiProviderImpl)baseImpl).itemWatchList();
+	}
+
+	@Override
+	boolean open(ReqMsg reqMsg)
+	{
+		ReqMsgImpl reqMsgImpl = ((ReqMsgImpl)reqMsg);
+		
+		String serviceName = null;
+		
+		if ( reqMsgImpl.hasServiceName() )
+		{
+			ServiceIdInteger serviceId = ((OmmNiProviderImpl)_baseImpl).directoryServiceStore().serviceId(reqMsgImpl.serviceName());
+			
+			if ( serviceId == null )
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+	        	temp.append("Service name of '")
+	        		.append(reqMsg.serviceName())
+	        		.append("' is not found.");
+	     
+				_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
+
+	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
+											this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
+											temp.toString(), reqMsg.serviceName());
+	        	
+	        	return true;
+			}
+			else
+			{
+				_serviceId = serviceId.value();
+				reqMsgImpl.rsslMsg().msgKey().applyHasServiceId();
+				reqMsgImpl.rsslMsg().msgKey().serviceId(_serviceId);
+				serviceName = reqMsgImpl.serviceName();
+				_specifiedServiceInReq = true;
+			}
+		}
+		else if ( reqMsgImpl.hasServiceId() )
+		{
+			serviceName = ((OmmNiProviderImpl)_baseImpl).directoryServiceStore().serviceName(reqMsgImpl.serviceId());
+			
+			if ( serviceName == null )
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				
+	        	temp.append("Service id of '")
+	        		.append(reqMsg.serviceId())
+	        		.append("' is not found.");
+	        	
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+	        	
+	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
+						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
+						temp.toString(), null);
+	        	
+	        	return true;
+			}
+			
+			_serviceId = reqMsgImpl.serviceId();
+			_specifiedServiceInReq = true;
+		}
+		
+		_isPrivateStream = reqMsgImpl.privateStream();
+		
+		_directory = new Directory(serviceName);
+			
+		_itemWatchList.addItem(this);
+		
+		reqMsgImpl.rsslMsg().msgKey().copy(_rsslMsgKey);
+		
+		return rsslSubmit(((ReqMsgImpl)reqMsg).rsslMsg());
+	}
+	
+	@Override
+	void remove()
+	{
+		cancelReqTimerEvent();
+		
+		super.remove();
+		
+		((OmmNiProviderImpl)_baseImpl).returnProviderStreamId(_streamId);
+		
+		_itemWatchList.removeItem(this);
+	}
+	
+	@Override
+	boolean modify(com.thomsonreuters.ema.access.ReqMsg reqMsg)
+	{
+		if (_closedStatusClient != null) return false;
+		
+		ReqMsgImpl reqMsgImpl = (ReqMsgImpl)reqMsg;
+		
+		if ( reqMsgImpl.hasServiceName() )
+		{
+			if ( _specifiedServiceInReq && ( _directory != null ) && reqMsgImpl.serviceName().equals(_directory.serviceName()) )
+			{
+				reqMsgImpl.rsslMsg().msgKey().applyHasServiceId();
+				reqMsgImpl.rsslMsg().msgKey().serviceId(_serviceId);
+			}
+			else
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Service name of '")
+        		.append(reqMsg.serviceName())
+        		.append("' does not match existing request.").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(NiProviderDictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				return false;
+			}
+		}
+		else if ( reqMsgImpl.hasServiceId() )
+		{
+			if  ( !_specifiedServiceInReq || ( reqMsgImpl.serviceId() != _serviceId ) )
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Service id of '")
+        		.append(reqMsg.serviceId())
+        		.append("' does not match existing request.").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
+				
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(NiProviderDictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				return false;
+			}
+		}
+		else
+		{
+			if ( _specifiedServiceInReq )
+			{
+				reqMsgImpl.rsslMsg().msgKey().applyHasServiceId();
+				reqMsgImpl.rsslMsg().msgKey().serviceId(_serviceId);
+			}
+		}
+		
+		if ( reqMsgImpl.hasName() )
+		{
+			if ( reqMsgImpl.name().equals(_rsslMsgKey.name().toString()) == false )
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Name of '")
+        		.append(reqMsgImpl.name())
+        		.append("' does not match existing request.").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
+				
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(NiProviderDictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				return false;
+			}
+		}
+		else
+		{
+			reqMsgImpl.name(_rsslMsgKey.name().toString());
+			reqMsgImpl.nameType(_rsslMsgKey.nameType());
+		}
+		
+		((ReqMsgImpl)reqMsg).rsslMsg().domainType(EmaRdm.MMT_DICTIONARY);
+		
+		return super.modify(reqMsgImpl);
+	}
+	
+	@Override
+	int getNextStreamId(int numOfItem) {
+		return ((OmmNiProviderImpl)_baseImpl).nextProviderStreamId();
+	}
+	
+	@Override
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.RequestMsg rsslRequestMsg)
+	{
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.serviceName(null);
+		
+		int domainType =  rsslRequestMsg.domainType();
+		
+		if (_streamId == 0)
+		{
+			rsslRequestMsg.streamId(getNextStreamId(0));
+			_streamId = rsslRequestMsg.streamId();
+			
+			_baseImpl._itemCallbackClient.addToMap(_baseImpl.nextLongId(), this);
+		}
+		else
+			rsslRequestMsg.streamId(_streamId);
+
+		if (_domainType == 0)
+			_domainType = domainType;
+		else
+			rsslRequestMsg.domainType(_domainType);
+		
+	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
+		rsslErrorInfo.clear();
+		
+		if ( _directory.channelInfo() == null )
+		{
+			_directory.channelInfo(_baseImpl.channelCallbackClient().channelList().get(0));
+		}
+		
+		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		
+		int ret;
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+				
+	        	temp.append("Internal error: rsslChannel.submit() failed in NiProviderDictionaryItem.submit(RequestMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(NiProviderDictionaryItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
+			
+			temp.append("Failed to open or modify item request. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+			_baseImpl.handleInvalidUsage(temp.toString());
+			return false;
+	    }
+		
+		int requestTimeout = ((OmmNiProviderImpl)_baseImpl).requestTimeout();
+		
+		if ( requestTimeout > 0 )
+		{
+			cancelReqTimerEvent();
+			_reqTimeoutEvent = _baseImpl.addTimeoutEvent(requestTimeout * 1000, new ItemTimeOut( this ) );
+		}
+
+		return true;
+	}
+	
+	@Override
+	boolean submit(com.thomsonreuters.ema.access.GenericMsg genericMsg)
+	{
+		return false;
+	}
+	
+	public TimeoutEvent reqTimeoutEvent()
+	{
+		return _reqTimeoutEvent;
+	}
+
+	@Override
+	public void scheduleItemClosedRecoverableStatus(String statusText, boolean initiateTimeout) {
+
+		if (_closedStatusClient != null) return;
+		
+		cancelReqTimerEvent();
+    	
+		_closedStatusClient = new ClosedStatusClient<T>(_baseImpl.itemCallbackClient(), this, _rsslMsgKey, _isPrivateStream, statusText, _directory.serviceName());
+		
+		if ( initiateTimeout )
+			_baseImpl.addTimeoutEvent(100, _closedStatusClient);
+		else
+			_closedStatusClient.handleTimeoutEvent();
+	}
+
+	@Override
+	public MsgKey rsslMsgKey() {
+		return _rsslMsgKey;
+	}
+
+	@Override
+	public void sendCloseMsg() {
+		CloseMsg rsslCloseMsg = _baseImpl.itemCallbackClient().rsslCloseMsg();
+		rsslCloseMsg.containerType(DataTypes.NO_DATA);
+		rsslCloseMsg.domainType(_domainType);
+
+		rsslSubmit(rsslCloseMsg);
+	}
+
+	@Override
+	public ClientSession clientSession() {
+		return null;
+	}
+
+	@Override
+	public int serviceId() {
+		return _serviceId;
+	}
+	
+	@Override
+	int type()
+	{
+		return ItemType.NIPROVIDER_DICTIONARY_ITEM;
+	}
+
+	@Override
+	public boolean processInitialResp(RefreshMsg refreshMsg)
+	{
+		boolean result = true;
+		
+		if ( _receivedInitResp == false )
+		{
+			if ( _domainType != refreshMsg.domainType() )
+				result = false;
+			
+			_isPrivateStream = refreshMsg.checkPrivateStream();
+			
+			if (!_rsslMsgKey.equals(refreshMsg.msgKey()) )
+			{
+				result = false;
+			}
+			
+			_receivedInitResp = true;
+		}
+		
+		return result;
+	}
+
+	@Override
+	public ItemWatchList itemWatchList()
+	{
+		return _itemWatchList;
+	}
+
+	@Override
+	public void cancelReqTimerEvent()
+	{
+		if ( _reqTimeoutEvent != null )
+		{
+			if ( _reqTimeoutEvent.cancelled() == false )
+			{
+				_reqTimeoutEvent.cancel();
+			}
+		}
+	}
+	
+	@Override
+	public boolean requestWithService()
+	{
+		return _specifiedServiceInReq;
+	}
+}
+
+class IProviderDictionaryItem extends IProviderSingleItem
+{
+	private boolean						_receivedInitResp;
+	
+	IProviderDictionaryItem(OmmServerBaseImpl baseImpl, OmmProviderClient client, Object closure)
+	{
+		super(baseImpl, client, closure, null);
+	}
+	
+	@Override
+	void reset(OmmServerBaseImpl baseImpl, OmmProviderClient client, Object closure, Item<OmmProviderClient> item)
+	{
+		super.reset(baseImpl, client, closure, null);
+	}
+
+	@Override
+	int type()
+	{
+		return ItemType.IPROVIDER_DICTIONARY_ITEM;
+	}
+	
+	@Override
+	boolean modify(com.thomsonreuters.ema.access.ReqMsg reqMsg)
+	{
+		if (_closedStatusClient != null) return false;
+		
+		((ReqMsgImpl)reqMsg).rsslMsg().domainType(EmaRdm.MMT_DICTIONARY);
+		
+		return super.modify(reqMsg);
+	}
+	
+	@Override
+	public boolean processInitialResp(RefreshMsg refreshMsg)
+	{
+		boolean result = true;
+		
+		if ( _receivedInitResp == false )
+		{
+			if ( _domainType != refreshMsg.domainType() )
+				result = false;
+			
+			_isPrivateStream = refreshMsg.checkPrivateStream();
+			
+			if (!_rsslMsgKey.equals(refreshMsg.msgKey()) )
+			{
+				result = false;
+			}
+			
+			_receivedInitResp = true;
+		}
+		
+		return result;
 	}
 }
 	
