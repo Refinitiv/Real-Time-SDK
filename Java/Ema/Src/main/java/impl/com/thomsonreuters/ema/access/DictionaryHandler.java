@@ -645,6 +645,7 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
         	{
         		_dictionaryRefresh.applyClearCache();
         		firstPartMultiPartRefresh = false;
+        		_dictionaryRefresh.startFid(dataDictionary.minFid());
         	}
         	else
         	{

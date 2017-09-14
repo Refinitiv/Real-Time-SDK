@@ -1006,8 +1006,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		{
 			StringBuilder temp = strBuilder();
 			temp.append("Added ItemInfo ").append(itemInfo.handle().value()).append(" to ItemInfoMap" ).append( OmmLoggerClient.CR )
-			.append("Client handle ").append(itemInfo.clientSession().clientHandle().value()).append(OmmLoggerClient.CR);
-			
+			.append("Client handle ").append(itemInfo.clientSession().clientHandle().value());
 			loggerClient().trace(formatLogMessage(instanceName(), temp.toString(), Severity.TRACE));
 		}
 		
@@ -1032,8 +1031,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		{
 			StringBuilder temp = strBuilder();
 			temp.append("Removed ItemInfo ").append(itemInfo.handle().value()).append(" from ItemInfoMap" ).append( OmmLoggerClient.CR )
-			.append("Client handle ").append(itemInfo.clientSession().clientHandle().value()).append(OmmLoggerClient.CR);
-			
+			.append("Client handle ").append(itemInfo.clientSession().clientHandle().value());
 			loggerClient().trace(formatLogMessage(instanceName(), temp.toString(), Severity.TRACE));
 		}
 		
