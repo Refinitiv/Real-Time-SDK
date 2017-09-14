@@ -129,6 +129,10 @@ provider-Src-001: Alters Provider to not respond with source directory refresh w
 
 provider-Item-001: Alters Provider to not send a market price refresh when market price request is received     
 
+provider-Dict-001: Alters Provider to not return failure if it receives a source directory request and
+not send dictionary reject if it receives an invalid dictionary request. This is done by commenting out
+sendDictionaryRequestReject in rsslDictionaryProvider.c.
+
 Module:  VA Provider 
 -----------------
 
