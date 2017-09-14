@@ -663,10 +663,8 @@ static void handleRuntime()
 			if ((clientSessions[i].clientChannel != NULL) && (clientSessions[i].clientChannel->socketId != -1))
 			{
 				/* send close status messages to all item streams */
-				sendItemCloseStatusMsgs(clientSessions[i].clientChannel);
-
-				/* send close status message to login stream */
-				sendLoginCloseStatusMsg(clientSessions[i].clientChannel);
+				//sendItemCloseStatusMsgs(clientSessions[i].clientChannel);
+				
 
 				/* send close status messages to dictionary streams */
 				sendDictionaryCloseStatusMsgs(clientSessions[i].clientChannel);

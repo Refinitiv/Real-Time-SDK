@@ -14,7 +14,6 @@ void initLoginHandler();
 static RsslLoginRequestInfo* getLoginReqInfo(RsslChannel* chnl, RsslMsg* msg);
 RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator* dIter);
 static RsslRet sendLoginResponse(RsslChannel* chnl, RsslLoginRequestInfo* loginReqInfo);
-RsslRet sendLoginCloseStatusMsg(RsslChannel* chnl);
 static RsslRet sendLoginRequestReject(RsslChannel* chnl, RsslInt32 streamId, RsslLoginRejectReason reason);
 void closeLoginChnlStream(RsslChannel* chnl);
 static void closeLoginStream(RsslInt32 streamId);

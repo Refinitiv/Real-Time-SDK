@@ -278,11 +278,6 @@ public class Provider implements ReceivedMsgCallback
                     _dictionaryHandler.sendCloseStatusMsgs(clientSessionInfo.clientChannel(), _error);
                     if (ret != 0)
                         System.out.println("Error sending dictionary close: " + _error.text());
-                                        
-                    // send close status message to login stream 
-                    ret = _loginHandler.sendCloseStatus(clientSessionInfo.clientChannel(), _error);
-                    if (ret != 0)
-                        System.out.println("Error sending login close: " + _error.text());
 
                     // flush before exiting 
                     if ( clientSessionInfo.clientChannel() != null && clientSessionInfo.clientChannel().selectableChannel() != null) 

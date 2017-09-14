@@ -1353,9 +1353,7 @@ int main(int argc, char **argv)
 		if (currentTime >= upaRuntime)
 		{
 			/* Closes all streams for the Interactive Provider after run-time has elapsed in our simple Interactive Provider example.
-			 * If the provider application must shut down, it can either leave consumer connections intact or shut them down. If the provider
-			 * decides to close consumer connections, the provider should send an RsslStatusMsg on each connection’s Login stream closing the stream.
-			 * At this point, the consumer should assume that its other open streams are also closed.
+			 * If the provider application must shut down, it can either leave consumer connections intact or shut them down.
 			 */
 
 			/* send close status messages to all streams on the connected client channel */
@@ -1365,18 +1363,6 @@ int main(int argc, char **argv)
 			{
 				/* When you send close status message to dictionary stream, we want to make a best effort to get this across the network as it will gracefully
 				 * close all open dictionary consumer streams. If this cannot be flushed or failed, this application will just close the connection
-				 * for simplicity.
-				 */
-
-				/* Closes channel, closes server, cleans up and exits the application. */
-				closeChannelServerCleanUpAndExit(upaChannelManagementInfo.upaChannel, upaSrvr, RSSL_RET_FAILURE, &dataDictionary);
-			}
-
-			/* send close status message to login stream */
-			if ((retval = sendLoginCloseStatusMsg(&upaChannelManagementInfo)) != RSSL_RET_SUCCESS) /* (retval > RSSL_RET_SUCCESS) or (retval < RSSL_RET_SUCCESS) */
-			{
-				/* When you send close status message to login stream, we want to make a best effort to get this across the network as it will gracefully
-				 * close all open consumer streams. If this cannot be flushed or failed, this application will just close the connection
 				 * for simplicity.
 				 */
 
@@ -2460,129 +2446,6 @@ RsslRet sendLoginRequestRejectStatusMsg(UpaChannelManagementInfo *upaChannelMana
 		/* There is still data left to flush */
 
 		/* If the login request reject status doesn't flush, just close channel and exit the app. When you send login request reject status msg,
-		 * we want to make a best effort to get this across the network as it will gracefully close the open login
-		 * stream. If this cannot be flushed, this application will just close the connection for simplicity.
-		 */
-
-		/* Closes channel, closes server, cleans up and exits the application. */
-	}
-
-	return retval;
-}
-
-/*
- * Sends the login close status message for a channel.
- * upaChannelInfo - The channel management information including the login request information and
- * including the channel to send the login close status message to
- */
-RsslRet sendLoginCloseStatusMsg(UpaChannelManagementInfo *upaChannelManagementInfo)
-{
-	RsslRet retval;
-	RsslError error;
-	RsslBuffer* msgBuf = 0;
-
-	/* Provider uses RsslStatusMsg to send the login close status and to close the stream. */
-	RsslStatusMsg msg;
-
-	/* UPA provides clear functions for its structures (e.g., rsslClearEncodeIterator) as well as static initializers
-	 * (e.g., RSSL_INIT_ENCODE_ITERATOR). These functions are tuned to be efficient and avoid initializing unnecessary
-	 * structure members, and allow for optimal structure use and reuse. In general, Thomson Reuters recommends that
-	 * you use the clear functions over static initializers, because the clear functions are more efficient.
-	 */
-	/* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
-	RsslEncodeIterator encodeIter; /* the encode iterator is created (typically stack allocated)  */
-
-	char stateText[256];
-
-	/* clear encode iterator for reuse - this should be used to achieve the best performance while clearing the iterator. */
-	rsslClearEncodeIterator(&encodeIter);
-
-	/* Obtains a non-packable buffer of the requested size from the UPA Transport guaranteed buffer pool to write into for the Login Close Status Msg.
-	 * When the RsslBuffer is returned, the length member indicates the number of bytes available in the buffer (this should match the amount
-	 * the application requested). When populating, it is required that the application set length to the number of bytes actually used.
-	 * This ensures that only the required bytes are written to the network.
-	 */
-	/* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-	if ((msgBuf = upaGetBuffer(upaChannelManagementInfo->upaChannel, upaChannelManagementInfo->upaChannelInfo.maxFragmentSize, &error)) == NULL) /* first check Error */
-	{
-		/* Connection should be closed, return failure */
-		/* Closes channel, closes server, cleans up and exits the application. */
-		return RSSL_RET_FAILURE;
-	}
-
-	/* if a buffer is returned, we can populate and write, encode an RsslMsg into the buffer */
-
-	/* Encodes the login close status. */
-
-	/* On larger structures, like messages, the clear functions tend to outperform the static initializer. It is recommended to use
-	 * the clear function when initializing any messages.
-	 */
-	rsslClearStatusMsg(&msg);
-
-	/* set version information of the connection on the encode iterator so proper versioning can be performed */
-	rsslSetEncodeIteratorRWFVersion(&encodeIter, upaChannelManagementInfo->upaChannel->majorVersion, upaChannelManagementInfo->upaChannel->minorVersion);
-
-	/* set the buffer on an RsslEncodeIterator */
-	if((retval = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) < RSSL_RET_SUCCESS)
-	{
-		rsslReleaseBuffer(msgBuf, &error);
-		printf("\nrsslSetEncodeIteratorBuffer() failed with return code: %d\n", retval);
-		/* Closes channel, closes server, cleans up and exits the application. */
-		return RSSL_RET_FAILURE;
-	}
-
-	/* set-up message */
-	msg.msgBase.msgClass = RSSL_MC_STATUS; /*!< (3) Status Message */
-	msg.msgBase.streamId = upaChannelManagementInfo->loginRequestInfo.StreamId;
-	msg.msgBase.domainType = RSSL_DMT_LOGIN; /*!< (1) Login Message */
-	/* No payload associated with this close status message */
-	msg.msgBase.containerType = RSSL_DT_NO_DATA; /*!< (128) No Data <BR>*/
-
-	/*!< (0x020) Indicates that this RsslStatusMsg has stream or group state information, contained in RsslStatusMsg::state.  */
-	msg.flags = RSSL_STMF_HAS_STATE;
-	/*!< (4) Closed (indicates that the data is not available on this service/connection and is not likely to become available) */
-	msg.state.streamState = RSSL_STREAM_CLOSED;
-	/*!< (2) Data is Suspect (similar to a stale data state, indicates that the health of some or all data associated with the stream is out of date or cannot be confirmed that it is current ) */
-	msg.state.dataState = RSSL_DATA_SUSPECT;
-	msg.state.code = RSSL_SC_NONE;
-	sprintf(stateText, "Login stream closed");
-	msg.state.text.data = stateText;
-	msg.state.text.length = (RsslUInt32)strlen(stateText);
-
-	/* encode message */
-
-	/* Since there is no payload, no need for Init/Complete as everything is in the msg header */
-	/* Functions without a suffix of Init or Complete (e.g. rsslEncodeMsg) perform encoding within a single call,
-	 * typically used for encoding simple types like Integer or incorporating previously encoded data
-	 * (referred to as pre-encoded data).
-	 */
-	if ((retval = rsslEncodeMsg(&encodeIter, (RsslMsg*)&msg)) < RSSL_RET_SUCCESS)
-	{
-		rsslReleaseBuffer(msgBuf, &error);
-		printf("rsslEncodeMsg() failed with return code: %d\n", retval);
-		/* Closes channel, closes server, cleans up and exits the application. */
-		return RSSL_RET_FAILURE;
-	}
-
-	/* set the buffer’s encoded content length prior to writing, this can be obtained from the iterator. */
-	/* rsslGetEncodedBufferLength returns the size (in bytes) of content encoded with the RsslEncodeIterator.
-	 * After encoding is complete, use this function to set RsslBuffer.length to the size of data contained
-	 * in the buffer. This ensures that only the required bytes are written to the network.
-	 */
-	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
-
-	/* send login close status */
-	if ((retval = sendMessage(upaChannelManagementInfo->upaChannel, msgBuf)) < RSSL_RET_SUCCESS)
-	{
-		/* login close status fails */
-		/* Closes channel, closes server, cleans up and exits the application. */
-		return RSSL_RET_FAILURE;
-	}
-	else if (retval > RSSL_RET_SUCCESS)
-	{
-		/* There is still data left to flush */
-
-		/* If the login close status doesn't flush, just close channel and exit the app. When you send login close status msg,
 		 * we want to make a best effort to get this across the network as it will gracefully close the open login
 		 * stream. If this cannot be flushed, this application will just close the connection for simplicity.
 		 */
