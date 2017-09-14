@@ -14,15 +14,15 @@
 	<classpathentry kind="src" path="Java/Ema/Src/perftools/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="Elektron-SDK-BinaryPack/Java/Eta/Libs/jdacsUpalib.jar"/>
+	<classpathentry kind="lib" path="Java/Eta/Libs/jdacsUpalib.jar"/>
 	<classpathentry kind="lib" path="Java/Ema/Libs/apache/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="Elektron-SDK-BinaryPack/Java/Eta/Libs/ApacheClient/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="Java/Eta/Libs/ApacheClient/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="Java/Ema/Libs/apache/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="Java/Ema/Libs/apache/commons-configuration-1.10.jar"/>
-	<classpathentry kind="lib" path="Elektron-SDK-BinaryPack/Java/Eta/Libs/ApacheClient/httpclient-4.1.2.jar"/>
-	<classpathentry kind="lib" path="Elektron-SDK-BinaryPack/Java/Eta/Libs/ApacheClient/httpclient-cache-4.1.2.jar"/>
-	<classpathentry kind="lib" path="Elektron-SDK-BinaryPack/Java/Eta/Libs/ApacheClient/httpcore-4.1.2.jar"/>
-	<classpathentry kind="lib" path="Elektron-SDK-BinaryPack/Java/Eta/Libs/ApacheClient/httpmime-4.1.2.jar"/>
+	<classpathentry kind="lib" path="Java/Eta/Libs/ApacheClient/httpclient-4.1.2.jar"/>
+	<classpathentry kind="lib" path="Java/Eta/Libs/ApacheClient/httpclient-cache-4.1.2.jar"/>
+	<classpathentry kind="lib" path="Java/Eta/Libs/ApacheClient/httpcore-4.1.2.jar"/>
+	<classpathentry kind="lib" path="Java/Eta/Libs/ApacheClient/httpmime-4.1.2.jar"/>
 	<classpathentry kind="lib" path="Java/Eta/Applications/PerfTools/xpp3_min-1.1.3_8.jar"/>
 	<classpathentry kind="lib" path="Java/Eta/Applications/PerfTools/xpp3-1.1.3_8.jar"/>
 	<classpathentry kind="lib" path="Java/Ema/Libs/apache/org.apache.commons.collections.jar"/>
