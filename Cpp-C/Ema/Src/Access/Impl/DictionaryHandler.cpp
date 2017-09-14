@@ -612,7 +612,7 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 		{
 			dictionaryRefresh.refresh.flags |= RDM_DC_RFF_CLEAR_CACHE;
 			firstPartMultiPartRefresh = false;
-			dictionaryRefresh.refresh.startFid = RSSL_MIN_FID;
+			dictionaryRefresh.refresh.startFid = dictionary->getRsslDictionary()->minFid;
 		}
 		else
 		{
