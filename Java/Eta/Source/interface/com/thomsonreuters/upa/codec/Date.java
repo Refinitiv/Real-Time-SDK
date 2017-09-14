@@ -28,7 +28,7 @@ public interface Date
     public void blank();
 
     /**
-     * Returns true if all members in {@link Time} are set to the values used to signify
+     * Returns true if all members in {@link Date} are set to the values used to signify
      * blank. A blank {@link Date} contains day, month and year values of 0. 
      * 
      * @return true if {@link Date} is blank, false otherwise
