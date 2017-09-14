@@ -37,7 +37,6 @@ typedef struct LoginRequestInfo
 } LoginRequestInfo;
 void initLoginHandler();
 static RsslRet sendLoginRefresh(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslRDMLoginRequest* pLoginRequest);
-RsslRet sendLoginCloseStatusMsg(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel);
 static RsslRet sendLoginRequestReject(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 streamId, RsslLoginRejectReason reason, RsslErrorInfo *pError);
 void closeLoginStreamForChannel(RsslReactorChannel* pReactorChannel);
 static void closeLoginStream(RsslInt32 streamId);

@@ -231,57 +231,6 @@ static RsslRet sendLoginResponse(RsslChannel* chnl, RsslLoginRequestInfo* loginR
 }
 
 /*
- * Sends the login close status message for a channel.
- * chnl - The channel to send close status message to
- */
-RsslRet sendLoginCloseStatusMsg(RsslChannel* chnl)
-{
-	int i;
-	RsslError error;
-	RsslBuffer* msgBuf = 0;
-	RsslLoginRequestInfo* loginReqInfo = NULL;
-
-	/* first get login request info for this channel */
-	for (i = 0; i < NUM_CLIENT_SESSIONS; i++)
-	{
-		if (loginRequestInfoList[i].IsInUse &&
-			loginRequestInfoList[i].Chnl == chnl)
-		{
-			loginReqInfo = &loginRequestInfoList[i];
-			break;
-		}
-	}
-
-	/* proceed if login request info found */ 
-	if (loginReqInfo)
-	{
-		/* get a buffer for the login close status */
-		msgBuf = rsslGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error);
-
-		if (msgBuf != NULL)
-		{
-			/* encode login close status */
-			if (encodeLoginCloseStatus(chnl, msgBuf, loginReqInfo->StreamId) != RSSL_RET_SUCCESS)
-			{
-				rsslReleaseBuffer(msgBuf, &error); 
-				printf("\nencodeLoginCloseStatus() failed\n");
-				return RSSL_RET_FAILURE;
-			}
-
-			/* send close status */
-			sendMessage(chnl, msgBuf);
-		}
-		else
-		{
-			printf("rsslGetBuffer(): Failed <%s>\n", error.text); 
-			return RSSL_RET_FAILURE;
-		}
-	}
-
-	return RSSL_RET_SUCCESS;
-}
-
-/*
  * Sends the login request reject status message for a channel.
  * chnl - The channel to send request reject status message to
  * streamId - The stream id of the request

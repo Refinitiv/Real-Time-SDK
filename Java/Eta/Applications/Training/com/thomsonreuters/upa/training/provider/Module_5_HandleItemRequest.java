@@ -1253,9 +1253,7 @@ public class Module_5_HandleItemRequest
             {
 
                 /* Closes all streams for the Interactive Provider after run-time has elapsed in our simple Interactive Provider example.
-                 * If the provider application must shut down, it can either leave consumer connections intact or shut them down. If the provider
-                 * decides to close consumer connections, the provider should send an StatusMsg on each connection's Login stream closing the stream.
-                 * At this point, the consumer should assume that its other open streams are also closed.
+                 * If the provider application must shut down, it can either leave consumer connections intact or shut them down.
                  */
 
                 /* send close status messages to all streams on the connected client channel */
@@ -1271,18 +1269,7 @@ public class Module_5_HandleItemRequest
                     /* Closes channel, closes server, cleans up and exits the application. */
                     closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
                 }
-                /* send close status message to login stream */
 
-                if ((retCode = sendLoginCloseStatusMsg(channel, error)) != TransportReturnCodes.SUCCESS)
-                {
-                    /* When you send close status message to login stream, we want to make a best effort to get this across the network as it will gracefully
-                     * close all open consumer streams. If this cannot be flushed or failed, this application will just close the connection
-                     * for simplicity.
-                     */
-
-                    /* Closes channel, closes server, cleans up and exits the application. */
-                    closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
-                }
                 /* flush before exiting */
                 else if (retCode > TransportReturnCodes.SUCCESS)
                 {
@@ -2332,125 +2319,6 @@ public class Module_5_HandleItemRequest
             /* There is still data left to flush */
 
             /* If the login request reject status doesn't flush, just close channel and exit the app. When you send login request reject status msg, 
-             * we want to make a best effort to get this across the network as it will gracefully close the open login 
-             * stream. If this cannot be flushed, this application will just close the connection for simplicity.
-             */
-
-            /* Closes channel, closes server, cleans up and exits the application. */
-        }
-
-        return retCode;
-    }
-
-    /**************************************************************
-     * Sends the login close status message for a channel *
-     * 
-     * @param channel - the Channel of connection *
-     * @param error - tracks error info *
-     * @return status code *
-     **************************************************************/
-    public static int sendLoginCloseStatusMsg(Channel channel, Error error) throws UnknownHostException
-    {
-        int retCode;
-        TransportBuffer msgBuf = null;
-
-        /* Iterator used for encoding throughout the application - we can clear it and reuse it instead of recreating it */
-        EncodeIterator encIter = CodecFactory.createEncodeIterator(); /* the encode iterator is created (typically stack allocated)  */
-        /* clear encode iterator for reuse - this should be used to achieve the best performance while clearing the iterator. */
-        encIter.clear();
-
-        /* Provider uses StatusMsg to send the login close status and to close the stream. */
-        StatusMsg statusMsg = (StatusMsg)CodecFactory.createMsg();
-
-        /* Create channel info as a holder */
-        ChannelInfo channelInfo = TransportFactory.createChannelInfo();
-
-        /* Populate information from channel */
-        if ((retCode = channel.info(channelInfo, error)) != TransportReturnCodes.SUCCESS)
-        {
-            return TransportReturnCodes.FAILURE;
-        }
-
-        /* Get a buffer of the channel max fragment size */
-
-        /* upaGetBuffer() is the utility function that does 2-pass (more robust) getting non-packable buffer. */
-        if ((msgBuf = upaGetBuffer(channel, channelInfo.maxFragmentSize(), error)) == null)
-        {
-            /* Connection should be closed, return failure */
-            /* Closes channel, closes server, cleans up and exits the application. */
-            return TransportReturnCodes.FAILURE;
-        }
-
-        /* if a buffer is returned, we can populate and write, encode an Msg into the buffer */
-
-        /* Encodes the login close status. */
-
-        statusMsg.clear();
-
-        /* set version information of the connection on the encode iterator so proper versioning can be performed */
-        /* set the buffer on an EncodeIterator */
-        retCode = encIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-        if ((retCode) < TransportReturnCodes.SUCCESS)
-        {
-            channel.releaseBuffer(msgBuf, error);
-            System.out.printf("\nSetEncodeIteratorBuffer() failed with return code: %d\n", retCode);
-            /* Closes channel, closes server, cleans up and exits the application. */
-            return TransportReturnCodes.FAILURE;
-        }
-
-        /* initialize status message */
-        /* set-up message */
-        statusMsg.msgClass(MsgClasses.STATUS);/* (3) Status Message */
-        statusMsg.streamId(loginRequestInfo_StreamId);
-        statusMsg.domainType(DomainTypes.LOGIN);/* (1) Login Message */
-        /* No payload associated with this close status message */
-        statusMsg.containerType(DataTypes.NO_DATA); /* (128) No Data <BR>*/
-
-        /* (0x020) Indicates that this StatusMsg has stream or group state information, contained in StatusMsg::state.  */
-        statusMsg.flags(StatusMsgFlags.HAS_STATE);
-        /* (4) Closed (indicates that the data is not available on this service/connection and is not likely to become available) */
-        statusMsg.state().streamState(StreamStates.CLOSED);
-        /* (2) Data is Suspect (similar to a stale data state, indicates that the health of some or all data associated with the stream is out of date or cannot be confirmed that it is current ) */
-        statusMsg.state().dataState(DataStates.SUSPECT);
-        statusMsg.state().code(StateCodes.NONE);
-
-        String stateText = "Login stream closed";
-        String hostName = null;
-
-        if ((hostName = InetAddress.getLocalHost().getHostName()) != null)
-        {
-            hostName = "localhost";
-        }
-
-        stateText = hostName;
-
-        statusMsg.state().text().data(stateText);
-        /* encode message */
-
-        /* Since there is no payload, no need for Init/Complete as everything is in the msg header */
-        /* Functions without a suffix of Init or Complete (e.g. EncodeMsg) perform encoding within a single call,
-         * typically used for encoding simple types like Integer or incorporating previously encoded data
-         * (referred to as pre-encoded data).
-         */
-        if ((retCode = statusMsg.encode(encIter)) < CodecReturnCodes.SUCCESS)
-        {
-            channel.releaseBuffer(msgBuf, error);
-            System.out.printf("\nencode() failed with return code: %d\n", retCode);
-            /* Closes channel, closes server, cleans up and exits the application. */
-            return TransportReturnCodes.FAILURE;
-        }
-        /* send login close status */
-        if ((retCode = sendMessage(channel, msgBuf)) < TransportReturnCodes.SUCCESS)
-        {
-            /* login close status fails */
-            /* Closes channel, closes server, cleans up and exits the application. */
-            return TransportReturnCodes.FAILURE;
-        }
-        else if (retCode > TransportReturnCodes.SUCCESS)
-        {
-            /* There is still data left to flush */
-
-            /* If the login close status doesn't flush, just close channel and exit the app. When you send login close status msg, 
              * we want to make a best effort to get this across the network as it will gracefully close the open login 
              * stream. If this cannot be flushed, this application will just close the connection for simplicity.
              */
