@@ -541,8 +541,6 @@ static void handleRuntime()
 					/* send close status messages to dictionary streams */
 					sendDictionaryCloseStatusMsgs(pReactor, clientSessions[i].clientChannel);
 
-					/* send close status message to login stream */
-					sendLoginCloseStatusMsg(pReactor, clientSessions[i].clientChannel);
 				}
 			}
 

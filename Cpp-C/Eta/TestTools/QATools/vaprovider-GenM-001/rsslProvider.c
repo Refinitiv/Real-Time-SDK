@@ -541,8 +541,6 @@ static void handleRuntime()
 					/* send close status messages to dictionary streams */
 					sendDictionaryCloseStatusMsgs(pReactor, clientSessions[i].clientChannel);
 
-					/* send close status message to login stream */
-					sendLoginCloseStatusMsg(pReactor, clientSessions[i].clientChannel);
 				}
 			}
 
@@ -588,14 +586,12 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 			}
                        // APIQA
 			if (pRsslMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE) {
-                             fprintf(stderr, "----------APIQA: Sending a generic message on the LOGIN domain \n\n");
-                             sendGenericMessageLogin(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
-                             fprintf(stderr, "----------APIQA: Sending a generic message on the SOURCE directory domain \n\n");
-                             sendGenericMessageSource(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
-                	         fprintf(stderr, "----------APIQA: Sending a generic message on the MP domain \n\n");
-           		             sendGenericMessageMP(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
-	                
-				
+				fprintf(stderr, "----------APIQA: Sending a generic message on the LOGIN domain \n\n");
+				sendGenericMessageLogin(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
+				fprintf(stderr, "----------APIQA: Sending a generic message on the SOURCE directory domain \n\n");
+				sendGenericMessageSource(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
+				fprintf(stderr, "----------APIQA: Sending a generic message on the MP domain \n\n");
+				sendGenericMessageMP(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
 			}
                        // APIQA
 			break;
