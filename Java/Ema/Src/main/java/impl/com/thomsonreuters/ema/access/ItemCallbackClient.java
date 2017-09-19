@@ -209,6 +209,8 @@ class TunnelItem<T> extends Item<T> {
 	{
 		super.reset(client, closure, null);
 
+		_baseImpl = baseImpl;
+		
 		_directory = null;
 		_rsslTunnelStream = null;
 		_nextSubItemStreamId = STARTING_SUBITEM_STREAMID;
