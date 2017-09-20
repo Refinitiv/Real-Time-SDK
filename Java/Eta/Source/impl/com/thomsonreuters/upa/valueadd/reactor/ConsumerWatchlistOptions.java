@@ -170,4 +170,18 @@ public class ConsumerWatchlistOptions
         _postAckTimeout = 15000;
         _requestTimeout = 15000;
     }
+
+    /*
+     * Performs a deep copy from a specified ConsumerWatchlistOptions into this ConsumerWatchlistOptions.
+     */
+    void copy(ConsumerWatchlistOptions watchlistOptions)
+    {
+        _enableWatchlist = watchlistOptions.enableWatchlist();
+        _channelOpenCallback = watchlistOptions.channelOpenCallback();
+        _itemCountHint = watchlistOptions.itemCountHint();
+        _obeyOpenWindow = watchlistOptions.obeyOpenWindow();
+        _maxOutstandingPosts = watchlistOptions.maxOutstandingPosts();
+        _postAckTimeout = watchlistOptions.postAckTimeout();
+        _requestTimeout = watchlistOptions.requestTimeout();
+    }
 }

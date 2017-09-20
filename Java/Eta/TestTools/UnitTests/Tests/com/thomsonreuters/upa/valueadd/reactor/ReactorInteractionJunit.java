@@ -25,7 +25,8 @@ import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 
-public class ReactorInteractionJunit {
+public class ReactorInteractionJunit
+{
 	
     /** Reusable ReactorErrorInfo */
     ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
@@ -302,4 +303,114 @@ public class ReactorInteractionJunit {
 				
 		TestReactorComponent.closeSession(consumer, provider);
 	}
+
+    @Test
+    public void VerifyConsumerRoleMsgCopyTest()
+    {
+        /* Verify message attached to the ConsumerRole are copied. */
+        
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+                
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        provider.bind(opts);
+        TestReactor.openSession(consumer, provider, opts);
+        
+        /* Obtain reference to ReactorChannel ConsumerRole and verify that
+         * user ConsumerRole and ReactorChannel ConsumerRole are not the same. */
+        ConsumerRole reactorChnlConsumerRole = (ConsumerRole)consumer.channel().role();
+        assertFalse(consumerRole == reactorChnlConsumerRole);
+
+        /* Verify that user ConsumerRole messages and ReactorChannel
+         * ConsumerRole messages are not the same. */
+        assertFalse(consumerRole.rdmLoginRequest() == reactorChnlConsumerRole.rdmLoginRequest());
+        assertFalse(consumerRole.rdmDirectoryRequest() == reactorChnlConsumerRole.rdmDirectoryRequest());
+        
+        /* Verify that other user ConsumerRole and ReactorChannel ConsumerRole attributes are equal. */
+        assertTrue(consumerRole.channelEventCallback() == reactorChnlConsumerRole.channelEventCallback());
+        assertTrue(consumerRole.defaultMsgCallback() == reactorChnlConsumerRole.defaultMsgCallback());
+        assertTrue(consumerRole.dictionaryDownloadMode() == reactorChnlConsumerRole.dictionaryDownloadMode());
+        assertTrue(consumerRole.dictionaryMsgCallback() == reactorChnlConsumerRole.dictionaryMsgCallback());
+        assertTrue(consumerRole.directoryMsgCallback() == reactorChnlConsumerRole.directoryMsgCallback());
+        assertTrue(consumerRole.loginMsgCallback() == reactorChnlConsumerRole.loginMsgCallback());
+        assertTrue(consumerRole.watchlistOptions().channelOpenCallback() == reactorChnlConsumerRole.watchlistOptions().channelOpenCallback());
+        assertTrue(consumerRole.watchlistOptions().enableWatchlist() == reactorChnlConsumerRole.watchlistOptions().enableWatchlist());
+        assertTrue(consumerRole.watchlistOptions().itemCountHint() == reactorChnlConsumerRole.watchlistOptions().itemCountHint());
+        assertTrue(consumerRole.watchlistOptions().maxOutstandingPosts() == reactorChnlConsumerRole.watchlistOptions().maxOutstandingPosts());
+        assertTrue(consumerRole.watchlistOptions().obeyOpenWindow() == reactorChnlConsumerRole.watchlistOptions().obeyOpenWindow());
+        assertTrue(consumerRole.watchlistOptions().postAckTimeout() == reactorChnlConsumerRole.watchlistOptions().postAckTimeout());
+        assertTrue(consumerRole.watchlistOptions().requestTimeout() == reactorChnlConsumerRole.watchlistOptions().requestTimeout());
+       
+        /* Obtain reference to ReactorChannel ProviderRole and verify that
+         * user ProviderRole and ReactorChannel ProviderRole are not the same. */
+        ProviderRole reactorChnlProviderRole = (ProviderRole)provider.channel().role();
+        assertFalse(providerRole == reactorChnlProviderRole);
+
+        /* Verify that other user ProviderRole and ReactorChannel ProviderRole attributes are equal. */
+        assertTrue(providerRole.channelEventCallback() == reactorChnlProviderRole.channelEventCallback());
+        assertTrue(providerRole.defaultMsgCallback() == reactorChnlProviderRole.defaultMsgCallback());
+        assertTrue(providerRole.dictionaryMsgCallback() == reactorChnlProviderRole.dictionaryMsgCallback());
+        assertTrue(providerRole.directoryMsgCallback() == reactorChnlProviderRole.directoryMsgCallback());
+        assertTrue(providerRole.loginMsgCallback() == reactorChnlProviderRole.loginMsgCallback());
+        assertTrue(providerRole.tunnelStreamListenerCallback() == reactorChnlProviderRole.tunnelStreamListenerCallback());
+
+        /* Close session. */
+        TestReactorComponent.closeSession(consumer, provider);
+    }
+    
+    @Test
+    public void VerifyNIProviderRoleMsgCopyTest()
+    {
+        /* Verify message attached to the NIProviderRole are copied. */
+        
+        /* Create dummy ReactorChannel for test. */
+        ReactorChannel reactorChannel = ReactorFactory.createReactorChannel();
+        
+        /* Create user NIProviderRole, initialize default messages and set on dummy ReactorChannel. */
+        NIProviderRole userNIProviderRole = ReactorFactory.createNIProviderRole();
+        userNIProviderRole.initDefaultRDMLoginRequest();
+        userNIProviderRole.initDefaultRDMDirectoryRefresh("DIRECT_FEED", 1);
+        reactorChannel.role(userNIProviderRole);
+                
+        /* Obtain reference to ReactorChannel NIProviderRole and verify that
+         * user NIProviderRole and ReactorChannel NIProviderRole are not the same. */
+        NIProviderRole reactorChnlNIProviderRole = (NIProviderRole)reactorChannel.role();
+        assertFalse(userNIProviderRole == reactorChnlNIProviderRole);
+
+        /* Verify that user NIProviderRole messages and ReactorChannel
+         * NIProviderRole messages are not the same. */
+        assertFalse(userNIProviderRole.rdmLoginRequest() == reactorChnlNIProviderRole.rdmLoginRequest());
+        assertFalse(userNIProviderRole.rdmDirectoryRefresh() == reactorChnlNIProviderRole.rdmDirectoryRefresh());
+        
+        /* Verify that other user NIProviderRole and ReactorChannel NIProviderRole attributes are equal. */
+        assertTrue(userNIProviderRole.channelEventCallback() == reactorChnlNIProviderRole.channelEventCallback());
+        assertTrue(userNIProviderRole.defaultMsgCallback() == reactorChnlNIProviderRole.defaultMsgCallback());
+        assertTrue(userNIProviderRole.loginMsgCallback() == reactorChnlNIProviderRole.loginMsgCallback());
+   }
 }

@@ -74,4 +74,13 @@ public class ReactorRole
     {
         return "ReactorRole: " + ReactorRoleTypes.toString(_type);
     }
+    
+    /*
+     * Performs a deep copy from a specified ReactorRole into this ReactorRole.
+     */
+    void copy(ReactorRole role)
+    {
+        _channelEventCallback = role._channelEventCallback;
+        _defaultMsgCallback =  role._defaultMsgCallback;
+    }
 }

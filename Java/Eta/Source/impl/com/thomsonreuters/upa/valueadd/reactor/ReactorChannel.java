@@ -163,7 +163,6 @@ public class ReactorChannel extends VaNode
     {
         _state = State.UNKNOWN;
         _reactor = null;
-        _role = null;
         _selectableChannel = null;
         _channel = null;
         _server = null;
@@ -349,7 +348,51 @@ public class ReactorChannel extends VaNode
 
     void role(ReactorRole role)
     {
-        _role = role;
+        switch(role.type())
+        {
+            case ReactorRoleTypes.CONSUMER:
+                ConsumerRole consumerRole;
+                if (_role == null || _role.type() != role.type())
+                {
+                    consumerRole = ReactorFactory.createConsumerRole();
+                    _role = consumerRole;
+                }
+                else
+                {
+                    consumerRole = (ConsumerRole)_role;
+                }
+                consumerRole.copy((ConsumerRole)role);
+                break;
+            case ReactorRoleTypes.NIPROVIDER:
+                NIProviderRole niProviderRole;
+                if (_role == null || _role.type() != role.type())
+                {
+                    niProviderRole = ReactorFactory.createNIProviderRole();
+                    _role = niProviderRole;
+                }
+                else
+                {
+                    niProviderRole = (NIProviderRole)_role;
+                }
+                niProviderRole.copy((NIProviderRole)role);
+                break;
+            case ReactorRoleTypes.PROVIDER:
+                ProviderRole providerRole;
+                if (_role == null || _role.type() != role.type())
+                {
+                    providerRole = ReactorFactory.createProviderRole();
+                    _role = providerRole;
+                }
+                else
+                {
+                    providerRole = (ProviderRole)_role;
+                }
+                providerRole.copy((ProviderRole)role);
+                break;
+            default:
+                assert(false);  // not supported
+                return;
+        }
     }
 
     /**
