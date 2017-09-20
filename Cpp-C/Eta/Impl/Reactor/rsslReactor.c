@@ -56,6 +56,9 @@ static RsslRet _reactorSendFlushRequest(RsslReactorImpl *pReactorImpl, RsslReact
 /* Adds channel info to reactor list and signals worker to initialize it. Used by both rsslReactorConnect & rsslReactorAccept */
 static RsslRet _reactorAddChannel(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo *pError);
 
+/* Creates a deep copy of the Reactor Channel Role structure. */
+static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, RsslReactorChannelRole *pRole, RsslErrorInfo *pError);
+
 /* Sends an "RSSL_RC_CET_CHANNEL_READY" to the reactor's own queue */
 static RsslRet _reactorSendConnReadyEvent(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo *pError);
 
@@ -663,10 +666,12 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 	if ((pReactorChannel->pTunnelManager = tunnelManagerOpen(pReactor, (RsslReactorChannel*)pReactorChannel, pError)) == NULL)
 		goto reactorConnectFail;
 
+	if (_reactorChannelCopyRole(pReactorChannel, pRole, pError) != RSSL_RET_SUCCESS)
+		goto reactorConnectFail;
+
 	pReactorChannel->reactorChannel.pRsslChannel = NULL;
 	pReactorChannel->reactorChannel.pRsslServer = NULL;
 	pReactorChannel->reactorChannel.userSpecPtr = pOpts->rsslConnectOptions.userSpecPtr;
-	pReactorChannel->channelRole = *pRole;
 	pReactorChannel->initializationTimeout = pOpts->initializationTimeout;
 	pReactorChannel->pWatchlist = pWatchlist;
 	pReactorChannel->readRet = 0;
@@ -842,9 +847,14 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 	
 	rsslResetReactorChannel(pReactorImpl, pReactorChannel);
 
+	if (_reactorChannelCopyRole(pReactorChannel, pRole, pError) != RSSL_RET_SUCCESS)
+	{
+		_reactorMoveChannel(&pReactorImpl->channelPool, pReactorChannel);
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
+
 	pReactorChannel->reactorChannel.pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel = pChannel;
 	pReactorChannel->reactorChannel.pRsslServer = pServer;
-	pReactorChannel->channelRole = *pRole;
 	pReactorChannel->reactorChannel.userSpecPtr = pOpts->rsslAcceptOptions.userSpecPtr;
 	pReactorChannel->initializationTimeout = pOpts->initializationTimeout;
 
@@ -3415,3 +3425,74 @@ static void _reactorSetInCallback(RsslReactorImpl *pReactorImpl, RsslBool inCall
 	pReactorImpl->inReactorFunction = inCallback;
 }
 
+
+static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, RsslReactorChannelRole *pRole, RsslErrorInfo *pError)
+{
+	RsslRet ret;
+
+	pReactorChannel->channelRole = *pRole;
+
+	switch(pReactorChannel->channelRole.base.roleType)
+	{
+		case RSSL_RC_RT_OMM_CONSUMER:
+		{
+			RsslReactorOMMConsumerRole *pConsRole = (RsslReactorOMMConsumerRole*)&pReactorChannel->channelRole;
+
+			if (pConsRole->pLoginRequest
+					&& (pConsRole->pLoginRequest =
+						(RsslRDMLoginRequest*)rsslCreateRDMMsgCopy((RsslRDMMsg*)pConsRole->pLoginRequest, 256, &ret)) == NULL)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS, __FILE__, __LINE__, "Failed to copy ommConsumerRole login request.");
+				return RSSL_RET_FAILURE;
+			}
+
+			if (pConsRole->pDirectoryRequest
+					&& (pConsRole->pDirectoryRequest =
+						(RsslRDMDirectoryRequest*)rsslCreateRDMMsgCopy((RsslRDMMsg*)pConsRole->pDirectoryRequest, 256, &ret)) == NULL)
+			{
+				if (pConsRole->pLoginRequest)
+				{
+					free(pConsRole->pLoginRequest);
+					pConsRole->pLoginRequest = NULL;
+				}
+
+				rsslSetErrorInfo(pError, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS, __FILE__, __LINE__, "Failed to copy ommConsumerRole directory request.");
+				return RSSL_RET_FAILURE;
+			}
+			break;
+		}
+
+		case RSSL_RC_RT_OMM_NI_PROVIDER:
+		{
+			RsslReactorOMMNIProviderRole *pNIProvRole = (RsslReactorOMMNIProviderRole*)&pReactorChannel->channelRole;
+
+			if (pNIProvRole->pLoginRequest
+					&& (pNIProvRole->pLoginRequest =
+						(RsslRDMLoginRequest*)rsslCreateRDMMsgCopy((RsslRDMMsg*)pNIProvRole->pLoginRequest, 256, &ret)) == NULL)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS, __FILE__, __LINE__, "Failed to copy ommNIProviderRole login request.");
+				return RSSL_RET_FAILURE;
+			}
+
+			if (pNIProvRole->pDirectoryRefresh
+					&& (pNIProvRole->pDirectoryRefresh =
+						(RsslRDMDirectoryRefresh*)rsslCreateRDMMsgCopy((RsslRDMMsg*)pNIProvRole->pDirectoryRefresh, 256, &ret)) == NULL)
+			{
+				if (pNIProvRole->pLoginRequest)
+				{
+					free(pNIProvRole->pLoginRequest);
+					pNIProvRole->pLoginRequest = NULL;
+				}
+
+				rsslSetErrorInfo(pError, RSSL_EIC_SUCCESS, RSSL_RET_SUCCESS, __FILE__, __LINE__, "Failed to copy ommNIProviderRole directory refresh.");
+				return RSSL_RET_FAILURE;
+			}
+			break;
+		}
+
+		default:
+			break;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
