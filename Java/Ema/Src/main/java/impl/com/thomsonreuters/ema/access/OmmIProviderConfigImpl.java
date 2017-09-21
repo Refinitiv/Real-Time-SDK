@@ -20,6 +20,12 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	{
 		clear();
 	}
+
+	OmmIProviderConfigImpl(String path)
+	{
+		super(path);
+		clear();
+	}
 	
 	@Override
 	int operationModel()

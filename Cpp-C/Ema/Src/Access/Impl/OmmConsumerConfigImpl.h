@@ -28,7 +28,7 @@ class OmmConsumerConfigImpl : public EmaConfigImpl
 {
 public:
 
-	OmmConsumerConfigImpl();
+	OmmConsumerConfigImpl(const EmaString &);
 
 	virtual ~OmmConsumerConfigImpl();
 

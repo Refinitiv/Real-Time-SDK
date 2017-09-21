@@ -928,7 +928,7 @@ class EmaConfigBaseImpl
 {
 public:
 
-	EmaConfigBaseImpl();
+	EmaConfigBaseImpl( const EmaString & );
 	~EmaConfigBaseImpl();
 
 	void clear();
@@ -1073,7 +1073,7 @@ class EmaConfigImpl : public EmaConfigBaseImpl
 {
 public:
 
-	EmaConfigImpl();
+	EmaConfigImpl( const EmaString & );
 	virtual ~EmaConfigImpl();
 
 	void clear();
@@ -1137,13 +1137,14 @@ protected:
 
 	PortSetViaFunctionCall		_portSetViaFunctionCall;
 
+	const EmaString configFilePath;
 };
 
 class EmaConfigServerImpl : public EmaConfigBaseImpl
 {
 public:
 
-	EmaConfigServerImpl();
+	EmaConfigServerImpl( const EmaString & path );
 	virtual ~EmaConfigServerImpl();
 
 	void clear();

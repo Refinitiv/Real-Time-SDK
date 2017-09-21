@@ -68,6 +68,15 @@ public :
 	OmmIProviderConfig();
 	//@}
 
+	///@name Constructor
+	//@{
+	/** Constructs OmmIProviderConfig
+		@param[in] path specifies configuration file name or name of directory containing a file named EmaConfig.xml
+		\remark path is optional. If not specified, application will use EmaConfig.xml (if any)  found in current working directory
+	*/
+	OmmIProviderConfig(const EmaString & path);
+	//@}
+
 	///@name Destructor
 	//@{
 	/** Destructor.

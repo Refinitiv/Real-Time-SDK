@@ -23,6 +23,14 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 		clear();
 	}
 
+	OmmNiProviderConfigImpl(String path)
+	{
+		super(path);
+		channelOrChannelSet.add(ConfigManager.NiProviderChannelName);
+		channelOrChannelSet.add(ConfigManager.ChannelSet);
+		clear();
+	}
+
 	@Override
 	public OmmNiProviderConfig clear() {
 		clearInt();

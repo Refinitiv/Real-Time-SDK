@@ -10,15 +10,25 @@
 #include "OmmIProviderConfigImpl.h"
 #include "ExceptionTranslator.h"
 
-#include <new>
-
 using namespace thomsonreuters::ema::access;
 
 OmmIProviderConfig::OmmIProviderConfig() :
 	_pImpl( 0 )
 {
 	try {
-		_pImpl = new OmmIProviderConfigImpl();
+		_pImpl = new OmmIProviderConfigImpl( EmaString() );
+	}
+	catch ( std::bad_alloc ) {}
+
+	if ( !_pImpl )
+		throwMeeException( "Failed to allocate memory for OmmIProviderConfigImpl in OmmIProviderConfig()" );
+}
+
+OmmIProviderConfig::OmmIProviderConfig( const EmaString & path ) :
+	_pImpl( 0 )
+{
+	try {
+		_pImpl = new OmmIProviderConfigImpl( path );
 	}
 	catch ( std::bad_alloc ) {}
 

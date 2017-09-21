@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer100", "Consumer\100_Series_Examples\100__MarketPrice__Streaming\Consumer100_VS120.vcxproj", "{3FB1E7E5-07DD-476B-98AF-449B5355DC15}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -368,6 +368,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IProvider350", "IProvider\300_Series_Examples\350__Dictionary__Streaming\IProvider350_VS120.vcxproj", "{4B34330C-29A4-46AB-9D7C-716B600CBD65}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NiProvider350", "NiProvider\300_Series_Examples\350__Dictionary__Streaming\NiProvider350_VS120.vcxproj", "{E16DB24E-3094-4D2A-A774-3A5CD2B3905C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer111", "Consumer\100_Series_Examples\111__MarketPrice__UserSpecifiedFileConfig\Consumer111_VS120.vcxproj", "{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1276,6 +1278,18 @@ Global
 		{E16DB24E-3094-4D2A-A774-3A5CD2B3905C}.Release Shared MD Assert|x64.Build.0 = Release Shared MD Assert|x64
 		{E16DB24E-3094-4D2A-A774-3A5CD2B3905C}.Release Shared MD|x64.ActiveCfg = Release Shared MD|x64
 		{E16DB24E-3094-4D2A-A774-3A5CD2B3905C}.Release Shared MD|x64.Build.0 = Release Shared MD|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Debug MDd|x64.ActiveCfg = Debug MDd|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Debug MDd|x64.Build.0 = Debug MDd|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Debug Shared MDd|x64.ActiveCfg = Debug Shared MDd|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Debug Shared MDd|x64.Build.0 = Debug Shared MDd|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Release MD Assert|x64.ActiveCfg = Release MD Assert|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Release MD Assert|x64.Build.0 = Release MD Assert|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Release MD|x64.ActiveCfg = Release MD|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Release MD|x64.Build.0 = Release MD|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Release Shared MD Assert|x64.ActiveCfg = Release Shared MD Assert|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Release Shared MD Assert|x64.Build.0 = Release Shared MD Assert|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Release Shared MD|x64.ActiveCfg = Release Shared MD|x64
+		{4174B5D3-8FB3-4A07-BFA4-29CCAD415D80}.Release Shared MD|x64.Build.0 = Release Shared MD|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -235,6 +235,18 @@ public class EmaFactory
 	{
 		return new OmmConsumerConfigImpl();
 	}
+
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmConsumerConfig}.
+	* @param path either a file name (name of the file containing the configuration) or
+	*        a directory name (name of a directory containing a configuration file named EmaConfig.xml).
+	*        If path is null or empty, application will use EmaConfig.xml (if any) found in the current working directory
+	 * @return {@link com.thomsonreuters.ema.access.OmmConsumerConfig}
+	 */
+	public static OmmConsumerConfig createOmmConsumerConfig( String path )
+	{
+		return new OmmConsumerConfigImpl(path);
+	}
 	
 	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Non-Interactive provider role.<br>
@@ -333,12 +345,35 @@ public class EmaFactory
 	}
 	
 	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmNiProviderConfig}.
+	* @param path either a file name (name of the file containing the configuration) or
+	*        a directory name (name of a directory containing a configuration file named EmaConfig.xml).
+	*        If path is null or empty, application will use EmaConfig.xml (if any) found in the current working directory
+	 * @return {@link com.thomsonreuters.ema.access.OmmNiProviderConfig}
+	 */
+	public static OmmNiProviderConfig createOmmNiProviderConfig(String path)
+	{
+		return new OmmNiProviderConfigImpl(path);
+	}
+
+	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.OmmIProviderConfig}.
 	 * @return {@link com.thomsonreuters.ema.access.OmmIProviderConfig}
 	 */
 	public static OmmIProviderConfig createOmmIProviderConfig()
 	{
 		return new OmmIProviderConfigImpl();
+	}
+
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmIProviderConfig}.
+	* @param path either a file name (name of the file containing the configuration) or
+	*        a directory name (name of a directory containing a configuration file named EmaConfig.xml).
+	*        If path is null or empty, application will use EmaConfig.xml (if any) found in the current working directory
+	 * @return {@link com.thomsonreuters.ema.access.OmmIProviderConfig}
+	 */
+	public static OmmIProviderConfig createOmmIProviderConfig(String path) {
+		return new OmmIProviderConfigImpl(path);
 	}
 	
 	/**

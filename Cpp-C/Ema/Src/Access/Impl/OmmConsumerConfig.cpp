@@ -9,15 +9,25 @@
 #include "OmmConsumerConfig.h"
 #include "OmmConsumerConfigImpl.h"
 
-#include <new>
-
 using namespace thomsonreuters::ema::access;
 
 OmmConsumerConfig::OmmConsumerConfig() :
 	_pImpl( 0 )
 {
 	try {
-		_pImpl = new OmmConsumerConfigImpl();
+		_pImpl = new OmmConsumerConfigImpl(EmaString());
+	}
+	catch ( std::bad_alloc ) {}
+
+	if ( !_pImpl )
+		throwMeeException( "Failed to allocate memory for OmmConsumerConfigImpl in OmmConsumerConfig()." );
+}
+
+OmmConsumerConfig::OmmConsumerConfig(const EmaString & path) :
+	_pImpl( 0 )
+{
+	try {
+		_pImpl = new OmmConsumerConfigImpl(path);
 	}
 	catch ( std::bad_alloc ) {}
 

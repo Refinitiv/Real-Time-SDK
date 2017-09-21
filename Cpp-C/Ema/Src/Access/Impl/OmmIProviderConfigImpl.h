@@ -22,7 +22,7 @@ class OmmIProviderConfigImpl : public EmaConfigServerImpl
 {
 public:
 
-	OmmIProviderConfigImpl();
+	OmmIProviderConfigImpl( const EmaString & );
 
 	virtual ~OmmIProviderConfigImpl();
 
