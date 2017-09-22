@@ -807,7 +807,7 @@ void OmmNiProviderImpl::reissue(const ReqMsg& reqMsg, UInt64 handle)
 
 	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder());
 
-	if ( reqMsgEncoder.isDomainTypeSet() && ( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY ||
+	if ( reqMsgEncoder.isDomainTypeSet() && ( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_LOGIN &&
 		reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY ) )
 	{
 		_userLock.unlock();
