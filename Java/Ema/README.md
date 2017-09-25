@@ -160,12 +160,9 @@ See the top level Elektron-SDK README.md for details.
 	  
 # Issues and Workarounds
  
-- EMA-9 Generic Message is not currently supported on login stream.
-- EMA-401 Source directory reissue may internally request on invalid handle
-- EMA-437 Batch Request status message itemName not correct.
-- EMA-622 Invalid value of compressionThreshold give error and could not connect
-- EMA-624 Invalid config for tcpNodelay and REconnectMaxDelay defaults to incorrect defaults.
-- EMA-720 CaseId: 04883420 Broken links in EMA Java ConfigGuide 
+- ESDK-475 When using DirectoryMsg.decode(), Source Directory FilterActions of Update may be overwritten with Set
+- ESDK-312 Watchlist fans out Dictionary state of Open/Suspect state instead of Closed/Recover
+- ESDK-705 Programmatic configuration is not supported in EMA Java (Case Number: 05690066)
 
 # Obtaining the Thomson Reuters Field Dictionaries
 
@@ -198,3 +195,4 @@ Please see the top level **README.md** file for details.
 
 # Notes
 - Please make sure to review the **LICENSE.md** file.
+- Java unit tests may use Mockito (http://site.mockito.org/) for creation of mock objects. Mockito is distributed under the MIT license.

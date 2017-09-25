@@ -248,3 +248,4 @@ Users can use Transport APi to write non-interactive applications that start up 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the README.md files within each package for clarification.
 - Please make sure to review the LICENSE.md file.
+- Java unit tests may use Mockito (http://site.mockito.org/) for creation of mock objects. Mockito is distributed under the MIT license.
