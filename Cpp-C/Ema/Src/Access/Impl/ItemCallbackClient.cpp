@@ -2969,44 +2969,46 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 
 	Item* pItem = 0;
 
-	if ( pRsslMsg->msgBase.streamId != EMA_LOGIN_STREAM_ID &&
-		( !pEvent->pStreamInfo || !pEvent->pStreamInfo->pUserSpec ) )
+	if (pRsslMsg->msgBase.streamId != EMA_LOGIN_STREAM_ID)
 	{
-		if ( _ommCommonImpl.getImplType() != OmmCommonImpl::ConsumerEnum )
+		if (!pEvent->pStreamInfo || !pEvent->pStreamInfo->pUserSpec)
 		{
-			Item** pItemPointer = _streamIdMap.find(pRsslMsg->msgBase.streamId);
-
-			if (pItemPointer)
+			if (_ommCommonImpl.getImplType() != OmmCommonImpl::ConsumerEnum)
 			{
-				pItem = *pItemPointer;
+				Item** pItemPointer = _streamIdMap.find(pRsslMsg->msgBase.streamId);
 
-				ProviderItem* providerItem = reinterpret_cast<ProviderItem*>(pItem);
+				if (pItemPointer)
+				{
+					pItem = *pItemPointer;
 
-				providerItem->cancelReqTimerEvent();
+					ProviderItem* providerItem = reinterpret_cast<ProviderItem*>(pItem);
 
-				return processProviderCallback(pRsslReactor, pRsslReactorChannel, pRsslMsg, providerItem, pRsslDataDictionary);
+					providerItem->cancelReqTimerEvent();
+
+					return processProviderCallback(pRsslReactor, pRsslReactorChannel, pRsslMsg, providerItem, pRsslDataDictionary);
+				}
+			}
+			else
+			{
+				if (OmmLoggerClient::ErrorEnum >= _ommCommonImpl.getActiveLoggerConfig().minLoggerSeverity)
+				{
+					EmaString temp("Received an item event without user specified pointer or stream info");
+					temp.append(CR)
+						.append("Instance Name ").append(_ommCommonImpl.getInstanceName()).append(CR)
+						.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR)
+						.append("RsslReactorChannel ").append(ptrToStringAsHex(pRsslReactorChannel)).append(CR)
+						.append("RsslSocket ").append((UInt64)pRsslReactorChannel->socketId);
+
+					_ommCommonImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
+				}
+
+				return RSSL_RC_CRET_SUCCESS;
 			}
 		}
 		else
 		{
-			if (OmmLoggerClient::ErrorEnum >= _ommCommonImpl.getActiveLoggerConfig().minLoggerSeverity)
-			{
-				EmaString temp("Received an item event without user specified pointer or stream info");
-				temp.append(CR)
-					.append("Instance Name ").append(_ommCommonImpl.getInstanceName()).append(CR)
-					.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR)
-					.append("RsslReactorChannel ").append(ptrToStringAsHex(pRsslReactorChannel)).append(CR)
-					.append("RsslSocket ").append((UInt64)pRsslReactorChannel->socketId);
-
-				_ommCommonImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
-			}
-
-			return RSSL_RC_CRET_SUCCESS;
+			pItem = (Item*)pEvent->pStreamInfo->pUserSpec;
 		}
-	}
-	else
-	{
-		pItem = (Item*)pEvent->pStreamInfo->pUserSpec;
 	}
 
 	switch ( pRsslMsg->msgBase.msgClass )
