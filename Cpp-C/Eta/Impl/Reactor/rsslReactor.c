@@ -2225,7 +2225,6 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 						loginEvent.baseMsgEvent.pStreamInfo = (RsslStreamInfo*)pStreamInfo;
 						loginEvent.baseMsgEvent.pFTGroupId = pOpts->pFTGroupId;
 						loginEvent.baseMsgEvent.pSeqNum = pOpts->pSeqNum;
-						loginEvent.baseMsgEvent.pErrorInfo = pOpts->pError;
 
 
 						if (ret == RSSL_RET_SUCCESS)
