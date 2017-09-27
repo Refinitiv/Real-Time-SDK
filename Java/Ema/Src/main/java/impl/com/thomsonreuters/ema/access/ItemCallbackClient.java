@@ -2698,7 +2698,6 @@ class SingleItem<T> extends Item<T>
 	private static final String 	CLIENT_NAME = "SingleItem";
 	
 	protected Directory	_directory;
-	protected ClosedStatusClient<T>		_closedStatusClient;
 	protected OmmBaseImpl<T>			_baseImpl;
 
 	SingleItem() {}
@@ -3302,8 +3301,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 	private static final String 	CLIENT_NAME = "IProviderSingleItem";
 	
 	protected Directory									_directory;
-	protected ClosedStatusClient<OmmProviderClient>		_closedStatusClient;
-	protected OmmServerBaseImpl							_baseImpl;
+	protected OmmServerBaseImpl						    _baseImpl;
 	protected MsgKey									_rsslMsgKey = CodecFactory.createMsgKey();
 	protected ItemWatchList 							_itemWatchList;
 	protected ClientSession								_clientSession;
