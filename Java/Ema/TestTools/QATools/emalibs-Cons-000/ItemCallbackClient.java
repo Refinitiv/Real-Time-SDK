@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.thomsonreuters.ema.access.DirectoryServiceStore.ServiceIdInteger;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.ema.access.OmmState.StreamState;
 import com.thomsonreuters.upa.codec.AckMsgFlags;
@@ -21,6 +22,7 @@ import com.thomsonreuters.upa.codec.CloseMsg;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
+import com.thomsonreuters.upa.codec.CopyMsgFlags;
 import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
@@ -49,6 +51,8 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.reactor.DefaultMsgCallback;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
@@ -63,8 +67,20 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamQueueMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEvent;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamStatusEventCallback;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
+import com.thomsonreuters.upa.codec.DataDictionary;
 
-class CallbackClient<T>
+interface CallbackRsslMsgPool
+{
+	com.thomsonreuters.upa.codec.RequestMsg rsslRequestMsg();
+	
+	com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg();
+	
+	com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg();
+	
+	com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg();
+}
+
+class CallbackClient<T> implements CallbackRsslMsgPool
 {
 	protected RefreshMsgImpl			_refreshMsg;
 	protected UpdateMsgImpl				_updateMsg;
@@ -72,7 +88,7 @@ class CallbackClient<T>
 	protected GenericMsgImpl			_genericMsg;
 	protected AckMsgImpl				_ackMsg;
 	protected OmmEventImpl<T>			_eventImpl;
-	protected OmmBaseImpl<T>			_baseImpl;
+	protected OmmCommonImpl				_baseImpl;
 	protected RefreshMsg				_rsslRefreshMsg;  
 	protected CloseMsg					_rsslCloseMsg;
 	protected RequestMsg 				_rsslRequestMsg;
@@ -83,9 +99,9 @@ class CallbackClient<T>
 	{
 		_baseImpl = baseImpl;
 		_eventImpl = new OmmEventImpl<T>();
-		_refreshMsg = new RefreshMsgImpl(_baseImpl._objManager);
+		_refreshMsg = new RefreshMsgImpl(_baseImpl.objManager());
 		
-		if (_baseImpl.loggerClient().isTraceEnabled())
+		if  ( _baseImpl.loggerClient().isTraceEnabled() )
 		{
 			String temp = "Created " + clientName;
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(clientName,
@@ -93,7 +109,21 @@ class CallbackClient<T>
 		}
 	}
 	
-	com.thomsonreuters.upa.codec.RequestMsg rsslRequestMsg()
+	CallbackClient(OmmServerBaseImpl baseImpl, String clientName)
+	{
+		_baseImpl = baseImpl;
+		_eventImpl = new OmmEventImpl<T>();
+		_refreshMsg = new RefreshMsgImpl(_baseImpl.objManager());
+		
+		if  ( _baseImpl.loggerClient().isTraceEnabled() )
+		{
+			String temp = "Created " + clientName;
+			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(clientName,
+											temp, Severity.TRACE).toString());
+		}
+	}
+	
+	public com.thomsonreuters.upa.codec.RequestMsg rsslRequestMsg()
 	{
 		if (_rsslRequestMsg == null)
 			_rsslRequestMsg = (RequestMsg)CodecFactory.createMsg();
@@ -104,7 +134,7 @@ class CallbackClient<T>
 		return _rsslRequestMsg;
 	}
 	
-	com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg()
+	public com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg()
 	{
 		if (_rsslRefreshMsg == null)
 			_rsslRefreshMsg = (RefreshMsg)CodecFactory.createMsg();
@@ -115,7 +145,7 @@ class CallbackClient<T>
 		return _rsslRefreshMsg;
 	}
 	
-	com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg()
+	public com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg()
 	{
 		if (_rsslStatusMsg == null)
 			_rsslStatusMsg = (StatusMsg)CodecFactory.createMsg();
@@ -126,7 +156,7 @@ class CallbackClient<T>
 		return _rsslStatusMsg;
 	}
 	
-	com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg()
+	public com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg()
 	{
 		if (_rsslCloseMsg == null)
 			_rsslCloseMsg = (CloseMsg)CodecFactory.createMsg();
@@ -152,21 +182,22 @@ class TunnelItem<T> extends Item<T> {
 	private LinkedList<IntObject> _returnedSubItemStreamIds;
 	private Directory _directory;
 	private TunnelStream _rsslTunnelStream;
-	private ClosedStatusClient<T> _closedStatusClient;
 	private ArrayList<Item<T>> _subItems;
 	private static final int STARTING_SUBITEM_STREAMID = 5;
+	protected OmmBaseImpl<T>	_baseImpl;
 
 	TunnelItem()
 	{
 	}
 
-	TunnelItem(OmmBaseImpl<T> baseImpl, T consumerClient, Object closure, Item<T> parent)
+	TunnelItem(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> parent)
 	{
-		super((OmmBaseImpl<T>) baseImpl, consumerClient, closure, null);
+		super(client, closure, null);
+		
+		_baseImpl = baseImpl;
 
 		_directory = null;
 		_rsslTunnelStream = null;
-		_closedStatusClient = null;
 		_nextSubItemStreamId = STARTING_SUBITEM_STREAMID;
 		_subItems = new ArrayList<Item<T>>(32);
 		while (STARTING_SUBITEM_STREAMID >= _subItems.size())
@@ -174,13 +205,14 @@ class TunnelItem<T> extends Item<T> {
 		_returnedSubItemStreamIds = new LinkedList<IntObject>();
 	}
 
-	void reset(OmmBaseImpl<T> baseImpl, T consumerClient, Object closure, Item<T> parent)
+	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> parent)
 	{
-		super.reset((OmmBaseImpl<T>) baseImpl, consumerClient, closure, null);
+		super.reset(client, closure, null);
 
+		_baseImpl = baseImpl;
+		
 		_directory = null;
 		_rsslTunnelStream = null;
-		_closedStatusClient = null;
 		_nextSubItemStreamId = STARTING_SUBITEM_STREAMID;
 		_subItems = new ArrayList<Item<T>>(32);
 		while (STARTING_SUBITEM_STREAMID >= _subItems.size())
@@ -333,10 +365,7 @@ class TunnelItem<T> extends Item<T> {
 
 	void scheduleItemClosedStatus(TunnelStreamRequest tunnelStreamRequest, String text)
 	{
-		if (_closedStatusClient != null)
-		{
-			return;
-		}
+		if (_closedStatusClient != null) return;
 
 		_closedStatusClient = new ClosedStatusClient<T>(_baseImpl.itemCallbackClient(), this, tunnelStreamRequest,
 				text);
@@ -370,7 +399,7 @@ class TunnelItem<T> extends Item<T> {
 				_baseImpl.handleInvalidUsage(temp.toString());
 				
 				/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
-				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+				_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
 
 				scheduleItemClosedStatus(tunnelStreamRequest, temp.toString());
 
@@ -468,13 +497,13 @@ class TunnelItem<T> extends Item<T> {
 	boolean submit(TunnelStreamRequest tunnelStreamRequest)
 	{
 		_domainType = tunnelStreamRequest.domainType();
-		_streamId = _baseImpl._itemCallbackClient.nextStreamId(0);
-		_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), this);
+		_streamId = getNextStreamId(0);
+		_baseImpl._itemCallbackClient.addToMap(_baseImpl.nextLongId(), this);
 
 		_baseImpl.rsslErrorInfo().clear();
 
 		TunnelStreamOpenOptions tsOpenOptions = ReactorFactory.createTunnelStreamOpenOptions();
-		;
+		
 		tsOpenOptions.clear();
 
 		tsOpenOptions.domainType(_domainType);
@@ -783,42 +812,36 @@ class TunnelItem<T> extends Item<T> {
 		return false;
 	}
 
+	@Override
+	int getNextStreamId(int numOfItem) {
+		return _baseImpl._itemCallbackClient.nextStreamId(numOfItem);
+	}
 }
 
 class SubItem<T> extends Item<T>
 {
 
 	private static final String CLIENT_NAME = "SubItem";
-	ClosedStatusClient<T> _closedStatusClient;
 	Directory _directory;
+	protected OmmBaseImpl<T>	_baseImpl;
 
 	SubItem()
 	{
 	}
 
-	SubItem(OmmBaseImpl<T> baseImpl, T consumerClient, Object closure, Item<T> parent)
+	SubItem(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> parent)
 	{
-		super((OmmBaseImpl<T>) baseImpl, consumerClient, closure, parent);
+		super(client, closure, parent);
+		_baseImpl = baseImpl;
 		_directory = null;
-		_closedStatusClient = null;
 	}
 
-	@Override
-	void reset(OmmBaseImpl<T> baseImpl, T consumerClient, Object closure, Item<T> parent)
+	
+	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> parent)
 	{
-		super.reset((OmmBaseImpl<T>) baseImpl, consumerClient, closure, parent);
+		super.reset(client, closure, parent);
+		_baseImpl = baseImpl;
 		_directory = null;
-		_closedStatusClient = null;
-	}
-
-	void scheduleItemClosedStatus(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText,
-			String serviceName)
-	{
-		if (_closedStatusClient != null)
-			return;
-
-		_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
-		_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
 	}
 
 	@Override
@@ -830,7 +853,7 @@ class SubItem<T> extends Item<T>
 			temp.append("Invalid attempt to open sub stream using serviceName.");
 			
 			/* Assign a valid handle to this request.  This will be valid until the closed status event is given to the user */
-			_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+			_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
 
 			scheduleItemClosedStatus(_baseImpl.itemCallbackClient(), this, ((ReqMsgImpl) reqMsg).rsslMsg(),
 					temp.toString(), reqMsg.serviceName());
@@ -951,6 +974,19 @@ class SubItem<T> extends Item<T>
 		statusMsg.streamId(_streamId);
 		return ((TunnelItem<T>) (_parent)).submitSubItemMsg((Msg) statusMsg);
 	}
+	
+	void scheduleItemClosedStatus(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
+	{
+		if (_closedStatusClient != null) return;
+    	
+		_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
+		_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
+	}
+	
+	@Override
+	int getNextStreamId(int numOfItem) {
+		return _baseImpl._itemCallbackClient.nextStreamId(numOfItem);
+	}
 
 }
 
@@ -958,13 +994,12 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 TunnelStreamStatusEventCallback
 {
 	private static final String CLIENT_NAME = "ItemCallbackClient";
-	//APIQA
 	private static final int  CONSUMER_STARTING_STREAM_ID = 2147483641;
-	//END APIQA
+	private static final int  PROVIDER_STARTING_STREAM_ID = 0;
 	private static final int CONSUMER_MAX_STREAM_ID_MINUSONE = Integer.MAX_VALUE -1;
 	
 	private HashMap<LongObject, Item<T>>	_itemMap;
-	private HashMap<IntObject, Item<T>>	_streamIdMap;
+	private HashMap<IntObject, Item<T>> _streamIdMap;
 	private LongObject _longObjHolder;
 	private IntObject _intObjHolder;
 	protected LoginMsg _rsslRDMLoginMsg;
@@ -976,15 +1011,39 @@ TunnelStreamStatusEventCallback
 	{
 		super(baseImpl, CLIENT_NAME);
 		
-		_itemMap = new HashMap<>(_baseImpl.activeConfig().itemCountHint == 0 ? 1024 : _baseImpl.activeConfig().itemCountHint);
-		_streamIdMap = new HashMap<>(_baseImpl.activeConfig().itemCountHint == 0 ? 1024 : _baseImpl.activeConfig().itemCountHint);
+		_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
 
-		_updateMsg = new UpdateMsgImpl(_baseImpl._objManager);
+		_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
 		
 		_longObjHolder = new LongObject();
 		_intObjHolder = new IntObject();
 		
-		_nextStreamId = CONSUMER_STARTING_STREAM_ID;
+		if ( baseImpl.implType() == OmmCommonImpl.ImplementationType.CONSUMER )
+		{
+			_nextStreamId = CONSUMER_STARTING_STREAM_ID;
+		}
+		else
+		{
+			_nextStreamId = PROVIDER_STARTING_STREAM_ID;
+		}
+		
+		_nextStreamIdWrapAround = false;
+	}
+	
+	ItemCallbackClient(OmmServerBaseImpl baseImpl)
+	{
+		super(baseImpl, CLIENT_NAME);
+		
+		_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+
+		_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
+		
+		_longObjHolder = new LongObject();
+		_intObjHolder = new IntObject();
+		
+		_nextStreamId = PROVIDER_STARTING_STREAM_ID;
 		_nextStreamIdWrapAround = false;
 	}
 
@@ -1062,7 +1121,7 @@ TunnelStreamStatusEventCallback
 		rsslStatusMsg.msgKey().serviceId(tunnelStreamStatusEvent.tunnelStream().serviceId());
 
 		if (_statusMsg == null)
-			_statusMsg = new StatusMsgImpl(_baseImpl._objManager);
+			_statusMsg = new StatusMsgImpl(_baseImpl.objManager());
 
 		_statusMsg.decode(rsslStatusMsg, tunnelStreamStatusEvent.reactorChannel().majorVersion(),
 				tunnelStreamStatusEvent.reactorChannel().minorVersion(), channelInfo.rsslDictionary());
@@ -1298,7 +1357,7 @@ TunnelStreamStatusEventCallback
 	int processTunnelStreamAckMsg(Msg rsslMsg, ChannelInfo channelInfo)
 	{
 		if (_ackMsg == null)
-			_ackMsg = new AckMsgImpl(_baseImpl._objManager);
+			_ackMsg = new AckMsgImpl(_baseImpl.objManager());
 
 		_ackMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 
@@ -1311,7 +1370,7 @@ TunnelStreamStatusEventCallback
 	int processTunnelStreamGenericMsg(Msg rsslMsg, ChannelInfo channelInfo)
 	{
 		if (_genericMsg == null)
-			_genericMsg = new GenericMsgImpl(_baseImpl._objManager);
+			_genericMsg = new GenericMsgImpl(_baseImpl.objManager());
 
 		_genericMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 
@@ -1324,7 +1383,7 @@ TunnelStreamStatusEventCallback
 	int processTunnelStreamStatusMsg(Msg rsslMsg, ChannelInfo channelInfo)
 	{
 		if (_statusMsg == null)
-			_statusMsg = new StatusMsgImpl(_baseImpl._objManager);
+			_statusMsg = new StatusMsgImpl(_baseImpl.objManager());
 
 		_statusMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 
@@ -1404,46 +1463,134 @@ TunnelStreamStatusEventCallback
         _eventImpl._item = (Item<T>)(event.streamInfo() != null ? event.streamInfo().userSpecObject() : null);
         if (_eventImpl._item == null && msg.streamId() != 1)
         {
-        	if (_baseImpl.loggerClient().isErrorEnabled())
+        	if ( _baseImpl.implType() != OmmCommonImpl.ImplementationType.CONSUMER )
         	{
-	        	StringBuilder temp = _baseImpl.strBuilder();
-	        	temp.append("Received an item event without user specified pointer or stream info")
-	        		.append(OmmLoggerClient.CR)
-	        		.append("Instance Name ").append(_baseImpl.instanceName())
-	        		.append(OmmLoggerClient.CR)
-	        		.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
-	        		.append(OmmLoggerClient.CR);
-	        	if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
-        			temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
-        			.append(OmmLoggerClient.CR)
-        			.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
-	        	else
-	        		temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
-	        	
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
-        	}
+        		_eventImpl._item = _streamIdMap.get(_intObjHolder.value(msg.streamId()));
+        		
+        		if ( _eventImpl._item == null )
+        		{
+        			if (_baseImpl.loggerClient().isErrorEnabled())
+            		{
+            			StringBuilder temp = _baseImpl.strBuilder();
+            			temp.append("Received an item event without a matching stream Id  ")
+            				.append(msg.streamId())
+    	        			.append(OmmLoggerClient.CR)
+    	        			.append("Instance Name ").append(_baseImpl.instanceName())
+    	        			.append(OmmLoggerClient.CR)
+    	        			.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+    	        			.append(OmmLoggerClient.CR);
+            			if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
+            				temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+            				.append(OmmLoggerClient.CR)
+            				.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+            			else
+            				temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
+    	        	
+            			_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+            		}
+        			
+        			return ReactorCallbackReturnCodes.SUCCESS;
+        		}
+        		
+        		ProviderItem	providerItem = ((ProviderItem)_eventImpl._item);
+        		
+        		providerItem.cancelReqTimerEvent();
+        		
+        		int streamId = msg.streamId();
 
-        	return ReactorCallbackReturnCodes.SUCCESS;
+        		msg = ItemWatchList.processRsslMsg(msg, providerItem);
+        		
+        		if ( msg == null )
+        		{
+        			if (_baseImpl.loggerClient().isErrorEnabled())
+            		{
+            			StringBuilder temp = _baseImpl.strBuilder();
+            			temp.append("Received response is mismatch with the initlal request for stream Id  ")
+            				.append(streamId)
+                			.append(OmmLoggerClient.CR)
+                			.append("Instance Name ").append(_baseImpl.instanceName())
+                			.append(OmmLoggerClient.CR)
+                			.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+                			.append(OmmLoggerClient.CR);
+            			if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
+            				temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+            				.append(OmmLoggerClient.CR)
+            				.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+            			else
+            				temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
+                	
+            			_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+            		}
+        			
+        			return ReactorCallbackReturnCodes.SUCCESS;
+        		}
+        	}
+        	else
+        	{
+        		if (_baseImpl.loggerClient().isErrorEnabled())
+        		{
+        			StringBuilder temp = _baseImpl.strBuilder();
+        			temp.append("Received an item event without user specified pointer or stream info")
+	        			.append(OmmLoggerClient.CR)
+	        			.append("Instance Name ").append(_baseImpl.instanceName())
+	        			.append(OmmLoggerClient.CR)
+	        			.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+	        			.append(OmmLoggerClient.CR);
+        			if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
+        				temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+        				.append(OmmLoggerClient.CR)
+        				.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+        			else
+        				temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
+	        	
+        			_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+        		}
+
+        		return ReactorCallbackReturnCodes.SUCCESS;
+        	}
         }
 
     	switch (msg.msgClass())
     	{
 	    	case MsgClasses.ACK :
-	    		if (msg.streamId() == 1)
-	    			return _baseImpl.loginCallbackClient().processAckMsg(msg, channelInfo);
+	    		if( _baseImpl.implType() == OmmCommonImpl.ImplementationType.CONSUMER )
+	    		{
+	    			if (msg.streamId() == 1)
+	    				return ((OmmBaseImpl<T>)_baseImpl).loginCallbackClient().processAckMsg(msg, channelInfo);
+	    			else
+	    				return processAckMsg(msg, channelInfo);
+	    		}
 	    		else
-	    			return _baseImpl.itemCallbackClient().processAckMsg(msg, channelInfo);
+	    		{
+	    			StringBuilder temp = _baseImpl.strBuilder();
+		        	temp.append("Received an item event with the ACK message class for provider")
+		        		.append(OmmLoggerClient.CR)
+		        		.append("Instance Name ").append(_baseImpl.instanceName())
+		        		.append(OmmLoggerClient.CR)
+		        		.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+		        		.append(OmmLoggerClient.CR);
+		        	if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
+	        			temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+	        			.append(OmmLoggerClient.CR)
+	        			.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+		        	else
+		        		temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
+		        	
+		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	    			
+	    			return ReactorCallbackReturnCodes.SUCCESS;
+	    		}
 	    	case MsgClasses.GENERIC :
 	    		if (msg.streamId() == 1)
-	    			return _baseImpl.loginCallbackClient().processGenericMsg(msg, channelInfo);
+	    			return ((OmmBaseImpl<T>)_baseImpl).loginCallbackClient().processGenericMsg(msg, channelInfo);
 	    		else
-	    			return _baseImpl.itemCallbackClient().processGenericMsg(msg, channelInfo);
+	    			return processGenericMsg(msg, channelInfo);
 	    	case MsgClasses.REFRESH :
-	    		return _baseImpl.itemCallbackClient().processRefreshMsg(msg, channelInfo);
+	    		return processRefreshMsg(msg, channelInfo.rsslReactorChannel(), channelInfo.rsslDictionary());
 	    	case MsgClasses.STATUS :
-	    		return _baseImpl.itemCallbackClient().processStatusMsg(msg, channelInfo);
+	    		return processStatusMsg(msg, channelInfo.rsslReactorChannel(), channelInfo.rsslDictionary());
 	    	case MsgClasses.UPDATE :
-	    		return _baseImpl.itemCallbackClient().processUpdateMsg(msg, channelInfo);
+	    		return processUpdateMsg(msg, channelInfo.rsslReactorChannel(), channelInfo.rsslDictionary());
 	    	default :
 	    		if (_baseImpl.loggerClient().isErrorEnabled())
 	        	{
@@ -1468,10 +1615,108 @@ TunnelStreamStatusEventCallback
         
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
-
-	int processRefreshMsg(Msg rsslMsg, ChannelInfo channelInfo)
+	
+	public int processIProviderMsgCallback(ReactorMsgEvent event, DataDictionary dataDictionary)
 	{
-		_refreshMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
+		Msg msg = event.msg();
+		ClientSession clientSession = (ClientSession)event.reactorChannel().userSpecObj();
+        
+		_eventImpl._item = _streamIdMap.get(_intObjHolder.value(msg.streamId()));
+		_eventImpl._clientHandle = clientSession.clientHandle();
+		_eventImpl._ommProvider = ((OmmServerBaseImpl)_baseImpl).provider();
+		
+		if ( _eventImpl._item == null )
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+    		{
+    			StringBuilder temp = _baseImpl.strBuilder();
+    			temp.append("Received an item event without a matching stream Id  ")
+    				.append(msg.streamId())
+        			.append(OmmLoggerClient.CR)
+        			.append("Instance Name ").append(_baseImpl.instanceName())
+        			.append(OmmLoggerClient.CR)
+        			.append("RsslReactor ").append(Integer.toHexString(clientSession.channel().reactor().hashCode()))
+        			.append(OmmLoggerClient.CR);
+    			if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
+    				temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+    				.append(OmmLoggerClient.CR)
+    				.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+    			else
+    				temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
+        	
+    			_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+    		}
+			
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+		
+		ProviderItem	providerItem = ((ProviderItem)_eventImpl._item);
+		
+		providerItem.cancelReqTimerEvent();
+		
+		int streamId = msg.streamId();
+		
+		msg = ItemWatchList.processRsslMsg(msg, providerItem);
+		
+		if ( msg == null )
+		{
+			if (_baseImpl.loggerClient().isErrorEnabled())
+    		{
+    			StringBuilder temp = _baseImpl.strBuilder();
+    			temp.append("Received response is mismatch with the initlal request for stream Id  ")
+    				.append(streamId)
+        			.append(OmmLoggerClient.CR)
+        			.append("Instance Name ").append(_baseImpl.instanceName())
+        			.append(OmmLoggerClient.CR)
+        			.append("RsslReactor ").append(Integer.toHexString(clientSession.channel().reactor().hashCode()))
+        			.append(OmmLoggerClient.CR);
+    			if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
+    				temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+    				.append(OmmLoggerClient.CR)
+    				.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+    			else
+    				temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
+        	
+    			_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+    		}
+			
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+
+    	switch (msg.msgClass())
+    	{
+	    	case MsgClasses.REFRESH :	
+	    		return processRefreshMsg(msg, clientSession.channel(), dataDictionary);
+	    	case MsgClasses.STATUS :
+	    		return processStatusMsg(msg, clientSession.channel(), dataDictionary);
+	    	default :
+	    		if (_baseImpl.loggerClient().isErrorEnabled())
+	        	{
+		        	StringBuilder temp = _baseImpl.strBuilder();
+		        	temp.append("Received an item event with message containing unhandled message class")
+		        		.append(OmmLoggerClient.CR)
+		        		.append("Instance Name ").append(_baseImpl.instanceName())
+		        		.append(OmmLoggerClient.CR)
+		        		.append("RsslReactor ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+		        		.append(OmmLoggerClient.CR);
+			        	if (event.reactorChannel() != null && event.reactorChannel().selectableChannel() != null)
+		        			temp.append("RsslReactorChannel ").append(Integer.toHexString(event.reactorChannel().hashCode()))
+		        			.append(OmmLoggerClient.CR)
+		        			.append("RsslSelectableChannel ").append(Integer.toHexString(event.reactorChannel().selectableChannel().hashCode()));
+			        	else
+			        		temp.append("RsslReactorChannel is null").append(OmmLoggerClient.CR);
+		        	
+			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	}
+	    		break;
+    	}
+        
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+	
+	int processRefreshMsg(Msg rsslMsg, ReactorChannel reactorChannel, DataDictionary dataDictionary)
+	{
+		_refreshMsg.decode(rsslMsg, reactorChannel.majorVersion(), reactorChannel.minorVersion(), dataDictionary);
 	
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
 		{
@@ -1483,7 +1728,7 @@ TunnelStreamStatusEventCallback
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Received an item event with invalid message stream").append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
-							.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+							.append("RsslReactor ").append(Integer.toHexString(reactorChannel.hashCode()))
 							.append(OmmLoggerClient.CR);
 
 					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
@@ -1513,9 +1758,9 @@ TunnelStreamStatusEventCallback
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
-	int processUpdateMsg(Msg rsslMsg,  ChannelInfo channelInfo)
+	int processUpdateMsg(Msg rsslMsg,  ReactorChannel reactorChannel, DataDictionary dataDictionary)
 	{
-		_updateMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
+		_updateMsg.decode(rsslMsg, reactorChannel.majorVersion(), reactorChannel.minorVersion(), dataDictionary);
 		
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
 		{
@@ -1527,7 +1772,7 @@ TunnelStreamStatusEventCallback
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Received an item event with invalid message stream").append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
-							.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+							.append("RsslReactor ").append(Integer.toHexString(reactorChannel.hashCode()))
 							.append(OmmLoggerClient.CR);
 
 					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
@@ -1546,12 +1791,12 @@ TunnelStreamStatusEventCallback
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
-	int processStatusMsg(Msg rsslMsg,  ChannelInfo channelInfo)
+	int processStatusMsg(Msg rsslMsg,  ReactorChannel reactorChannel, DataDictionary dataDictionary)
 	{
 		if (_statusMsg == null)
-			_statusMsg = new StatusMsgImpl(_baseImpl._objManager);
+			_statusMsg = new StatusMsgImpl(_baseImpl.objManager());
 		
-		_statusMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
+		_statusMsg.decode(rsslMsg, reactorChannel.majorVersion(), reactorChannel.minorVersion(), dataDictionary);
 		
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
 		{
@@ -1563,7 +1808,7 @@ TunnelStreamStatusEventCallback
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Received an item event with invalid message stream").append(OmmLoggerClient.CR)
 							.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
-							.append("RsslReactor ").append(Integer.toHexString(channelInfo.rsslReactor().hashCode()))
+							.append("RsslReactor ").append(Integer.toHexString(reactorChannel.hashCode()))
 							.append(OmmLoggerClient.CR);
 
 					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
@@ -1589,7 +1834,7 @@ TunnelStreamStatusEventCallback
 	int processGenericMsg(Msg rsslMsg,  ChannelInfo channelInfo)
 	{
 		if (_genericMsg == null)
-			_genericMsg = new GenericMsgImpl(_baseImpl._objManager);
+			_genericMsg = new GenericMsgImpl(_baseImpl.objManager());
 
 		_genericMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 		
@@ -1623,7 +1868,7 @@ TunnelStreamStatusEventCallback
 	int processAckMsg(Msg rsslMsg,  ChannelInfo channelInfo)
 	{
 		if (_ackMsg == null)
-			_ackMsg = new AckMsgImpl(_baseImpl._objManager);
+			_ackMsg = new AckMsgImpl(_baseImpl.objManager());
 		
 		_ackMsg.decode(rsslMsg, channelInfo._majorVersion, channelInfo._minorVersion, channelInfo._rsslDictionary);
 
@@ -1667,9 +1912,9 @@ TunnelStreamStatusEventCallback
 			{
 				case DomainTypes.LOGIN :
 				{
-					SingleItem<T> item = _baseImpl.loginCallbackClient().loginItem(reqMsg, client, closure);
+					SingleItem<T> item = ((OmmBaseImpl<T>)_baseImpl).loginCallbackClient().loginItem(reqMsg, client, closure);
 					/* Assign an available handle to the request */
-					return addToItemMap(LongIdGenerator.nextLongId(), item);
+					return addToItemMap(_baseImpl.nextLongId(), item);
 				}
 				case DomainTypes.DICTIONARY :
 				{
@@ -1709,14 +1954,38 @@ TunnelStreamStatusEventCallback
 						return 0;
 					}
 
-					DictionaryItem<T> item;
-					if ((item = (DictionaryItem<T>)_baseImpl._objManager._dictionaryItemPool.poll()) == null)
+					Item<T> item = null;
+					
+					if ( _baseImpl.implType() == OmmCommonImpl.ImplementationType.CONSUMER )
 					{
-						item = new DictionaryItem<T>(_baseImpl, client, closure);
-						_baseImpl._objManager._dictionaryItemPool.updatePool(item);
+						if ((item = (DictionaryItem<T>)_baseImpl.objManager()._dictionaryItemPool.poll()) == null)
+						{
+							item = new DictionaryItem<T>((OmmBaseImpl<T>)_baseImpl, client, closure);
+							_baseImpl.objManager()._dictionaryItemPool.updatePool(item);
+						}
+						else
+							((DictionaryItem<T>)item).reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
+					}
+					else if ( _baseImpl.implType() == OmmCommonImpl.ImplementationType.NIPROVIDER )
+					{
+						if ((item = (NiProviderDictionaryItem<T>)_baseImpl.objManager()._niproviderDictionaryItemPool.poll()) == null)
+						{
+							item = new NiProviderDictionaryItem<T>((OmmBaseImpl<T>)_baseImpl, client, closure);
+							_baseImpl.objManager()._niproviderDictionaryItemPool.updatePool(item);
+						}
+						else
+							((NiProviderDictionaryItem<T>)item).reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
 					}
 					else
-						item.reset(_baseImpl, client, closure, null);
+					{
+						if ((item = (Item<T>)_baseImpl.objManager()._iproviderDictionaryItemPool.poll()) == null)
+						{
+							item = (Item<T>)(new IProviderDictionaryItem((OmmServerBaseImpl)_baseImpl, (OmmProviderClient)client, closure));
+							_baseImpl.objManager()._iproviderDictionaryItemPool.updatePool(item);
+						}
+						else
+							((IProviderDictionaryItem)item).reset((OmmServerBaseImpl)_baseImpl, (OmmProviderClient)client, closure, null);
+					}
 					
 					if (!item.open(reqMsg))
 					{
@@ -1728,45 +1997,60 @@ TunnelStreamStatusEventCallback
 				}
 				case DomainTypes.SOURCE :
 				{
-					List<ChannelInfo> channels = _baseImpl.channelCallbackClient().channelList();
-					for(ChannelInfo eachChannel : channels)
+					OmmBaseImpl<T> ommBaseImpl = ((OmmBaseImpl<T>)_baseImpl);
+					
+					ChannelInfo channel = ommBaseImpl.loginCallbackClient().activeChannelInfo();
+					if (channel == null)
 					{
-						DirectoryItem<T> item;
-						if ((item = (DirectoryItem<T>)_baseImpl._objManager._directoryItemPool.poll()) == null)
-						{
-							item = new DirectoryItem<T>(_baseImpl, client, closure);
-							_baseImpl._objManager._directoryItemPool.updatePool(item);
-						}
-						else
-							item.reset(_baseImpl, client, closure, null);
-						item.channelInfo(eachChannel);
-						
-						if (!item.open(reqMsg))
-						{
-							removeFromMap(item);
-							return 0;
-						}
-						else
-							return item.itemId();
-					}
+						StringBuilder temp = _baseImpl.strBuilder();
 	
-					return 0;
+						temp.append("Failed to send a directory request due to no active channel")
+						.append(". Instance name='").append(_baseImpl.instanceName()).append("' in registerClient().");;
+	
+						if (_baseImpl.loggerClient().isErrorEnabled())
+						{
+							_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
+									temp.toString(), Severity.ERROR));
+						}
+	
+						_baseImpl.handleInvalidUsage(temp.toString());						
+						return 0;
+					}
+						
+					DirectoryItem<T> item;
+					if ((item = (DirectoryItem<T>)_baseImpl.objManager()._directoryItemPool.poll()) == null)
+					{
+						item = new DirectoryItem<T>(ommBaseImpl, client, closure);
+						_baseImpl.objManager()._directoryItemPool.updatePool(item);
+					}
+					else
+						item.reset(ommBaseImpl, client, closure, null);
+					
+					item.channelInfo(channel);
+					
+					if (!item.open(reqMsg))
+					{
+						removeFromMap(item);
+						return 0;
+					}
+					else
+						return item.itemId();
 				}
 				default :
 				{
 					if (requestMsg.checkHasBatch())
 					{
 						BatchItem<T> batchItem;
-						if ((batchItem = (BatchItem<T>)_baseImpl._objManager._batchItemPool.poll()) == null)
+						if ((batchItem = (BatchItem<T>)_baseImpl.objManager()._batchItemPool.poll()) == null)
 						{
-							batchItem = new BatchItem<T>(_baseImpl, client, closure);
-							_baseImpl._objManager._batchItemPool.updatePool(batchItem);
+							batchItem = new BatchItem<T>((OmmBaseImpl<T>)_baseImpl, client, closure);
+							_baseImpl.objManager()._batchItemPool.updatePool(batchItem);
 						}
 						else
-							batchItem.reset(_baseImpl, client, closure, null);
+							batchItem.reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
 						
 						/* Start splitting the batch request into individual item request if _nextStreamIdWrapAround is true. */
-						if (_baseImpl._itemCallbackClient.nextStreamIdWrapAround(((ReqMsgImpl)reqMsg).batchItemList().size()))
+						if (((OmmBaseImpl<T>)_baseImpl)._itemCallbackClient.nextStreamIdWrapAround(((ReqMsgImpl)reqMsg).batchItemList().size()))
 						{
 							List<String> itemList = ((ReqMsgImpl)reqMsg).batchItemList();
 							SingleItem<T> item;
@@ -1776,13 +2060,13 @@ TunnelStreamStatusEventCallback
 							requestMsg.msgKey().applyHasName();
 							for (String itemName : itemList)
 							{
-								if ((item = (SingleItem<T>)_baseImpl._objManager._singleItemPool.poll()) == null)
+								if ((item = (SingleItem<T>)_baseImpl.objManager()._singleItemPool.poll()) == null)
 								{
-									item = new SingleItem<T>(_baseImpl, client, closure, null);
-									_baseImpl._objManager._singleItemPool.updatePool(item);
+									item = new SingleItem<T>((OmmBaseImpl<T>)_baseImpl, client, closure, null);
+									_baseImpl.objManager()._singleItemPool.updatePool(item);
 								}
 								else
-									item.reset(_baseImpl, client, closure, null);
+									item.reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
 								
 								requestMsg.msgKey().name().data(itemName);
 
@@ -1799,7 +2083,7 @@ TunnelStreamStatusEventCallback
 							int keyFlags = requestMsg.msgKey().flags();
 							keyFlags &= ~MsgKeyFlags.HAS_NAME;
 							requestMsg.msgKey().flags(keyFlags);
-							batchItem.scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
+							batchItem.scheduleItemClosedStatus(((OmmBaseImpl<T>)_baseImpl).itemCallbackClient(),
 									batchItem, requestMsg, "Stream closed for batch", reqMsg.serviceName());
 							
 							return batchItem.itemId();
@@ -1829,15 +2113,15 @@ TunnelStreamStatusEventCallback
 					}
 					else
 					{
-						SingleItem<T> item;
-						if ((item = (SingleItem<T>)_baseImpl._objManager._singleItemPool.poll()) == null)
+						SingleItem<T> item = null;
+						if ((item = (SingleItem<T>)_baseImpl.objManager()._singleItemPool.poll()) == null)
 						{
-							item = new SingleItem<T>(_baseImpl, client, closure, null);
-							_baseImpl._objManager._singleItemPool.updatePool(item);
+							item = new SingleItem<T>((OmmBaseImpl<T>)_baseImpl, client, closure, null);
+							_baseImpl.objManager()._singleItemPool.updatePool(item);
 						}
 						else
-							item.reset(_baseImpl, client, closure, null);
-						
+							((SingleItem<T>)item).reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
+					
 						if (!item.open(reqMsg))
 						{
 							removeFromMap(item);
@@ -1886,12 +2170,12 @@ TunnelStreamStatusEventCallback
 			}
 
 			SubItem<T> subItem;
-			if ((subItem = (SubItem<T>) _baseImpl._objManager._subItemPool.poll()) == null)
+			if ((subItem = (SubItem<T>)_baseImpl.objManager()._subItemPool.poll()) == null)
 			{
-				subItem = new SubItem<T>(_baseImpl, (T) client, closure, parent);
-				_baseImpl._objManager._subItemPool.updatePool(subItem);
+				subItem = new SubItem<T>((OmmBaseImpl<T>)_baseImpl, client, closure, parent);
+				_baseImpl.objManager()._subItemPool.updatePool(subItem);
 			} else
-				subItem.reset(_baseImpl, (T) client, closure, parent);
+				subItem.reset((OmmBaseImpl<T>)_baseImpl, client, closure, parent);
 
 			if (!subItem.open(reqMsg))
 			{
@@ -1914,13 +2198,13 @@ TunnelStreamStatusEventCallback
 	long registerClient(TunnelStreamRequest tunnelStreamReq, T client, Object closure)
 	{
 		TunnelItem<T> item;
-		if ((item = (TunnelItem<T>) _baseImpl._objManager._tunnelItemPool.poll()) == null)
+		if ((item = (TunnelItem<T>) _baseImpl.objManager()._tunnelItemPool.poll()) == null)
 		{
-			item = new TunnelItem<T>(_baseImpl, client, closure, null);
-			_baseImpl._objManager._tunnelItemPool.updatePool(item);
+			item = new TunnelItem<T>((OmmBaseImpl<T>)_baseImpl, client, closure, null);
+			_baseImpl.objManager()._tunnelItemPool.updatePool(item);
 		} 
 		else
-			item.reset(_baseImpl, client, closure, null);
+			item.reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
 
 		if (!item.open(tunnelStreamReq))
 		{
@@ -1933,7 +2217,7 @@ TunnelStreamStatusEventCallback
 	void reissue(com.thomsonreuters.ema.access.ReqMsg reqMsg, long handle)
 	{
 		Item<T> item = _itemMap.get(_longObjHolder.value(handle));
-		if (item == null)
+		if (item == null || item._closedStatusClient != null)
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append("Attempt to use invalid Handle on reissue(). ").append("Instance name='")
@@ -2065,11 +2349,11 @@ TunnelStreamStatusEventCallback
 
 	long addToMap(long itemId, Item<T> item)
 	{
-		LongObject itemIdObj = _baseImpl._objManager.createLongObject().value(itemId);
-		IntObject streamIdObj = _baseImpl._objManager.createIntObject().value(item._streamId);
+		LongObject itemIdObj = _baseImpl.objManager().createLongObject().value(itemId);
+		IntObject streamIdObj = _baseImpl.objManager().createIntObject().value(item._streamId);
 		item.itemId(itemIdObj, streamIdObj);
 		_itemMap.put(itemIdObj, item);
-		_streamIdMap.put(streamIdObj, null);
+		_streamIdMap.put(streamIdObj, item);
 		
 		if (_baseImpl.loggerClient().isTraceEnabled())
 		{
@@ -2085,7 +2369,7 @@ TunnelStreamStatusEventCallback
 	
 	long addToItemMap(long itemId, Item<T> item)
 	{
-		LongObject itemIdObj = _baseImpl._objManager.createLongObject().value(itemId);
+		LongObject itemIdObj = _baseImpl.objManager().createLongObject().value(itemId);
 		item.itemId(itemIdObj, null);
 		_itemMap.put(itemIdObj, item);
 		
@@ -2144,7 +2428,15 @@ TunnelStreamStatusEventCallback
 	{
 		if (_nextStreamId > CONSUMER_MAX_STREAM_ID_MINUSONE - numOfItem)
 		{
-			_nextStreamId = CONSUMER_STARTING_STREAM_ID;
+			if ( _baseImpl.implType() == OmmCommonImpl.ImplementationType.CONSUMER )
+			{
+				_nextStreamId = CONSUMER_STARTING_STREAM_ID;
+			}
+			else
+			{
+				_nextStreamId = PROVIDER_STARTING_STREAM_ID;
+			}
+			
 			_nextStreamIdWrapAround = true;
 			
 			if (_streamIdAccessLock == null)
@@ -2169,7 +2461,7 @@ TunnelStreamStatusEventCallback
 		else
 		{
 			_streamIdAccessLock.lock();
-			while (_baseImpl.itemCallbackClient().isStreamIdInUse(++_nextStreamId));
+			while (isStreamIdInUse(++_nextStreamId));
 			_streamIdAccessLock.unlock();
 			
 			if ( _nextStreamId < 0 )
@@ -2179,10 +2471,7 @@ TunnelStreamStatusEventCallback
 				if (_baseImpl.loggerClient().isErrorEnabled())
 					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.ERROR));
 				
-				if (_baseImpl.hasErrorClient())
-					_baseImpl.notifyErrorClient(_baseImpl.ommIUExcept().message(tempErr.toString()));
-				else
-					throw _baseImpl.ommIUExcept().message(tempErr.toString());
+				_baseImpl.handleInvalidUsage(tempErr.toString());
 			}
 				
 			return _nextStreamId;
@@ -2242,6 +2531,14 @@ class ItemCallbackClientProvider extends ItemCallbackClient<OmmProviderClient>
 {
 	ItemCallbackClientProvider(OmmBaseImpl<OmmProviderClient> baseImpl) {
 		super(baseImpl);
+		
+		_eventImpl._ommProvider = (OmmProvider)baseImpl;
+	}
+	
+	ItemCallbackClientProvider(OmmServerBaseImpl baseImpl) {
+		super(baseImpl);
+		
+		_eventImpl._ommProvider = (OmmProvider)baseImpl;
 	}
 	
 	@Override
@@ -2275,8 +2572,14 @@ abstract class Item<T> extends VaNode
 	{
 		final static int SINGLE_ITEM = 0;
 		final static int BATCH_ITEM  = 1;
+		final static int LOGIN_ITEM = 2;
+		final static int DICTIONARY_ITEM = 3;
+		final static int DIRECTORY_ITEM = 4;
 		final static int TUNNEL_ITEM = 5;
 		final static int SUB_ITEM	 = 6;
+		final static int NIPROVIDER_DICTIONARY_ITEM = 7;
+		final static int IPROVIDER_SINGLE_ITEM = 8;
+		final static int IPROVIDER_DICTIONARY_ITEM = 9;
 	}
 	
 	int						_domainType;
@@ -2284,20 +2587,19 @@ abstract class Item<T> extends VaNode
 	Object					_closure;
 	Item<T>					_parent;
 	T						_client;
-	OmmBaseImpl<T>			_baseImpl;
 	long 					_itemId;
 	LongObject _itemIdObj;
 	IntObject _streamIdObj;
+	ClosedStatusClient<T>	_closedStatusClient;
 
 	Item() {}
 
-	Item(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> parent)
+	Item(T client, Object closure, Item<T> parent)
 	{
 		_domainType = 0;
 		_streamId = 0;
 		_closure = closure;
 		_parent = parent;
-		_baseImpl = baseImpl;
 		_client = client;
 	}
 
@@ -2314,11 +2616,6 @@ abstract class Item<T> extends VaNode
 	Item<T> parent()
 	{
 		return _parent;
-	}
-	
-	OmmBaseImpl<T> source()
-	{
-		return _baseImpl;
 	}
 	
 	void itemId(LongObject itemIdObj, IntObject streamIdObj)
@@ -2351,14 +2648,14 @@ abstract class Item<T> extends VaNode
 		return _streamIdObj;
 	}
 	
-	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure, Item<T> parent)
+	void reset(T client, Object closure, Item<T> parent)
 	{
 		_domainType = 0;
 		_streamId = 0;
 		_closure = closure;
 		_parent = parent;
-		_baseImpl = baseImpl;
 		_client = client;
+		_closedStatusClient = null;
 	}
 	
 	int streamId()
@@ -2368,15 +2665,32 @@ abstract class Item<T> extends VaNode
 	
 	abstract boolean open(com.thomsonreuters.ema.access.ReqMsg reqMsg);
 	abstract boolean modify(com.thomsonreuters.ema.access.ReqMsg reqMsg);
-	abstract boolean submit(com.thomsonreuters.ema.access.RefreshMsg refreshMsg);
-	abstract boolean submit(com.thomsonreuters.ema.access.UpdateMsg updateMsg);
-	abstract boolean submit(com.thomsonreuters.ema.access.StatusMsg statusMsg);
-	abstract boolean submit(com.thomsonreuters.ema.access.PostMsg postMsg);
-	abstract boolean submit(com.thomsonreuters.ema.access.GenericMsg genericMsg);
+	boolean submit(com.thomsonreuters.ema.access.RefreshMsg refreshMsg)
+	{
+		return false;
+	}
+	boolean submit(com.thomsonreuters.ema.access.UpdateMsg updateMsg)
+	{
+		return false;
+	}
+	boolean submit(com.thomsonreuters.ema.access.StatusMsg statusMsg)
+	{
+		return false;
+	}
+	boolean submit(com.thomsonreuters.ema.access.PostMsg postMsg)
+	{
+		return false;
+	}
+	boolean submit(com.thomsonreuters.ema.access.GenericMsg genericMsg)
+	{
+		return false;
+	}
+	
 	abstract boolean close();
 	abstract void remove();
 	abstract int type();
 	abstract Directory directory();
+	abstract int getNextStreamId(int numOfItem);
 }
 
 class SingleItem<T> extends Item<T>
@@ -2384,20 +2698,20 @@ class SingleItem<T> extends Item<T>
 	private static final String 	CLIENT_NAME = "SingleItem";
 	
 	protected Directory	_directory;
-	protected ClosedStatusClient<T>		_closedStatusClient;
-	
+	protected OmmBaseImpl<T>			_baseImpl;
 
 	SingleItem() {}
 	
 	SingleItem(OmmBaseImpl<T> baseImpl,T client, Object closure , Item<T> batchItem)
 	{
-		super(baseImpl, client, closure, batchItem);
+		super(client, closure, batchItem);
+		_baseImpl = baseImpl;
 	}
 	
-	@Override
 	void reset(OmmBaseImpl<T> baseImpl, T client, Object closure , Item<T> batchItem)
 	{
-		super.reset(baseImpl, client, closure, batchItem);
+		super.reset(client, closure, batchItem);
+		_baseImpl = baseImpl;
 		
 		_directory = null;
 	}
@@ -2412,7 +2726,6 @@ class SingleItem<T> extends Item<T>
 	int type()
 	{
 		return ItemType.SINGLE_ITEM;
-	
 	}
 
 	@Override
@@ -2432,7 +2745,7 @@ class SingleItem<T> extends Item<T>
 	        		.append("' is not found.");
 	        	
 	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
-				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+				_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
 
 	        	scheduleItemClosedStatus(_baseImpl.itemCallbackClient(),
 											this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
@@ -2462,7 +2775,7 @@ class SingleItem<T> extends Item<T>
 				StringBuilder temp = _baseImpl.strBuilder();
 				
 	        	temp.append("Service id of '")
-	        		.append(reqMsg.serviceName())
+	        		.append(reqMsg.serviceId())
 	        		.append("' is not found.");
 	        	
 	        	/* Assign a handle to this request.  This will be valid until the closed status event is given to the user */
@@ -2579,9 +2892,9 @@ class SingleItem<T> extends Item<T>
 				List<SingleItem<T>> items = ((BatchItem<T>)this).singleItemList();
 				int numOfItem = items.size();
 
-				rsslRequestMsg.streamId(_baseImpl._itemCallbackClient.nextStreamId(numOfItem));
+				rsslRequestMsg.streamId(getNextStreamId(numOfItem));
 				_streamId = rsslRequestMsg.streamId();
-				_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), this);
+				_baseImpl._itemCallbackClient.addToMap(_baseImpl.nextLongId(), this);
 				
 				SingleItem<T> item;
 				int itemStreamIdStart = _streamId;
@@ -2591,12 +2904,12 @@ class SingleItem<T> extends Item<T>
 					item._directory = _directory;
 					item._streamId = ++itemStreamIdStart;
 					item._domainType = domainType;
-					_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), item);
+					_baseImpl._itemCallbackClient.addToMap(_baseImpl.nextLongId(), item);
 				}
 			}
 			else
 			{
-				rsslRequestMsg.streamId(_baseImpl._itemCallbackClient.nextStreamId(0));
+				rsslRequestMsg.streamId(getNextStreamId(0));
 				_streamId = rsslRequestMsg.streamId();
 				/* Here need to add the item to hashmap FIRST because the response for this item driven by dispatch thread could comes back before open() returns.
 				 * If it is the case, the response of closed state could call remove() without removing anything from the hashmap. It will leads to mem growth finally.
@@ -2616,58 +2929,36 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
-			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RequestMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to open or modify item request. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-				_baseImpl.handleInvalidUsage(temp.toString());
-				return false;
-		    }
-	
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RequestMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to open or modify item request. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+			_baseImpl.handleInvalidUsage(temp.toString());
+			return false;
+	    }
+
+		return true;
 	}
 
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg)
@@ -2691,61 +2982,40 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			
+			if (_baseImpl.loggerClient().isErrorEnabled())
+	    	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				if (_baseImpl.loggerClient().isErrorEnabled())
-		    	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: ReactorChannel.submit() failed in SingleItem.submit(CloseMsg)")
-		        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-		    	}
+	        	temp.append("Internal error: ReactorChannel.submit() failed in SingleItem.submit(CloseMsg)")
+	        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+	    	}
+			
+			temp.append("Failed to close item request. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
 				
-				temp.append("Failed to close item request. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
+
+			_baseImpl.handleInvalidUsage(temp.toString());
 	
-				_baseImpl.handleInvalidUsage(temp.toString());
-		
-				return false;
-		    }
-		
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
-			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			return false;
+	    }
+	
+		return true;
 	}
 
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.PostMsg rsslPostMsg)
@@ -2761,60 +3031,39 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(PostMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit PostMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(PostMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to submit PostMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.GenericMsg rsslGenericMsg)
@@ -2831,60 +3080,39 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslGenericMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(GenericMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslGenericMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit GenericMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(GenericMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to submit GenericMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg)
@@ -2900,60 +3128,39 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRefreshMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RefreshMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRefreshMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit RefreshMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(RefreshMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to submit RefreshMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.UpdateMsg rsslUpateMsg)
@@ -2970,60 +3177,38 @@ class SingleItem<T> extends Item<T>
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
 		
-		try
-		{
-			_baseImpl.userLock().unlock();
-			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpateMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(UpdateMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpateMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit UpdateMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			StringBuilder tempErr = _baseImpl.strBuilder();
-			tempErr.append("Failed to submit message, received exception: '")
-				     .append(excp.getMessage())
-				     .append( "'. ");
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(UpdateMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
 			
-		   if (_baseImpl.loggerClient().isErrorEnabled())
-	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-			   
-		   _baseImpl.handleInvalidUsage(tempErr.toString());
-		   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
+			temp.append("Failed to submit UpdateMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 	
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg)
@@ -3039,69 +3224,39 @@ class SingleItem<T> extends Item<T>
 		rsslErrorInfo.clear();
 		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
 		int ret;
-		try
-		{
-			_baseImpl.userLock().unlock();
 			
-			if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslStatusMsg, rsslSubmitOptions, rsslErrorInfo)))
-		    {
-				StringBuilder temp = _baseImpl.strBuilder();
-				if (_baseImpl.loggerClient().isErrorEnabled())
-	        	{
-					com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
-					
-		        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(StatusMsg)")
-		        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
-		    			.append(OmmLoggerClient.CR)
-		    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
-		    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
-		    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
-		    			.append("Error Text ").append(error.text());
-		        	
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
-		        	
-		        	temp.setLength(0);
-	        	}
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslStatusMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				
-				temp.append("Failed to submit StatusMsg on item stream. Reason: ")
-					.append(ReactorReturnCodes.toString(ret))
-					.append(". Error text: ")
-					.append(rsslErrorInfo.error().text());
-					
-	
-				_baseImpl.handleInvalidUsage(temp.toString());
-	
-				return false;
-		    }
-	        
-			return true;
-		}
-		catch(IllegalMonitorStateException excp)
-		{
-			   if (_baseImpl.loggerClient().isErrorEnabled())
-        	   {
-        		   StringBuilder tempErr = _baseImpl.strBuilder();
-					tempErr.append("Failed to submit message, received exception: '")
-        				     .append(excp.getMessage())
-        				     .append( "'. ");
-		        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, tempErr.toString(), Severity.ERROR));
-        	   }
-			   return false;
-		}
-		finally
-		{
-			_baseImpl.userLock().lock();
-		}
-	}
-		
-	ClosedStatusClient<T> closedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
-	{
-		if (_closedStatusClient == null)
-			_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
-		else
-			_closedStatusClient.reset(client, item, rsslMsg, statusText, serviceName);
-		
-		return _closedStatusClient;
+	        	temp.append("Internal error: rsslChannel.submit() failed in SingleItem.submit(StatusMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(SingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
+			
+			temp.append("Failed to submit StatusMsg on item stream. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+	    }
+        
+		return true;
 	}
 	
 	void scheduleItemClosedStatus(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
@@ -3109,7 +3264,461 @@ class SingleItem<T> extends Item<T>
 		if (_closedStatusClient != null) return;
     	
 		_closedStatusClient = new ClosedStatusClient<T>(client, item, rsslMsg, statusText, serviceName);
-    	_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
+		_baseImpl.addTimeoutEvent(1000, _closedStatusClient);
+	}
+		
+	@Override
+	int getNextStreamId(int numOfItem) {
+		return _baseImpl._itemCallbackClient.nextStreamId(numOfItem);
+	}
+}
+
+interface ProviderItem
+{
+	void scheduleItemClosedRecoverableStatus(String statusText, boolean initiateTimeout);
+	
+	MsgKey rsslMsgKey();
+	
+	ClientSession clientSession();
+	
+	void sendCloseMsg();
+	
+	int serviceId();
+	
+	TimeoutEvent reqTimeoutEvent();
+	
+	boolean processInitialResp(com.thomsonreuters.upa.codec.RefreshMsg refreshMsg);
+	
+	ItemWatchList itemWatchList();
+	
+	void cancelReqTimerEvent();
+	
+	boolean requestWithService();
+}
+
+abstract class IProviderSingleItem extends Item<OmmProviderClient> implements ProviderItem
+{
+	private static final String 	CLIENT_NAME = "IProviderSingleItem";
+	
+	protected Directory									_directory;
+	protected OmmServerBaseImpl						    _baseImpl;
+	protected MsgKey									_rsslMsgKey = CodecFactory.createMsgKey();
+	protected ItemWatchList 							_itemWatchList;
+	protected ClientSession								_clientSession;
+	protected int										_serviceId;
+	protected boolean									_isPrivateStream;
+	protected boolean                                   _specifiedServiceInReq = false;
+	private TimeoutEvent								_reqTimeoutEvent;
+
+	IProviderSingleItem() {}
+	
+	IProviderSingleItem(OmmServerBaseImpl baseImpl,OmmProviderClient client, Object closure , Item<OmmProviderClient> batchItem)
+	{
+		super(client, closure, batchItem);
+		_baseImpl = baseImpl;
+		_itemWatchList = ((OmmIProviderImpl)baseImpl).itemWatchList();
+	}
+	
+	void reset(OmmServerBaseImpl baseImpl, OmmProviderClient client, Object closure , Item<OmmProviderClient> batchItem)
+	{
+		super.reset(client, closure, batchItem);
+		_baseImpl = baseImpl;
+		_itemWatchList = ((OmmIProviderImpl)baseImpl).itemWatchList();
+	}
+	
+	@Override
+	public ClientSession clientSession()
+	{
+		return _clientSession;
+	}
+	
+	void clientSession(ClientSession clientSession)
+	{
+		_clientSession = clientSession;
+	}
+	
+	@Override
+	Directory directory()
+	{
+		return _directory;
+	}
+	
+	@Override
+	int type()
+	{
+		return ItemType.IPROVIDER_SINGLE_ITEM;
+	}
+
+	@Override
+	boolean open(com.thomsonreuters.ema.access.ReqMsg reqMsg)
+	{
+		ReqMsgImpl reqMsgImpl = ((ReqMsgImpl)reqMsg);
+		
+		String serviceName = null;
+		
+		if ( reqMsgImpl.hasServiceName() )
+		{
+			ServiceIdInteger serviceId = ((OmmIProviderImpl)_baseImpl).directoryServiceStore().serviceId(reqMsgImpl.serviceName());
+			
+			if ( serviceId == null )
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+	        	temp.append("Service name of '")
+	        		.append(reqMsg.serviceName())
+	        		.append("' is not found.");
+	     
+				_baseImpl._itemCallbackClient.addToItemMap(_baseImpl.nextLongId(), this);
+
+	        	scheduleItemClosedStatus(_baseImpl.<OmmProviderClient>itemCallbackClient(),
+											this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
+											temp.toString(), reqMsg.serviceName());
+	        	
+	        	return true;
+			}
+			else
+			{
+				_serviceId = serviceId.value();
+				reqMsgImpl.rsslMsg().msgKey().applyHasServiceId();
+				reqMsgImpl.rsslMsg().msgKey().serviceId(_serviceId);
+				serviceName = reqMsgImpl.serviceName();
+				_specifiedServiceInReq = true;
+			}
+		}
+		else if ( reqMsgImpl.hasServiceId() )
+		{
+			serviceName = ((OmmIProviderImpl)_baseImpl).directoryServiceStore().serviceName(reqMsgImpl.serviceId());
+			
+			if ( serviceName == null )
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				
+	        	temp.append("Service id of '")
+	        		.append(reqMsg.serviceId())
+	        		.append("' is not found.");
+	        	
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+	        	
+	        	scheduleItemClosedStatus(_baseImpl.<OmmProviderClient>itemCallbackClient(),
+						this, ((ReqMsgImpl)reqMsg).rsslMsg(), 
+						temp.toString(), null);
+	        	
+	        	return true;
+			}
+			
+			_serviceId = reqMsgImpl.serviceId();
+			_specifiedServiceInReq = true;
+		}
+		
+		_isPrivateStream = reqMsgImpl.privateStream();
+		
+		_directory = new Directory(serviceName);
+		
+		reqMsgImpl.rsslMsg().msgKey().copy(_rsslMsgKey);	
+		_itemWatchList.addItem(this);
+		
+		return rsslSubmit(reqMsgImpl.rsslMsg());
+	}
+	
+	private void scheduleItemClosedStatus(ItemCallbackClient<OmmProviderClient> client,
+			IProviderSingleItem item, RequestMsg rsslMsg, String statusText, String serviceName) {
+		
+		if (_closedStatusClient != null) return;
+    	
+		_closedStatusClient = new ClosedStatusClient<OmmProviderClient>(client, item, rsslMsg, statusText, serviceName);
+    	_baseImpl.addTimeoutEvent(100, _closedStatusClient);
+	}
+
+	@Override
+	boolean modify(com.thomsonreuters.ema.access.ReqMsg reqMsg)
+	{
+		ReqMsgImpl reqMsgImpl = (ReqMsgImpl)reqMsg;
+		
+		if ( reqMsgImpl.hasServiceName() )
+		{
+			if ( _specifiedServiceInReq && ( _directory != null ) && reqMsgImpl.serviceName().equals(_directory.serviceName()) )
+			{
+				reqMsgImpl.rsslMsg().msgKey().applyHasServiceId();
+				reqMsgImpl.rsslMsg().msgKey().serviceId(_serviceId);
+			}
+			else
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Service name of '")
+        		.append(reqMsg.serviceName())
+        		.append("' does not match existing request.").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
+
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(IProviderSingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				return false;
+			}
+		}
+		else if ( reqMsgImpl.hasServiceId() )
+		{
+			if ( !_specifiedServiceInReq || ( reqMsgImpl.serviceId() != _serviceId ) )
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Service id of '")
+        		.append(reqMsg.serviceId())
+        		.append("' does not match existing request.").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
+				
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(IProviderSingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				return false;
+			}
+		}
+		else
+		{
+			if ( _specifiedServiceInReq )
+			{
+				reqMsgImpl.rsslMsg().msgKey().applyHasServiceId();
+				reqMsgImpl.rsslMsg().msgKey().serviceId(_serviceId);
+			}
+		}
+		
+		if ( reqMsgImpl.hasName() )
+		{
+			if ( reqMsgImpl.name().equals(_rsslMsgKey.name().toString()) == false )
+			{
+				StringBuilder temp = _baseImpl.strBuilder();
+				temp.append("Name of '")
+        		.append(reqMsgImpl.name())
+        		.append("' does not match existing request.").append("Instance name='")
+				.append(_baseImpl.instanceName()).append("'.");
+				
+				if (_baseImpl.loggerClient().isErrorEnabled())
+					_baseImpl.loggerClient()
+							.error(_baseImpl.formatLogMessage(IProviderSingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+				_baseImpl.handleInvalidUsage(temp.toString());
+				
+				return false;
+			}
+		}
+		else
+		{
+			reqMsgImpl.name(_rsslMsgKey.name().toString());
+			reqMsgImpl.nameType(_rsslMsgKey.nameType());
+		}
+		
+		return rsslSubmit(((ReqMsgImpl) reqMsg).rsslMsg());
+	}
+	
+	@Override
+	boolean close()
+	{
+		CloseMsg rsslCloseMsg = _baseImpl.itemCallbackClient().rsslCloseMsg();
+		rsslCloseMsg.containerType(DataTypes.NO_DATA);
+		rsslCloseMsg.domainType(_domainType);
+
+		boolean retCode = rsslSubmit(rsslCloseMsg);
+
+		remove();
+		return retCode;
+	}
+	
+	@Override
+	void remove()
+	{
+		cancelReqTimerEvent();
+		
+		_baseImpl.<OmmProviderClient>itemCallbackClient().removeFromMap( (Item<OmmProviderClient>)this );
+		
+		_itemWatchList.removeItem(this);
+	}
+
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.RequestMsg rsslRequestMsg)
+	{
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.serviceName(null);
+		
+		int domainType =  rsslRequestMsg.domainType();
+		
+		if (_streamId == 0)
+		{
+			rsslRequestMsg.streamId(getNextStreamId(0));
+			_streamId = rsslRequestMsg.streamId();
+			_baseImpl.<OmmProviderClient>itemCallbackClient().addToMap(_baseImpl.nextLongId(), (Item<OmmProviderClient>) this);
+		}
+		else
+			rsslRequestMsg.streamId(_streamId);
+
+		if (_domainType == 0)
+			_domainType = domainType;
+		else
+			rsslRequestMsg.domainType(_domainType);
+		
+	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
+		rsslErrorInfo.clear();
+		
+		if ( _clientSession == null )
+		{
+			_clientSession = _baseImpl.serverChannelHandler().clientSessionForDictReq();
+		}
+		
+		int ret;
+		if (ReactorReturnCodes.SUCCESS > (ret = _clientSession.channel().submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			if (_baseImpl.loggerClient().isErrorEnabled())
+        	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+				
+	        	temp.append("Internal error: rsslChannel.submit() failed in IProviderSingleItem.submit(RequestMsg)")
+	        		.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(IProviderSingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+        	}
+			
+			temp.append("Failed to open or modify item request. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+			_baseImpl.handleInvalidUsage(temp.toString());
+			return false;
+	    }
+		
+		int requestTimeout = ((OmmIProviderImpl)_baseImpl).requestTimeout();
+		
+		if ( requestTimeout > 0 )
+		{
+			cancelReqTimerEvent();
+			_reqTimeoutEvent = _baseImpl.addTimeoutEvent(requestTimeout * 1000, new ItemTimeOut( this ) );
+		}
+		
+		return true;
+	}
+	
+	public TimeoutEvent reqTimeoutEvent()
+	{
+		return _reqTimeoutEvent;
+	}
+	
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.CloseMsg rsslCloseMsg)
+	{	
+		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
+		rsslSubmitOptions.clear();
+	
+		rsslCloseMsg.streamId(_streamId);
+	
+		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
+		rsslErrorInfo.clear();
+		ReactorChannel rsslChannel = _clientSession.channel();
+		int ret;
+			
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
+	    {
+			StringBuilder temp = _baseImpl.strBuilder();
+			
+			if (_baseImpl.loggerClient().isErrorEnabled())
+	    	{
+				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
+				
+	        	temp.append("Internal error: ReactorChannel.submit() failed in IProviderSingleItem.submit(CloseMsg)")
+	        	.append("RsslChannel ").append(Integer.toHexString(error.channel() != null ? error.channel().hashCode() : 0)) 
+	    			.append(OmmLoggerClient.CR)
+	    			.append("Error Id ").append(error.errorId()).append(OmmLoggerClient.CR)
+	    			.append("Internal sysError ").append(error.sysError()).append(OmmLoggerClient.CR)
+	    			.append("Error Location ").append(rsslErrorInfo.location()).append(OmmLoggerClient.CR)
+	    			.append("Error Text ").append(error.text());
+	        	
+	        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(IProviderSingleItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+	        	
+	        	temp.setLength(0);
+	    	}
+			
+			temp.append("Failed to close item request. Reason: ")
+				.append(ReactorReturnCodes.toString(ret))
+				.append(". Error text: ")
+				.append(rsslErrorInfo.error().text());
+				
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+	
+			return false;
+	    }
+	
+		return true;
+	}
+
+	@Override
+	int getNextStreamId(int numOfItem) {
+		return -_baseImpl.itemCallbackClient().nextStreamId(numOfItem);
+	}
+
+	@Override
+	public void scheduleItemClosedRecoverableStatus(String statusText, boolean initiateTimeout) {
+
+		if (_closedStatusClient != null) return;
+		
+		cancelReqTimerEvent();
+    	
+		_closedStatusClient = new ClosedStatusClient<OmmProviderClient>(_baseImpl.<OmmProviderClient>itemCallbackClient(), this, _rsslMsgKey, _isPrivateStream, statusText, _directory.serviceName());
+		
+		if ( initiateTimeout )
+			_baseImpl.addTimeoutEvent(100, _closedStatusClient);
+		else
+			_closedStatusClient.handleTimeoutEvent();
+	}
+
+	@Override
+	public MsgKey rsslMsgKey() {
+		return _rsslMsgKey;
+	}
+
+	@Override
+	public void sendCloseMsg() {
+		CloseMsg rsslCloseMsg = _baseImpl.itemCallbackClient().rsslCloseMsg();
+		rsslCloseMsg.containerType(DataTypes.NO_DATA);
+		rsslCloseMsg.domainType(_domainType);
+
+		rsslSubmit(rsslCloseMsg);
+	}
+
+	@Override
+	public int serviceId() {
+		return _serviceId;
+	}
+	
+	@Override
+	public ItemWatchList itemWatchList()
+	{
+		return _itemWatchList;
+	}
+	
+	@Override
+	public void cancelReqTimerEvent()
+	{
+		if ( _reqTimeoutEvent != null )
+		{
+			if ( _reqTimeoutEvent.cancelled() == false )
+			{
+				_reqTimeoutEvent.cancel();
+			}
+		}
+	}
+	
+	@Override
+	public boolean requestWithService()
+	{
+		return _specifiedServiceInReq;
 	}
 }
 
@@ -3240,7 +3849,7 @@ class BatchItem<T> extends SingleItem<T>
 		SingleItem<T> item;
 		for( int i = 0 ; i < numOfItem ; i++ )
 		{
-            if ((item = (SingleItem<T>)_baseImpl._objManager._singleItemPool.poll()) == null)
+			if ((item = (SingleItem<T>)_baseImpl._objManager._singleItemPool.poll()) == null)
 			{
 				item = new SingleItem<T>(_baseImpl, _client, _closure, this);
 				_baseImpl._objManager._singleItemPool.updatePool(item);
@@ -3286,42 +3895,9 @@ class ClosedStatusClient<T> implements TimeoutClient
 	private Item<T> 		_item;
 	private boolean 	_isPrivateStream; 
 	private CallbackClient<T> _client;
+	private com.thomsonreuters.upa.codec.State		_rsslState = CodecFactory.createState();
 	
 	ClosedStatusClient(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
-	{
-		reset(client, item, rsslMsg, statusText, serviceName);
-	}
-	
-	ClosedStatusClient(CallbackClient<T> client, Item<T> item, TunnelStreamRequest tunnelStreamRequest, String text)
-	{
-		_client = client;
-		_item = item;
-		_statusText.data(text);
-		_domainType = tunnelStreamRequest.domainType();
-		
-		_rsslMsgKey.clear();
-		
-		
-		if(tunnelStreamRequest.hasName())
-		{
-			Buffer tunnelStreamNameBuf = CodecFactory.createBuffer();
-			tunnelStreamNameBuf.data(tunnelStreamRequest.name());
-			_rsslMsgKey.name(tunnelStreamNameBuf);
-		}
-		
-		if(tunnelStreamRequest.hasServiceId() == true)
-		{
-			_rsslMsgKey.serviceId(tunnelStreamRequest.serviceId());
-			_rsslMsgKey.applyHasServiceId();
-		}
-		
-		if(tunnelStreamRequest.hasServiceName())
-		{
-			_serviceName = tunnelStreamRequest.serviceName();
-		}
-	}
-	
-	void reset(CallbackClient<T> client, Item<T> item, Msg rsslMsg, String statusText, String serviceName)
 	{
 		_client = client;
 		_item = item;
@@ -3332,6 +3908,10 @@ class ClosedStatusClient<T> implements TimeoutClient
 		
 		if (rsslMsg.msgKey() != null)
 			rsslMsg.msgKey().copy(_rsslMsgKey);
+		
+		_rsslState.streamState(StreamStates.CLOSED);
+		_rsslState.dataState(DataStates.SUSPECT);
+		_rsslState.code(StateCodes.NONE);
 		
 		switch (rsslMsg.msgClass())
 	    {
@@ -3353,6 +3933,53 @@ class ClosedStatusClient<T> implements TimeoutClient
 	    }
 	}
 	
+	ClosedStatusClient(CallbackClient<T> client, Item<T> item, TunnelStreamRequest tunnelStreamRequest, String text)
+	{
+		_client = client;
+		_item = item;
+		_statusText.data(text);
+		_domainType = tunnelStreamRequest.domainType();
+		
+		_rsslMsgKey.clear();
+		
+		_rsslState.streamState(StreamStates.CLOSED);
+		_rsslState.dataState(DataStates.SUSPECT);
+		_rsslState.code(StateCodes.NONE);
+		
+		if(tunnelStreamRequest.hasName())
+		{
+			Buffer tunnelStreamNameBuf = CodecFactory.createBuffer();
+			tunnelStreamNameBuf.data(tunnelStreamRequest.name());
+			_rsslMsgKey.name(tunnelStreamNameBuf);
+		}
+		
+		if(tunnelStreamRequest.hasServiceId() == true)
+		{
+			_rsslMsgKey.serviceId(tunnelStreamRequest.serviceId());
+			_rsslMsgKey.applyHasServiceId();
+		}
+		
+		if(tunnelStreamRequest.hasServiceName())
+		{
+			_serviceName = tunnelStreamRequest.serviceName();
+		}
+	}
+	
+	ClosedStatusClient(CallbackClient<T> client, Item<T> item, MsgKey msgKey, boolean privateStream, String statusText, String serviceName)
+	{
+		_client = client;
+		_item = item;
+		_statusText.data(statusText);
+		_domainType = item._domainType;
+		_rsslMsgKey.clear();
+		_serviceName = serviceName;
+		_rsslMsgKey = msgKey;
+		
+		_rsslState.streamState(StreamStates.CLOSED_RECOVER);
+		_rsslState.dataState(DataStates.SUSPECT);
+		_rsslState.code(StateCodes.NONE);
+	}
+
 	@Override
 	public void handleTimeoutEvent()
 	{
@@ -3363,12 +3990,12 @@ class ClosedStatusClient<T> implements TimeoutClient
 		rsslStatusMsg.containerType(DataTypes.NO_DATA);
 	
 		rsslStatusMsg.applyHasState();
-		rsslStatusMsg.state().streamState(StreamStates.CLOSED);
+		rsslStatusMsg.state().streamState(_rsslState.streamState());
 		if (_item.type() !=  Item.ItemType.BATCH_ITEM)
-			rsslStatusMsg.state().dataState(DataStates.SUSPECT);
+			rsslStatusMsg.state().dataState(_rsslState.dataState());
 		else
 			rsslStatusMsg.state().dataState(DataStates.OK);
-		rsslStatusMsg.state().code(StateCodes.NONE);
+		rsslStatusMsg.state().code(_rsslState.code());
 		rsslStatusMsg.state().text(_statusText);
 		    
 		rsslStatusMsg.applyHasMsgKey();
@@ -3378,7 +4005,7 @@ class ClosedStatusClient<T> implements TimeoutClient
 			rsslStatusMsg.applyPrivateStream();
 
 		if (_client._statusMsg == null)
-			_client._statusMsg = new StatusMsgImpl(_client._baseImpl._objManager);
+			_client._statusMsg = new StatusMsgImpl(_client._baseImpl.objManager());
 		
 		_client._statusMsg.decode(rsslStatusMsg, Codec.majorVersion(), Codec.majorVersion(), null);
 
@@ -3392,3 +4019,185 @@ class ClosedStatusClient<T> implements TimeoutClient
 		_client._eventImpl._item.remove();
 	}
 }
+
+class ItemWatchList
+{
+	private List<ProviderItem>		_itemList;
+	private CallbackRsslMsgPool		_callBackRsslMsgPool;
+	private final static int		INITIAL_ITEM_WATCHLIST_SIZE = 10;
+	
+	ItemWatchList(CallbackRsslMsgPool callBackRsslMsgPool)
+	{
+		_itemList = new ArrayList<>(INITIAL_ITEM_WATCHLIST_SIZE);
+		_callBackRsslMsgPool = callBackRsslMsgPool;
+	}
+	
+	CallbackRsslMsgPool callBackRsslMsgPool()
+	{
+		return _callBackRsslMsgPool;
+	}
+	
+	void addItem(ProviderItem providerItem)
+	{
+		_itemList.add(providerItem);
+	}
+	
+	void removeItem(ProviderItem providerItem)
+	{
+		_itemList.remove(providerItem);
+	}
+	
+	void processChannelEvent(ReactorChannelEvent reactorChannelEvent)
+	{
+		switch ( reactorChannelEvent.eventType() )
+		{
+			case ReactorChannelEventTypes.CHANNEL_DOWN:
+			case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
+				notifyClosedRecoverableStatusMessage();
+		}
+	}
+	
+	void processCloseLogin(ClientSession clientSession)
+	{
+		for(int index = 0; index < _itemList.size(); index++ )
+		{
+			 ProviderItem providerItem = _itemList.get(index);
+			 
+			if ( providerItem.clientSession() == clientSession )
+			{
+				providerItem.scheduleItemClosedRecoverableStatus("channel is closed", true);
+			}
+		}
+	}
+	
+	void processServiceDelete(ClientSession clientSession, int serviceId)
+	{
+		for(int index = 0; index < _itemList.size(); index++ )
+		{
+			 ProviderItem providerItem = _itemList.get(index);
+			 
+			 if ( providerItem.requestWithService() )
+			 {
+				 if ( clientSession != null )
+				 {
+					 if ( providerItem.clientSession() == clientSession && providerItem.serviceId() == serviceId )
+					{
+						 providerItem.scheduleItemClosedRecoverableStatus("service is deleted", true);
+					}
+				 }
+				 else if ( providerItem.serviceId() == serviceId )
+				 {
+					 providerItem.scheduleItemClosedRecoverableStatus("service is deleted", true);
+				 }
+			 }
+		}
+	}
+	
+	static Msg processRsslMsg(Msg eventMsg, ProviderItem providerItem)
+	{	
+		switch(eventMsg.msgClass())
+		{
+			case MsgClasses.REFRESH:
+			{
+				RefreshMsg refreshMsg = (RefreshMsg)eventMsg;
+				
+				if ( providerItem.processInitialResp(refreshMsg) == false )
+				{
+					providerItem.scheduleItemClosedRecoverableStatus("received response is mismatch with the initlal request", true);
+					
+					return null;
+				}
+					
+				if ( (eventMsg.flags() & RefreshMsgFlags.HAS_MSG_KEY)  == 0)
+				{	
+	    			RefreshMsg modifyRefreshMsg = providerItem.itemWatchList().callBackRsslMsgPool().rsslRefreshMsg();
+	   
+	    			int ret = refreshMsg.copy( modifyRefreshMsg, CopyMsgFlags.ALL_FLAGS & ~( CopyMsgFlags.KEY | CopyMsgFlags.MSG_BUFFER ) );
+	    			
+	    			if ( ret == CodecReturnCodes.SUCCESS)
+	    			{
+	    				modifyRefreshMsg.applyHasMsgKey();
+	    				MsgKey msgKey = modifyRefreshMsg.msgKey();
+	    			
+	    				ret = providerItem.rsslMsgKey().copy(msgKey);
+	    				
+	    				if ( ret != CodecReturnCodes.SUCCESS)
+	    					return eventMsg;
+	    			}
+	    			else
+	    			{
+	    				return eventMsg;
+	    			}
+	    					
+	    			return modifyRefreshMsg;
+				}
+	
+				break;
+			}	
+			case MsgClasses.STATUS:
+			{	
+				if ( (eventMsg.flags() & StatusMsgFlags.HAS_MSG_KEY)  == 0)
+				{
+	    			StatusMsg statusMsg = (StatusMsg)eventMsg;
+	    			
+	    			StatusMsg modifyStatusMsg = providerItem.itemWatchList().callBackRsslMsgPool().rsslStatusMsg();
+	    			
+	    			int ret = statusMsg.copy(modifyStatusMsg, CopyMsgFlags.ALL_FLAGS & ~( CopyMsgFlags.KEY | CopyMsgFlags.MSG_BUFFER ) );
+	    	
+	    			if ( ret == CodecReturnCodes.SUCCESS)
+	    			{
+	    				modifyStatusMsg.applyHasMsgKey();
+	    				MsgKey msgKey = modifyStatusMsg.msgKey();
+	    		
+	    				ret = providerItem.rsslMsgKey().copy(msgKey);
+	    				
+	    				if ( ret != CodecReturnCodes.SUCCESS)
+	    					return eventMsg;
+	    			}
+	    			else
+	    			{
+	    				return eventMsg;
+	    			}
+	    			
+	    			return modifyStatusMsg;
+				}
+				
+				break;
+			}
+		}
+		
+		return eventMsg;
+	}
+	
+	private void notifyClosedRecoverableStatusMessage()
+	{
+		for(int index = 0; index < _itemList.size(); index++ )
+		{
+			_itemList.get(index).scheduleItemClosedRecoverableStatus("channel down", true);
+		}
+	}
+}
+
+class ItemTimeOut implements TimeoutClient
+{
+	private ProviderItem _providerItem;
+	
+	ItemTimeOut(ProviderItem providerItem)
+	{
+		_providerItem = providerItem;
+	}
+	
+	ProviderItem providerItem()
+	{
+		return _providerItem;
+	}
+	
+	@Override
+	public void handleTimeoutEvent() {
+		
+		_providerItem.sendCloseMsg();
+		_providerItem.scheduleItemClosedRecoverableStatus("request is timeout", false);
+	}
+}
+
+
