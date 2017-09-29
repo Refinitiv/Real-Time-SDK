@@ -23,7 +23,7 @@ namespace access {
 class OmmProviderErrorClient;
 class OmmProvider;
 
-class OmmNiProviderImpl : public OmmProviderImpl, public OmmBaseImpl
+class OmmNiProviderImpl : public OmmProviderImpl, public OmmBaseImpl, public DirectoryServiceStoreClient
 {
 public :
 
@@ -85,6 +85,22 @@ public :
 
 	bool getServiceName( UInt64 , EmaString& );
 
+	ImplementationType getImplType();
+
+	ItemWatchList& getItemWatchList();
+
+	void onServiceDelete(ClientSession* clientSession, RsslUInt serviceId);
+
+	UInt32 getRequestTimeout();
+
+	Int32 getNextProviderStreamId();
+
+	void returnProviderStreamId(Int32);
+
+	void setActiveRsslReactorChannel( Channel* activeChannel );
+
+	void unsetActiveRsslReactorChannel( Channel* cancelChannel);
+
 private :
 
 	void reLoadConfigSourceDirectory();
@@ -99,9 +115,7 @@ private :
 
 	bool isApiDispatching() const;
 
-	Int32 getNextProviderStreamId();
-
-	void returnProviderStreamId(Int32);
+	UInt64 generateHandle(UInt64);
 
 	OmmNiProviderImpl();
 	OmmNiProviderImpl( const OmmNiProviderImpl& );
@@ -123,9 +137,17 @@ private :
 	{
 	public :
 
-		StreamInfo( Int32 streamId = 0, UInt16 serviceId = 0, UInt8 domainType = 0) : _streamId( streamId ), _serviceId( serviceId ), _domainType(domainType) {}
+		enum StreamType
+		{
+			ConsumingEnum = 1,
+			ProvidingEnum = 2
+		};
 
-		StreamInfo( const StreamInfo& other ) : _streamId( other._streamId ), _serviceId( other._serviceId ), _domainType(other._domainType) {}
+		StreamInfo(StreamType streamType, Int32 streamId = 0, UInt16 serviceId = 0, UInt8 domainType = 0) :
+			_streamType(streamType), _streamId(streamId), _serviceId(serviceId), _domainType(domainType), _actualHandle(0) {}
+
+		StreamInfo(const StreamInfo& other) : _streamType(other._streamType), _streamId(other._streamId), _serviceId(other._serviceId),
+			_domainType(other._domainType), _actualHandle(other._actualHandle) {}
 
 		StreamInfo& operator=( const StreamInfo& other )
 		{
@@ -134,6 +156,8 @@ private :
 			_streamId = other._streamId;
 			_serviceId = other._serviceId;
 			_domainType = other._domainType;
+			_actualHandle = other._actualHandle;
+			_streamType = other._streamType;
 
 			return *this;
 		}
@@ -143,6 +167,8 @@ private :
 		Int32		_streamId;
 		UInt16		_serviceId;
 		UInt8		_domainType;
+		UInt64		_actualHandle;
+		StreamType	_streamType;
 	};
 
 	typedef const StreamInfo* StreamInfoPtr;
@@ -160,6 +186,8 @@ private :
 
 	Int32				    						_nextProviderStreamId;
 	EmaList<StreamId*>			 					_reusedProviderStreamIds;
+	Channel*										_activeChannel;
+	ItemWatchList									_itemWatchList;
 };
 
 }

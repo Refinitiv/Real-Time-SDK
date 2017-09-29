@@ -1,0 +1,60 @@
+# The hex data has been created with UPAC rsslTrwfMessageTest.
+# The closeMsgTest function is included after the hex data.
+# 
+# Msg:
+#   msgClass = CLOSE
+#   domain = MARKET_PRICE
+#   streamId = 2147483647
+#   reqFlags = EXTENDED_HEADER | ACK 
+#   dataFormat/containerType = NO_DATA
+#   ExtendedHeader = data="EXTENDED HEADER", length=15
+
+00 18 05 06 7F FF FF FF  03 00 0F 45 58 54 45 4E   ........ ...EXTEN
+44 45 44 20 48 45 41 44  45 52                     DED HEAD ER
+
+#void closeMsgTest(RsslUInt32 repeat)
+#{
+#	RsslCloseMsg closemsg = RSSL_INIT_CLOSE_MSG;
+#	RsslBuffer msgBuf = RSSL_INIT_BUFFER;
+#	RsslBuffer buffer = RSSL_INIT_BUFFER;
+#	RsslEncodeIterator encodeIter;
+#	int ret;
+#
+#	printf("closeMsg Tests:\n");
+#
+#	rsslClearEncodeIterator(&encodeIter);
+#
+#	closemsg.msgBase.msgClass = RSSL_MC_CLOSE;
+#	closemsg.msgBase.streamId = 2147483647; // MAX_INT (signed)
+#	closemsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+#	closemsg.msgBase.containerType = RSSL_DT_NO_DATA;
+#	closemsg.flags = RSSL_CLMF_HAS_EXTENDED_HEADER | RSSL_CLMF_ACK;
+#
+#	/* set extended header */
+#	closemsg.extendedHeader.data = "EXTENDED HEADER";
+#	closemsg.extendedHeader.length = 15;
+#
+#	/* encode message */
+#	msgBuf.data = (char*)malloc(1024*sizeof(char));
+#	msgBuf.length = 1024;
+#	
+#	if((ret = rsslSetEncodeIteratorBuffer(&encodeIter, &msgBuf)) < RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	if ((ret = rsslEncodeMsg(&encodeIter, (RsslMsg*) &closemsg)) != RSSL_RET_SUCCESS)
+#	{
+#		printf("rsslEncodeMsgInit() failed with return code: %d\n", ret);
+#		return;
+#	}
+#
+#	msgBuf.length = rsslGetEncodedBufferLength(&encodeIter);
+#
+#	buffer.data = encodeIter._pBuffer->data; buffer.length = rsslGetEncodedBufferLength(&encodeIter);
+#	printf("rsslDataTestEncodeElementList: Hex Dump: Buffer Length %d\n",buffer.length);
+#	displayHexData(buffer.length, buffer.data);
+#
+#	printf("\n");
+#}

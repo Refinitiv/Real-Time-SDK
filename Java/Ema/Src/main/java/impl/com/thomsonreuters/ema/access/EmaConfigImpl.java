@@ -82,7 +82,7 @@ abstract class  EmaConfigBaseImpl
 	abstract void configInt(Data config);
 	abstract String configuredName();
 	abstract int operationModel();
-	abstract void readConfiguration(); 
+	abstract void readConfiguration(String path);
 }
 
 abstract class EmaConfigImpl extends EmaConfigBaseImpl
@@ -104,19 +104,28 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
     	protected List<Integer> channelOrChannelSet = new ArrayList<Integer>();
     
     private static String 						_defaultAppName = "ema";
-	
+
 	EmaConfigImpl()
 	{
 		super();
 		
 		clearInt();
-		readConfiguration();
+
+		readConfiguration(null);
 	}
 	
-	void readConfiguration() 
+	EmaConfigImpl(String path)
+	{
+		super();
+
+		clearInt();
+		readConfiguration(path);
+	}
+
+	void readConfiguration(String path)
 	{
 		_xmlConfig = (XMLConfigReader) ConfigReader.createXMLConfigReader(this);
-		_xmlConfig.loadFile();
+		_xmlConfig.loadFile(path);
 	}
 	
 	protected void clearInt()
@@ -763,13 +772,19 @@ abstract class EmaConfigServerImpl extends EmaConfigBaseImpl
 	EmaConfigServerImpl()
 	{
 		super();
-		readConfiguration();
+		readConfiguration(null);
+	}
+
+	EmaConfigServerImpl(String path)
+	{
+		super();
+		readConfiguration(path);
 	}
 	
-	void readConfiguration() 
+	void readConfiguration(String path) 
 	{
 		_xmlConfig = (XMLConfigReader) ConfigReader.createXMLConfigReader(this);
-		_xmlConfig.loadFile();
+		_xmlConfig.loadFile(path);
 	}
 	
 	protected void addAdminMsgInt(RefreshMsg refreshMsg)

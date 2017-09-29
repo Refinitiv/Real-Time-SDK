@@ -1,0 +1,6 @@
+# file,location
+rsslConsumer.c,Applications/Examples/Consumer
+rsslLoginConsumer.c,Applications/Examples/Common
+rsslLoginConsumer.h,Applications/Examples/Common
+rsslLoginEncodeDecode.c,Applications/Examples/Common
+rsslLoginEncodeDecode.h,Applications/Examples/Common

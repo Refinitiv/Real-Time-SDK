@@ -200,7 +200,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	}
 
 	@Override
-	String instanceName() {
+	public String instanceName() {
 		return _activeConfig.instanceName;
 	}
 	
@@ -435,5 +435,15 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			_rsslTunnelStreamSubmitOptions = ReactorFactory.createTunnelStreamSubmitOptions();
 
 		return _rsslTunnelStreamSubmitOptions;
+	}
+
+	@Override
+	public int implType() {
+		return OmmCommonImpl.ImplementationType.CONSUMER;
+	}
+
+	@Override
+	public long nextLongId() {
+		return LongIdGenerator.nextLongId();
 	}
 }

@@ -27,6 +27,7 @@ class ClientSession extends VaNode
     private boolean _isLogin;
     private OmmServerBaseImpl _ommServerBaseImpl;
     private boolean _removingInCloseAll;
+    private boolean _isADHSession = false;
     protected int _majorVersion;
     protected int _minorVersion;
 
@@ -202,6 +203,16 @@ class ClientSession extends VaNode
     void isLogin(boolean isLogin)
     {
         _isLogin = isLogin;
+    }
+
+    boolean isADHSession()
+    {
+        return _isADHSession;
+    }
+    
+    void isADHSession(boolean isADHSession)
+    {
+    	_isADHSession = isADHSession;
     }
 
     boolean isLogin()

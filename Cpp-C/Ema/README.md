@@ -168,23 +168,15 @@ See the top level Elektron-SDK README.md for details.
 	  
 # Issues and Workarounds
 
-- EMA-9 (EMACPP-100): Generic Message is not currently supported on login stream.
-- EMA-42 logMsg has some extra characters in Error Location when configured for HTTP type connection on Linux. 
-- EMA-34 (EMACPP-354): Source directory reissue and genmsg on source directory is not currently supported.
-- EMA-43 (EMACPP-407): Consumer does not exit on reaching reconnectAttemplLimit
-- EMA-45 If CompressionType is set to "None", the CompressionThreshold range check still occurs
-- EMA-48 (EMACPP-422): Tunnel Streams: If the provider messages exceeds the recvWindowSize no message are received.
-- EMA-57 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA
-- EMA-77 EMA is using the incorrect attribute info when sending Generic Messages
-- EMA-90 EMA InitializationTimeout per channel may not work correctly
-- EMA-417: Shared windows solution file doesn't build ema if the libxml2 library in eta doesn't already exist. 
-- EMA-491 XmlTracePing, XmlTraceHex default to true when XmlTraceRead , XmlTracePing, XmlTraceHex and XmlTraceWrite set to invalid value. 
-- EMA-532 XMLTrace may not flush all information to trace file 
-- EMA-533 ChannelSet with two multicast channels userQLimit set incorrectly 
-- EMA-575 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
-- EMA-691 Random exit issue with NiProvider, application does not exit.
-- ETA-2682 CaseId: 05089450 Cannot build EMA from GitHub with Oracle Linux 6.
-
+- ESDK-380 If CompressionType is set to "None", the CompressionThreshold range check still occurs
+- ESDK-421 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA
+- ESDK-414 EMA is using the incorrect attribute info when sending Generic Messages
+- ESDK-455: Shared windows solution file doesn't build ema if the libxml2 library in eta doesn't already exist. 
+- ESDK-398 XMLTrace may not flush all information to trace file 
+- ESDK-385 ChannelSet with two multicast channels userQLimit set incorrectly 
+- ESDK-395 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
+- ESDK-374 Random exit issue with NiProvider, application does not exit.
+- ESDK-361 When overriding admin messages using addAdminMessage and if the service is down at start-up the the dictionary will not be downloaded properly.
  
 
 # Obtaining the Thomson Reuters Field Dictionaries

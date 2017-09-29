@@ -8,9 +8,15 @@
 #VI Editor temporary files
 *.swp
 
-ema/Libs/*
-eta/Libs/*
 *librssl*
+**/buildreports
+*.ser
+**/cobertura_instrumented
+**/bin
+**/Ema/Libs/ema*
+**/Eta/Libs
+**/refman
+
 
 ## Visual Studio
 
@@ -76,5 +82,3 @@ $RECYCLE.BIN/
 
 #Mr Developer
 .mr.developer.cfg
-
-/bin

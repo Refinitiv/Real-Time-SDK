@@ -46,6 +46,7 @@ private:
 	bool									refreshFirstRequired;
 	UInt32									maxFieldDictFragmentSize;
 	UInt32									maxEnumTypeFragmentSize;
+	UInt32									requestTimeOut;
 };
 
 }

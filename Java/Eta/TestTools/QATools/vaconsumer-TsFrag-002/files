@@ -1,0 +1,6 @@
+# file,location
+,Applications/Examples
+,Applications/Shared
+Consumer.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/consumer
+TunnelStreamHandler.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/consumer
+ConsumerCmdLineParser.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/consumer

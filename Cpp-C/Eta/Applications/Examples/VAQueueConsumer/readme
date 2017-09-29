@@ -24,7 +24,7 @@ is not intended to be used for measuring performance.
 Application Name:
 -----------------
 
-rsslVAQueueConsumer
+VAQueueConsumer
 
 ------------------
 Setup Environment:
@@ -36,7 +36,7 @@ This application does not depend on any external configuration or dictionary fil
 Command line usage:
 -------------------  
 
-rsslQueueConsumer -c [<hostname>:<port> -qServiceName <Queue Service> -qSourceName <Source Queue> -qDestName <Destination Queue> -tsAuth -tsDomain <domain>] [-uname <LoginUsername>] [-x] [-runtime <seconds>]
+VAQueueConsumer -c [<hostname>:<port> -qServiceName <Queue Service> -qSourceName <Source Queue> -qDestName <Destination Queue> -tsAuth -tsDomain <domain>] [-uname <LoginUsername>] [-x] [-runtime <seconds>]
 
 
 -c specifies creating a channel on the given host and port
@@ -62,7 +62,7 @@ Specifying the -runtime option controls the time the application will run
 before exiting, in seconds.
 
 
-- rsslVAQueueConsumer -? displays command line options.  
+- VAQueueConsumer -? displays command line options.  
 
 - Pressing the CTRL+C buttons terminates the program.  
 
@@ -91,6 +91,8 @@ set LINKTYPE=Shared.
 To compile, run the gmake command.
 
 Gmake can be obtained at http://www.gnu.org/software/make/
+For windows platform, using Visual Studio, open one of the included vcxproj project
+files and build.
 
 ----------------
 Example Content:

@@ -120,6 +120,8 @@ public :
 
 	ActiveConfig& getActiveConfig();
 
+	LoggerConfig& getActiveLoggerConfig();
+
 	ErrorClientHandler& getErrorClientHandler();
 
 	bool hasErrorClientHandler() const;
@@ -144,6 +146,10 @@ public :
 
 	virtual void processChannelEvent( RsslReactorChannelEvent* ) = 0;
 
+	virtual void setActiveRsslReactorChannel( Channel* activeChannel ) {};
+
+	virtual void unsetActiveRsslReactorChannel(Channel* cancelChannel) {};
+
 	void handleIue( const EmaString& );
 
 	void handleIue( const char* );
@@ -154,7 +160,9 @@ public :
 
 	void handleMee( const char* );
 
-	Mutex& getUserLock();
+	Mutex& getUserMutex();
+
+	bool isAtExit();
 
 protected:
 

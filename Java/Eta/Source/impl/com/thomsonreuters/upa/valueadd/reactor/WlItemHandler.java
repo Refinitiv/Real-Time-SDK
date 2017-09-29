@@ -1359,11 +1359,31 @@ class WlItemHandler implements WlHandler
                 {
                     // replace service id if message submitted with service name 
                     if (submitOptions.serviceName() != null &&
-                        ((GenericMsg)msg).checkHasMsgKey() &&
-                        ((GenericMsg)msg).msgKey().checkHasServiceId())
+                        ((GenericMsg)msg).checkHasMsgKey())
                     {
-                        int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
-                        ((GenericMsg)msg).msgKey().serviceId(serviceId);
+                    	if (!((GenericMsg)msg).msgKey().checkHasServiceId())
+                    	{
+                    		int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
+                    		if (serviceId < ReactorReturnCodes.SUCCESS)
+                    		{
+                    			return _watchlist.reactor().populateErrorInfo(errorInfo,
+                                    serviceId,
+                                    "WlItemHandler.submitMsg",
+                                    "Message submitted with unknown service name " + submitOptions.serviceName() + ".");                	
+                    		}
+                    		else
+                    		{
+                    			((GenericMsg)msg).msgKey().applyHasServiceId();
+                    			((GenericMsg)msg).msgKey().serviceId(serviceId);
+                    		}
+                    	}
+                    	else
+                    	{
+							return _watchlist.reactor().populateErrorInfo(errorInfo,
+									ReactorReturnCodes.INVALID_USAGE,
+									"WlItemHandler.submitMsg",
+									"Message submitted with both service name and service ID.");
+                    	}
                     }
                     
                     // replace stream id with aggregated stream id
@@ -1566,7 +1586,18 @@ class WlItemHandler implements WlHandler
             if (submitOptions.serviceName() != null && ((PostMsg)msg).msgKey().checkHasServiceId())
             {
                 int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
-                ((PostMsg)msg).msgKey().serviceId(serviceId);
+                if (serviceId < ReactorReturnCodes.SUCCESS)
+                {
+                    ret = _watchlist.reactor().populateErrorInfo(errorInfo,
+                            serviceId,
+                            "WlItemHandler.handlePost",
+                            "Message submitted with unknown service name " + submitOptions.serviceName() + ".");                	
+                }
+                else
+                {
+                	((PostMsg)msg).msgKey().applyHasServiceId();
+                	((PostMsg)msg).msgKey().serviceId(serviceId);
+                }
             }
             
             // send message
@@ -3795,9 +3826,11 @@ class WlItemHandler implements WlHandler
 		{		
 			case ViewTypes.FIELD_ID_LIST:
 				_wlViewHandler._viewFieldIdListPool.add(wlRequest._viewFieldIdList);
+				wlRequest._viewFieldIdList = null;
 				break;
 			case ViewTypes.ELEMENT_NAME_LIST:				
-				_wlViewHandler._viewElementNameListPool.add(wlRequest._viewElementNameList);				
+				_wlViewHandler._viewElementNameListPool.add(wlRequest._viewElementNameList);		
+				wlRequest._viewElementNameList = null;
 				break;
 		}
 		wlRequest.view().returnToPool();

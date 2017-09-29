@@ -10,15 +10,25 @@
 #include "OmmNiProviderConfigImpl.h"
 #include "ExceptionTranslator.h"
 
-#include <new>
-
 using namespace thomsonreuters::ema::access;
 
 OmmNiProviderConfig::OmmNiProviderConfig() :
 	_pImpl( 0 )
 {
 	try {
-		_pImpl = new OmmNiProviderConfigImpl();
+		_pImpl = new OmmNiProviderConfigImpl( EmaString() );
+	}
+	catch ( std::bad_alloc ) {}
+
+	if ( !_pImpl )
+		throwMeeException( "Failed to allocate memory for OmmNiProviderConfigImpl in OmmNiProviderConfig()" );
+}
+
+OmmNiProviderConfig::OmmNiProviderConfig( const EmaString & path ) :
+	_pImpl( 0 )
+{
+	try {
+		_pImpl = new OmmNiProviderConfigImpl( path );
 	}
 	catch ( std::bad_alloc ) {}
 

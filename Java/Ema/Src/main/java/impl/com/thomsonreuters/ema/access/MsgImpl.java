@@ -46,6 +46,7 @@ class MsgImpl extends DataImpl implements Msg
 	protected boolean _encodeComplete;
 	protected int  _errorCode = ErrorCode.NO_ERROR;
 	protected StringBuilder _errorString;
+	protected boolean _domainTypeSet;
 	private ByteBuffer _extendedHeader;
 	
 	MsgImpl(int dataType, EmaObjectManager objManager)
@@ -56,6 +57,7 @@ class MsgImpl extends DataImpl implements Msg
 			_rsslMsg = CodecFactory.createMsg(); 
 			_rsslMsg.msgClass(Utilities.toRsslMsgClass[_dataType - DataType.DataTypes.REQ_MSG]);
 			_rsslMsg.domainType(DomainTypes.MARKET_PRICE);
+			_domainTypeSet = false;
 			_rsslMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.NO_DATA);
 			
 			_encodeComplete = false;
@@ -427,7 +429,13 @@ class MsgImpl extends DataImpl implements Msg
 		if (domainType < 0 || domainType > 255)
 			throw ommUDTExcept().message(domainType,"Passed in domainType is out of range. [0 - 255]");
 		
+		_domainTypeSet = true;
 		_rsslMsg.domainType(domainType);
+	}
+	
+	boolean domainTypeSet()
+	{
+		return _domainTypeSet;
 	}
 
 	void msgName(String name)
@@ -825,6 +833,7 @@ class MsgImpl extends DataImpl implements Msg
 	{
 		_serviceNameSet = false;
 		_serviceName = null;
+		_domainTypeSet = false;
 		
 		if (_objManager == null)
 		{

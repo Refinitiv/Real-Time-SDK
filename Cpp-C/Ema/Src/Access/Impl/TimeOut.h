@@ -50,6 +50,8 @@ public:
 
 	void cancel();
 
+	bool isCanceled();
+
 private:
 
 	static TimeOutTimeType	frequency;

@@ -482,6 +482,7 @@ RsslRet tunnelManagerAcceptStream(TunnelManager *pManager, RsslTunnelStreamReque
 	tsOpts.defaultMsgCallback = pOptions->defaultMsgCallback;
 	tsOpts.domainType = pEvent->domainType;
 	tsOpts.streamId = pEvent->streamId;
+	tsOpts.serviceId = pEvent->serviceId;
 	tsOpts.name = pEvent->name;
 	tsOpts.statusEventCallback = pOptions->statusEventCallback;
 	tsOpts.userSpecPtr = pOptions->userSpecPtr;

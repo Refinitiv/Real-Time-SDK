@@ -243,12 +243,32 @@ class WlLoginHandler implements WlHandler
 					}
 
 					// replace service id if message submitted with service name
-					if (submitOptions.serviceName() != null
-							&& ((PostMsg) msg).msgKey().checkHasServiceId())
+					if (submitOptions.serviceName() != null && 
+						((PostMsg) msg).checkHasMsgKey())
 					{
-						int serviceId = _watchlist.directoryHandler()
-								.serviceId(submitOptions.serviceName());
-						((PostMsg) msg).msgKey().serviceId(serviceId);
+						if (!((PostMsg) msg).msgKey().checkHasServiceId())
+						{
+							int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
+	                        if (serviceId < ReactorReturnCodes.SUCCESS)
+	                        {
+	                            return _watchlist.reactor().populateErrorInfo(errorInfo,
+	                                    serviceId,
+	                                    "WlLoginHandler.submitMsg",
+	                                    "Message submitted with unknown service name " + submitOptions.serviceName() + ".");                	
+	                        }
+	                        else
+	                        {
+	                        	((PostMsg) msg).msgKey().applyHasServiceId();
+	                        	((PostMsg) msg).msgKey().serviceId(serviceId);
+	                        }
+						}
+						else
+						{
+							return _watchlist.reactor().populateErrorInfo(errorInfo,
+									ReactorReturnCodes.INVALID_USAGE,
+									"WlLoginHandler.submitMsg",
+									"Message submitted with both service name and service ID.");  						
+						}
 					}
 
 					// send message

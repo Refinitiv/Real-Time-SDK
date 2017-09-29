@@ -1,0 +1,5 @@
+# file,location
+,Applications/Examples
+,Applications/Shared
+WatchlistConsumer.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
+ItemDecoder.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer

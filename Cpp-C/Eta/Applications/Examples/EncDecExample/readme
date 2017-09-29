@@ -73,3 +73,6 @@ To compile run gmake command.
 Gmake can be obtained from http://www.gnu.org/software/make
 
 
+For windows platform, using Visual Studio, open one of the included vcxproj project
+files and build.
+

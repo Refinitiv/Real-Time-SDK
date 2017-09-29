@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.io.File;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -51,8 +52,6 @@ class ConfigReader
 	{
 		return null;
 	}
-
-	protected void loadFile() {}
 
 	static ConfigReader acquire() 
 	{
@@ -861,25 +860,80 @@ class ConfigReader
 			}
 		}
 
-		protected void loadFile() 
+		/*
+		 * read and parse a configuration file
+		 *
+		 * if parameter path is empty, attempt to read and parse file EmaConfig.xml in the current working directory.
+		 *
+		 * if parameter path is not empty, read the configuration from path if it is a file or file path/EmaConfig.xml if path is a directory.
+		 * If a configuration cannot be constructed from the given path, throw an OmmInvalidConfigurationException exception
+		 */
+		protected void loadFile(String path)
 		{
-			_configFileName = "EmaConfig.xml";
-			_configFileLocation = System.getProperty("user.dir");
+			String fileName;	// eventual location of configuration file
+			final String defaultFileName = "EmaConfig.xml";
 
-			errorTracker().append( "reading configuration file [" )
-						.append( _configFileName )
-						.append( "] from [" ).append( _configFileLocation ).append( "]" )
-						.create(Severity.TRACE);
+			if (path == null || path.isEmpty())
+				fileName = defaultFileName;
+			else {
+				File tmp = new File(path);
+				if(!tmp.exists()) {
+					String errorMsg = String.format("configuration path [%s] does not exist; working directory was [%s]", path,
+							System.getProperty("user.dir"));
+					throw _parent.oommICExcept().message(errorMsg);
+				}
+
+				// path must be a file or directory
+				if (tmp.isFile())
+					fileName = path;
+
+				// if path is a directory, create fileName and verify existence, and verify that it is a file
+				else if (tmp.isDirectory()) {
+					fileName = path + "/" + defaultFileName;
+
+					// file must exist
+					tmp = new File(fileName);
+					if (!tmp.exists()) {
+						String errorMsg = String.format("fileName [%s] does not exist; working directory was [%s]", fileName,
+								System.getProperty("user.dir"));
+						throw _parent.oommICExcept().message(errorMsg);
+					}
+
+					// file must be a file
+					if (!tmp.isFile()) {
+						String errorMsg = String.format("fileName [%s] is not a file; working directory was [%s]", fileName,
+								System.getProperty("user.dir"));
+						throw _parent.oommICExcept().message(errorMsg);
+					}
+				}
+
+				else {
+					String errorMsg = String.format("configuration path [%s] must be either a file or directory; working directory was [%s]",
+							path, System.getProperty("user.dir"));
+					throw _parent.oommICExcept().message(errorMsg);
+				}
+			}
+
+			// at this point, we have a fileName, a path with that name exists, and that path is a file
+			errorTracker().append( "reading configuration file [" ).append( fileName ).append( "]; working directory is [" )
+			.append( System.getProperty("user.dir") ).append( "]" ).create(Severity.TRACE);
 			
 			XMLConfiguration config = null;
 			try 
 			{
-				config = new XMLConfiguration(_configFileName);
+				config = new XMLConfiguration(fileName);
 			} 
 			catch (ConfigurationException e) 
 			{
-				errorTracker().append(e.getMessage()).create(Severity.TRACE);
-				return;
+				if (path == null || path.isEmpty()) {
+					errorTracker().append(e.getMessage()).create(Severity.TRACE);
+					return;
+				}
+
+				// error processing user-specified path; throw
+				String errorMsg = String.format("could not construct configuration from file [%s]; working directory was [%s]",
+								  fileName, System.getProperty("user.dir"));
+				throw _parent.oommICExcept().message(errorMsg);
 			}
 
 			configkeyTypePair = new Hashtable<String, Integer>();

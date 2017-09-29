@@ -1,0 +1,17 @@
+# rssldatatest - encode an element list with field entries Data, Time and Enum.
+# ElementList
+#    Entry "Date test" DATE
+#       Day=23 Month=5 Year=2012
+#    Entry "Black Date Test" DATE
+#       Day=0 Month=0 Year=0
+#    Entry "Time test" TIME
+#       Hour=11 Minute=30 Second=15 Millisecond=7
+#    Entry "Black Time test" TIME
+#       Hour=255 Minute=255 Second=255 Millisecond=65535 Microsecond=2047 Nanosecond=2047
+#    Entry "Enum test" ENUM
+#       enum=127
+0800 0509 4461 7465 2074 6573 7409 0417 0507 dc0f    ....Date test.......
+426c 616e 6b20 4461 7465 2074 6573 7409 0400 0000    Blank Date test.....
+0009 5469 6d65 2074 6573 740a 050b 1e0f 0007 0f42    ..Time test........B
+6c61 6e6b 2054 696d 6520 7465 7374 0a08 ffff ffff    lank Time test......
+ff3f ffff 0945 6e75 6d20 7465 7374 0e01 7f           ........Enum test...

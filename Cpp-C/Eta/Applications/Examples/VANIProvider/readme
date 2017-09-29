@@ -47,12 +47,12 @@ cannot be found, the non-interactive provider application exits.
 Command line usage:
 -------------------  
 
-./VANIProvider -tcp <hostname>:<port> <service name>  <item list> [-runtime <seconds>] [-cache] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>]
+VANIProvider.exe -tcp <hostname>:<port> <service name>  <item list> [-runtime <seconds>] [-cache] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>]
 
 For multicast connections:
 
-./VANIProvider -segmentedMulticast <send address>:<send port>:<network interface address> 
-	<receive address>:<receive port> <unicast port> <service name> <item list> [-runtime <seconds>] [-cache] 
+VANIProvider.exe -segmentedMulticast <send address>:<send port>:<network interface address> 
+	<receive address>:<receive port> <unicast port> <service name> <item list> [-runtime <seconds>] [-cache]
 
 The items list is a comma-separated pair of <domain:item name>.  The domains for the item 
 list may be any of: mp(MarketPrice), mbo(MarketByOrder)
@@ -63,7 +63,7 @@ before exiting, in seconds.
 Specifying the -at option configures the token used for TREP Authentication.  This should be used 
 in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
 will verify the token against a token validator.  For more information about the TREP Authentication
-feature, please see the Developers guide and the TREP Authentication guide.  
+feature, please see the Developers guide and the TREP Authentication guide. 
 
 Specifying the -ax option configures the authentication extended information used for TREP Authentication.
 
@@ -98,6 +98,9 @@ set LINKTYPE=Shared.
 To compile, run the gmake command.
 
 Gmake can be obtained at http://www.gnu.org/software/make/
+
+For windows platform, using Visual Studio, open one of the included vcxproj project
+files and build.
 
 ----------------
 Example Content:

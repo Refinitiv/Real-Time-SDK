@@ -70,6 +70,8 @@ public:
 
 	void processChannelEvent( RsslReactorChannelEvent* );
 
+	ImplementationType getImplType();
+
 private :
 
 	void readCustomConfig( EmaConfigImpl* );

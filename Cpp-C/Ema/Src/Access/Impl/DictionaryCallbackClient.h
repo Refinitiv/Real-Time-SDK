@@ -254,6 +254,56 @@ private :
 	DictionaryItem& operator=( const DictionaryItem& );
 };
 
+class NiProviderDictionaryItem : public NiProviderSingleItem
+{
+public:
+
+	static NiProviderDictionaryItem* create(OmmBaseImpl&, OmmProviderClient&, void*);
+
+	bool modify(const ReqMsg& reqMsg);
+
+	ItemType getType() const
+	{
+		return Item::NiProviderDictionaryItemEnum;
+	}
+
+private:
+
+	static const EmaString		_clientName;
+
+	NiProviderDictionaryItem(OmmBaseImpl&, OmmProviderClient&, ItemWatchList*, void*);
+
+	NiProviderDictionaryItem();
+	virtual ~NiProviderDictionaryItem();
+	NiProviderDictionaryItem(const NiProviderDictionaryItem&);
+	NiProviderDictionaryItem& operator=(const NiProviderDictionaryItem&);
+};
+
+class IProviderDictionaryItem : public IProviderSingleItem
+{
+public:
+
+	static IProviderDictionaryItem* create(OmmServerBaseImpl&, OmmProviderClient&, void*);
+
+	bool modify(const ReqMsg& reqMsg);
+
+	ItemType getType() const
+	{
+		return Item::IProviderDictionaryItemEnum;
+	}
+
+private:
+
+	static const EmaString		_clientName;
+
+	IProviderDictionaryItem(OmmServerBaseImpl&, OmmProviderClient&, ItemWatchList*, void*);
+
+	IProviderDictionaryItem();
+	virtual ~IProviderDictionaryItem();
+	IProviderDictionaryItem(const IProviderDictionaryItem&);
+	IProviderDictionaryItem& operator=(const IProviderDictionaryItem&);
+};
+
 }
 
 }

@@ -231,13 +231,6 @@ RsslRet processLoginRequest(UpaChannelManagementInfo *upaChannelManagementInfo, 
 RsslRet sendLoginResponse(UpaChannelManagementInfo *upaChannelManagementInfo);
 
 /*
- * Sends the login close status message for a channel.
- * upaChannelInfo - The channel management information including the login request information and 
- * including the channel to send the login close status message to
- */
-RsslRet sendLoginCloseStatusMsg(UpaChannelManagementInfo *upaChannelManagementInfo);
-
-/*
  * Sends the login request reject status message for a channel.
  * upaChannelInfo - The channel management information including the login request information and 
  * including the channel to send the login request reject status message to

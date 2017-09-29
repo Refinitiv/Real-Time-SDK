@@ -59,7 +59,7 @@ class AppClient implements OmmConsumerClient
 				
 				nestedRefreshMsg.payload(nestedFieldList ).complete(true);
 				
-				((OmmConsumer)event.closure()).submit( postMsg.postId( 1 ).serviceId( 1501 )
+				((OmmConsumer)event.closure()).submit( postMsg.postId( 1 ).serviceName( "DIRECT_FEED" )
 															.name( "TRI.N" ).solicitAck( true ).complete(true)
 															.payload(nestedRefreshMsg), event.handle() );
 			}

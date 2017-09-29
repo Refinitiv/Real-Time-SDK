@@ -113,3 +113,4 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
 - For more details on each API, please see the corresponding readme file in their top level directory.
 - This package contains APIs that are subject to proprietary and open source licenses.  Please make sure to read the readme files within each package for clarification.
 - Please make sure to review the LICENSE.md file.
+- Java unit tests may use Mockito (http://site.mockito.org/) for creation of mock objects. Mockito is distributed under the MIT license.

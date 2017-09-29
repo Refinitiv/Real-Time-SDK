@@ -312,6 +312,7 @@ class Worker implements Runnable
             // sckt.close will implicitly cancel any registered keys.
             reactorChannel.channel().close(_error);
             reactorChannel.selectableChannelFromChannel(null);
+            reactorChannel.flushRequested(false);
         }
         if (_activeChannelQueue.remove(reactorChannel) == false)
             if (_initChannelQueue.remove(reactorChannel) == false)

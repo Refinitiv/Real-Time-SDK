@@ -2153,6 +2153,9 @@ public class Reactor
         // if none are specified, send channel_ready.
         if (reactorRole.type() == ReactorRoleTypes.CONSUMER)
         {            
+			if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN)
+				return;
+
             LoginRequest loginRequest = ((ConsumerRole)reactorRole).rdmLoginRequest();
             if (loginRequest != null)
             {
@@ -2181,6 +2184,9 @@ public class Reactor
         }
         else if (reactorRole.type() == ReactorRoleTypes.NIPROVIDER)
         {
+			if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN)
+				return;
+
 		    LoginRequest loginRequest = ((NIProviderRole)reactorRole).rdmLoginRequest();
 		    if (loginRequest != null)
 		    {
@@ -2216,7 +2222,14 @@ public class Reactor
     {
         // get a buffer for the login request
         Channel channel = reactorChannel.channel();
-
+        if (channel == null)
+        {
+            populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                              "Reactor.encodeAndWriteLoginRequest",
+                              "Failed to obtain an action channel");
+            return;
+        }
+        
         TransportBuffer msgBuf = channel.getBuffer(getMaxFragmentSize(reactorChannel, errorInfo), false,
                                                    errorInfo.error());
         if (msgBuf == null)
@@ -2879,6 +2892,7 @@ public class Reactor
                     && ((LoginRefresh)_loginMsg).state().streamState() == StreamStates.OPEN
                     && ((LoginRefresh)_loginMsg).state().dataState() == DataStates.OK)
             {
+
                 DirectoryRefresh directoryRefresh = ((NIProviderRole)reactorRole).rdmDirectoryRefresh();
 		        if (directoryRefresh != null)
 		        {
@@ -3605,10 +3619,17 @@ public class Reactor
                     }
 
                     /* If recvWindowSize was -1, set it to reflect actual default value. */
+                    /* If recvWindowSize was less than received maxFragmentSize, set it to received maxFragmentSize. */
                     if (tunnelStream.classOfService().flowControl().recvWindowSize() == -1)
                         tunnelStream.classOfService().flowControl().recvWindowSize(TunnelStream.DEFAULT_RECV_WINDOW);
+                    if (tunnelStream.classOfService().flowControl().recvWindowSize() < tunnelStream.classOfService().common().maxFragmentSize())
+                        tunnelStream.classOfService().flowControl().recvWindowSize(tunnelStream.classOfService().common().maxFragmentSize());
+                    /* If sendWindowSize was -1, set it to reflect actual default value. */
+                    /* If sendWindowSize was less than received maxFragmentSize, set it to received maxFragmentSize. */
                     if (tunnelStream.classOfService().flowControl().sendWindowSize() == -1)
                         tunnelStream.classOfService().flowControl().sendWindowSize(TunnelStream.DEFAULT_RECV_WINDOW);
+                    if (tunnelStream.classOfService().flowControl().sendWindowSize() < tunnelStream.classOfService().common().maxFragmentSize())
+                        tunnelStream.classOfService().flowControl().sendWindowSize(tunnelStream.classOfService().common().maxFragmentSize());
 
                     if (!tunnelStream.isProvider())
                     {

@@ -72,7 +72,7 @@ public class NIProviderRole extends ReactorRole
      */
     public void rdmLoginRequest(LoginRequest loginRequest)
     {
-        _loginRequest = loginRequest;
+        copyLoginRequest(loginRequest);
     }
     
     /**
@@ -159,7 +159,7 @@ public class NIProviderRole extends ReactorRole
      */
     public void rdmDirectoryRefresh(DirectoryRefresh directoryRefresh)
     {
-        _directoryRefresh = directoryRefresh;
+        copyDirectoryRefresh(directoryRefresh);
     }
     
     /** A Directory Refresh to be sent during the setup of a Non-Interactive Provider
@@ -386,5 +386,49 @@ public class NIProviderRole extends ReactorRole
     public RDMLoginMsgCallback loginMsgCallback()
     {
         return _loginMsgCallback;
+    }
+    
+    /*
+     * Performs a deep copy from a specified NIProviderRole into this NIProviderRole.
+     * Only public facing attributes are copied.
+     */
+    void copy(NIProviderRole role)
+    {
+        super.copy(role);
+        _loginMsgCallback = role.loginMsgCallback();
+        copyLoginRequest(role.rdmLoginRequest());
+        copyDirectoryRefresh(role.rdmDirectoryRefresh());
+    }
+    
+    /*
+     * Performs a deep copy from a specified LoginRequest into the LoginRequest associated with this NIProviderRole.
+     */
+    void copyLoginRequest(LoginRequest loginRequest)
+    {
+        if (loginRequest != null)
+        {
+            if (_loginRequest == null)
+            {
+                _loginRequest = (LoginRequest)LoginMsgFactory.createMsg();
+                _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
+            }
+            loginRequest.copy(_loginRequest);
+        }
+    }
+    
+    /*
+     * Performs a deep copy from a specified DirectoryRefresh into the DirectoryRefresh associated with this NIProviderRole.
+     */
+    void copyDirectoryRefresh(DirectoryRefresh directoryRefresh)
+    {
+        if (directoryRefresh != null)
+        {
+            if (_directoryRefresh == null)
+            {
+                _directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
+                _directoryRefresh.rdmMsgType(DirectoryMsgType.REFRESH);
+            }
+            directoryRefresh.copy(_directoryRefresh);
+        }
     }
 }

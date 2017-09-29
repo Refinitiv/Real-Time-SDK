@@ -7,6 +7,7 @@
  */
 
 #include "LoginCallbackClient.h"
+#include "DirectoryCallbackClient.h"
 #include "OmmBaseImpl.h"
 #include "StaticDecoder.h"
 #include "OmmState.h"
@@ -18,6 +19,7 @@
 #include <new>
 
 using namespace thomsonreuters::ema::access;
+using namespace thomsonreuters::ema::rdm;
 
 const EmaString LoginCallbackClient::_clientName( "LoginCallbackClient" );
 const EmaString LoginItem::_clientName( "LoginItem" );
@@ -527,7 +529,7 @@ bool Login::populate( RsslRefreshMsg& refresh, RsslBuffer& buffer )
 
 	buffer.length = rsslGetEncodedBufferLength( &eIter );
 
-	refresh.msgBase.streamId = 1;
+	refresh.msgBase.streamId = EMA_LOGIN_STREAM_ID;
 	refresh.msgBase.domainType = RSSL_DMT_LOGIN;
 	refresh.msgBase.containerType = RSSL_DT_NO_DATA;
 	refresh.msgBase.encDataBody.data = 0;
@@ -553,7 +555,7 @@ bool Login::populate( RsslStatusMsg& status, RsslBuffer& buffer )
 {
 	rsslClearStatusMsg( &status );
 
-	status.msgBase.streamId = 1;
+	status.msgBase.streamId = EMA_LOGIN_STREAM_ID;
 	status.msgBase.domainType = RSSL_DMT_LOGIN;
 	status.msgBase.containerType = RSSL_DT_NO_DATA;
 	status.msgBase.encDataBody.data = 0;
@@ -576,7 +578,7 @@ void Login::sendLoginClose()
 	RsslCloseMsg rsslCloseMsg;
 	rsslClearCloseMsg( &rsslCloseMsg );
 
-	rsslCloseMsg.msgBase.streamId = 1;
+	rsslCloseMsg.msgBase.streamId = EMA_LOGIN_STREAM_ID;
 	rsslCloseMsg.msgBase.containerType = RSSL_DT_NO_DATA;
 	rsslCloseMsg.msgBase.domainType = RSSL_DMT_LOGIN;
 
@@ -617,6 +619,27 @@ void LoginList::addLogin( Login* pLogin )
 void LoginList::removeLogin( Login* pLogin )
 {
 	_list.remove( pLogin );
+}
+
+void LoginList::removeLogin(RsslReactorChannel* pRsslChannel)
+{
+	if (pRsslChannel)
+	{
+		Login* prevLogin = _list.back();
+		Login* login;
+
+		while (prevLogin)
+		{
+			login = prevLogin;
+			prevLogin = login->previous();
+
+			if (login->getChannel()->getRsslChannel() == pRsslChannel)
+			{
+				_list.remove(login);
+				Login::destroy(login);
+			}
+		}
+	}
 }
 
 Login* LoginList::getLogin( Channel* pChannel )
@@ -890,6 +913,12 @@ void LoginCallbackClient::overlayLoginRequest(RsslRDMLoginRequest* pRequest)
 	}
 
 
+	if (pRequest->flags & RDM_LG_RQF_NO_REFRESH)
+	{
+		tempRequest.flags |= RDM_LG_RQF_NO_REFRESH;
+		bufferChange = true;
+	}
+
 
 	
 	/* Deep copy the tempRequest onto the previous request.  Since we're potentially pulling data from 
@@ -961,6 +990,8 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		Login* pLogin = _loginList.getLogin( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
 		if ( !pLogin )
 		{
+			_loginList.removeLogin(pRsslReactorChannel);
+
 			pLogin = Login::create( _ommBaseImpl );
 			_loginList.addLogin( pLogin );
 		}
@@ -1011,6 +1042,9 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		{
 			_ommBaseImpl.setState( OmmBaseImpl::LoginStreamOpenOkEnum );
 
+			_ommBaseImpl.setActiveRsslReactorChannel( (Channel*)(pRsslReactorChannel->userSpecPtr) );
+			_ommBaseImpl.reLoadDirectory();
+
 			if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString tempState( 0, 256 );
@@ -1033,9 +1067,11 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		_loginItemLock.unlock();
 
-		if ( closeChannel )
-			_ommBaseImpl.closeChannel( pRsslReactorChannel );
-
+		if (closeChannel)
+		{
+			_ommBaseImpl.unsetActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
+			_ommBaseImpl.closeChannel(pRsslReactorChannel);
+		}
 		break;
 	}
 	case RDM_LG_MT_STATUS:
@@ -1083,6 +1119,9 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			}
 			else
 			{
+				_ommBaseImpl.setActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
+				_ommBaseImpl.reLoadDirectory();
+
 				if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 				{
 					EmaString tempState( 0, 256 );
@@ -1119,8 +1158,11 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		_loginItemLock.unlock();
 
-		if ( closeChannel )
-			_ommBaseImpl.closeChannel( pRsslReactorChannel );
+		if (closeChannel)
+		{
+			_ommBaseImpl.unsetActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
+			_ommBaseImpl.closeChannel(pRsslReactorChannel);
+		}
 
 		break;
 	}
@@ -1280,8 +1322,6 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 	{
 	case RSSL_RC_CET_CHANNEL_READY:
 	{
-		_ommBaseImpl.reLoadDirectory();
-
 		if (!_notifyChannelDownReconnecting)
 			break;
 
@@ -1515,6 +1555,11 @@ Channel* LoginCallbackClient::getActiveChannel()
 	return size > 0? (_loginList.operator[](size -1)->getChannel()) : NULL;
 }
 
+void LoginCallbackClient::removeChannel(RsslReactorChannel* pRsslReactorChannel)
+{
+	_loginList.removeLogin(pRsslReactorChannel);
+}
+
 const EmaString& LoginCallbackClient::getLoginFailureMessage()
 {
 	return _loginFailureMsg;
@@ -1540,7 +1585,7 @@ LoginItem::LoginItem( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommConsClient
 	SingleItem( ommBaseImpl, ommConsClient, closure, 0 ),
 	_loginList( &loginList )
 {
-	_streamId = 1;
+	_streamId = EMA_LOGIN_STREAM_ID;
 }
 
 LoginItem::~LoginItem()
@@ -1592,8 +1637,8 @@ bool LoginItem::modify( const ReqMsg& reqMsg )
 	_ommBaseImpl.getLoginCallbackClient().overlayLoginRequest(&tempRequest);
 
 	ret = submit( _ommBaseImpl.getLoginCallbackClient().getLoginRequest() );
-	/* Unset the Pause flag on the cached request */
-	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~RDM_LG_RQF_PAUSE_ALL;
+	/* Unset the Pause and No Refresh flag on the cached request */
+	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~(RDM_LG_RQF_PAUSE_ALL | RDM_LG_RQF_NO_REFRESH);
 
 	return ret;
 
@@ -1601,7 +1646,22 @@ bool LoginItem::modify( const ReqMsg& reqMsg )
 
 bool LoginItem::submit( const PostMsg& postMsg )
 {
-	return submit( static_cast<const PostMsgEncoder&>( postMsg.getEncoder() ).getRsslPostMsg() );
+	const PostMsgEncoder& postMsgEncoder = static_cast<const PostMsgEncoder&>( postMsg.getEncoder() );
+
+	RsslPostMsg* pRsslPostMsg = postMsgEncoder.getRsslPostMsg();
+
+	/* if the PostMsg has the Service Name */
+	if ( postMsgEncoder.hasServiceName() )
+	{
+		EmaString serviceName = postMsgEncoder.getServiceName();
+		RsslBuffer serviceNameBuffer;
+		serviceNameBuffer.data = (char*) serviceName.c_str();
+		serviceNameBuffer.length = serviceName.length();
+			
+		return submit( pRsslPostMsg, &serviceNameBuffer );
+	}
+
+	return submit( static_cast<const PostMsgEncoder&>( postMsg.getEncoder() ).getRsslPostMsg(), NULL );
 }
 
 bool LoginItem::submit( const GenericMsg& genMsg )
@@ -1706,7 +1766,7 @@ bool LoginItem::submit( RsslGenericMsg* pRsslGenericMsg )
 	return true;
 }
 
-bool LoginItem::submit( RsslPostMsg* pRsslPostMsg )
+bool LoginItem::submit( RsslPostMsg* pRsslPostMsg, RsslBuffer* pServiceName )
 {
 	RsslReactorSubmitMsgOptions submitMsgOpts;
 	pRsslPostMsg->msgBase.streamId = _streamId;
@@ -1716,6 +1776,7 @@ bool LoginItem::submit( RsslPostMsg* pRsslPostMsg )
 	{
 		rsslClearReactorSubmitMsgOptions( &submitMsgOpts );
 
+		submitMsgOpts.pServiceName = pServiceName;
 		submitMsgOpts.pRsslMsg = ( RsslMsg* )pRsslPostMsg;
 
 		submitMsgOpts.majorVersion = _loginList->operator[]( idx )->getChannel()->getRsslChannel()->majorVersion;
@@ -1804,10 +1865,11 @@ NiProviderLoginItem* NiProviderLoginItem::create( OmmBaseImpl& ommBaseImpl, OmmP
 }
 
 NiProviderLoginItem::NiProviderLoginItem( OmmBaseImpl& ommBaseImpl, OmmProviderClient& ommProvClient, void* closure, const LoginList& loginList ) :
-	NiProviderSingleItem( ommBaseImpl, ommProvClient, closure, 0 ),
+	NiProviderSingleItem( ommBaseImpl, ommProvClient, 0, closure, 0 ),
 	_loginList( &loginList )
 {
-	_streamId = 1;
+	_domainType = MMT_LOGIN;
+	_streamId = EMA_LOGIN_STREAM_ID;
 }
 
 NiProviderLoginItem::~NiProviderLoginItem()
@@ -1861,8 +1923,8 @@ bool NiProviderLoginItem::modify( const ReqMsg& reqMsg )
 	_ommBaseImpl.getLoginCallbackClient().overlayLoginRequest(&tempRequest);
 
 	ret = submit(_ommBaseImpl.getLoginCallbackClient().getLoginRequest());
-	/* Unset the Pause flag on the cached request */
-	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~RDM_LG_RQF_PAUSE_ALL;
+	/* Unset the Pause and No Refresh flag on the cached request */
+	_ommBaseImpl.getLoginCallbackClient().getLoginRequest()->flags &= ~(RDM_LG_RQF_PAUSE_ALL | RDM_LG_RQF_NO_REFRESH);
 
 	return ret;
 }

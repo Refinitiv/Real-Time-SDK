@@ -828,19 +828,6 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
 				}
 
-				EmaVector< UInt16 > validConfiguredServiceIds;
-				for (UInt32 idx = 0; idx < serviceNames.size() && idx < maxUInt16; ++idx)
-				{
-					UInt64 tempUInt64 = 0;
-					EmaString serviceNodeName(directoryNodeName + "Service." + serviceNames[idx] + "|");
-					if (pConfigImpl->get< UInt64 >(serviceNodeName + "InfoFilter|ServiceId", tempUInt64))
-						if (tempUInt64 <= maxUInt16)
-						{
-							if (-1 == validConfiguredServiceIds.getPositionOf((UInt16)tempUInt64))
-								validConfiguredServiceIds.push_back((UInt16)tempUInt64);
-						}
-				}
-
 				EmaVector< UInt64 > usedServiceIds;
 				UInt32 emaAssignedServiceId = 0;
 				for (UInt32 idx = 0; idx < serviceNames.size() && idx < maxUInt16; ++idx)
@@ -926,7 +913,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					else
 					{
 						while (emaAssignedServiceId <= maxUInt16 &&
-							validConfiguredServiceIds.getPositionOf(emaAssignedServiceId) > -1)
+							usedServiceIds.getPositionOf(emaAssignedServiceId) > -1)
 							++emaAssignedServiceId;
 
 						if (emaAssignedServiceId > maxUInt16)

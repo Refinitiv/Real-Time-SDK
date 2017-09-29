@@ -45,16 +45,20 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	
 	private Map<Integer, Directory>					_serviceById;
 	private Map<String, Directory>					_serviceByName;
+	private OmmBaseImpl<T>							_ommBaseImpl;
 
 	DirectoryCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
 		super(baseImpl, CLIENT_NAME);
+		
+		_ommBaseImpl = baseImpl;
 		 
-		int initialHashSize =  (int)(_baseImpl.activeConfig().serviceCountHint/ 0.75 + 1);
+		int initialHashSize =  (int)(_ommBaseImpl.activeConfig().serviceCountHint/ 0.75 + 1);
 		_serviceById = new HashMap<Integer, Directory>(initialHashSize);
 		_serviceByName = new HashMap<String, Directory>(initialHashSize);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)
 	{
@@ -66,7 +70,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		
 		if (directoryMsg == null)
 		{
-			_baseImpl.closeRsslChannel(rsslReactorChannel);
+			_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
 
 			if (_baseImpl.loggerClient().isErrorEnabled())
         	{
@@ -99,7 +103,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	
 				if (state.streamState() != com.thomsonreuters.upa.codec.StreamStates.OPEN)
 				{
-					_baseImpl.closeRsslChannel(rsslReactorChannel);
+					_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
 	
 					if (_baseImpl.loggerClient().isErrorEnabled())
 		        	{
@@ -110,7 +114,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			        	_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.ERROR));
 		        	}
 					
-					_baseImpl.directoryCallbackClient().processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
 	
 					break;
 				}
@@ -125,13 +129,13 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 		        	}
 					
-					_baseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+					_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
 	
-					_baseImpl.directoryCallbackClient().processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+					processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
 					break;
 				}
 	
-				_baseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+				_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
 	
 				if (_baseImpl.loggerClient().isTraceEnabled())
 	        	{
@@ -143,7 +147,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	        	}
 				
 	
-				_baseImpl.directoryCallbackClient().processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
+				processDirectoryPayload(((DirectoryRefresh)directoryMsg).serviceList(), rsslReactorChannel);
 				break;
 			}
 			case STATUS:
@@ -154,7 +158,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	
 					if (state.streamState() != com.thomsonreuters.upa.codec.StreamStates.OPEN)
 					{
-						_baseImpl.closeRsslChannel(rsslReactorChannel);
+						_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
 	
 						if (_baseImpl.loggerClient().isErrorEnabled())
 			        	{
@@ -178,7 +182,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 				        	_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.WARNING));
 			        	}
 	
-						_baseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
+						_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_SUSPECT);
 						break;
 					}
 					
@@ -192,7 +196,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		        	}
 	
-					_baseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
+					_ommBaseImpl.ommImplState(OmmImplState.DIRECTORY_STREAM_OPEN_OK);
 				}
 				else
 				{
@@ -210,7 +214,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(DirectoryCallbackClient.CLIENT_NAME, "Received RDMDirectory update message", Severity.TRACE));
 	        	}
 	
-				_baseImpl.directoryCallbackClient().processDirectoryPayload(((DirectoryUpdate)directoryMsg).serviceList(), rsslReactorChannel);
+				processDirectoryPayload(((DirectoryUpdate)directoryMsg).serviceList(), rsslReactorChannel);
 				break;
 			}
 			default:
@@ -314,9 +318,9 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		            	_serviceById.put(oneService.serviceId(), directory);
 		            	_serviceByName.put(serviceName, directory);
 
-						if (_baseImpl.activeConfig().dictionaryConfig.isLocalDictionary ||
+						if (_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary ||
 						(newService.state().acceptingRequests() == 1 && newService.state().serviceState() == 1))
-							_baseImpl.dictionaryCallbackClient().downloadDictionary(directory);
+							_ommBaseImpl.dictionaryCallbackClient().downloadDictionary(directory);
 		            }
 	
 					break;
@@ -387,7 +391,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 					{
 						oneService.state().copy(existService.state());
 						if (oneService.state().acceptingRequests() == 1 && oneService.state().serviceState() == 1)
-							_baseImpl.dictionaryCallbackClient().downloadDictionary(existDirectory);
+							_ommBaseImpl.dictionaryCallbackClient().downloadDictionary(existDirectory);
 					}
 					
 					existService.action(MapEntryActions.UPDATE);
@@ -474,7 +478,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			case UPDATE :
 				{
 					if (_updateMsg == null)
-						_updateMsg = new UpdateMsgImpl(_baseImpl._objManager);
+						_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
 					
 					_updateMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), 
 							((ChannelInfo)rsslReactorChannel.userSpecObj()).rsslDictionary());
@@ -488,7 +492,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			case STATUS :
 				{
 					if (_statusMsg == null)
-						_statusMsg = new StatusMsgImpl(_baseImpl._objManager);
+						_statusMsg = new StatusMsgImpl(_baseImpl.objManager());
 					
 					_statusMsg.decode(rsslMsg, rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), null);
 	
@@ -532,14 +536,14 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	
 	void initialize()
 	{
-		if (_baseImpl.activeConfig().rsslDirectoryRequest == null)
+		if (_ommBaseImpl.activeConfig().rsslDirectoryRequest == null)
 		{
-			_baseImpl.activeConfig().rsslDirectoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();
-			_baseImpl.activeConfig().rsslDirectoryRequest.clear();
-			_baseImpl.activeConfig().rsslDirectoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);
-			_baseImpl.activeConfig().rsslDirectoryRequest.streamId(2);
-			_baseImpl.activeConfig().rsslDirectoryRequest.applyStreaming();
-			_baseImpl.activeConfig().rsslDirectoryRequest.filter(
+			_ommBaseImpl.activeConfig().rsslDirectoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();
+			_ommBaseImpl.activeConfig().rsslDirectoryRequest.clear();
+			_ommBaseImpl.activeConfig().rsslDirectoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);
+			_ommBaseImpl.activeConfig().rsslDirectoryRequest.streamId(2);
+			_ommBaseImpl.activeConfig().rsslDirectoryRequest.applyStreaming();
+			_ommBaseImpl.activeConfig().rsslDirectoryRequest.filter(
 									 com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.INFO |
 									 com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.STATE |
 									 com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.GROUP |
@@ -549,8 +553,8 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		}
 		else
 		{
-			_baseImpl.activeConfig().rsslDirectoryRequest.streamId(2);
-			long filter = _baseImpl.activeConfig().rsslDirectoryRequest.filter();
+			_ommBaseImpl.activeConfig().rsslDirectoryRequest.streamId(2);
+			long filter = _ommBaseImpl.activeConfig().rsslDirectoryRequest.filter();
 			if (filter == 0)
 			{			
 				if (_baseImpl.loggerClient().isWarnEnabled())
@@ -560,7 +564,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 													Severity.WARNING).toString());
 				}
 				
-				_baseImpl.activeConfig().rsslDirectoryRequest.filter(
+				_ommBaseImpl.activeConfig().rsslDirectoryRequest.filter(
 										 com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.INFO |
 										 com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.STATE |
 										 com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.GROUP |
@@ -569,13 +573,13 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 										 com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.LINK);
 			}
 
-			if (!_baseImpl.activeConfig().rsslDirectoryRequest.checkStreaming())
+			if (!_ommBaseImpl.activeConfig().rsslDirectoryRequest.checkStreaming())
 			{
 				_baseImpl.loggerClient().warn(_baseImpl.formatLogMessage(CLIENT_NAME, 
 						                  		"Configured source directory request message contains no streaming flag. Will request streaming",
 												Severity.WARNING).toString());
 				
-				_baseImpl.activeConfig().rsslDirectoryRequest.applyStreaming();
+				_ommBaseImpl.activeConfig().rsslDirectoryRequest.applyStreaming();
 			}
 		}
 
@@ -585,7 +589,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			
 			
 			temp.append("RDMDirectoryRequest message was populated with Filter(s)");
-			int filter = (int)_baseImpl.activeConfig().rsslDirectoryRequest.filter();
+			int filter = (int)_ommBaseImpl.activeConfig().rsslDirectoryRequest.filter();
 			
 			if ((filter & com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.INFO) != 0)
 				temp.append(OmmLoggerClient.CR).append("RDM_DIRECTORY_SERVICE_INFO_FILTER");
@@ -600,8 +604,8 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			if ((filter & com.thomsonreuters.upa.rdm.Directory.ServiceFilterFlags.LINK) != 0)
 				temp.append(OmmLoggerClient.CR).append("RDM_DIRECTORY_SERVICE_LINK_FILTER");
 
-			if (_baseImpl.activeConfig().rsslDirectoryRequest.checkHasServiceId())
-				temp.append(OmmLoggerClient.CR).append("requesting serviceId ").append(_baseImpl.activeConfig().rsslDirectoryRequest.serviceId());
+			if (_ommBaseImpl.activeConfig().rsslDirectoryRequest.checkHasServiceId())
+				temp.append(OmmLoggerClient.CR).append("requesting serviceId ").append(_ommBaseImpl.activeConfig().rsslDirectoryRequest.serviceId());
 			else
 				temp.append(OmmLoggerClient.CR).append("requesting all services");
 
@@ -612,7 +616,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 	
 	DirectoryRequest rsslDirectoryRequest()
 	{
-		return _baseImpl.activeConfig().rsslDirectoryRequest;
+		return _ommBaseImpl.activeConfig().rsslDirectoryRequest;
 	}
 	
 	Directory directory(String serviceName)
@@ -667,6 +671,8 @@ class DirectoryCallbackClientProvider extends DirectoryCallbackClient<OmmProvide
 {
 	DirectoryCallbackClientProvider(OmmBaseImpl<OmmProviderClient> baseImpl) {
 		super(baseImpl);
+		
+		_eventImpl._ommProvider = (OmmProvider)baseImpl;
 	}
 	
 	@Override
@@ -706,6 +712,11 @@ class Directory
 		_service = service;
 	}
 	
+	Directory(String serviceName)
+	{
+		_serviceName = serviceName;
+	}
+	
 	ChannelInfo channelInfo()
 	{
 		return _channelInfo;
@@ -738,6 +749,7 @@ class Directory
 	{
 		return _serviceName;
 	}
+	
 }
 
 class DirectoryItem<T> extends SingleItem<T>
@@ -774,16 +786,16 @@ class DirectoryItem<T> extends SingleItem<T>
 
 			if (directory == null)
 			{
+				/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+				
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Service name of '")
 					.append(reqMsg.serviceName()).append("' is not found.");
 
-				TimeoutClient client = closedStatusClient(_baseImpl.directoryCallbackClient(),
+				scheduleItemClosedStatus(_baseImpl.directoryCallbackClient(),
 															this, ((ReqMsgImpl)reqMsg).rsslMsg(),
 															temp.toString(), reqMsg.serviceName());
-				/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
-				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
-				_baseImpl.addTimeoutEvent(1000, client);
 				
 				return true;
 			}
@@ -796,16 +808,16 @@ class DirectoryItem<T> extends SingleItem<T>
 
 				if (directory == null)
 				{
+					/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
+					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
+
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Service id of '")
 						.append(reqMsg.serviceId()).append("' is not found.");
 
-					TimeoutClient client = closedStatusClient(_baseImpl.directoryCallbackClient(),
+					scheduleItemClosedStatus(_baseImpl.directoryCallbackClient(),
 							this, ((ReqMsgImpl)reqMsg).rsslMsg(), temp.toString(), null);
-					/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
-					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
-					_baseImpl.addTimeoutEvent(1000, client);
-
+				
 					return true;
 				}
 			}
@@ -941,7 +953,7 @@ class DirectoryItem<T> extends SingleItem<T>
 		{
 			rsslRequestMsg.streamId(_baseImpl._itemCallbackClient.nextStreamId(0));
 			_streamId = rsslRequestMsg.streamId();
-			_baseImpl._itemCallbackClient.addToMap(LongIdGenerator.nextLongId(), this);
+			_baseImpl._itemCallbackClient.addToMap(_baseImpl.nextLongId(), this);
 		}
 		else
 			rsslRequestMsg.streamId(_streamId);

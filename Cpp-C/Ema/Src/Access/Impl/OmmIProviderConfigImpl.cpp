@@ -12,8 +12,8 @@
 
 using namespace thomsonreuters::ema::access;
 
-OmmIProviderConfigImpl::OmmIProviderConfigImpl() :
-	EmaConfigServerImpl(),
+OmmIProviderConfigImpl::OmmIProviderConfigImpl( const EmaString & path ) :
+	EmaConfigServerImpl( path ),
 	_operationModel( OmmIProviderConfig::ApiDispatchEnum ),
 	_adminControlDirectory( OmmIProviderConfig::ApiControlEnum ),
 	_adminControlDictionary( OmmIProviderConfig::ApiControlEnum )

@@ -1,0 +1,41 @@
+# Hand generated from OpenMessageModel-RWF.vsd, Series/FilterList tab, FilterList
+#
+# FilterList
+#   flags = (0x03) RsslFilterListFlags.HAS_PER_ENTRY_PERM_DATA | RsslFilterListFlags.HAS_TOTAL_COUNT_HINT
+#   dataFormat = (0x03) RsslDataTypes.XML (131 - CONTAINER_TYPE_MIN(128))
+#   totalCountHint = 4
+#   count = 4
+#   Entry1
+#     flags:4 = (0x30) RsslFilterEntryFlags.HAS_PERM_DATA | RsslFilterEntryFlags.HAS_CONTAINER_TYPE
+#     action:4 = (0x02) RsslFilterEntryActions.SET
+#     flags/action = (0x32)
+#     id = 0x01
+#     dataType = (0x02) RsslDataTypes.OPAQUE (130 - CONTAINER_TYPE_MIN(128))
+#     perm = (0x04) len=4 data=0x12345678
+#     data = (0x4255464645522044415441) len=11 data="BUFFER DATA"
+#   Entry2
+#     flags = (0x10)RsslFilterEntryFlags.HAS_PERM_DATA
+#     action = (0x01) RsslFilterEntryActions.UPDATE
+#     flags/action = (0x11)
+#     id = 0x0a
+#     perm = (0x021111) len=2 data=0x1111
+#     data = (0x0401020304) len=4 0x01020304 (INT)
+#   Entry3
+#     flags = (0x00) RsslFilterEntryFlags.NONE
+#     action = (0x03) RsslFilterEntryActions.CLEAR
+#     flags/action = (0x03)
+#     id = 0x80
+#     data = NO_PAYLOAD
+#   Entry4
+#     flags = (0x20) RsslFilterEntryFlags.HAS_CONTAINER_TYPE
+#     action = (0x02) RsslFilterEntryActions.SET
+#     flags/action (0x22)
+#     id = 0xff
+#     dataType = (0x02) RsslDataTypes.OPAQUE (130 - CONTAINER_TYPE_MIN(128))
+#     data = (0x0a41534349492044415441) len=10 data="ASCII DATA"
+# FilterListComplete
+#
+03 03 04 04 32 01 02 04  12 34 56 78 0b 42 55 46
+46 45 52 20 44 41 54 41  11 0a 02 11 11 04 01 02
+03 04 03 80 22 ff 02 0a  41 53 43 49 49 20 44 41
+54 41

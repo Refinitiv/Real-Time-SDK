@@ -22,7 +22,8 @@ ClientSession::ClientSession(OmmServerBaseImpl* ommServerBaseImpl) :
 	_isLogin(false),
 	_toString(),
 	_pOmmServerBaseImpl(ommServerBaseImpl),
-	_removingInCloseAll(false)
+	_removingInCloseAll(false),
+	_isADHSession(false)
 {
 	_streamIdToItemInfoHash.rehash(_pOmmServerBaseImpl->getActiveConfig().itemCountHint);
 
@@ -239,6 +240,16 @@ bool ClientSession::isLogin()
 void ClientSession::setLogin(bool isLogin)
 {
 	_isLogin = isLogin;
+}
+
+bool ClientSession::isADHSession() const
+{
+	return _isADHSession;
+}
+
+void ClientSession::setADHSession(bool adhClient)
+{
+	_isADHSession = adhClient;
 }
 
 Int32 ClientSession::Int32rHasher::operator()(const Int32& value) const

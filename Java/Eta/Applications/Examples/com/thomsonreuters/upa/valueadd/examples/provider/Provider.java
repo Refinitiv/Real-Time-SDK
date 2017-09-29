@@ -433,7 +433,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
             {
             	System.out.println("Provider run-time expired, close now...");
                	sendCloseStatusMessages();
-            	closeHandled = true;                
+            	closeHandled = true; 
             }
             else if (System.currentTimeMillis() >= closeRunTime )
             {
@@ -542,9 +542,6 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
 
                 // send close status messages to dictionary streams
                 dictionaryHandler.sendCloseStatusMsgs(reactorChannel, errorInfo);
-                
-                // send close status message to login stream 
-                loginHandler.sendCloseStatus(reactorChannel, errorInfo);
                 
                 // close the tunnel stream
                 TunnelStreamHandler tunnelStreamHandler = _tunnelStreamHandlerHashMap.get(reactorChannel);
@@ -874,9 +871,6 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
                 if (dictionaryHandler.sendCloseStatusMsgs(reactorChnl, errorInfo) != CodecReturnCodes.SUCCESS)
                     System.out.println("Error sending dictionary close: " + errorInfo.error().text());
                 
-                // send close status message to login stream 
-                if (loginHandler.sendCloseStatus(reactorChnl, errorInfo) != CodecReturnCodes.SUCCESS)
-                    System.out.println("Error sending login close: " + errorInfo.error().text());
             }
         }
     }

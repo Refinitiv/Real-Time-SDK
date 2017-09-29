@@ -74,7 +74,7 @@ public class ConsumerRole extends ReactorRole
      */
     public void rdmLoginRequest(LoginRequest loginRequest)
     {
-        _loginRequest = loginRequest;
+        copyLoginRequest(loginRequest);
     }
 
     /**
@@ -160,7 +160,7 @@ public class ConsumerRole extends ReactorRole
      */
     public void rdmDirectoryRequest(DirectoryRequest directoryRequest)
     {
-        _directoryRequest = directoryRequest;
+        copyDirectoryRequest(directoryRequest);
     }
 
     /** A Directory Request to be sent during the setup of a Consumer-Provider
@@ -552,4 +552,52 @@ public class ConsumerRole extends ReactorRole
 	{
 		return _consumerWatchlistOptions;
 	}
+    
+    /*
+     * Performs a deep copy from a specified ConsumerRole into this ConsumerRole.
+     * Only public facing attributes are copied.
+     */
+    void copy(ConsumerRole role)
+    {
+        super.copy(role);
+        _loginMsgCallback = role.loginMsgCallback();
+        _directoryMsgCallback = role.directoryMsgCallback();
+        _dictionaryMsgCallback = role.dictionaryMsgCallback();
+        _dictionaryDownloadMode = role.dictionaryDownloadMode();
+        _consumerWatchlistOptions.copy(role.watchlistOptions());
+        copyLoginRequest(role.rdmLoginRequest());
+        copyDirectoryRequest(role.rdmDirectoryRequest());
+    }
+    
+    /*
+     * Performs a deep copy from a specified LoginRequest into the LoginRequest associated with this ConsumerRole.
+     */
+    void copyLoginRequest(LoginRequest loginRequest)
+    {
+        if (loginRequest != null)
+        {
+            if (_loginRequest == null)
+            {
+                _loginRequest = (LoginRequest)LoginMsgFactory.createMsg();
+                _loginRequest.rdmMsgType(LoginMsgType.REQUEST);
+            }
+            loginRequest.copy(_loginRequest);
+        }
+    }
+    
+    /*
+     * Performs a deep copy from a specified DirectoryRequest into the DirectoryRequest associated with this ConsumerRole.
+     */
+    void copyDirectoryRequest(DirectoryRequest directoryRequest)
+    {
+        if (directoryRequest != null)
+        {
+            if (_directoryRequest == null)
+            {
+                _directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();
+                _directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);
+            }
+            directoryRequest.copy(_directoryRequest);
+        }
+    }
 }

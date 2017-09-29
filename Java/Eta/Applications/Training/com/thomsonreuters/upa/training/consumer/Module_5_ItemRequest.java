@@ -297,7 +297,7 @@ public class Module_5_ItemRequest
     public static int ENUM_TYPE_DICTIONARY_STREAM_ID = 4;
     public static int MARKETPRICE_ITEM_STREAM_ID = 5;
 
-    static UInt serviceDiscoveryInfo_serviceId;
+    static long serviceDiscoveryInfo_serviceId;
 
     static boolean serviceDiscoveryInfo_serviceNameFound = false;
     static boolean serviceDiscoveryInfo_upalDMTDictionarySupported = false;
@@ -1026,6 +1026,7 @@ public class Module_5_ItemRequest
                                             /* Only make Market Price item request after both dictionaries are successfully downloaded from the provider. */
                                             if ((dictionariesLoadedInfo_fieldDictionaryLoaded) && (dictionariesLoadedInfo_enumTypeDictionaryLoaded))
                                             {
+                                                dictionariesLoadedInfo_isInitialized = true;
                                                 System.out.printf("UPA Consumer application has successfully downloaded both dictionaries or successfully downloaded 1 dictionary if the other dictionary has already been loaded from (local) file successfully.\n\n");
 
                                                 /* check to see if the provider supports the Market Price Domain Type (MARKET_PRICE) */
@@ -2235,7 +2236,7 @@ public class Module_5_ItemRequest
                                                         foundServiceIndex = serviceCount;
 
                                                         System.out.printf("\tService name: %s (%d) is discovered by the OMM consumer. \n", serviceName, serviceId.toLong());
-                                                        serviceDiscoveryInfo_serviceId = serviceId;
+                                                        serviceDiscoveryInfo_serviceId = serviceId.toLong();
                                                         serviceDiscoveryInfo_serviceNameFound = true;
                                                     }
                                                 }
@@ -2415,7 +2416,9 @@ public class Module_5_ItemRequest
                                                     if (serviceCount == foundServiceIndex)
                                                     {
                                                         /* Need to store the Source Directory QoS information */
-                                                        serviceDiscoveryInfo_qoS.add(qoS);
+                                                        Qos serviceQos = CodecFactory.createQos();
+                                                        qoS.copy(serviceQos);
+                                                        serviceDiscoveryInfo_qoS.add(serviceQos);
                                                     }
                                                 }
                                             }
@@ -2862,7 +2865,7 @@ public class Module_5_ItemRequest
         requestMsg.msgKey().applyHasServiceId();
 
         requestMsg.msgKey().name().data(dictionaryName);
-        requestMsg.msgKey().serviceId((int)serviceDiscoveryInfo_serviceId.toLong());
+        requestMsg.msgKey().serviceId((int)serviceDiscoveryInfo_serviceId);
         requestMsg.msgKey().filter(Dictionary.VerbosityValues.VERBOSE);
 
         /* encode message - populate message and encode it */
@@ -2976,7 +2979,7 @@ public class Module_5_ItemRequest
         /* msgKey.serviceId is Required. This should be the Id associated with the service from which the consumer
          * wishes to request the item.
          */
-        requestMsg.msgKey().serviceId((int)serviceDiscoveryInfo_serviceId.toLong());
+        requestMsg.msgKey().serviceId((int)serviceDiscoveryInfo_serviceId);
 
         ret = requestMsg.encode(encIter);
         if (ret < CodecReturnCodes.SUCCESS)

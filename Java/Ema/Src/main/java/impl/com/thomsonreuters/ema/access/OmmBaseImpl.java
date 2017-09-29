@@ -46,6 +46,13 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 
 interface OmmCommonImpl
 {
+	static class ImplementationType
+	{
+		final static int CONSUMER = 0;
+		final static int NIPROVIDER = 1;
+		final static int IPROVIDER = 2;
+	}
+	
 	void handleInvalidUsage(String text);
 	
 	void handleInvalidHandle(long handle, String text);
@@ -53,6 +60,20 @@ interface OmmCommonImpl
 	Logger loggerClient();
 	
 	String formatLogMessage(String clientName, String temp, int level);
+	
+	EmaObjectManager objManager();
+	
+	String instanceName();
+	
+	StringBuilder strBuilder();
+	
+	void eventReceived();
+	
+	ReentrantLock userLock();
+	
+	int implType();
+	
+	long nextLongId();
 }
 
 abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
@@ -75,6 +96,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	}
 	
 	private static int INSTANCE_ID = 0;
+	private final static int MIN_TIME_FOR_SELECT = 1000000;
 	
 	protected int _state = OmmImplState.NOT_INITIALIZED;
 	private Logger _loggerClient;
@@ -603,31 +625,31 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectAttemptLimit)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.reconnectAttemptLimit = ce.intValue();
+				_activeConfig.reconnectAttemptLimit(ce.intValue());
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMinDelay)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.reconnectMinDelay = ce.intValue();
+				_activeConfig.reconnectMinDelay(ce.intValue());
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMaxDelay)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.reconnectMaxDelay = ce.intValue();
+				_activeConfig.reconnectMaxDelay(ce.intValue());
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.MsgKeyInUpdates)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.msgKeyInUpdates = ce.booleanValue();
+				_activeConfig.msgKeyInUpdates = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_MSGKEYINUPDATES;
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 			{
 				_activeConfig.isSetCorrectConfigGroup = true;
-				_activeConfig.xmlTraceEnable = ce.booleanValue();
+				_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 			}
 		}
 
@@ -729,10 +751,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				socketChannelConfig.serviceName = tempService;
 			
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-				socketChannelConfig.tcpNodelay = ce.booleanValue();
+				socketChannelConfig.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
 
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelDirectSocketWrite)) != null)
-				socketChannelConfig.directWrite = ce.booleanValue();
+				socketChannelConfig.directWrite = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_DIRECT_SOCKET_WRITE;
 			
 			currentChannelConfig = socketChannelConfig;
 			
@@ -761,7 +783,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 //				httpChannelCfg.serviceName = tempService;
 //
 //			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-//				httpChannelCfg.tcpNodelay = ce.booleanValue();
+//				httpChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
 //
 //			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
 //				httpChannelCfg.objectName = ce.asciiValue();
@@ -793,7 +815,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 //				encryptedChannelCfg.serviceName = tempService;
 //
 //			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-//				encryptedChannelCfg.tcpNodelay = ce.booleanValue();
+//				encryptedChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
 //
 //			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
 //				encryptedChannelCfg.objectName = ce.asciiValue();
@@ -821,10 +843,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				currentChannelConfig.compressionType = ce.intValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_TYPE : ce.intValue();
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.GuaranteedOutputBuffers)) != null)
-				currentChannelConfig.guaranteedOutputBuffers = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_GUARANTEED_OUTPUT_BUFFERS : ce.intLongValue();
+				currentChannelConfig.guaranteedOutputBuffers(ce.intLongValue());
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.NumInputBuffers)) != null)
-				currentChannelConfig.numInputBuffers = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_NUM_INPUT_BUFFERS : ce.intLongValue();
+				currentChannelConfig.numInputBuffers(ce.intLongValue());
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
 			{
@@ -871,35 +893,35 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			{
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectAttemptLimit)) != null)
 				{
-						_activeConfig.reconnectAttemptLimit = ce.intValue();
+						_activeConfig.reconnectAttemptLimit(ce.intValue());
 						configImpl.errorTracker().append( "ChannelReconnectAttemptLimit is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMinDelay)) != null)
 				{
-						_activeConfig.reconnectMinDelay = ce.intValue();
+						_activeConfig.reconnectMinDelay(ce.intValue());
 						configImpl.errorTracker().append( "ChannelReconnectMinDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMaxDelay)) != null)
 				{
-						_activeConfig.reconnectMaxDelay = ce.intValue();
+						_activeConfig.reconnectMaxDelay(ce.intValue());
 						configImpl.errorTracker().append( "ChannelReconnectMaxDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
 				{
-						_activeConfig.msgKeyInUpdates = ce.booleanValue();
+						_activeConfig.msgKeyInUpdates = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_MSGKEYINUPDATES;
 						configImpl.errorTracker().append( "ChannelMsgKeyInUpdates is no longer configured on a per-channel basis; configure it instead in the Consumer instance." )
 						.create(Severity.WARNING);
 				}
 		
 				if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 				{
-						_activeConfig.xmlTraceEnable = ce.booleanValue();
+						_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 						configImpl.errorTracker().append(  "XmlTraceToStdout is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.")
 						.create(Severity.WARNING);
 				}
@@ -909,7 +931,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		_activeConfig.channelConfigSet.add( currentChannelConfig );
 	}
 	
-	StringBuilder strBuilder()
+	@Override
+	public StringBuilder strBuilder()
 	{
 		_strBuilder.setLength(0);
 		return _strBuilder;
@@ -983,7 +1006,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			else
 			{
 				userTimeoutExist = true;
-				timeOut = (userTimeout > 0 ? userTimeout : 1000000);
+				/*if userTimeout is less than 1000000, need to reset to 10000000 because
+				 *the select() call will wait forever and not return if timeout is 0 */
+				timeOut = (userTimeout > MIN_TIME_FOR_SELECT ? userTimeout : MIN_TIME_FOR_SELECT);
 			}
 		}
 
@@ -1028,8 +1053,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		
 						return _eventReceived ? true : false;
 					}
-					else if ( timeOut < 1000000  )
-							timeOut = 1000000;
+					else if ( timeOut < MIN_TIME_FOR_SELECT  )
+							timeOut = MIN_TIME_FOR_SELECT;
 				}
 			} // end if (_state >= OmmImplState.RSSLCHANNEL_UP)
 
@@ -1039,7 +1064,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			{
 				startTime = endTime;
 			
-				int selectCount = _selector.select(timeOut/1000000);
+				int selectCount = _selector.select(timeOut/MIN_TIME_FOR_SELECT);
 				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 				{
 					Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
@@ -1083,7 +1108,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				if ( timeOut > 0 )
 				{
 					timeOut -= ( endTime - startTime );
-					if (timeOut < 1000000) return false;
+					if (timeOut < MIN_TIME_FOR_SELECT) return false;
 				}
 				
 				if (Thread.currentThread().isInterrupted())
@@ -1182,8 +1207,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		return null;
 	}
 
-	abstract String instanceName();
-
 	@Override
 	public void run() 
 	{
@@ -1208,7 +1231,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		return _loggerClient;
 	}
 	
-	ReentrantLock userLock()
+	@Override
+	public ReentrantLock userLock()
 	{
 		return _userLock;
 	}
@@ -1282,8 +1306,18 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	void reLoadDirectory() {}
 	
-	void eventReceived()
+	@Override
+	public void eventReceived()
 	{
 		_eventReceived = true;
 	}
+	
+	public EmaObjectManager objManager()
+	{
+		return _objManager;
+	}
+
+	void setActiveRsslReactorChannel(ChannelInfo activeChannelInfo) {}
+	
+	void unsetActiveRsslReactorChannel(ChannelInfo cancelChannelInfo) {}
 }

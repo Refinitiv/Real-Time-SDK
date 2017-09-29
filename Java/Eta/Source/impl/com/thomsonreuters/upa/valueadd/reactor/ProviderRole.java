@@ -111,4 +111,17 @@ public class ProviderRole extends ReactorRole
     {
         return _tunnelStreamListenerCallback;
     }
+
+    /*
+     * Performs a deep copy from a specified ProviderRole into this ProviderRole.
+     * Only public facing attributes are copied.
+     */
+    void copy(ProviderRole role)
+    {
+        super.copy(role);
+        _loginMsgCallback = role.loginMsgCallback();
+        _directoryMsgCallback = role.directoryMsgCallback();
+        _dictionaryMsgCallback = role.dictionaryMsgCallback();
+        _tunnelStreamListenerCallback = role.tunnelStreamListenerCallback();
+    }
 }

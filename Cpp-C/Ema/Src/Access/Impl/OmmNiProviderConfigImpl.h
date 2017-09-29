@@ -22,7 +22,7 @@ class OmmNiProviderConfigImpl : public EmaConfigImpl
 {
 public:
 
-	OmmNiProviderConfigImpl();
+	OmmNiProviderConfigImpl( const EmaString & );
 
 	virtual ~OmmNiProviderConfigImpl();
 

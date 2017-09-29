@@ -34,19 +34,18 @@ using namespace thomsonreuters::ema::access;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 
-EmaConfigBaseImpl::EmaConfigBaseImpl() :
+EmaConfigBaseImpl::EmaConfigBaseImpl( const EmaString & path ) :
 	_pEmaConfig(new XMLnode("EmaConfig", 0, 0)),
 	_pProgrammaticConfigure(0),
 	_instanceNodeName()
 {
 	createNameToValueHashTable();
 
-	EmaString tmp("EmaConfig.xml");
-	OmmLoggerClient::Severity result(readXMLconfiguration(tmp));
+	OmmLoggerClient::Severity result(readXMLconfiguration(path));
 	if (result == OmmLoggerClient::ErrorEnum || result == OmmLoggerClient::VerboseEnum)
 	{
-		EmaString errorMsg("failed to extract configuration from [");
-		errorMsg.append(tmp).append("]");
+		EmaString errorMsg("failed to extract configuration from path [");
+		errorMsg.append(path.c_str()).append("]");
 		_pEmaConfig->appendErrorMessage(errorMsg, result);
 	}
 }
@@ -158,71 +157,144 @@ const XMLnode* EmaConfigBaseImpl::getNode(const EmaString& itemToRetrieve) const
 	return 0;
 }
 
-OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaString& fileName)
-{
-#ifdef WIN32
-	char* fileLocation = _getcwd(0, 0);
-#else
-	char* fileLocation = getcwd(0, 0);
-#endif
-	EmaString message("reading configuration file [");
-	message.append(fileName).append("] from [").append(fileLocation).append("]");
-	_pEmaConfig->appendErrorMessage(message, OmmLoggerClient::VerboseEnum);
-	free(fileLocation);
+//  helper function for handling errors in readXMLconfiguration
+static OmmLoggerClient::Severity handleConfigurationPathError(const EmaString& errorMsg, bool userSpecifiedPath) {
+	if (userSpecifiedPath)
+		throwIceException(errorMsg);
+	return OmmLoggerClient::ErrorEnum; // only happens if no path was specified
+}
 
+/*
+ * read and parse a configuration file
+ *
+ * if parameter path is empty, attempt to read and parse file EmaConfig.xml in the current working directory. Return
+ * OmmLoggerClient::SuccessEnum or OmmLoggerClient::ErrorEnum
+ *
+ * if parameter path is not empty, read the configuration from path if it is a file or file path/EmaConfig.xml if path is a directory.
+ * If a configuration can be constructed from the file, return OmmLoggerClient::SuccessEnum. Otherwise, throw an
+ * OmmInvalidConfigurationException exception
+ */
+OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaString& path)
+{
+	EmaString fileName;		// eventual location of config file
+	const EmaString defaultFileName( "EmaConfig.xml" ); // used if path is empty or contains a directory
+
+	if ( path.empty() )
+		fileName = defaultFileName;
+	else {						// user specified a path
+		int statResult;
+#ifdef WIN32
+		struct _stat statBuffer;
+		statResult = _stat(path.c_str(), &statBuffer);
+#define getcwd _getcwd
+#else
+		struct stat statBuffer;
+		statResult = stat(path.c_str(), &statBuffer);
+#endif
+		if (statResult == -1) {
+			EmaString errorMsg( "configuration path [" );
+			errorMsg.append(path).append("] does not exist;")
+				.append("working directory was [").append(getcwd(0, 0)).append("];")
+				.append("system error message [").append(strerror(errno)).append("]");
+			throwIceException(errorMsg);
+		}
+
+		// path must be a file or directory
+		if (statBuffer.st_mode & S_IFREG) // path is a file
+			fileName = path;
+
+		// if path is a directory, create fileName and verify existence, and verify that it is a file
+		else if (statBuffer.st_mode & S_IFDIR) {
+			fileName = path;
+			fileName.append("/").append(defaultFileName);
+#ifdef WIN32
+			statResult = _stat(fileName.c_str(), &statBuffer);
+#else
+			statResult = stat(fileName.c_str(), &statBuffer);
+#endif
+			// file must exist
+			if (statResult == -1) {
+				EmaString errorMsg( "fileName [" );
+				errorMsg.append(fileName).append("] does not exist;")
+					.append("working directory was [").append(getcwd(0, 0)).append("];")
+					.append("system error message [").append(strerror(errno)).append("]");
+				throwIceException(errorMsg);
+			}
+			// file must be a file
+			if ( ! (statBuffer.st_mode & S_IFREG) ) {
+				EmaString errorMsg( "fileName [" );
+				errorMsg.append(fileName).append("] is not a file;")
+					.append("working directory was [").append(getcwd(0, 0)).append("]");
+				throwIceException(errorMsg);
+			}
+		}
+
+		else {
+			EmaString errorMsg( "configuration path [" );
+			errorMsg.append(path).append("] must be either a file or directory;")
+				.append("working directory was [").append(getcwd(0, 0)).append("]");
+			throwIceException(errorMsg);
+		}
+	}
+
+	// at this point, we have a fileName, a path with that name exists, and that path is a file
+	int statResult;
 #ifdef WIN32
 	struct _stat statBuffer;
-	int statResult(_stat(fileName, &statBuffer));
+	statResult = _stat(fileName.c_str(), &statBuffer);
 #else
 	struct stat statBuffer;
-	int statResult(stat(fileName.c_str(), &statBuffer));
+	statResult = stat(fileName.c_str(), &statBuffer);
 #endif
-	if (statResult)
-	{
-		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName).append("]; system error message [").append(strerror(errno)).append("]");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
-		return OmmLoggerClient::VerboseEnum;
-	}
 	if (!statBuffer.st_size)
 	{
 		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName).append("]; file is empty");
+		errorMsg.append(fileName.c_str()).append("]; file is empty");
 		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-		return OmmLoggerClient::ErrorEnum;
+		return handleConfigurationPathError(errorMsg, !path.empty());
 	}
+
 	FILE* fp;
 	fp = fopen(fileName.c_str(), "r");
 	if (!fp)
 	{
 		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName).append("]; could not open file; system error message [").append(strerror(errno)).append("]");
+		errorMsg.append(fileName.c_str()).append("]; could not open file; system error message [").append(strerror(errno)).append("]");
 		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-		return OmmLoggerClient::ErrorEnum;
+		return handleConfigurationPathError(errorMsg, !path.empty());
 	}
 
 	char* xmlData = reinterpret_cast<char*>(malloc(statBuffer.st_size + 1));
 	if (!xmlData)
 	{
 		EmaString errorMsg("Failed to allocate memory for reading configuration file[");
-		errorMsg.append(fileName).append("];");
+		errorMsg.append(fileName.c_str()).append("]");
 		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-		return OmmLoggerClient::ErrorEnum;
+		return handleConfigurationPathError(errorMsg, !path.empty());
 	}
+
 	size_t bytesRead(fread(reinterpret_cast<void*>(xmlData), sizeof(char), statBuffer.st_size, fp));
 	if (!bytesRead)
 	{
 		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName).append("]; fread failed; system error message [").append(strerror(errno)).append("]");
+		errorMsg.append(fileName.c_str()).append("]; fread failed; system error message [").append(strerror(errno)).append("]");
 		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
 		free(xmlData);
-		return OmmLoggerClient::ErrorEnum;
+		return handleConfigurationPathError(errorMsg, !path.empty());
 	}
 	fclose(fp);
 	xmlData[bytesRead] = 0;
-	bool retVal(extractXMLdataFromCharBuffer(fileName, xmlData, static_cast<int>(bytesRead)));
+	bool retVal(extractXMLdataFromCharBuffer(fileName.c_str(), xmlData, static_cast<int>(bytesRead)));
 	free(xmlData);
-	return (retVal == true ? OmmLoggerClient::SuccessEnum : OmmLoggerClient::ErrorEnum);
+
+	if ( retVal )
+		return OmmLoggerClient::SuccessEnum;
+	else {
+		EmaString errorMsg;
+		if (!path.empty())
+			errorMsg.append("could not construct configuration from file [").append(fileName).append("]");
+		return handleConfigurationPathError(errorMsg, !path.empty());
+	}
 }
 
 bool EmaConfigBaseImpl::extractXMLdataFromCharBuffer(const EmaString& what, const char* xmlData, int length)
@@ -695,7 +767,9 @@ void EmaConfigBaseImpl::getServiceNames(const EmaString& directoryName, EmaVecto
 }
 
 
-EmaConfigImpl::EmaConfigImpl() :
+EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
+	EmaConfigBaseImpl( path ),
+	configFilePath(path),
 	_loginRdmReqMsg( *this ),
 	_pDirectoryRsslRequestMsg( 0 ),
 	_pRdmFldRsslRequestMsg( 0 ),
@@ -884,7 +958,14 @@ void EmaConfigImpl::getChannelName( const EmaString& instanceName, EmaString& re
 	nodeName.append( instanceName );
 	nodeName.append( "|Channel" );
 
-	get<EmaString>( nodeName, retVal );
+	if ( !get<EmaString>(nodeName, retVal) )
+	{
+		EmaString nodeName( _instanceNodeName );
+		nodeName.append( instanceName );
+		nodeName.append( "|ChannelSet" );
+
+		get<EmaString>( nodeName, retVal );
+	}
 }
 
 void EmaConfigImpl::addLoginReqMsg( RsslRequestMsg* pRsslRequestMsg )
@@ -1000,7 +1081,8 @@ AdminRefreshMsg* EmaConfigImpl::getDirectoryRefreshMsg()
 	return pTemp;
 }
 
-EmaConfigServerImpl::EmaConfigServerImpl() :
+EmaConfigServerImpl::EmaConfigServerImpl( const EmaString & path ) :
+	EmaConfigBaseImpl( path ),
 	_portSetViaFunctionCall(),
 	_pDirectoryRsslRefreshMsg(0)
 {
@@ -1271,13 +1353,13 @@ void XMLnode::getServiceNameList( const EmaString& directoryName, EmaVector< Ema
 		EmaList< NameString* > theNames;
 		serviceList->getNames( theNames );
 
-		NameString* pTempName = theNames.pop_front();
+		NameString* pTempName = theNames.pop_back();
 
 		while ( pTempName )
 		{
 			serviceNames.push_back( *pTempName );
 			delete pTempName;
-			pTempName = theNames.pop_front();
+			pTempName = theNames.pop_back();
 		}
 	}
 }

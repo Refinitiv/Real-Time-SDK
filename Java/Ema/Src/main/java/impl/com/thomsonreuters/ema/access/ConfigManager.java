@@ -402,6 +402,7 @@ class ConfigManager
 		NiProviderTagDict.add( "ReconnectAttemptLimit",ReconnectAttemptLimit );		
 		NiProviderTagDict.add( "ReconnectMaxDelay",ReconnectMaxDelay );
 		NiProviderTagDict.add( "ReconnectMinDelay",ReconnectMinDelay );
+		NiProviderTagDict.add( "RequestTimeout", RequestTimeout);
 		NiProviderTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
 		NiProviderTagDict.add( "XmlTraceHex", XmlTraceHex );
 		NiProviderTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
@@ -464,6 +465,7 @@ class ConfigManager
 		IProviderTagDict.add( "PostAckTimeout",PostAckTimeout );
 		IProviderTagDict.add( "ServiceCountHint",ServiceCountHint );
 		IProviderTagDict.add( "RefreshFirstRequired", IProviderRefreshFirstRequired);
+		IProviderTagDict.add( "RequestTimeout", RequestTimeout);
 		IProviderTagDict.add( "AcceptMessageWithoutAcceptingRequests", IProviderAcceptMessageWithoutAcceptingRequests);
 		IProviderTagDict.add( "AcceptDirMessageWithoutMinFilters", IProviderAcceptDirMessageWithoutMinFilters);
 		IProviderTagDict.add( "AcceptMessageWithoutBeingLogin", IProviderAcceptMessageWithoutBeingLogin);

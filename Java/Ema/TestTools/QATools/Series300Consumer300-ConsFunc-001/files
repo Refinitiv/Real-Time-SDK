@@ -1,0 +1,5 @@
+#file,location
+,Src/main/java/interface/com/thomsonreuters/ema/access
+,Src/main/java/impl/com/thomsonreuters/ema/access
+EmaConfig.xml,Src/examples
+Consumer.java,Src/examples/java/com/thomsonreuters/ema/examples/training/consumer/series300/example300__MarketPrice__Close

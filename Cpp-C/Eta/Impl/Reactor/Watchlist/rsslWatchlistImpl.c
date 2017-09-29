@@ -3156,6 +3156,14 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 				{
 
 					case WL_LGCA_NONE:
+
+						if (pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_CONSUMER_CONNECTION_STATUS)
+						{
+							if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, NULL,
+								(RsslRDMMsg*)pLoginMsg, RSSL_FALSE, NULL, pErrorInfo)) != RSSL_RET_SUCCESS)
+								return ret;
+						}
+
 						break;
 
 					case WL_LGCA_PAUSE_ALL:
@@ -3477,6 +3485,33 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 							break;
 
 						}
+					case RDM_DR_MT_CONSUMER_STATUS:
+					{
+						if (!pDirectoryRequest)
+						{
+							rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__,
+								"Generic message submitted for unknown stream %d.", streamId);
+							return RSSL_RET_INVALID_DATA;
+						}
+						
+						if (pDirectoryRequest->state & WL_DR_REQUEST_OK)
+						{
+							
+								pDirectoryMsg->rdmMsgBase.streamId = pWatchlistImpl->directory.pStream->base.streamId;
+								if ((ret = wlEncodeAndSubmitMsg(pWatchlistImpl, NULL,
+									(RsslRDMMsg*)pDirectoryMsg, RSSL_FALSE, NULL, pErrorInfo)) != RSSL_RET_SUCCESS)
+									return ret;
+							
+						}
+						else
+						{
+							rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, __FILE__, __LINE__,
+								"Generic message submitted to stream that is not established.");
+							return RSSL_RET_INVALID_DATA;
+						}
+
+						break;
+					}
 					default:
 						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
 								__FILE__, __LINE__, "Unsupported Directory RDM message type %u.", 

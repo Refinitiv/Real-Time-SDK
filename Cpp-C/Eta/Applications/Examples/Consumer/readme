@@ -21,17 +21,17 @@ behavior by manually creating a link to the dictionary in the execution director
 This application supports consuming Level I Market Price, Level II Market By
 Order, Level II Market By Price, and Yield Curve information as normal or private streams.
 
-The private stream redirect scenario is supported. In this scenario, the provider 
+The private stream redirect scenario is supported. In this scenario, the provider
 sends a status message indicating that the requested item be opened on a private
-stream rather than a normal stream. 
+stream rather than a normal stream.
 
-This application can optionally perform on-stream and off-stream posting for Level I 
-Market Price content. The item name used for an off-stream post is "OFFPOST". For 
-simplicity, the off-stream post item name is not configurable, but users can modify 
+This application can optionally perform on-stream and off-stream posting for Level I
+Market Price content. The item name used for an off-stream post is "OFFPOST". For
+simplicity, the off-stream post item name is not configurable, but users can modify
 the code if desired.
 
 If multiple item requests are specified on the command line for the same domain and
-the provider supports batch requests, this application will send the item requests as a 
+the provider supports batch requests, this application will send the item requests as a
 single Batch request.
 
 If supported by the provider and the application requests view use, a dynamic
@@ -70,7 +70,7 @@ Consumer
 
 or
 
-./Consumer [-uname <LoginUsername>] [-at <AuthenticationToken>] [-ax <AuthenticationExtended] [-h <SrvrHostname>] [-p <SrvrPortNo>] [-c <ConnType>] [-s <ServiceName>] [-aid <ApplicationId] [-view] [-post] [-offpost] [-snapshot] [-sl [<SymbolList Name>]] [-mp|-mpps <MarketPrice ItemName>] [-mbo|-mbops <MarketByOrder ItemName>] [-mbp|-mbpps <MarketByPrice ItemName>] [-runtime <seconds>] [-td]
+./Consumer [-uname <LoginUsername>] [-at <AuthenticationToken>] [-ax <AuthenticationExtended] [-h <SrvrHostname>] [-p <SrvrPortNo>] [-c <ConnType>] [-s <ServiceName>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-sl [<SymbolList Name>]] [-mp|-mpps <MarketPrice ItemName>] [-mbo|-mbops <MarketByOrder ItemName>] [-mbp|-mbpps <MarketByPrice ItemName>] [-runtime <seconds>] [-td]
 
 
 The user can specify multiple -mp/-mpps, -mbo/mbops, -mbp/mbpps, and -yc/ycps instances, where
@@ -112,7 +112,7 @@ before exiting, in seconds.
 Specifying the -at option configures the token used for TREP Authentication.  This should be used 
 in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
 will verify the token against a token validator.  For more information about the TREP Authentication
-feature, please see the Developers guide and the TREP Authentication guide. 
+feature, please see the Developers guide and the TREP Authentication guide.
 
 Specifying the -ax option configures the authentication extended information used for TREP Authentication.
 
@@ -143,6 +143,8 @@ set LINKTYPE=Shared.
 To compile, run the gmake command.
 
 Gmake can be obtained at http://www.gnu.org/software/make/
+For windows platform, using Visual Studio, open one of the included vcxproj project
+files and build.
 
 ----------------
 Example Content:

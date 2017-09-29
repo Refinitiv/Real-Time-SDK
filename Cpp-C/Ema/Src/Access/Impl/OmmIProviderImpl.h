@@ -64,6 +64,18 @@ public:
 
 	void onServiceGroupChange(ClientSession* clientSession, RsslUInt serviceId, RsslRDMServiceGroupState*&, RsslUInt32 groupStateCount);
 
+	ImplementationType getImplType();
+
+	ItemWatchList& getItemWatchList();
+
+	bool getServiceId(const EmaString&, UInt64&);
+
+	bool getServiceName(UInt64, EmaString&);
+
+	void processChannelEvent(RsslReactorChannelEvent*);
+
+	UInt32 getRequestTimeout();
+
 private:
 
 	bool encodeServiceIdFromName(const EmaString& serviceName, RsslUInt16& serviceId, RsslMsgBase& rsslMsgBase );
@@ -72,7 +84,7 @@ private:
 
 	bool submit(RsslReactorSubmitMsgOptions submitMsgOptions, const EmaVector< ItemInfo* >& itemList, EmaString& text, bool applyDirectoryFilter, RsslErrorInfo& rsslErrorInfo);
 
-	void handleItemInfo(int domainType, UInt64 handle, RsslState& state);
+	void handleItemInfo(int domainType, UInt64 handle, RsslState& state, bool refreshComplete = false);
 
 	void handleItemGroup(ItemInfo* itemInfo, RsslBuffer& groupId, RsslState&);
 
@@ -81,6 +93,7 @@ private:
 	bool											_storeUserSubmitted;
 	RsslRDMDirectoryMsg								_rsslDirectoryMsg;
 	RsslBuffer										_rsslDirectoryMsgBuffer;
+	ItemWatchList									_itemWatchList;
 
 	OmmIProviderImpl();
 	OmmIProviderImpl(const OmmIProviderImpl&);

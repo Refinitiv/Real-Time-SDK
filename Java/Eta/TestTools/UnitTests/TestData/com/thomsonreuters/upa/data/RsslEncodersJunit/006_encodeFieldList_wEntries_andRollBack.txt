@@ -1,0 +1,14 @@
+# rssldatatest - encode a field list with field entries and rollback.
+#
+#  FieldListInit
+#    FieldEntry - (22)  UINT 12345
+#  FieldListComplete false (roll-back)
+#  FieldListInit
+#    FieldEntry - (10)  REAL Blank
+#    FieldEntry - (175) pre-encoded data. (ABCDEFG)
+#    FieldEntry - (32)  UINT 554433
+#    FieldEntry - (111) REAL 867564 EXPONENT_4.
+#    FieldEntry - (54)  REAL Blank - real.isBlank
+#  FieldListComplete
+0903 0200 0300 0500 0a00 00af 0741 4243 4445 4647    .............ABCDEFG
+0020 0308 75c1 006f 040a 0d3c ec00 3600              . ..u..o...<..6.

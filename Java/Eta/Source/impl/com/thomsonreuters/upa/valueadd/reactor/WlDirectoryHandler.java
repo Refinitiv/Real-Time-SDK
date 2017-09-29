@@ -124,6 +124,7 @@ class WlDirectoryHandler implements WlHandler
         if (!isReissue)
         {
         	_stream.userRequestList().add(wlRequest);
+			wlRequest.stream(_stream);
         }
         
         // Queue request message for assembly and dispatch only if the requestMsg wants a refresh and we have a refresh message
@@ -163,12 +164,35 @@ class WlDirectoryHandler implements WlHandler
                 {
                     // replace service id if message submitted with service name 
                     if (submitOptions.serviceName() != null &&
-                        ((GenericMsg)msg).checkHasMsgKey() &&
-                        ((GenericMsg)msg).msgKey().checkHasServiceId())
+                        ((GenericMsg)msg).checkHasMsgKey())
                     {
-                        int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
-                        ((GenericMsg)msg).msgKey().serviceId(serviceId);
+                    	if (!((GenericMsg)msg).msgKey().checkHasServiceId())
+                    	{
+                    		int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
+                    		if (serviceId < ReactorReturnCodes.SUCCESS)
+                    		{
+                    			return _watchlist.reactor().populateErrorInfo(errorInfo,
+                    					serviceId,
+                    					"WlDirectoryHandler.submitMsg",
+                    					"Message submitted with unknown service name " + submitOptions.serviceName() + ".");                	
+                    		}
+                    		else
+                    		{
+                    			((GenericMsg)msg).msgKey().applyHasServiceId();
+                    			((GenericMsg)msg).msgKey().serviceId(serviceId);
+                    		}
+                    	}
+                    	else
+                    	{
+							return _watchlist.reactor().populateErrorInfo(errorInfo,
+									ReactorReturnCodes.INVALID_USAGE,
+									"WlDirectoryHandler.submitMsg",
+									"Message submitted with both service name and service ID.");
+                    	}
                     }
+                    
+                    // replace stream id with aggregated stream id
+				    msg.streamId(wlRequest.stream().streamId());
                     
                     // send message
                     if ((ret = _stream.sendMsg(msg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
@@ -1051,6 +1075,7 @@ class WlDirectoryHandler implements WlHandler
                 // Go immediately into Refresh Complete Pending state because we do not use Pending Request
                 wlRequest.state(WlRequest.State.REFRESH_PENDING);
             	_stream.userRequestList().add(wlRequest);	
+				wlRequest.stream(_stream);
             	_roleDirectoryRequestAdded = true;
         	}
         	else

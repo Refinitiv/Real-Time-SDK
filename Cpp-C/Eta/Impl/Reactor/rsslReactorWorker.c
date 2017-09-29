@@ -53,6 +53,9 @@ void _reactorWorkerShutdown(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pError
 /* Shuts down in response to a request from the reactor */
 void _reactorWorkerHandleShutdownRequest(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pErrorInfo);
 
+/* Cleans up any memory of copied RDMMsgs. */
+static void _reactorWorkerFreeChannelRDMMsgs(RsslReactorChannelImpl *pReactorChannel);
+
 /* Setup and start the worker thread (Should be called from rsslCreateReactor) */
 RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, RsslErrorInfo *pError);
 
@@ -128,6 +131,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->channelPool))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
+		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pNotifierEvent)
@@ -139,6 +143,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->initializingChannels))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
+		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
@@ -152,6 +157,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->activeChannels))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
+		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
@@ -165,6 +171,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->inactiveChannels))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
+		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
@@ -178,6 +185,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->closingChannels))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
+		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
@@ -191,6 +199,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 	while (pLink = rsslQueueRemoveFirstLink(&pReactorImpl->reconnectingChannels))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
+		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 		_rsslChannelFreeConnectionList(pReactorChannel);
 		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
 		if (pReactorChannel->pWatchlist)
@@ -277,7 +286,12 @@ RsslRet _reactorWorkerHandleChannelFailure(RsslReactorImpl *pReactorImpl, RsslRe
 		}
 	}
 
-	_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.inactiveChannels, pReactorChannel);
+	/* The RsslReactorChannelImpl must not be moved to RsslReactorWorker.inactiveChannels when the channel is closed by the users as it will be returned to the 
+	channel pool of RsslReactorImpl for reusing later. */  
+	if (pReactorChannel->workerParentList != NULL)
+	{
+		_reactorWorkerMoveChannel(&pReactorImpl->reactorWorker.inactiveChannels, pReactorChannel);
+	}
 
 	rsslClearReactorChannelEventImpl(pEvent);
 
@@ -488,6 +502,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 													}
 												}
+
+												/* Free copied RDMMsgs */
+												_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
 
 												/* Free connection list */
 												if(pReactorChannel->connectionOptList)
@@ -926,4 +943,52 @@ RsslRet _reactorWorkerProcessNewChannel(RsslReactorImpl *pReactorImpl, RsslReact
 			return _reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr);
 		}
 	}
+}
+
+static void _reactorWorkerFreeChannelRDMMsgs(RsslReactorChannelImpl *pReactorChannel)
+{
+	/* Free any copied RDM messages. */
+	switch(pReactorChannel->channelRole.base.roleType)
+	{
+		case RSSL_RC_RT_OMM_CONSUMER:
+		{
+			RsslReactorOMMConsumerRole *pConsRole = (RsslReactorOMMConsumerRole*)&pReactorChannel->channelRole;
+
+			if (pConsRole->pLoginRequest)
+			{
+				free(pConsRole->pLoginRequest);
+				pConsRole->pLoginRequest = NULL;
+			}
+
+			if (pConsRole->pDirectoryRequest)
+			{
+				free(pConsRole->pDirectoryRequest);
+				pConsRole->pDirectoryRequest = NULL;
+			}
+
+		}
+
+		case RSSL_RC_RT_OMM_NI_PROVIDER:
+		{
+			RsslReactorOMMNIProviderRole *pNIProvRole = (RsslReactorOMMNIProviderRole*)&pReactorChannel->channelRole;
+
+			if (pNIProvRole->pLoginRequest)
+			{
+				free(pNIProvRole->pLoginRequest);
+				pNIProvRole->pLoginRequest = NULL;
+			}
+
+			if (pNIProvRole->pDirectoryRefresh)
+			{
+				free(pNIProvRole->pDirectoryRefresh);
+				pNIProvRole->pDirectoryRefresh = NULL;
+			}
+
+			break;
+		}
+
+		default:
+			break;
+	}
+
 }

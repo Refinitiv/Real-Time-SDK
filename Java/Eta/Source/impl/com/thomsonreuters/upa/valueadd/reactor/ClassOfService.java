@@ -31,7 +31,6 @@ import com.thomsonreuters.upa.transport.TransportFactory;
  * */
 public class ClassOfService
 {
-    private final int DEFAULT_BIDIRECTIONAL_FLOW_CONTROL_VALUE = CosCommon.DEFAULT_MAX_FRAGMENT_SIZE * 2;    
     private CosCommon _commonProperties = new CosCommon();
     private CosAuthentication _authentication = new CosAuthentication();
     private CosFlowControl _flowControl = new CosFlowControl();
@@ -744,12 +743,6 @@ public class ClassOfService
             _elemEntry.name(ClassesOfService.ElementNames.RECV_WINDOW_SIZE);
             _elemEntry.dataType(DataTypes.INT);
             int recvWindowSize = _flowControl.recvWindowSize();
-            // check for no setting by user and set to default
-            if (_flowControl.type() == ClassesOfService.FlowControlTypes.BIDIRECTIONAL &&
-                _flowControl.recvWindowSize() == -1)
-            {
-                recvWindowSize = DEFAULT_BIDIRECTIONAL_FLOW_CONTROL_VALUE;
-            }
             _tempInt.value(recvWindowSize);
             if ((ret = _elemEntry.encode(eIter, _tempInt)) < CodecReturnCodes.SUCCESS)
             {

@@ -21,6 +21,14 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		channelOrChannelSet.add(ConfigManager.ChannelSet);
 		clear();
 	}
+	
+	OmmConsumerConfigImpl(String path)
+	{
+		super(path);
+		channelOrChannelSet.add(ConfigManager.ConsumerChannelName);
+		channelOrChannelSet.add(ConfigManager.ChannelSet);
+		clear();
+	}
 
 	@Override
 	public OmmConsumerConfig clear()

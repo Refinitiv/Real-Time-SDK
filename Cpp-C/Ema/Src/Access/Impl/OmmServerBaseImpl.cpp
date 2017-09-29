@@ -83,6 +83,7 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pDirectoryHandler(0),
 	_pDictionaryHandler(0),
 	_pMarketItemHandler(0),
+	_pItemCallbackClient(0),
 	_pLoggerClient(0),
 	_pipe(),
 	_pipeWriteCount(0),
@@ -111,6 +112,7 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pDirectoryHandler(0),
 	_pDictionaryHandler(0),
 	_pMarketItemHandler(0),
+	_pItemCallbackClient(0),
 	_pLoggerClient(0),
 	_pipe(),
 	_pipeWriteCount(0),
@@ -575,6 +577,9 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 		_pMarketItemHandler = MarketItemHandler::create(this);
 		_pMarketItemHandler->initialize();
 
+		_pItemCallbackClient = ItemCallbackClient::create( *this );
+		_pItemCallbackClient->initialize();
+
 		rsslClearOMMProviderRole(&_providerRole);
 		_providerRole.base.channelEventCallback = ServerChannelHandler::channelEventCallback;
 		_providerRole.base.defaultMsgCallback = MarketItemHandler::itemCallback;
@@ -821,6 +826,8 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 		return;
 	}
 
+	_atExit = true;
+
 	if (isApiDispatching() && !caughtException)
 	{
 		eventReceived();
@@ -856,6 +863,8 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 
 		_pRsslReactor = 0;
 	}
+
+	ItemCallbackClient::destroy(_pItemCallbackClient);
 
 	MarketItemHandler::destroy(_pMarketItemHandler);
 
@@ -916,6 +925,11 @@ void OmmServerBaseImpl::setAtExit()
 	eventReceived();
 	msgDispatched();
 	pipeWrite();
+}
+
+bool OmmServerBaseImpl::isAtExit()
+{
+	return _atExit;
 }
 
 Int64 OmmServerBaseImpl::rsslReactorDispatchLoop(Int64 timeOut, UInt32 count, bool& bMsgDispRcvd)
@@ -1315,6 +1329,11 @@ void OmmServerBaseImpl::handleMee(const char* text)
 		throwMeeException(text);
 }
 
+ItemCallbackClient& OmmServerBaseImpl::getItemCallbackClient()
+{
+	return *_pItemCallbackClient;
+}
+
 MarketItemHandler& OmmServerBaseImpl::getMarketItemHandler()
 {
 	return *_pMarketItemHandler;
@@ -1363,6 +1382,11 @@ void OmmServerBaseImpl::eventReceived(bool value)
 ActiveServerConfig& OmmServerBaseImpl::getActiveConfig()
 {
 	return _activeServerConfig;
+}
+
+LoggerConfig& OmmServerBaseImpl::getActiveLoggerConfig()
+{
+	return _activeServerConfig.loggerConfig;
 }
 
 void OmmServerBaseImpl::run()

@@ -23,6 +23,14 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 		clear();
 	}
 
+	OmmNiProviderConfigImpl(String path)
+	{
+		super(path);
+		channelOrChannelSet.add(ConfigManager.NiProviderChannelName);
+		channelOrChannelSet.add(ConfigManager.ChannelSet);
+		clear();
+	}
+
 	@Override
 	public OmmNiProviderConfig clear() {
 		clearInt();
@@ -122,13 +130,13 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	@Override
 	public OmmNiProviderConfig addAdminMsg(ReqMsg reqMsg) {
 		addAdminMsgInt(reqMsg);
-		return null;
+		return this;
 	}
 
 	@Override
 	public OmmNiProviderConfig addAdminMsg(RefreshMsg refreshMsg) {
 		addAdminMsgInt(refreshMsg);
-		return null;
+		return this;
 	}
 	
 	@Override

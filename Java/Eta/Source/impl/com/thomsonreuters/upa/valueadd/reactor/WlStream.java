@@ -517,7 +517,7 @@ class WlStream extends VaNode
                             if (_aggregateView != null && 	(int)(msg.flags() & RequestMsgFlags.HAS_VIEW) > 0)
                             	_aggregateView.viewHandler().aggregateViewCommit(_aggregateView);
 
-                            if (_aggregateView!= null && _requestsWithViewCount == 0 )
+                            if (_aggregateView != null && _requestsWithViewCount == 0 )
                             {
                             	_aggregateView.viewHandler().aggregateViewDestroy(_aggregateView);
                             }                    		

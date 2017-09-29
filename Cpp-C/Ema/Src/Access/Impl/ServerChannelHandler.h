@@ -48,6 +48,8 @@ public:
 
 	const EmaList<ClientSession*>& getClientSessionList();
 
+	ClientSessionPtr getClientSessionForDictReq() const;
+
 private:
 
 	static const EmaString			_clientName;

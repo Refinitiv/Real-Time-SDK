@@ -29,8 +29,8 @@ using namespace thomsonreuters::ema::access;
 
 extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 
-OmmConsumerConfigImpl::OmmConsumerConfigImpl() :
-	EmaConfigImpl(),
+OmmConsumerConfigImpl::OmmConsumerConfigImpl(const EmaString & path) :
+	EmaConfigImpl(path),
 	_operationModel( OmmConsumerConfig::ApiDispatchEnum )
 {
 	_instanceNodeName = "ConsumerGroup|ConsumerList|Consumer.";

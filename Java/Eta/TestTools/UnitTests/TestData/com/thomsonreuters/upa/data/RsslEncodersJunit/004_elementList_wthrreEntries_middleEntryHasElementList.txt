@@ -1,0 +1,15 @@
+# rssldatatest - encode an element list with three entries.
+# ElementListInit
+#   entry1 - "uint type" UINT 1234
+#   entry2 - "container type" ElementList
+#     ElementListInit
+#       entry1: "string type" ASCII "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#     ElementListComplete
+#   entry3 - "uint type" UINT 987654321
+# ElementListComplete
+0800 0309 7569 6e74 2074 7970 6504 0204 d20e 636f    ....uint type.....co
+6e74 6169 6e65 7220 7479 7065 85fe 002b 0800 010b    ntainer type...+....
+7374 7269 6e67 2074 7970 6511 1a41 4243 4445 4647    string type..ABCDEFG
+4849 4a4b 4c4d 4e4f 5051 5253 5455 5657 5859 5a0f    HIJKLMNOPQRSTUVWXYZ.
+616e 6f74 6865 7220 656c 656d 656e 7404 043a de68    another element..:.h
+b1                                                   .

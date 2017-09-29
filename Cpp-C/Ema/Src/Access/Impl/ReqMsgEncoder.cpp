@@ -18,7 +18,8 @@
 using namespace thomsonreuters::ema::access;
 
 ReqMsgEncoder::ReqMsgEncoder() :
- MsgEncoder()
+ MsgEncoder(),
+ _domainTypeSet(false)
 {
 	rsslClearRequestMsg( &_rsslRequestMsg );
 	_rsslRequestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
@@ -33,6 +34,8 @@ ReqMsgEncoder::~ReqMsgEncoder()
 void ReqMsgEncoder::clear()
 {
 	MsgEncoder::clear();
+
+	_domainTypeSet = false;
 
 	rsslClearRequestMsg( &_rsslRequestMsg );
 	_rsslRequestMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
@@ -329,6 +332,8 @@ void ReqMsgEncoder::domainType( UInt8 domainType )
 	acquireEncIterator();
 
 	_rsslRequestMsg.msgBase.domainType = domainType;
+
+	_domainTypeSet = true;
 }
 
 void ReqMsgEncoder::streamId( Int32 streamId )
@@ -559,4 +564,9 @@ UInt32 ReqMsgEncoder::getBatchItemListSize() const
 	}
 
 	return 0;
+}
+
+bool ReqMsgEncoder::isDomainTypeSet() const
+{
+	return _domainTypeSet;
 }

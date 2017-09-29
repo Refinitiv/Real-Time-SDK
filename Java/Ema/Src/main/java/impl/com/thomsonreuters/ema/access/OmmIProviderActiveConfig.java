@@ -26,13 +26,15 @@ class OmmIProviderActiveConfig extends ActiveServerConfig
 	static final String DEFAULT_SERVICE_NAME							=   "DIRECT_FEED";
 	static final int DEFAULT_FIELD_DICT_FRAGMENT_SIZE         = 8192;
 	static final int DEFAULT_ENUM_TYPE_FRAGMENT_SIZE        = 128000;
+	static final int DEFAULT_REQUEST_TIMEOUT				= 15000;
 	    
 	
 	int 						directoryAdminControl;
 	int                         dictionaryAdminControl;
 	boolean						refreshFirstRequired;
-	int                        maxFieldDictFragmentSize = DEFAULT_FIELD_DICT_FRAGMENT_SIZE;
-	int                        maxEnumTypeFragmentSize = DEFAULT_ENUM_TYPE_FRAGMENT_SIZE;
+	int							maxFieldDictFragmentSize;
+	int							maxEnumTypeFragmentSize;
+	int							requestTimeout;
 
 	OmmIProviderActiveConfig()
 	{
@@ -41,6 +43,9 @@ class OmmIProviderActiveConfig extends ActiveServerConfig
 		directoryAdminControl = DEFAULT_DIRECTORY_ADMIN_CONTROL;
 		dictionaryAdminControl = DEFAULT_DICTIONARY_ADMIN_CONTROL;
 		refreshFirstRequired = DEFAULT_REFRESH_FIRST_REQUIRED;
+		maxFieldDictFragmentSize = DEFAULT_FIELD_DICT_FRAGMENT_SIZE;
+		maxEnumTypeFragmentSize = DEFAULT_ENUM_TYPE_FRAGMENT_SIZE;
+		requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 	}
 
 	@Override

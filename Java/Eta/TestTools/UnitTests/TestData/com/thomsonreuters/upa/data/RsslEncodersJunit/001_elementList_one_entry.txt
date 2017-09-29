@@ -1,0 +1,8 @@
+# rssldatatest: encode element list with one entry
+#               elementList
+#					flags = HAS_INFO | HAS_STANDARD_DATA
+#				    elementListNum = 29731 (0xF423)
+#                   elementEntry
+#                       name="unit" dataType=RsslUInt encode=1234
+#
+0902 7423 0001 0475  696e 7404 0204 d2            ...#...unit....

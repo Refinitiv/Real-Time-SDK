@@ -1,0 +1,5 @@
+# file,location
+rsslProvider.c,Applications/Examples/VAProvider
+rsslItemHandler.h,Applications/Examples/VAProvider
+rsslItemHandler.c,Applications/Examples/VAProvider
+,Applications/Examples/VACommon

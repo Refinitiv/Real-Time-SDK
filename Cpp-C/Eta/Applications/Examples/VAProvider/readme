@@ -49,7 +49,7 @@ is not intended to be used for measuring performance.
 Application Name:
 -----------------
 
-rsslVAProvider
+VAProvider
 
 ------------------
 Setup Environment:
@@ -63,17 +63,17 @@ cannot be found, the provider application exits.
 Command line usage:
 -------------------  
 
-rsslVAProvider
+VAProvider
 (runs with a default set of parameters (-p 14002 -s DIRECT_FEED -id 1))
 
 or
 
-rsslVAProvider [ -p <PortNo> ] [ -s <ServiceName> ] [ -id <ServiceId> ] [-runtime <seconds>] [-cache]
+VAProvider [ -p <PortNo> ] [ -s <ServiceName> ] [ -id <ServiceId> ] [-runtime <seconds>] [-cache]
 
 Specifying the -runtime option controls the time the application will run
 before exiting, in seconds.
 
-- rsslVAProvider -? displays command line options.  
+- VAProvider -? displays command line options.  
 
 - Pressing the CTRL+C buttons terminates the program.  
 
@@ -95,6 +95,9 @@ set LINKTYPE=Shared.
 To compile, run the gmake command.
 
 Gmake can be obtained at http://www.gnu.org/software/make/
+
+For windows platform, using Visual Studio, open one of the included vcxproj project
+files and build.
 
 ----------------
 Example Content:

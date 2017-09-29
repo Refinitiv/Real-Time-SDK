@@ -1,0 +1,20 @@
+# Encoded by hand - PHK 05/30/2012.
+#
+# 00 26 = u16 header length
+# 01 = msgClass (REQUEST)
+# 06 = type (MARKET_PRICE)
+# 00 00 00 64 = StreamId (100d)
+# 00 = Request Flags (0)
+# 00 = Data Format (NO_DATA)
+# Next is the Key.
+# 80 1C = u15-rb msgKeySize (28d) then set reserveBit before writing.
+# 36 = keyFlags (54d) (NAME=0x02, NAME_TYPE=0x04, IDENTIFIER=0x10, ATTRRIB=0x20) = 0x36.
+# 05 54 52 49 2E 4E = buffer8 name (05=length) (52 52 49 2E 4E=data)
+# 01 = nameType (RIC)
+# 00 00 7F FF = Identifier (0x7fff)
+# 02 = dataFormat (OPAQUE)
+# 0E 45 4E 43 4F 44 45 44 20 41 54 54 52 49 42 = attrib (buffer15) (0E=length)
+
+00 26 01 06 00 00 00 64  00 00 80 1C 36 05 54 52   .&.....d....6.TR
+49 2E 4E 01 00 00 7F FF  02 0E 45 4E 43 4F 44 45   I.N.......ENCODE
+44 20 41 54 54 52 49 42                            D ATTRIB

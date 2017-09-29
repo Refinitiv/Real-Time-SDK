@@ -324,6 +324,68 @@ RsslReactorCallbackRet DictionaryHandler::dictionaryCallback(RsslReactor* pReact
 
 			return RSSL_RC_CRET_SUCCESS;
 		}
+		case RDM_DC_MT_REFRESH:
+		{
+			if (OmmLoggerClient::VerboseEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
+			{
+				EmaString temp("Received dictionary refresh message.");
+				temp.append(CR).append("Stream Id ").append(pDictionaryMsg->rdmMsgBase.streamId)
+					.append(CR).append("Client handle ").append(clientSession->getClientHandle())
+					.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName());
+
+				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
+			}
+
+			const RsslDataDictionary* rsslDataDictionary = 0;
+
+			RsslRefreshMsg& refreshMsg = pRDMDictionaryMsgEvent->baseMsgEvent.pRsslMsg->refreshMsg;
+
+			if ( ( refreshMsg.flags & RSSL_RFMF_HAS_MSG_KEY) && ( refreshMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) )
+			{
+				Dictionary* pDictionary = ommServerBaseImpl->getDictionaryHandler().getDictionaryByServiceId( refreshMsg.msgBase.msgKey.serviceId );
+
+				if (pDictionary)
+				{
+					rsslDataDictionary = pDictionary->getRsslDictionary();
+				}
+			}
+
+			ommServerBaseImpl->getItemCallbackClient().processIProviderMsgCallback( pReactor, pReactorChannel, &pRDMDictionaryMsgEvent->baseMsgEvent, 
+				rsslDataDictionary );
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+		case RDM_DC_MT_STATUS:
+		{
+			if (OmmLoggerClient::VerboseEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
+			{
+				EmaString temp("Received dictionary status message.");
+				temp.append(CR).append("Stream Id ").append(pDictionaryMsg->rdmMsgBase.streamId)
+					.append(CR).append("Client handle ").append(clientSession->getClientHandle())
+					.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName());
+
+				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
+			}
+
+			const RsslDataDictionary* rsslDataDictionary = 0;
+
+			RsslStatusMsg& statusMsg = pRDMDictionaryMsgEvent->baseMsgEvent.pRsslMsg->statusMsg;
+
+			if ( ( statusMsg.flags & RSSL_STMF_HAS_MSG_KEY ) && ( statusMsg.msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID ) )
+			{
+				Dictionary* pDictionary = ommServerBaseImpl->getDictionaryHandler().getDictionaryByServiceId( statusMsg.msgBase.msgKey.serviceId );
+
+				if (pDictionary)
+				{
+					rsslDataDictionary = pDictionary->getRsslDictionary();
+				}
+			}
+
+			ommServerBaseImpl->getItemCallbackClient().processIProviderMsgCallback( pReactor, pReactorChannel, &pRDMDictionaryMsgEvent->baseMsgEvent,
+				rsslDataDictionary );
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
 		default:
 		{
 			EmaString temp("Rejected unhandled dictionary message type: ");
@@ -550,6 +612,7 @@ RsslReturnCodes DictionaryHandler::sendFieldDictionaryResponse(RsslReactor* reac
 		{
 			dictionaryRefresh.refresh.flags |= RDM_DC_RFF_CLEAR_CACHE;
 			firstPartMultiPartRefresh = false;
+			dictionaryRefresh.refresh.startFid = dictionary->getRsslDictionary()->minFid;
 		}
 		else
 		{
