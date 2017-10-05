@@ -74,6 +74,32 @@ typedef enum {
 	RSSL_STMF_QUALIFIED_STREAM		= 0x400			/*!< (0x400) Indicates that this RsslStatusMsg is an acknowledgement of a qualified stream establishment. */
 } RsslStatusFlags;
 
+/** 
+ * @brief General OMM strings associated with the different status message flags.
+ * @see RsslStatusFlags, rsslStatusFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_STMF_HAS_EXTENDED_HEADER = { 17, (char*)"HasExtendedHeader" };
+static const RsslBuffer RSSL_OMMSTR_STMF_HAS_PERM_DATA = { 11, (char*)"HasPermData" };
+static const RsslBuffer RSSL_OMMSTR_STMF_HAS_MSG_KEY = { 9, (char*)"HasMsgKey" };
+static const RsslBuffer RSSL_OMMSTR_STMF_HAS_GROUP_ID = { 10, (char*)"HasGroupID" };
+static const RsslBuffer RSSL_OMMSTR_STMF_HAS_STATE = { 8, (char*)"HasState" };
+static const RsslBuffer RSSL_OMMSTR_STMF_CLEAR_CACHE = { 10, (char*)"ClearCache" };
+static const RsslBuffer RSSL_OMMSTR_STMF_PRIVATE_STREAM = { 13, (char*)"PrivateStream" };
+static const RsslBuffer RSSL_OMMSTR_STMF_HAS_POST_USER_INFO = { 15, (char*)"HasPostUserInfo" };
+static const RsslBuffer RSSL_OMMSTR_STMF_HAS_REQ_MSG_KEY = { 12, (char*)"HasReqMsgKey" };
+static const RsslBuffer RSSL_OMMSTR_STMF_QUALIFIED_STREAM = { 15, (char*)"QualifiedStream" };
+
+/**
+ * @brief Provide general OMM string representation of RsslStatusFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslStatusFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslStatusFlags
+ */
+RSSL_API RsslRet rsslStatusFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags);
+
 /**
  * @}
  */

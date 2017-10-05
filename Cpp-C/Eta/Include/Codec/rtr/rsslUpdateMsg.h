@@ -74,6 +74,32 @@ typedef enum {
 	RSSL_UPMF_DISCARDABLE			= 0x400			/*!< (0x400) Indicates that this RsslUpdateMsg can be discarded.  This flag is commonly used with options that have no open interest. */	
 } RsslUpdateFlags;
 
+/** 
+ * @brief General OMM strings associated with the different update message flags.
+ * @see RsslUpdateFlags, rsslUpdateFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_UPMF_HAS_EXTENDED_HEADER = { 17, (char*)"HasExtendedHeader" };
+static const RsslBuffer RSSL_OMMSTR_UPMF_HAS_PERM_DATA = { 11, (char*)"HasPermData" };
+static const RsslBuffer RSSL_OMMSTR_UPMF_HAS_MSG_KEY = { 9, (char*)"HasMsgKey" };
+static const RsslBuffer RSSL_OMMSTR_UPMF_HAS_SEQ_NUM = { 9, (char*)"HasSeqNum" };
+static const RsslBuffer RSSL_OMMSTR_UPMF_HAS_CONF_INFO = { 11, (char*)"HasConfInfo" };
+static const RsslBuffer RSSL_OMMSTR_UPMF_DO_NOT_CACHE = { 10, (char*)"DoNotCache" };
+static const RsslBuffer RSSL_OMMSTR_UPMF_DO_NOT_CONFLATE = { 13, (char*)"DoNotConflate" };
+static const RsslBuffer RSSL_OMMSTR_UPMF_DO_NOT_RIPPLE = { 11, (char*)"DoNotRipple" };
+static const RsslBuffer RSSL_OMMSTR_UPMF_HAS_POST_USER_INFO = { 15, (char*)"HasPostUserInfo" };
+static const RsslBuffer RSSL_OMMSTR_UPMF_DISCARDABLE = { 11, (char*)"Discardable" };
+
+/**
+ * @brief Provide general OMM string representation of RsslUpdateFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslUpdateFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslUpdateFlags
+ */
+RSSL_API RsslRet rsslUpdateFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags);
+
 /**
  * @}
  */

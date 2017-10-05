@@ -151,6 +151,51 @@ typedef enum
 	RSSL_RH_NOT_A_NUMBER	= 35	/*!< RsslReal is not a number (NaN) */
 } RsslRealHints;
 
+/** 
+ * @brief General OMM strings associated with the different real hints.
+ * @see RsslRealHints, rsslRealHintToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_14 = { 4, (char*)"E-14" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_13 = { 4, (char*)"E-13" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_12 = { 4, (char*)"E-12" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_11 = { 4, (char*)"E-11" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_10 = { 4, (char*)"E-10" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_9 = { 3, (char*)"E-9" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_8 = { 3, (char*)"E-8" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_7 = { 3, (char*)"E-7" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_6 = { 3, (char*)"E-6" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_5 = { 3, (char*)"E-5" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_4 = { 3, (char*)"E-4" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_3 = { 3, (char*)"E-3" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_2 = { 3, (char*)"E-2" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT_1 = { 3, (char*)"E-1" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT0 = { 2, (char*)"E0" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT1 = { 2, (char*)"E1" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT2 = { 2, (char*)"E2" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT3 = { 2, (char*)"E3" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT4 = { 2, (char*)"E4" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT5 = { 2, (char*)"E5" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT6 = { 2, (char*)"E6" };
+static const RsslBuffer RSSL_OMMSTR_RH_EXPONENT7 = { 2, (char*)"E7" };
+static const RsslBuffer RSSL_OMMSTR_RH_FRACTION_1 = { 9, (char*)"Fraction1" };
+static const RsslBuffer RSSL_OMMSTR_RH_FRACTION_2 = { 9, (char*)"Fraction2" };
+static const RsslBuffer RSSL_OMMSTR_RH_FRACTION_4 = { 9, (char*)"Fraction4" };
+static const RsslBuffer RSSL_OMMSTR_RH_FRACTION_8 = { 9, (char*)"Fraction8" };
+static const RsslBuffer RSSL_OMMSTR_RH_FRACTION_16 = { 10, (char*)"Fraction16" };
+static const RsslBuffer RSSL_OMMSTR_RH_FRACTION_32 = { 10, (char*)"Fraction32" };
+static const RsslBuffer RSSL_OMMSTR_RH_FRACTION_64 = { 10, (char*)"Fraction64" };
+static const RsslBuffer RSSL_OMMSTR_RH_FRACTION_128 = { 11, (char*)"Fraction128" };
+static const RsslBuffer RSSL_OMMSTR_RH_FRACTION_256 = { 11, (char*)"Fraction256" };
+static const RsslBuffer RSSL_OMMSTR_RH_INFINITY = { 8, (char*)"Infinity" };
+static const RsslBuffer RSSL_OMMSTR_RH_NEG_INFINITY = { 11, (char*)"NegInfinity" };
+static const RsslBuffer RSSL_OMMSTR_RH_NOT_A_NUMBER = { 10, (char*)"NotANumber" };
+
+/**
+ * @brief Provide a general OMM string representation for real hint enumeration.
+ * @see RsslRealHints
+ */
+RSSL_API const char* rsslRealHintToOmmString(RsslUInt8 hint);
+
 /**
  * @}
  */

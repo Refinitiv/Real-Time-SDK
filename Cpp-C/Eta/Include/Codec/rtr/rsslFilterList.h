@@ -28,6 +28,23 @@ typedef enum
 	RSSL_FTF_HAS_TOTAL_COUNT_HINT		= 0x02 			/*!< (0x02) The RsslFilterList contains a total count hint, contained in RsslFilterList::totalCountHint.  */
 } RsslFilterListFlags;
 
+/** 
+ * @brief Strings associated with the different filter list flags.
+ * @see RsslFilterListFlags, rsslFilterListFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_FTF_HAS_PER_ENTRY_PERM_DATA = { 19, (char*)"HasPerEntryPermData" };
+static const RsslBuffer RSSL_OMMSTR_FTF_HAS_TOTAL_COUNT_HINT = { 17, (char*)"HasTotalCountHint" };
+
+/**
+ * @brief Provide general OMM string representation of RsslFilterListFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslFilterListFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslFilterListFlags
+ */
+RSSL_API RsslRet rsslFilterListFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
 
 
 /**
@@ -88,6 +105,24 @@ typedef enum
 	RSSL_FTEF_HAS_CONTAINER_TYPE	= 0x02	/*!< (0x02) This RsslFilterEntry has a container type specified and present in RsslFilterEntry::containerType - this type may differ from the RsslFilterList::containerType  */
 } RsslFilterEntryFlags;
 
+/** 
+ * @brief General OMM strings associated with the different filter entry flags.
+ * @see RsslFilterEntryFlags, rsslFilterEntryFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_FTEF_HAS_PERM_DATA = { 11, (char*)"HasPermData" };
+static const RsslBuffer RSSL_OMMSTR_FTEF_HAS_CONTAINER_TYPE = { 16, (char*)"HasContainerType" };
+
+/**
+ * @brief Provide general OMM string representation of RsslFilterEntryFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslFilterEntryFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslFilterEntryFlags
+ */
+RSSL_API RsslRet rsslFilterEntryFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
+
 /**
  * @brief Action that indicates how to apply contents of an RsslFilterEntry (FTEA = FilterEntry Action) 
  * @see RsslFilterEntry, RsslFilterList
@@ -98,6 +133,20 @@ typedef enum
 	RSSL_FTEA_SET_ENTRY		= 2,	/*!< (2) Set/Replace the contents of the specified RsslFilterEntry::id with the contents of this entry */
 	RSSL_FTEA_CLEAR_ENTRY	= 3		/*!< (3) Clear the contents of the entry at the specified RsslFilterEntry::id, leaving the id present but empty. @note ::RSSL_FTEA_CLEAR_ENTRY actions cannot carry any entry payload.  If payload is necessary for a ::RSSL_FTEA_CLEAR_ENTRY action, an entry with an ::RSSL_FTEA_UPDATE_ENTRY action can be sent and immediatley followed by the same RsslFilterEntry::id on an entry with a ::RSSL_FTEA_CLEAR_ENTRY action.   */
 } RsslFilterEntryActions;
+
+/** 
+ * @brief General OMM strings associated with the different filter entry actions
+ * @see RsslFilterEntryActions, rsslFilterEntryActionToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_FTEA_UPDATE_ENTRY = { 6, (char*)"Update" };
+static const RsslBuffer RSSL_OMMSTR_FTEA_SET_ENTRY = { 3, (char*)"Set" };
+static const RsslBuffer RSSL_OMMSTR_FTEA_CLEAR_ENTRY = { 5, (char*)"Clear" };
+
+/**
+ * @brief Provide a general OMM string representation for a filter entry action enumeration
+ * @see RsslFilterEntryActions
+ */
+RSSL_API const char* rsslFilterEntryActionToOmmString(RsslUInt8 action);
 
 /**
  * @brief One entry contained in an RsslFilterList. If RsslFilterEntry::flags contains ::RSSL_FTEF_HAS_CONTAINER_TYPE, the contents of the entry is specified by RsslFilterEntry::containerType; otherwise the contents of the entry is specified by RsslFilterList::containerType.  Any contents should be applied following the rules of the specified RsslFilterEntry::action ( \ref RsslFilterEntryActions)

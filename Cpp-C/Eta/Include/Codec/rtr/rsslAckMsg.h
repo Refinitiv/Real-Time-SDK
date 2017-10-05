@@ -69,6 +69,28 @@ typedef enum {
 	RSSL_AKMF_QUALIFIED_STREAM		= 0x40		/*!< (0x40) Indicates that this RsslAckMsg acknowledges the establishment of a qualified stream request. */
 } RsslAckFlags;
 
+/** 
+ * @brief General OMM strings associated with the different ack message flags.
+ * @see RsslAckFlags, rsslAckFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_AKMF_HAS_EXTENDED_HEADER = { 17, (char*)"HasExtendedHeader" };
+static const RsslBuffer RSSL_OMMSTR_AKMF_HAS_TEXT = { 7, (char*)"HasText" };
+static const RsslBuffer RSSL_OMMSTR_AKMF_PRIVATE_STREAM = { 13, (char*)"PrivateStream" };
+static const RsslBuffer RSSL_OMMSTR_AKMF_HAS_SEQ_NUM = { 9, (char*)"HasSeqNum" };
+static const RsslBuffer RSSL_OMMSTR_AKMF_HAS_MSG_KEY = { 9, (char*)"HasMsgKey" };
+static const RsslBuffer RSSL_OMMSTR_AKMF_HAS_NAK_CODE = { 10, (char*)"HasNakCode" };
+static const RsslBuffer RSSL_OMMSTR_AKMF_QUALIFIED_STREAM = { 15, (char*)"QualifiedStream" };
+
+/**
+ * @brief Provide general OMM string representation of RsslAckFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslAckFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslAckFlags
+ */
+RSSL_API RsslRet rsslAckFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags);
 
 /** 
  * @brief The Ack Message nakCodes, used to indicate a reason for a negative acknowledgment (NAKC = Nak Code)
@@ -89,6 +111,28 @@ typedef enum {
 	RSSL_NAKC_NOT_OPEN         = 11,	/*!< (11) Item not open. The item being posted to does not have an available stream open. */
 	RSSL_NAKC_INVALID_CONTENT  = 12		/*!< (12) Nak being sent due to invalid content. The content of the post message is invalid and cannot be posted, it does not match the expected formatting for this post. */
 } RsslNakCodes;
+
+/** 
+ * @brief General OMM strings associated with the different nak codes.
+ * @see RsslNakCodes, rsslNakCodeToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_NAKC_NONE = { 4, (char*)"None" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_ACCESS_DENIED = { 12, (char*)"AccessDenied" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_DENIED_BY_SRC = { 11, (char*)"DeniedBySrc" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_SOURCE_DOWN = { 10, (char*)"SourceDown" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_SOURCE_UNKNOWN = { 13, (char*)"SourceUnknown" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_NO_RESOURCES = { 11, (char*)"NoResources" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_NO_RESPONSE = { 10, (char*)"NoResponse" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_GATEWAY_DOWN = { 11, (char*)"GatewayDown" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_SYMBOL_UNKNOWN = { 13, (char*)"SymbolUnknown" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_NOT_OPEN = { 7, (char*)"NotOpen" };
+static const RsslBuffer RSSL_OMMSTR_NAKC_INVALID_CONTENT = { 14, (char*)"InvalidContent" };
+
+/**
+ * @brief Provide a general OMM string representation for an AckMsg NakCode enumeartion
+ * @see RsslAckMsg, RsslNakCodes
+ */
+RSSL_API const char* rsslNakCodeToOmmString(RsslUInt8 code);
 
 
 /**
@@ -174,6 +218,18 @@ RTR_C_ALWAYS_INLINE RsslBool rsslAckMsgCheckHasNakCode(RsslAckMsg *pAckMsg)
 }
 
 /**
+ * @brief Checks the presence of the ::RSSL_AKMF_QUALIFIED_STREAM flag on the given RsslAckMsg.
+ *
+ * @param pAckMsg Pointer to the acknowledgement message.
+ * @return RSSL_TRUE - if exists; RSSL_FALSE if does not exist.
+ */
+RTR_C_ALWAYS_INLINE RsslBool rsslAckMsgCheckQualifiedStream(RsslAckMsg *pAckMsg)
+{
+	return ((pAckMsg->flags & RSSL_AKMF_QUALIFIED_STREAM) ? 
+						RSSL_TRUE : RSSL_FALSE );
+}
+
+/**
  * @brief Applies the ::RSSL_AKMF_HAS_EXTENDED_HEADER flag on the given RsslAckMsg.
  * 
  * @param pAckMsg Pointer to the acknowledgement message.
@@ -231,6 +287,16 @@ RTR_C_ALWAYS_INLINE void rsslAckMsgApplyHasMsgKey(RsslAckMsg *pAckMsg)
 RTR_C_ALWAYS_INLINE void rsslAckMsgApplyHasNakCode(RsslAckMsg *pAckMsg)
 {
 	pAckMsg->flags |= RSSL_AKMF_HAS_NAK_CODE;
+}
+
+/**
+ * @brief Applies the ::RSSL_AKMF_QUALIFIED_STREAM flag on the given RsslAckMsg.
+ * 
+ * @param pAckMsg Pointer to the acknowledgement message.
+ */
+RTR_C_ALWAYS_INLINE void rsslAckMsgApplyQualifiedStream(RsslAckMsg *pAckMsg)
+{
+	pAckMsg->flags |= RSSL_AKMF_QUALIFIED_STREAM;
 }
 
 /**

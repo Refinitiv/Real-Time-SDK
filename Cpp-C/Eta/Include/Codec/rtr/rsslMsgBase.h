@@ -74,6 +74,15 @@ RTR_C_ALWAYS_INLINE void rsslClearMsgBase(RsslMsgBase *pMsgBase)
 
 RSSL_API const char* rsslMsgClassToString(RsslUInt8 msgClass);
 
+/** 
+ * @brief Converts the provided message class enumeration to a general OMM string.
+ * @param msgClass message class.
+ * @return Null terminated character string containing the name of the message class.
+ * @see RsslMsgClasses
+ */
+
+RSSL_API const char* rsslMsgClassToOmmString(RsslUInt8 msgClass);
+
 /**
  * @}
  */
@@ -91,6 +100,15 @@ RSSL_API const char* rsslMsgClassToString(RsslUInt8 msgClass);
  * @see RsslDomainTypes
  */
 RSSL_API const char* rsslDomainTypeToString(RsslUInt8 domainType);
+
+/** 
+ * @brief Converts the provided domain type enumeration to a general OMM string.
+ *
+ * @param domainType Domain type enumeration to translate to string.
+ * @return Null terminated character string containing the name of the domain type.
+ * @see RsslDomainTypes
+ */
+RSSL_API const char* rsslDomainTypeToOmmString(RsslUInt8 domainType);
 
 
 
