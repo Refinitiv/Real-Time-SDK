@@ -172,6 +172,14 @@ RTR_C_ALWAYS_INLINE void rsslClearPostUserInfo(RsslPostUserInfo *pPostUserInfo)
  */
 RSSL_API RsslRet	rsslIPAddrStringToUInt(const char *pAddrString, RsslUInt32 *pAddrUInt);
 
+/**
+* @brief Converts dotted-decimal IP address string (e.g. "127.0.0.1") to integer equivalent.
+*
+* @param[in] pAddrString  The RsslBuffer containing an IP address string and its length.
+* @param[out] pAddrUInt   The output integer value, in host byte order.
+* @return RSSL_RET_SUCCESS, or RSSL_RET_FAILURE if the string could not be parsed.
+*/
+RSSL_API RsslRet rsslIPAddrBufferToUInt(RsslUInt32 *pAddrUInt, const RsslBuffer *pAddrString);
 
 /** 
  * @brief Converts IPv4 address in integer format to string equivalent.
