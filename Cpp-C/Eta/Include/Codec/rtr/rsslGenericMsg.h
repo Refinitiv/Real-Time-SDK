@@ -71,6 +71,30 @@ typedef enum {
 	RSSL_GNMF_HAS_REQ_MSG_KEY		= 0x080			/*!< (0x080) The RsslGenericMsg has the original request's message key, contained in \ref RsslGenericMsg::msgBase::reqMsgKey*/
 } RsslGenericFlags;
 
+/** 
+ * @brief General OMM strings associated with the different generic message flags.
+ * @see RsslGenericFlags, rsslGenericFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_EXTENDED_HEADER = { 17, (char*)"HasExtendedHeader" };
+static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_PERM_DATA = { 11, (char*)"HasPermData" };
+static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_MSG_KEY = { 9, (char*)"HasMsgKey" };
+static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_SEQ_NUM = { 9, (char*)"HasSeqNum" };
+static const RsslBuffer RSSL_OMMSTR_GNMF_MESSAGE_COMPLETE = { 15, (char*)"MessageComplete" };
+static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_SECONDARY_SEQ_NUM = { 18, (char*)"HasSecondarySeqNum" };
+static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_PART_NUM = { 10, (char*)"HasPartNum" };
+static const RsslBuffer RSSL_OMMSTR_GNMF_HAS_REQ_MSG_KEY = { 12, (char*)"HasReqMsgKey" };
+
+/**
+ * @brief Provide general OMM string representation of RsslGenericFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslGenericFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslGenericFlags
+ */
+RSSL_API RsslRet rsslGenericFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags);
+
 /**
  * @}
  */

@@ -80,6 +80,34 @@ typedef enum {
 	RSSL_RQMF_QUALIFIED_STREAM		= 0x1000    /*!< (0x1000) Indicates that the user would like to open the stream as 'qualified.' */
 } RsslRequestFlags;
 
+/** 
+ * @brief General OMM strings associated with the different request message flags
+ * @see RsslRequestFlags, rsslRequestFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_RQMF_HAS_EXTENDED_HEADER = { 17, (char*)"HasExtendedHeader" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_HAS_PRIORITY = { 11, (char*)"HasPriority" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_STREAMING = { 9, (char*)"Streaming" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_MSG_KEY_IN_UPDATES = { 15, (char*)"MsgKeyInUpdates" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_CONF_INFO_IN_UPDATES = { 17, (char*)"ConfInfoInUpdates" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_NO_REFRESH = { 9, (char*)"NoRefresh" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_HAS_QOS = { 6, (char*)"HasQos" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_HAS_WORST_QOS = { 11, (char*)"HasWorstQos" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_PRIVATE_STREAM = { 13, (char*)"PrivateStream" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_PAUSE = { 5, (char*)"Pause" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_HAS_VIEW = { 7, (char*)"HasView" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_HAS_BATCH = { 8, (char*)"HasBatch" };
+static const RsslBuffer RSSL_OMMSTR_RQMF_QUALIFIED_STREAM = { 15, (char*)"QualifiedStream" };
+
+/**
+ * @brief Provide general OMM string representation of RsslRequestFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslRequestFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslRequestFlags
+ */
+RSSL_API RsslRet rsslRequestFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags);
 
 /**
  * @}

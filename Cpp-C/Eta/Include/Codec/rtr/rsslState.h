@@ -42,6 +42,17 @@ typedef enum {
     RSSL_STREAM_REDIRECTED      = 5		/*!< (5) Closed and Redirected (indicates that the current stream has been closed and has new identifying information, the user can issue a new request for the data using the new message key information contained in the redirect message) */
 } RsslStreamStates;
 
+/** 
+ * @brief General OMM strings associated with the different stream states.
+ * @see RsslStreamStates, rsslStreamStateToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_STREAM_UNSPECIFIED = { 11, (char*)"Unspecified" };
+static const RsslBuffer RSSL_OMMSTR_STREAM_OPEN = { 4, (char*)"Open" };
+static const RsslBuffer RSSL_OMMSTR_STREAM_NON_STREAMING = { 12, (char*)"NonStreaming" };
+static const RsslBuffer RSSL_OMMSTR_STREAM_CLOSED_RECOVER = { 13, (char*)"ClosedRecover" };
+static const RsslBuffer RSSL_OMMSTR_STREAM_CLOSED = { 6, (char*)"Closed" };
+static const RsslBuffer RSSL_OMMSTR_STREAM_REDIRECTED = { 10, (char*)"Redirected" };
+
 
 /** 
  * @brief RsslState Data States provide information on the health of the data flowing within a stream
@@ -53,6 +64,13 @@ typedef enum {
 	RSSL_DATA_SUSPECT				= 2		/*!< (2) Data is Suspect (similar to a stale data state, indicates that the health of some or all data associated with the stream is out of date or cannot be confirmed that it is current ) */
 } RsslDataStates;
 
+/** 
+ * @brief General OMM strings associated with the different data states.
+ * @see RsslDataStates, rsslDataStateToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_DATA_NO_CHANGE = { 8, (char*)"NoChange" };
+static const RsslBuffer RSSL_OMMSTR_DATA_OK = { 2, (char*)"Ok" };
+static const RsslBuffer RSSL_OMMSTR_DATA_SUSPECT = { 7, (char*)"Suspect" };
 
 
 /** 
@@ -99,6 +117,41 @@ typedef enum {
     RSSL_SC_MAX_RESERVED					= 127	/*!< (127) Max reserved value */
 } RsslStateCodes;
 
+/** 
+ * @brief General OMM strings associated with the different state codes.
+ * @see RsslStateCodes, rsslStateCodeToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_SC_NONE = { 4, (char*)"None" };
+static const RsslBuffer RSSL_OMMSTR_SC_NOT_FOUND = { 8, (char*)"NotFound" };
+static const RsslBuffer RSSL_OMMSTR_SC_TIMEOUT = { 7, (char*)"Timeout" };
+static const RsslBuffer RSSL_OMMSTR_SC_NOT_ENTITLED = { 11, (char*)"NotEntitled" };
+static const RsslBuffer RSSL_OMMSTR_SC_INVALID_ARGUMENT = { 15, (char*)"InvalidArgument" };
+static const RsslBuffer RSSL_OMMSTR_SC_USAGE_ERROR = { 10, (char*)"UsageError" };
+static const RsslBuffer RSSL_OMMSTR_SC_PREEMPTED = { 9, (char*)"Preempted" };
+static const RsslBuffer RSSL_OMMSTR_SC_JIT_CONFLATION_STARTED = { 20, (char*)"JitConflationStarted" };
+static const RsslBuffer RSSL_OMMSTR_SC_REALTIME_RESUMED = { 15, (char*)"RealtimeResumed" };
+static const RsslBuffer RSSL_OMMSTR_SC_FAILOVER_STARTED = { 15, (char*)"FailoverStarted" };
+static const RsslBuffer RSSL_OMMSTR_SC_FAILOVER_COMPLETED = { 17, (char*)"FailoverCompleted" };
+static const RsslBuffer RSSL_OMMSTR_SC_GAP_DETECTED = { 11, (char*)"GapDetected" };
+static const RsslBuffer RSSL_OMMSTR_SC_NO_RESOURCES = { 11, (char*)"NoResources" };
+static const RsslBuffer RSSL_OMMSTR_SC_TOO_MANY_ITEMS = { 12, (char*)"TooManyItems" };
+static const RsslBuffer RSSL_OMMSTR_SC_ALREADY_OPEN = { 11, (char*)"AlreadyOpen" };
+static const RsslBuffer RSSL_OMMSTR_SC_SOURCE_UNKNOWN = { 13, (char*)"SourceUnknown" };
+static const RsslBuffer RSSL_OMMSTR_SC_NOT_OPEN = { 7, (char*)"NotOpen" };
+static const RsslBuffer RSSL_OMMSTR_SC_NON_UPDATING_ITEM = { 15, (char*)"NonUpdatingItem" };
+static const RsslBuffer RSSL_OMMSTR_SC_UNSUPPORTED_VIEW_TYPE = { 19, (char*)"UnsupportedViewType" };
+static const RsslBuffer RSSL_OMMSTR_SC_INVALID_VIEW = { 11, (char*)"InvalidView" };
+static const RsslBuffer RSSL_OMMSTR_SC_FULL_VIEW_PROVIDED = { 16, (char*)"FullViewProvided" };
+static const RsslBuffer RSSL_OMMSTR_SC_UNABLE_TO_REQUEST_AS_BATCH = { 22, (char*)"UnableToRequestAsBatch" };
+static const RsslBuffer RSSL_OMMSTR_SC_NO_BATCH_VIEW_SUPPORT_IN_REQ = { 23, (char*)"NoBatchViewSupportInReq" };
+static const RsslBuffer RSSL_OMMSTR_SC_EXCEEDED_MAX_MOUNTS_PER_USER = { 24, (char*)"ExceededMaxMountsPerUser" };
+static const RsslBuffer RSSL_OMMSTR_SC_ERROR = { 5, (char*)"Error" };
+static const RsslBuffer RSSL_OMMSTR_SC_DACS_DOWN = { 8, (char*)"DacsDown" };
+static const RsslBuffer RSSL_OMMSTR_SC_USER_UNKNOWN_TO_PERM_SYS = { 20, (char*)"UserUnknownToPermSys" };
+static const RsslBuffer RSSL_OMMSTR_SC_DACS_MAX_LOGINS_REACHED = { 16, (char*)"MaxLoginsReached" };
+static const RsslBuffer RSSL_OMMSTR_SC_DACS_USER_ACCESS_TO_APP_DENIED = { 21, (char*)"UserAccessToAppDenied" };
+static const RsslBuffer RSSL_OMMSTR_SC_GAP_FILL = { 7, (char*)"GapFill" };
+static const RsslBuffer RSSL_OMMSTR_SC_APP_AUTHORIZATION_FAILED = { 22, (char*)"AppAuthorizationFailed" };
 
 /**
  * @brief RsslState static initializer
@@ -129,7 +182,7 @@ typedef enum {
 
 /**
  * @brief Provide string representation for an RsslState, including all RsslState members
- * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
  * @param pState Fully populated RsslState structure
  * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_FAILURE otherwise
  * @see RsslState
@@ -147,6 +200,14 @@ RSSL_API RsslRet rsslStateToString(RsslBuffer *oBuffer, RsslState *pState);
 RSSL_API const char* rsslStateCodeToString(RsslUInt8 code);
 
 /**
+ * @brief Provide a general OMM string representation for an RsslState::code
+ * @param value \ref RsslStateCodes enumeration to convert to string
+ * @return const char* representation of corresponding \ref RsslStateCodes
+ * @see RsslStateCodes, RsslState
+ */
+RSSL_API const char* rsslStateCodeToOmmString(RsslUInt8 code);
+
+/**
  * @brief Provide string description for an RsslState::code
  * @param value \ref RsslStateCodes enumeration to provide description for
  * @return const char* description of corresponding \ref RsslStateCodes
@@ -162,6 +223,14 @@ RSSL_API const char* rsslStateCodeDescription(RsslUInt8 code);
  */
 RSSL_API const char* rsslStreamStateToString(RsslUInt8 code);
 
+/**
+ * @brief Provide a general OMM string representation for an RsslState::streamState
+ * @param value \ref RsslStreamStates enumeration to convert to string
+ * @return const char* representation of corresponding \ref RsslStreamStates
+ * @see RsslStreamStates, RsslState
+ */
+RSSL_API const char* rsslStreamStateToOmmString(RsslUInt8 code);
+
 
 /**
  * @brief Provide string representation for an RsslState::dataState
@@ -170,6 +239,14 @@ RSSL_API const char* rsslStreamStateToString(RsslUInt8 code);
  * @see RsslDataStates, RsslState
  */
 RSSL_API const char* rsslDataStateToString(RsslUInt8 code);
+
+/**
+ * @brief Provide a general OMM string representation for an RsslState::dataState
+ * @param value \ref RsslDataStates enumeration to convert to string
+ * @return const char* representation of corresponding \ref RsslDataStates
+ * @see RsslDataStates, RsslState
+ */
+RSSL_API const char* rsslDataStateToOmmString(RsslUInt8 code);
 
 
 /**

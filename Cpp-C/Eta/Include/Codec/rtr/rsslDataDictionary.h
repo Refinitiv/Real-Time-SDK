@@ -121,6 +121,7 @@ typedef struct
 	RsslBuffer          infoEnum_Filename;		/*!< Tag: Filename */
 	RsslBuffer          infoEnum_Desc;			/*!< Tag: Desc */
 	RsslBuffer          infoEnum_Date;			/*!< Tag: Date */
+	void				*_internal;				/*!< Internal use only. */
 } RsslDataDictionary;
 
 
@@ -299,6 +300,36 @@ RSSL_API RsslRet rsslExtractDictionaryType(
 	RsslDecodeIterator		*dIter,
 	RDMDictionaryTypes		*dictionaryType,
 	RsslBuffer				*errorText);
+
+/**
+ * @brief Lookup a field based on its name.
+ * @param pDictionary Dictionary to use for the lookup.
+ * @param pFieldName RsslBuffer containing the name of the field to lookup.
+ * @return The matching RsslDictionaryEntry, or NULL if no such field exists.
+ */
+RSSL_API RsslDictionaryEntry *rsslDictionaryGetEntryByFieldName(RsslDataDictionary *pDictionary, const RsslBuffer *pFieldName);
+ 
+/**
+ * @brief Lookup an Enumeration's value by its display string.
+ * @param pEntry Dictionary Entry to use for the lookup.
+ * @param pEnumDisplay Display string to lookup.
+ * @param pEnumValue Storage for the matching enumerated value.
+ * @param errorText Buffer to hold errorText if the lookup fails.
+ * @return RSSL_RET_SUCCESS if successful, RSSL_RET_FAILURE if a matching value does not exist, RSSL_RET_DICT_DUPLICATE_ENUM_VALUE if the display string corresponds to multiple values.
+ */
+RSSL_API RsslRet rsslDictionaryEntryGetEnumValueByDisplayString(const RsslDictionaryEntry *pEntry, const RsslBuffer *pEnumDisplay, RsslEnum *pEnumValue, RsslBuffer *errorText);
+
+/*
+ * @brief For internal use only. Matches fields of two dictionaries, then reuses the allocated RsslDictionaryEntry objects of the old dictionary.
+ * The two dictionaries will share their RsslDictionaryEntry objects and the respective RsslEnumTypeTable objects.
+ * After rsslLinkDataDictionary is called, calling rsslDeleteDataDictionary on the old dictionary will not delete the shared RsslDictionaryEntry objects.
+ * Functions that add definitions, such as rsslLoadFieldDictionary, rsslLoadEnumTypeDictionary, rsslDecodeFieldDictionary, and rsslDecodeEnumTypeDictionary, may be called on the new dictionary, but should no longer be called on the old dictionary.
+ * @param pNewDictionary New dictionary to link.
+ * @param pOldDictionary Existing dictionary to link.
+ * @param errorText Buffer to hold error text if the link fails.
+ * @return RSSL_RET_SUCCESS if the link was succesful, other error codes on failure.
+ */
+RSSL_API RsslRet rsslLinkDataDictionary(RsslDataDictionary *pNewDictionary, RsslDataDictionary *pOldDictionary, RsslBuffer *errorText);
 
 /** 
  * @}

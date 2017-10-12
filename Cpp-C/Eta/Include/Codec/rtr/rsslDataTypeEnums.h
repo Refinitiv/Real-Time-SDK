@@ -98,6 +98,61 @@ typedef enum
 	RSSL_DT_LAST				= 255	/*!< (255) Maximum allowed enumeration value - used for internal UPA range checking. <BR>*/
 } RsslDataTypes;
 
+/** 
+ * @brief General OMM strings associated with the different data types.
+ * @see RsslDataTypes, rsslDataTypeToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_DT_UNKNOWN = { 7, (char*)"Unknown" };
+static const RsslBuffer RSSL_OMMSTR_DT_INT = { 3, (char*)"Int" };
+static const RsslBuffer RSSL_OMMSTR_DT_UINT = { 4, (char*)"UInt" };
+static const RsslBuffer RSSL_OMMSTR_DT_FLOAT = { 5, (char*)"Float" };
+static const RsslBuffer RSSL_OMMSTR_DT_DOUBLE = { 6, (char*)"Double" };
+static const RsslBuffer RSSL_OMMSTR_DT_REAL = { 4, (char*)"Real" };
+static const RsslBuffer RSSL_OMMSTR_DT_DATE = { 4, (char*)"Date" };
+static const RsslBuffer RSSL_OMMSTR_DT_TIME = { 4, (char*)"Time" };
+static const RsslBuffer RSSL_OMMSTR_DT_DATETIME = { 8, (char*)"DateTime" };
+static const RsslBuffer RSSL_OMMSTR_DT_QOS = { 3, (char*)"Qos" };
+static const RsslBuffer RSSL_OMMSTR_DT_STATE = { 5, (char*)"State" };
+static const RsslBuffer RSSL_OMMSTR_DT_ENUM = { 4, (char*)"Enum" };
+static const RsslBuffer RSSL_OMMSTR_DT_ARRAY = { 5, (char*)"Array" };
+static const RsslBuffer RSSL_OMMSTR_DT_BUFFER = { 6, (char*)"Buffer" };
+static const RsslBuffer RSSL_OMMSTR_DT_ASCII_STRING = { 11, (char*)"AsciiString" };
+static const RsslBuffer RSSL_OMMSTR_DT_UTF8_STRING = { 10, (char*)"Utf8String" };
+static const RsslBuffer RSSL_OMMSTR_DT_RMTES_STRING = { 11, (char*)"RmtesString" };
+static const RsslBuffer RSSL_OMMSTR_DT_INT_1 = { 4, (char*)"Int1" };
+static const RsslBuffer RSSL_OMMSTR_DT_UINT_1 = { 5, (char*)"UInt1" };
+static const RsslBuffer RSSL_OMMSTR_DT_INT_2 = { 4, (char*)"Int2" };
+static const RsslBuffer RSSL_OMMSTR_DT_UINT_2 = { 5, (char*)"UInt2" };
+static const RsslBuffer RSSL_OMMSTR_DT_INT_4 = { 4, (char*)"Int4" };
+static const RsslBuffer RSSL_OMMSTR_DT_UINT_4 = { 5, (char*)"UInt4" };
+static const RsslBuffer RSSL_OMMSTR_DT_INT_8 = { 4, (char*)"Int8" };
+static const RsslBuffer RSSL_OMMSTR_DT_UINT_8 = { 5, (char*)"UInt8" };
+static const RsslBuffer RSSL_OMMSTR_DT_FLOAT_4 = { 6, (char*)"Float4" };
+static const RsslBuffer RSSL_OMMSTR_DT_DOUBLE_8 = { 7, (char*)"Double8" };
+static const RsslBuffer RSSL_OMMSTR_DT_REAL_4RB = { 7, (char*)"Real4RB" };
+static const RsslBuffer RSSL_OMMSTR_DT_REAL_8RB = { 7, (char*)"Real8RB" };
+static const RsslBuffer RSSL_OMMSTR_DT_DATE_4 = { 5, (char*)"Date4" };
+static const RsslBuffer RSSL_OMMSTR_DT_TIME_3 = { 5, (char*)"Time3" };
+static const RsslBuffer RSSL_OMMSTR_DT_TIME_5 = { 5, (char*)"Time5" };
+static const RsslBuffer RSSL_OMMSTR_DT_DATETIME_7 = { 9, (char*)"DateTime7" };
+static const RsslBuffer RSSL_OMMSTR_DT_DATETIME_9 = { 9, (char*)"DateTime9" };
+static const RsslBuffer RSSL_OMMSTR_DT_DATETIME_11 = { 10, (char*)"DateTime11" };
+static const RsslBuffer RSSL_OMMSTR_DT_DATETIME_12 = { 10, (char*)"DateTime12" };
+static const RsslBuffer RSSL_OMMSTR_DT_TIME_7 = { 5, (char*)"Time7" };
+static const RsslBuffer RSSL_OMMSTR_DT_TIME_8 = { 5, (char*)"Time8" };
+static const RsslBuffer RSSL_OMMSTR_DT_NO_DATA = { 6, (char*)"NoData" };
+static const RsslBuffer RSSL_OMMSTR_DT_OPAQUE = { 6, (char*)"Opaque" };
+static const RsslBuffer RSSL_OMMSTR_DT_XML = { 3, (char*)"Xml" };
+static const RsslBuffer RSSL_OMMSTR_DT_FIELD_LIST = { 9, (char*)"FieldList" };
+static const RsslBuffer RSSL_OMMSTR_DT_ELEMENT_LIST = { 11, (char*)"ElementList" };
+static const RsslBuffer RSSL_OMMSTR_DT_ANSI_PAGE = { 8, (char*)"AnsiPage" };
+static const RsslBuffer RSSL_OMMSTR_DT_FILTER_LIST = { 10, (char*)"FilterList" };
+static const RsslBuffer RSSL_OMMSTR_DT_VECTOR = { 6, (char*)"Vector" };
+static const RsslBuffer RSSL_OMMSTR_DT_MAP = { 3, (char*)"Map" };
+static const RsslBuffer RSSL_OMMSTR_DT_SERIES = { 6, (char*)"Series" };
+static const RsslBuffer RSSL_OMMSTR_DT_MSG = { 3, (char*)"Msg" };
+static const RsslBuffer RSSL_OMMSTR_DT_JSON = { 4, (char*)"Json" };
+
 
 /** 
  * @brief An 8 bit value that uses an \ref RsslDataTypes enumerated value to specify the type of content.  This can be used to specify only container types.
@@ -131,6 +186,12 @@ typedef RsslUInt8  RsslDataType;
  * @see RsslDataType, RsslDataTypes
  */
 RSSL_API const char* rsslDataTypeToString(RsslDataType type);
+
+/**
+ * @brief Provide a general OMM string representation for a data type enumeration
+ * @see RsslDataType, RsslDataTypes
+ */
+RSSL_API const char* rsslDataTypeToOmmString(RsslDataType type);
 
 
 /**

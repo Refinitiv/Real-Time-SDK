@@ -29,6 +29,26 @@ typedef enum {
 	RSSL_FLF_HAS_STANDARD_DATA		= 0x08 			/*!< (0x08) The RsslFieldList contains standard encoded content (e.g. not set defined).  */
 } RsslFieldListFlags;
 
+/** 
+ * @brief General OMM strings associated with the different field list flags.
+ * @see RsslFieldListFlags, rsslFieldListFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_FLF_HAS_FIELD_LIST_INFO = { 16, (char*)"HasFieldListInfo" };
+static const RsslBuffer RSSL_OMMSTR_FLF_HAS_SET_DATA = { 10, (char*)"HasSetData" };
+static const RsslBuffer RSSL_OMMSTR_FLF_HAS_SET_ID = { 8, (char*)"HasSetID" };
+static const RsslBuffer RSSL_OMMSTR_FLF_HAS_STANDARD_DATA = { 15, (char*)"HasStandardData" };
+
+/**
+ * @brief Provide general OMM string representation of RsslFieldListFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslFieldListFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslFieldListFlags
+ */
+RSSL_API RsslRet rsslFieldListFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
+
 /**
  * @brief The RsslFieldList container type allows the user to represent a collection of field identifier - value pairs, where the value can be a container type or a primitive type.  The field identifier (RsslFieldEntry::fieldId) can be cross referenced with a field dictionary to determine the specific type of the content.  
  * The dictionary contains specific name and type information (e.g. RDMFieldDictionary).

@@ -41,6 +41,19 @@ typedef enum {
 	RSSL_MC_POST		= 8		 /*!< (8) Post Message */
 } RsslMsgClasses;
 
+/** 
+ * @brief General OMM strings associated with the different message classes offered in OMM.  
+ * @see RsslMsgClasses, rsslMsgClassToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_MC_REQUEST = { 7, (char*)"Request" };
+static const RsslBuffer RSSL_OMMSTR_MC_REFRESH = { 7, (char*)"Refresh" };
+static const RsslBuffer RSSL_OMMSTR_MC_STATUS = { 6, (char*)"Status" };
+static const RsslBuffer RSSL_OMMSTR_MC_UPDATE = { 6, (char*)"Update" };
+static const RsslBuffer RSSL_OMMSTR_MC_CLOSE = { 5, (char*)"Close" };
+static const RsslBuffer RSSL_OMMSTR_MC_ACK = { 3, (char*)"Ack" };
+static const RsslBuffer RSSL_OMMSTR_MC_GENERIC = { 7, (char*)"Generic" };
+static const RsslBuffer RSSL_OMMSTR_MC_POST = { 4, (char*)"Post" };
+
 /**
  * @}
  */

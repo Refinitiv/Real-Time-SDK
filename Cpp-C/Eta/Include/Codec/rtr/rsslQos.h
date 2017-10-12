@@ -58,6 +58,15 @@ typedef enum {
 } RsslQosTimeliness;
 
 /** 
+ * @brief General OMM strings associated with the different Qos timeliness.
+ * @see RsslQosTimeliness, rsslQosTimelinessToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_QOS_TIME_UNSPECIFIED = { 11, (char*)"Unspecified" };
+static const RsslBuffer RSSL_OMMSTR_QOS_TIME_REALTIME = { 8, (char*)"Realtime" };
+static const RsslBuffer RSSL_OMMSTR_QOS_TIME_DELAYED_UNKNOWN = { 14, (char*)"DelayedUnknown" };
+static const RsslBuffer RSSL_OMMSTR_QOS_TIME_DELAYED = { 7, (char*)"Delayed" };
+
+/** 
  * @brief RsslQos Rate enumerations, used to convey information about the data’s period of change.
  */
 typedef enum {
@@ -67,6 +76,14 @@ typedef enum {
 	RSSL_QOS_RATE_TIME_CONFLATED	= 3		/*!< Rate is conflated by a specific amount of time (in ms), where conflation time is provided in RsslQos::rateInfo */
 } RsslQosRates;
 
+/** 
+ * @brief General OMM strings associated with the different Qos rates.
+ * @see RsslQosRates, rsslQosRateToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_QOS_RATE_UNSPECIFIED = { 11, (char*)"Unspecified" };
+static const RsslBuffer RSSL_OMMSTR_QOS_RATE_TICK_BY_TICK = { 10, (char*)"TickByTick" };
+static const RsslBuffer RSSL_OMMSTR_QOS_RATE_JIT_CONFLATED = { 12, (char*)"JitConflated" };
+static const RsslBuffer RSSL_OMMSTR_QOS_RATE_TIME_CONFLATED = { 13, (char*)"TimeConflated" };
 
 /** 
  * @}
@@ -96,6 +113,24 @@ RTR_C_ALWAYS_INLINE const char* rsslQosTimelinessToString(RsslUInt8 value)
 }
 
 /**
+ * @brief Provide general OMM string representation for an RsslQos::timeliness
+ * @param value \ref RsslQosTimeliness enumeration to convert to string
+ * @return const char* representation of corresponding \ref RsslQosTimeliness
+ * @see RsslQosTimeliness, RsslQos
+ */
+RTR_C_ALWAYS_INLINE const char* rsslQosTimelinessToOmmString(RsslUInt8 value)
+{
+	switch (value)
+	{
+	case RSSL_QOS_TIME_UNSPECIFIED:		return RSSL_OMMSTR_QOS_TIME_UNSPECIFIED.data;
+	case RSSL_QOS_TIME_REALTIME:		return RSSL_OMMSTR_QOS_TIME_REALTIME.data;
+	case RSSL_QOS_TIME_DELAYED_UNKNOWN:	return RSSL_OMMSTR_QOS_TIME_DELAYED_UNKNOWN.data;
+	case RSSL_QOS_TIME_DELAYED:			return RSSL_OMMSTR_QOS_TIME_DELAYED.data;
+	default:							return NULL;
+	}
+}
+
+/**
  * @brief Provide string representation for an RsslQos::rate
  * @param value \ref RsslQosRates enumeration to convert to string
  * @return const char* representation of corresponding \ref RsslQosRates
@@ -114,8 +149,26 @@ RTR_C_ALWAYS_INLINE const char* rsslQosRateToString(RsslUInt8 value)
 }
 
 /**
+ * @brief Provide general OMM string representation for an RsslQos::rate
+ * @param value \ref RsslQosRates enumeration to convert to string
+ * @return const char* representation of corresponding \ref RsslQosRates
+ * @see RsslQosRates, RsslQos
+ */
+RTR_C_ALWAYS_INLINE const char* rsslQosRateToOmmString(RsslUInt8 value)
+{
+	switch (value)
+	{
+	case RSSL_QOS_RATE_UNSPECIFIED:		return RSSL_OMMSTR_QOS_RATE_UNSPECIFIED.data;
+	case RSSL_QOS_RATE_TICK_BY_TICK:	return RSSL_OMMSTR_QOS_RATE_TICK_BY_TICK.data;
+	case RSSL_QOS_RATE_JIT_CONFLATED:	return RSSL_OMMSTR_QOS_RATE_JIT_CONFLATED.data;
+	case RSSL_QOS_RATE_TIME_CONFLATED:	return RSSL_OMMSTR_QOS_RATE_TIME_CONFLATED.data;
+	default:							return NULL;
+	}
+}
+
+/**
  * @brief Provide string representation for an RsslQos, including all RsslQos members
- * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
  * @param pQos Fully populated RsslQos structure
  * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_FAILURE otherwise
  * @see RsslQos

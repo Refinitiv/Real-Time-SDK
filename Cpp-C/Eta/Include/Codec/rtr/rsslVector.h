@@ -31,8 +31,26 @@ typedef enum {
 	RSSL_VTF_SUPPORTS_SORTING			= 0x10		/*!< (0x10) The RsslVector supports sorting.  The receiving application is responsible for sorting content and following appropriate behavior based on individual RsslVectorEntry::action information. */
 } RsslVectorFlags;
 
+/** 
+ * @brief General OMM strings associated with the different vector flags.
+ * @see RsslVectorFlags, rsslVectorFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_VTF_HAS_SET_DEFS = { 10, (char*)"HasSetDefs" };
+static const RsslBuffer RSSL_OMMSTR_VTF_HAS_SUMMARY_DATA = { 14, (char*)"HasSummaryData" };
+static const RsslBuffer RSSL_OMMSTR_VTF_HAS_PER_ENTRY_PERM_DATA = { 19, (char*)"HasPerEntryPermData" };
+static const RsslBuffer RSSL_OMMSTR_VTF_HAS_TOTAL_COUNT_HINT = { 17, (char*)"HasTotalCountHint" };
+static const RsslBuffer RSSL_OMMSTR_VTF_SUPPORTS_SORTING = { 15, (char*)"SupportsSorting" };
 
-
+/**
+ * @brief Provide general OMM string representation of RsslVectorFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslVectorFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslVectorFlags
+ */
+RSSL_API RsslRet rsslVectorFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
 
 /**
  * @brief The RsslVector is a uniform container type of associated index–container pair entries.  Each entry, known as
@@ -98,6 +116,11 @@ typedef enum
 	RSSL_VTEF_HAS_PERM_DATA	= 0x01		/*!< (0x01) This RsslVectorEntry contains permission data, located in RsslVectorEntry::permData. */
 } RsslVectorEntryFlags;
 
+/** 
+ * @brief General OMM strings associated with the different vector entry flags.
+ * @see RsslVectorEntryFlags, rsslVectorEntryFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_VTEF_HAS_PERM_DATA = { 11, (char*)"HasPermData" };
 
 /**
  * @brief Action that indicates how to apply contents of RsslVectorEntry. (VTEA = VectorEntry Action)
@@ -112,7 +135,32 @@ typedef enum
 	RSSL_VTEA_DELETE_ENTRY	= 5			/*!< (5) Applies only when RsslVector is sortable (e.g. ::RSSL_VTF_SUPPORTS_SORTING present in RsslVector::flags).  Delete the contents of the entry at the specified RsslVectorEntry::index, any higher order index values are decremented.  @note ::RSSL_VTEA_DELETE_ENTRY and ::RSSL_VTEA_CLEAR_ENTRY actions cannot carry any entry payload.  If payload is necessary for a ::RSSL_VTEA_DELETE_ENTRY or ::RSSL_VTEA_CLEAR_ENTRY action, an entry with an ::RSSL_VTEA_UPDATE_ENTRY action can be sent and immediatley followed by the same RsslVectorEntry::index on an entry with a ::RSSL_VTEA_DELETE_ENTRY or ::RSSL_VTEA_CLEAR_ENTRY action.   */
 } RsslVectorEntryActions;
 
+/** 
+ * @brief General OMM strings associated with the different vector entry actions.
+ * @see RsslVectorEntryActions, rsslVectorEntryActionToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_VTEA_UPDATE_ENTRY = { 6, (char*)"Update" };
+static const RsslBuffer RSSL_OMMSTR_VTEA_SET_ENTRY = { 3, (char*)"Set" };
+static const RsslBuffer RSSL_OMMSTR_VTEA_CLEAR_ENTRY = { 5, (char*)"Clear" };
+static const RsslBuffer RSSL_OMMSTR_VTEA_INSERT_ENTRY = { 6, (char*)"Insert" };
+static const RsslBuffer RSSL_OMMSTR_VTEA_DELETE_ENTRY = { 6, (char*)"Delete" };
 
+/**
+ * @brief Provide general OMM string representation of RsslVectorEntryFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslVectorEntryFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslVectorEntryFlags
+ */
+RSSL_API RsslRet rsslVectorEntryFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
+
+/**
+ * @brief Provide a general OMM string representation for a vector entry action enumeration
+ * @see RsslVectorEntryActions
+ */
+RSSL_API const char* rsslVectorEntryActionToOmmString(RsslUInt8 action);
 
 /**
  * @brief One entry contained in an RsslVector.  The contents of the entry is specified by RsslVector::containerType.  Any contents should be applied following the rules of the specified RsslVectorEntry::action ( \ref RsslVectorEntryActions)

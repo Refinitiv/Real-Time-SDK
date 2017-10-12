@@ -72,6 +72,28 @@ typedef enum
 	RSSL_MKF_HAS_ATTRIB		= 0x0020	/*!< (0x0020) This RsslMsgKey has additional attribute information, contained in \ref RsslMsgKey::encAttrib. The container type of the attribute information is contained in \ref RsslMsgKey::attribContainerType. */
 } RsslMsgKeyFlags;
 
+/** 
+ * @brief General OMM strings associated with the different message key flags.
+ * @see RsslMsgKeyFlags, rsslMsgKeyFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_MKF_HAS_SERVICE_ID = { 12, (char*)"HasServiceID" };
+static const RsslBuffer RSSL_OMMSTR_MKF_HAS_NAME = { 7, (char*)"HasName" };
+static const RsslBuffer RSSL_OMMSTR_MKF_HAS_NAME_TYPE = { 11, (char*)"HasNameType" };
+static const RsslBuffer RSSL_OMMSTR_MKF_HAS_FILTER = { 9, (char*)"HasFilter" };
+static const RsslBuffer RSSL_OMMSTR_MKF_HAS_IDENTIFIER = { 13, (char*)"HasIdentifier" };
+static const RsslBuffer RSSL_OMMSTR_MKF_HAS_ATTRIB = { 9, (char*)"HasAttrib" };
+
+/**
+ * @brief Provide general OMM string representation of RsslMsgKeyFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslMsgKeyFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslMsgKeyFlags
+ */
+RSSL_API RsslRet rsslMsgKeyFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags);
+
 /**
  * @}
  */

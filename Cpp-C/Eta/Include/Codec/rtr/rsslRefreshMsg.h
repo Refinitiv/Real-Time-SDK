@@ -81,6 +81,36 @@ typedef enum {
 	RSSL_RFMF_QUALIFIED_STREAM		= 0x4000		/*!< (0x4000) Indicates that this RsslRefreshMsg is an acknowledgement of a qualified stream request. */
 } RsslRefreshFlags;
 
+/** 
+ * @brief General OMM strings associated with the different refresh message flags
+ * @see RsslRefreshFlags, rsslRefreshFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_RFMF_HAS_EXTENDED_HEADER = { 17, (char*)"HasExtendedHeader" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_HAS_PERM_DATA = { 11, (char*)"HasPermData" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_HAS_MSG_KEY = { 9, (char*)"HasMsgKey" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_HAS_SEQ_NUM = { 9, (char*)"HasSeqNum" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_SOLICITED = { 9, (char*)"Solicited" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_REFRESH_COMPLETE = { 15, (char*)"RefreshComplete" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_HAS_QOS = { 6, (char*)"HasQos" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_CLEAR_CACHE = { 10, (char*)"ClearCache" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_DO_NOT_CACHE = { 10, (char*)"DoNotCache" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_PRIVATE_STREAM = { 13, (char*)"PrivateStream" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_HAS_POST_USER_INFO = { 15, (char*)"HasPostUserInfo" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_HAS_PART_NUM = { 10, (char*)"HasPartNum" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_HAS_REQ_MSG_KEY = { 12, (char*)"HasReqMsgKey" };
+static const RsslBuffer RSSL_OMMSTR_RFMF_QUALIFIED_STREAM = { 15, (char*)"QualifiedStream" };
+
+/**
+ * @brief Provide general OMM string representation of RsslRefreshFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslRefreshFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslRefreshFlags
+ */
+RSSL_API RsslRet rsslRefreshFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags);
+
 /**
  * @}
  */

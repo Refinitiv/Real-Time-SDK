@@ -30,6 +30,8 @@ typedef enum
 
 	/* -35 through -60 reserved */
 
+	RSSL_RET_DICT_DUPLICATE_ENUM_VALUE			= -35,  /*!< (-35) Dictionary Failure: A display string had multiple enumerated values that correspond to it. */
+
 	RSSL_RET_VALUE_OUT_OF_RANGE					= -34,  /*!< (-34) Codec Failure: A value being encoded into a set is outside of the valid range of the type given by that set. */
 	RSSL_RET_ITERATOR_OVERRUN					= -33,  /*!< (-33) Codec Failure: Iterator is nested too deeply. There is a limit of 16 levels. */
 	RSSL_RET_DUPLICATE_LOCAL_SET_DEFS			= -32,	/*!< (-32) Codec Failure: A duplicate set definition has been received */
