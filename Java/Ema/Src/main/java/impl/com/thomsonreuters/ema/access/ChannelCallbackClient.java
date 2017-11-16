@@ -189,8 +189,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			}
     		case ReactorChannelEventTypes.CHANNEL_UP:
     		{
-    			ReactorErrorInfo rsslReactorErrorInfo = _baseImpl.rsslErrorInfo();
-                ReactorChannelInfo reactorChannelInfo = new ReactorChannelInfo();
+    			ReactorErrorInfo rsslReactorErrorInfo = ReactorFactory.createReactorErrorInfo();
+                ReactorChannelInfo reactorChannelInfo = ReactorFactory.createReactorChannelInfo();
     			
     	        try
     	        {
@@ -217,8 +217,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
     	        	return ReactorCallbackReturnCodes.FAILURE;
     			}
     	       
-    	        chnlInfo.rsslReactorChannel(event.reactorChannel());
-                chnlInfo.rsslReactorChannel().info(reactorChannelInfo, rsslReactorErrorInfo);
+    	        setRsslReactorChannel(event.reactorChannel(), reactorChannelInfo, rsslReactorErrorInfo);
     	        
     	        int sendBufSize = 65535;
     	        if (rsslReactorChannel.ioctl(com.thomsonreuters.upa.transport.IoctlCodes.SYSTEM_WRITE_BUFFERS, sendBufSize, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
@@ -412,8 +411,6 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 						.append("Instance Name ").append(_baseImpl.instanceName());
     	        	_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ChannelCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
     			}
-
-    			chnlInfo.rsslReactorChannel(event.reactorChannel());
 
     	        return ReactorCallbackReturnCodes.SUCCESS;
     		}
@@ -1020,6 +1017,19 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		}	
 	}    
 	 
+	private void encryptedConfiguration(com.thomsonreuters.upa.transport.ConnectOptions rsslOptions)
+	{
+	}
+
+	private void setRsslReactorChannel(ReactorChannel rsslReactorChannl, ReactorChannelInfo rsslReactorChannlInfo, ReactorErrorInfo rsslReactorErrorInfo)
+	{
+		for (int index = _channelList.size() -1; index >= 0; index--)
+		{
+			_channelList.get(index).rsslReactorChannel(rsslReactorChannl);
+			_channelList.get(index).rsslReactorChannel().info(rsslReactorChannlInfo, rsslReactorErrorInfo);
+		}
+	}
+	
 	private ChannelInfo channelInfo(String name, Reactor rsslReactor)
 	{
 		if (_channelPool.isEmpty())
