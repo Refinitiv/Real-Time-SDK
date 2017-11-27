@@ -339,6 +339,9 @@ Series100Provider100-ProvFunc-005
 	Alters Interactive Provider item refersh and updates to include a different 
 	payload consisting of multiple enum type fields.  
 
+Series100Provider100-ProvFunc-006
+	Alters Interactive Provider to send a STATUS message with empty/null state every 5 
+	seconds after provider is created.
 
 Module:  Series300Provider320
 ---------------------------
@@ -422,6 +425,11 @@ emalibs-Cons-000
 emalibs-Cons-001
 	 Alters ema library, specifically ItemCallbackClient.cpp, to change 
 	 CONSUMER_STARTING_STREAM_ID from 4 to 2147483636.  
+
+emalibs-Status-000
+	 Alters ema library, specifically OmmIProviderImpl.java, to prevent NullPointerException
+	 when provider publish empty/null state to downstream. Alter Provider code  
+	 Series100Provider100-ProvFunc-006 use to send status with empty/null state.
 
 Module:  Series300NiProvider350
 ----------------------------------
