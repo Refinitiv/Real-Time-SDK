@@ -1754,7 +1754,16 @@ class WlItemHandler implements WlHandler
                 ret =  readStatusMsg(wlStream, dIter, msg, errorInfo);
                 if (ret == ReactorReturnCodes.SUCCESS)
                 {
-                    handleStateTransition(wlStream, msg);
+                    if (((StatusMsg)msg).checkHasState())
+                        handleStateTransition(wlStream, msg);
+                    else // if empty status message with no state forward to the user
+                    {
+                        _tempWlInteger.value(msg.streamId());
+                        if ((callbackUser("WlItemHandler.sendStatus", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                        {
+                            System.out.println(" WlItemHandler handleStatus callbackUser failed for stream " + msg.streamId() );           
+                        }
+                    }
                 }
                 break;
             case MsgClasses.UPDATE:
