@@ -30,7 +30,7 @@ Compiling Source:
 The included makefile is set up to run from the file
 locations as presented through the distribution package.
 It is set up for building on the Transport API supported 
-Solaris or Linux platforms using the supported compilers.
+Linux platforms using the supported compilers.
 
 The included makefile is set up to build the Value Add
 components as both static and shared libraries.
