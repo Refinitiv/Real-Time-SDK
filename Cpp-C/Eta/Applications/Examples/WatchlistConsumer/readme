@@ -149,7 +149,7 @@ Compiling Source:
 The included makefile is set up to run from the file
 locations as presented through the distribution package.
 It is set up for building on the Transport API supported 
-Solaris or Linux platforms using the supported compilers.
+Linux platforms using the supported compilers.
 
 The VA_CUSTOM_BUILT_LIBS value in the makefile is used to 
 link in the Transport API ValueAdd components compiled from the provided

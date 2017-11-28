@@ -59,8 +59,8 @@ Compiling
 
 The included makefile is set up to run from the file 
 locations as presented through the distribution package.
-It is set up for building on the UPA supported
-Solaris or Linux platforms using the UPA supported
+It is set up for building on the UPA supported Linux
+platforms using the UPA supported
 
 The LINKTYPE value in the makefile is used to control
 whether the application is built using UPA static or

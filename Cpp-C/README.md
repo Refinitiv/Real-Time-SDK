@@ -29,7 +29,7 @@ This repository uses submodules for this cross-dependency, so users should add t
 
 ####1) Build the ETA 
 
-**For Linux/Solaris**:
+**For Linux**:
 
 Navigate to `Eta/Impl` 
 -	Run `make all` to build Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location of the `Elektron-SDK-BinaryPack` repository.
@@ -39,7 +39,7 @@ Navigate to `Eta/Impl`
 This will build both static and shared versions of the libraries and will build Optimized libraries by default.  
 If Optimized_Assert libraries are preferred, this can be modified from within the makefiles.
 
-**NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink or SolarisSoLink to properly soft link for versioned libraries. These are located in the submodule folder under your clone location and then `Elektron-SDK-BinaryPack/Cpp-C/Eta`
+**NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink to properly soft link for versioned libraries. These are located in the submodule folder under your clone location and then `Elektron-SDK-BinaryPack/Cpp-C/Eta`
 
 **For Windows**:
 
