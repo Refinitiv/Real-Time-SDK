@@ -110,7 +110,7 @@ class LoginHandler implements RDMLoginMsgCallback
 				_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 				_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 				
-				_streamId.value(loginMsg.streamId());
+				_streamId.value(loginMsgEvent.msg().streamId());
 				
 				ItemInfo itemInfo = clientSession.getItemInfo(_streamId);
 				RequestMsg requestMsg = (RequestMsg)loginMsgEvent.msg();
@@ -157,7 +157,7 @@ class LoginHandler implements RDMLoginMsgCallback
 		        			temp.toString(), Severity.TRACE));
 	        	}
 				
-				_streamId.value(loginMsg.streamId());
+				_streamId.value(loginMsgEvent.msg().streamId());
 				
 				ItemInfo itemInfo = clientSession.getItemInfo(_streamId);
 				
@@ -193,7 +193,7 @@ class LoginHandler implements RDMLoginMsgCallback
 		        			temp.toString(), Severity.TRACE));
 	        	}
 				
-				_streamId.value(loginMsg.streamId());
+				_streamId.value(loginMsgEvent.msg().streamId());
 				ItemInfo itemInfo = clientSession.getItemInfo(_streamId);
 				
 				if ( itemInfo != null )
