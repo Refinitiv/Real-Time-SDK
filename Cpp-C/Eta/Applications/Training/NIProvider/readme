@@ -72,7 +72,7 @@ The makefile is included for each module. For each module
 folder, the included makefile is set up to run from the file
 locations as presented through the distribution package.
 It is set up for building on the Transport API supported 
-Solaris or Linux platforms using the supported compilers.
+Linux platforms using the supported compilers.
 
 The LINKTYPE value in the makefile is used to control
 whether the application is built using Transport API static or 
