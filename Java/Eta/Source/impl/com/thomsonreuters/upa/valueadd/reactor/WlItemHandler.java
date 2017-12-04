@@ -2030,7 +2030,14 @@ class WlItemHandler implements WlHandler
                         		return ret;
                         	}
                         	else
-                            	_watchlist.closeWlRequest(wlRequest);
+							{
+                            	// remove from list
+                				if (!(msg.domainType() == DomainTypes.SYMBOL_LIST 
+                        		&& (wlRequest.symbolListFlags() & SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS)  > 0 ))
+                				{
+                    				_watchlist.closeWlRequest(wlRequest);
+                				}
+							}
                         }
                     }
                     else
@@ -2892,12 +2899,6 @@ class WlItemHandler implements WlHandler
 			    _providerRequestTable.remove(_symbolListRequestKey);
     		}    	
             
-            
-            if (((StatusMsg)msg).checkHasGroupId())
-            	wlStream.wlService().itemGroupTableGet(((StatusMsg)msg).groupId()).openStreamList().remove(wlStream);
-            if (wlStream.wlService() != null)
-            	wlStream.wlService().streamList().remove(wlStream);
-        	
             _tempWlInteger.value(msg.streamId());
 
     		if ((callbackUser("WlItemHandler.handleCloseRecover", msg, rdmMsg, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
@@ -3033,9 +3034,9 @@ class WlItemHandler implements WlHandler
   		   ((StatusMsg)msg).state().streamState(StreamStates.CLOSED_RECOVER);
   		   ((StatusMsg)msg).state().dataState(DataStates.SUSPECT);    	
   	        _tempWlInteger.value(msg.streamId());
-  		   if ((callbackUser("WlItemHandler.handleClose", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+  		   if ((callbackUser("WlItemHandler.handleCloseRecoverStatusMsg", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
   		   {
-  			   System.out.println(" WlItemHandler handleCloseRecover callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
+  			   System.out.println(" WlItemHandler handleCloseRecoverStatusMsg callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
   		   }
   	   	} 	  
     	    	    	    	
@@ -3045,9 +3046,8 @@ class WlItemHandler implements WlHandler
     		msg.domainType(usrRequest._requestMsg.domainType());
     		((StatusMsg)msg).state().streamState(StreamStates.CLOSED_RECOVER);
     		((StatusMsg)msg).state().dataState(DataStates.SUSPECT);
+    		 _tempWlInteger.value(msg.streamId());
     		WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().remove(_tempWlInteger);
-    		 
-            _tempWlInteger.value(msg.streamId());
     		if ((callbackUser("WlItemHandler.handleCloseRecoverStatusMsg", msg, null, wlRequest, _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
     		{
     			System.out.println(" WlItemHandler handleClose callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
@@ -3086,7 +3086,7 @@ class WlItemHandler implements WlHandler
         		if ((callbackUser("WlItemHandler.handleOpenStatus", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
         		{
         			// break;
-        			System.out.println(" WlItemHandler handleStatus callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
+        			System.out.println(" WlItemHandler handleOpenStatus callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
         		}
         	}
     	}
@@ -3127,7 +3127,7 @@ class WlItemHandler implements WlHandler
 			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
 			if ((wlStream.sendMsg(_closeMsg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
 			{
-				System.out.println(" WlItemHandler sendCloseMsg for upstream failed for stream " + wlStream.streamId() );
+				System.out.println(" WlItemHandler handleSuspect for upstream failed for stream " + wlStream.streamId() );
 			}
 			
 			for (WlRequest usrRequest = requestList.poll(); usrRequest != null; usrRequest = requestList.poll())
@@ -3137,9 +3137,10 @@ class WlItemHandler implements WlHandler
 	    		((StatusMsg)msg).state().streamState(StreamStates.CLOSED_RECOVER);
 										
 	            _tempWlInteger.value(msg.streamId());
-				if ((callbackUser("WlItemHandler handleStatus", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+	            WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().remove(_tempWlInteger);
+				if ((callbackUser("WlItemHandler handleSuspect", msg, null, wlRequest, _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
 				{
-        			System.out.println(" WlItemHandler handleStatus callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
+        			System.out.println(" WlItemHandler handleSuspect callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
 				}
                 _watchlist.closeWlRequest(usrRequest);
 			}			
@@ -3171,9 +3172,10 @@ class WlItemHandler implements WlHandler
     		msg.streamId(usrRequest.requestMsg().streamId());
     		msg.domainType(usrRequest._requestMsg.domainType());
             _tempWlInteger.value(msg.streamId());
-    		if ((callbackUser("WlItemHandler.handleClose", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+            WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().remove(_tempWlInteger);
+    		if ((callbackUser("WlItemHandler.handleRedirected", msg, null, wlRequest, _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
     		{
-    			System.out.println(" WlItemHandler handleClose callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
+    			System.out.println(" WlItemHandler handleRedirected callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
     		}
 
     		_watchlist.closeWlRequest(usrRequest);
