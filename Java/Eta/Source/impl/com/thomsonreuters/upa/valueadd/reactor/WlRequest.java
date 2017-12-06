@@ -324,5 +324,7 @@ class WlRequest extends VaNode
         _initialResponseReceived = false;
         _symbolListFlags = 0;
         _tableKey = null;
+        _viewElemCount = 0;
+        _viewType = 0;
     }
 }

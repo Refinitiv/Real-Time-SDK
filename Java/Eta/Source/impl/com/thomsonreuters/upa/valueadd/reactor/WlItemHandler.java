@@ -3882,7 +3882,8 @@ class WlItemHandler implements WlHandler
 				wlRequest._viewElementNameList = null;
 				break;
 		}
-		wlRequest.view().returnToPool();
+		wlRequest._view.returnToPool();
+		wlRequest._view = null;
 	}	
 	
 	

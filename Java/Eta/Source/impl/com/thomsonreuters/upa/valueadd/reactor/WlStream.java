@@ -1044,6 +1044,7 @@ class WlStream extends VaNode
             _watchlist.closeWlRequest(wlRequest);
         }
         if (_aggregateView != null) _aggregateView.clear();
+        _requestsWithViewCount = 0;
     }
     
 	WlView aggregateView()

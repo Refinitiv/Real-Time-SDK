@@ -7,6 +7,7 @@ import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
+import com.thomsonreuters.upa.valueadd.reactor.WlRequest.State;
 
 /* Watchlist service that contains necessary information regarding the service. */
 class WlService extends VaNode
@@ -104,6 +105,7 @@ class WlService extends VaNode
         WlRequest wlRequest = null;
         while ((wlRequest = _waitingRequestList.poll()) != null)
         {
+        	wlRequest.state(State.RETURN_TO_POOL);
             wlRequest.returnToPool();
         }
 
