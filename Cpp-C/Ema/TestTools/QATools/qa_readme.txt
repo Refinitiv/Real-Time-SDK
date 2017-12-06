@@ -119,6 +119,10 @@ Series300Consumer331-SrcReissue-001
 	Alters consumer to create a directory handle with an invalid serviceId. 
 	Then this code attempts to send a reissue on the invalid handle.
 
+Series300Consumer331-ConsFunc-001
+	Alters consumer to request directory using info filter without a serviceName. 
+	Also, alters consumer to not send out item requests.
+
 
 Module:  Series300Consumer332
 ---------------------------

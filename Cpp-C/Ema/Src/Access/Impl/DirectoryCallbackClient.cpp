@@ -22,6 +22,8 @@
 
 using namespace thomsonreuters::ema::access;
 
+#define DEFAULT_DIRECTORY_RESP_MSG_SIZE 8192
+
 const EmaString DirectoryCallbackClient::_clientName( "DirectoryCallbackClient" );
 
 CapabilityList::CapabilityList() :
@@ -1208,38 +1210,14 @@ const Directory* DirectoryCallbackClient::getDirectory( UInt32 id ) const
 RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pRsslReactor, RsslReactorChannel* pRsslReactorChannel,
     RsslRDMDirectoryMsgEvent* pEvent, SingleItem* pItem )
 {
+	RsslRet retCode;
 	RsslBuffer rsslMsgBuffer;
-	rsslMsgBuffer.length = 4096;
-	rsslMsgBuffer.data = ( char* )malloc( sizeof( char ) * rsslMsgBuffer.length );
-
-	if ( !rsslMsgBuffer.data )
-	{
-		_ommBaseImpl.handleMee( "Failed to allocate memory in DirectoryCallbackClient::processCallback()" );
-		return RSSL_RC_CRET_SUCCESS;
-	}
-
 	RsslEncIterator eIter;
 	rsslClearEncodeIterator( &eIter );
 
-	RsslRet retCode = rsslSetEncodeIteratorRWFVersion( &eIter, pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion );
-	if ( retCode != RSSL_RET_SUCCESS )
+	if ( allocateAndSetEncodeIteratorBuffer( &rsslMsgBuffer, DEFAULT_DIRECTORY_RESP_MSG_SIZE, pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion,
+		&eIter, "DirectoryCallbackClient::processCallback" ) != RSSL_RET_SUCCESS )
 	{
-		free( rsslMsgBuffer.data );
-
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-			                                       "Internal error. Failed to set encode iterator version in DirectoryCallbackClient::processCallback()" );
-		return RSSL_RC_CRET_SUCCESS;
-	}
-
-	retCode = rsslSetEncodeIteratorBuffer( &eIter, &rsslMsgBuffer );
-	if ( retCode != RSSL_RET_SUCCESS )
-	{
-		free( rsslMsgBuffer.data );
-
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
-			                                       "Internal error. Failed to set encode iterator buffer in DirectoryCallbackClient::processCallback()" );
 		return RSSL_RC_CRET_SUCCESS;
 	}
 
@@ -1247,19 +1225,18 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 	clearRsslErrorInfo( &rsslErrorInfo );
 	retCode = rsslEncodeRDMDirectoryMsg( &eIter, pEvent->pRDMDirectoryMsg, &rsslMsgBuffer.length, &rsslErrorInfo );
 
-	while ( retCode == RSSL_RET_BUFFER_TOO_SMALL )
+	while ( rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_BUFFER_TOO_SMALL )
 	{
 		free( rsslMsgBuffer.data );
 
-		rsslMsgBuffer.length += rsslMsgBuffer.length;
-		rsslMsgBuffer.data = ( char* )malloc( sizeof( char ) * rsslMsgBuffer.length );
-
-		if ( !rsslMsgBuffer.data )
+		rsslClearEncodeIterator( &eIter );
+		if ( allocateAndSetEncodeIteratorBuffer( &rsslMsgBuffer, rsslMsgBuffer.length * 2, pRsslReactorChannel->majorVersion, pRsslReactorChannel->minorVersion,
+			&eIter, "DirectoryCallbackClient::processCallback" ) != RSSL_RET_SUCCESS )
 		{
-			_ommBaseImpl.handleMee( "Failed to allocate memory in DirectoryCallbackClient::processCallback()" );
 			return RSSL_RC_CRET_SUCCESS;
 		}
 
+		clearRsslErrorInfo( &rsslErrorInfo );
 		retCode = rsslEncodeRDMDirectoryMsg( &eIter, pEvent->pRDMDirectoryMsg, &rsslMsgBuffer.length, &rsslErrorInfo );
 	}
 
@@ -1352,6 +1329,50 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 	free( rsslMsgBuffer.data );
 
 	return RSSL_RC_CRET_SUCCESS;
+}
+
+int DirectoryCallbackClient::allocateAndSetEncodeIteratorBuffer( RsslBuffer* rsslBuffer, UInt32 allocateBufferSize, UInt8 majorVersion, UInt8 minorVersion,
+	RsslEncodeIterator* rsslEncodeIterator, const char* methodName )
+{
+	rsslBuffer->length = allocateBufferSize;
+
+	rsslBuffer->data = (char*)malloc( sizeof(char) * rsslBuffer->length );
+
+	if ( !rsslBuffer->data )
+	{
+		EmaString text( "Failed to allocate memory in " );
+		text.append( methodName );
+		_ommBaseImpl.handleMee( text.c_str() );
+		return RSSL_RET_FAILURE;
+	}
+
+	int retCode = rsslSetEncodeIteratorRWFVersion( rsslEncodeIterator, majorVersion, minorVersion );
+	if ( retCode != RSSL_RET_SUCCESS )
+	{
+		EmaString text( "Internal error. Failed to set encode iterator RWF version in " );
+		text.append( methodName );
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
+				text.c_str() );
+
+		free( rsslBuffer->data );
+		return retCode;
+	}
+
+	retCode = rsslSetEncodeIteratorBuffer( rsslEncodeIterator, rsslBuffer );
+	if ( retCode != RSSL_RET_SUCCESS )
+	{
+		EmaString text( "Internal error. Failed to set encode iterator buffer in " );
+		text.append( methodName );
+		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum,
+				text.c_str() );
+
+		free( rsslBuffer->data );
+		return retCode;
+	}
+
+	return RSSL_RET_SUCCESS;
 }
 
 const EmaString DirectoryItem::_clientName( "DirectoryCallbackClient" );
