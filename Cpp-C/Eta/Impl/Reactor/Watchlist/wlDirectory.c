@@ -214,6 +214,24 @@ RsslRet wlDirectoryProcessProviderMsgEvent(WlBase *pBase, WlDirectory *pDirector
 				return ret;
 		}
 
+		RSSL_QUEUE_FOR_EACH_LINK(&pBase->requestedServices, pLink)
+		{
+			WlRequestedService *pRequestedService = RSSL_QUEUE_LINK_TO_OBJECT(
+				WlRequestedService, qlServiceRequests, pLink);
+			RsslQueueLink *pRequestLink;
+
+			RSSL_QUEUE_FOR_EACH_LINK(&pRequestedService->openDirectoryRequests,
+				pRequestLink)
+			{
+				WlDirectoryRequest *pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest,
+					base.qlStateQueue, pRequestLink);
+
+				if ((ret = wlSendDirectoryMsgToRequest(pBase, pDirectoryRequest,
+					NULL, pMsgEvent->pRsslMsg, pErrorInfo)) != RSSL_RET_SUCCESS)
+					return ret;
+			}
+		}
+
 		return RSSL_RET_SUCCESS;
 	}
 

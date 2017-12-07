@@ -79,6 +79,39 @@ RsslReactorCallbackRet DirectoryHandler::directoryCallback(RsslReactor* pReactor
 
 	if (!pDirectoryMsg)
 	{
+		if (pRDMDirectoryMsgEvent->baseMsgEvent.pRsslMsg->msgBase.msgClass == RSSL_MC_GENERIC)
+		{
+			if (OmmLoggerClient::VerboseEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
+			{
+				EmaString temp("Received Generic message on directory stream.");
+				temp.append(CR).append("Stream Id ").append(pRDMDirectoryMsgEvent->baseMsgEvent.pRsslMsg->msgBase.streamId)
+					.append(CR).append("Client handle ").append(clientSession->getClientHandle())
+					.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName());
+
+				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
+			}
+
+			ItemInfo* itemInfo = clientSession->getItemInfo(pRDMDirectoryMsgEvent->baseMsgEvent.pRsslMsg->msgBase.streamId);
+
+			if (itemInfo)
+			{
+				StaticDecoder::setRsslData(&ommServerBaseImpl->_genericMsg, pRDMDirectoryMsgEvent->baseMsgEvent.pRsslMsg,
+					pReactorChannel->majorVersion,
+					pReactorChannel->minorVersion,
+					0);
+
+				ommServerBaseImpl->ommProviderEvent._clientHandle = clientSession->getClientHandle();
+				ommServerBaseImpl->ommProviderEvent._closure = ommServerBaseImpl->_pClosure;
+				ommServerBaseImpl->ommProviderEvent._provider = ommServerBaseImpl->getProvider();
+				ommServerBaseImpl->ommProviderEvent._handle = (UInt64)itemInfo;
+
+				ommServerBaseImpl->_pOmmProviderClient->onAllMsg(ommServerBaseImpl->_genericMsg, ommServerBaseImpl->ommProviderEvent);
+				ommServerBaseImpl->_pOmmProviderClient->onGenericMsg(ommServerBaseImpl->_genericMsg, ommServerBaseImpl->ommProviderEvent);
+			}
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+
 		EmaString temp("Directory message rejected - invalid directory domain message.");
 
 		ommServerBaseImpl->getDirectoryHandler().sendDirectoryReject(pReactorChannel, pRDMDirectoryMsgEvent->baseMsgEvent.pRsslMsg->msgBase.streamId, RSSL_SC_USAGE_ERROR, temp);
