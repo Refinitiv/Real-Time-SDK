@@ -475,7 +475,20 @@ class Watchlist extends VaNode
         // encode RDM message into buffer
         _eIter.clear();
         _eIter.setBufferAndRWFVersion(_tempBuffer1, Codec.majorVersion(), Codec.minorVersion());
-        if ((ret = rdmMsg.encode(_eIter)) >= CodecReturnCodes.SUCCESS)
+        
+        ret = rdmMsg.encode(_eIter);
+        
+        while( ret == CodecReturnCodes.BUFFER_TOO_SMALL)
+        {
+        	_tempByteBuffer1 = ByteBuffer.allocate(_tempBuffer1.capacity() * 2 );
+        	_tempBuffer1.clear();
+        	_tempBuffer1.data(_tempByteBuffer1);
+        	 _eIter.clear();
+             _eIter.setBufferAndRWFVersion(_tempBuffer1, Codec.majorVersion(), Codec.minorVersion());
+             ret = rdmMsg.encode(_eIter);
+        }
+        
+        if (ret >= CodecReturnCodes.SUCCESS)
         {
             // decode encoded RDM message into Codec message
             _dIter.clear();

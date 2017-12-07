@@ -548,6 +548,9 @@ class WlDirectoryHandler implements WlHandler
                 {
                     break;
                 }
+                
+                _directoryUpdate.clear();
+                _directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
             }
 
             for (int i = 0; i < _directoryUpdate.serviceList().size(); ++i)

@@ -127,6 +127,9 @@ provider-Login-001: Alters Provider to not respond with login refresh when a log
 
 provider-Src-001: Alters Provider to not respond with source directory refresh when source directory request is received
 
+provider-Src-002: Alters Provider to respond with a source directory refresh containing 100 services 
+                  when source directory is requested.
+
 provider-Item-001: Alters Provider to not send a market price refresh when market price request is received     
 
 provider-Dict-001: Alters Provider to not return failure if it receives a source directory request and

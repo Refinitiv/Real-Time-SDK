@@ -232,6 +232,8 @@ public :
 
 private :
 
+	int allocateAndSetEncodeIteratorBuffer(RsslBuffer*, UInt32, UInt8, UInt8, RsslEncodeIterator*, const char *);
+
 	class EmaStringPtrHasher
 	{
 	public:
