@@ -159,6 +159,11 @@ Series300Consumer333-GenM-001
    also proccess genericMsg from provider. Need to run with Series300Provider320-GenM-001 
    provider qatool.
 
+Series300Consumer333-GenM-002
+   Alters the Consumer to send a GenericMsg on login stream with the name (in key) changed from the typical 
+   "ConsumerConnectionStatus" to "GENERIC". Also added is the ability to process a GenericMsg from a provider.
+   This altered code works in conjunction with Series300Provider320-GenM-001.   
+
 Module:  Series400Consumer410 
 ---------------------------
 Series400Consumer410-MultiThreaded-001: This test tool implements the following high level steps:

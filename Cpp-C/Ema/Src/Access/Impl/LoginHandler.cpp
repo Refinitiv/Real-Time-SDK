@@ -96,6 +96,39 @@ RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslRe
 
 	if (!pLoginMsg)
 	{
+		if (pRDMLoginMsgEvent->baseMsgEvent.pRsslMsg->msgBase.msgClass == RSSL_MC_GENERIC)
+		{
+			if (OmmLoggerClient::VerboseEnum >= ommServerBaseImpl->getActiveConfig().loggerConfig.minLoggerSeverity)
+			{
+				EmaString temp("Received Generic message on login stream.");
+				temp.append(CR).append("Stream Id ").append(pRDMLoginMsgEvent->baseMsgEvent.pRsslMsg->msgBase.streamId)
+					.append(CR).append("Client handle ").append(clientSession->getClientHandle())
+					.append(CR).append("Instance Name ").append(ommServerBaseImpl->getInstanceName());
+
+				ommServerBaseImpl->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
+			}
+
+			ItemInfo* itemInfo = clientSession->getItemInfo(pRDMLoginMsgEvent->baseMsgEvent.pRsslMsg->msgBase.streamId);
+
+			if (itemInfo)
+			{
+				StaticDecoder::setRsslData(&ommServerBaseImpl->_genericMsg, pRDMLoginMsgEvent->baseMsgEvent.pRsslMsg,
+					pReactorChannel->majorVersion,
+					pReactorChannel->minorVersion,
+					0);
+
+				ommServerBaseImpl->ommProviderEvent._clientHandle = clientSession->getClientHandle();
+				ommServerBaseImpl->ommProviderEvent._closure = ommServerBaseImpl->_pClosure;
+				ommServerBaseImpl->ommProviderEvent._provider = ommServerBaseImpl->getProvider();
+				ommServerBaseImpl->ommProviderEvent._handle = (UInt64)itemInfo;
+
+				ommServerBaseImpl->_pOmmProviderClient->onAllMsg(ommServerBaseImpl->_genericMsg, ommServerBaseImpl->ommProviderEvent);
+				ommServerBaseImpl->_pOmmProviderClient->onGenericMsg(ommServerBaseImpl->_genericMsg, ommServerBaseImpl->ommProviderEvent);
+			}
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+
 		EmaString temp("Login message rejected - invalid login domain message.");
 
 		ommServerBaseImpl->getLoginHandler().sendLoginReject(pReactorChannel, pRDMLoginMsgEvent->baseMsgEvent.pRsslMsg->msgBase.streamId, RSSL_SC_USAGE_ERROR, temp);
