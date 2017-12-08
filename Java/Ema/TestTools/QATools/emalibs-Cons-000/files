@@ -1,4 +1,3 @@
 #file,location
 ,Src
-build.xml,Src
 ItemCallbackClient.java,Src/main/java/impl/com/thomsonreuters/ema/access
