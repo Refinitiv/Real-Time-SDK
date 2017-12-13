@@ -40,9 +40,6 @@ public class WlViewHandler
     LinkedList<LinkedList<WlView>> _newViewsPool = new LinkedList<LinkedList<WlView>>();   
     LinkedList<HashMap<Integer, Integer>> _viewFieldIdCountMapPool = new LinkedList<HashMap<Integer, Integer>>();
     LinkedList<HashMap<String, Integer>> _viewElementNameCountMapPool = new LinkedList<HashMap<String, Integer>>();
-//    LinkedList<HashMap<Integer, Boolean>> _viewFieldIdCommitMapPool = new LinkedList<HashMap<Integer, Boolean>>();
-//    LinkedList<HashMap<String, Boolean>> _viewElementNameCommitMapPool = new LinkedList<HashMap<String, Boolean>>();
-//    
 
     WlViewHandler(Watchlist watchlist)
     {
@@ -166,10 +163,16 @@ public class WlViewHandler
 
 		aggView._newViews = _newViewsPool.poll();
 		if (aggView._newViews == null) aggView._newViews = new LinkedList<WlView>();
+		aggView._newViews.clear();
 		aggView._mergedViews = _mergedViewsPool.poll();
 		if (aggView._mergedViews == null) aggView._mergedViews = new LinkedList<WlView>();
+		aggView._mergedViews.clear();
 		aggView._committedViews = _committedViewsPool.poll();
 		if (aggView._committedViews == null) aggView._committedViews = new LinkedList<WlView>();
+		aggView._committedViews.clear();
+		
+		aggView._viewFieldIdCountMap = null;
+		aggView._viewElementNameCountMap = null;
 		
 		if ( view.viewType() == ViewTypes.FIELD_ID_LIST)
 		{
@@ -180,9 +183,7 @@ public class WlViewHandler
 			{
 				aggView._viewFieldIdCountMap.put(fieldId,  1);
 			}
-//			aggView._viewFieldIdCommitMap = _viewFieldIdCommitMapPool.poll();
-//			if (aggView._viewFieldIdCommitMap == null) aggView._viewFieldIdCommitMap = new HashMap<Integer, Boolean>();
-//			aggView._viewFieldIdCommitMap.clear();
+
 		}
 		else if ( view.viewType() == ViewTypes.ELEMENT_NAME_LIST)
 		{
@@ -193,12 +194,13 @@ public class WlViewHandler
 			{
 				aggView._viewElementNameCountMap.put(elementName,  1);
 			}
-//			aggView._viewElementNameCommitMap = _viewElementNameCommitMapPool.poll();
-//			if (aggView._viewElementNameCommitMap == null) aggView._viewElementNameCommitMap = new HashMap<String, Boolean>();
-//			aggView._viewElementNameCommitMap.clear();
+
 		}
 		aggView.mergedViews().add(view);
 		view.state(WlView.State.MERGED);
+		
+		aggView._fieldIdList = null;
+		aggView._elementNameList = null;
 		
 		switch(view.viewType())
 		{		
@@ -209,7 +211,8 @@ public class WlViewHandler
 				aggView.viewType(view.viewType());
 			    aggView.elemCount(view.elemCount());
 				aggView._fieldIdList = _viewFieldIdListPool.poll();
-				if (aggView._fieldIdList == null) aggView._fieldIdList = new ArrayList<Integer>();				
+				if (aggView._fieldIdList == null) aggView._fieldIdList = new ArrayList<Integer>();	
+				aggView._fieldIdList.clear();
 				aggView._fieldIdList.addAll(view.fieldIdList());
 				break;
 			}
@@ -219,7 +222,8 @@ public class WlViewHandler
 				aggView.viewType(view.viewType());
 			    aggView.elemCount(view.elemCount());
 				aggView._elementNameList = _viewElementNameListPool.poll();
-				if (aggView._elementNameList == null) aggView._elementNameList = new ArrayList<String>();	
+				if (aggView._elementNameList == null) aggView._elementNameList = new ArrayList<String>();
+				aggView._elementNameList.clear();
 				aggView._elementNameList.addAll(view.elementNameList());
 				break;
 			}
@@ -624,8 +628,7 @@ public class WlViewHandler
 	{
 		_viewFieldIdCountMapPool.add(aggView._viewFieldIdCountMap);	
 		_viewElementNameCountMapPool.add(aggView._viewElementNameCountMap);	
-//		_viewFieldIdCommitMapPool.add(aggView._viewFieldIdCommitMap);
-//		_viewElementNameCommitMapPool.add(aggView._viewElementNameCommitMap);
+
 		
 		_newViewsPool.add(aggView._newViews);
 		_mergedViewsPool.add(aggView._mergedViews);
@@ -633,6 +636,15 @@ public class WlViewHandler
 		
 		_viewFieldIdListPool.add(aggView._fieldIdList);
 		_viewElementNameListPool.add(aggView._elementNameList);
+		
+		/* Clear out all pooled elements */
+		aggView._viewFieldIdCountMap = null;
+		aggView._viewElementNameCountMap = null;
+		aggView._newViews = null;
+		aggView._mergedViews = null;
+		aggView._committedViews = null;
+		aggView._fieldIdList = null;
+		aggView._elementNameList = null;
 		aggView.returnToPool();
 	}
 	
@@ -823,6 +835,15 @@ public class WlViewHandler
 	{
 		_viewFieldIdListPool.add(view._fieldIdList);
 		_viewElementNameListPool.add(view._elementNameList);
+		
+		/* Clear out all pooled elements */
+		view._viewFieldIdCountMap = null;
+		view._viewElementNameCountMap = null;
+		view._newViews = null;
+		view._mergedViews = null;
+		view._committedViews = null;
+		view._fieldIdList = null;
+		view._elementNameList = null;
 		view.returnToPool();
 	}
 	
