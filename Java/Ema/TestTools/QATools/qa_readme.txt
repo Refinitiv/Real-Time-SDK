@@ -108,6 +108,12 @@ Series100Consumer110-BatchView-002
 Series100Consumer110-BatchView-003
 	Alters consumer to request 4 items in batch (IBM.N, TRI.N, TRI1.N, TRI2.N) 
 
+Module:  Series300Consumer130
+-----------------------------
+Series100Consumer130-MultiThreadBatchView-001
+	Alters consumer to request items from a file in batch, batch-snapshot and view 
+	requests. This tools uses multiple threads. The items are read in from a file: 1k.xml. 
+	The tools uses a distinct third of items from file to make the 3 types of requests mentioned.
 
 Module:  Series300Consumer300
 -----------------------------

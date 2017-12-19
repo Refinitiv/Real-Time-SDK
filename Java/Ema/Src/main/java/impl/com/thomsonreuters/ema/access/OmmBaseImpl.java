@@ -15,9 +15,11 @@ import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
@@ -28,11 +30,11 @@ import com.thomsonreuters.ema.access.OmmConsumer.DispatchReturn;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchTimeout;
 import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.access.OmmServerBaseImpl.OmmImplState;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
-import com.thomsonreuters.upa.valueadd.common.VaIteratableQueue;
 import com.thomsonreuters.upa.valueadd.reactor.Reactor;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
@@ -97,10 +99,15 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	private static int INSTANCE_ID = 0;
 	private final static int MIN_TIME_FOR_SELECT = 1000000;
+	private final static int MIN_TIME_FOR_SELECT_IN_MILLISEC = 1;
+	private final static int DISPATCH_LOOP_COUNT = 5;
 	
-	protected int _state = OmmImplState.NOT_INITIALIZED;
+	protected volatile int _state = OmmImplState.NOT_INITIALIZED;
+	private boolean _logError = true;
+
 	private Logger _loggerClient;
 	protected StringBuilder _strBuilder = new StringBuilder(1024);
+	protected StringBuilder _dispatchStrBuilder = new StringBuilder(1024);
 	private OmmInvalidUsageExceptionImpl _ommIUExcept;
 	private OmmInvalidHandleExceptionImpl _ommIHExcept;
 	private ActiveConfig _activeConfig;
@@ -113,6 +120,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	
 	private ReentrantLock _userLock = new java.util.concurrent.locks.ReentrantLock();
+	private ReentrantLock _dispatchLock = new java.util.concurrent.locks.ReentrantLock();	
 	protected Reactor _rsslReactor;
 	private ReactorOptions _rsslReactorOpts = ReactorFactory.createReactorOptions();
 	protected ReactorErrorInfo _rsslErrorInfo = ReactorFactory.createReactorErrorInfo();
@@ -124,13 +132,13 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	private ExecutorService _executor;
 	private volatile boolean _threadRunning = false;
 	protected boolean _eventTimeout;
-	protected VaIteratableQueue _timeoutEventQueue = new VaIteratableQueue();
+	protected ConcurrentLinkedQueue<TimeoutEvent> _timeoutEventQueue = new ConcurrentLinkedQueue<TimeoutEvent>();
 	protected EmaObjectManager _objManager = new EmaObjectManager();
 	private Pipe _pipe;
-	private int _pipeWriteCount = 0;
+	private AtomicLong _pipeWriteCount = new AtomicLong();
 	private byte[] _pipeWriteByte = new byte[]{0x00};
 	private ByteBuffer _pipeReadByte = ByteBuffer.allocate(1);
-	private boolean _eventReceived;
+	private volatile boolean _eventReceived;
 	private SelectionKey _pipeSelectKey;
 	
 	abstract Logger createLoggerClient();
@@ -180,8 +188,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 
 			} catch (Exception e)
 			{
-				_threadRunning = false;
-
 				strBuilder().append("Failed to open Selector: ").append(e.getLocalizedMessage());
 				String temp = _strBuilder.toString();
 				
@@ -202,8 +208,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			_rsslReactor = ReactorFactory.createReactor(_rsslReactorOpts, _rsslErrorInfo);
 			if (ReactorReturnCodes.SUCCESS != _rsslErrorInfo.code())
 			{
-				_threadRunning = false;
-
 				strBuilder().append("Failed to initialize OmmBaseImpl (ReactorFactory.createReactor).")
 						.append("' Error Id='").append(_rsslErrorInfo.error().errorId()).append("' Internal sysError='")
 						.append(_rsslErrorInfo.error().sysError()).append("' Error Location='")
@@ -233,8 +237,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 
 			} catch (IOException e)
 			{
-				_threadRunning = false;
-
 				strBuilder().append("Failed to register selector: " + e.getLocalizedMessage());
 				String temp = _strBuilder.toString();
 
@@ -272,55 +274,48 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	void uninitialize()
 	{
-		if (_state == OmmImplState.NOT_INITIALIZED)
-			return;
-
 		try
 		{
 			_userLock.lock();
+
+			if (_state == OmmImplState.NOT_INITIALIZED)
+				return;
+
+			_state = OmmImplState.NOT_INITIALIZED;
 			
 			_threadRunning = false;
+			_eventReceived = true;
 			
-			pipeRead();
+			_selector.wakeup();
 			
-			if (_rsslReactor != null)
+			if (_loginCallbackClient != null)
+			_loginCallbackClient.sendLoginClose();
+
+			if (_channelCallbackClient != null)
+				_channelCallbackClient.closeChannels();
+			
+			if (_executor != null)
 			{
-				if (_loginCallbackClient != null)
-					rsslReactorDispatchLoop(10000, _loginCallbackClient.sendLoginClose());
+				_executor.shutdown();
+				_executor.awaitTermination(SHUTDOWN_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+			}			
 
-				if (_channelCallbackClient != null)
-					_channelCallbackClient.closeChannels();
-
-				if (ReactorReturnCodes.SUCCESS != _rsslReactor.shutdown(_rsslErrorInfo))
+			if (ReactorReturnCodes.SUCCESS != _rsslReactor.shutdown(_rsslErrorInfo))
+			{
+				if (_loggerClient.isErrorEnabled())
 				{
-					if (_loggerClient.isErrorEnabled())
-					{
-						strBuilder().append("Failed to uninitialize OmmBaseImpl (Reactor.shutdown).")
-								.append("Error Id ").append(_rsslErrorInfo.error().errorId())
-								.append("Internal sysError ").append(_rsslErrorInfo.error().sysError())
-								.append("Error Location ").append(_rsslErrorInfo.location()).append("Error Text ")
-								.append(_rsslErrorInfo.error().text()).append("'. ");
+					strBuilder().append("Failed to uninitialize OmmBaseImpl (Reactor.shutdown).")
+							.append("Error Id ").append(_rsslErrorInfo.error().errorId())
+							.append("Internal sysError ").append(_rsslErrorInfo.error().sysError())
+							.append("Error Location ").append(_rsslErrorInfo.location()).append("Error Text ")
+							.append(_rsslErrorInfo.error().text()).append("'. ");
 
-						_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
-					}
-				}
-
-				if (_selector != null)
-				{
-					_selector.close();
-					_selector = null;
-				}
-
-				if (_executor != null)
-				{
-					_executor.shutdown();
-					_executor.awaitTermination(SHUTDOWN_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-					_executor = null;
+					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
 				}
 			}
 
-			_rsslReactor = null;
-			_state = OmmImplState.NOT_INITIALIZED;
+			_selector.close();
+				
 		} catch (InterruptedException | IOException e)
 		{
 			strBuilder().append("OmmBaseImpl unintialize(), Exception occurred, exception=")
@@ -506,18 +501,42 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
     public long dispatch(long timeOut)
 	{
 		if (_activeConfig.userDispatch == OperationModel.USER_DISPATCH)
-			return rsslReactorDispatchLoop(timeOut, _activeConfig.maxDispatchCountUserThread)
-					? DispatchReturn.DISPATCHED : DispatchReturn.TIMEOUT;
-
+		{
+			_dispatchLock.lock();
+			
+			if (rsslReactorDispatchLoop(timeOut, _activeConfig.maxDispatchCountUserThread))
+			{
+				_dispatchLock.unlock();
+				return DispatchReturn.DISPATCHED;
+			}
+			else
+			{
+				_dispatchLock.unlock();
+				return DispatchReturn.TIMEOUT;
+			}
+		}
+		
 		return DispatchReturn.TIMEOUT;
 	}
 	
 	public long dispatch()
 	{
 		if (_activeConfig.userDispatch == OperationModel.USER_DISPATCH)
-			return rsslReactorDispatchLoop(DispatchTimeout.NO_WAIT, _activeConfig.maxDispatchCountUserThread)
-					? DispatchReturn.DISPATCHED : DispatchReturn.TIMEOUT;
-
+		{
+			_dispatchLock.lock();
+			
+			if (rsslReactorDispatchLoop(DispatchTimeout.NO_WAIT, _activeConfig.maxDispatchCountUserThread))
+			{
+				_dispatchLock.unlock();
+				return DispatchReturn.DISPATCHED;
+			}
+			else
+			{
+				_dispatchLock.unlock();
+				return DispatchReturn.TIMEOUT;
+			}
+		}
+		
 		return DispatchReturn.TIMEOUT;
 	}
 	
@@ -531,7 +550,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		return _state;
 	}
 
-	VaIteratableQueue timerEventQueue()
+	ConcurrentLinkedQueue<TimeoutEvent> timerEventQueue()
 	{
 		return _timeoutEventQueue;
 	}
@@ -575,13 +594,13 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	void pipeWrite() throws IOException
 	{
-		if (++_pipeWriteCount == 1)
+		if (_pipeWriteCount.incrementAndGet() == 1)
 			_pipe.sink().write(ByteBuffer.wrap(_pipeWriteByte));
 	}
 	
 	void pipeRead() throws IOException
 	{
-		if (--_pipeWriteCount == 0)
+		if (_pipeWriteCount.decrementAndGet() == 0)
 		{
 			_pipeReadByte.clear();
 			_pipe.source().read(_pipeReadByte);
@@ -989,6 +1008,19 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	boolean rsslReactorDispatchLoop(long timeOut, int count)
 	{
+		if (_state == OmmImplState.NOT_INITIALIZED)
+		{
+			if (_loggerClient.isErrorEnabled() && _logError)
+			{
+				_logError = false;
+				_dispatchStrBuilder.setLength(0);
+				_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. The _state is set to OmmImplState.NOT_INITIALIZED");
+
+				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
+			}		
+			return false;
+		}		
+		
 		_eventReceived = false;
 		_rsslDispatchOptions.maxMessages(count);
 		int ret = ReactorReturnCodes.SUCCESS;
@@ -1019,21 +1051,25 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				do
 				{
 					_userLock.lock();
-					ret = _rsslReactor.reactorChannel()  != null  ? _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo) : ReactorReturnCodes.SUCCESS;
-					_userLock.unlock();
+					try{
+					ret = _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo);
+					}
+					finally{
+						_userLock.unlock();
+					}
 				}
-				while (ret > ReactorReturnCodes.SUCCESS && !_eventReceived && loopCount++ < 5);
+				while (ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < DISPATCH_LOOP_COUNT);
 				
 				if (ret < ReactorReturnCodes.SUCCESS)
 				{
 						if (_loggerClient.isErrorEnabled())
 						{
-							strBuilder().append("Call to rsslReactorDispatchLoop() failed. Internal sysError='")
+							_dispatchStrBuilder.setLength(0);
+							_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. Internal sysError='")
 										.append(_rsslErrorInfo.error().sysError()).append("' Error text='")
 										.append(_rsslErrorInfo.error().text()).append("'. ");
-	
-							if (_loggerClient.isErrorEnabled())
-								_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
+
+							_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
 						}
 	
 						return false;
@@ -1058,13 +1094,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				}
 			} // end if (_state >= OmmImplState.RSSLCHANNEL_UP)
 
-			if (_selector == null) return false;
-
-			do
+			while (_state != OmmImplState.NOT_INITIALIZED)
 			{
 				startTime = endTime;
-			
-				int selectCount = _selector.select(timeOut/MIN_TIME_FOR_SELECT);
+				
+				int selectTimeout = (int)(timeOut/MIN_TIME_FOR_SELECT); 
+				int selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
 				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 				{
 					Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
@@ -1079,10 +1114,19 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 							if (key.isReadable())
 							{
 								if (_pipeSelectKey == key) pipeRead();
-
-								_userLock.lock();
-								ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions,	_rsslErrorInfo);
-								_userLock.unlock();
+								
+								loopCount = 0;
+								do {
+									_userLock.lock();
+									try{
+										ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions,	_rsslErrorInfo);
+									}
+									finally
+									{
+										_userLock.unlock();
+									}
+								}
+								while (ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < DISPATCH_LOOP_COUNT);
 							}
 						}
 						catch (CancelledKeyException e)
@@ -1117,35 +1161,31 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 					if (_loggerClient.isTraceEnabled())
 					{
-						strBuilder().append("Call to rsslReactorDispatchLoop() received thread interruption signal.");
-	
-						_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.TRACE));
+						_loggerClient.trace(formatLogMessage(_activeConfig.instanceName,
+								"Call to rsslReactorDispatchLoop() received thread interruption signal.", Severity.TRACE));
 					}
 				}
 			}
-			while (_selector != null);
 			
 			return false;
 			
 		} //end of Try		
 		catch (CancelledKeyException e)
 		{
-			if (_loggerClient.isTraceEnabled())
+			if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
 			{
-				strBuilder().append("Call to rsslReactorDispatchLoop() received cancelled key exception.");
-
-				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.TRACE));
+				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
+						"Call to rsslReactorDispatchLoop() received cancelled key exception.", Severity.TRACE));
 			}
 
 			return true;
 		} 
 		catch (ClosedSelectorException e)
 		{
-			if (_loggerClient.isTraceEnabled())
+			if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
 			{
-				strBuilder().append("Call to rsslReactorDispatchLoop() received closed selector exception.");
-
-				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.TRACE));
+				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
+						"Call to rsslReactorDispatchLoop() received closed selector exception.", Severity.TRACE));
 			}
 
 			return true;
@@ -1154,10 +1194,11 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		{
 			if (_loggerClient.isErrorEnabled())
 			{
-				strBuilder().append("Call to rsslReactorDispatchLoop() failed. Received exception,")
+				_dispatchStrBuilder.setLength(0);
+				_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. Received exception,")
 						.append(" exception text= ").append(e.getLocalizedMessage()).append(". ");
 
-				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
+				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
 			}
 
 			uninitialize();
