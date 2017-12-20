@@ -21,6 +21,7 @@ class TimeImpl implements Time
     int _millisecond;
     int _microsecond;
     int _nanosecond;
+    int _format = DateTimeStringFormatTypes.STR_DATETIME_RSSL;
 	
     // for value(String) method
     private String trimmedVal;
@@ -33,7 +34,9 @@ class TimeImpl implements Time
     private Pattern timePattern6 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");
     private Pattern timePattern7 = Pattern.compile("(\\d+):(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)");
     private Pattern timePattern8 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");
-    
+    private Pattern timePattern9 = Pattern.compile("(\\d+):(\\d+):(\\d+)\\.(\\d+)"); // ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48.009216350
+    private Pattern timePattern10 = Pattern.compile("(\\d+):(\\d+):(\\d+),(\\d+)"); // ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48,009216350
+   
     @Override
     public void clear()
     {
@@ -43,6 +46,7 @@ class TimeImpl implements Time
         _millisecond = 0;
         _microsecond = 0;
         _nanosecond = 0;
+        _format = DateTimeStringFormatTypes.STR_DATETIME_RSSL;
     }
 
     @Override
@@ -138,10 +142,168 @@ class TimeImpl implements Time
         destTime.millisecond(_millisecond);
         destTime.microsecond(_microsecond);
         destTime.nanosecond(_nanosecond);
-
+        destTime.format(_format);
+        
         return CodecReturnCodes.SUCCESS;
     }
+    
+    @Override
+   public int format(int format)
+   {
+    	if(format >= DateTimeStringFormatTypes.STR_DATETIME_ISO8601 && format <= DateTimeStringFormatTypes.STR_DATETIME_RSSL)
+	    {
+	    	_format = format;
+	    	return CodecReturnCodes.SUCCESS;
+	    }
+	    else
+	    	return CodecReturnCodes.INVALID_ARGUMENT;
+   }
+    
+    @Override
+    public int format()
+    {
+        return _format;
+    }
 
+    // Converts Time to string in ISO8601 'HH:MM:SS.nnnnnnnnn' format & trims trailing 0s (e.g. '12:15:35.5006619' --Trimmed trail zeros after nano).
+    public String toStringIso8601()
+    {
+        StringBuilder retStr = new StringBuilder();
+
+        if (_hour > 9)
+        {
+            retStr.append(_hour);
+        }
+        else
+        {
+            retStr.append("0" + _hour);
+        }
+
+        if (_minute == BLANK_MINUTE)
+            return retStr.toString();
+        retStr.append(String.format(":%02d", _minute));
+ 
+        if (_second == BLANK_SECOND)
+            return retStr.toString();
+        retStr.append(String.format(":%02d", _second));
+
+
+        if (_millisecond == BLANK_MILLI)
+            return retStr.toString();
+        retStr.append(String.format(".%03d", _millisecond));
+  
+        if (_microsecond != BLANK_MICRO_NANO)
+        {
+            retStr.append(String.format("%03d", _microsecond));
+	
+	        if (_nanosecond != BLANK_MICRO_NANO)
+	        {
+	        	retStr.append(String.format("%03d", _nanosecond));
+	        }    	
+        }
+        
+        // Trim trailing zeros
+     	String tempVal = retStr.toString();
+    	int i = tempVal.length();
+    	for (;  i >=1; --i)
+    	{
+    		if(Character.isDigit(tempVal.charAt(i -1)) &&  tempVal.charAt(i -1) != '0')
+    			break;
+    		else if(tempVal.charAt(i -1) == '.')
+    		{
+    			i--;
+    			break;
+    		}
+    	}
+    	if(i < tempVal.length())
+    		return retStr.toString().substring(0, i);
+    	return retStr.toString();
+    }
+    
+    // Converts Time to string in "hour:minute:second:milli" format (e.g. 15:24:54:627).
+    public String toStringRssl()
+    {
+        StringBuilder retStr = new StringBuilder();
+
+        if (_hour > 9)
+        {
+            retStr.append(_hour);
+        }
+        else
+        {
+            retStr.append("0" + _hour);
+        }
+
+        if (_minute == BLANK_MINUTE)
+            return retStr.toString();
+        if (_minute > 9)
+        {
+            retStr.append(":" + _minute);
+        }
+        else
+        {
+            retStr.append(":" + "0" + _minute);
+        }
+
+        if (_second == BLANK_SECOND)
+            return retStr.toString();
+        if (_second > 9)
+        {
+            retStr.append(":" + _second);
+        }
+        else
+        {
+            retStr.append(":" + "0" + _second);
+        }
+
+        if (_millisecond == BLANK_MILLI)
+            return retStr.toString();
+        if (_millisecond > 99)
+        {
+            retStr.append(":" + _millisecond);
+        }
+        else if (_millisecond > 9)
+        {
+            retStr.append(":" + "0" + _millisecond);
+        }
+        else
+        {
+            retStr.append(":" + "00" + _millisecond);
+        }
+
+        if (_microsecond == BLANK_MICRO_NANO)
+            return retStr.toString();
+        if (_microsecond > 99)
+        {
+            retStr.append(":" + _microsecond);
+        }
+        else if (_microsecond > 9)
+        {
+            retStr.append(":" + "0" + _microsecond);
+        }
+        else
+        {
+            retStr.append(":" + "00" + _microsecond);
+        }
+
+        if (_nanosecond == BLANK_MICRO_NANO)
+            return retStr.toString();
+        if (_nanosecond > 99)
+        {
+            retStr.append(":" + _nanosecond);
+        }
+        else if (_nanosecond > 9)
+        {
+            retStr.append(":" + "0" + _nanosecond);
+        }
+        else
+        {
+            retStr.append(":" + "00" + _nanosecond);
+        }
+
+        return retStr.toString();
+   }
+    
     @Override
     public String toString()
     {
@@ -149,102 +311,81 @@ class TimeImpl implements Time
         {
             if (isValid())
             {
-                StringBuilder retStr = new StringBuilder();
-
-                if (_hour > 9)
-                {
-                    retStr.append(_hour);
-                }
-                else
-                {
-                    retStr.append("0" + _hour);
-                }
-
-                if (_minute == BLANK_MINUTE)
-                    return retStr.toString();
-                if (_minute > 9)
-                {
-                    retStr.append(":" + _minute);
-                }
-                else
-                {
-                    retStr.append(":" + "0" + _minute);
-                }
-
-                if (_second == BLANK_SECOND)
-                    return retStr.toString();
-                if (_second > 9)
-                {
-                    retStr.append(":" + _second);
-                }
-                else
-                {
-                    retStr.append(":" + "0" + _second);
-                }
-
-                if (_millisecond == BLANK_MILLI)
-                    return retStr.toString();
-                if (_millisecond > 99)
-                {
-                    retStr.append(":" + _millisecond);
-                }
-                else if (_millisecond > 9)
-                {
-                    retStr.append(":" + "0" + _millisecond);
-                }
-                else
-                {
-                    retStr.append(":" + "00" + _millisecond);
-                }
-
-                if (_microsecond == BLANK_MICRO_NANO)
-                    return retStr.toString();
-                if (_microsecond > 99)
-                {
-                    retStr.append(":" + _microsecond);
-                }
-                else if (_microsecond > 9)
-                {
-                    retStr.append(":" + "0" + _microsecond);
-                }
-                else
-                {
-                    retStr.append(":" + "00" + _microsecond);
-                }
-
-                if (_nanosecond == BLANK_MICRO_NANO)
-                    return retStr.toString();
-                if (_nanosecond > 99)
-                {
-                    retStr.append(":" + _nanosecond);
-                }
-                else if (_nanosecond > 9)
-                {
-                    retStr.append(":" + "0" + _nanosecond);
-                }
-                else
-                {
-                    retStr.append(":" + "00" + _nanosecond);
-                }
-
-                return retStr.toString();
+            	if(_format == DateTimeStringFormatTypes.STR_DATETIME_RSSL)
+            		return toStringRssl();
+            	else if(_format == DateTimeStringFormatTypes.STR_DATETIME_ISO8601)
+            		return toStringIso8601();
+            	else
+            		return "Invalid Format";
             }
             else
-            {
                 return "Invalid time";
-            }
         }
         else
         {
             return "";
         }
+        
     }
 	
+    // Converts the ISO8601 time string fractional seconds represented after comma/decimal into milli, micro and nano seconds.
+    // Expects only the portion after comma/decimal of the ISO8601 time string ['HH:MM:SS,nnnnnnnnn'].
+    // E.g from the time string '10:15:55,678009700' Or '101555,678009700', the portion '678009700' after the comma 
+    // is converted to 678 milli, 9 micro and 700 nano seconds.
+    public int iso8601FractionalStingTimeToTime (String isoFractionalTime)
+    {
+    	int ret = CodecReturnCodes.SUCCESS;
+		int len = isoFractionalTime.length();
+		int placeValue = 100;
+		int tempVal = 0;
+		int i = 0;
+		for (;  i < len && i < 3; i++)
+		{
+		  if(Character.isDigit(isoFractionalTime.charAt(i)))
+		  {
+			tempVal = tempVal +  Character.getNumericValue(isoFractionalTime.charAt(i)) * placeValue;
+			placeValue = placeValue / 10;
+		  }
+		}
+		 ret = millisecond(tempVal );
+		 if (ret != CodecReturnCodes.SUCCESS)
+             return ret;
+		
+		tempVal = 0;
+		placeValue = 100;
+		for (;  i < len && i < 6; i++)
+		{
+		  if(Character.isDigit(isoFractionalTime.charAt(i)))
+		  {
+			tempVal = tempVal +  Character.getNumericValue(isoFractionalTime.charAt(i)) * placeValue;
+			placeValue = placeValue / 10;
+		  }
+		}
+		ret = microsecond(tempVal);
+		if (ret != CodecReturnCodes.SUCCESS)
+	        return ret;   		
+ 
+		tempVal = 0;
+		placeValue = 100;
+		for (;  i < len &&  i < 9; i++)
+		{
+		  if(Character.isDigit(isoFractionalTime.charAt(i)))
+		  {
+			tempVal = tempVal +  Character.getNumericValue(isoFractionalTime.charAt(i)) * placeValue;
+			placeValue = placeValue / 10;
+		  }
+		}
+		ret = nanosecond(tempVal);
+		if (ret != CodecReturnCodes.SUCCESS)
+	        return ret;   		 
+   	
+    	return CodecReturnCodes.SUCCESS;
+    }
+
     @Override
     public int value(String value)
     {
         int ret = CodecReturnCodes.SUCCESS;
-
         if (value == null)
         {
             return CodecReturnCodes.INVALID_ARGUMENT;
@@ -260,6 +401,56 @@ class TimeImpl implements Time
 
         try
         {
+        	// Trim trailing non digits
+        	String tempVal = trimmedVal;
+        	int len = trimmedVal.length();
+        	int i = 0;
+        	for (;  i < len; ++i)
+        	{
+        		if(Character.isDigit(tempVal.charAt(i)) == false)
+        		{
+        			if(tempVal.charAt(i) != ':' && tempVal.charAt(i) != '.'  && tempVal.charAt(i) != ','  && tempVal.charAt(i) != ' ')
+        				break;
+        		}
+        	}
+        	if(i > 0)
+        		trimmedVal = tempVal.substring(0, i);
+        	else
+        		return CodecReturnCodes.INVALID_ARGUMENT;
+
+        	// ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48.009216350 
+        	matcher = timePattern9.matcher(trimmedVal);
+        	if (matcher.matches())
+        	{
+                ret = hour(Integer.parseInt(matcher.group(1)));
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = minute(Integer.parseInt(matcher.group(2)));
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = second(Integer.parseInt(matcher.group(3)));
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;       
+                
+        		return iso8601FractionalStingTimeToTime(matcher.group(4));
+        	}
+        	
+        	// ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48,009216350
+        	matcher = timePattern10.matcher(trimmedVal);
+        	if (matcher.matches())
+        	{
+                ret = hour(Integer.parseInt(matcher.group(1)));
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = minute(Integer.parseInt(matcher.group(2)));
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = second(Integer.parseInt(matcher.group(3)));
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;       
+                
+        		return iso8601FractionalStingTimeToTime(matcher.group(4));
+        	}        	
             // hh:mm:ss:lll:uuu:nnn
             matcher = timePattern7.matcher(trimmedVal);
             if (matcher.matches())
@@ -453,7 +644,8 @@ class TimeImpl implements Time
                 (_hour == ((TimeImpl)thatTime)._hour) &&
                 (_millisecond == ((TimeImpl)thatTime)._millisecond) &&
                 (_microsecond == ((TimeImpl)thatTime)._microsecond) &&
-                (_nanosecond == ((TimeImpl)thatTime)._nanosecond));
+                (_nanosecond == ((TimeImpl)thatTime)._nanosecond) &&
+                (_format == ((TimeImpl)thatTime)._format));
     }
 
     @Override

@@ -535,8 +535,38 @@ public class PrimitiveDataJunit
         assertEquals(12, thisDate.month());
         assertEquals(CodecReturnCodes.SUCCESS, thisDate.day(31));
         assertEquals(31, thisDate.day());
+        
+        // format test
+        assertEquals(CodecReturnCodes.INVALID_ARGUMENT, thisDate.format(-1));
+        assertEquals(CodecReturnCodes.INVALID_ARGUMENT, thisDate.format(3));
+        assertEquals(CodecReturnCodes.SUCCESS, thisDate.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601));
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_ISO8601, thisDate.format());
+        assertEquals(CodecReturnCodes.SUCCESS, thisDate.format(DateTimeStringFormatTypes.STR_DATETIME_RSSL));
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_RSSL, thisDate.format());
     }
-
+    
+    @Test 
+    public void dateISO8601StringTest()
+    {
+    	 Date date = CodecFactory.createDate();
+    	 
+         //2017-09-18 'YYYY-MM-DD'
+         date.value("2017-09-18");
+         assertEquals("date.value(2017-09-18)", 2017, date.year());
+         assertEquals("date.value(2017-09-18)", 9, date.month());
+         assertEquals("date.value(2017-09-18)", 18, date.day());
+     	assertFalse(date.isBlank());
+         
+         date.blank();
+         
+         //20171025 'YYYYMMDD'
+         date.value("20171025");
+         assertEquals("date.value(20171025)", 2017, date.year());
+         assertEquals("date.value(20171025)", 10, date.month());
+         assertEquals("date.value(20171025)", 25, date.day());
+     	assertFalse(date.isBlank());
+    }
+    
     @Test 
     public void dateStringTest()
     {
@@ -685,6 +715,164 @@ public class PrimitiveDataJunit
         assertEquals("DateTime.isValid() valid date, valid time", true, dateTime.isValid());
         
     }
+    @Test 
+    public void dateTimeToStringISO8601FormatTest()
+    {
+        DateTime dateTime = CodecFactory.createDateTime();
+                
+        //invalid
+        dateTime.year(2012);
+        assertEquals(CodecReturnCodes.INVALID_ARGUMENT, dateTime.month(13)); //invalid
+        dateTime.day(2);
+        
+        //valid date, blank time
+        dateTime.clear();
+        dateTime.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+        dateTime.year(2012);
+        dateTime.month(12);
+        dateTime.day(2);
+        dateTime.time().blank();
+        assertEquals("ISO8601 DateTime.toString() valid date, blank time", "2012-12-02", dateTime.toString());
+        
+        
+        //valid date, valid time
+        dateTime.clear();
+        dateTime.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+        dateTime.year(2012);
+        dateTime.month(12);
+        dateTime.day(2);
+        dateTime.hour(2);
+        dateTime.minute(2);
+        dateTime.second(2);
+        dateTime.millisecond(2);
+        dateTime.microsecond(3);
+        dateTime.nanosecond(4);
+        assertEquals("ISO8601 DateTime.toString() valid date, valid time", "2012-12-02T02:02:02.002003004", dateTime.toString());
+
+        // Blank Date -Time all Zeros
+        dateTime.clear();
+        dateTime.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+        dateTime.year(0);
+        dateTime.month(0);
+        dateTime.day(0);
+        dateTime.hour(0);
+        dateTime.minute(0);
+        dateTime.second(0);
+        dateTime.millisecond(0);
+        dateTime.microsecond(0);
+        dateTime.nanosecond(0);
+        assertEquals("ISO8601 DateTime.toString() Blank Date -Time all Zeros", "00:00:00", dateTime.toString());        
+       
+        // Blank Date -Time AllBlank
+        dateTime.clear();
+        dateTime.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+        dateTime.year(0);
+        dateTime.month(0);
+        dateTime.day(0);
+        dateTime.hour(255);
+        dateTime.minute(255);
+        dateTime.second(255);
+        dateTime.millisecond(65535);
+        dateTime.microsecond(2047);
+        dateTime.nanosecond(2047);
+        assertEquals("ISO8601 DateTime.toString() Blank Date -Time all Zeros", "", dateTime.toString());
+        
+        int iDate[][] = {{0,0,0}, {0,1,0}, {0,1,2011}, {1,0,0},	{1,1,2011}, 
+        		{1,0,2011}, {0,0,2011}, {1,1,0}, {25,5,2010}, {29,9,2017},
+        		{20,01,0001}, {30,10,2010}};
+        int iTime[][] = {
+        		{0,0,0,0,0,0}, {255,255,255,65535,2047,2047}, {15,255,255,65535,2047,2047}, {12,30,255,65535,2047,2047},  {12,30,6,65535,2047,2047},
+        		{12,30,56,600,2047,2047}, {12,30,56,809,900,2047}, {12,30,56,800,900,200}, {11,20,30,10,90,40}, {11,1,2,1,9,4}, 
+        		{15,25,0,0,0,0}, {12,36,40,0,0,0}, {10,20,3,0,0,0}, {12,36,40,200,0,0}, {12,36,40,20,0,0}, 
+        		{12,36,40,2,0,0}, {11,22,33,400,500,0}, {11,22,33,400,50,0}, {11,22,33,400,5,0}, {11,22,33,400,5,700}, 
+        		{11,22,33,400,5,70}, {11,22,33,400,5,7}, {2,2,2,2,2,2}
+        	};
+        String[] dateTestName = {
+        		"Blank Date1", "Blank Date2", "Blank Date3", "Blank Date4", "NonBlank Date",
+        		"Blank Date6", "Blank Date7", "Blank Date8", "Valid Date1", "Valid Date2",
+        		"Valid Date3", "Valid Date4"	
+         };
+        String[] timeTestName = {
+        		"Time AllZeros", "Time AllBlank", "Time HH NotBlank", "Time HH:MM NotBlank", "Time HH:MM:SS NotBlank",
+        		"Time Micro:Nano Blank", "Time Nano Blank", "Time Trail_0 3Digits", "Time Trail_0 2Digits", "Time 1Digit",
+        		"Time SecMilMicroNano_0", "Time MilMicroNano_0 SecTrail0", "Time MilMicroNano_0 Sec1Digit", "Time MicroNano_0  Mil3Digit_Trail0", "Time MicroNano_0 Mil2Digit_Trail0",		
+        		"Time MicroNano_0 Mil1Digit", "Time Nano_0 Micro3Digit_Trail0", "Time Nano_0 Micro2Digit_Trail0", "Time Nano_0 Micro1Digit", "Time Nano3Digits_Trail0",
+        		"Time Nano2Digits_Trail0","Time Nano1Digit", "Time All 1Digit"
+        };
+        String[] expIso8601Date = {
+        	"", "--01", "2011-01", "-- --01", "2011-01-01", 
+        	"2011- --01", "2011", "--01-01", "2010-05-25", "2017-09-29", 
+       		"0001-01-20", "2010-10-30"
+       	};
+        String[] expIso8601Time = {
+        		"00:00:00", "", "15", "12:30", "12:30:06", 
+        		"12:30:56.6", "12:30:56.8099", "12:30:56.8009002", "11:20:30.01009004", "11:01:02.001009004", 
+        		"15:25:00", "12:36:40", "10:20:03", "12:36:40.2", "12:36:40.02", 
+        		"12:36:40.002", "11:22:33.4005", "11:22:33.40005", "11:22:33.400005", "11:22:33.4000057", 
+        		"11:22:33.40000507", "11:22:33.400005007", "02:02:02.002002002"
+        };
+         
+        int i =0;
+        int j =0;
+       
+        // ISO8601 Date Test
+        for(i=0; i < 12; ++i)
+        {
+         	dateTime.clear();
+            dateTime.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+            dateTime.day(iDate[i][0]);
+            dateTime.month(iDate[i][1]);
+            dateTime.year(iDate[i][2]); 
+            assertEquals("ISO8601 DateTime.toString()-" + dateTestName[i], expIso8601Date[i], dateTime.date().toString());
+        }        
+   
+        // ISO8601 Time Test
+        for(i=0; i < 23; ++i)
+        {
+         	dateTime.clear();
+            dateTime.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+        	dateTime.hour(iTime[i][0]);
+           	dateTime.minute(iTime[i][1]);
+           	dateTime.second(iTime[i][2]);
+           	dateTime.millisecond(iTime[i][3]);
+           	dateTime.microsecond(iTime[i][4]);
+           	dateTime.nanosecond(iTime[i][5]);
+           assertEquals("ISO8601 DateTime.toString()-" + timeTestName[i], expIso8601Time[i], dateTime.time().toString());
+        }        
+        
+     // ISO8601 DateTime Test
+        String expIso8601DateTimeDate = "";
+        String expIso8601DateTimeTime = "";
+        for(i=0; i < 12; ++i)
+        {
+        	dateTime.clear();
+            dateTime.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+            dateTime.day(iDate[i][0]);
+            dateTime.month(iDate[i][1]);
+            dateTime.year(iDate[i][2]); 
+            expIso8601DateTimeDate = expIso8601Date[i];
+            for (j=0; j < 23; ++j)
+            {
+            	dateTime.hour(iTime[j][0]);
+               	dateTime.minute(iTime[j][1]);
+               	dateTime.second(iTime[j][2]);
+               	dateTime.millisecond(iTime[j][3]);
+               	dateTime.microsecond(iTime[j][4]);
+               	dateTime.nanosecond(iTime[j][5]);
+               	expIso8601DateTimeTime = "";
+               	if(dateTime.time().toString().length() != 0)
+               	{
+               		if(expIso8601DateTimeDate.length() != 0)
+               			expIso8601DateTimeTime = "T" + expIso8601Time[j];
+               		else
+               			expIso8601DateTimeTime = expIso8601Time[j];
+               	}
+	            assertEquals("ISO8601 DateTime.toString()-" + dateTestName[i] + "_" + timeTestName[j], expIso8601DateTimeDate + expIso8601DateTimeTime, dateTime.toString());
+	            
+	        }
+        }
+        System.out.println();
+}
     
     @Test 
     public void dateTimeToStringTest()
@@ -862,8 +1050,405 @@ public class PrimitiveDataJunit
         assertEquals(999, thisDateTime.microsecond());
         assertEquals(CodecReturnCodes.SUCCESS, thisDateTime.nanosecond(999));
         assertEquals(999, thisDateTime.nanosecond());
+        
+        // format test
+        assertEquals(CodecReturnCodes.INVALID_ARGUMENT, thisDateTime.format(-1));
+        assertEquals(CodecReturnCodes.INVALID_ARGUMENT, thisDateTime.format(3));
+        assertEquals(CodecReturnCodes.SUCCESS, thisDateTime.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601));
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_ISO8601, thisDateTime.format());
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_ISO8601, thisDateTime.date().format());
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_ISO8601, thisDateTime.time().format());
+        assertEquals(CodecReturnCodes.SUCCESS, thisDateTime.format(DateTimeStringFormatTypes.STR_DATETIME_RSSL));
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_RSSL, thisDateTime.format());
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_RSSL, thisDateTime.date().format());
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_RSSL, thisDateTime.time().format());
+
     }
 
+    @Test 
+    public void DateTimeISO8601StringTest()
+    {
+    	DateTime dateTime = CodecFactory.createDateTime();
+
+		// ISO8601 time tests with decimal separator for fractional seconds.
+       	//1974-04-14T02:02:02.200500800
+        dateTime.value("1974-04-14T02:02:02.200500800");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 800, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+        
+        dateTime.blank(); 
+        
+       	//1974-04-14T02:02:02.20050088
+        dateTime.value("1974-04-14T02:02:02.20050088");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 880, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+       	//1974-04-14T02:02:02.2005008
+        dateTime.value("1974-04-14T02:02:02.2005008");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 800, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02.200500
+        dateTime.value("1974-04-14T02:02:02.200500");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02.20055
+        dateTime.value("1974-04-14T02:02:02.20055");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 550, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02.2005
+        dateTime.value("1974-04-14T02:02:02.2005");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02.200
+        dateTime.value("1974-04-14T02:02:02.200");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02.220
+        dateTime.value("1974-04-14T02:02:02.220");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 220, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02.22
+        dateTime.value("1974-04-14T02:02:02.22");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 220, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		//1974-04-14T02:02:02.2
+        dateTime.value("1974-04-14T02:02:02.2");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		//1974-04-14T02:02:02.002
+        dateTime.value("1974-04-14T02:02:02.002");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 2, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		// ISO8601 time tests with comma separator for fractional seconds.
+       	//1974-04-14T02:02:02,200500800
+        dateTime.value("1974-04-14T02:02:02,200500800");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 800, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+        
+        dateTime.blank(); 
+        
+       	//1974-04-14T02:02:02,20050088
+        dateTime.value("1974-04-14T02:02:02,20050088");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:880)", 880, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+       	//1974-04-14T02:02:02,2005008
+        dateTime.value("1974-04-14T02:02:02,2005008");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:800)", 800, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02,200500
+        dateTime.value("1974-04-14T02:02:02,200500");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02,20055
+        dateTime.value("1974-04-14T02:02:02,20055");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:550:000)", 550, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02,2005
+        dateTime.value("1974-04-14T02:02:02,2005");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:500:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02,200
+        dateTime.value("1974-04-14T02:02:02,200");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02,220
+        dateTime.value("1974-04-14T02:02:02,220");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 220, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		 //1974-04-14T02:02:02,22
+        dateTime.value("1974-04-14T02:02:02,22");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:220:000:000)", 220, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		//1974-04-14T02:02:02,2
+        dateTime.value("1974-04-14T02:02:02,2");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 200, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:200:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+
+		//1974-04-14T02:02:02,002
+        dateTime.value("1974-04-14T02:02:02,002");
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 1974, dateTime.year());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 4, dateTime.month());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 14, dateTime.day());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 2, dateTime.hour());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 2, dateTime.minute());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 2, dateTime.second());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 2, dateTime.millisecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(1974/04/14 02:02:02:002:000:000)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		  dateTime.blank(); 
+		  
+		// 2010-10-30T12:30:30,300120500
+        dateTime.value("2010-10-30T12:30:30,300120500");
+        assertEquals("dateTime.value(2010/10/30 12:30:30:300:120:500)", 2010, dateTime.year());
+        assertEquals("dateTime.value(2010/10/30 12:30:30:300:120:500)", 10, dateTime.month());
+        assertEquals("dateTime.value(2010/10/30 12:30:30:300:120:500)", 30, dateTime.day());
+        assertEquals("dateTime.value(2010/10/30 12:30:30:300:120:500)", 12, dateTime.hour());
+        assertEquals("dateTime.value(2010/10/30 12:30:30:300:120:500)", 30, dateTime.minute());
+        assertEquals("dateTime.value(2010/10/30 12:30:30:300:120:500)", 30, dateTime.second());
+        assertEquals("dateTime.value(2010/10/30 12:30:30:300:120:500)", 300, dateTime.millisecond());
+        assertEquals("dateTime.value(2010/10/30 12:30:30:300:120:500)", 120, dateTime.microsecond());
+        assertEquals("dateTime.value(2010/10/30 12:30:30:300:120:500)", 500, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		dateTime.blank(); 
+
+		// 3000-01-18T18:23:57.1000\"}}}21 
+        dateTime.value("3000-01-18T18:23:57.1000\"}}}21 ");
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:0:0)", 3000, dateTime.year());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:0:0)", 01, dateTime.month());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:0:0)", 18, dateTime.day());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:0:0)", 18, dateTime.hour());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:0:0)", 23, dateTime.minute());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:0:0)", 57, dateTime.second());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:0:0)", 100, dateTime.millisecond());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:0:0)", 0, dateTime.microsecond());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:0:0)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		dateTime.blank(); 
+
+		// 3000-01-18T18:23:57.1005\"}}}21 
+        dateTime.value("3000-01-18T18:23:57.1005\"}}}21 ");
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:500:0)", 3000, dateTime.year());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:500:0)", 01, dateTime.month());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:500:0)", 18, dateTime.day());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:500:0)", 18, dateTime.hour());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:500:0)", 23, dateTime.minute());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:500:0)", 57, dateTime.second());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:500:0)", 100, dateTime.millisecond());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:500:0)", 500, dateTime.microsecond());
+        assertEquals("dateTime.value(3000/01/18 18:23:57:100:500:0)", 0, dateTime.nanosecond());
+    	assertFalse(dateTime.isBlank());
+
+		dateTime.blank(); 
+
+   }
+    
     @Test 
     public void dateTimeStringTest()
     {
@@ -2052,8 +2637,252 @@ public class PrimitiveDataJunit
         assertEquals(CodecReturnCodes.SUCCESS, thisTime.nanosecond(2047));
         assertEquals(2047, thisTime.nanosecond());
         assertTrue(thisTime.isBlank());
+        
+        // format test
+        assertEquals(CodecReturnCodes.INVALID_ARGUMENT, thisTime.format(-1));
+        assertEquals(CodecReturnCodes.INVALID_ARGUMENT, thisTime.format(3));
+        assertEquals(CodecReturnCodes.SUCCESS, thisTime.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601));
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_ISO8601, thisTime.format());
+        assertEquals(CodecReturnCodes.SUCCESS, thisTime.format(DateTimeStringFormatTypes.STR_DATETIME_RSSL));
+        assertEquals(DateTimeStringFormatTypes.STR_DATETIME_RSSL, thisTime.format());
     }
     
+    @Test 
+    public void timeISO8601StringTest()
+    {
+    	Time time = CodecFactory.createTime();
+    	
+    	// ISO8601 time tests with decimal separator for fractional seconds.
+		//02:02:02.200300400
+        time.value("02:02:02.200300400");
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:300:400)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:300:400)", 300, time.microsecond());
+        assertEquals("time.value(02:02:02:200:300:400)", 400, time.nanosecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+  
+		//02:02:02.2003004
+        time.value("02:02:02.2003004");
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:300:400)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:300:400)", 300, time.microsecond());
+        assertEquals("time.value(02:02:02:200:300:400)", 400, time.nanosecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+  
+		//02:02:02.20030044
+        time.value("02:02:02.20030044");
+        assertEquals("time.value(02:02:02:200:300:440)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:300:440)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:300:440)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:300:440)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:300:440)", 300, time.microsecond());
+        assertEquals("time.value(02:02:02:200:300:440)", 440, time.nanosecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+ 
+		//02:02:02.2003
+        time.value("02:02:02.2003");
+        assertEquals("time.value(02:02:02:200:300)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:300)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:300)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:300)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:300)", 300, time.microsecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+        
+		//02:02:02.20033
+        time.value("02:02:02.20033");
+        assertEquals("time.value(02:02:02:200:330)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:330)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:330)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:330)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:330)", 330, time.microsecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+
+		//02:02:02.200300
+        time.value("02:02:02.200300");
+        assertEquals("time.value(02:02:02:200:300)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:300)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:300)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:300)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:300)", 300, time.microsecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+
+		//02:02:02.200
+        time.value("02:02:02.200");
+        assertEquals("time.value(02:02:02:200)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200)", 2, time.second());
+        assertEquals("time.value(02:02:02:200)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200)", 0, time.microsecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+
+		//02:02:02.220
+        time.value("02:02:02.220");
+        assertEquals("time.value(02:02:02:220)", 2, time.hour());
+        assertEquals("time.value(02:02:02:220)", 2, time.minute());
+        assertEquals("time.value(02:02:02:220)", 2, time.second());
+        assertEquals("time.value(02:02:02:220)", 220, time.millisecond());
+        assertEquals("time.value(02:02:02:220)", 0, time.microsecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+
+		//02:02:02.220
+        time.value("02:02:02.22");
+        assertEquals("time.value(02:02:02:220)", 2, time.hour());
+        assertEquals("time.value(02:02:02:220)", 2, time.minute());
+        assertEquals("time.value(02:02:02:220)", 2, time.second());
+        assertEquals("time.value(02:02:02:220)", 220, time.millisecond());
+        assertEquals("time.value(02:02:02:220)", 0, time.microsecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+        
+		//02:02:02.2
+        time.value("02:02:02.2");
+        assertEquals("time.value(02:02:02:200)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200)", 2, time.second());
+        assertEquals("time.value(02:02:02:200)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200)", 0, time.microsecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();
+
+        // ISO8601 time tests with comma separator for fractional seconds.
+		//02:02:02,200300400
+        time.value("02:02:02,200300400");
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:300:400)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:300:400)", 300, time.microsecond());
+        assertEquals("time.value(02:02:02:200:300:400)", 400, time.nanosecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();   
+
+     
+		//02:02:02,2003004
+        time.value("02:02:02,2003004");
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:300:400)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:300:400)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:300:400)", 300, time.microsecond());
+        assertEquals("time.value(02:02:02:200:300:400)", 400, time.nanosecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();   
+         
+		//02:02:02,20030044
+        time.value("02:02:02,20030044");
+        assertEquals("time.value(02:02:02:200:300:440)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:300:440)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:300:440)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:300:440)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:300:440)", 300, time.microsecond());
+        assertEquals("time.value(02:02:02:200:300:440)", 440, time.nanosecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();   
+       
+		//02:02:02,2003
+        time.value("02:02:02,2003");
+        assertEquals("time.value(02:02:02:200:300)", 2, time.hour());
+        assertEquals("time.value(02:02:02:200:300)", 2, time.minute());
+        assertEquals("time.value(02:02:02:200:300)", 2, time.second());
+        assertEquals("time.value(02:02:02:200:300)", 200, time.millisecond());
+        assertEquals("time.value(02:02:02:200:300)", 300, time.microsecond());
+    	assertFalse(time.isBlank());
+        
+        time.blank();   
+
+		//02:02:02,20033
+		time.value("02:02:02,20033");
+		assertEquals("time.value(02:02:02:200:330)", 2, time.hour());
+		assertEquals("time.value(02:02:02:200:330)", 2, time.minute());
+		assertEquals("time.value(02:02:02:200:330)", 2, time.second());
+		assertEquals("time.value(02:02:02:200:330)", 200, time.millisecond());
+		assertEquals("time.value(02:02:02:200:330)", 330, time.microsecond());
+		assertFalse(time.isBlank());
+		
+		time.blank();
+		
+		//02:02:02,200300
+		time.value("02:02:02,200300");
+		assertEquals("time.value(02:02:02:200:300)", 2, time.hour());
+		assertEquals("time.value(02:02:02:200:300)", 2, time.minute());
+		assertEquals("time.value(02:02:02:200:300)", 2, time.second());
+		assertEquals("time.value(02:02:02:200:300)", 200, time.millisecond());
+		assertEquals("time.value(02:02:02:200:300)", 300, time.microsecond());
+		assertFalse(time.isBlank());
+		
+		time.blank();
+		
+		//02:02:02,200
+		time.value("02:02:02,200");
+		assertEquals("time.value(02:02:02:200)", 2, time.hour());
+		assertEquals("time.value(02:02:02:200)", 2, time.minute());
+		assertEquals("time.value(02:02:02:200)", 2, time.second());
+		assertEquals("time.value(02:02:02:200)", 200, time.millisecond());
+		assertEquals("time.value(02:02:02:200)", 0, time.microsecond());
+		assertFalse(time.isBlank());
+		
+		time.blank();
+		
+		//02:02:02,220
+		time.value("02:02:02,220");
+		assertEquals("time.value(02:02:02:220)", 2, time.hour());
+		assertEquals("time.value(02:02:02:220)", 2, time.minute());
+		assertEquals("time.value(02:02:02:220)", 2, time.second());
+		assertEquals("time.value(02:02:02:220)", 220, time.millisecond());
+		assertEquals("time.value(02:02:02:220)", 0, time.microsecond());
+		assertFalse(time.isBlank());
+		
+		time.blank();
+		
+		//02:02:02,22
+		time.value("02:02:02,22");
+		assertEquals("time.value(02:02:02:220)", 2, time.hour());
+		assertEquals("time.value(02:02:02:220)", 2, time.minute());
+		assertEquals("time.value(02:02:02:220)", 2, time.second());
+		assertEquals("time.value(02:02:02:220)", 220, time.millisecond());
+		assertEquals("time.value(02:02:02:220)", 0, time.microsecond());
+		assertFalse(time.isBlank());
+		
+		time.blank();
+		
+		//02:02:02,2
+		time.value("02:02:02,2");
+		assertEquals("time.value(02:02:02:200)", 2, time.hour());
+		assertEquals("time.value(02:02:02:200)", 2, time.minute());
+		assertEquals("time.value(02:02:02:200)", 2, time.second());
+		assertEquals("time.value(02:02:02:200)", 200, time.millisecond());
+		assertEquals("time.value(02:02:02:200)", 0, time.microsecond());
+		assertFalse(time.isBlank());
+		
+		time.blank();
+        
+	}
+
     @Test 
     public void timeStringTest()
     {
