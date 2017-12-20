@@ -4,8 +4,8 @@
 	<property name="target" value="1.7"/>
 	<property name="source" value="1.7"/>
 
-	<property name="package" value="etaj3.1.1.L1.all.rrg" />
-	<property name="version" value="etaj3.1.1.L1" />
+	<property name="package" value="etaj3.1.2.G1.all.rrg" />
+	<property name="version" value="etaj3.1.2.G1" />
 	<property name="vendor" value="Thomson Reuters"/>
 	<tstamp>
 		<format property="TODAY" pattern=" E MMM dd HH:mm:ss z yyyy" />
