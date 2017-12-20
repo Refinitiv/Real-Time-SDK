@@ -58,15 +58,37 @@ public interface Time
     public boolean equals(Time thatTime);
 
     /**
-     * Convert {@link Time} to a string.
-     * Returns a string in "hour:minute:second:milli" format (e.g. 15:24:54:627).
+     * Sets the format of the output string when Time is represented as string. 
+     * 
+     * @param format of the output string when toString() is used.
+     * 
+     * @return {@link CodecReturnCodes#SUCCESS} on success,
+     *         {@link CodecReturnCodes#INVALID_ARGUMENT} if format is invalid. 
+     *         
+     * @see DateTimeStringFormatTypes
+     */
+    public int format(int format); 
+
+    /**
+     *  Format of Time when converted to string.
+     * 
+     * @return format of the output string when toString() is used.
+     * 
+     *  @see DateTimeStringFormatTypes
+     */
+    public int format(); 
+
+    /**
+     * Convert {@link Time} to a string based on format. Returns the string representation of this Time.
      * 
      * @return the string representation of this {@link Time}
+     * 
+     *  @see DateTimeStringFormatTypes
      */
     public String toString();
 
     /**
-     * Converts string time from "HH:MM" (13:01) or "HH:MM:SS" (15:23:54) format to {@link Time}.
+     * Converts string time from "HH:MM" (13:01) or "HH:MM:SS" (15:23:54) or ISO8601 format to {@link Time}.
      * 
      * @param value string containing an appropriately formatted string to convert from
      * 

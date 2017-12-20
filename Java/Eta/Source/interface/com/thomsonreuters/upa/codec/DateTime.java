@@ -54,19 +54,43 @@ public interface DateTime
     public boolean equals(DateTime thatDateTime);
 
     /**
-     * Convert DateTime to a String. Returns a String as "%d %b %Y
-     * hour:minute:second:milli:micro:nano" (e.g., 30 NOV 2010 15:24:54:627:529:436).
+     * Sets the format of the output string when DateTime is represented as string. 
+     * 
+     * @param format of the output string when toString() is used.
+     * 
+     * @return {@link CodecReturnCodes#SUCCESS} on success,
+     *         {@link CodecReturnCodes#INVALID_ARGUMENT} if format is invalid. 
+     *         
+     * @see DateTimeStringFormatTypes
+     */
+    public int format(int format); 
+
+    /**
+     *  Format of DateTime when converted to string.
+     * 
+     * @return format of the output string when toString() is used.
+     * 
+     *  @see DateTimeStringFormatTypes
+     */
+    public int format();     
+    
+   /**
+     * Convert DateTime to a String. Returns a String  based on the format. 
+     * as "%d %b %Y hour:minute:second:milli:micro:nano" (e.g., 30 NOV 2010 15:24:54:627:529:436) or 
+     * IS8601 "YYYY-MM-DDTHH:MIN:SEC.nnnnnnnnn" (e.g., 2010-11-30T15:24:54.627529439).
      * 
      * @return the string representation of this {@link DateTime}
+     * 
+     *  @see DateTimeStringFormatTypes
      */
     public String toString();
 
     /**
      * Converts a String representation of a date and time to a DateTime. This method
      * supports Date values following "%d %b %Y" format (e.g., 30 NOV 2010) or "%m/%d/%y"
-     * format (e.g., 11/30/2010). This method supports Time values that conform to
-     * "%H:%M" (e.g., 15:24) or "%H:%M:%S" (e.g., 15:24:54) formats as well as
-     * "hour:minute:second:milli:micro:nano" format (e.g., 15:24:54:627:529:436).
+     * format (e.g., 11/30/2010) or ISO8601 format. This method supports Time values that conform to
+     * "%H:%M" (e.g., 15:24) or "%H:%M:%S" (e.g., 15:24:54) or "hour:minute:second:milli:micro:nano" (e.g., 15:24:54:627:529:436)
+     * formats as well as ISO8601's dateTime format.
      * 
      * @param value string containing an appropriately formatted string to convert from
      * 

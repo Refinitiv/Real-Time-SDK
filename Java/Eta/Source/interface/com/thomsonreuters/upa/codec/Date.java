@@ -55,14 +55,38 @@ public interface Date
     public boolean equals(Date thatDate);
 
     /**
-     * Converts Date to a String. Returns a String as "DD MM YYYY".
+     * Sets the format of the output string when date is represented as string. 
      * 
-     * @return the string representation of this Date
+     * @param format of the output string when toString() is used.
+     * 
+     * @return {@link CodecReturnCodes#SUCCESS} on success,
+     *         {@link CodecReturnCodes#INVALID_ARGUMENT} if format is invalid. 
+     *         
+     * @see DateTimeStringFormatTypes
      */
-    public String toString();
+    public int format(int format); 
 
     /**
-     * Converts string date from "DD MMM YYYY" (01 JUN 2003) or "MM/DD/YYYY" (6/1/2003) format to Date.
+     *  Format of Date when converted to string.
+     * 
+     * @return format of the output string when toString() is used.
+     * 
+     *  @see DateTimeStringFormatTypes
+     */
+    public int format(); 
+    
+    /**
+     * Converts Date to a String based on the format.
+     * 
+     * 
+     * @return the string representation of this Date
+     * 
+     *  @see DateTimeStringFormatTypes
+     */
+    public String toString();
+    
+  /**
+     * Converts string date from "DD MMM YYYY" (01 JUN 2003) or "MM/DD/YYYY" (6/1/2003) or ISO8601's "YYYY-MM-DD" format to Date.
      * 
      * @param value string containing an appropriately formatted string to
      *            convert from

@@ -41,6 +41,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 
 void AppClient::decode( const FieldList& fl )
 {
+	DateTimeStringFormat dtFmt;
 	while ( fl.forth() )
 	{
 		const FieldEntry& fe = fl.getEntry();
@@ -55,18 +56,19 @@ void AppClient::decode( const FieldList& fl )
 			case DataType::RealEnum :
 				cout << fe.getReal().getAsDouble() << endl;
 				break;
+		         // APIQA	
 			case DataType::DateEnum :
-				cout << (UInt64)fe.getDate().getDay() << " / " << (UInt64)fe.getDate().getMonth() << " / " << (UInt64)fe.getDate().getYear() << endl;
+		    	dtFmt.dateTimeStringFormatType(DateTimeStringFormat::STR_DATETIME_ISO8601);
+			     cout<<dtFmt.dateAsString(const_cast<OmmDate &>(fe.getDate())) << endl;
 				break;
 			case DataType::TimeEnum :
-				cout << (UInt64)fe.getTime().getHour() << ":" << (UInt64)fe.getTime().getMinute() << ":" << (UInt64)fe.getTime().getSecond() << ":" << (UInt64)fe.getTime().getMillisecond() << endl;
+				dtFmt.dateTimeStringFormatType(DateTimeStringFormat::STR_DATETIME_ISO8601);
+				cout<<dtFmt.timeAsString(const_cast<OmmTime &>(fe.getTime())) << endl;
 				break;
-			case DataType::DateTimeEnum :
-				cout << (UInt64)fe.getDateTime().getDay() << " / " << (UInt64)fe.getDateTime().getMonth() << " / " << 
-					(UInt64)fe.getDateTime().getYear() << ":" << (UInt64)fe.getDateTime().getHour() << ":" << 
-					(UInt64)fe.getDateTime().getMinute() << ":" << (UInt64)fe.getDateTime().getSecond() << ":" << 
-					(UInt64)fe.getDateTime().getMillisecond() << ":" << (UInt64)fe.getDateTime().getMicrosecond() << ":" << 
-					(UInt64)fe.getDateTime().getNanosecond() << endl;
+     		case DataType::DateTimeEnum :
+	       		dtFmt.dateTimeStringFormatType(DateTimeStringFormat::STR_DATETIME_ISO8601);
+				cout<<dtFmt.dateTimeAsString(const_cast<OmmDateTime &>(fe.getDateTime())) << endl;
+			    // APIQA END	
 				break;
 			case DataType::IntEnum :
 				cout << fe.getInt() << endl;
@@ -98,7 +100,7 @@ int main( int argc, char* argv[] )
 	try { 
 		AppClient client;
 		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
-		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client );
+		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "GOOG.O" ), client );
 		sleep( 60000 );			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;

@@ -108,6 +108,13 @@ Series100Consumer110-ConsFunc-007
 Series100Consumer110-ConsFunc-008
 	Alters consumer to request an item with qos ReqMsg::BestTimelinessEnum, ReqMsg::BestRateEnum. 
 
+Module:  Series200Consumer200
+-----------------------------
+
+Series200Consumer200-ConsFunc-001
+     Alters consumer to decode Date/Time/DateTime and print using ISO 8601
+
+
 
 Module:  Series300Consumer331
 ---------------------------

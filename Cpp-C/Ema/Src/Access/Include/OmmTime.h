@@ -127,6 +127,7 @@ private :
 
 	friend class Decoder;
 	friend class StaticDecoder;
+	friend class DateTimeStringFormat;
 
 	Decoder& getDecoder();
 	bool hasDecoder() const;

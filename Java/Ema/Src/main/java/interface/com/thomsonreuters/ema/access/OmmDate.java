@@ -13,7 +13,25 @@ package com.thomsonreuters.ema.access;
  * 
  * OmmDate is a read only class.
  * 
+ * The following code snippet shows extraction of date from ElementList and use DateTimeStringFormat to
+ * print date in a specified format.
+ * void decode(ElementList eList)
+ *	{
+ *      DateTimeStringFormat dateTimeStrFmt = EmaFactory.createDateTimeStringFormat();
+ *		for (ElementEntry elementEntry : eList)
+ *		{
+ *			switch (elementEntry.load().dataType() )
+ *			{
+ *			case DataTypes.DATE:
+ *				dateTimeStrFmt.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+ *              System.out.println(dateTimeStrFmt.dateAsString((OmmDate)elementEntry.load()));
+ *              break;
+ *			}				
+ *		}
+ *	}
+ *
  * @see Data
+ * @see DateTimeStringFormat
  */
 public interface OmmDate extends Data
 {

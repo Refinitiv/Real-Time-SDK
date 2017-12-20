@@ -53,6 +53,7 @@
 #include "Access/Include/OmmXml.h"
 
 #include "Access/Include/OmmArray.h"
+#include "Access/Include/DateTimeStringFormat.h"
 #include "Access/Include/ElementList.h"
 #include "Access/Include/FieldList.h"
 #include "Access/Include/FilterList.h"
