@@ -14,7 +14,12 @@ import com.thomsonreuters.ema.access.RefreshMsg;
 import com.thomsonreuters.ema.access.StatusMsg;
 import com.thomsonreuters.ema.access.UpdateMsg;
 import com.thomsonreuters.ema.access.Data;
+import com.thomsonreuters.ema.access.OmmDate;
+import com.thomsonreuters.ema.access.OmmDateTime;
+import com.thomsonreuters.ema.access.OmmTime;
 import com.thomsonreuters.ema.access.DataType;
+import com.thomsonreuters.ema.access.DateTimeStringFormat;
+import com.thomsonreuters.ema.access.DateTimeStringFormat.DateTimeStringFormatTypes;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.FieldEntry;
@@ -68,7 +73,11 @@ class AppClient implements OmmConsumerClient
 
 	void decode(FieldList fieldList)
 	{
-		for (FieldEntry fieldEntry : fieldList)
+             //APIQA 
+		  DateTimeStringFormat dateTimeStrFmt = EmaFactory.createDateTimeStringFormat();
+
+	
+        	for (FieldEntry fieldEntry : fieldList)
 		{
 			System.out.print("Fid: " + fieldEntry.fieldId() + " Name = " + fieldEntry.name() + " DataType: " + DataType.asString(fieldEntry.load().dataType()) + " Value: ");
 
@@ -81,17 +90,17 @@ class AppClient implements OmmConsumerClient
 					System.out.println(fieldEntry.real().asDouble());
 					break;
 				case DataTypes.DATE :
-					System.out.println(fieldEntry.date().day() + " / " + fieldEntry.date().month() + " / " + fieldEntry.date().year());
+				       dateTimeStrFmt.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+					   System.out.println(dateTimeStrFmt.dateAsString((OmmDate)fieldEntry.load()));
 					break;
 				case DataTypes.TIME :
-					System.out.println(fieldEntry.time().hour() + ":" + fieldEntry.time().minute() + ":" + fieldEntry.time().second() + ":" + fieldEntry.time().millisecond());
+				       dateTimeStrFmt.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+					   System.out.println(dateTimeStrFmt.timeAsString((OmmTime)fieldEntry.load()));
+				    // APIQA END	
 					break;
 				case DataTypes.DATETIME :
-					System.out.println(fieldEntry.dateTime().day() + " / " + fieldEntry.dateTime().month() + " / " +
-						fieldEntry.dateTime().year() + "." + fieldEntry.dateTime().hour() + ":" + 
-						fieldEntry.dateTime().minute() + ":" + fieldEntry.dateTime().second() + ":" + 
-						fieldEntry.dateTime().millisecond() + ":" + fieldEntry.dateTime().microsecond()+ ":" + 
-						fieldEntry.dateTime().nanosecond());
+				       dateTimeStrFmt.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+					   System.out.println(dateTimeStrFmt.dateTimeAsString((OmmDateTime)fieldEntry.load()));
 					break;
 				case DataTypes.INT :
 					System.out.println(fieldEntry.intValue());
@@ -127,7 +136,7 @@ public class Consumer
 			
 			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"));
 			
-			consumer.registerClient(EmaFactory.createReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
+			consumer.registerClient(EmaFactory.createReqMsg().serviceName("DF_RMDS").name("GOOG.O"), appClient);
 			
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}

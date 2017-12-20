@@ -11,6 +11,8 @@
 
 #include "Decoder.h"
 #include "EmaBufferInt.h"
+#include "DateTimeStringFormat.h"
+
 
 namespace thomsonreuters {
 
@@ -42,6 +44,11 @@ public :
 
 	Data::DataCode getCode() const;
 
+	DateTimeStringFormat::DateTimeStringFormatTypes setDateTimeStringFormatType(DateTimeStringFormat::DateTimeStringFormatTypes format);
+
+	DateTimeStringFormat::DateTimeStringFormatTypes getDateTimeStringFormatType();
+
+
 	bool setRsslData( UInt8 , UInt8 , RsslMsg* , const RsslDataDictionary* );
 
 	bool setRsslData( UInt8 , UInt8 , RsslBuffer* , const RsslDataDictionary* , void* );
@@ -59,6 +66,8 @@ private :
 	RsslBuffer*				_pRsslBuffer;
 
 	RsslTime				_rsslTime;
+
+	DateTimeStringFormat::DateTimeStringFormatTypes _format;
 
 	EmaString				_toString;
 

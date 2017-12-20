@@ -14,6 +14,10 @@ consumer-LoginReissue-001:  Alter Consumer to send a login reissue with PAUSE-AL
 
 consumer-Dict-001: Altered the code of the Consumer application to both read the dictionary from file and download from the network. Once the dictionaries are loded they are compared to see if they are the same.  This is testing the encoding of dictionary messages as multi parts refreshes.
 
+
+consumer-Item-001: Alters consumer to decode Date/Time/DateTime and print using ISO 8601
+
+
 Module:  Value Add Provider 
 ---------------------------
 

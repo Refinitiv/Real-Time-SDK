@@ -17,7 +17,8 @@ OmmTimeDecoder::OmmTimeDecoder() :
  _toString(),
  _hexBuffer(),
  _dataCode( Data::BlankEnum ),
- _errorCode( OmmError::NoErrorEnum )
+ _errorCode( OmmError::NoErrorEnum ),
+ _format(DateTimeStringFormat::DateTimeStringFormatTypes::STR_DATETIME_RSSL)
 {
 }
 
@@ -65,7 +66,16 @@ bool OmmTimeDecoder::setRsslData( RsslDecodeIterator* dIter, RsslBuffer* pRsslBu
 		return false;
 	}
 }
+DateTimeStringFormat::DateTimeStringFormatTypes OmmTimeDecoder::setDateTimeStringFormatType(DateTimeStringFormat::DateTimeStringFormatTypes format)
+{
+	_format = format;
+	return _format;
+}
 
+DateTimeStringFormat::DateTimeStringFormatTypes OmmTimeDecoder::getDateTimeStringFormatType()
+{
+	return _format;
+}
 const EmaString& OmmTimeDecoder::toString()
 {
 	if ( _dataCode == Data::BlankEnum )
@@ -80,7 +90,7 @@ const EmaString& OmmTimeDecoder::toString()
 	tempRsslBuffer.length = 512;
 	RsslDateTime rsslDateTime;
 	rsslDateTime.time = _rsslTime;
-	RsslRet retCode = rsslDateTimeToString( &tempRsslBuffer, RSSL_DT_TIME, &rsslDateTime );
+	RsslRet retCode = rsslDateTimeToStringFormat( &tempRsslBuffer, RSSL_DT_TIME, &rsslDateTime, _format );
 
 	if ( RSSL_RET_SUCCESS != retCode )
 	{

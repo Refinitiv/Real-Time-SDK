@@ -96,6 +96,9 @@
 	<ClCompile Include="Impl\DataType.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+	<ClCompile Include="Impl\DateTimeStringFormat.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 	<ClCompile Include="Impl\Decoder.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -1042,6 +1045,9 @@
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\DataType.h">
+		<Filter>Header Files</Filter>
+		</ClInclude>
+		<ClInclude Include="Include\DateTimeStringFormat.h">
 		<Filter>Header Files</Filter>
 		</ClInclude>
 		<ClInclude Include="Include\ElementEntry.h">
