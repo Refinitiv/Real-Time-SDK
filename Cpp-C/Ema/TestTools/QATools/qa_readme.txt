@@ -108,6 +108,13 @@ Series100Consumer110-ConsFunc-007
 Series100Consumer110-ConsFunc-008
 	Alters consumer to request an item with qos ReqMsg::BestTimelinessEnum, ReqMsg::BestRateEnum. 
 
+Module:  Series200Consumer200
+-----------------------------
+
+Series200Consumer200-ConsFunc-001
+     Alters consumer to decode Date/Time/DateTime and print using ISO 8601
+
+
 
 Module:  Series300Consumer331
 ---------------------------
@@ -118,6 +125,10 @@ Series300Consumer331-GenM-001
 Series300Consumer331-SrcReissue-001
 	Alters consumer to create a directory handle with an invalid serviceId. 
 	Then this code attempts to send a reissue on the invalid handle.
+
+Series300Consumer331-ConsFunc-001
+	Alters consumer to request directory using info filter without a serviceName. 
+	Also, alters consumer to not send out item requests.
 
 
 Module:  Series300Consumer332

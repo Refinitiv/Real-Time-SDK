@@ -61,6 +61,13 @@ void AppClient::decode( const FieldList& fl )
 			case DataType::TimeEnum :
 				cout << (UInt64)fe.getTime().getHour() << ":" << (UInt64)fe.getTime().getMinute() << ":" << (UInt64)fe.getTime().getSecond() << ":" << (UInt64)fe.getTime().getMillisecond() << endl;
 				break;
+			case DataType::DateTimeEnum :
+				cout << (UInt64)fe.getDateTime().getDay() << " / " << (UInt64)fe.getDateTime().getMonth() << " / " << 
+					(UInt64)fe.getDateTime().getYear() << ":" << (UInt64)fe.getDateTime().getHour() << ":" << 
+					(UInt64)fe.getDateTime().getMinute() << ":" << (UInt64)fe.getDateTime().getSecond() << ":" << 
+					(UInt64)fe.getDateTime().getMillisecond() << ":" << (UInt64)fe.getDateTime().getMicrosecond() << ":" << 
+					(UInt64)fe.getDateTime().getNanosecond() << endl;
+				break;
 			case DataType::IntEnum :
 				cout << fe.getInt() << endl;
 				break;

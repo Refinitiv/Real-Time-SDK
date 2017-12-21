@@ -74,6 +74,15 @@ RTR_C_ALWAYS_INLINE void rsslClearMsgBase(RsslMsgBase *pMsgBase)
 
 RSSL_API const char* rsslMsgClassToString(RsslUInt8 msgClass);
 
+/** 
+ * @brief Converts the provided message class enumeration to a general OMM string.
+ * @param msgClass message class.
+ * @return Null terminated character string containing the name of the message class.
+ * @see RsslMsgClasses
+ */
+
+RSSL_API const char* rsslMsgClassToOmmString(RsslUInt8 msgClass);
+
 /**
  * @}
  */
@@ -91,6 +100,15 @@ RSSL_API const char* rsslMsgClassToString(RsslUInt8 msgClass);
  * @see RsslDomainTypes
  */
 RSSL_API const char* rsslDomainTypeToString(RsslUInt8 domainType);
+
+/** 
+ * @brief Converts the provided domain type enumeration to a general OMM string.
+ *
+ * @param domainType Domain type enumeration to translate to string.
+ * @return Null terminated character string containing the name of the domain type.
+ * @see RsslDomainTypes
+ */
+RSSL_API const char* rsslDomainTypeToOmmString(RsslUInt8 domainType);
 
 
 
@@ -154,6 +172,14 @@ RTR_C_ALWAYS_INLINE void rsslClearPostUserInfo(RsslPostUserInfo *pPostUserInfo)
  */
 RSSL_API RsslRet	rsslIPAddrStringToUInt(const char *pAddrString, RsslUInt32 *pAddrUInt);
 
+/**
+* @brief Converts dotted-decimal IP address string (e.g. "127.0.0.1") to integer equivalent.
+*
+* @param[in] pAddrString  The RsslBuffer containing an IP address string and its length.
+* @param[out] pAddrUInt   The output integer value, in host byte order.
+* @return RSSL_RET_SUCCESS, or RSSL_RET_FAILURE if the string could not be parsed.
+*/
+RSSL_API RsslRet rsslIPAddrBufferToUInt(RsslUInt32 *pAddrUInt, const RsslBuffer *pAddrString);
 
 /** 
  * @brief Converts IPv4 address in integer format to string equivalent.

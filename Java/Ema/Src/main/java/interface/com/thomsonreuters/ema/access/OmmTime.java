@@ -14,7 +14,25 @@ package com.thomsonreuters.ema.access;
  * OmmTime is a read only class.<br>
  * This class is used for extraction of Time info only.
  *
+ * The following code snippet shows extraction of time from ElementList and use DateTimeStringFormat to
+ * print time in a specified format.
+ * void decode(ElementList eList)
+ *	{
+ *      DateTimeStringFormat dateTimeStrFmt = EmaFactory.createDateTimeStringFormat();
+ *		for (ElementEntry elementEntry : eList)
+ *		{
+ *			switch (elementEntry.load().dataType() )
+ *			{
+ *			case DataTypes.TIME:
+ *				dateTimeStrFmt.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+ *              System.out.println(dateTimeStrFmt.timeAsString((OmmTime)elementEntry.load()));
+ *              break;
+ *			}				
+ *		}
+ *	}
+ *
  * @see Data
+ * @see DateTimeStringFormat
  */
 public interface OmmTime extends Data
 {

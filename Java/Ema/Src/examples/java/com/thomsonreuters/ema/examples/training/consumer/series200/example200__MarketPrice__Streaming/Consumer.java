@@ -86,6 +86,13 @@ class AppClient implements OmmConsumerClient
 				case DataTypes.TIME :
 					System.out.println(fieldEntry.time().hour() + ":" + fieldEntry.time().minute() + ":" + fieldEntry.time().second() + ":" + fieldEntry.time().millisecond());
 					break;
+				case DataTypes.DATETIME :
+					System.out.println(fieldEntry.dateTime().day() + " / " + fieldEntry.dateTime().month() + " / " +
+						fieldEntry.dateTime().year() + "." + fieldEntry.dateTime().hour() + ":" + 
+						fieldEntry.dateTime().minute() + ":" + fieldEntry.dateTime().second() + ":" + 
+						fieldEntry.dateTime().millisecond() + ":" + fieldEntry.dateTime().microsecond()+ ":" + 
+						fieldEntry.dateTime().nanosecond());
+					break;
 				case DataTypes.INT :
 					System.out.println(fieldEntry.intValue());
 					break;

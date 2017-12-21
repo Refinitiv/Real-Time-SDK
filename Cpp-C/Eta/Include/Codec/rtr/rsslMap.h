@@ -30,6 +30,27 @@ typedef enum
 	RSSL_MPF_HAS_KEY_FIELD_ID			= 0x10			/*!< (0x10) The RsslMap contains entries where the key (RsslMapEntry::encKey) also represents a field in the payload of the entry.  The key's FID is specified in RsslMap::keyFieldId. */
 } RsslMapFlags;
 
+/** 
+ * @brief General OMM strings associated with the different map flags.
+ * @see RsslMapFlags, rsslMapFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_MPF_HAS_SET_DEFS = { 10, (char*)"HasSetDefs" };
+static const RsslBuffer RSSL_OMMSTR_MPF_HAS_SUMMARY_DATA = { 14, (char*)"HasSummaryData" };
+static const RsslBuffer RSSL_OMMSTR_MPF_HAS_PER_ENTRY_PERM_DATA = { 19, (char*)"HasPerEntryPermData" };
+static const RsslBuffer RSSL_OMMSTR_MPF_HAS_TOTAL_COUNT_HINT = { 17, (char*)"HasTotalCountHint" };
+static const RsslBuffer RSSL_OMMSTR_MPF_HAS_KEY_FIELD_ID = { 13, (char*)"HasKeyFieldID" };
+
+/**
+ * @brief Provide general OMM string representation of RsslMapFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslMapFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslMapFlags
+ */
+RSSL_API RsslRet rsslMapFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
+
 /**
  * @brief The RsslMap is a uniform container type of associated key–container pair entries.  Each entry, known as
  * an RsslMapEntry, contains an entry key and a value.  The key is a base primitive type as indicated by RsslMap::keyPrimitiveType and the value is a container type as indicated 
@@ -96,7 +117,22 @@ typedef enum
 	RSSL_MPEF_HAS_PERM_DATA	= 	0x01		/*!< (0x01) This RsslMapEntry contains permission data, located in RsslMapEntry::permData. */
 } RsslMapEntryFlags;
 
+/** 
+ * @brief General OMM strings associated with the different map entry flags.
+ * @see RsslMapEntryFlags, rsslMapEntryFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_MPEF_HAS_PERM_DATA = { 11, (char*)"HasPermData" };
 
+/**
+ * @brief Provide general OMM string representation of RsslMapEntryFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslMapEntryFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslMapEntryFlags
+ */
+RSSL_API RsslRet rsslMapEntryFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
 
 /**
  * @brief Action that indicates how to apply contents of RsslMapEntry. (MPEA = MapEntry Action)
@@ -109,8 +145,19 @@ typedef enum
 	RSSL_MPEA_DELETE_ENTRY    = 3	   /*!< (3) Delete the contents of the entry at the specified key.  @note ::RSSL_MPEA_DELETE_ENTRY actions cannot carry any entry payload.  If payload is necessary for a ::RSSL_MPEA_DELETE_ENTRY action, an entry with an ::RSSL_MPEA_UPDATE_ENTRY action can be sent and immediatley followed by the same key on an entry with a ::RSSL_MPEA_DELETE_ENTRY action.   */
 } RsslMapEntryActions;
 
+/** 
+ * @brief General OMM strings associated with the different map entry actions.
+ * @see RsslMapEntryActions, rsslMapEntryActionToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_MPEA_UPDATE_ENTRY = { 6, (char*)"Update" };
+static const RsslBuffer RSSL_OMMSTR_MPEA_ADD_ENTRY = { 3, (char*)"Add" };
+static const RsslBuffer RSSL_OMMSTR_MPEA_DELETE_ENTRY = { 6, (char*)"Delete" };
 
-
+/**
+ * @brief Provide a general OMM string representation for a map entry action enumeration
+ * @see RsslMapEntryActions
+ */
+RSSL_API const char* rsslMapEntryActionToOmmString(RsslUInt8 action);
 
 /**
  * @brief One entry contained in an RsslMap.  The contents of the entry is specified by RsslMap::containerType and the key's type is specified by RsslMap::keyPrimitiveType.  Any contents should be applied following the rules of the specified RsslMapEntry::action ( \ref RsslMapEntryActions)

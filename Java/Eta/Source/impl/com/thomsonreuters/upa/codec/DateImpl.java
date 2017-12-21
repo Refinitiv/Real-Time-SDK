@@ -12,7 +12,8 @@ class DateImpl implements Date
     int _day;
     int _month;
     int _year;
-	
+    int _format = DateTimeStringFormatTypes.STR_DATETIME_RSSL;
+    
     private String[] _months = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
 
     // for value(String) method
@@ -20,6 +21,87 @@ class DateImpl implements Date
     private Pattern datePattern1 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)");
     private Pattern datePattern2 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)");
     private Pattern datePattern3 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)");
+    private Pattern datePattern4 = Pattern.compile("(\\d+)-(\\d+)-(\\d+)"); // ISO8601 date 'YYYY-MM-DD'
+    private Pattern datePattern5 = Pattern.compile("(\\d+)"); // ISO8601 date 'YYYYMMDD'
+    
+    // Converts RsslDate to string in ISO8601 'YYYY-MM-DD' format (e.g. 2003-06-01).
+    public String toStringIso8601()
+    {
+    	StringBuilder retStr = new StringBuilder();
+        if (_year != 0)
+        {
+        	retStr.append(String.format("%04d-", _year));
+        }
+        else
+        {
+        	retStr.append( "--");
+        }
+        if (_month != 0)
+        {
+        	retStr.append(String.format("%02d", _month));
+        }
+        else
+        {
+    		if(_day > 0)
+    			retStr.append( " -");
+        }
+
+      	if(_day > 0)
+        {
+      		retStr.append(String.format("-%02d", _day)); 
+        }
+    	else
+    	{
+    		retStr.append( " ");
+    	}
+        // Trim trailing zeros
+     	String tempVal = retStr.toString();
+    	int i = tempVal.length();
+    	for (;  i >=0; --i)
+    	{
+    		if(Character.isDigit(tempVal.charAt(i -1)) )
+    			break;
+    	}
+    	if(i < tempVal.length())
+    		return retStr.toString().substring(0, i);
+    	return retStr.toString();
+    }
+    
+    // Converts RsslDate to string in RSSL "DD MON YYYY" format (e.g. 01 JUN 2003).
+    public String toStringRssl()
+    {
+    	StringBuilder retStr = new StringBuilder();
+        /* normal date */
+        /* put this into the same format as marketfeed uses where if any portion is blank, it is represented as spaces */
+        if (_day != 0)
+        {
+        	retStr.append(String.format("%02d ", _day));
+        }
+        else
+        {
+        	retStr.append("");
+        }
+
+        if (_month != 0)
+        {
+            retStr.append(String.format("%s ",_months[_month - 1]));
+        }
+        else
+        {
+            retStr.append("    ");
+        }
+
+        if (_year != 0)
+        {
+        	retStr.append(String.format("%4d", _year));
+        }
+        else
+        {
+            retStr.append("    ");
+        }
+
+        return retStr.toString();   
+    }
 
     @Override
     public void clear()
@@ -27,6 +109,7 @@ class DateImpl implements Date
         _day = 0;
         _month = 0;
         _year = 0;
+        _format = DateTimeStringFormatTypes.STR_DATETIME_RSSL;
     }	
 	
     @Override
@@ -38,6 +121,7 @@ class DateImpl implements Date
         destDate.day(_day);
         destDate.month(_month);
         destDate.year(_year);
+        destDate.format(_format);
 
         return CodecReturnCodes.SUCCESS;
     }
@@ -60,7 +144,8 @@ class DateImpl implements Date
         return ((thatDate != null) &&
                 (_day == ((DateImpl)thatDate)._day) &&
                 (_month == ((DateImpl)thatDate)._month) &&
-                (_year == ((DateImpl)thatDate)._year));
+                (_year == ((DateImpl)thatDate)._year)  &&
+                (_format == ((DateImpl)thatDate)._format));
     }
 
     @Override
@@ -122,69 +207,55 @@ class DateImpl implements Date
 
         return true;
     }
-	
+    
+    @Override
+   public int format(int format)
+   {
+    	if(format >= DateTimeStringFormatTypes.STR_DATETIME_ISO8601 && format <= DateTimeStringFormatTypes.STR_DATETIME_RSSL)
+	    {
+	    	_format = format;
+	    	return CodecReturnCodes.SUCCESS;
+	    }
+	    else
+	    	return CodecReturnCodes.INVALID_ARGUMENT;
+   }
+    
+    @Override
+    public int format()
+    {
+        return _format;
+    }
+    
     @Override
     public String toString()
     {
         if (!isBlank())
         {
             if (isValid())
-            {
-                StringBuilder retStr = new StringBuilder();
-
-                /* normal date */
-                /* put this into the same format as marketfeed uses where if any portion is blank, it is represented as spaces */
-                if (_day > 9)
+            {                
+                if(_format == DateTimeStringFormatTypes.STR_DATETIME_RSSL)
                 {
-                    retStr.append(_day + " ");
+                	return toStringRssl();
                 }
-                else if (_day > 0)
+                if(_format == DateTimeStringFormatTypes.STR_DATETIME_ISO8601)
                 {
-                    retStr.append(" " + _day + " ");
+                	return toStringIso8601();
                 }
                 else
                 {
-                    retStr.append("   ");
+                	return "Invalid date format";
                 }
-
-                if (_month > 0)
-                {
-                    retStr.append(_months[_month - 1] + " ");
-                }
-                else
-                {
-                    retStr.append("    ");
-                }
-
-                if (_year > 999)
-                {
-                    retStr.append(_year + " ");
-                }
-                else if (_year > 99)
-                {
-                    retStr.append(" " + _year + " ");
-                }
-                else if (_year > 9)
-                {
-                    retStr.append("  " + _year + " ");
-                }
-                else
-                {
-                    retStr.append("    ");
-                }
-
-                return retStr.toString();
             }
             else
             {
                 return "Invalid date";
             }
         }
-        else
-        {
-            return "";
-        }
-    }
+		else
+		{
+		    return "";
+		}        
+      }
 
     @Override
     public int value(String value)
@@ -204,8 +275,48 @@ class DateImpl implements Date
                 blank();
                 return CodecReturnCodes.SUCCESS;
             }
-
-            Matcher matcher = datePattern1.matcher(trimmedVal);
+            Matcher matcher = datePattern5.matcher(trimmedVal);
+            if (matcher.matches() && matcher.groupCount() == 1)
+            {	// ISO8601 date YYYYMMDD format.
+            	
+            	if(matcher.group(1).length() != 8)
+            		return CodecReturnCodes.FAILURE;
+            	int a = Integer.parseInt( matcher.group(1).substring(0, 4));
+            	int b = Integer.parseInt( matcher.group(1).substring(4, 6));
+            	int c = Integer.parseInt( matcher.group(1).substring(6, 8));
+            	
+               ret = day(c);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = month(b);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = year(a);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;  	
+          	
+            	return CodecReturnCodes.SUCCESS;
+            }
+            
+            matcher = datePattern4.matcher(trimmedVal);
+            if (matcher.matches() && matcher.groupCount() == 3)
+            {	// ISO8601 Date YYYY-MM-DD format.
+                int a = Integer.parseInt(matcher.group(1));
+                int b = Integer.parseInt(matcher.group(2));
+                int c = Integer.parseInt(matcher.group(3));
+                
+                ret = day(c);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = month(b);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = year(a);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;  	
+            	return CodecReturnCodes.SUCCESS;
+            }
+            matcher = datePattern1.matcher(trimmedVal);
 
             if (matcher.matches() && matcher.groupCount() == 3)
             {

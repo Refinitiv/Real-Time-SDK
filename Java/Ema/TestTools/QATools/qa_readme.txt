@@ -108,6 +108,19 @@ Series100Consumer110-BatchView-002
 Series100Consumer110-BatchView-003
 	Alters consumer to request 4 items in batch (IBM.N, TRI.N, TRI1.N, TRI2.N) 
 
+=======
+Module:  Series300Consumer130
+-----------------------------
+Series100Consumer130-MultiThreadBatchView-001
+	Alters consumer to request items from a file in batch, batch-snapshot and view 
+	requests. This tools uses multiple threads. The items are read in from a file: 1k.xml. 
+	The tools uses a distinct third of items from file to make the 3 types of requests mentioned.
+
+Module:  Series200Consumer200
+-----------------------------
+
+Series200Consumer200-ConsFunc-001
+     Alters consumer to decode Date/Time/DateTime and print using ISO 8601
 
 Module:  Series300Consumer300
 -----------------------------
@@ -128,6 +141,9 @@ Series300Consumer331-SrcReissue-001
 	Alters consumer to create a directory handle with an invalid serviceId. 
 	Then this code attempts to send a reissue on the invalid handle.
 
+Series300Consumer331-ConsFunc-001
+	Alters consumer to request directory using info filter without a serviceName. 
+	Also, alters consumer to not send out item requests.
 
 Module:  Series300Consumer332
 ---------------------------
@@ -155,6 +171,11 @@ Series300Consumer333-GenM-001
    Alters consumer send genericMsg with connection status on login stream to provider,
    also proccess genericMsg from provider. Need to run with Series300Provider320-GenM-001 
    provider qatool.
+
+Series300Consumer333-GenM-002
+   Alters the Consumer to send a GenericMsg on login stream with the name (in key) changed from the typical 
+   "ConsumerConnectionStatus" to "GENERIC". Also added is the ability to process a GenericMsg from a provider.
+   This altered code works in conjunction with Series300Provider320-GenM-001.   
 
 Module:  Series400Consumer410 
 ---------------------------
@@ -339,6 +360,9 @@ Series100Provider100-ProvFunc-005
 	Alters Interactive Provider item refersh and updates to include a different 
 	payload consisting of multiple enum type fields.  
 
+Series100Provider100-ProvFunc-006
+	Alters Interactive Provider to send a STATUS message with empty/null state every 5 
+	seconds after provider is created.
 
 Module:  Series300Provider320
 ---------------------------
@@ -422,6 +446,11 @@ emalibs-Cons-000
 emalibs-Cons-001
 	 Alters ema library, specifically ItemCallbackClient.cpp, to change 
 	 CONSUMER_STARTING_STREAM_ID from 4 to 2147483636.  
+
+emalibs-Status-000
+	 Alters ema library, specifically OmmIProviderImpl.java, to prevent NullPointerException
+	 when provider publish empty/null state to downstream. Alter Provider code  
+	 Series100Provider100-ProvFunc-006 use to send status with empty/null state.
 
 Module:  Series300NiProvider350
 ----------------------------------

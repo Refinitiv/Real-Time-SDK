@@ -70,6 +70,30 @@ typedef enum {
 	RSSL_PSMF_HAS_POST_USER_RIGHTS  = 0x200     /*!< (0x200) This RsslPostMsg has post user rights, contained in \ref RsslPostMsg::postUserRights. */
 } RsslPostFlags;
 
+/** 
+ * @brief General OMM strings associated with the different post message flags
+ * @see RsslPostFlags, rsslPostFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_PSMF_HAS_EXTENDED_HEADER = { 17, (char*)"HasExtendedHeader" };
+static const RsslBuffer RSSL_OMMSTR_PSMF_HAS_POST_ID = { 9, (char*)"HasPostID" };
+static const RsslBuffer RSSL_OMMSTR_PSMF_HAS_MSG_KEY = { 9, (char*)"HasMsgKey" };
+static const RsslBuffer RSSL_OMMSTR_PSMF_HAS_SEQ_NUM = { 9, (char*)"HasSeqNum" };
+static const RsslBuffer RSSL_OMMSTR_PSMF_POST_COMPLETE = { 12, (char*)"PostComplete" };
+static const RsslBuffer RSSL_OMMSTR_PSMF_ACK = { 3, (char*)"Ack" };
+static const RsslBuffer RSSL_OMMSTR_PSMF_HAS_PERM_DATA = { 11, (char*)"HasPermData" };
+static const RsslBuffer RSSL_OMMSTR_PSMF_HAS_PART_NUM = { 10, (char*)"HasPartNum" };
+static const RsslBuffer RSSL_OMMSTR_PSMF_HAS_POST_USER_RIGHTS = { 17, (char*)"HasPostUserRights" };
+
+/**
+ * @brief Provide general OMM string representation of RsslPostFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslPostFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslPostFlags
+ */
+RSSL_API RsslRet rsslPostFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags);
 
 /** 
  * @brief The Post User Rights values (PSUR - Post User Rights).  These can be combined to allow for multiple rights. 
@@ -81,6 +105,25 @@ typedef enum {
 	RSSL_PSUR_DELETE				= 0x02, 	/*!< (0x02) User is allowed to delete/remove records from cache with this post */
 	RSSL_PSUR_MODIFY_PERM			= 0x04		/*!< (0x04) User is allowed to modify the permData for records already in cache with this post */
 } RsslPostUserRights;
+
+/** 
+ * @brief General OMM strings associated with the different post user rights.
+ * @see RsslPostUserRights, rsslPostUserRightsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_PSUR_CREATE = { 6, (char*)"Create" };
+static const RsslBuffer RSSL_OMMSTR_PSUR_DELETE = { 6, (char*)"Delete" };
+static const RsslBuffer RSSL_OMMSTR_PSUR_MODIFY_PERM = { 10, (char*)"ModifyPerm" };
+
+/**
+ * @brief Provide general OMM string representation of RsslPostUserRights
+ * If multiple rights are set, they will be separated by a '|' delimiter.
+ * Unrecognized rights will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param rights RsslPostUserRights value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslPostUserRights
+ */
+RSSL_API RsslRet rsslPostUserRightsToOmmString(RsslBuffer *oBuffer, RsslUInt16 rights);
 
 /**
  * @}

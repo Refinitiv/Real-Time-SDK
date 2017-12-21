@@ -640,4 +640,15 @@ public class EmaFactory
 	{
 		return new DictionaryUtilityImpl();
 	}
+
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.DateTimeStringFormat}.
+	 * @return {@link com.thomsonreuters.ema.access.DateTimeStringFormat}
+	 */
+
+	public static DateTimeStringFormat createDateTimeStringFormat()
+	{
+		return new DateTimeStringFormatImpl();
+	}
+
 }

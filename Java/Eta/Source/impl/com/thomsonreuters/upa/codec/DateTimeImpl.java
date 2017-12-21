@@ -9,6 +9,8 @@ class DateTimeImpl implements DateTime
 {
     Date _date;
     Time _time;
+    int _format;
+    
     private Calendar _calendar;
     private Matcher matcher;
     private static String months[] = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
@@ -64,11 +66,12 @@ class DateTimeImpl implements DateTime
     private Pattern datetimePattern28 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+)\\s(\\d+)"); //m/d/y h m  
     private Pattern datetimePattern29 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+):(\\d+)"); // d m y h:m
     private Pattern datetimePattern30 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+):(\\d+)"); // d month year h:m
-
+ 
     DateTimeImpl()
     {
         _date = new DateImpl();
         _time = new TimeImpl();
+        _format = DateTimeStringFormatTypes.STR_DATETIME_RSSL;
     }
 
     @Override
@@ -76,6 +79,7 @@ class DateTimeImpl implements DateTime
     {
         _date.clear();
         _time.clear();
+        _format = DateTimeStringFormatTypes.STR_DATETIME_RSSL;
     }
 
     @Override
@@ -94,7 +98,7 @@ class DateTimeImpl implements DateTime
     @Override
     public boolean equals(DateTime thatDateTime)
     {
-        return (thatDateTime != null && _time.equals(thatDateTime.time()) && _date.equals(thatDateTime.date()));
+        return (thatDateTime != null && _time.equals(thatDateTime.time()) && _date.equals(thatDateTime.date()) && thatDateTime.format() == _format);
     }
 
     @Override
@@ -1999,6 +2003,7 @@ class DateTimeImpl implements DateTime
     @Override
     public int value(String value)
     {
+    	int ret = CodecReturnCodes.SUCCESS;
         try
         {
             if (value == null)
@@ -2013,8 +2018,49 @@ class DateTimeImpl implements DateTime
                 blank();
                 return CodecReturnCodes.SUCCESS;
             }
-
-            if (matchDTToNano(value) != CodecReturnCodes.SUCCESS)
+            
+			// Match ISO8601 DateTime.          
+            if(trimmedVal.length() >= 13)
+            {
+            	int len = trimmedVal.length();
+            	char separator = trimmedVal.charAt(10);
+            	if( separator == 'T')
+            	{ // DateTime in YYYY-MM-DDT<ISO8601 time formats>
+	            	 ret = _date.value(trimmedVal.substring(0, 10));
+	            	if (ret == CodecReturnCodes.SUCCESS)
+	            	{
+	            		ret = _time.value(trimmedVal.substring(11, len));
+	            		if (ret == CodecReturnCodes.SUCCESS)
+	            			return  CodecReturnCodes.SUCCESS;
+	            		else
+	            			return ret;
+	            	}
+	            	else
+            			return ret;
+	            }
+            	else
+            	{  // DateTime in YYYYMMDDT<ISO8601 time formats>
+            		separator = trimmedVal.charAt(8);
+                	if( separator == 'T')
+                	{
+    	            	ret = _date.value(trimmedVal.substring(0, 8));
+		            	if (ret == CodecReturnCodes.SUCCESS)
+		            	{
+		            		ret = _time.value(trimmedVal.substring(9, len));
+		            		if (ret == CodecReturnCodes.SUCCESS)
+		            			return  CodecReturnCodes.SUCCESS;
+		            		else
+		            			return ret;
+		            	}
+		            	else
+	            			return ret;
+    	            }
+            	}
+            }
+            
+  
+            	
+              if (matchDTToNano(value) != CodecReturnCodes.SUCCESS)
                 if (matchDTToMicro(value) != CodecReturnCodes.SUCCESS)
                     if (matchDTToMilli(value) != CodecReturnCodes.SUCCESS)
                         if (matchDTToSec(value) != CodecReturnCodes.SUCCESS)
@@ -2047,7 +2093,28 @@ class DateTimeImpl implements DateTime
 
         return month;
     }
+    
+    @Override
+   public int format(int format)
+   {
+    	if(format >= DateTimeStringFormatTypes.STR_DATETIME_ISO8601 && format <= DateTimeStringFormatTypes.STR_DATETIME_RSSL)
+	    {
+	    	_format = format;
+	    	_date.format(_format);
+	    	_time.format(_format);
+	    	return CodecReturnCodes.SUCCESS;
+	    }
+	    else
+	    	return CodecReturnCodes.INVALID_ARGUMENT;
+   }
+    
+    @Override
+    public int format()
+    {
+        return _format;
+    }
 
+ 
     @Override
     public String toString()
     {
@@ -2065,43 +2132,45 @@ class DateTimeImpl implements DateTime
         {
             /* normal date */
             /* put this into the same format as marketfeed uses where if any portion is blank, it is represented as spaces */
-            if (_date.day() != 0)
+            if(_format == DateTimeStringFormatTypes.STR_DATETIME_RSSL)
             {
-                oBuffer.append(String.format("%02d ", _date.day()));
+            	_date.format(DateTimeStringFormatTypes.STR_DATETIME_RSSL);
+            	oBuffer.append(String.format("%s",_date.toString().trim()));
             }
-            else
+            else if(_format == DateTimeStringFormatTypes.STR_DATETIME_ISO8601)
             {
-                oBuffer.append("");
-            }
+            	_date.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+            	oBuffer.append(String.format("%s",_date.toString().trim()));
 
-            if (_date.month() != 0)
-            {
-                oBuffer.append(String.format("%s ", months[_date.month() - 1]));
             }
             else
             {
-                oBuffer.append("");
-            }
-
-            if (_date.year() != 0)
-            {
-                oBuffer.append(String.format("%4d", _date.year()));
-            }
-            else
-            {
-                oBuffer.append("");
-            }
+            	oBuffer.append("Invalid DateTime format value ");
+            	oBuffer.append(_format);
+            	return oBuffer.toString();
+            }  
         }
-
-        // time
+ 
         if (!_time.isBlank())
         {
-            if (!_date.isBlank())
-                oBuffer.append(String.format("%s%s", " ", _time.toString()));
-            else
-                oBuffer.append(String.format("%s", _time.toString()));
+	        if(_format == DateTimeStringFormatTypes.STR_DATETIME_RSSL)
+	        {
+	        	_time.format(DateTimeStringFormatTypes.STR_DATETIME_RSSL);
+	            if (!_date.isBlank())
+	                oBuffer.append(String.format("%s%s", " ", _time.toString()));
+	            else
+	                oBuffer.append(String.format("%s", _time.toString()));
+	        }
+	        else if(_format == DateTimeStringFormatTypes.STR_DATETIME_ISO8601)
+	        {
+	        	_time.format(DateTimeStringFormatTypes.STR_DATETIME_ISO8601);
+	            if (!_date.isBlank())
+	                oBuffer.append(String.format("%s%s", "T", _time.toString()));
+	            else
+	                oBuffer.append(String.format("%s", _time.toString()));	
+	        }
         }
-
+        
         return oBuffer.toString();
 
     }

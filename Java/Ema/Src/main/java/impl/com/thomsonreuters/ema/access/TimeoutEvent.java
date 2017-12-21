@@ -7,7 +7,8 @@
 
 package com.thomsonreuters.ema.access;
 
-import com.thomsonreuters.upa.valueadd.common.VaIteratableQueue;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 
 interface TimeoutClient 
@@ -55,19 +56,19 @@ class TimeoutEvent extends VaNode
 		return _client;
 	}
 	
-	static <T> long userTimeOutExist(VaIteratableQueue timeoutEventQueue)
+	static <T> long userTimeOutExist(ConcurrentLinkedQueue<TimeoutEvent> timeoutEventQueue)
 	{
 		if (timeoutEventQueue.size() == 0)
 			return -1;
 		
-		timeoutEventQueue.rewind();
-		
-		while (timeoutEventQueue.hasNext())
-        {
-        	TimeoutEvent event = (TimeoutEvent)timeoutEventQueue.next();
+		TimeoutEvent event;
+		Iterator<TimeoutEvent> iter = timeoutEventQueue.iterator();
+		 while (iter.hasNext())
+		 {
+        	event = iter.next();
         	if (event.cancelled())
         	{
-        		timeoutEventQueue.remove(event);
+        		iter.remove();
         		event.returnToPool();
         		continue;
         	}
@@ -82,28 +83,27 @@ class TimeoutEvent extends VaNode
         return -1;
 	}
 	
-	static <T> void execute(VaIteratableQueue timeoutEventQueue)
+	static <T> void execute(ConcurrentLinkedQueue<TimeoutEvent> timeoutEventQueue)
 	{
 		if ( timeoutEventQueue.size() == 0)
 			return; 
 		
-		VaIteratableQueue timerEventQueue = timeoutEventQueue;
-		timerEventQueue.rewind();
-
-		while (timerEventQueue.hasNext())
+		TimeoutEvent event;
+		Iterator<TimeoutEvent> iter = timeoutEventQueue.iterator();
+		while (iter.hasNext())
         {
-        	TimeoutEvent event = (TimeoutEvent)timerEventQueue.next();
-        	 if (System.nanoTime() >= event.timeoutInNanoSerc())
-        	 {
-        		 timerEventQueue.remove(event);
-        		 
+			event = iter.next();
+	    	if (System.nanoTime() >= event.timeoutInNanoSerc())
+	    	{
+	    		 iter.remove();
+	    		 
 	        	if (!event.cancelled() && event.client() != null)
 	        		event.client().handleTimeoutEvent();
 	        		
-        		event.returnToPool();
-        	 }
-        	 else
-        		 return;
+	    		event.returnToPool();
+	    	}
+	    	else
+	    		 return;
         }
 	}
 }

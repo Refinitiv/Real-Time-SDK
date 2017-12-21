@@ -15,7 +15,9 @@ import java.nio.ByteBuffer;
 public interface OmmBuffer extends Data
 {
 	/**
-	 * Returns Buffer.
+	 * Gets the underlying ByteBuffer.
+	 * 
+	 * The data length of the buffer is the limit() of the returned ByteBuffer.
 	 * @return binary buffer contained in ByteBuffer
 	 */
 	public ByteBuffer buffer();

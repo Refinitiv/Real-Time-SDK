@@ -51,6 +51,38 @@ typedef enum {
 	RSSL_DMT_MAX_VALUE					= 255	/*!< (255) Maximum value for a message type */
 } RsslDomainTypes;
 
+/** 
+ * @brief General OMM strings associated with the different domain types.
+ * @see RsslDomainTypes, rsslDomainTypeToOmmString
+ */
+
+static const RsslBuffer RSSL_OMMSTR_DMT_LOGIN = { 5, (char*)"Login" };
+static const RsslBuffer RSSL_OMMSTR_DMT_SOURCE = { 6, (char*)"Source" };
+static const RsslBuffer RSSL_OMMSTR_DMT_DICTIONARY = { 10, (char*)"Dictionary" };
+static const RsslBuffer RSSL_OMMSTR_DMT_MARKET_PRICE = { 11, (char*)"MarketPrice" };
+static const RsslBuffer RSSL_OMMSTR_DMT_MARKET_BY_ORDER = { 13, (char*)"MarketByOrder" };
+static const RsslBuffer RSSL_OMMSTR_DMT_MARKET_BY_PRICE = { 13, (char*)"MarketByPrice" };
+static const RsslBuffer RSSL_OMMSTR_DMT_MARKET_MAKER = { 11, (char*)"MarketMaker" };
+static const RsslBuffer RSSL_OMMSTR_DMT_SYMBOL_LIST = { 10, (char*)"SymbolList" };
+static const RsslBuffer RSSL_OMMSTR_DMT_SERVICE_PROVIDER_STATUS = { 21, (char*)"ServiceProviderStatus" };
+static const RsslBuffer RSSL_OMMSTR_DMT_HISTORY = { 7, (char*)"History" };
+static const RsslBuffer RSSL_OMMSTR_DMT_HEADLINE = { 8, (char*)"Headline" };
+static const RsslBuffer RSSL_OMMSTR_DMT_STORY = { 5, (char*)"Story" };
+static const RsslBuffer RSSL_OMMSTR_DMT_REPLAYHEADLINE = { 14, (char*)"ReplayHeadline" };
+static const RsslBuffer RSSL_OMMSTR_DMT_REPLAYSTORY = { 11, (char*)"ReplayStory" };
+static const RsslBuffer RSSL_OMMSTR_DMT_TRANSACTION = { 11, (char*)"Transaction" };
+static const RsslBuffer RSSL_OMMSTR_DMT_YIELD_CURVE = { 10, (char*)"YieldCurve" };
+static const RsslBuffer RSSL_OMMSTR_DMT_CONTRIBUTION = { 12, (char*)"Contribution" };
+static const RsslBuffer RSSL_OMMSTR_DMT_PROVIDER_ADMIN = { 13, (char*)"ProviderAdmin" };
+static const RsslBuffer RSSL_OMMSTR_DMT_ANALYTICS = { 9, (char*)"Analytics" };
+static const RsslBuffer RSSL_OMMSTR_DMT_REFERENCE = { 9, (char*)"Reference" };
+static const RsslBuffer RSSL_OMMSTR_DMT_NEWS_TEXT_ANALYTICS = { 17, (char*)"NewsTextAnalytics" };
+static const RsslBuffer RSSL_OMMSTR_DMT_ECONOMIC_INDICATOR = { 17, (char*)"EconomicIndicator" };
+static const RsslBuffer RSSL_OMMSTR_DMT_POLL = { 4, (char*)"Poll" };
+static const RsslBuffer RSSL_OMMSTR_DMT_FORECAST = { 8, (char*)"Forecast" };
+static const RsslBuffer RSSL_OMMSTR_DMT_MARKET_BY_TIME = { 12, (char*)"MarketByTime" };
+static const RsslBuffer RSSL_OMMSTR_DMT_SYSTEM = { 6, (char*)"System" };
+
  
 /**
  *	@defgroup DomainCommon TRDM Common Enumerations
@@ -65,6 +97,23 @@ typedef enum
 	RDM_INSTRUMENT_NAME_TYPE_CONTRIBUTOR		= 2,	/*!< (2) Contributor identification information for user-stream contributions (RSSL_DMT_CONTRIBUTION) */
 	RDM_INSTRUMENT_NAME_TYPE_MAX_RESERVED		= 127	/*!< (127) Maximum reserved Quote Symbology */
 } RDMInstrumentNameTypes;
+
+/** 
+ * @brief General OMM strings associated with the different instrument name types.
+ * @see RDMInstrumentNameTypes, rsslRDMInstrumentNameTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_INSTRUMENT_NAME_TYPE_UNSPECIFIED = { 11, (char*)"Unspecified" };
+static const RsslBuffer RDM_OMMSTR_INSTRUMENT_NAME_TYPE_RIC = { 3, (char*)"Ric" };
+static const RsslBuffer RDM_OMMSTR_INSTRUMENT_NAME_TYPE_CONTRIBUTOR = { 11, (char*)"Contributor" };
+
+/** 
+ * @brief Converts the provided instrument name type enumeration to a general OMM string.
+ *
+ * @param type Instrument name type to translate to string
+ * @return Null terminated character string containing the name of the name type
+ * @see RDMInstrumentNameTypes
+ */
+RSSL_API const char* rsslRDMInstrumentNameTypeToOmmString(RsslUInt8 type);
 
 
 typedef enum
@@ -84,11 +133,52 @@ typedef enum
 	RDM_UPD_EVENT_TYPE_MAX_RESERVED		= 127	/*!< (127) Maximum reserved update event type */
 } RDMUpdateEventTypes;
 
+/** 
+ * @brief General OMM strings associated with the different update event types.
+ * @see RDMUpdateEventTypes, rsslRDMUpdateEventTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_UNSPECIFIED = { 11, (char*)"Unspecified" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_QUOTE = { 5, (char*)"Quote" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_TRADE = { 5, (char*)"Trade" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_NEWS_ALERT = { 9, (char*)"NewsAlert" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_VOLUME_ALERT = { 11, (char*)"VolumeAlert" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_ORDER_INDICATION = { 15, (char*)"OrderIndication" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_CLOSING_RUN = { 10, (char*)"ClosingRun" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_CORRECTION = { 10, (char*)"Correction" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_MARKET_DIGEST = { 12, (char*)"MarketDigest" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_QUOTES_TRADE = { 11, (char*)"QuotesTrade" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_MULTIPLE = { 8, (char*)"Multiple" };
+static const RsslBuffer RDM_OMMSTR_UPD_EVENT_TYPE_VERIFY = { 6, (char*)"Verify" };
+
+/** 
+ * @brief Converts the provided update event type enumeration to a general OMM string.
+ *
+ * @param type update event type to translate to string
+ * @return Null terminated character string containing the name of the update event type
+ * @see RDMUpdateEventTypes
+ */
+RSSL_API const char* rsslRDMUpdateEventTypeToOmmString(RsslUInt8 type);
 
 typedef enum {
 	RDM_VIEW_TYPE_FIELD_ID_LIST				= 1,	/*!< (1) View Data contains a list of Field IDs */
 	RDM_VIEW_TYPE_ELEMENT_NAME_LIST			= 2		/*!< (2) View Data contains a list of Element Names */
 } RDMViewTypes;
+
+/** 
+ * @brief General OMM strings associated with the different view types.
+ * @see RDMViewTypes, rsslRDMViewTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_VIEW_TYPE_FIELD_ID_LIST = { 11, (char*)"FieldIDList" };
+static const RsslBuffer RDM_OMMSTR_VIEW_TYPE_ELEMENT_NAME_LIST = { 15, (char*)"ElementNameList" };
+
+/** 
+ * @brief Converts the provided view type enumeration to a general OMM string.
+ *
+ * @param type View type to translate to string
+ * @return Null terminated character string containing the name of the view type
+ * @see RDMViewTypes
+ */
+RSSL_API const char* rsslRDMViewTypeToOmmString(RsslUInt type);
 
 /**
  *	@}
@@ -106,6 +196,21 @@ typedef enum {
     RDM_LOGIN_ROLE_PROV           = 1  /*!< (1) Application logs in as a provider */
 } RDMLoginRoleTypes;
 
+/** 
+ * @brief General OMM strings associated with the different login role types.
+ * @see RDMLoginRoleTypes, rsslRDMLoginRoleTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_LOGIN_ROLE_CONS = { 4, (char*)"Cons" };
+static const RsslBuffer RDM_OMMSTR_LOGIN_ROLE_PROV = { 4, (char*)"Prov" };
+
+/** 
+ * @brief Converts the provided role type enumeration to a general OMM string.
+ *
+ * @param type Role type to translate to string
+ * @return Null terminated character string containing the name of the role type
+ * @see RDMLoginRoleTypes
+ */
+RSSL_API const char* rsslRDMLoginRoleTypeToOmmString(RsslUInt type);
 
 typedef enum {
 	RDM_LOGIN_USER_NAME				= 1,	/*!< (1) Name */
@@ -115,10 +220,44 @@ typedef enum {
 	RDM_LOGIN_USER_AUTHN_TOKEN 		= 5 	/*!< (5) String defining User Authentication Token */
 } RDMLoginUserIdTypes;
 
+/** 
+ * @brief General OMM strings associated with the different user ID types.
+ * @see RDMLoginUserIdTypes, rsslRDMLoginUserIdTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_LOGIN_USER_NAME = { 4, (char*)"Name" };
+static const RsslBuffer RDM_OMMSTR_LOGIN_USER_EMAIL_ADDRESS = { 12, (char*)"EmailAddress" };
+static const RsslBuffer RDM_OMMSTR_LOGIN_USER_TOKEN = { 5, (char*)"Token" };
+static const RsslBuffer RDM_OMMSTR_LOGIN_USER_COOKIE = { 6, (char*)"Cookie" };
+
+/** 
+ * @brief Converts the provided user ID type enumeration to a general OMM string.
+ *
+ * @param type User ID type to translate to string
+ * @return Null terminated character string containing the name of the user ID type
+ * @see RDMLoginUserIdTypes
+ */
+RSSL_API const char* rsslRDMLoginUserIdTypeToOmmString(RsslUInt8 type);
+
 typedef enum {
 	RDM_LOGIN_SERVER_TYPE_ACTIVE	= 0,	/*!< (0) Active Server */
 	RDM_LOGIN_SERVER_TYPE_STANDBY	= 1		/*!< (1) Standby Server */
 } RDMLoginServerTypes;
+
+/** 
+ * @brief General OMM strings associated with the different server types.
+ * @see RDMLoginServerTypes, rsslRDMLoginServerTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_LOGIN_SERVER_TYPE_ACTIVE = { 6, (char*)"Active" };
+static const RsslBuffer RDM_OMMSTR_LOGIN_SERVER_TYPE_STANDBY = { 7, (char*)"Standby" };
+
+/** 
+ * @brief Converts the provided server type enumeration to a general OMM string.
+ *
+ * @param type Server type to translate to string
+ * @return Null terminated character string containing the name of the server type
+ * @see RDMLoginServerTypes
+ */
+RSSL_API const char* rsslRDMLoginServerTypeToOmmString(RsslUInt type);
 
 typedef enum
 {            
@@ -127,6 +266,25 @@ typedef enum
 	RDM_LOGIN_BATCH_SUPPORT_REISSUES	= 0x2,  /*!< (0x2) Provider supports batch reissue requests. */
 	RDM_LOGIN_BATCH_SUPPORT_CLOSES		= 0x4   /*!< (0x4) Provider supports batch closes. */
 } RDMLoginBatchSupportFlags;
+
+/** 
+ * @brief General OMM strings associated with the different batch support flags.
+ * @see RDMLoginBatchSupportFlags, rsslRDMLoginBatchSupportFlagsToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_LOGIN_BATCH_SUPPORT_REQUESTS = { 8, (char*)"Requests" };
+static const RsslBuffer RDM_OMMSTR_LOGIN_BATCH_SUPPORT_REISSUES = { 8, (char*)"Reissues" };
+static const RsslBuffer RDM_OMMSTR_LOGIN_BATCH_SUPPORT_CLOSES = { 6, (char*)"Closes" };
+
+/**
+ * @brief Provide general OMM string representation of RDMLoginBatchSupportFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RDMLoginBatchSupportFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RDMLoginBatchSupportFlags
+ */
+RSSL_API RsslRet rsslRDMLoginBatchSupportFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt flags);
 
 /**
  *	@}
@@ -159,6 +317,29 @@ typedef enum
         RDM_DICTIONARY_ELEMENT_SET_DEFINITION   = 9   /*!< (9) Global Element Set Definition type */
 } RDMDictionaryTypes;
 
+/** 
+ * @brief General OMM strings associated with the different dictionary types.
+ * @see RDMDictionaryTypes, rsslRDMDictionaryTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_FIELD_DEFINITIONS = { 16, (char*)"FieldDefinitions" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_ENUM_TABLES = { 10, (char*)"EnumTables" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_RECORD_TEMPLATES = { 15, (char*)"RecordTemplates" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_DISPLAY_TEMPLATES = { 16, (char*)"DisplayTemplates" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_DATA_DEFINITIONS = { 15, (char*)"DataDefinitions" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_STYLE_SHEET = { 10, (char*)"StyleSheet" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_REFERENCE = { 9, (char*)"Reference" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_FIELD_SET_DEFINITION = { 18, (char*)"FieldSetDefinition" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_ELEMENT_SET_DEFINITION = { 20, (char*)"ElementSetDefinition" };
+
+/** 
+ * @brief Converts the provided dictionary type enumeration to a general OMM string.
+ *
+ * @param type Dictionary type to translate to string
+ * @return Null terminated character string containing the name of the dictionary type
+ * @see RDMDictionaryTypes
+ */
+RSSL_API const char* rsslRDMDictionaryTypeToOmmString(RsslUInt type);
+
 /**
  * @brief Enumerations describing how much information about a particular dictionary is desired.
  * These values are typically set in an RsslRequestMsg MsgKey filter when the request for the dictionary is made.
@@ -172,6 +353,24 @@ typedef enum
     RDM_DICTIONARY_NORMAL           = 0x07,  /*!< (0x07) "Normal" Verbosity, e.g. all but description */
     RDM_DICTIONARY_VERBOSE          = 0x0F   /*!< (0x0F) "Verbose" Verbosity, e.g. all with description */
 } RDMDictionaryVerbosityValues;
+
+/** 
+ * @brief General OMM strings associated with the different dictionary verbosities.
+ * @see RDMDictionaryVerbosityValues, rsslRDMDictionaryVerbosityValueToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_INFO = { 4, (char*)"Info" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_MINIMAL = { 7, (char*)"Minimal" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_NORMAL = { 6, (char*)"Normal" };
+static const RsslBuffer RDM_OMMSTR_DICTIONARY_VERBOSE = { 7, (char*)"Verbose" };
+
+/** 
+ * @brief Converts the provided verbosity enumeration to a general OMM string.
+ *
+ * @param value Verbosity value to translate to string
+ * @return Null terminated character string containing the name of the verbosity
+ * @see RDMDictionaryVerbosityValues
+ */
+RSSL_API const char* rsslRDMDictionaryVerbosityValueToOmmString(RsslUInt32 value);
 
 /**
  *	@defgroup RSSLWFDict RDMFieldDictionary and enumtype.def Dictionary loading, encoding, and decoding helpers. 
@@ -202,6 +401,30 @@ typedef enum {
 	RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER			= 0x00000040	/*!< (0x00000040) Source Sequenced Multicast Information */
 } RDMDirectoryServiceFilterFlags;
 
+/** 
+ * @brief General OMM strings associated with the different service filter flags.
+ * @see RDMDirectoryServiceFilterFlags, rsslRDMDirectoryServiceFilterFlagsToOmmString
+ */
+
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_INFO_FILTER = { 4, (char*)"Info" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_STATE_FILTER = { 5, (char*)"State" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_GROUP_FILTER = { 5, (char*)"Group" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_LOAD_FILTER = { 4, (char*)"Load" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_DATA_FILTER = { 4, (char*)"Data" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_LINK_FILTER = { 4, (char*)"Link" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_SEQ_MCAST_FILTER = { 8, (char*)"SeqMcast" };
+
+/**
+ * @brief Provide general OMM string representation of RDMDirectoryServiceFilterFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RDMDirectoryServiceFilterFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RDMDirectoryServiceFilterFlags
+ */
+RSSL_API RsslRet rsslRDMDirectoryServiceFilterFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt32 flags);
+
 typedef enum {
 	RDM_DIRECTORY_SERVICE_INFO_ID				= 1,    /*!< (1) Service Info Filter ID */
 	RDM_DIRECTORY_SERVICE_STATE_ID				= 2,    /*!< (2) Source State Filter ID */
@@ -212,16 +435,71 @@ typedef enum {
 	RDM_DIRECTORY_SERVICE_SEQ_MCAST_ID			= 7		/*!< (7) Sequenced Multicast Filter ID */
 } RDMDirectoryServiceFilterIds;
 
+/** 
+ * @brief General OMM strings associated with the different service filter IDs.
+ * @see RDMDirectoryServiceFilterIds, rsslRDMDirectoryServiceFilterIdToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_INFO_ID = { 4, (char*)"Info" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_STATE_ID = { 5, (char*)"State" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_GROUP_ID = { 5, (char*)"Group" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_LOAD_ID = { 4, (char*)"Load" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_DATA_ID = { 4, (char*)"Data" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_LINK_ID = { 4, (char*)"Link" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_SEQ_MCAST_ID = { 8, (char*)"SeqMcast" };
+
+/** 
+ * @brief Converts the provided service filter ID enumeration to a general OMM string.
+ *
+ * @param id Service filter ID to translate to string
+ * @return Null terminated character string containing the name of the service filter ID 
+ * @see RDMDirectoryServiceFilterIds
+ */
+RSSL_API const char* rsslRDMDirectoryServiceFilterIdToOmmString(RsslUInt id);
+
+
 typedef enum {
 	RDM_DIRECTORY_SERVICE_STATE_DOWN			= 0,	/*!< (0) Service state down */
 	RDM_DIRECTORY_SERVICE_STATE_UP				= 1		/*!< (1) Service state up */
 } RDMDirectoryServiceStates;
+
+/** 
+ * @brief General OMM strings associated with the different service states.
+ * @see RDMDirectoryServiceStates, rsslRDMDirectoryServiceStateToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_STATE_DOWN = { 4, (char*)"Down" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SERVICE_STATE_UP = { 2, (char*)"Up" };
+
+/** 
+ * @brief Converts the provided service state enumeration to a general OMM string.
+ *
+ * @param state Service state to translate to string
+ * @return Null terminated character string containing the name of the service state
+ * @see RDMDirectoryServiceStates
+ */
+RSSL_API const char* rsslRDMDirectoryServiceStateToOmmString(RsslUInt serviceState);
 
 typedef enum {
 	RDM_DIRECTORY_SOURCE_MIRROR_MODE_ACTIVE_NO_STANDBY		= 0,	/*!< (0) Indicates the upstream provider is the active and there is no standby provider */
 	RDM_DIRECTORY_SOURCE_MIRROR_MODE_ACTIVE_WITH_STANDBY	= 1,	/*!< (1) Indicates the upstream provider is the active and there is a standby provider */
 	RDM_DIRECTORY_SOURCE_MIRROR_MODE_STANDBY				= 2 	/*!< (2) Indicates the upstream provider is a standby */
 }  RDMDirectorySourceMirroringMode;
+
+/** 
+ * @brief Converts the provided source mirroring mode enumeration to a general OMM string.
+ *
+ * @param mode Source mirroring mode to translate to string
+ * @return Null terminated character string containing the name of the source mirroring mode
+ * @see RDMDirectorySourceMirroringMode
+ */
+RSSL_API const char* rsslRDMDirectorySourceMirroringModeToOmmString(RsslUInt mode);
+
+/** 
+ * @brief General OMM strings associated with the different source mirroring modes.
+ * @see RDMDirectorySourceMirroringMode, rsslRDMDirectorySourceMirroringModeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SOURCE_MIRROR_MODE_ACTIVE_NO_STANDBY = { 15, (char*)"ActiveNoStandby" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SOURCE_MIRROR_MODE_ACTIVE_WITH_STANDBY = { 17, (char*)"ActiveWithStandby" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_SOURCE_MIRROR_MODE_STANDBY = { 7, (char*)"Standby" };
 
 typedef enum {
 	RDM_DIRECTORY_DATA_TYPE_MIN_RESERVED	= 0,		/*!< (0) Minimum reserved Data Type */
@@ -233,11 +511,66 @@ typedef enum {
 	RDM_DIRECTORY_DATA_TYPE_MAX_RESERVED	= 1023		/*!< (1023) Maximum reserved Data Type */
 } RDMDirectoryDataTypes;
 
+/** 
+ * @brief General OMM strings associated with the different directory data types.
+ * @see RDMDirectoryDataTypes, rsslRDMDirectoryDataTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_DATA_TYPE_NONE = { 4, (char*)"None" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_DATA_TYPE_TIME = { 4, (char*)"Time" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_DATA_TYPE_ALERT = { 5, (char*)"Alert" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_DATA_TYPE_HEADLINE = { 8, (char*)"Headline" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_DATA_TYPE_STATUS = { 6, (char*)"Status" };
+
+/** 
+ * @brief Converts the provided directory data type enumeration to a general OMM string.
+ *
+ * @param type Data type to translate to string
+ * @return Null terminated character string containing the name of the data type
+ * @see RDMDirectoryDataTypes
+ */
+RSSL_API const char* rsslRDMDirectoryDataTypeToOmmString(RsslUInt type);
 
 typedef enum {
 	RDM_DIRECTORY_LINK_TYPE_INTERACTIVE		= 1,		/*!< (1) Interactive */
 	RDM_DIRECTORY_LINK_TYPE_BROADCAST		= 2			/*!< (2) Broadcast */
 } RDMDirectoryLinkTypes;
+
+/** 
+ * @brief General OMM strings associated with the different directory link types.
+ * @see RDMDirectoryLinkTypes, rsslRDMDirectoryLinkTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_LINK_TYPE_INTERACTIVE = { 11, (char*)"Interactive" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_LINK_TYPE_BROADCAST = { 9, (char*)"Broadcast" };
+
+/** 
+ * @brief Converts the provided directory link type enumeration to a general OMM string.
+ *
+ * @param type Link type to translate to string
+ * @return Null terminated character string containing the name of the link type
+ * @see RDMDirectoryLinkTypes
+ */
+RSSL_API const char* rsslRDMDirectoryLinkTypeToOmmString(RsslUInt type);
+
+typedef enum {
+	RDM_DIRECTORY_LINK_STATE_DOWN		= 0,		/*!< (0) Down */
+	RDM_DIRECTORY_LINK_STATE_UP			= 1			/*!< (1) Up */
+} RDMDirectoryLinkStates;
+
+/** 
+ * @brief General OMM strings associated with the different directory link states.
+ * @see RDMDirectoryLinkStates, rsslRDMDirectoryLinkStateToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_LINK_STATE_DOWN = { 4, (char*)"Down" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_LINK_STATE_UP = { 2, (char*)"Up" };
+
+/** 
+ * @brief Converts the provided directory link state enumeration to a general OMM string.
+ *
+ * @param state Link state to translate to string
+ * @return Null terminated character string containing the name of the link state
+ * @see RDMDirectoryLinkStates
+ */
+RSSL_API const char* rsslRDMDirectoryLinkStateToOmmString(RsslUInt state);
 
 typedef enum {
 	RDM_DIRECTORY_LINK_CODE_NONE				= 0,	/*!< (0) None */
@@ -245,6 +578,25 @@ typedef enum {
 	RDM_DIRECTORY_LINK_CODE_RECOVERY_STARTED	= 2,	/*!< (2) Recovery Started */
 	RDM_DIRECTORY_LINK_CODE_RECOVERY_COMPLETED	= 3		/*!< (3) Recovery Completed */
 } RDMDirectoryLinkCodes;
+
+/** 
+ * @brief General OMM strings associated with the different directory link codes.
+ * @see RDMDirectoryLinkCodes, rsslRDMDirectoryLinkCodeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_LINK_CODE_NONE = { 4, (char*)"None" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_LINK_CODE_OK = { 2, (char*)"Ok" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_LINK_CODE_RECOVERY_STARTED = { 15, (char*)"RecoveryStarted" };
+static const RsslBuffer RDM_OMMSTR_DIRECTORY_LINK_CODE_RECOVERY_COMPLETED = { 17, (char*)"RecoveryCompleted" };
+
+/** 
+ * @brief Converts the provided directory link code enumeration to a general OMM string.
+ *
+ * @param code Link code to translate to string
+ * @return Null terminated character string containing the name of the link code
+ * @see RDMDirectoryLinkCodes
+ */
+RSSL_API const char* rsslRDMDirectoryLinkCodeToOmmString(RsslUInt code);
+
 /**
  *	@}
  */
@@ -257,6 +609,23 @@ typedef enum
 	RDM_SYMBOL_LIST_SUPPORT_NAMES_ONLY		= 0x0,	/*!< (0x0) Supports names only, no additional functionality. */
 	RDM_SYMBOL_LIST_SUPPORT_DATA_STREAMS	= 0x1	/*!< (0x1) Supports symbol list data streams. */
 } RDMEnhancedSymbolListSupportFlags;
+
+/** 
+ * @brief General OMM strings associated with the different enhanced symbol list behavior support flags.
+ * @see RDMEnhancedSymbolListSupportFlags, rsslRDMEnhancedSymbolListSupportFlagsToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_SYMBOL_LIST_SUPPORT_DATA_STREAMS = { 11, (char*)"DataStreams" };
+
+/**
+ * @brief Provide general OMM string representation of RDMEnhancedSymbolListSupportFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RDMEnhancedSymbolListSupportFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RDMEnhancedSymbolListSupportFlags
+ */
+RSSL_API RsslRet rsslRDMEnhancedSymbolListSupportFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt flags);
  
 /**
  * @brief Symbol List requestable behavior flags.
@@ -267,6 +636,24 @@ typedef enum
 	RDM_SYMBOL_LIST_DATA_STREAMS 	= 0x1,	/*!< (0x1) Request symbol list data streams. */
 	RDM_SYMBOL_LIST_DATA_SNAPSHOTS 	= 0x2	/*!< (0x2) Request symbol list data snapshots. */
 } RDMSymbolListDataStreamRequestFlags;
+
+/** 
+ * @brief General OMM strings associated with the different symbol list requestable behavior flags.
+ * @see RDMSymbolListDataStreamRequestFlags, rsslRDMSymbolListDataStreamRequestFlagsToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_SYMBOL_LIST_DATA_STREAMS = { 11, (char*)"DataStreams" };
+static const RsslBuffer RDM_OMMSTR_SYMBOL_LIST_DATA_SNAPSHOTS = { 13, (char*)"DataSnapshots" };
+
+/**
+ * @brief Provide general OMM string representation of RDMSymbolListDataStreamRequestFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RDMSymbolListDataStreamRequestFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RDMSymbolListDataStreamRequestFlags
+ */
+RSSL_API RsslRet rsslRDMSymbolListDataStreamRequestFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt flags);
 
 /**
  *	@defgroup ClassOfService  Class of Service Elements
@@ -286,6 +673,25 @@ typedef enum
 	RDM_COS_GUARANTEE_ID			= 5		/*!< (5) Class of Service Guarantee Filter ID */
 } RDMClassOfServiceFilterIDs;
 
+/** 
+ * @brief General OMM strings associated with the different class of service filter IDs.
+ * @see RDMClassOfServiceFilterIDs, rsslRDMCosFilterIdToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_COS_COMMON_PROPERTIES_ID = { 16, (char*)"CommonProperties" };
+static const RsslBuffer RDM_OMMSTR_COS_AUTHENTICATION_ID = { 14, (char*)"Authentication" };
+static const RsslBuffer RDM_OMMSTR_COS_FLOW_CONTROL_ID = { 11, (char*)"FlowControl" };
+static const RsslBuffer RDM_OMMSTR_COS_DATA_INTEGRITY_ID = { 13, (char*)"DataIntegrity" };
+static const RsslBuffer RDM_OMMSTR_COS_GUARANTEE_ID = { 9, (char*)"Guarantee" };
+
+/** 
+ * @brief Converts the provided class-of-service filter ID enumeration to a general OMM string.
+ *
+ * @param id Class-of-service filter ID to translate to string
+ * @return Null terminated character string containing the name of the ID
+ * @see RDMClassOfServiceFilterIDs
+ */
+RSSL_API const char* rsslRDMCosFilterIdToOmmString(RsslUInt id);
+
 /**
   * @brief Class of Service property filter flags.
   */
@@ -298,6 +704,27 @@ typedef enum
 	RDM_COS_GUARANTEE_FLAG			= 0x10 	/*!< (0x10) Class of Service Guarantee Filter Flag */
 } RDMClassOfServiceFilterFlags;
 
+/** 
+ * @brief General OMM strings associated with the different class of service filter flags.
+ * @see RDMClassOfServiceFilterFlags, rsslRDMCosFilterFlagsToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_COS_COMMON_PROPERTIES_FLAG = { 16, (char*)"CommonProperties" };
+static const RsslBuffer RDM_OMMSTR_COS_AUTHENTICATION_FLAG = { 14, (char*)"Authentication" };
+static const RsslBuffer RDM_OMMSTR_COS_FLOW_CONTROL_FLAG = { 11, (char*)"FlowControl" };
+static const RsslBuffer RDM_OMMSTR_COS_DATA_INTEGRITY_FLAG = { 13, (char*)"DataIntegrity" };
+static const RsslBuffer RDM_OMMSTR_COS_GUARANTEE_FLAG = { 9, (char*)"Guarantee" };
+
+/**
+ * @brief Provide general OMM string representation of RDMClassOfServiceFilterFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RDMClassOfServiceFilterFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RDMClassOfServiceFilterFlags
+ */
+RSSL_API RsslRet rsslRDMCosFilterFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt32 flags);
+
 /**
   * @brief Class of Service authentication types.
   */
@@ -306,6 +733,22 @@ typedef enum
 	RDM_COS_AU_NOT_REQUIRED	= 0, /*!< (0) Authentication is not required. */
 	RDM_COS_AU_OMM_LOGIN	= 1  /*!< (1) A login message is exchanged to authenticate the stream. */
 } RDMClassOfServiceAuthenticationType;
+
+/** 
+ * @brief General OMM strings associated with the different class of service authentication types.
+ * @see RDMClassOfServiceAuthenticationType, rsslRDMCosAuthenticationTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_COS_AU_NOT_REQUIRED = { 11, (char*)"NotRequired" };
+static const RsslBuffer RDM_OMMSTR_COS_AU_OMM_LOGIN = { 8, (char*)"OmmLogin" };
+
+/** 
+ * @brief Converts the provided class-of-service authentication type enumeration to a general OMM string.
+ *
+ * @param type Class-of-service authentication type to translate to string
+ * @return Null terminated character string containing the name of the type
+ * @see RDMClassOfServiceAuthenticationType
+ */
+RSSL_API const char* rsslRDMCosAuthenticationTypeToOmmString(RsslUInt type);
 
 /**
   * @brief Class of Service flow control types.
@@ -316,6 +759,22 @@ typedef enum
 	RDM_COS_FC_BIDIRECTIONAL	= 1  /*!< (1) Flow control is performed in both directions. */
 } RDMClassOfServiceFlowControlType;
 
+/** 
+ * @brief General OMM strings associated with the different class of service flow control types.
+ * @see RDMClassOfServiceFlowControlType, rsslRDMCosFlowControlTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_COS_FC_NONE = { 4, (char*)"None" };
+static const RsslBuffer RDM_OMMSTR_COS_FC_BIDIRECTIONAL = { 13, (char*)"Bidirectional" };
+
+/** 
+ * @brief Converts the provided class-of-service flow control type enumeration to a general OMM string.
+ *
+ * @param type Class-of-service flow control type to translate to string
+ * @return Null terminated character string containing the name of the type
+ * @see RDMClassOfServiceFlowControlType
+ */
+RSSL_API const char* rsslRDMCosFlowControlTypeToOmmString(RsslUInt type);
+
 /**
   * @brief Class of Service data integrity types.
   */
@@ -323,6 +782,22 @@ typedef enum {
 	RDM_COS_DI_BEST_EFFORT		= 0, /*!< (0) Delivery of messages is best-effort. */
 	RDM_COS_DI_RELIABLE			= 1  /*!< (1) Messages are reliably delivered. */
 } RDMClassOfServiceDataIntegrityType;
+
+/** 
+ * @brief General OMM strings associated with the different class of service data integrity types.
+ * @see RDMClassOfServiceDataIntegrityType, rsslRDMCosDataIntegrityTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_COS_DI_BEST_EFFORT = { 10, (char*)"BestEffort" };
+static const RsslBuffer RDM_OMMSTR_COS_DI_RELIABLE = { 8, (char*)"Reliable" };
+
+/** 
+ * @brief Converts the provided class-of-service data integrity type enumeration to a general OMM string.
+ *
+ * @param type Class-of-service data integrity type to translate to string
+ * @return Null terminated character string containing the name of the type
+ * @see RDMClassOfServiceDataIntegrityType
+ */
+RSSL_API const char* rsslRDMCosDataIntegrityTypeToOmmString(RsslUInt type);
 
 /**
   * @brief Class of Service guarantee types.
@@ -332,6 +807,22 @@ typedef enum
 	RDM_COS_GU_NONE				= 0, /*!< (0) None */
 	RDM_COS_GU_PERSISTENT_QUEUE	= 1  /*!< (1) Messages for queue streams are persisted for guaranteed delivery. */
 } RDMClassOfServiceGuaranteeType;
+
+/** 
+ * @brief General OMM strings associated with the different class of service guarantee types.
+ * @see RDMClassOfServiceGuaranteeType, rsslRDMCosGuaranteeTypeToOmmString
+ */
+static const RsslBuffer RDM_OMMSTR_COS_GU_NONE = { 4, (char*)"None" };
+static const RsslBuffer RDM_OMMSTR_COS_GU_PERSISTENT_QUEUE = { 15, (char*)"PersistentQueue" };
+
+/** 
+ * @brief Converts the provided class-of-service guarantee type enumeration to a general OMM string.
+ *
+ * @param type Class-of-service guarantee type to translate to string
+ * @return Null terminated character string containing the name of the type
+ * @see RDMClassOfServiceGuaranteeType
+ */
+RSSL_API const char* rsslRDMCosGuaranteeTypeToOmmString(RsslUInt type);
 
 /**
  * @}

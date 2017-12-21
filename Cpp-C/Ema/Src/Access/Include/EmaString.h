@@ -242,14 +242,14 @@ public :
 		@param[in] str specifies EmaString to be added to this EmaString
 		@return result of addition
 	*/
-	EmaString operator+( const EmaString& str );
+	EmaString operator+( const EmaString& str ) const;
 
 	/** Addition operator. Allows a = b + c;
 		@throw OmmMemoryExhaustionException if application runs out of memory
 		@param[in] str specifies char string to be added to this EmaString
 		@return result of addition
 	*/
-	EmaString operator+( const char* str );
+	EmaString operator+( const char* str ) const;
 
 	/** read write index operator
 		@throw OmmOutOfRangeException if passed in index is greater than the length of the contained buffer

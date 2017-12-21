@@ -9,7 +9,7 @@ package com.thomsonreuters.ema.access;
 
 class OmmDateImpl extends DataImpl implements OmmDate
 {
-	private com.thomsonreuters.upa.codec.Date _rsslDate = com.thomsonreuters.upa.codec.CodecFactory.createDate();
+	 com.thomsonreuters.upa.codec.Date _rsslDate = com.thomsonreuters.upa.codec.CodecFactory.createDate();
 	
 	@Override
 	public int dataType()

@@ -25,6 +25,15 @@ typedef struct
 	RsslUInt16 year;	/*!< @brief Year (0 - 4095 where 0 indicates blank) */
 } RsslDate;
 
+/** 
+ * @brief RsslDate, RsslTime and RsslDateTime to string conversion format enumeration values.
+ * @see rsslDateTimeToStringFormat
+ */
+typedef enum {
+	RSSL_STR_DATETIME_ISO8601	    = 1,	/*!< (1) Date/Time/DateTime to string output in ISO8601's dateTime format */
+	RSSL_STR_DATETIME_RSSL 	= 2		/*!< (2) Date/Time/DateTime to string output in the format of the deprecated rsslDateTimeToString function.*/
+} RsslDateTimeStringFormatTypes;
+
 /**
  * @brief RsslDate static initializer
  * @see RsslDate, rsslClearDate
@@ -231,7 +240,7 @@ RTR_C_ALWAYS_INLINE RsslBool rsslDateIsEqual( const RsslDate *lhs, const RsslDat
 
 
 /**
- * @brief Converts string date in strftime()'s "%d %b %Y" format (e.g. 01 JUN 2003) or "%m/%d/%y" to RsslDate
+ * @brief Converts string date in strftime()'s "%d %b %Y" format (e.g. 01 JUN 2003) or "%m/%d/%y" to RsslDate Or in ISO 8601's "YYYY-MM-DD' format (e.g. 2003-06-01) 
  * @param oDate RsslDate structure to populate from string
  * @param iDateString RsslBuffer containing an appropriately formatted string to convert from.  RsslBuffer::data should point to date string, RsslBuffer::length should indicate the number of bytes pointed to.
  * @return RsslRet RSSL_RET_SUCCESS if successful, RSSL_RET_FAILURE otherwise  
@@ -278,7 +287,7 @@ RTR_C_ALWAYS_INLINE RsslBool rsslTimeIsEqual( const RsslTime *lhs, const RsslTim
 
 
 /**
- * @brief Converts string time in strftime()'s "%H:%M" or "%H:%M:%S" format (e.g. 13:01 or 15:23:54) to RsslTime
+ * @brief Converts string time in strftime()'s "%H:%M" or "%H:%M:%S" format (e.g. 13:01 or 15:23:54) to RsslTime Or in ISO 8601 format (e.g 15:23:54.3549) to RsslTime
  * @param oTime RsslTime structure to have populated from string
  * @param iTimeString RsslBuffer containing an appropriately formatted string to convert from.  RsslBuffer::data should point to time string, RsslBuffer::length should indicate the number of bytes pointed to.
  * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_FAILURE otherwise
@@ -329,7 +338,7 @@ RTR_C_ALWAYS_INLINE RsslBool rsslDateTimeIsEqual( const RsslDateTime *lhs, const
 
 
 /**
- * @brief Converts DateTime string to RsslDateTime, expects date before time, where date is formatted in in strftime()'s "%d %b %Y" format (e.g. 01 JUN 2003) or "%m/%d/%y" and time is formatted in strftime()'s "%H:%M" or "%H:%M:%S" format (e.g. 13:01 or 15:23:54).
+ * @brief Converts DateTime string to RsslDateTime, expects date before time, where date is formatted in in strftime()'s "%d %b %Y" format (e.g. 01 JUN 2003) or "%m/%d/%y" and time is formatted in strftime()'s "%H:%M" or "%H:%M:%S" format (e.g. 13:01 or 15:23:54), Or in ISO 8601's dateTime format
  * @param oDateTime RsslDateTime structure to populate from string
  * @param iDateTimeString RsslBuffer containing an appropriately formatted string to convert from
  * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_FAILURE otherwise
@@ -338,7 +347,7 @@ RTR_C_ALWAYS_INLINE RsslBool rsslDateTimeIsEqual( const RsslDateTime *lhs, const
 RSSL_API RsslRet rsslDateTimeStringToDateTime(RsslDateTime *oDateTime, const RsslBuffer *iDateTimeString);
 
 /**
- * @brief Converts a populated RsslDateTime structure to a string
+ * @brief DEPRECATED: Converts a populated RsslDateTime structure to a string. Users should migrate to use rsslDateTimeToStringFormat.
  * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
  * @param dataType Either RSSL_DT_DATE, RSSL_DT_TIME or RSSL_DT_DATETIME depending on which portion(s) to convert to string
  * @param iDateTime RsslDateTime structure to convert to string
@@ -346,6 +355,16 @@ RSSL_API RsslRet rsslDateTimeStringToDateTime(RsslDateTime *oDateTime, const Rss
  */
 RSSL_API RsslRet rsslDateTimeToString(RsslBuffer * oBuffer, RsslUInt8 dataType, RsslDateTime * iDateTime);
 
+/**
+ * @brief Converts a populated RsslDateTime structure to a string in the specifed format. 
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param dataType Either RSSL_DT_DATE, RSSL_DT_TIME or RSSL_DT_DATETIME depending on which portion(s) to convert to string
+ * @param iDateTime RsslDateTime structure to convert to string
+ * @param format RsslUInt8 format of output string.
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_FAILURE otherwise
+ * @see RsslDateTimeStringFormatTypes
+ */
+RSSL_API RsslRet rsslDateTimeToStringFormat(RsslBuffer * oBuffer, RsslUInt8 dataType, RsslDateTime * iDateTime, RsslUInt8 format);
 
 /**
  * @brief Set the given RsslDateTime to now/current time and date in the local time zone.

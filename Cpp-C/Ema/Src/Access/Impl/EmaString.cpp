@@ -661,12 +661,12 @@ EmaString& EmaString::operator+= ( const EmaString& str )
     return append ( str );
 }
 
-EmaString EmaString::operator+ ( const EmaString& other )
+EmaString EmaString::operator+ ( const EmaString& other ) const
 {
     return EmaString ( *this ).append ( other );
 }
 
-EmaString EmaString::operator+ ( const char* str )
+EmaString EmaString::operator+ ( const char* str ) const
 {
     return EmaString ( *this ).append ( str );
 }

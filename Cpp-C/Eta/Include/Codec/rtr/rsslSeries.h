@@ -28,6 +28,24 @@ typedef enum
 	RSSL_SRF_HAS_TOTAL_COUNT_HINT	= 0x04 			/*!< (0x04) The RsslSeries contains a total count hint, contained in RsslSeries::totalCountHint.  */
 } RsslSeriesFlags;
 
+/** 
+ * @brief Strings associated with the different series flags.
+ * @see RsslSeriesFlags, rsslSeriesFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_SRF_HAS_SET_DEFS = { 10, (char*)"HasSetDefs" };
+static const RsslBuffer RSSL_OMMSTR_SRF_HAS_SUMMARY_DATA = { 14, (char*)"HasSummaryData" };
+static const RsslBuffer RSSL_OMMSTR_SRF_HAS_TOTAL_COUNT_HINT = { 17, (char*)"HasTotalCountHint" };
+
+/**
+ * @brief Provide general OMM string representation of RsslSeriesFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslSeriesFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslSeriesFlags
+ */
+RSSL_API RsslRet rsslSeriesFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt8 flags);
 
 /**
  * @brief The RsslSeries is a uniform container type entries.  Each entry, known as

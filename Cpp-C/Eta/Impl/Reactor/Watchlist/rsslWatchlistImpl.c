@@ -88,6 +88,10 @@ RsslRet rsslWatchlistSetChannel(RsslWatchlist *pWatchlist, RsslChannel *pChannel
 				!= RSSL_RET_SUCCESS)
 			return ret;
 
+		/* clean out the directory pending response */
+		if (pWatchlistImpl->directory.pStream)
+			wlUnsetStreamPendingResponse(&pWatchlistImpl->base, &pWatchlistImpl->directory.pStream->base);
+
 		return wlRecoverAllItems(pWatchlistImpl, pErrorInfo);
 	}
 

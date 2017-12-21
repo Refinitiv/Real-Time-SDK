@@ -58,6 +58,25 @@ typedef enum {
 	RSSL_CLMF_HAS_BATCH				= 0x04		/*!< (0x04) Support batching with header flags. */ 
 } RsslCloseFlags;
 
+/** 
+ * @brief General OMM strings associated with the different close message flags.
+ * @see RsslCloseFlags, rsslCloseFlagsToOmmString
+ */
+static const RsslBuffer RSSL_OMMSTR_CLMF_HAS_EXTENDED_HEADER = { 17, (char*)"HasExtendedHeader" };
+static const RsslBuffer RSSL_OMMSTR_CLMF_ACK = { 3, (char*)"Ack" };
+static const RsslBuffer RSSL_OMMSTR_CLMF_HAS_BATCH = { 8, (char*)"HasBatch" };
+
+/**
+ * @brief Provide general OMM string representation of RsslCloseFlags
+ * If multiple flags are set, they will be separated by a '|' delimiter.
+ * Unrecognized flags will be ignored.
+ * @param oBuffer RsslBuffer to populate with string.  RsslBuffer::data should point to memory to convert into where RsslBuffer::length indicates the number of bytes available in RsslBuffer::data.
+ * @param flags RsslCloseFlags value
+ * @return RsslRet ::RSSL_RET_SUCCESS if successful, ::RSSL_RET_BUFFER_TOO_SMALL if the buffer did not have enough space.
+ * @see RsslCloseFlags
+ */
+RSSL_API RsslRet rsslCloseFlagsToOmmString(RsslBuffer *oBuffer, RsslUInt16 flags);
+
 /**
  * @}
  */

@@ -465,6 +465,7 @@
     <ClCompile Include="Impl\ComplexType.cpp" />
     <ClCompile Include="Impl\Data.cpp" />
     <ClCompile Include="Impl\DataType.cpp" />
+    <ClCompile Include="Impl\DateTimeStringFormat.cpp" />
     <ClCompile Include="Impl\Decoder.cpp" />
     <ClCompile Include="Impl\DictionaryCallbackClient.cpp" />
     <ClCompile Include="Impl\DictionaryHandler.cpp" />
@@ -783,6 +784,7 @@
     <ClInclude Include="Include\ComplexType.h" />
     <ClInclude Include="Include\Data.h" />
     <ClInclude Include="Include\DataType.h" />
+    <ClInclude Include="Include\DateTimeStringFormat.h" />
     <ClInclude Include="Include\ElementEntry.h" />
     <ClInclude Include="Include\ElementList.h" />
     <ClInclude Include="Include\EmaBuffer.h" />
