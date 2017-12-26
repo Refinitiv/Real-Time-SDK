@@ -42,7 +42,8 @@ class AppClient implements OmmConsumerClient
         else
             ++ResultValidation._numUnsolicitedRefreshReceived;
 
-        System.out.println("\nAPIQA, Received Refresh:\n" + refreshMsg + "\n");
+		if (Consumer._PRINTREFRESH)
+			System.out.println("\nAPIQA, Received Refresh:\n" + refreshMsg + "\n");
     }
 
     public void onUpdateMsg(UpdateMsg updateMsg, OmmConsumerEvent event)
@@ -326,6 +327,7 @@ public class Consumer
     public static boolean _ISEXIT = false;
     public static int _NUMOFITEMPERLOOP = 1;
     public static boolean _USERDISPATCH = false;
+    public static boolean _PRINTREFRESH = true;
     public static int _USERDISPATCHTIMEOUT = 1000;
     public static int _RUNTIME = 60000;
 
@@ -378,6 +380,16 @@ public class Consumer
                     return false;
                 }
                 Consumer._RUNTIME = Integer.parseInt(argv[idx]);
+                ++idx;
+            }
+            else if (0 == argv[idx].compareToIgnoreCase("-printRefresh"))
+            {
+                if (++idx >= count)
+                {
+                    printHelp();
+                    return false;
+                }
+                Consumer._PRINTREFRESH = ((argv[idx].compareToIgnoreCase("TRUE") == 0) ? true : false);
                 ++idx;
             }
             else
