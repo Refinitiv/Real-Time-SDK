@@ -146,7 +146,7 @@ void bigBufferPoolCleanup(BigBufferPool *pBigBufferPool)
 	pBigBufferPool->_fragmentSize = 0;
 	pBigBufferPool->_maxNumBuffers = 0;
 	pBigBufferPool->_currentNumBuffers = 0;
-	for (i = 0; i <= NUM_POOLS; i++)
+	for (i = 0; i < NUM_POOLS; i++)
 	{
 		RsslQueueLink *pQueueLink;
 		while((pQueueLink = rsslQueueRemoveFirstLink(&pBigBufferPool->_pools[i])) != NULL)
