@@ -19,6 +19,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
+/* TestClient for single-threaded or multi-threaded unit tests */
 public class TestClient implements Runnable
 {
     final static boolean DEBUG = true;
@@ -50,6 +51,7 @@ public class TestClient implements Runnable
         }
     }
 
+    /* waits for test client to transition to the specified state */
     public void wait(State state)
     {
         long currentTimeMs = System.currentTimeMillis();
@@ -72,6 +74,7 @@ public class TestClient implements Runnable
         fail("timeout while wait(State), state=" + state.toString());
     }
 
+    /* checks if the specified state has occurred */
     public boolean check(State state)
     {
 
@@ -89,20 +92,21 @@ public class TestClient implements Runnable
         return false;
     }
 
+    /* returns the test server's internal buffer */
     public ByteBuffer buffer()
     {
         return _buffer;
     }
 
-    /**
+    /*
      * Connects a non-blocking client socket to the port specified.
-     * {@link State#SETUP} is set after this socket is connected. However,
-     * this method will fail if the connect does not finish, so there is no
-     * need to check for {@link State#SETUP}.
+     * State.SETUP is set after this socket is connected. However,
+     * this method will fail if the connect does not finish, so there
+     * is no need to check for State.SETUP.
      * 
      * @param port local port number to connect to.
      */
-    private void connect()
+    public void connect()
     {
         try
         {
@@ -110,10 +114,6 @@ public class TestClient implements Runnable
             _socketChannel = SocketChannel.open();
             _socketChannel.configureBlocking(false);
 
-            
-            //InetSocketAddress isa = new InetSocketAddress(InetAddress.getByName("localhost"),_port);
-            // sashi dinkar
-            // remove use of localhost since it causes provider NIC binding test to fail
             InetSocketAddress isa = new InetSocketAddress(_port);
 
             _socketChannel.connect(isa);
@@ -179,7 +179,7 @@ public class TestClient implements Runnable
         return 0;
     }
 
-    /**
+    /*
      * Close the socket.
      */
     public void closeSocket()
@@ -204,12 +204,14 @@ public class TestClient implements Runnable
         _socketChannel = null;
     }
 
+    /* shutdown test client */
     public void shutDown()
     {
         _running = false;
+        closeSocket();
     }
 
-    /**
+    /*
      * flips the buffer and then writes it on the socket.
      * 
      * @param buffer
@@ -227,6 +229,14 @@ public class TestClient implements Runnable
         try
         {
             bytesWritten = _socketChannel.write(_buffer);
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
         }
         catch (IOException e)
         {
@@ -234,6 +244,43 @@ public class TestClient implements Runnable
         }
 
         return bytesWritten;
+    }
+
+    /* waits for selector to become readable */
+    public void waitForReadable()
+    {
+        try
+        {
+            while (!_readable)
+            {
+                int keyNum = _selector.select(100);
+
+                if (keyNum > 0)
+                {
+                    Iterator<SelectionKey> keyIterator = _selector.selectedKeys().iterator();
+                    while (keyIterator.hasNext())
+                    {
+                        SelectionKey selectionKey = (SelectionKey)keyIterator.next();
+                        keyIterator.remove();
+                        if (selectionKey.isReadable())
+                        {
+                            _readable = true;
+                            Thread.sleep(SLEEPTIMEMS);
+                        }
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            fail("Exception occurred during waitForReadable() loop of TestClient, exception="
+                    + e.toString());
+            return;
+        }
+        catch (InterruptedException e)
+        {
+            // do nothing.
+        }
     }
 
     @Override
@@ -275,7 +322,7 @@ public class TestClient implements Runnable
         }
         catch (IOException e)
         {
-            fail("Exception occurred during run() loop of TestServer, exception="
+            fail("Exception occurred during run() loop of TestClient, exception="
                     + e.toString());
             return;
         }

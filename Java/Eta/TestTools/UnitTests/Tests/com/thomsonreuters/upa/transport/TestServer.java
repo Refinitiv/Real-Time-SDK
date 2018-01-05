@@ -21,6 +21,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 
+/* TestServer for single-threaded or multi-threaded unit tests */
 public class TestServer implements Runnable
 {
     final static boolean DEBUG = true;
@@ -37,6 +38,7 @@ public class TestServer implements Runnable
     volatile boolean _setup = false;
     volatile boolean _accepted = false;
     volatile boolean _readable = false;
+    volatile boolean _acceptable = false;
 
     public enum State
     {
@@ -54,6 +56,7 @@ public class TestServer implements Runnable
         }
     }
 
+    /* waits for test server to transition to the specified state */
     public void wait(State state)
     {
         long currentTimeMs = System.currentTimeMillis();
@@ -76,6 +79,7 @@ public class TestServer implements Runnable
         fail("timeout while wait(State), state=" + state.toString());
     }
 
+    /* waits for test server to transition to the specified state */
     public void waitWithException(State state) throws Exception
     {
         long currentTimeMs = System.currentTimeMillis();
@@ -94,6 +98,7 @@ public class TestServer implements Runnable
         throw new Exception();
     }
 
+    /* checks if the specified state has occurred */
     public boolean check(State state)
     {
 
@@ -115,18 +120,19 @@ public class TestServer implements Runnable
         return false;
     }
 
+    /* returns the test server's internal buffer */
     public ByteBuffer buffer()
     {
         return _buffer;
     }
 
-    /**
+    /*
      * Sets up a non-blocking server socket, listening on the port
      * specified.
      * 
      * @param port local port number to listen on.
      */
-    private void setupServerSocket()
+    public void setupServerSocket()
     {
         try
         {
@@ -134,8 +140,6 @@ public class TestServer implements Runnable
             _ssc = ServerSocketChannel.open();
             _ssc.configureBlocking(false);
             
-            //InetSocketAddress isa = new InetSocketAddress(InetAddress.getByName("localhost"),
-            //        _port);
             InetSocketAddress isa = new InetSocketAddress(_port);
             _ssc.socket().bind(isa);
 
@@ -148,14 +152,14 @@ public class TestServer implements Runnable
         }
     }
 
-    /**
+    /*
      * Attempt to accept a socket on the server side. This will block until
      * a socket is accepted or a timeout occurs.
      * 
      * @param timeoutMs
      * @return Channel
      */
-    private void acceptSocket()
+    public void acceptSocket()
     {
         assertNotNull(_ssc);
         assertEquals("a 2nd connection is ready to be accepted, we expect only one active connection.",
@@ -226,7 +230,7 @@ public class TestServer implements Runnable
         return 0;
     }
 
-    /**
+    /*
      * Close the socket.
      */
     public void closeSocket()
@@ -251,7 +255,7 @@ public class TestServer implements Runnable
         _socketChannel = null;
     }
 
-    /**
+    /*
      * Close the server socket.
      */
     private void closeServerSocket()
@@ -276,12 +280,15 @@ public class TestServer implements Runnable
         _selector = null;
     }
 
+    /* shutdown test server */
     public void shutDown()
     {
         _running = false;
+        closeSocket();
+        closeServerSocket();
     }
 
-    /**
+    /*
      * flips the buffer and then writes it on the socket.
      * 
      * @param buffer
@@ -372,6 +379,80 @@ public class TestServer implements Runnable
         if (DEBUG)
         {
             System.out.println("***TestServer: run() finished.");
+        }
+    }
+    
+    /* waits for selector to become acceptable */
+    public void waitForAcceptable()
+    {
+        try
+        {
+            while (!_acceptable)
+            {
+                int keyNum = _selector.select(100);
+
+                if (keyNum > 0)
+                {
+                    Iterator<SelectionKey> keyIterator = _selector.selectedKeys().iterator();
+                    while (keyIterator.hasNext())
+                    {
+                        SelectionKey selectionKey = (SelectionKey)keyIterator.next();
+                        keyIterator.remove();
+                        if (selectionKey.isAcceptable())
+                        {
+                            _acceptable = true;
+                            Thread.sleep(SLEEPTIMEMS);
+                        }
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            fail("Exception occurred during waitForReadable() loop of TestClient, exception="
+                    + e.toString());
+            return;
+        }
+        catch (InterruptedException e)
+        {
+            // do nothing.
+        }
+    }
+
+    /* waits for selector to become readable */
+    public void waitForReadable()
+    {
+        try
+        {
+            while (!_readable)
+            {
+                int keyNum = _selector.select(100);
+
+                if (keyNum > 0)
+                {
+                    Iterator<SelectionKey> keyIterator = _selector.selectedKeys().iterator();
+                    while (keyIterator.hasNext())
+                    {
+                        SelectionKey selectionKey = (SelectionKey)keyIterator.next();
+                        keyIterator.remove();
+                        if (selectionKey.isReadable())
+                        {
+                            _readable = true;
+                            Thread.sleep(SLEEPTIMEMS);
+                        }
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            fail("Exception occurred during waitForReadable() loop of TestClient, exception="
+                    + e.toString());
+            return;
+        }
+        catch (InterruptedException e)
+        {
+            // do nothing.
         }
     }
 }
