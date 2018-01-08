@@ -362,6 +362,16 @@ public class Consumer
                 Consumer._USERDISPATCH = ((argv[idx].compareToIgnoreCase("TRUE") == 0) ? true : false);
                 ++idx;
             }
+            else if (0 == argv[idx].compareToIgnoreCase("-numOfItemPerLoop"))
+            {
+                if (++idx >= count)
+                {
+                    printHelp();
+                    return false;
+                }
+                Consumer._NUMOFITEMPERLOOP = Integer.parseInt(argv[idx]);
+                ++idx;
+            }
             else if (0 == argv[idx].compareToIgnoreCase("-userDispatchTimeout"))
             {
                 if (++idx >= count)
