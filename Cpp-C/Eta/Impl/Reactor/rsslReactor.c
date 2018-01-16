@@ -853,7 +853,7 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
 
-	pReactorChannel->reactorChannel.pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel = pChannel;
+	pReactorChannel->reactorChannel.pRsslChannel = pChannel;
 	pReactorChannel->reactorChannel.pRsslServer = pServer;
 	pReactorChannel->reactorChannel.userSpecPtr = pOpts->rsslAcceptOptions.userSpecPtr;
 	pReactorChannel->initializationTimeout = pOpts->initializationTimeout;

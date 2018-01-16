@@ -1511,7 +1511,7 @@ void EmaConfigErrorList::printErrors( OmmLoggerClient::Severity severity )
 	bool printed( false );
 	if ( _pList )
 	{
-		for ( ListElement* p = _pList; p; p = p = p->next )
+		for ( ListElement* p = _pList; p; p = p->next )
 			if ( p->error->severity() >= severity )
 			{
 				if ( !printed )
