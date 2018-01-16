@@ -306,7 +306,7 @@ public class Reactor
             // terminate.
             sendWorkerEvent(WorkerEventTypes.SHUTDOWN, null);
             _esWorker.shutdown();
-            _esWorker.awaitTermination(SHUTDOWN_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+			while (!_esWorker.awaitTermination(SHUTDOWN_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
             _esWorker = null;
             _worker = null;
 

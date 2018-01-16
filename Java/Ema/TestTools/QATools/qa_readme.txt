@@ -241,6 +241,37 @@ Series400Consumer410-MultiThreadBatchView-001: This test tool implements the fol
 	  - all received messages are processed on ApiDispatch thread or UserDispath thread control  
 	+ Exits
 
+Series400Consumer410-MultiThreadBatchView-003: This test tool implements the following high level steps:
+
+	Provides the following command line options:
+	-userDispatch: Use UserDispatch Operation Model [default = false]
+	-userDispatchTimeout: Set dispatch timeout period in microseconds 
+	 if UserDispatch Operation Model [default = 1000]
+	-runtime: Run time for test case in milliseconds [default = 60000]
+                
+	Consumer does the following things: 
+	+ Sends 5000 item requests per loop
+	+ Implements ApiThread/ConsumerThread to manage OmmConsumer and control apiDispatch  
+	   thread/userDispatch thread
+	  - overrides desired methods
+	  - provides own methods as needed
+	+ Implements OmmConsumerClient class in AppClient
+	+ ConsumerInstance instantiates OmmConsumer object which 
+	  initializes connection and logins into specified server
+	+ Instantiates three ConsumerThreads to access the same OmmConsumer instance. 
+	+ Instantiates AppClient object that receives and processes item messages
+	+ Opens MarketPrice items from each ConsumerThread where $$$ is replace by an index based 
+	  on the number of items sent in a loop. Consumer sends these requests until 
+	  runtime expiration.
+	  - Open "TRI$$$", with streaming flag set for first ConsumerThread
+	  - Open "TRI$$$", with snapshot flag for second ConsumerThread
+	  - Open "TRI$$$", with snapshot view2 for third ConsumerThread
+      NOTE: This show aggregation and disaggregation of requests from multiple threads 
+	  as request go out on the network
+	+ Processes data received from in ConsumerInstance 
+	  - all received messages are processed on ApiDispatch thread or UserDispath thread control  
+	+ Exits
+
 
 
 Module:  Series400Consumer430
