@@ -488,19 +488,25 @@ public class ReactorChannel extends VaNode
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                                                "ReactorChannel.submit",
                                                "submitOptions cannot be null.");
-        else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.submit",
-                                              "Reactor is shutdown, submit aborted.");
-        else if (_watchlist != null)
-            return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE,
-                                               "ReactorChannel.submit",
-                                               "Cannot submit buffer when watchlist is enabled.");
 
         _reactor._reactorLock.lock();
 
         try
         {
+        	if (_watchlist != null)
+                return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE,
+                                                   "ReactorChannel.submit",
+                                                   "Cannot submit buffer when watchlist is enabled.");
+        	
+        	if (_reactor.isShutdown())
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                                  "ReactorChannel.submit",
+                                                  "Reactor is shutdown, submit aborted.");
+            else if (_state == State.CLOSED)
+           	 	return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                        "ReactorChannel.submit",
+                        "ReactorChannel is closed, submit aborted.");
+        	
             return _reactor.submitChannel(this, buffer, submitOptions, errorInfo);
         }
         finally
@@ -529,15 +535,20 @@ public class ReactorChannel extends VaNode
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                                                "ReactorChannel.submit",
                                                "submitOptions cannot be null.");
-        else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.submit",
-                                              "Reactor is shutdown, submit aborted.");
-
+        
         _reactor._reactorLock.lock();
-
+        
         try
         {
+        	 if (_reactor.isShutdown())
+                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                                   "ReactorChannel.submit",
+                                                   "Reactor is shutdown, submit aborted.");
+             else if (_state == State.CLOSED)
+               	 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                            "ReactorChannel.submit",
+                            "ReactorChannel is closed, submit aborted.");
+        	 
             if (_watchlist == null) // watchlist not enabled, submit normally
             {
                 return _reactor.submitChannel(this, msg, submitOptions, errorInfo);
@@ -573,15 +584,20 @@ public class ReactorChannel extends VaNode
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                                                "ReactorChannel.submit",
                                                "submitOptions cannot be null.");
-        else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.submit",
-                                              "Reactor is shutdown, submit aborted.");
 
         _reactor._reactorLock.lock();
 
         try
         {
+        	  if (_reactor.isShutdown())
+                  return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                                    "ReactorChannel.submit",
+                                                    "Reactor is shutdown, submit aborted.");
+              else if (_state == State.CLOSED)
+                	 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                             "ReactorChannel.submit",
+                             "ReactorChannel is closed, submit aborted.");
+        	  
             if (_watchlist == null) // watchlist not enabled, submit normally
             {
                 return _reactor.submitChannel(this, rdmMsg, submitOptions, errorInfo);
@@ -612,21 +628,30 @@ public class ReactorChannel extends VaNode
     	
         if (errorInfo == null)
         	retVal = ReactorReturnCodes.FAILURE;
-        if (_reactor.isShutdown())
-        	retVal = _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.close",
-                                              "Reactor is shutdown, close aborted.");
-        if (state() != State.CLOSED)
-        	retVal = _reactor.closeChannel(this, errorInfo);
         
-        _tunnelStreamManager.close();
+        _reactor._reactorLock.lock();
         
-        if (_watchlist != null)
+        try {
+	        if (_reactor.isShutdown())
+	        	retVal = _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+	                                              "ReactorChannel.close",
+	                                              "Reactor is shutdown, close aborted.");
+	        if (state() != State.CLOSED)
+	        	retVal = _reactor.closeChannel(this, errorInfo);
+	        
+	        _tunnelStreamManager.close();
+	        
+	        if (_watchlist != null)
+	        {
+	            _watchlist.close();
+	        }
+	        
+	        return retVal;
+    	}
+        finally
         {
-            _watchlist.close();
+            _reactor._reactorLock.unlock();
         }
-        
-        return retVal;
     }
 
     /**
