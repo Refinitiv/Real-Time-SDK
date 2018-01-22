@@ -522,6 +522,7 @@ class WlStream extends VaNode
                             if (_aggregateView != null && _requestsWithViewCount == 0 )
                             {
                             	_aggregateView.viewHandler().aggregateViewDestroy(_aggregateView);
+                            	_aggregateView = null;
                             }                    		
                     	}                        
                     }
@@ -1043,7 +1044,12 @@ class WlStream extends VaNode
         {
             _watchlist.closeWlRequest(wlRequest);
         }
-        if (_aggregateView != null) _aggregateView.clear();
+        if (_aggregateView != null) 
+    	{
+        	_aggregateView.clear();
+        	_aggregateView.returnToPool();
+        	_aggregateView = null;
+    	}
         _requestsWithViewCount = 0;
     }
     
