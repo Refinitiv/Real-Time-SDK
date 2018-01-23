@@ -4,3 +4,5 @@
 WatchlistConsumerConfig.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
 ItemArg.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/common
 WatchlistConsumer.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
+PostHandler.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
+

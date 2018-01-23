@@ -295,7 +295,18 @@ public class ItemRequest
    {
        flags |= RequestMsgFlags.NO_REFRESH;
    }
- 
+   
+   // APIQA : apply msgKeyInUpdates
+   //public void applyMsgKeyInUpdates()
+   //{
+	//   flags |= RequestMsgFlags.MSG_KEY_IN_UPDATES;
+   //}
+   
+  // public boolean checkMsgKeyInUpdates()
+  // {
+  //     return (flags & RequestMsgFlags.MSG_KEY_IN_UPDATES) != 0;
+  // }
+
    /**
     * Checks the presence of Pause.
     * 

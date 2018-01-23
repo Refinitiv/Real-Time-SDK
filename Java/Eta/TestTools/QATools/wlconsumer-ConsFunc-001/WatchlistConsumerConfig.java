@@ -154,6 +154,7 @@ public class WatchlistConsumerConfig
         // and/or specific view
         boolean isView = false;
         boolean isSnapshot = false;
+        boolean isMsgKeyInUpdates = false;
         int viewId = 0;
 
         // END APIQA
@@ -234,6 +235,18 @@ public class WatchlistConsumerConfig
             // + isSnapshot);
             this.isSnapshot = isSnapshot;
         }
+        public boolean isMsgKeyInUpdates()
+        {
+            return isMsgKeyInUpdates;
+        }
+
+        public void msgKeyInUpdatesStream(boolean isMsgKeyInUpdates)
+        {
+            // System.out.println
+            // ("-------APIQA: In WatchlistConsumerConfig.java:  Setting is MsgKeyInUpdates to "
+            // + isMsgKeyInUpdates);
+            this.isMsgKeyInUpdates = isMsgKeyInUpdates;
+        }
 
         public int viewId()
         {
@@ -285,7 +298,7 @@ public class WatchlistConsumerConfig
         for (ItemArg itemArg : conn.itemList())
         {
             // APIQA: interface of addItem changed
-            addItem(itemArg.itemName(), itemArg.domain(), itemArg.symbolListData(), itemArg.enablePrivateStream(), itemArg.enableView(), itemArg.viewId(), itemArg.enableSnapshot());
+            addItem(itemArg.itemName(), itemArg.domain(), itemArg.symbolListData(), itemArg.enablePrivateStream(), itemArg.enableView(), itemArg.viewId(), itemArg.enableSnapshot(), itemArg.enableMsgKeyInUpdates());
         }
         return true;
     }
@@ -296,7 +309,7 @@ public class WatchlistConsumerConfig
     }
 
     // APIQA: interface of addItem changed
-    public void addItem(String itemName, int domainType, boolean isSymbolList, boolean isPrivate, boolean isView, int viewId, boolean isSnapshot)
+    public void addItem(String itemName, int domainType, boolean isSymbolList, boolean isPrivate, boolean isView, int viewId, boolean isSnapshot, boolean isMsgKeyInUpdates)
     {
         ItemInfo itemInfo = new ItemInfo();
         itemInfo.domain(domainType);
@@ -306,11 +319,12 @@ public class WatchlistConsumerConfig
         // APIQA:
         itemInfo.viewStream(isView);
         itemInfo.snapshotStream(isSnapshot);
+        itemInfo.msgKeyInUpdatesStream(isMsgKeyInUpdates);
         itemInfo.viewId(viewId);
         // END APIQA
         itemInfo.streamId(ITEMS_MIN_STREAM_ID + itemList.size());
         System.out.println("------------APIQA: " + itemInfo.name() + ": StreamID = " + itemInfo.streamId() + ", PrivateFlag = " + itemInfo.isPrivateStream() + ", SnapShotFlag= "
-                + itemInfo.isSnapshot() + ", ViewFlag= " + itemInfo.isView() + ", ViewId= " + itemInfo.viewId());
+                + itemInfo.isSnapshot() + ", ViewFlag= " + itemInfo.isView() + ", ViewId= " + itemInfo.viewId()+ ", MsgKeyInUpdatesFlag= " + itemInfo.isMsgKeyInUpdates());
 
         itemList.add(itemInfo);
 
@@ -488,7 +502,7 @@ public class WatchlistConsumerConfig
                 int numMPItems = itemNames.size();
 
                 // APIQA:an EventCounter object is made to represent every
-                // 'event' (e1, e2, e3, e4) argument
+                // 'event' (e1, e2, e3, e4, e5) argument
                 itemNames = CommandLine.values("e1");
                 if (itemNames != null && itemNames.size() > 0)
                 {
@@ -551,23 +565,23 @@ public class WatchlistConsumerConfig
 
             itemNames = CommandLine.values("mbo");
             if (itemNames != null && itemNames.size() > 0)
-                parseItems(itemNames, DomainTypes.MARKET_BY_ORDER, false, false, false, false, 0, itemList);
+                parseItems(itemNames, DomainTypes.MARKET_BY_ORDER, false, false, false, false, 0, false, itemList);
 
             itemNames = CommandLine.values("mbp");
             if (itemNames != null && itemNames.size() > 0)
-                parseItems(itemNames, DomainTypes.MARKET_BY_PRICE, false, false, false, false, 0, itemList);
+                parseItems(itemNames, DomainTypes.MARKET_BY_PRICE, false, false, false, false, 0, false, itemList);
 
             itemNames = CommandLine.values("yc");
             if (itemNames != null && itemNames.size() > 0)
-                parseItems(itemNames, DomainTypes.YIELD_CURVE, false, false, false, false, 0, itemList);
+                parseItems(itemNames, DomainTypes.YIELD_CURVE, false, false, false, false, 0, false, itemList);
 
             itemNames = CommandLine.values("sl");
             if (itemNames != null && itemNames.size() > 0)
-                parseItems(itemNames, DomainTypes.SYMBOL_LIST, false, false, false, false, 0, itemList);
+                parseItems(itemNames, DomainTypes.SYMBOL_LIST, false, false, false, false, 0, false, itemList);
 
             itemNames = CommandLine.values("sld");
             if (itemNames != null && itemNames.size() > 0)
-                parseItems(itemNames, DomainTypes.SYMBOL_LIST, false, true, false, false, 0, itemList);
+                parseItems(itemNames, DomainTypes.SYMBOL_LIST, false, true, false, false, 0, false, itemList);
 
             if (itemList.size() == 0 && !CommandLine.hasArg("qSourceName") && !CommandLine.hasArg("tunnel"))
             {
@@ -654,6 +668,15 @@ public class WatchlistConsumerConfig
     {
         return CommandLine.booleanValue("offpost");
     }
+    
+	// APIQA
+	
+	boolean enablePostMultipart()
+	{
+		return CommandLine.booleanValue("postmultipart");
+	}	
+	
+	// End APIQA
 
     String publisherId()
     {
@@ -993,6 +1016,10 @@ public class WatchlistConsumerConfig
 		{
 			return allMPItems.get(i).enablePrivateStream();
 		}
+		if(attrib.equals("isMsgKeyInUpdates"))
+		{
+			return allMPItems.get(i).enableMsgKeyInUpdates();
+		}
 		System.out.println("Invalid attribute requested. Default returning False");
 		return false;
 	}
@@ -1018,9 +1045,10 @@ public class WatchlistConsumerConfig
 			boolean isPrivateStream = false;
 			boolean isView = false;
 			boolean isSnapshot = false;
+			boolean isMsgKeyInUpdates = false;
 			int viewId= 0;
 			String name = itemName;
-			//APIQA: parse for S, P, V
+			//APIQA: parse for S, P, V, K
 			if(itemName.contains(":"))
 			{
 				String[] splitName = itemName.split(":");
@@ -1029,6 +1057,8 @@ public class WatchlistConsumerConfig
 					isPrivateStream = true;
 				if(splitName[1].contains("S"))
 					isSnapshot = true;
+				if(splitName[1].contains("K"))
+					isMsgKeyInUpdates = true;
 				if(splitName[1].contains("V"))
 				{
 					isView = true;
@@ -1048,6 +1078,7 @@ public class WatchlistConsumerConfig
 			itemArg.domain( DomainTypes.MARKET_PRICE );
 			itemArg.enablePrivateStream(isPrivateStream);
 			itemArg.enableSnapshot(isSnapshot);
+			itemArg.enableMsgKeyInUpdates(isMsgKeyInUpdates);
 			itemArg.enableView(isView);
 			itemArg.viewId(viewId);
 			itemArg.itemName(name);
@@ -1062,7 +1093,7 @@ public class WatchlistConsumerConfig
 //END APIQA
 
 // APIQA: Added more parameters
-    private void parseItems(List<String> itemNames, int domain, boolean isPrivateStream, boolean isSymbollistData, boolean isView, boolean isSnapshot, int viewId, List<ItemArg> itemList)
+    private void parseItems(List<String> itemNames, int domain, boolean isPrivateStream, boolean isSymbollistData, boolean isView, boolean isSnapshot, int viewId, boolean isMsgKeyInUpdates, List<ItemArg> itemList)
     {
         for (String itemName : itemNames)
         {
@@ -1079,6 +1110,7 @@ public class WatchlistConsumerConfig
             itemArg.enableSnapshot(isSnapshot);
             itemArg.enableView(isView);
             itemArg.viewId(viewId);
+            itemArg.enableMsgKeyInUpdates(isMsgKeyInUpdates);
             // END APIQA
 
             if (isSymbollistData)
@@ -1100,6 +1132,7 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("view", "Specifies each request using a basic dynamic view. Default is false.");
         CommandLine.addOption("post", "Specifies that the application should attempt to send post messages on the first requested Market Price item (i.e., on-stream). Default is false.");
         CommandLine.addOption("offpost", "Specifies that the application should attempt to send post messages on the login stream (i.e., off-stream).");
+        CommandLine.addOption("postmultipart", "Specifies that the application should attempt to send post multi part messages, default is false.");
         CommandLine.addOption("publisherInfo", "Specifies that the application should add user provided publisher Id and publisher ipaddress when posting");
         CommandLine.addOption("snapshot", "Specifies each request using non-streaming. Default is false(i.e. streaming requests.)");
         CommandLine.addOption("sl", "Requests symbol list using Symbol List domain. (symbol list name optional). Default is no symbol list requests.");

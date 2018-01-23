@@ -266,6 +266,7 @@ public class WatchlistConsumer implements ConsumerCallback
     private int e4Counter = 0;
     private int e5Counter = 0;
     private ArrayList<EventCounter> allEventCounters = new ArrayList<EventCounter>();
+
     // END APIQA
 
     private EncodeIterator encIter = CodecFactory.createEncodeIterator();
@@ -513,7 +514,7 @@ public class WatchlistConsumer implements ConsumerCallback
 
 	//APIQA edited
 	//APIQA: Requesting new item
-	int requestNewItem(Reactor reactor, ReactorChannel channel, boolean existingItem, boolean isPrivate, boolean isSnap, boolean isView, int viewId, String name)
+	int requestNewItem(Reactor reactor, ReactorChannel channel, boolean existingItem, boolean isPrivate, boolean isSnap, boolean isView, int viewId, boolean isMsgKeyInUpdates, String name)
 	{
 		int ret = CodecReturnCodes.SUCCESS;
 		itemRequest.clear();
@@ -540,6 +541,7 @@ public class WatchlistConsumer implements ConsumerCallback
 			itemInfo.privateStream(isPrivate);
 			itemInfo.viewStream(isView);
 			itemInfo.snapshotStream(isSnap);
+			itemInfo.msgKeyInUpdatesStream(isMsgKeyInUpdates);
 			itemInfo.viewId(viewId);
 			watchlistConsumerConfig.itemList().add(itemInfo);
 		}
@@ -738,6 +740,12 @@ public class WatchlistConsumer implements ConsumerCallback
 		{
 			submitOptions.serviceName(watchlistConsumerConfig.serviceName());
 		}
+		//APIQA
+        if (isMsgKeyInUpdates)
+        {
+            itemRequest.requestMsg.applyMsgKeyInUpdates();
+            System.out.println("------------APIQA: Now MsgKeyInUpdates is applied");
+        }
 		
 		ret = channel.submit(itemRequest.requestMsg, submitOptions, errorInfo);
 		
@@ -889,7 +897,6 @@ public class WatchlistConsumer implements ConsumerCallback
         {
             submitOptions.serviceName(watchlistConsumerConfig.serviceName());
         }
-
         ret = channel.submit(itemRequest.requestMsg, submitOptions, errorInfo);
         if (ret < CodecReturnCodes.SUCCESS)
         {
@@ -935,6 +942,11 @@ public class WatchlistConsumer implements ConsumerCallback
 			{
 				System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting PRIVATE flag");
 				itemRequest.applyPrivateStream();
+			}
+			if (watchlistConsumerConfig.itemList().get(itemListIndex).isMsgKeyInUpdates())
+			{
+				System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting MSG_KEY_IN_UPDATES flag");
+				itemRequest.requestMsg.applyMsgKeyInUpdates();
 			}
 			// END APIQA
 
@@ -1154,6 +1166,14 @@ public class WatchlistConsumer implements ConsumerCallback
 			{
 			    submitOptions.serviceName(watchlistConsumerConfig.serviceName());
 			}
+			
+			//APIQA
+	        //if (isMsgKeyInUpdates)
+	        // {
+	        //    itemRequest.requestMsg.applyMsgKeyInUpdates();
+	        //    System.out.println("------------APIQA:MsgKeyInUpdates applied");
+	        // }
+			
 			ret = channel.submit(itemRequest.requestMsg, submitOptions, errorInfo);
 			if (ret < CodecReturnCodes.SUCCESS)
 			{
@@ -1323,9 +1343,10 @@ public class WatchlistConsumer implements ConsumerCallback
                                 boolean isSnap = watchlistConsumerConfig.getMPItemInfo(index, "isSnapshot");
                                 boolean isView = watchlistConsumerConfig.getMPItemInfo(index, "isView");
                                 boolean isPrivate = watchlistConsumerConfig.getMPItemInfo(index, "isPrivate");
+                                boolean isMsgKeyInUpdates = watchlistConsumerConfig.getMPItemInfo(index, "isMsgKeyInUpdates");
                                 int vID = watchlistConsumerConfig.getViewId(index);
                                 String nameOfItem = watchlistConsumerConfig.getNameOfItem(index);
-                                requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, nameOfItem);
+                                requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, isMsgKeyInUpdates, nameOfItem);
                             }
                             allEventCounters.remove(i);
                             break;
@@ -1436,8 +1457,13 @@ public class WatchlistConsumer implements ConsumerCallback
                 itemState = refreshMsg.state();
                 /* Decode data body according to its domain. */
                 itemDecoder.decodeDataBody(event.reactorChannel(), refreshMsg);
-                e5Counter++;
-                
+                // APIQA
+                if (refreshMsg.checkHasMsgKey())
+                {
+                        System.out.println("------------APIQA: DefaultMsgCallback RefreshMsg --  ItemName from MsgKey: " + refreshMsg.msgKey().name().toString() + "; ServiceId from MsgKey: " + refreshMsg.msgKey().serviceId()  + "; nameType from MsgKey: " + refreshMsg.msgKey().nameType() + "\n\n");
+                }
+
+                e5Counter++;               
                 if (allEventCounters.size() > 0)
                 {
                     for (int i = 0; i < allEventCounters.size(); ++i)
@@ -1452,9 +1478,10 @@ public class WatchlistConsumer implements ConsumerCallback
                                 boolean isView = watchlistConsumerConfig.getMPItemInfo(index, "isView");
                                 boolean isPrivate;
                                 isPrivate = watchlistConsumerConfig.getMPItemInfo(index, "isPrivate");
+                                boolean isMsgKeyInUpdates = watchlistConsumerConfig.getMPItemInfo(index, "isMsgKeyInUpdates");
                                 int vID = watchlistConsumerConfig.getViewId(index);
-                                String nameOfItem = watchlistConsumerConfig.getNameOfItem(index);
-                                requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, nameOfItem);
+                                String nameOfItem = watchlistConsumerConfig.getNameOfItem(index);                             
+                                requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, isMsgKeyInUpdates, nameOfItem);                                                
                             }
                             allEventCounters.remove(i);
                             break;
@@ -1479,8 +1506,12 @@ public class WatchlistConsumer implements ConsumerCallback
                 System.out.println("DefaultMsgCallback Update ItemName: " + itemName + " Domain: " + DomainTypes.toString(updateMsg.domainType()) + ", StreamId: " + updateMsg.streamId());
 
                 /* Decode data body according to its domain. */
+                // APIQA
+                if (updateMsg.checkHasMsgKey())
+                {
+                        System.out.println("------------APIQA: DefaultMsgCallback UpdateMsg --  ItemName from MsgKey: " + updateMsg.msgKey().name().toString() + "; ServiceId from MsgKey: " + updateMsg.msgKey().serviceId()  + "; nameType from MsgKey: " + updateMsg.msgKey().nameType() + "\n\n");
+                }
                 itemDecoder.decodeDataBody(event.reactorChannel(), updateMsg);
-
                 e2Counter++;
                 e4Counter++; // For reissue
                 if (allEventCounters.size() > 0)
@@ -1497,9 +1528,10 @@ public class WatchlistConsumer implements ConsumerCallback
                                 boolean isView = watchlistConsumerConfig.getMPItemInfo(index, "isView");
                                 boolean isPrivate;
                                 isPrivate = watchlistConsumerConfig.getMPItemInfo(index, "isPrivate");
+                                boolean isMsgKeyInUpdates = watchlistConsumerConfig.getMPItemInfo(index, "isMsgKeyInUpdates");
                                 int vID = watchlistConsumerConfig.getViewId(index);
                                 String nameOfItem = watchlistConsumerConfig.getNameOfItem(index);
-                                requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, nameOfItem);
+                                requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, isMsgKeyInUpdates, nameOfItem);
                             }
                             allEventCounters.remove(i);
                             break;
@@ -1809,10 +1841,11 @@ public class WatchlistConsumer implements ConsumerCallback
                                 boolean isSnap = watchlistConsumerConfig.getMPItemInfo(index, "isSnapshot");
                                 boolean isView = watchlistConsumerConfig.getMPItemInfo(index, "isView");
                                 boolean isPrivate = watchlistConsumerConfig.getMPItemInfo(index, "isPrivate");
+                                boolean isMsgKeyInUpdates = watchlistConsumerConfig.getMPItemInfo(index, "isMsgKeyInUpdates");
                                 int vID;
                                 vID = watchlistConsumerConfig.getViewId(index);
                                 String nameOfItem = watchlistConsumerConfig.getNameOfItem(index);
-                                requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, nameOfItem);
+                                requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, isMsgKeyInUpdates, nameOfItem);
                             }
                             allEventCounters.remove(i);
                             break;
@@ -2223,7 +2256,7 @@ public class WatchlistConsumer implements ConsumerCallback
         }
         chnlInfo.shouldOffStreamPost = watchlistConsumerConfig.enableOffpost();
         chnlInfo.shouldOnStreamPost = watchlistConsumerConfig.enablePost();
-
+        
         if (chnlInfo.shouldOnStreamPost)
         {
             boolean mpItemFound = false;
@@ -2247,6 +2280,7 @@ public class WatchlistConsumer implements ConsumerCallback
 
         chnlInfo.postHandler.enableOnstreamPost(chnlInfo.shouldOnStreamPost);
         chnlInfo.postHandler.enableOffstreamPost(chnlInfo.shouldOffStreamPost);
+        chnlInfo.postHandler.enablePostMultipart(watchlistConsumerConfig.enablePostMultipart());
 
         // This sets up our basic timing so post messages will be sent
         // periodically

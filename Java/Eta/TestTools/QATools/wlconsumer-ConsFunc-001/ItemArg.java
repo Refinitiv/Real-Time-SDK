@@ -10,6 +10,7 @@ public class ItemArg
     // APIQA: adding flags and viewId
     boolean enableView = false; /* enable private stream for this item */
     boolean enableSnapshot = false; /* enable private stream for this item */
+    boolean enableMsgKeyInUpdates = false; /* enable msgKeyInUpdates for this item */
     int viewId = 0; /* enable private stream for this item */
     // END APIQA:
     boolean symbolListData; /* enable symbollist datastream */
@@ -23,7 +24,7 @@ public class ItemArg
     }
 
     // APIQA
-    public ItemArg(int domain, String itemName, boolean enablePrivateStream, boolean enableView, boolean enableSnapshot, int viewId)
+    public ItemArg(int domain, String itemName, boolean enablePrivateStream, boolean enableView, boolean enableSnapshot, int viewId, boolean enableMsgKeyInUpdates)
     {
         this.domain = domain;
         this.itemName = itemName;
@@ -31,6 +32,7 @@ public class ItemArg
         this.symbolListData = false;
         this.enableView = enableView;
         this.enableSnapshot = enableSnapshot;
+        this.enableMsgKeyInUpdates = enableMsgKeyInUpdates;
         this.viewId = viewId;
     }
 
@@ -90,7 +92,15 @@ public class ItemArg
     {
         this.viewId = viewId;
     }
+    public boolean enableMsgKeyInUpdates()
+    {
+        return enableMsgKeyInUpdates;
+    }
 
+    public void enableMsgKeyInUpdates(boolean isMsgKeyInUpdates)
+    {
+        this.enableMsgKeyInUpdates = isMsgKeyInUpdates;
+    }
     // END APIQA:
 
     public boolean enablePrivateStream()
