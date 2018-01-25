@@ -407,6 +407,8 @@ class RsslHttpSocketChannelProvider
                     }
                     else if (pipeNode._pipe.sink().isOpen() || pipeNode._pipe.source().isOpen())
                     {
+                    	pipeNode._pipe.source().close();
+                    	pipeNode._pipe.sink().close();
                         pipeNode.returnToPool();
                         pipeNode = new PipeNode(_pipePool);
                     }
@@ -1743,6 +1745,8 @@ class RsslHttpSocketChannelProvider
                     sess._currentStreamingId = -1;
                     sess._newStreamingId = -1;
                     sess._newControlId = -1;
+                    sess._pipeNode._pipe.source().close();
+                    sess._pipeNode._pipe.sink().close();
                     sess._pipeNode.returnToPool();
 
                     _wininetStreamingMap.remove(commonSessionId);

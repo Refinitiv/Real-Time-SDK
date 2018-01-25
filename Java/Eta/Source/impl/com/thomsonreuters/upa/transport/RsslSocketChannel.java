@@ -3140,6 +3140,9 @@ class RsslSocketChannel extends UpaNode implements Channel
     @Override
     public SelectableChannel selectableChannel()
     {
+    	if (_providerHelper != null && _providerHelper._pipeNode != null)
+    		return _providerHelper._pipeNode._pipe.source();
+    	
         return _scktChannel;
     }
 

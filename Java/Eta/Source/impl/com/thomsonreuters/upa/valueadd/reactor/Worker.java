@@ -605,7 +605,7 @@ class Worker implements Runnable
         try
         {
             reactorChannel.channel().selectableChannel()
-            .register(_selector, SelectionKey.OP_CONNECT|SelectionKey.OP_READ, reactorChannel);            
+            .register(_selector, SelectionKey.OP_READ, reactorChannel);            
         }
         catch (Exception e)
         {
