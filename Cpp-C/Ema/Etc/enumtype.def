@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.28
-!tag Build_RDMD  4.20.28
-!tag DT_Version  17.31
-!tag Date        3-Apr-2017
+!tag RT_Version  4.20.30
+!tag Build_RDMD  4.20.30
+!tag DT_Version  18.12
+!tag Date        8-Jan-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -31,7 +31,7 @@ RDN_EXCHID     4
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0        "   "   undefined
-      1        "ASE"   NYSE AMEX
+      1        "ASE"   NYSE American
       2        "NYS"   New York Stock Exchange
       3        "BOS"   Boston Stock Exchange
       4        "CIN"   National Stock Exchange (formerly Cincinnati Stock Exchange)
@@ -44,12 +44,12 @@ RDN_EXCHID     4
      11        "MON"   Montreal Stock Exchange
      12        "TSX"   TSX Venture Exchange
      13        "DEX"   Direct Edge Holdings - EDGX (CTA)
-     14        "AOE"   American Options Exchange
+     14        "AOE"   NYSE American Options Exchange
      15        "NYO"   New York Options Exchange
      16        "PHO"   Philadelphia Options Exchange
      17        "PAO"   NYSE Arca Options
      18        "WCB"   Chicago Board Options Exchange
-     19        "ASQ"   Consolidated issues listed on NYSE MKT
+     19        "ASQ"   Consolidated issues listed on NYSE American
      20        "CME"   CME:Chicago Mercantile Commodities
      21        "IMM"   CME:International Monetary Market
      22        "IOM"   CME:Index and Options Market
@@ -192,7 +192,7 @@ RDN_EXCHID     4
     159        "BAH"   BAHRAIN BOURSE
     160        "CAI"   Cairo Stock Exchange
     161        "AMM"   Amman Stock Exchange
-    162        "KUW"   Kuwait Stock Exchange
+    162        "KUW"   Boursa Kuwait
     163        "BUE"   Buenos Aires Stock Exchange
     164        "RIO"   Rio Fixed Income Exchange
     165        "SAO"   Sao Paolo Stock Exchange
@@ -353,6 +353,8 @@ LEG1_CURR  13445
 LEG2_CURR  13446
 LEG3_CURR  13571
 LEG4_CURR  13573
+RPT_BS_CCY 13586
+PD_P_CCY   13588
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -544,6 +546,8 @@ LEG4_CURR  13573
     905        "SAh"   Saudi Arabian Halalah
     906        "QAd"   Qatari Dirham
     907        "AEf"   UAE Fils
+    929        "MRU"   Mauritanian Ouguiya
+    930        "STN"   Sao Tome and Principe Dobra
     931        "CUC"   Cuba Convertible Peso
     932        "ZWL"   Zimbabwe Dollar 
     933        "BYN"   Belarusian Ruble
@@ -557,6 +561,7 @@ LEG4_CURR  13573
     943        "MZN"   Mozambique Metical
     944        "AZN"   Azerbaijanian Manat
     946        "RON"   New Romanian Leu
+    947        "CHE"   WIR Euro
     948        "CHW"   Swiss WIR Franc
     949        "TRY"   Turkish lira
     950        "XAF"   CFA franc BEAC
@@ -593,6 +598,7 @@ LEG4_CURR  13573
     985        "PLN"   New Polish zloty
     990        "CLF"   Chilean unidad de fomento
     991        "ZAL"   South African financial rand
+    994        "XSU"   Sucre
     995        "ESB"   Spanish peseta (accounts 'B')
     996        "ESA"   Spanish peseta (accounts 'A')
     997        "USN"   US dollar (next day)
@@ -628,6 +634,7 @@ LEG4_CURR  13573
    2027        "BTC"   bitcoin
    2028        "UYR"   Unidades Reajustables
    2029        "BYk"   Belarusian Kapeyka
+   2030        "BCH"   Bitcoin Cash
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -908,7 +915,7 @@ BIDXID      3298
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0        "   "   undefined
-      1        "ASE"   American Stock Exchange
+      1        "ASE"   NYSE American
       2        "NYS"   New York Stock Exchange
       3        "BOS"   Boston Stock Exchange
       4        "CIN"   Cincinatti Stock Exchange
@@ -948,9 +955,9 @@ BIDXID      3298
     223        "IXX"   INSTINET CANADA CROSS
     224        "CNX"   Canadian Securities Exchange - CSE Listed
     225        "LNX"   Omega LYNX
-    226        "NLB"   Aequitas NEO LIT BOOK
-    227        "NEO"   Aequitas NEO NEO EXCHANGE
-    228        "NLS"   Aequitas NEO LIT Special Terms
+    226        "NLB"   Aequitas NEO-L
+    227        "NEO"   Aequitas NEO-N
+    228        "NLS"   Aequitas NEO-L Special Terms
     229        "IEX"   IEX GROUP INC - (CTA)
     230        "CXD"   Nasdaq CXD
 !
@@ -1051,7 +1058,7 @@ LOTSZUNITS    54
       7      " FRF "   French franc
       8      " JPY "   Japanese yen
       9      "M JPY"   millions of Japanese yen
-     10      " MXP "   Mexican peso
+     10      " MXP "   Mexican peso (no longer in use)
      11      " NLG "   Netherlands guilder
      12      " NZD "   New Zealand dollar
      13      " CHF "   Swiss franc
@@ -1234,7 +1241,7 @@ LOTSZUNITS    54
     190      " MCF "   Million Cubic Feet
     191      " TF  "   Thousand Feet
     192      " CF  "   Cubic Foot
-    193      "TOLAS"   10grams
+    193      "TOLAS"   Tolas
     194      "B KHW"   Billion Kilowatthours
     195      "MPUO "   Million Pounds U3O8 (Uranium Oxide Concentrate)
     196      " MF  "   Million Feet
@@ -1381,9 +1388,9 @@ LIQ_RATING 12896
      35       "Aa1 "   Higher end of very high grade
      36       "Aa2 "   Middle of very high grade
      37       "Aa3 "   Lower end of very high grade
-     38       "A1  "   Higher end of upper medium grade
-     39       "A2  "   Middle of upper medium grade
-     40       "A3  "   Lower end of upper medium grade
+     38       "A1  "   Long-term rating: Higher end of upper medium grade / Short-term rating: Very strong degree of safety regarding timely payment of financial obligations. Such instruments carry lowest credit risk.
+     39       "A2  "   Long-term rating: Middle of upper medium grade / Short-term rating: Strong degree of safety regarding timely payment of financial obligations. Such instruments carry low credit risk.
+     40       "A3  "   Long-term rating: Lower end of upper medium grade / Short-term rating: Moderate degree of safety regarding timely payment of financial obligations. Such instruments carry higher credit risk than those rated in category A1 or A2.
      41       "Baa1"   Higher end of lower medium grade
      42       "Baa2"   Middle of lower medium grade
      43       "Baa3"   Lower end of lower medium grade
@@ -1469,6 +1476,11 @@ LIQ_RATING 12896
     123       "Pd5H"   Higher end of Highly Speculative (Pfd-5 <high>)
     124       "Pd5L"   Lower End of Highly Speculative (Pfd-5 <low>)
     125       "DISC"   Rating agencies have currently discontinued assigning ratings to a specific Issue
+    126       "C-  "   Very high risk of default regarding timely servicing of financial obligations.
+    127       "A2+ "   Strong degree of safety regarding timely payment of financial obligations. Such instruments carry low credit risk.
+    128       "A3+ "   Moderate degree of safety regarding timely payment of financial obligations. Such instruments carry higher credit risk as compared to instruments rated in category A1 or A2.
+    129       "A4+ "   Minimal degree of safety regarding timely payment of financial obligations. Such instruments carry very high credit risk and are susceptible to default. A4+ represents higher comparative standing within the A4 category.
+    130       "A4  "   Minimal degree of safety regarding timely payment of financial obligations. Such instruments carry very high credit risk and are susceptible to default.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4058,6 +4070,15 @@ CAN_COND    6585
   21343        "BMR"   Benchmark Trade. Out of Sequence Retransmission. (OPRA).
   21345        "TTE"   Trade Trough Exempt. Out of Sequence. Not LAST (OPRA).
   21346        "TTR"   Trade Through Exempt. Out of sequence Retransmission. (OPRA).
+  32681        "AOS"   OTC Standard APA Disclosed
+  32682        "ASS"   SI Standard APA Disclosed
+  32683        "AON"   OTC Non-Standard APA Disclosed
+  32684        "ASN"   SI Non-Standard APA Disclosed
+  32685        "OSD"   OTC Standard Duplicate
+  32686        "SSD"   SI Standard Duplicate
+  32687        "OLP"   OTC Loan Payment
+  32688        "OPT"   OTC Primary Transaction
+  32689        "DRC"   Derivative-Related Cross
   32690        "EGR"   Exchange Granted Trade
   32691        "RFQ"   Request for Quote
   32692        "NR "   Non-Resident
@@ -4992,6 +5013,24 @@ LEG2_PAYFQ 12961
     120   "TERMMODE"   Term mode
     121   "CHANGE  "   Changeable
     122   "90 OR BF"   90 days on or before date
+    123   "24 DAYS "   Every 24 days
+    124   "26 DAYS "   Every 26 days
+    125   "27 DAYS "   Every 27 days
+    126   "29 DAYS "   Every 29 days
+    127   "34 DAYS "   Every 34 days
+    128   "59 DAYS "   Every 59 days
+    129   "61 DAYS "   Every 61 days
+    130   "79 DAYS "   Every 79 days
+    131   "87 DAYS "   Every 87 days
+    132   "96 DAYS "   Every 96 days
+    133   "120 DAYS"   Every 120 days
+    134   "161 DAYS"   Every 161 days
+    135   "199 DAYS"   Every 199 days
+    136   "200 DAYS"   Every 200 days
+    137   "201 DAYS"   Every 201 days
+    138   "206 DAYS"   Every 206 days
+    139   "363 DAYS"   Every 363 days
+    140   "88 DAYS "   Every 88 days
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5121,12 +5160,12 @@ JCR_RATING   938
      14       "B+  "   principal.BB indicates lowest degree of
      15       "B   "   speculation, C the highest.Quality and
      16       "B-  "   protective characteristics are outweighed
-     17       "CCC+"   
+     17       "CCC+"    
      18       "CCC "   by uncertainties or major risk exposures
-     19       "CCC-"   
+     19       "CCC-"    
      20       "CC  "   to adverse conditions.
      21       "C   "   Typically assigned to debt subordinated to a senior debt assigned a CCC rating.
-     22       "CI  "   
+     22       "CI  "    
      23       "  23"   Not allocated
      24       "  24"   Not allocated
      25       "D   "   In default, and payment of interest and/or repayment of principal is in arrears.
@@ -5405,6 +5444,8 @@ RATING_ID6 12894
      44        "SLN"   Standard and Poor's National Scale Rating
      45        "FLN"   Fitch's National Scale Rating
      46        "TRC"   Taiwan Ratings Corp (TRC)
+     47        "EGJ"   Egan-Jones Ratings Co.
+     48        "BWR"   Brickwork Ratings India Pvt. Ltd.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -6658,6 +6699,10 @@ PUT_CALL    1643
      16       "D-BM"   Bermudan expiration dual
      17       "D-EU"   European expiration dual
      18       "D-AM"   American expiration dual
+     19       "C-AS"   Asian expiration call option
+     20       "P-AS"   Asian expiration put option
+     21       "BM  "   Bermudan style expiration
+     22       "AS  "   Asian style expiration
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -6823,6 +6868,7 @@ CLR_CTRY   13580
     520        "NRU"   NAURU
     524        "NPL"   NEPAL
     528        "NLD"   Netherlands
+    530        "ANT"   Netherlands Antilles
     531        "CUW"   Curacao
     533        "ABW"   Aruba
     534        "SXM"   Sint Maarten (Dutch Part)
@@ -6980,7 +7026,7 @@ LEG4_EXCH  13574
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0        "   "   undefined
-      1        "ASE"   NYSE AMEX
+      1        "ASE"   NYSE American
       2        "NYS"   New York Stock Exchange
       3        "BOS"   Boston Stock Exchange
       4        "CIN"   National Stock Exchange (formerly Cincinnati Stock Exchange)
@@ -6993,12 +7039,12 @@ LEG4_EXCH  13574
      11        "MON"   Montreal Stock Exchange
      12        "TSX"   TSX Venture Exchange
      13        "DEX"   Direct Edge Holdings - EDGX (CTA)
-     14        "AOE"   American Options Exchange
+     14        "AOE"   NYSE American Options Exchange
      15        "NYO"   New York Options Exchange
      16        "PHO"   Philadelphia Options Exchange
      17        "PAO"   NYSE Arca Options
      18        "WCB"   Chicago Board Options Exchange
-     19        "ASQ"   Consolidated issues listed on NYSE MKT
+     19        "ASQ"   Consolidated issues listed on NYSE American
      20        "CME"   CME:Chicago Mercantile Commodities
      21        "IMM"   CME:International Monetary Market
      22        "IOM"   CME:Index and Options Market
@@ -7374,7 +7420,7 @@ LEG4_EXCH  13574
     392        "PUX"   PULPEX Exchange
     393        "SPC"   Saint Petersburg Currency Exchange
     394        "AVK"   AVK Brokerage St Petersburg
-    395        "NEO"   Aequitas NEO NEO EXCHANGE
+    395        "NEO"   Aequitas NEO-N
     396        "OME"   Osaka Mercantile Exchange
     397        "TIM"   Taiwan Futures Exchange
     398        "IBS"   IBIS Interbank information system
@@ -7530,7 +7576,7 @@ LEG4_EXCH  13574
     548        "NL2"   Nasdaq Liffe LLC Level 2
     549        "ADC"   NASD Alternative Display Facility for NYSE/AMEX Issues
     550        "IMQ"   US Intermarket Level 2
-    551        "LCA"   NYSE MKT when trading NASDAQ Global Market
+    551        "LCA"   NYSE American when trading NASDAQ Global Market
     552        "LCB"   Boston Stock Exchange for Nasdaq Large Cap
     553        "LCC"   Cincinnati Stock Exchange for Nasdaq Large Cap
     554        "LCM"   Chicago Stock Exchange for Nasdaq Large Cap
@@ -7540,7 +7586,7 @@ LEG4_EXCH  13574
     558        "LCX"   NASDAQ OMX PSX for Nasdaq Global Market (formerly Philadelphia Stock Exchange)
     559        "NAQ"   Nasdaq Stock Exchange Consolidated Capital Market
     560        "NMQ"   NASDAQ Stock Market Exchange Consolidated Large Cap
-    561        "SCA"   NYSE MKT when trading NASDAQ Capital Market
+    561        "SCA"   NYSE American when trading NASDAQ Global Market
     562        "SCB"   Boston Stock Exchange for Nasdaq Capital Market
     563        "SCC"   Cincinnati Stock Exchange for Nasdaq Capital Market
     564        "SCM"   Chicago Stock Exchange for Nasdaq Capital Market
@@ -7627,7 +7673,7 @@ LEG4_EXCH  13574
     645        "GSX"   NASDAQ OMX PSX for Nasdaq Global Select Market (formerly Philadelphia Stock Exchange)
     646        "NSQ"   Consolidated Issue Listed on Nasdaq Global Select Market
     647        "GSN"   NYSE when trading Nasdaq Global Select Market
-    648        "GSA"   NYSE MKT when trading NASDAQ Global Select Market
+    648        "GSA"   NYSE American when trading NASDAQ Global Select Market
     649        "GSB"   Boston SE when trading Nasdaq Global Select Market
     650        "GSW"   CBOE when trading Nasdaq Global Select Market
     651        "GSM"   Chicago SE when trading Nasdaq Global Select Market
@@ -7912,7 +7958,7 @@ LEG4_EXCH  13574
     930        "USE"   United Stock Exchange of India Ltd.
     931        "IMC"   International Multi Commodity Exchange Ltd.
     932        "MMA"   MINISTERIO DE MEDIO AMBIENTE, SPAIN
-    933        "C2E"   C2 Options Exchange
+    933        "C2E"   Cboe C2 Options Exchange
     934        "CBN"   CBI (CHINA) Co. Ltd.
     935        "ST2"   STOCK EXCHANGE OF THAILAND L1 AND L2
     936        "ABA"   Australian Bureau of Agricultural and Resource Economics (ABARE)
@@ -7962,7 +8008,7 @@ LEG4_EXCH  13574
     980        "SHO"   Daily Short Sale (U.S. exchanges)
     981        "GCT"   GLOBECOT
     982        "MEN"   Mendoza Stock Exchange (deprecated)
-    983        "BTX"   BATS Options Exchange
+    983        "BTX"   Cboe BZX Options Exchange
     984        "STI"   The Steel Index
     985        "SMX"   SINGAPORE MERCANTILE EXCHANGE
     986        "SBB"   Steel Business Briefing
@@ -8128,8 +8174,8 @@ LEG4_EXCH  13574
    1146        "CGE"   CEGH GAS EXCHANGE
    1147        "OPA"   OPRA PSEUDO CODE
    1148        "SOI"   STOGIT ITALIAN GAS
-   1149        "ATL"   NYSE Amex Alerts
-   1150        "AOI"   NYSE AMEX IMBALANCE
+   1149        "ATL"   NYSE American Alerts
+   1150        "AOI"   NYSE American IMBALANCE
    1151        "EIC"   Eurex ICAP Swap Spreads
    1152        "GRT"   Gas Reaction Technologies
    1153        "ST1"   Santiago Stock Exchange Level 2
@@ -8216,8 +8262,8 @@ LEG4_EXCH  13574
    1234        "SHR"   Shorcan Energy Brokers Inc.
    1235        "SEM"   SEMO, Single Electricity Market Operator
    1236        "ONS"   National Electric System Operator
-   1237        "OGN"   OTC GLOBAL NATURAL GAS
-   1238        "OGC"   OTC GLOBAL CRUDE
+   1237        "OGN"   OTC GLOBAL NATURAL GAS (DO NOT USE, refer to OTG)
+   1238        "OGC"   OTC GLOBAL CRUDE (DO NOT USE, refer to OTG)
    1239        "CTE"   CLEARTRADE EXCHANGE
    1240        "UBX"   UBS Cross
    1241        "UBP"   UBS PIN (UBS Price Improvement Network)
@@ -8235,7 +8281,7 @@ LEG4_EXCH  13574
    1253        "BC2"   BATS CHIX L1+L2
    1254        "NDO"   Nordico
    1255        "BEI"   Brazilian OTC Energy Trading (Balcao Brasileiro de Comercializacao de Energia)
-   1256        "ISZ"   ISE Second Options Exchange
+   1256        "ISZ"   Nasdaq Gemini
    1257        "CNL"   CANDEAL FIXED INCOME MARKET DATA
    1258        "INX"   Instinet Canada Cross
    1259        "RDT"   Reseau de Transport d'Electricite
@@ -8344,9 +8390,9 @@ LEG4_EXCH  13574
    1362        "ECB"   European Central Bank data
    1363        "PGS"   PEGAS - Pan-European Gas Cooperation
    1364        "AAL"   Astra Agro Lestari
-   1365        "NLB"   Aequitas NEO LIT BOOK
+   1365        "NLB"   Aequitas NEO-L
    1366        "ABO"   Aboissa
-   1367        "NLS"   AEQUITAS NEO LIT SPECIAL TERMS
+   1367        "NLS"   Aequitas NEO-L Special Terms
    1368        "ISR"   International Seaborne Market
    1369        "EPX"   EPEX SPOT
    1370        "MRN"   Machine Readable News
@@ -8354,7 +8400,7 @@ LEG4_EXCH  13574
    1372        "NUV"   Nuevo Partners
    1373        "KPB"   Kharisma Pemasaran Bersama Nusantara
    1374        "IFS"   ICE FUTURES SINGAPORE
-   1375        "ISJ"   ISE  Mercury
+   1375        "ISJ"   Nasdaq Mercury
    1376        "KCU"   Korea Exchange - CME-Linked USD Futures
    1377        "KPF"   Korea Exchange - Korea Sector Futures
    1378        "KVF"   Korea Exchange - V-KOSPI200 Futures
@@ -8386,7 +8432,7 @@ LEG4_EXCH  13574
    1404        "HWR"   HWR- HAWKINS WRIGHT
    1405        "SOL"   Solactive
    1406        "NRP"   NORD POOL SPOT
-   1407        "BEX"   BATS EDGX OPTIONS
+   1407        "BEX"   Cboe EDGX Options Exchange
    1408        "BBV"   Bolsa Boliviana De Valores S A
    1409        "PFA"   PROFARMER AUSTRALIA
    1410        "SZ2"   SHENZHEN STOCK EXCHANGE LEVEL 2 FEED
@@ -8436,6 +8482,33 @@ LEG4_EXCH  13574
    1454        "PCW"   PetroChem Wire LLC
    1455        "SMP"   Euronext - Smartpool
    1456        "BT1"   BATS ONE - LEVEL 1 (PRODUCT)
+   1457        "OTG"   OTC Global Holdings, LP
+   1458        "TMA"   TRAX APA
+   1459        "EIT"   Energy Exchange Istanbul
+   1460        "XNA"   XINHUA NEWS AGENCY
+   1461        "AGP"   Agropa Trading LP
+   1462        "A2X"   A2X Markets
+   1463        "42F"   42 Financial Services
+   1464        "TWA"   Tradeweb APA
+   1465        "ARS"   Agrosud
+   1466        "ZAX"   ZAR X (Pty) Ltd
+   1467        "TAC"   The Air Freight Index Company
+   1468        "CRX"   CROATIAN POWER EXCHANGE Ltd
+   1469        "SPZ"   S&P GLOBAL DEVELOPED SOV BOND INDICES
+   1470        "SPW"   S&P US AGENCY INDICES
+   1471        "NXG"   NEX APA
+   1472        "BIV"   Bolsa Institucional de Valores
+   1473        "BBA"   Bloomberg APA
+   1474        "BBM"   Bloomberg MTF
+   1475        "FTO"   FREIGHTOS
+   1476        "ECN"   European Commission
+   1477        "GDT"   Global Diary Trade
+   1478        "TUP"   TPICAP OTF (MiFID II)
+   1479        "DBA"   Deutsche Boerse AG MiFID II APA  Service
+   1480        "BMI"   Benchmark Mineral Intelligence
+   1481        "MBV"   MTS BONDVISION
+   1482        "USW"   US Wheat Associates
+   1483        "EXT"   Euronext Optiq APA
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10764,6 +10837,8 @@ PRC_QL3     3264
     399        "BEI"   Break Even Inflation Rate
     400        "CHN"   Clean Cash Price, capitalised (face value of bond)
     401        "CGN"   Gross Cash Price, capitalised
+    402        "VIE"   Volatility interruption extended
+    403        "TAL"   Trading at Last
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -10794,6 +10869,8 @@ OR_RNK_RUL  3425
       5       "PN  "   Price, Time Priority Sequence Number
       6       "QMP "   Quote Type, Market Maker ID, Price, Quote Access Payment, Size, Time
       7       "PEN "   Price, Exchange Sequence Number
+      8       "PT  "   Price, Time
+      9       "PTR "   Price, Time, Rank
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11117,6 +11194,9 @@ RPT_UNITS   4033
     210   "ZMK     "   Currency unit - Zambian kwacha
     211   "ZWL     "   Currency unit - Zimbabwe Dollar
     212   "ZWN     "   Currency unit - 'new' Zimbabwe Dollar
+    213   "Tonne   "   Tonne (Metric)
+    214   "Bale    "   480 Pound Bale (USDA)
+    215   "Pound   "   Pound as a measure of weight as defined by the British Imperial Standards. 1 Pound = 0.4536 Kilograms
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11278,6 +11358,7 @@ ACT_OTH_EX  4378
 ! -------    ---
 !
 PRICE_METH  4396
+RPT_P_METH 13587
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -11310,6 +11391,8 @@ PRICE_METH  4396
      26        "CHN"   Clean Cash Price, capitalised (face value of bond)
      27        "CGN"   Gross Cash Price, capitalised
      28        "MON"   Price (monetary value)
+     29        "PER"   Percentage - 'PERC'
+     30        "BPS"   Basis points - 'BAPO'
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12404,6 +12487,8 @@ OFFBK_H_RN 14142
      71         "DV"   Voluntary Delisting
      72         "CS"   Company Requested Suspension
      73         "CH"   Company Requested Halt
+     74         "UH"   Underlying halt
+     75         "UA"   Underlying in auction
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12509,6 +12594,31 @@ UNDLY_TYPE  8925
      15     "Fund  "   Fund
      16     "Deriv "   Derivative
      17     "Rights"   Rights
+     18     "IntRIx"   Interest Rate Index
+     19     "Divid "   Dividend
+     20     " Fwd  "   Forward
+     21     " FRA  "   Forward Rate Agreements
+     22     "Spread"   Spread bet
+     23     "DivIdx"   Dividend Index
+     24     "Option"   Option
+     25     "Paneur"   Paneuropean
+     26     " CFD  "   Contract For Difference
+     27     "IntRt "   Interest Rate
+     28     "PaneIx"   Paneuropean Index
+     29     "VoVaIx"   Volatility Variance Index
+     30     " Swap "   Swap
+     31     "EquOpt"   Equity Option
+     32     "FutOpt"   Future Option
+     33     "SpnOpt"   Sponsored Option
+     34     "Agrics"   Agricultural products
+     35     "Extrac"   Extraction
+     36     "Indust"   Industrial
+     37     " Serv "   Service
+     38     "EnePow"   Energy Power
+     39     "EneGas"   Energy Gas
+     40     "Enviro"   Environmental
+     41     "PolPro"   Polypropylene products
+     42     "GenRes"   Generated recourses
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12737,6 +12847,14 @@ INDEX_TYPE  8939
       6   "Hdg Prc "   Hedged Price Performance Index
       7   "Hdg Grs "   Hedged Gross Total Return Index
       8   "Hdg Net "   Hedged Net Total Return Index
+      9   "Grs CmR "   Combined Gross Return Index
+     10   "Net CmR "   Combined Net Return Index
+     11   "Prc CmR "   Combined Price Return Index
+     12   "Grs ExR "   Excess Gross Return Index
+     13   "Net ExR "   Excess Net Return Index
+     14   "Prc ExR "   Excess Price Return Index
+     15   "Ccy Perf"   Currency Performance Index
+     16   "Hdg Dly "   Hedged Index (Daily hedged)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12881,6 +12999,9 @@ REFPRC_TP4 13491
      32   "$/mmBtu "   US Dollars per Million British Thermal Units
      33   "GBp/TH  "   Pence per Therm
      34   "RATE/KM "   Rate per Kilometer
+     35   "FIX1    "   Fixing 1
+     36   "FIX2    "   Fixing 2
+     37   "CLSFIX  "   Close Fixing
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15029,6 +15150,8 @@ QTE_ENT_ST 12781
       0          " "   Undefined
       1          "E"   Quote Entry Enabled
       2          "I"   Quote Entry Inhibited
+      3          "N"   Order Entry Enabled, No Cancelations Allowed
+      4          "C"   Order Entry Inhibited, Cancelations Allowed
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15998,6 +16121,7 @@ RFQ_SIDE   12920
       1        "BID"   Bid
       2        "ASK"   Ask
       3        "BAS"   Bid and Ask
+      4        "NEG"   Two-sided quote, pre-negotiated
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16343,6 +16467,7 @@ ASMNT_FLG5 12958
       4      "EU_ST"   Europe Settlement
       5      "US_AM"   US AM Assessment
       6      "US_ST"   US Settlement
+      7      "US_PM"   US PM Assessment
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16430,6 +16555,11 @@ DCNT_BAS2  12964
      22   "AAAFB   "   Actual/Actual AFB
      23   "A5C     "   Act/365 with Canadian convention
      24   "A5L     "   Act/365L
+     25   "A5JD    "   Bond Actual/365 (6 months) with broken period calculated from Date D date and 365 Japan Basis
+     26   "A5P     "   Actual/365 Proportionate
+     27   "G0      "   30/360 German convention
+     28   "I0      "   30/360 ISDA
+     29   "JAP     "   Japanese (A5 or A5 plus one day for first coupon)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16824,6 +16954,11 @@ DELIV_PRD  13015
      23   "WK + 3  "   Week+3
      24   "WK + 4  "   Week+4
      25   "WDNW    "   Working Day Next Week
+     26   "WDAY    "   Week Day
+     27   "WD + 1  "   Week Day + 1
+     28   "WD + 2  "   Week Day + 2
+     29   "WD + 3  "   Week Day + 3
+     30   "WD + 4  "   Week Day + 4
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16858,6 +16993,8 @@ CLR_OBL_FL 13018
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
+      1   "   Y    "   Clearing Obligation
+      2   "   N    "   No Clearing Obligation
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16951,7 +17088,7 @@ CMD_SUB2   13021
      14       "FITR"   Financial Transmission Rights
      15       "PLKD"   Peak load
      16       "OFFP"   Off-peak
-     17       "CASP"   GASPOOL
+     17       "GASP"   GASPOOL
      18       "LNGG"   LNG
      19       "NBPG"   NBP
      20       "NCGG"   NCG
@@ -17117,17 +17254,150 @@ VNE_SUS_FL 13030
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET330 13031
-PRE_1ET331 13032
-PRE_1ET332 13033
-PRE_1ET333 13034
-PRE_1ET334 13035
-PRE_1ET335 13036
-PRE_1ET336 13037
-PRE_1ET337 13038
-PRE_1ET338 13039
-PRE_1ET339 13040
-PRE_1ET340 13041
+DM_CLASS   13031
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+CGR_TYPE   13032
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "CGR_TNR "   Tenor CGR
+      2   "CGR_FIX "   Fixed Date CGR
+      3   "CGR_MST "   Master RIC
+      4   "CGR_BCK "   Bucket RIC
+!
+! ACRONYM    FID
+! -------    ---
+!
+DIV_ADJ_IN 13033
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   undefined
+      1      "Y    "   Inclusion of weekend, holiday or other non-reported period (Fat) adjustment reflected in Dividend Factor.
+      2      "N    "   Does not inlcude weekend, holiday or other non-reported period (Fat) adjustment for Dividend Factor.
+      3      "NP   "   Not applicable; no Dividend Factor provided.
+!
+! ACRONYM    FID
+! -------    ---
+!
+ECN_ELG    13034
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "Y       "   ECN Eligible
+      2   "N       "   Not ECN Eligible
+!
+! ACRONYM    FID
+! -------    ---
+!
+SERIES_TYP 13035
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "FLX     "   Flexible series
+      2   "STD     "   Standard series
+!
+! ACRONYM    FID
+! -------    ---
+!
+STRE_M_CND 13036
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "Y       "   Stressed market conditions in effect
+      2   "N       "   Stressed market conditions not in effect
+!
+! ACRONYM    FID
+! -------    ---
+!
+EXCP_CIRCM 13037
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "Y       "   Exceptional Circumstances in effect
+      2   "N       "   Exceptional Circumstances not in effect
+      3   "MW      "   Market Wide Exceptional Circumstances
+      4   "MM      "   Market Maker Exceptional Circumstances
+!
+! ACRONYM    FID
+! -------    ---
+!
+AUC_STATUS 13038
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "WR_OC   "   Will run as always for Open and Close
+      2   "WR_NIMB "   Will run, interest exists inside the collars or interest is fully paired off
+      3   "WNR_IMB "   Will not run because there is an imbalance at or through the collars
+      4   "WNR_CAUC"   Will not run, will transition to the Closing auction instead
+!
+! ACRONYM    FID
+! -------    ---
+!
+IMB_FZ_IND 13039
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "N       "   Imbalance freeze not in effect
+      2   "Y       "   Imbalance freeze is in effect
+!
+! ACRONYM    FID
+! -------    ---
+!
+MIFD_AS_CL 13040
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0       "    "   undefined
+      1       "EQDV"   Equity Derivatives
+      2       "CMDV"   Commodity Derivatives
+      3       "CTDV"   C10 Derivatives
+      4       "CFDS"   CFDs
+      5       "EMAL"   Emission Allowances
+      6       "EADV"   Emission Allowance Derivatives
+      7       "IRDV"   Interest rate derivatives
+      8       "FXDV"   Foreign exchange derivatives
+      9       "CRDV"   Credit Derivatives
+     10       "BOND"   Bond
+     11       "SFPS"   Structured Finance Products
+     12       "SDRV"   Securitised Derivatives
+     13       "SHRS"   Shares
+     14       "DPRS"   Depositary
+     15       "ETFS"   ETF
+     16       "CRFT"   Certificates
+     17       "OTHE"   Other equity-like financial instrument
+!
+! ACRONYM    FID
+! -------    ---
+!
+DVC_IND    13041
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "OPN     "   Volume cap not reached
+      2   "VN_NEAR "   Volume cap close to be reached for Venue
+      3   "MW_NEAR "   Volume cap close to be reached Market-Wide
+      4   "VN_DVC  "   Volume cap reached for Venue
+      5   "MW_DVC  "   Volume cap reached Market-Wide
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET341 13042
 PRE_1ET342 13043
 PRE_1ET343 13044
@@ -17675,6 +17945,16 @@ MET_TYP20  13562
      55   "TVL1MM  "   Total Volume for Trades with Volume from 500K +1 to 1MM
      56   "TVL5MM  "   Total Volume for Trades with Volume from 1MM + 1 to 5MM
      57   "TVG5MM  "   Total Volume for Trades with Volume > 5MM
+     58   "LR3D    "   Lending Rate for 3-Day Tenor
+     59   "LR7D    "   Lending Rate for 7-Day Tenor
+     60   "LR14D   "   Lending Rate for 14-Day Tenor
+     61   "LR28D   "   Lending Rate for 28-Day Tenor
+     62   "LR182D  "   Lending Rate for 182-Day Tenor
+     63   "LV3D    "   Lending Volume for 3-Day Tenor
+     64   "LV7D    "   Lending Volume for 7-Day Tenor
+     65   "LV14D   "   Lending Volume for 14-Day Tenor
+     66   "LV28D   "   Lending Volume for 28-Day Tenor
+     67   "LV182D  "   Lending Volume for 182-Day Tenor
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17805,7 +18085,7 @@ MET_UNIT   13564
       7      " FRF "   French franc
       8      " JPY "   Japanese yen
       9      "M JPY"   millions of Japanese yen
-     10      " MXP "   Mexican peso
+     10      " MXP "   Mexican peso (no longer in use)
      11      " NLG "   Netherlands guilder
      12      " NZD "   New Zealand dollar
      13      " CHF "   Swiss franc
@@ -18195,6 +18475,11 @@ MET_UNIT   13564
     397      "W/sr "   W/sr - unit of global radiation
     398      "W    "   Watt
     399      "W/m2 "   Watts per square meter
+    400      "PHP  "   Philippines PESO
+    401      "IDR  "   Indonesian Rupiah
+    402      "ARS  "   Argentine Peso
+    403      " BON "   Bonds (equivalent to $100.00 MXN)
+    404      " MXN "   Mexican peso
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18260,6 +18545,9 @@ CAN_TRTFLG 13489
       8      "DO   "   Delayed Off Exchange (OTC)
       9      "NA   "   Non-Trade
      10      "OT   "   Other
+     11      "PA   "   Periodic Auction Trade (typically operating alongside continuous and distinct from other auctions)
+     12      "SI   "   Real Time Systematic Internaliser (SI) Trade
+     13      "SD   "   Delayed Systematic Internaliser (SI) Trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18728,6 +19016,12 @@ LMT_STATUS 13494
      20     "NOR   "   Normal price limit in effect
      21     "WIDE  "   Wide price limit in effect
      22     "MAX   "   Widest price limit in effect
+     23     "DPL_N "   Dynamic Price Limits not in effect
+     24     "DPL   "   Dynamic Price Limits in effect
+     25     "DPL_E "   Dynamic Price Limits expansion
+     26     "PDPL_N"   Dynamic Price Limits not in effect - Preliminary
+     27     "PDPL  "   Dynamic Price Limits in effect - Preliminary
+     28     "PDPL_E"   Dynamic Price Limits expansion - Preliminary
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19206,6 +19500,7 @@ QTECOND_1  13548
 ! -----      -------   -------
       0   "        "   undefined
       1   "     NCQ"   NMS Conditional Quote
+      2   "SBO     "   Slow Quote on Bid and Offer Sides
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19724,6 +20019,22 @@ ORGN_PORT  13579
     286   "UA YUZ  "   Yuzhnyy
     287   "LY ZAW  "   Zawia Terminal
     288   "LY ZUE  "   Zueitina
+    289   "AR BUE  "   Buenos Aires
+    290   "US AXH  "   Arthur
+    291   "US PGL  "   Pascagoula
+    292   "US SFO  "   San Francisco
+    293   "CN FAN  "   Fangcheng
+    294   "IN BED  "   Bedi bunder
+    295   "IN DAH  "   Dahej
+    296   "IN GGV  "   Gangavaram
+    297   "IN HZR  "   Hazira
+    298   "ID CBN  "   Cirebon
+    299   "IQ BSR  "   Basrah
+    300   "KR BOR  "   Boryeong
+    301   "SA YNB  "   Yanbu
+    302   "AU ABP  "   Abbot Point
+    303   "DE KEL  "   Kiel
+    304   "IT FCO  "   Fiumicino
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20335,13 +20646,132 @@ CNV_PAR_UT 13582
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET262 13583
-PRE_2ET263 13584
-PRE_2ET264 13585
-PRE_2ET265 13586
-PRE_2ET266 13587
-PRE_2ET267 13588
-PRE_2ET268 13589
+LMT_TYPE   13583
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "Static  "   Static
+      2   "Dynamic "   Dynamic
+!
+! ACRONYM    FID
+! -------    ---
+!
+LMT_TYPE2  13584
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "Static  "   Static
+      2   "Dynamic "   Dynamic
+!
+! ACRONYM    FID
+! -------    ---
+!
+STRIP_TYP  13585
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "FUNG    "   Strip - Fungible - Interest and/or Principal
+      2   "INT     "   Strip - Interest only
+      3   "PINT    "   Strip - Principal and Interest
+      4   "PRIN    "   Strip - Principal only
+      5   "PRINUP  "   Strip - Principal Only Uplift (Inflation Linked)
+      6   "STRPACK "   Strip Bond Package
+!
+! ACRONYM    FID
+! -------    ---
+!
+MIFD_SUBCL 13589
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0       "    "   undefined
+      1       "ACFF"   Agricultural commodity futures/forward
+      2       "ACOP"   Agricultural commodity options
+      3       "ACSP"   Agricultural commodity Swaps
+      4       "BNDF"   Bond Futures/Forwards
+      5       "BNDO"   Bond Options
+      6       "BOCD"   Bond CFDs
+      7       "CDIO"   CDS index options
+      8       "CDSI"   Index credit default swap (CDS )
+      9       "CDSN"   Single name credit default swap (CDS )
+     10       "CDSO"   Single name CDS options
+     11       "CEMR"   Certified Emission Reductions (CER)
+     12       "CVTB"   Convertible Bond
+     13       "CRPB"   Corporate Bond
+     14       "COCD"   Commodity CFDs
+     15       "CUCD"   Currency CFDs
+     16       "CVDB"   Covered Bond
+     17       "DCER"   Emission allowance derivatives whose underlying is of the type Certified Emission Reductions (CER)
+     18       "DEAA"   Emission allowance derivatives whose underlying is of the type European Union Aviation Allowances (EUAA)
+     19       "DERU"   Emission allowance derivatives whose underlying is of the type Emission Reduction Units (ERU)
+     20       "DEUA"   Emission allowance derivatives whose underlying is of the type European Union Allowances (EUA)
+     21       "DLFO"   Deliverable FX options (DO)
+     22       "DLFS"   Deliverable FX swaps (DS)
+     23       "DLVF"   Deliverable forward (DF)
+     24       "DVIF"   Dividend index futures/ forwards
+     25       "DVIO"   Dividend index options
+     26       "ECFF"   Energy commodity futures/forward
+     27       "ECOP"   Energy commodity options
+     28       "ECSP"   Energy commodity Swaps
+     29       "EFCD"   CFDs on equity futures/Forward
+     30       "EMRU"   Emission Reduction Units (ERU)
+     31       "EOCD"   CFDs on equity options
+     32       "EQCD"   Equity CFD
+     33       "ETFF"   ETF futures/ forwards
+     34       "ETFO"   ETF options
+     35       "EUAA"   European Union Aviation Allowances (EUAA)
+     36       "EUAL"   European Union Allowances (EUA)
+     37       "FDRV"   Freight Derivatives
+     38       "FFMC"   Fixed to Float (multi currency)
+     39       "FFSC"   Fixed to Float (single currency)
+     40       "FRAS"   FRA
+     41       "FUTR"   IR Futures
+     42       "FXFR"   FX futures
+     43       "IFMC"   Inflation (multi currency)
+     44       "IFSC"   Inflation (single currency)
+     45       "IROP"   IR Options
+     46       "MCFF"   Metal commodity futures/forwards
+     47       "MCOP"   Metal Commodity Options
+     48       "MCSP"   Metal commodity swaps
+     49       "NDFF"   Non-deliverable forward (NDF)
+     50       "NDFO"   Non-Deliverable FX options (NDO)
+     51       "NDFS"   Non-Deliverable FX swaps (NDS)
+     52       "OCFD"   Other CFDs
+     53       "OCTD"   Other C10 Derivavitves
+     54       "OEAD"   Other Emission allowance derivatives
+     55       "OEPB"   Other Public Bond
+     56       "OSMC"   Overnight Index Swap (OIS) (multi currency)
+     57       "OSSC"   Overnight Index Swap (OIS) (single currency)
+     58       "OTHR"   Other Bond
+     59       "OTCD"   Other Commodity Deriviatives
+     60       "OTCR"   Other credit derivatives
+     61       "OTEA"   Other Emission Allowances
+     62       "OTED"   Other equity derivatives
+     63       "OTFX"   Other Foreign Exchange Derivatives
+     64       "OTHI"   Other Interest Rate Derivatives
+     65       "POSP"   Portfolio Swaps
+     66       "STDF"   Stock dividend futures/ forwards
+     67       "STDO"   Stock dividend options
+     68       "STFF"   Stock futures/ forwards
+     69       "STIF"   Stock index futures/ forwards
+     70       "STIO"   Stock Index Options
+     71       "STOP"   Stock options
+     72       "EUSB"   Sovereign Bond
+     73       "SWAP"   Swaps
+     74       "SWPT"   Swaptions
+     75       "VOIF"   Volatility index futures/ forwards
+     76       "VOIO"   Volatility index options
+     77       "XFMC"   Float to Float  (multi currency)
+     78       "XFSC"   Float to Float (single currency)
+     79       "XXMC"   Fixed to Fixed (multi currency)
+     80       "XXSC"   Fixed to Fixed (single currency)
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET269 13590
 PRE_2ET270 13591
 PRE_2ET271 13592
@@ -20977,6 +21407,135 @@ SHR_AMT_TP 14157
       7      "OUT  "   Outstanding
       8      "TRE  "   Treasury
       9      "UNC  "   Unclassified
+!
+! ACRONYM    FID
+! -------    ---
+!
+BENCFL     15438
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "BENC    "   Benchmark transaction flag
+!
+! ACRONYM    FID
+! -------    ---
+!
+NPFTFL     15439
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "NPFT    "   Non-price forming transaction flag
+!
+! ACRONYM    FID
+! -------    ---
+!
+LRGSSIFLF  15440
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "LRGS    "   Post-trade LIS transaction flag
+      2   "SIZE    "   Post-trade SSTI transaction flag
+!
+! ACRONYM    FID
+! -------    ---
+!
+ILQDFL     15441
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "ILQD    "   Illiquid instrument transaction flag
+!
+! ACRONYM    FID
+! -------    ---
+!
+EXECTY     15442
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "N       "   No
+      2   "Y       "   Yes
+!
+! ACRONYM    FID
+! -------    ---
+!
+INVEFICOVB 15445
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "N       "   No
+      2   "Y       "   Yes
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRANOFORDI 15447
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "N       "   No
+      2   "Y       "   Yes
+!
+! ACRONYM    FID
+! -------    ---
+!
+TRADCA     15448
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "DEAL    "   Dealing on own account
+      2   "MTCH    "   Matched principal
+      3   "AOTC    "   Any other capacity
+!
+! ACRONYM    FID
+! -------    ---
+!
+WAIVIN1    15453
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "LRGS    "   Post-trade LIS transaction flag
+      2   "SIZE    "   Post-trade SSTI transaction flag
+!
+! ACRONYM    FID
+! -------    ---
+!
+SECUFITRAI 15454
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "N       "   No
+      2   "Y       "   Yes
+!
+! ACRONYM    FID
+! -------    ---
+!
+WAIVIN2    15460
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "ILQD    "   Illiquid instrument transaction flag
+!
+! ACRONYM    FID
+! -------    ---
+!
+TPACFL     15461
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "N       "   No
+      2   "Y       "   Yes
 !
 ! ACRONYM    FID
 ! -------    ---
