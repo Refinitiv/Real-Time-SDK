@@ -1620,6 +1620,8 @@ class RsslHttpSocketChannelProvider
             {
                 if (debugPrint)
                     System.out.println(" Java close socket from server side = " + rsslSocketChannel.selectableChannel().toString());
+                
+                rsslSocketChannel._oldScktChannel = rsslSocketChannel.scktChannel();
                 _sessionIdSocketMap.remove(rsslSocketChannel._providerSessionId);
                 rsslSocketChannel.selectableChannel().close();
 
