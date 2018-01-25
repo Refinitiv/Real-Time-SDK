@@ -359,13 +359,13 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 _scktChannel.bind(_cachedBindInetSocketAddress);
             }
 
-            // connect
-            _scktChannel.connect(_cachedInetSocketAddress);
-
             if (_cachedConnectOptions.tcpOpts().tcpNoDelay())
             {
                 _scktChannel.socket().setTcpNoDelay(true);
             }
+
+            // connect
+            _scktChannel.connect(_cachedInetSocketAddress);
 
             if (_httpProxy)
                 _initChnlState = InitChnlState.PROXY_CONNECTING;
@@ -1887,13 +1887,13 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 _scktChannel.bind(_cachedBindInetSocketAddress);
             }
 
-            // connect
-            _scktChannel.connect(_cachedInetSocketAddress);
-
             if (_cachedConnectOptions.tcpOpts().tcpNoDelay())
             {
                 _scktChannel.socket().setTcpNoDelay(true);
             }
+
+            // connect
+            _scktChannel.connect(_cachedInetSocketAddress);
 
             error.channel(this);
             error.errorId(TransportReturnCodes.SUCCESS);
