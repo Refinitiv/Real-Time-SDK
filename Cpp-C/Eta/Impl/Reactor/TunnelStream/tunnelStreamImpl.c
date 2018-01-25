@@ -263,7 +263,7 @@ RsslTunnelStream* tunnelStreamOpen(TunnelManager *pManager, RsslTunnelStreamOpen
 	{
 		if (pTunnelImpl->base.classOfService.flowControl.recvWindowSize == TS_USE_DEFAULT_RECV_WINDOW_SIZE)
 			pTunnelImpl->base.classOfService.flowControl.recvWindowSize = TS_DEFAULT_BIDRECTIONAL_WINDOW_SIZE;
-		if (pTunnelImpl->base.classOfService.flowControl.recvWindowSize < pTunnelImpl->base.classOfService.common.maxFragmentSize)
+		if ( (RsslUInt) pTunnelImpl->base.classOfService.flowControl.recvWindowSize < pTunnelImpl->base.classOfService.common.maxFragmentSize)
 			pTunnelImpl->base.classOfService.flowControl.recvWindowSize = pTunnelImpl->base.classOfService.common.maxFragmentSize;
 	}
 	
@@ -336,7 +336,7 @@ RsslTunnelStream* tunnelStreamOpen(TunnelManager *pManager, RsslTunnelStreamOpen
 	{
 		assert(pRemoteCos != NULL);
 		if (pTunnelImpl->base.classOfService.flowControl.type != RDM_COS_FC_NONE)
-			if (pRemoteCos->flowControl.recvWindowSize < pTunnelImpl->base.classOfService.common.maxFragmentSize)
+			if ( (RsslUInt) pRemoteCos->flowControl.recvWindowSize < pTunnelImpl->base.classOfService.common.maxFragmentSize)
 				pTunnelImpl->base.classOfService.flowControl.sendWindowSize = pTunnelImpl->base.classOfService.common.maxFragmentSize;
 			else
 				pTunnelImpl->base.classOfService.flowControl.sendWindowSize = pRemoteCos->flowControl.recvWindowSize;
