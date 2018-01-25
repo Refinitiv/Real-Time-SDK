@@ -237,16 +237,24 @@ public class TestServer implements Runnable
     {
         _accepted = false;
         _readable = false;
-        if (_socketChannel == null || _selector == null)
-            return;
-
+        
         try
         {
-            // unregister the selection key
-            for (SelectionKey key : _selector.keys())
-                if (key.attachment() == _socketChannel)
-                    key.cancel();
-            _socketChannel.close();
+            if (_socketChannel != null)
+            {
+                _socketChannel.close();
+            }
+            else
+            {
+                return;
+            }
+            if (_selector != null && _selector.isOpen())
+            {
+                // unregister the selection key
+                for (SelectionKey key : _selector.keys())
+                    if (key.isValid() && key.attachment() == _socketChannel)
+                        key.cancel();
+            }
         }
         catch (IOException e)
         {
@@ -265,12 +273,17 @@ public class TestServer implements Runnable
 
         try
         {
-            // unregister the selection key
-            for (SelectionKey key : _selector.keys())
-                if (key.attachment() == _ssc)
-                    key.cancel();
+            // close server socket
             _ssc.close();
-            _selector.close();
+
+            // unregister the selection key
+        	if (_selector.isOpen())
+        	{
+	            for (SelectionKey key : _selector.keys())
+	                if (key.isValid() && key.attachment() == _ssc)
+	                    key.cancel();
+	            _selector.close();
+        	}
         }
         catch (IOException e)
         {
@@ -342,20 +355,23 @@ public class TestServer implements Runnable
                     {
                         SelectionKey selectionKey = (SelectionKey)keyIterator.next();
                         keyIterator.remove();
-                        if (selectionKey.isAcceptable())
+                        if (selectionKey.isValid())
                         {
-                            if (DEBUG)
+                            if (selectionKey.isAcceptable())
                             {
-                                System.out.println("DEBUG: run(): key is acceptable");
+                                if (DEBUG)
+                                {
+                                    System.out.println("DEBUG: run(): key is acceptable");
+                                }
+                                acceptSocket();
+                                continue;
                             }
-                            acceptSocket();
-                            continue;
-                        }
-                        if (selectionKey.isReadable())
-                        {
-                            // don't tight loop when ready to read.
-                            _readable = true;
-                            Thread.sleep(SLEEPTIMEMS);
+                            if (selectionKey.isReadable())
+                            {
+                                // don't tight loop when ready to read.
+                                _readable = true;
+                                Thread.sleep(SLEEPTIMEMS);
+                            }
                         }
                     }
                 }

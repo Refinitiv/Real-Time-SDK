@@ -186,16 +186,25 @@ public class TestClient implements Runnable
     {
         _setup = false;
         _readable = false;
-        if (_socketChannel == null || _selector == null)
-            return;
-
+        
         try
         {
-            // unregister the selection key
-            for (SelectionKey key : _selector.keys())
-                if (key.attachment() == _socketChannel)
-                    key.cancel();
-            _socketChannel.close();
+            if (_socketChannel != null)
+            {
+                _socketChannel.close();
+            }
+            else
+            {
+                return;
+            }
+
+            if (_selector != null && _selector.isOpen())
+            {
+                // unregister the selection key
+	            for (SelectionKey key : _selector.keys())
+	                if (key.isValid() && key.attachment() == _socketChannel)
+	                    key.cancel();
+        	}
         }
         catch (IOException e)
         {
