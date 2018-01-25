@@ -2336,7 +2336,7 @@ public class Reactor
             populateErrorInfo(errorInfo,
                               ReactorReturnCodes.FAILURE,
                               "Reactor.encodeAndWriteLoginClose",
-                              "Encoding of login request failed: <"
+                              "Encoding of login close failed: <"
                                       + TransportReturnCodes.toString(retval) + ">");
             return;
         }
@@ -2364,7 +2364,7 @@ public class Reactor
             populateErrorInfo(errorInfo,
                               ReactorReturnCodes.FAILURE,
                               "Reactor.encodeAndWriteLoginClose",
-                              "Channel.write failed to write login request: <"
+                              "Channel.write failed to write login close: <"
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
@@ -2485,7 +2485,7 @@ public class Reactor
             populateErrorInfo(errorInfo,
                               ReactorReturnCodes.FAILURE,
                               "Reactor.encodeAndWriteDirectoryRefresh",
-                              "Encoding of directory request failed: <"
+                              "Encoding of directory refresh failed: <"
                                       + TransportReturnCodes.toString(retval) + ">");
             return;
         }
@@ -2530,7 +2530,7 @@ public class Reactor
             populateErrorInfo(errorInfo,
                               ReactorReturnCodes.FAILURE,
                               "Reactor.encodeAndWriteDirectoryRefresh",
-                              "Channel.write failed to write directory request: <"
+                              "Channel.write failed to write directory refresh: <"
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
@@ -2566,7 +2566,7 @@ public class Reactor
             populateErrorInfo(errorInfo,
                               ReactorReturnCodes.FAILURE,
                               "Reactor.encodeAndWriteDirectoryClose",
-                              "Encoding of login request failed: <"
+                              "Encoding of directory close failed: <"
                                       + TransportReturnCodes.toString(retval) + ">");
             return;
         }
@@ -2594,7 +2594,7 @@ public class Reactor
             populateErrorInfo(errorInfo,
                               ReactorReturnCodes.FAILURE,
                               "Reactor.encodeAndWriteDirectoryClose",
-                              "Channel.write failed to write login request: <"
+                              "Channel.write failed to write directory close: <"
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
