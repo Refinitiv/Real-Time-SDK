@@ -128,6 +128,8 @@ class ConfigManager
 	public static final int ChannelPort = 204;
 	public static final int ChannelTcpNodelay = 205;
 	public static final int ChannelDirectSocketWrite = 206;
+	public static final int ChannelProxyHost = 207;
+	public static final int ChannelProxyPort = 208;
 	
 	// Channel: Multicast
 	public static final int ChannelDisconnectOnGap = 300;
@@ -341,6 +343,8 @@ class ConfigManager
 		ChannelTagDict.add( "Port",ChannelPort );
 		ChannelTagDict.add( "TcpNodelay",ChannelTcpNodelay );
 		ChannelTagDict.add( "DirectWrite",ChannelDirectSocketWrite );
+		ChannelTagDict.add( "ProxyHost",ChannelProxyHost );
+		ChannelTagDict.add( "ProxyPort",ChannelProxyPort );
 		
 		// ConnectionTypes.MCAST
 		ChannelTagDict.add( "DisconnectOnGap",ChannelDisconnectOnGap );
@@ -621,7 +625,9 @@ class ConfigManager
 			"Timeliness",
 			"UnicastPort",
 			"Vendor",
-			"XmlTraceFileName"
+			"XmlTraceFileName",
+			"ProxyHost",
+			"ProxyPort"
 	};
 
 	public static String EnumeratedValues[] = {

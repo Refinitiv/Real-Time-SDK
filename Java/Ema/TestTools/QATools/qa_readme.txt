@@ -108,7 +108,17 @@ Series100Consumer110-BatchView-002
 Series100Consumer110-BatchView-003
 	Alters consumer to request 4 items in batch (IBM.N, TRI.N, TRI1.N, TRI2.N) 
 
-=======
+Module:  Series100Consumer112 
+-----------------------------
+
+Series100Consumer112-ConsFunc-001
+    Alters consumer makes additional requests
+	market by order item MBO, market by price item MBP. 
+
+Series100Consumer112-ConsFunc-002
+    Alters consumer added addition argument -objectname to set
+	httpObjectName
+
 Module:  Series300Consumer130
 -----------------------------
 Series100Consumer130-MultiThreadBatchView-001

@@ -73,6 +73,8 @@ class ConnectOptionsImpl implements ConnectOptions
         _writeLocking = false;
         _seqMCastOpts.maxMsgSize(3000);
         _seqMCastOpts.instanceId(0);
+        _tunneling.clear();
+        _credentials.clear();
     }
 
     @Override

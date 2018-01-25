@@ -781,12 +781,21 @@ public class ChannelSession
     {
         copts.tunnelingInfo().tunnelingType(connectOptions.tunnelingInfo().tunnelingType());
         copts.tunnelingInfo().HTTPproxy(connectOptions.tunnelingInfo().HTTPproxy());
-        copts.tunnelingInfo().HTTPproxyHostName(connectOptions.tunnelingInfo().HTTPproxyHostName());
+        if (connectOptions.tunnelingInfo().HTTPproxyHostName() != null)
+        {
+            copts.tunnelingInfo().HTTPproxyHostName(connectOptions.tunnelingInfo().HTTPproxyHostName());
+        }
         copts.tunnelingInfo().HTTPproxyPort(connectOptions.tunnelingInfo().HTTPproxyPort());
         copts.tunnelingInfo().objectName(connectOptions.tunnelingInfo().objectName());
         copts.tunnelingInfo().KeystoreType(connectOptions.tunnelingInfo().KeystoreType());
-        copts.tunnelingInfo().KeystoreFile(connectOptions.tunnelingInfo().KeystoreFile());
-        copts.tunnelingInfo().KeystorePasswd(connectOptions.tunnelingInfo().KeystorePasswd());
+        if (connectOptions.tunnelingInfo().KeystoreFile() != null)
+        {
+            copts.tunnelingInfo().KeystoreFile(connectOptions.tunnelingInfo().KeystoreFile());
+        }
+        if (connectOptions.tunnelingInfo().KeystorePasswd() != null)
+        {
+            copts.tunnelingInfo().KeystorePasswd(connectOptions.tunnelingInfo().KeystorePasswd());
+        }
         copts.tunnelingInfo().SecurityProtocol(connectOptions.tunnelingInfo().SecurityProtocol());
         copts.tunnelingInfo().SecurityProvider(connectOptions.tunnelingInfo().SecurityProvider());
         copts.tunnelingInfo().KeyManagerAlgorithm(connectOptions.tunnelingInfo().KeyManagerAlgorithm());

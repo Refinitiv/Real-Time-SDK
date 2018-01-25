@@ -66,9 +66,7 @@ class ErrorImpl implements Error
     @Override
     public void text(String text)
     {
-        assert (text != null || _runningInJunits) : "text must be non-null";
-
-        _text = text;
+        _text = ((text != null) ? text : "");
     }
 
     @Override

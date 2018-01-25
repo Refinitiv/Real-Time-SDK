@@ -193,5 +193,110 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		dictionaryName = (String) xmlConfig().getConsumerAttributeValue(instanceName,ConfigManager.ConsumerDictionaryName);
 		return dictionaryName;
 	}
+
+	@Override
+	public OmmConsumerConfig tunnelingProxyHostName(String proxyHostName)
+	{
+		tunnelingChannelCfg().httpProxyHostName = proxyHostName;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingProxyPort(String proxyPort)
+	{
+		tunnelingChannelCfg().httpProxyPort = proxyPort;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingObjectName(String objectName)
+	{
+		tunnelingChannelCfg().objectName = objectName;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingCredentialUserName(String userName)
+	{
+		tunnelingChannelCfg().httpProxyUserName = userName;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingCredentialPasswd(String passwd)
+	{
+		tunnelingChannelCfg().httpproxyPasswd = passwd;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingCredentialDomain(String domain)
+	{
+		tunnelingChannelCfg().httpProxyDomain = domain;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingCredentialKRB5ConfigFile(String krb5ConfigFile)
+	{
+		tunnelingChannelCfg().httpProxyKRB5ConfigFile = krb5ConfigFile;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingCredentialLocalHostName(String localHostName)
+	{
+		tunnelingChannelCfg().httpProxyLocalHostName = localHostName;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingKeyStoreType(String keyStoreType)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStoreType = keyStoreType;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingKeyStoreFile(String keyStoreFile)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStoreFile = keyStoreFile;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingKeyStorePasswd(String keyStorePasswd)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStorePasswd = keyStorePasswd;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingSecurityProtocol(String securityProtocol)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).SecurityProtocol = securityProtocol;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingSecurityProvider(String securityProvider)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).SecurityProvider = securityProvider;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingKeyManagerAlgorithm(String KeyManagerAlgorithm)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyManagerAlgorithm = KeyManagerAlgorithm;
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tunnelingTrustManagerAlgorithm(String trustManagerAlgorithm)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).TrustManagerAlgorithm = trustManagerAlgorithm;
+		return this;
+	}
 	
 }

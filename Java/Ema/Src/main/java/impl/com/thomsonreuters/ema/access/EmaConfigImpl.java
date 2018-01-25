@@ -31,7 +31,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginAttrib;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginAttribFlags;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
@@ -101,9 +100,10 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	private String								_enumDictReqServiceName;
 	private boolean 							_fidDictReqServiceIdSet;
 	private boolean 							_enumDictReqServiceIdSet;
-    	protected List<Integer> channelOrChannelSet = new ArrayList<Integer>();
+    protected List<Integer> channelOrChannelSet = new ArrayList<Integer>();
     
     private static String 						_defaultAppName = "ema";
+    private HttpChannelConfig 				    _tunnelingChannelCfg;
 
 	EmaConfigImpl()
 	{
@@ -759,6 +759,14 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	public String getUserSpecifiedPort() 
 	{
 		return _portSetViaFunctionCall; 
+	}
+	
+	public HttpChannelConfig tunnelingChannelCfg()
+	{
+		if (_tunnelingChannelCfg == null)
+			_tunnelingChannelCfg = new EncryptedChannelConfig() ;
+		
+		return _tunnelingChannelCfg;
 	}
 }
 

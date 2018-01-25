@@ -17,6 +17,7 @@ consumer-Dict-001: Altered the code of the Consumer application to both read the
 
 consumer-Item-001: Alters consumer to decode Date/Time/DateTime and print using ISO 8601
 
+consumer-HttpReconnect-001:  Alters consumer which calls chnl.channel().reconnectClient(error) when receive login response.
 
 Module:  Value Add Provider 
 ---------------------------
@@ -40,6 +41,10 @@ vaconsumer-TsFrag-001:  Alter VAConsumer to accept -bufSize and -fillSize as inp
 
 vaconsumer-TsFrag-002:  Alter VAConsumer to accept -msgSize as an input.  This is the message size application gets and then writes data into.  Note that the message is a generic message with an opaque buffer as its data body.  Typically, the opaque buffer data body is 10 bytes less than the msgSize with the generic message header being the other 10 bytes.  This size of message is then sent to the provider/ads in fragments if larger than max fragment size.  This code change fills the opaque buffer data body with "1, 2, 3....255" and repeats this pattern of data.
 The provider will then need to check for the same pattern in the fully assembled message and print "TEST PASSED".
+
+vaconsumer-Tunneling-001:  Alters VAConsumer to set tcpNoDelay to true for http and encrypted type connections. 
+This adds the following into Consumer.java:
+chnlInfo.connectOptions.connectionList().get(0).connectOptions().tcpOpts().tcpNoDelay(true)
 
 Module:  Watchlist Consumer 
 ---------------------------

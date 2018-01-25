@@ -268,7 +268,7 @@ class ConfigReader
 				XMLnode child = list._children.get(i);
 				
 				ConfigElement actualNodeName = (ConfigElement) child._attributeList.getElement(attributeId);
-				if( actualNodeName.asciiValue().equals(nodeName) )
+				if( actualNodeName != null && actualNodeName.asciiValue().equals(nodeName) )
 				{
 					return child._attributeList;
 				}

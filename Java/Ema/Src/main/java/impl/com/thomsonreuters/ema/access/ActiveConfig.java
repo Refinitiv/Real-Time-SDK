@@ -123,6 +123,7 @@ abstract class ActiveConfig extends BaseConfig
 	final static boolean DEFAULT_XML_TRACE_ENABLE				= false;
 	final static boolean DEFAULT_DIRECT_SOCKET_WRITE			= false;
 	final static boolean DEFAULT_SET_CORRECT_CONFIG_GROUP 			= false;
+	final static boolean DEFAULT_HTTP_PROXY					    = false;
 	
 	int						obeyOpenWindow;
 	int						requestTimeout;
@@ -493,13 +494,53 @@ class ReliableMcastChannelConfig extends ChannelConfig
 	}
 }
 
-class EncryptedChannelConfig extends ChannelConfig
+class HttpChannelConfig extends ChannelConfig
 {
 	String				hostName;
 	String				serviceName;
 	String				objectName;
 	Boolean				tcpNodelay;
+	Boolean 			httpProxy;
+	String 				httpProxyHostName;
+	String 				httpProxyPort;
+	
+	/* Credential configuration parameters */
+	String				httpProxyUserName;
+	String				httpproxyPasswd;
+	String				httpProxyDomain;
+	String 				httpProxyLocalHostName;
+	String				httpProxyKRB5ConfigFile;
+	
+	HttpChannelConfig()
+	{
+		clear();
+	}
 
+	@Override
+	void clear() 
+	{
+		super.clear();
+		
+		rsslConnectionType = ConnectionTypes.HTTP;
+		hostName = ActiveConfig.DEFAULT_HOST_NAME;
+		serviceName = ActiveConfig.defaultServiceName;
+		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
+		objectName = ActiveConfig.DEFAULT_OBJECT_NAME;
+		httpProxy = ActiveConfig.DEFAULT_HTTP_PROXY;
+	}
+}
+
+class EncryptedChannelConfig extends HttpChannelConfig
+{
+	/* Additional configuration parameters for ENCRYPTED connection type*/ 
+	String				KeyStoreType;
+	String				KeyStoreFile;
+	String				KeyStorePasswd;
+	String				SecurityProvider;
+	String 				SecurityProtocol;		
+	String				KeyManagerAlgorithm;
+	String				TrustManagerAlgorithm;
+	
 	EncryptedChannelConfig()
 	{
 		clear();
@@ -511,35 +552,7 @@ class EncryptedChannelConfig extends ChannelConfig
 		super.clear();
 		
 		rsslConnectionType = ConnectionTypes.ENCRYPTED;
-		hostName = ActiveConfig.DEFAULT_HOST_NAME;
-		serviceName = ActiveConfig.defaultServiceName;
-		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
-		objectName = ActiveConfig.DEFAULT_OBJECT_NAME;
-	}
-}
-
-class HttpChannelConfig extends ChannelConfig
-{
-	String			hostName;
-	String			serviceName;
-	String			objectName;
-	Boolean			tcpNodelay;
-
-	HttpChannelConfig() 
-	{
-		clear();
-	}
-
-	@Override
-	void clear()
-	{
-		super.clear();
 		
-		rsslConnectionType = ConnectionTypes.HTTP;
-		hostName = ActiveConfig.DEFAULT_HOST_NAME;
-		serviceName = ActiveConfig.defaultServiceName;
-		tcpNodelay = ActiveConfig.DEFAULT_TCP_NODELAY;
-		objectName = ActiveConfig.DEFAULT_OBJECT_NAME;
 	}
 }
 

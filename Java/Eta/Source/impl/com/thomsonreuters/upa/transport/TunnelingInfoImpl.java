@@ -13,21 +13,30 @@ class TunnelingInfoImpl implements TunnelingInfo
     private String _SecurityProtocol;
     private String _SecurityProvider;
     private String _KeyManagerAlgorithm;
-    private String _TrustManagerAlgorithm;		
+    private String _TrustManagerAlgorithm;
+    
+    // default values
+    private String _defaultTunnelingType = new String("None");
+    private String _defaultObjectName = new String("");
+    private String _defaultKeystoreType = new String("JKS");
+    private String _defaultSecurityProtocol = new String("TLS");
+    private String _defaultSecurityProvider = new String("SunJSSE");
+    private String _defaultKeyManagerAlgorithm = new String("SunX509");
+    private String _defaultTrustManagerAlgorithm = new String("PKIX");
 
     TunnelingInfoImpl()
     {
         // for HTTP Tunneling, tunnelingType has to be set to "http" or "encrypted"
-        _tunnelingType = new String("None");
+        _tunnelingType = _defaultTunnelingType;
 
-        _objectName = new String("");
+        _objectName = _defaultObjectName;
 
         // Sun JDK defaults
-        _KeystoreType = new String("JKS");
-        _SecurityProtocol = new String("TLS");
-        _SecurityProvider = new String("SunJSSE");
-        _KeyManagerAlgorithm = new String("SunX509");
-        _TrustManagerAlgorithm = new String("PKIX");
+        _KeystoreType = _defaultKeystoreType;
+        _SecurityProtocol = _defaultSecurityProtocol;
+        _SecurityProvider = _defaultSecurityProvider;
+        _KeyManagerAlgorithm = _defaultKeyManagerAlgorithm;
+        _TrustManagerAlgorithm = _defaultTrustManagerAlgorithm;
     }
 
     /* Make a deep copy of this object to the specified object.
@@ -277,16 +286,16 @@ class TunnelingInfoImpl implements TunnelingInfo
 
     void clear()
     {
-        _tunnelingType = null;
+        _tunnelingType = _defaultTunnelingType;
         _HTTPproxyHostName = null;
-        _objectName = null;
-        _KeystoreType = null;
+        _objectName = _defaultObjectName;
+        _KeystoreType = _defaultKeystoreType;
         _KeystoreFile = null;
         _KeystorePasswd = null;
-        _SecurityProtocol = null;
-        _SecurityProvider = null;
-        _KeyManagerAlgorithm = null;
-        _TrustManagerAlgorithm = null;
+        _SecurityProtocol = _defaultSecurityProtocol;
+        _SecurityProvider = _defaultSecurityProvider;
+        _KeyManagerAlgorithm = _defaultKeyManagerAlgorithm;
+        _TrustManagerAlgorithm = _defaultTrustManagerAlgorithm;
     }
 
 }

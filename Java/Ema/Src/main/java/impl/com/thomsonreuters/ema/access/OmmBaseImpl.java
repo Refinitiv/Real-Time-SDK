@@ -780,69 +780,75 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			break;
 		}
 		case ConnectionTypes.HTTP:
-//		{
-//			HttpChannelConfig httpChannelCfg = new HttpChannelConfig();
-//			
-//			String tempHost = configImpl.getUserSpecifiedHostname();
-//			if (tempHost == null)
-//			{
-//				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-//					httpChannelCfg.hostName = ce.asciiValue();
-//			}
-//			else
-//				httpChannelCfg.hostName = tempHost;
-//
-//			String tempService = configImpl.getUserSpecifiedPort();
-//			if (tempService == null)
-//			{
-//				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-//					httpChannelCfg.serviceName = ce.asciiValue();
-//			}
-//			else
-//				httpChannelCfg.serviceName = tempService;
-//
-//			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-//				httpChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
-//
-//			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
-//				httpChannelCfg.objectName = ce.asciiValue();
-//			
-//			currentChannelConfig =  httpChannelCfg;
-//			
-//			break;
-//		}
 		case ConnectionTypes.ENCRYPTED:
-//		{
-//			EncryptedChannelConfig encryptedChannelCfg = new EncryptedChannelConfig();
-//
-//			String tempHost = configImpl.getUserSpecifiedHostname();
-//			if (tempHost == null)
-//			{
-//				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
-//					encryptedChannelCfg.hostName = ce.asciiValue();
-//			}
-//			else
-//				encryptedChannelCfg.hostName = tempHost;
-//
-//			String tempService = configImpl.getUserSpecifiedPort();
-//			if (tempService == null)
-//			{
-//				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
-//					encryptedChannelCfg.serviceName = ce.asciiValue();
-//			}
-//			else
-//				encryptedChannelCfg.serviceName = tempService;
-//
-//			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
-//				encryptedChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
-//
-//			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
-//				encryptedChannelCfg.objectName = ce.asciiValue();
-//
-//			currentChannelConfig =  encryptedChannelCfg;
-//			
-//			break;
-//		}
+		{
+			HttpChannelConfig tunnelingChannelCfg;
+			if (connectionType == ConnectionTypes.ENCRYPTED)
+			{
+				tunnelingChannelCfg = new EncryptedChannelConfig();
+			}
+			else				
+				tunnelingChannelCfg = new HttpChannelConfig();
+			
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
+				tunnelingChannelCfg.hostName = ce.asciiValue();
+
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
+				tunnelingChannelCfg.serviceName = ce.asciiValue();
+
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelTcpNodelay)) != null)
+				tunnelingChannelCfg.tcpNodelay = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY;
+
+			HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
+			tunnelingChannelCfg.objectName = programTunnelingChannelCfg.objectName;
+			if (tunnelingChannelCfg.objectName == null || tunnelingChannelCfg.objectName.length() == 0)
+			{
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelObjectName)) != null)
+					tunnelingChannelCfg.objectName = ce.asciiValue();
+			}
+			
+			tunnelingChannelCfg.httpProxyHostName = programTunnelingChannelCfg.httpProxyHostName;
+			if ( tunnelingChannelCfg.httpProxyHostName == null || tunnelingChannelCfg.httpProxyHostName.length() == 0)
+			{
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyHost)) != null)
+					tunnelingChannelCfg.httpProxyHostName = ce.asciiValue();
+			}
+			
+			tunnelingChannelCfg.httpProxyPort = programTunnelingChannelCfg.httpProxyPort;
+			if (tunnelingChannelCfg.httpProxyPort == null || tunnelingChannelCfg.httpProxyPort.length() == 0)
+			{
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelProxyPort)) != null)
+					tunnelingChannelCfg.httpProxyPort = ce.asciiValue();
+			}
+			
+			if ( (tunnelingChannelCfg.httpProxyPort != null && tunnelingChannelCfg.httpProxyPort.length()  > 0) ||
+			     (tunnelingChannelCfg.httpProxyHostName != null && tunnelingChannelCfg.httpProxyHostName.length() > 0))
+				tunnelingChannelCfg.httpProxy = true;
+			
+			if (tunnelingChannelCfg.httpProxy)
+			{
+				tunnelingChannelCfg.httpproxyPasswd = programTunnelingChannelCfg.httpproxyPasswd;				
+				tunnelingChannelCfg.httpProxyDomain = programTunnelingChannelCfg.httpProxyDomain;
+				tunnelingChannelCfg.httpProxyUserName = programTunnelingChannelCfg.httpProxyUserName;
+				tunnelingChannelCfg.httpProxyKRB5ConfigFile = programTunnelingChannelCfg.httpProxyKRB5ConfigFile;
+				tunnelingChannelCfg.httpProxyLocalHostName = programTunnelingChannelCfg.httpProxyLocalHostName;
+			}
+			
+			if (connectionType == ConnectionTypes.ENCRYPTED)
+			{
+				((EncryptedChannelConfig)tunnelingChannelCfg).KeyStoreType = ((EncryptedChannelConfig)programTunnelingChannelCfg).KeyStoreType;
+				((EncryptedChannelConfig)tunnelingChannelCfg).KeyStoreFile = ((EncryptedChannelConfig)programTunnelingChannelCfg).KeyStoreFile;
+				((EncryptedChannelConfig)tunnelingChannelCfg).KeyStorePasswd = ((EncryptedChannelConfig)programTunnelingChannelCfg).KeyStorePasswd;
+				((EncryptedChannelConfig)tunnelingChannelCfg).SecurityProtocol = ((EncryptedChannelConfig)programTunnelingChannelCfg).SecurityProtocol;
+				((EncryptedChannelConfig)tunnelingChannelCfg).SecurityProvider = ((EncryptedChannelConfig)programTunnelingChannelCfg).SecurityProvider;
+				((EncryptedChannelConfig)tunnelingChannelCfg).KeyManagerAlgorithm = ((EncryptedChannelConfig)programTunnelingChannelCfg).KeyManagerAlgorithm;
+				((EncryptedChannelConfig)tunnelingChannelCfg).TrustManagerAlgorithm = ((EncryptedChannelConfig)programTunnelingChannelCfg).TrustManagerAlgorithm;
+			}
+			
+			currentChannelConfig =  tunnelingChannelCfg;
+			
+			break;
+		}
 		default:
 		{
 			configImpl.errorTracker().append("Not supported channel type. Type = ")

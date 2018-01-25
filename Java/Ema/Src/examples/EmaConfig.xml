@@ -33,6 +33,17 @@
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
 		
+		<Consumer>
+			<Name value="Consumer_3"/>
+			
+			<!-- Channel set to "RSSL_ENCRYPTED"														-->
+			<Channel value="Channel_4"/>
+			
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Dictionary value="Dictionary_1"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+		
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -121,8 +132,10 @@
 		<Channel>
 			<Name value="Channel_1"/>
 
-			<!-- ChannelType possible values are:														-->
-			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type									-->
+			<!-- ChannelType possible values are:	-->
+			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type		-->
+			<!-- ChannelType::RSSL_HTTP      - Http tunnel connection type	-->
+			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type	-->
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 
 			<!-- CompressionType is optional: defaulted to None											-->
@@ -155,6 +168,26 @@
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
 			<Port value="14003"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_4"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="122.1.1.100"/>
+			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to ""												-->
+			<ObjectName value=""/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_5"/>
+			<ChannelType value="ChannelType::RSSL_HTTP"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="122.1.1.100"/>
+			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to ""												-->
+			<ObjectName value=""/>
 		</Channel>
 	</ChannelList>
 </ChannelGroup>
