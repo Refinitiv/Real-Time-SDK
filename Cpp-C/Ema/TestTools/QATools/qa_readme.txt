@@ -108,6 +108,22 @@ Series100Consumer110-ConsFunc-007
 Series100Consumer110-ConsFunc-008
 	Alters consumer to request an item with qos ReqMsg::BestTimelinessEnum, ReqMsg::BestRateEnum. 
 
+Module:  Series100Consumer112
+-----------------------------
+
+Series100Consumer112-ConsFunc-001
+    Alters consumer makes additional item requests
+    MarketByOrder item MBO and MarketByPrice item MBP.
+
+Series100Consumer112-ConsFunc-002
+    Alters consumer added addition argument -objectname to set
+    tunnelingObjectName
+
+Series100Consumer112-PConfig-001
+    Alters consumer to specify programatic config for SecurityProtocol,
+	Host,Port,ProxyHost,ProxyPort,ObjectName,LibsslName and LibcryptoName
+
+
 Module:  Series200Consumer200
 -----------------------------
 

@@ -51,6 +51,14 @@ public :
 		ApiDispatchEnum			/*!< specifies callbacks happen on API thread of control */
 	};
 
+	enum EncryptionProtocolTypes 
+	{
+		ENC_NONE = 0x00,			/*!< @brief (0x00) No encryption. */
+		ENC_TLSV1 = 0x01,			/*!< @brief (0x02) Encryption using TLSv1 protocol */
+		ENC_TLSV1_1 = 0x02,			/*!< @brief (0x04) Encryption using TLSv1.1 protocol */
+		ENC_TLSV1_2 = 0x04			/*!< @brief (0x08) Encryption using TLSv1.2 protocol */
+	};
+
 	///@name Constructor
 	//@{
 	/** Create an OmmConsumerConfig that enables customization of default implicit administrative domains and local configuration. 
@@ -134,6 +142,51 @@ public :
 		@return reference to this object
 	*/
 	OmmConsumerConfig& consumerName( const EmaString& consumerName );
+
+	/** Specifies the address or host name of the proxy server to connect to for an HTTP or HTTPS connection.
+		@param[in] proxyHostName specifies the address or host name of the proxy server 
+		for tunneling connection.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& tunnelingProxyHostName( const EmaString& proxyHostName );
+
+	/** Specifies the port number of the proxy server to connect to for an HTTP or HTTPS connection.
+		@param[in] proxyPort specifies the port number of the proxy server
+		for tunneling connection.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& tunnelingProxyPort(const EmaString& proxyPort);
+
+	/** Specifies the cryptographic protocols to be used for an Encrypted connection on a Linux operating system, 
+		of values TLSv1, TLSv1.1, and TLSv1.2. The highest value of TLS will be selected by 
+		the Rssl API first, then it will roll back if the encryption handshake fails. 
+		The protocol defaults to TLSv1.2. 
+		Use OmmConsumerConfig::EncryptedProtocolTypes flags to set allowed protocols.
+		@param[in] securityProtocol specifies a cryptopgraphic protocol.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& tunnelingSecurityProtocol(int securityProtocol);
+
+	/** Specifies the object name to pass along with the underlying
+		URL in HTTP and HTTPS connection messages.
+		@param[in] objectName specifies the object name.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& tunnelingObjectName(const EmaString& objectName);
+
+	/** Specifies the name of the libssl.so shared library for Encrypted connections on 
+		a Linux operating system.
+		@param[in] libsslName specifies the name of the libssl.so shared library
+		@return reference to this object
+	*/
+	OmmConsumerConfig& tunnelingLibSslName(const EmaString& libsslName);
+
+	/** Specifies the name of the libcrypto.so shared library for Encrypted connections on 
+		a Linux operating system.
+		@param[in] libsslName specifies the name of the libcrypto.so shared library
+		@return reference to this object
+	*/
+	OmmConsumerConfig& tunnelingLibCryptoName(const EmaString& libcryptoName);
 
 	/** Specifies the local configuration, overriding and adding to the current content. 
 		@param[in] config specifies OmmConsumer configuration

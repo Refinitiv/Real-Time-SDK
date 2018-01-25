@@ -1095,6 +1095,13 @@ public:
 
 	void host( const EmaString& );
 
+	void proxyHostName(const EmaString&);
+	void proxyPort(const EmaString&);
+	void securityProtocol(int);
+	void objectName(const EmaString&);
+	void libsslName(const EmaString&);
+	void libcryptoName(const EmaString&);
+
 	RsslRDMLoginRequest* getLoginReq();
 
 	RsslRequestMsg* getDirectoryReq();
@@ -1115,6 +1122,36 @@ public:
 		return _portSetViaFunctionCall;
 	}
 
+	const EmaString& getUserSpecifiedProxyHostname() const
+	{
+		return _proxyHostnameSetViaFunctionCall;
+	}
+
+	const EmaString& getUserSpecifiedProxyPort() const
+	{
+		return _proxyPortSetViaFunctionCall;
+	}
+
+	const int getUserSpecifiedSecurityProtocol() const
+	{
+		return _securityProtocolSetViaFunctionCall;
+	}
+
+	const EmaString& getUserSpecifiedObjectName()
+	{
+		return _objectName;
+	}
+
+	const EmaString& getUserSpecifiedLibSslName()
+	{
+		return _libSslName;
+	}
+
+	const EmaString& getUserSpecifiedLibCryptoName()
+	{
+		return _libCryptoName;
+	}
+
 protected:
 
 	LoginRdmReqMsg			_loginRdmReqMsg;
@@ -1127,6 +1164,10 @@ protected:
 
 	EmaString				_hostnameSetViaFunctionCall;
 
+	EmaString				_proxyHostnameSetViaFunctionCall;
+	EmaString				_proxyPortSetViaFunctionCall;
+	int						_securityProtocolSetViaFunctionCall;
+
 	void addLoginReqMsg( RsslRequestMsg* );
 
 	void addDirectoryReqMsg( RsslRequestMsg* );
@@ -1138,6 +1179,10 @@ protected:
 	PortSetViaFunctionCall		_portSetViaFunctionCall;
 
 	const EmaString configFilePath;
+
+	EmaString		_objectName;
+	EmaString		_libSslName;
+	EmaString		_libCryptoName;
 };
 
 class EmaConfigServerImpl : public EmaConfigBaseImpl

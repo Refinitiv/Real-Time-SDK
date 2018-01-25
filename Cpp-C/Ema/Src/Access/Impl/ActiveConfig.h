@@ -94,6 +94,10 @@
 #define PARAMETER_SET_IN_CONSUMER_PROVIDER			0x01  /*!< Indicates that there are parameters set in Consumer, NIProvider or IProvider group inside EmaConfig.xml file */
 #define PARAMETER_SET_BY_PROGRAMMATIC				0x02  /*!< Indicates that there are parameters set through the programmatical way */
 
+#define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
+#define TUNNELING_CONN_CONFIG_BY_FUNCTION_CALL		0x02  /*!< Indicates that tunneling configuration set though EMA interface function calls
+															 for RSSL_HTTP or RSSL_ENCRYPTED connection type */
+
 
 namespace thomsonreuters {
 
@@ -330,29 +334,12 @@ public :
 	UInt16					userQLimit;
 };
 
-class EncryptedChannelConfig : public ChannelConfig
-{
-public :
-
-	EncryptedChannelConfig();
-
-	virtual ~EncryptedChannelConfig();
-
-	void clear();
-
-	ChannelType getType() const;
-
-	EmaString				hostName;
-	EmaString				serviceName;
-	EmaString				objectName;
-	RsslBool				tcpNodelay;
-};
-
 class HttpChannelConfig : public ChannelConfig
 {
 public :
 
 	HttpChannelConfig();
+	HttpChannelConfig(RsslConnectionTypes);
 
 	virtual ~HttpChannelConfig();
 
@@ -364,6 +351,23 @@ public :
 	EmaString				serviceName;
 	EmaString				objectName;
 	RsslBool				tcpNodelay;
+	EmaString				proxyHostName;
+	EmaString				proxyPort;
+};
+
+class EncryptedChannelConfig : public HttpChannelConfig
+{
+public:
+
+	EncryptedChannelConfig();
+
+	virtual ~EncryptedChannelConfig();
+
+	void clear();
+
+	ChannelType getType() const;
+
+	int		securityProtocol;
 };
 
 struct LoggerConfig
@@ -420,6 +424,8 @@ public:
 	UInt8					parameterConfigGroup;
 	bool					catchUnhandledException;
 	LoggerConfig			loggerConfig;
+	EmaString				libSslName;
+	EmaString				libCryptoName;
 };
 
 class ActiveConfig : public BaseConfig
@@ -472,9 +478,18 @@ public:
 	AdminReqMsg*			pRsslEnumDefRequestMsg;
 	AdminRefreshMsg*		pDirectoryRefreshMsg;
 
+	EncryptedChannelConfig* getTunnelingChannelCfg()
+	{
+		if (_tunnelingChannelCfg == NULL)
+			_tunnelingChannelCfg = new EncryptedChannelConfig();
+		return _tunnelingChannelCfg;
+	}
+
+
 protected:
 
 	EmaString				_defaultServiceName;
+	EncryptedChannelConfig*		_tunnelingChannelCfg;
 };
 
 class ActiveServerConfig : public BaseConfig

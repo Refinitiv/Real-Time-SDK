@@ -59,7 +59,7 @@ public:
 
 	void retrieveCustomConfig( const EmaString&, ActiveConfig& );
 
-	void retrieveChannelConfig( const EmaString&, ActiveConfig&, bool, bool, ChannelConfig* fileCfg = 0 );
+	void retrieveChannelConfig( const EmaString&, ActiveConfig&, int, bool, ChannelConfig* fileCfg = 0 );
 
 	void retrieveLoggerConfig( const EmaString&, ActiveConfig& );
 
@@ -85,9 +85,9 @@ private:
 
 	void retrieveInstanceCustomConfig( const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig& );
 
-	void retrieveChannel( const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, bool, ChannelConfig*, bool );
+	void retrieveChannel( const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, int, ChannelConfig*, bool );
 
-	void retrieveChannelInfo( const MapEntry&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, bool, ChannelConfig*, bool );
+	void retrieveChannelInfo( const MapEntry&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, int, ChannelConfig*, bool );
 
 	bool setReliableMcastChannelInfo( ReliableMcastChannelConfig*, UInt64& flags, ReliableMcastChannelConfig&, EmaString&, ChannelConfig* );
 

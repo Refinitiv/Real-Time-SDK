@@ -37,6 +37,8 @@ thomsonreuters::ema::access::EmaString AsciiValues[] = {
 	"Name",
 	"ObjectName",
 	"Port",
+	"ProxyHost",
+	"ProxyPort",
 	"Rate",
 	"RdmFieldDictionaryFileName",
 	"RdmFieldDictionaryItemName",

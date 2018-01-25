@@ -776,7 +776,13 @@ EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
 	_pEnumDefRsslRequestMsg( 0 ),
 	_pDirectoryRsslRefreshMsg( 0 ),
 	_hostnameSetViaFunctionCall(),
-	_portSetViaFunctionCall()
+	_portSetViaFunctionCall(),
+	_proxyHostnameSetViaFunctionCall(),
+	_proxyPortSetViaFunctionCall(),
+	_securityProtocolSetViaFunctionCall(OmmConsumerConfig::EncryptionProtocolTypes::ENC_NONE),
+	_objectName(),
+	_libSslName(),
+	_libCryptoName()
 {
 }
 
@@ -818,6 +824,12 @@ void EmaConfigImpl::clear()
 		_pProgrammaticConfigure->clear();
 
 	_instanceNodeName.clear();
+	_proxyHostnameSetViaFunctionCall.clear();
+	_proxyPortSetViaFunctionCall.clear();
+	_securityProtocolSetViaFunctionCall = OmmConsumerConfig::EncryptionProtocolTypes::ENC_NONE;
+	_objectName.clear();
+	_libSslName.clear();
+	_libCryptoName.clear();
 }
 
 void EmaConfigImpl::username( const EmaString& username )
@@ -1079,6 +1091,42 @@ AdminRefreshMsg* EmaConfigImpl::getDirectoryRefreshMsg()
 	AdminRefreshMsg* pTemp = _pDirectoryRsslRefreshMsg;
 	_pDirectoryRsslRefreshMsg = 0;
 	return pTemp;
+}
+
+void EmaConfigImpl::proxyHostName(const EmaString& proxyHostName)
+{
+	if (proxyHostName.length())
+		_proxyHostnameSetViaFunctionCall = proxyHostName;
+	else
+		_proxyHostnameSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::proxyPort(const EmaString& proxyPort)
+{
+	if (proxyPort.length())
+		_proxyPortSetViaFunctionCall = proxyPort;
+	else
+		_proxyPortSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::securityProtocol(int securityProtocol)
+{
+	_securityProtocolSetViaFunctionCall = securityProtocol;
+}
+
+void EmaConfigImpl::objectName(const EmaString& objectName)
+{
+	_objectName = objectName;
+}
+
+void EmaConfigImpl::libsslName(const EmaString& libsslName)
+{
+	_libSslName = libsslName;
+}
+
+void EmaConfigImpl::libcryptoName(const EmaString& libcryptoName)
+{
+	_libCryptoName = libcryptoName;
 }
 
 EmaConfigServerImpl::EmaConfigServerImpl( const EmaString & path ) :

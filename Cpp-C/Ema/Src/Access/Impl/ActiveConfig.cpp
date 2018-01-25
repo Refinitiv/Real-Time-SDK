@@ -126,7 +126,10 @@ BaseConfig::BaseConfig() :
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
 	loggerConfig(),
 	parameterConfigGroup(PARAMETER_NOT_SET),
-	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION)
+	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
+	libSslName(),
+	libCryptoName()
+
 {
 }
 
@@ -154,6 +157,8 @@ void BaseConfig::clear()
 	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
 	parameterConfigGroup = PARAMETER_NOT_SET;
 	loggerConfig.clear();
+	libSslName.clear();
+	libCryptoName.clear();
 }
 
 void BaseConfig::setItemCountHint(UInt64 value)
@@ -219,13 +224,17 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	pRsslEnumDefRequestMsg( 0 ),
 	pDirectoryRefreshMsg( 0 ),
 	_defaultServiceName( defaultServiceName ),
-	dictionaryConfig()
+	dictionaryConfig(),
+	_tunnelingChannelCfg(0)
 {
 }
 
 ActiveConfig::~ActiveConfig()
 {
 	clearChannelSet();
+	if (_tunnelingChannelCfg)
+		delete _tunnelingChannelCfg;
+	_tunnelingChannelCfg = 0;
 }
 
 void ActiveConfig::clearChannelSet()
@@ -264,6 +273,10 @@ void ActiveConfig::clear()
 	if ( pDirectoryRefreshMsg )
 		delete pDirectoryRefreshMsg;
 	pDirectoryRefreshMsg = 0;
+
+	if (_tunnelingChannelCfg)
+		delete _tunnelingChannelCfg;
+	_tunnelingChannelCfg = 0;
 }
 
 void ActiveConfig::setObeyOpenWindow( UInt64 value )
@@ -802,8 +815,8 @@ ChannelConfig::ChannelType ReliableMcastChannelConfig::getType() const
 }
 
 EncryptedChannelConfig::EncryptedChannelConfig() :
-	ChannelConfig( RSSL_CONN_TYPE_ENCRYPTED ),
-	objectName( DEFAULT_OBJECT_NAME )
+	HttpChannelConfig( RSSL_CONN_TYPE_ENCRYPTED ),
+	securityProtocol(RsslEncryptionProtocolTypes::RSSL_ENC_TLSV1_2)
 {
 }
 
@@ -818,6 +831,7 @@ void EncryptedChannelConfig::clear()
 	hostName = DEFAULT_HOST_NAME;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
 	objectName = DEFAULT_OBJECT_NAME;
+	securityProtocol = RsslEncryptionProtocolTypes::RSSL_ENC_TLSV1_2;
 }
 
 ChannelConfig::ChannelType EncryptedChannelConfig::getType() const
@@ -828,6 +842,12 @@ ChannelConfig::ChannelType EncryptedChannelConfig::getType() const
 HttpChannelConfig::HttpChannelConfig() :
 	ChannelConfig( RSSL_CONN_TYPE_HTTP ),
 	objectName( DEFAULT_OBJECT_NAME )
+{
+}
+
+HttpChannelConfig::HttpChannelConfig(RsslConnectionTypes connectionType) :
+ChannelConfig(connectionType),
+objectName(DEFAULT_OBJECT_NAME)
 {
 }
 

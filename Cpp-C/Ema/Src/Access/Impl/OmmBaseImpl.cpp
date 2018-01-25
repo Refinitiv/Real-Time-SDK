@@ -368,6 +368,12 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 	if ( pConfigImpl->get<UInt64>( instanceNodeName + "MaxDispatchCountUserThread", tmp ) )
 		_activeConfig.maxDispatchCountUserThread = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
 
+	if ( pConfigImpl->getUserSpecifiedLibSslName().length() > 0 )
+	{
+		_activeConfig.libCryptoName = pConfigImpl->getUserSpecifiedLibCryptoName();
+		_activeConfig.libSslName = pConfigImpl->getUserSpecifiedLibSslName();
+	}
+
 	Int64 tmp1;
 	if (pConfigImpl->get<Int64>(instanceNodeName + "ReconnectAttemptLimit", tmp1))
 	{
@@ -525,7 +531,16 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 		{
 			_activeConfig.clearChannelSet();
 			ChannelConfig* fileChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ), true);
-			ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0,
+
+			int chanConfigByFuncCall = 0;
+			if (pConfigImpl->getUserSpecifiedHostname().length() > 0)
+				chanConfigByFuncCall = SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
+			else if ( pConfigImpl->getUserSpecifiedProxyHostname().length() > 0 ||
+				pConfigImpl->getUserSpecifiedLibSslName().length() > 0 ||
+				pConfigImpl->getUserSpecifiedSecurityProtocol() > 0)
+				chanConfigByFuncCall = TUNNELING_CONN_CONFIG_BY_FUNCTION_CALL;
+			
+			ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall,
 										!(_activeConfig.parameterConfigGroup & PARAMETER_SET_BY_PROGRAMMATIC), fileChannelConfig );
 			if ( !( ActiveConfig::findChannelConfig( _activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg ) ) )
 				_activeConfig.configChannelSet.push_back( fileChannelConfig );
@@ -546,7 +561,16 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 				channelName = pToken;
 				pNextToken = strtok(NULL, ",");
 				ChannelConfig* fileChannelConfig = readChannelConfig( pConfigImpl, ( channelName.trimWhitespace() ), (pNextToken == NULL ? true : false));
-				ppc->retrieveChannelConfig(channelName.trimWhitespace(), _activeConfig, pConfigImpl->getUserSpecifiedHostname().length() > 0,
+
+				int chanConfigByFuncCall = 0;
+				if (pConfigImpl->getUserSpecifiedHostname().length() > 0)
+					chanConfigByFuncCall = SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
+				else if (pConfigImpl->getUserSpecifiedProxyHostname().length() > 0 ||
+					pConfigImpl->getUserSpecifiedLibSslName().length() > 0 ||
+					pConfigImpl->getUserSpecifiedSecurityProtocol() > 0)
+					chanConfigByFuncCall = TUNNELING_CONN_CONFIG_BY_FUNCTION_CALL;
+
+				ppc->retrieveChannelConfig(channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall,
 											(pNextToken == NULL && !(_activeConfig.parameterConfigGroup & PARAMETER_SET_BY_PROGRAMMATIC)), fileChannelConfig );
 				if ( !( ActiveConfig::findChannelConfig( _activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg ) ) )
 					_activeConfig.configChannelSet.push_back( fileChannelConfig );
@@ -598,6 +622,7 @@ void OmmBaseImpl::useDefaultConfigValues( const EmaString& channelName, const Em
 ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString&  channelName, bool readLastChannel)
 {
 	ChannelConfig* newChannelConfig = NULL;
+	HttpChannelConfig* httpChannelCfg = NULL;
 	UInt32 maxUInt32( 0xFFFFFFFF );
 	EmaString channelNodeName( "ChannelGroup|ChannelList|Channel." );
 	channelNodeName.append( channelName ).append( "|" );
@@ -656,31 +681,61 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 
 		break;
 	}
-	case RSSL_CONN_TYPE_HTTP:
+	case RSSL_CONN_TYPE_ENCRYPTED:
 	{
-		HttpChannelConfig* httpChannelCfg = NULL;
 		try
 		{
-			httpChannelCfg = new HttpChannelConfig();
+			httpChannelCfg = new EncryptedChannelConfig();
 			newChannelConfig = httpChannelCfg;
 		}
-		catch ( std::bad_alloc )
+		catch (std::bad_alloc)
 		{
-			const char* temp( "Failed to allocate memory for HttpChannelConfig. (std::bad_alloc)" );
-			throwMeeException( temp );
+			const char* temp("Failed to allocate memory for HttpChannelConfig. (std::bad_alloc)");
+			throwMeeException(temp);
 			return 0;
 		}
 
-		if ( !httpChannelCfg )
+		if (pConfigImpl->getUserSpecifiedSecurityProtocol() > 0)
 		{
-			const char* temp = "Failed to allocate memory for HttpChannelConfig. (null ptr)";
-			throwMeeException( temp );
-			return 0;
+			((EncryptedChannelConfig*)httpChannelCfg)->securityProtocol = pConfigImpl->getUserSpecifiedSecurityProtocol();
+		}
+		// Fall through to HTTP for common configurations
+	}
+	case RSSL_CONN_TYPE_HTTP:
+	{
+		if (httpChannelCfg == 0)
+		{
+			try
+			{
+				httpChannelCfg = new EncryptedChannelConfig();
+				httpChannelCfg->connectionType = RSSL_CONN_TYPE_HTTP;
+				newChannelConfig = httpChannelCfg;
+			}
+			catch (std::bad_alloc)
+			{
+				const char* temp("Failed to allocate memory for HttpChannelConfig. (std::bad_alloc)");
+				throwMeeException(temp);
+				return 0;
+			}
 		}
 
-		pConfigImpl->get<EmaString>( channelNodeName + "Host", httpChannelCfg->hostName );
+		if (!pConfigImpl->get< EmaString >(channelNodeName + "Host", httpChannelCfg->hostName))
+			httpChannelCfg->hostName = DEFAULT_HOST_NAME;
 
-		pConfigImpl->get<EmaString>( channelNodeName + "Port", httpChannelCfg->serviceName );
+		if (!pConfigImpl->get< EmaString >(channelNodeName + "Port", httpChannelCfg->serviceName))
+			httpChannelCfg->serviceName = _activeConfig.defaultServiceName();
+
+		EmaString tmp = pConfigImpl->getUserSpecifiedProxyHostname();
+		if (tmp.length())
+			httpChannelCfg->proxyHostName = tmp;
+		else
+			pConfigImpl->get< EmaString >(channelNodeName + "ProxyHost", httpChannelCfg->proxyHostName);
+
+		tmp = pConfigImpl->getUserSpecifiedProxyPort();
+		if (tmp.length())
+			httpChannelCfg->proxyPort = tmp;
+		else
+			pConfigImpl->get< EmaString >(channelNodeName + "ProxyPort", httpChannelCfg->proxyPort);
 
 		UInt64 tempUInt = 1;
 		pConfigImpl->get<UInt64>( channelNodeName + "TcpNodelay", tempUInt );
@@ -689,44 +744,11 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		else
 			httpChannelCfg->tcpNodelay = RSSL_TRUE;
 
-		pConfigImpl->get<EmaString>( channelNodeName + "ObjectName", httpChannelCfg->objectName );
-
-		break;
-	}
-	case RSSL_CONN_TYPE_ENCRYPTED:
-	{
-		EncryptedChannelConfig* encriptedChannelCfg = NULL;
-		try
-		{
-			encriptedChannelCfg = new EncryptedChannelConfig();
-			newChannelConfig = encriptedChannelCfg;
-		}
-		catch ( std::bad_alloc )
-		{
-			const char* temp( "Failed to allocate memory for EncryptedChannelConfig. (std::bad_alloc)" );
-			throwMeeException( temp );
-			return 0;
-		}
-
-		if ( !newChannelConfig )
-		{
-			const char* temp = "Failed to allocate memory for EncryptedChannelConfig. (null ptr)";
-			throwMeeException( temp );
-			return 0;
-		}
-
-		pConfigImpl->get<EmaString>( channelNodeName + "Host", encriptedChannelCfg->hostName );
-
-		pConfigImpl->get<EmaString>( channelNodeName + "Port", encriptedChannelCfg->serviceName );
-
-		UInt64 tempUInt = 1;
-		pConfigImpl->get<UInt64>( channelNodeName + "TcpNodelay", tempUInt );
-		if ( tempUInt )
-			encriptedChannelCfg->tcpNodelay = RSSL_TRUE;
+		tmp = pConfigImpl->getUserSpecifiedObjectName();
+		if (tmp.length())
+			httpChannelCfg->objectName = tmp;
 		else
-			encriptedChannelCfg->tcpNodelay = RSSL_FALSE;
-
-		pConfigImpl->get<EmaString>( channelNodeName + "ObjectName", encriptedChannelCfg->objectName );
+		pConfigImpl->get<EmaString>( channelNodeName + "ObjectName", httpChannelCfg->objectName );
 
 		break;
 	}
@@ -1060,10 +1082,17 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		RsslError rsslError;
-		RsslRet retCode = rsslInitialize( RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslError );
+		RsslInitializeExOpts rsslInitOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+		rsslInitOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
+		if ( _activeConfig.libSslName.length() > 0)
+			rsslInitOpts.jitOpts.libsslName = (char*)_activeConfig.libSslName.c_str();
+		if (_activeConfig.libCryptoName.length() > 0)
+			rsslInitOpts.jitOpts.libcryptoName = (char*)_activeConfig.libCryptoName.c_str();
+
+		RsslRet retCode = rsslInitializeEx(&rsslInitOpts, &rsslError);
 		if ( retCode != RSSL_RET_SUCCESS )
 		{
-			EmaString temp( "rsslInitialize() failed while initializing OmmBaseImpl." );
+			EmaString temp( "rsslInitializeEx() failed while initializing OmmBaseImpl." );
 			temp.append( " Internal sysError='" ).append( rsslError.sysError )
 			.append( "' Error text='" ).append( rsslError.text ).append( "'. " );
 
@@ -1075,6 +1104,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		else if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Successfully initialized Rssl." );
+
 			_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp );
 		}
 

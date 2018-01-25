@@ -392,11 +392,13 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 	{
 		HttpChannelConfig* pTempChannelCfg = static_cast<HttpChannelConfig*>( pChannelCfg );
 		strConnectionType = "RSSL_CONN_TYPE_HTTP";
-		cfgParameters.append( "hostName " ).append( pTempChannelCfg->hostName ).append( CR )
-		.append( "port " ).append( pTempChannelCfg->serviceName ).append( CR )
-		.append( "CompressionType " ).append( compType ).append( CR )
-		.append( "tcpNodelay " ).append( ( pTempChannelCfg->tcpNodelay ? "true" : "false" ) ).append( CR )
-		.append( "ObjectName " ).append( pTempChannelCfg->objectName ).append( CR );
+		cfgParameters.append("hostName ").append(pTempChannelCfg->hostName).append(CR)
+			.append("port ").append(pTempChannelCfg->serviceName).append(CR)
+			.append("CompressionType ").append(compType).append(CR)
+			.append("tcpNodelay ").append((pTempChannelCfg->tcpNodelay ? "true" : "false")).append(CR)
+			.append("ObjectName ").append(pTempChannelCfg->objectName).append(CR)
+			.append("ProxyHost ").append(pTempChannelCfg->proxyHostName).append(CR)
+			.append("ProxyPort ").append(pTempChannelCfg->proxyPort).append(CR);
 		break;
 	}
 	case RSSL_CONN_TYPE_ENCRYPTED:
@@ -407,7 +409,10 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 		.append( "port " ).append( pTempChannelCfg->serviceName ).append( CR )
 		.append( "CompressionType " ).append( compType ).append( CR )
 		.append( "tcpNodelay " ).append( ( pTempChannelCfg->tcpNodelay ? "true" : "false" ) ).append( CR )
-		.append( "ObjectName " ).append( pTempChannelCfg->objectName ).append( CR );
+		.append( "ObjectName " ).append( pTempChannelCfg->objectName ).append( CR )
+		.append( "ProxyHost " ).append( pTempChannelCfg->proxyHostName ).append( CR )
+		.append( "ProxyPort ").append( pTempChannelCfg->proxyPort ).append( CR )
+		.append( "SecurityProtocol ").append( pTempChannelCfg->securityProtocol ).append( CR );
 		break;
 	}
 	case RSSL_CONN_TYPE_RELIABLE_MCAST:
@@ -558,14 +563,8 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			}
 			case RSSL_CONN_TYPE_ENCRYPTED:
 			{
-				reactorConnectInfo[i].rsslConnectOptions.compressionType = activeConfigChannelSet[i]->compressionType;
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.address = ( char* )static_cast<EncryptedChannelConfig*>( activeConfigChannelSet[i] )->hostName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.serviceName = ( char* )static_cast<EncryptedChannelConfig*>( activeConfigChannelSet[i] )->serviceName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.tcpOpts.tcp_nodelay = static_cast<EncryptedChannelConfig*>( activeConfigChannelSet[i] )->tcpNodelay;
-				reactorConnectInfo[i].rsslConnectOptions.objectName = ( char* ) static_cast<EncryptedChannelConfig*>( activeConfigChannelSet[i] )->objectName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.interfaceName = ( char* )activeConfigChannelSet[i]->interfaceName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.unicastServiceName = ( char* ) "";
-				break;
+				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = static_cast<EncryptedChannelConfig*>(activeConfigChannelSet[i])->securityProtocol;
+				// Fall through to HTTP connection options
 			}
 			case RSSL_CONN_TYPE_HTTP:
 			{
@@ -576,7 +575,8 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				reactorConnectInfo[i].rsslConnectOptions.objectName = ( char* ) static_cast<HttpChannelConfig*>( activeConfigChannelSet[i] )->objectName.c_str();
 				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.interfaceName = ( char* )activeConfigChannelSet[i]->interfaceName.c_str();
 				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.unicastServiceName = ( char* ) "";
-
+				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyHostName = ( char* )static_cast<HttpChannelConfig*>( activeConfigChannelSet[i] )->proxyHostName.c_str();
+				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyPort = (char*)static_cast<HttpChannelConfig*>( activeConfigChannelSet[i] )->proxyPort.c_str();
 				break;
 			}
 			case RSSL_CONN_TYPE_RELIABLE_MCAST:

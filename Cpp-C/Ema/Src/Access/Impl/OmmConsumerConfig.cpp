@@ -89,6 +89,42 @@ OmmConsumerConfig& OmmConsumerConfig::consumerName( const EmaString& consumerNam
 	return *this;
 }
 
+OmmConsumerConfig& OmmConsumerConfig::tunnelingProxyHostName(const EmaString& proxyHostName)
+{
+	_pImpl->proxyHostName(proxyHostName);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::tunnelingProxyPort(const EmaString& proxyPort)
+{
+	_pImpl->proxyPort(proxyPort);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::tunnelingSecurityProtocol(int securityProtocol)
+{
+	_pImpl->securityProtocol(securityProtocol);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::tunnelingObjectName(const EmaString& objectName)
+{
+	_pImpl->objectName(objectName);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::tunnelingLibSslName(const EmaString& libsslName)
+{
+	_pImpl->libsslName(libsslName);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::tunnelingLibCryptoName(const EmaString& libcryptoName)
+{
+	_pImpl->libcryptoName(libcryptoName);
+	return *this;
+}
+
 OmmConsumerConfig& OmmConsumerConfig::config( const Data& config )
 {
 	_pImpl->config( config );

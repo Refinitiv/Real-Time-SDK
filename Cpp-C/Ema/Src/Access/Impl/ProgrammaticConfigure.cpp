@@ -591,7 +591,7 @@ void  ProgrammaticConfigure::retrieveCustomConfig( const EmaString& instanceName
 		retrieveInstanceCustomConfig( *_configList[i], instanceName, _emaConfigErrList, activeConfig );
 }
 
-void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  ActiveConfig& activeConfig, bool hostFnCalled, bool isReadingLastChannel, ChannelConfig* fileCfg)
+void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName,  ActiveConfig& activeConfig, int hostFnCalled, bool isReadingLastChannel, ChannelConfig* fileCfg)
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
 		retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled, fileCfg, isReadingLastChannel);
@@ -669,6 +669,16 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.xmlTraceFileName = eentry.getAscii();
 													activeConfig.parameterConfigGroup |= PARAMETER_SET_BY_PROGRAMMATIC;
+												}
+												else if (eentry.getName() == "LibsslName")
+												{
+													if (activeConfig.libSslName.length() == 0)
+														activeConfig.libSslName = eentry.getAscii();
+												}
+												else if (eentry.getName() == "LibcryptoName")
+												{
+													if (activeConfig.libCryptoName.length() == 0)
+														activeConfig.libCryptoName = eentry.getAscii();
 												}
 												break;
 
@@ -925,7 +935,7 @@ void ProgrammaticConfigure::retrieveInstanceCustomConfig( const Map& map, const 
 }
 
 void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-    ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg, bool isReadingLastChannel)
+    ActiveConfig& activeConfig, int hostFnCalled, ChannelConfig* fileCfg, bool isReadingLastChannel)
 {
 	map.reset();
 	while ( map.forth() )
@@ -967,18 +977,19 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 }
 
 void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const EmaString& channelName, EmaConfigErrorList& emaConfigErrList,
-    ActiveConfig& activeConfig, bool hostFnCalled, ChannelConfig* fileCfg, bool isReadingLastChannel)
+    ActiveConfig& activeConfig, int setByFnCalled, ChannelConfig* fileCfg, bool isReadingLastChannel)
 {
 	const ElementList& elementListChannel = mapEntry.getElementList();
 
-	EmaString name, interfaceName, host, port, objectName;
-	UInt16 channelType, compressionType;
+	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort;
+	UInt16 channelType, compressionType, tunnelingSecurityProtocol;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
 	       tcpNodelay;
 
 	UInt64 flags = 0;
 	UInt32 maxUInt32 = 0xFFFFFFFF;
 	UInt64 mcastFlags = 0;
+	UInt64 tunnelingFlags = 0;
 	ReliableMcastChannelConfig tempRelMcastCfg;
 
 	while ( elementListChannel.forth() )
@@ -1012,7 +1023,17 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			else if ( channelEntry.getName() == "ObjectName" )
 			{
 				objectName = channelEntry.getAscii();
-				flags |= 0x100000;
+				tunnelingFlags |= 0x02;
+			}
+			else if (channelEntry.getName() == "ProxyPort")
+			{
+				tunnelingProxyPort = channelEntry.getAscii();
+				tunnelingFlags |= 0x04;
+			}
+			else if (channelEntry.getName() == "ProxyHost")
+			{
+				tunnelingProxyHost = channelEntry.getAscii();
+				tunnelingFlags |= 0x08;
 			}
 			else if ( channelEntry.getName() == "RecvAddress" )
 			{
@@ -1102,6 +1123,24 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				else
 				{
 					flags |= 0x20;
+				}
+			}else if ( channelEntry.getName() == "SecurityProtocol" )
+			{
+				tunnelingSecurityProtocol = channelEntry.getEnum();
+
+				if ( tunnelingSecurityProtocol > 7 )
+				{
+					EmaString text( "Invalid SecurityProtocol [" );
+					text.append(tunnelingSecurityProtocol);
+					text.append( "] in Programmatic Configuration. Use default SecurityProtocol [" );
+					text.append(RsslEncryptionProtocolTypes::RSSL_ENC_TLSV1_2);
+					text.append( "] " );
+					EmaConfigError* mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
+					emaConfigErrList.add( mce );
+				}
+				else
+				{
+					tunnelingFlags |= 0x10;
 				}
 			}
 			break;
@@ -1258,9 +1297,15 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 	if ( flags & 0x10 )
 	{
-		if ( hostFnCalled )
+		if ( setByFnCalled == SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL )
 		{
 			channelType = RSSL_CONN_TYPE_SOCKET;
+			activeConfig.clearChannelSet();
+		}
+		else if ( setByFnCalled == TUNNELING_CONN_CONFIG_BY_FUNCTION_CALL )
+		{
+			if (channelType == RSSL_CONN_TYPE_SOCKET)
+				channelType = RSSL_CONN_TYPE_ENCRYPTED;
 			activeConfig.clearChannelSet();
 		}
 
@@ -1284,12 +1329,12 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				else if ( fileCfgSocket )
 					socketChannelConfig->tcpNodelay = fileCfgSocket->tcpNodelay;
 
-				if ( flags & 0x02 && ! hostFnCalled )
+				if ( flags & 0x02 && setByFnCalled == 0 )
 					socketChannelConfig->hostName = host;
 				else if ( fileCfgSocket )
 					socketChannelConfig->hostName = fileCfgSocket->hostName;
 
-				if ( flags & 0x04 && ! hostFnCalled )
+				if ( flags & 0x04 && setByFnCalled == 0 )
 					socketChannelConfig->serviceName = port;
 				else if ( fileCfgSocket )
 					socketChannelConfig->serviceName = fileCfgSocket->serviceName;
@@ -1309,45 +1354,15 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					return;
 				}
 			}
-			else if ( channelType == RSSL_CONN_TYPE_HTTP )
-			{
-				HttpChannelConfig* httpChanelConfig = new HttpChannelConfig();
-				pCurrentChannelConfig = httpChanelConfig;
-				activeConfig.configChannelSet.push_back( pCurrentChannelConfig );
-
-				HttpChannelConfig* fileCfgHttp = NULL;
-				if ( fileCfg && fileCfg->connectionType == RSSL_CONN_TYPE_HTTP )
-					fileCfgHttp = static_cast<HttpChannelConfig*>( fileCfg );
-
-				if ( flags & 0x80 )
-					httpChanelConfig->tcpNodelay = tcpNodelay ? true : false;
-				else if ( fileCfgHttp )
-					httpChanelConfig->tcpNodelay = fileCfgHttp->tcpNodelay;
-
-				if ( flags & 0x02 && ! hostFnCalled )
-					httpChanelConfig->hostName = host;
-				else if ( fileCfgHttp )
-					httpChanelConfig->hostName = fileCfgHttp->hostName;
-
-				if ( flags & 0x04 && ! hostFnCalled )
-					httpChanelConfig->serviceName = port;
-				else if ( fileCfgHttp )
-					httpChanelConfig->serviceName = fileCfgHttp->serviceName;
-
-				if ( flags & 0x100000 )
-					httpChanelConfig->objectName = objectName;
-				else if ( fileCfgHttp )
-					httpChanelConfig->objectName = fileCfgHttp->objectName;
-
-			}
-			else if ( channelType == RSSL_CONN_TYPE_ENCRYPTED )
+			else if ( channelType == RSSL_CONN_TYPE_ENCRYPTED || channelType == RSSL_CONN_TYPE_HTTP )
 			{
 				EncryptedChannelConfig* encryptChanelConfig = new EncryptedChannelConfig();
+				encryptChanelConfig->connectionType = (RsslConnectionTypes) channelType;
 				pCurrentChannelConfig = encryptChanelConfig;
 				activeConfig.configChannelSet.push_back( pCurrentChannelConfig );
 
 				EncryptedChannelConfig* fileCfgEncrypt = NULL;
-				if ( fileCfg && fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED )
+				if ( fileCfg && (fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED || fileCfg->connectionType == RSSL_CONN_TYPE_HTTP) )
 					fileCfgEncrypt = static_cast<EncryptedChannelConfig*>( fileCfg );
 
 				if ( flags & 0x80 )
@@ -1355,20 +1370,35 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				else if ( fileCfgEncrypt )
 					encryptChanelConfig->tcpNodelay = fileCfgEncrypt->tcpNodelay;
 
-				if ( flags & 0x02 && ! hostFnCalled )
+				if ( flags & 0x02 )
 					encryptChanelConfig->hostName = host;
 				else if ( fileCfgEncrypt )
 					encryptChanelConfig->hostName = fileCfgEncrypt->hostName;
 
-				if ( flags & 0x04 && ! hostFnCalled )
+				if ( flags & 0x04 )
 					encryptChanelConfig->serviceName = port;
 				else if ( fileCfgEncrypt )
 					encryptChanelConfig->serviceName = fileCfgEncrypt->serviceName;
 
-				if ( flags & 0x100000 )
+				if (tunnelingFlags & 0x02 && setByFnCalled == 0 )
 					encryptChanelConfig->objectName = objectName;
 				else if ( fileCfgEncrypt )
 					encryptChanelConfig->objectName = fileCfgEncrypt->objectName;
+
+				if (tunnelingFlags & 0x04 && setByFnCalled == 0 )
+					encryptChanelConfig->proxyPort = tunnelingProxyPort;
+				else if (fileCfgEncrypt)
+					encryptChanelConfig->proxyPort = fileCfgEncrypt->proxyPort;
+
+				if (tunnelingFlags & 0x08 && setByFnCalled == 0 )
+					encryptChanelConfig->proxyHostName = tunnelingProxyHost;
+				else if (fileCfgEncrypt)
+					encryptChanelConfig->proxyHostName = fileCfgEncrypt->proxyHostName;
+
+				if (tunnelingFlags & 0x10 && setByFnCalled == 0 )
+					encryptChanelConfig->securityProtocol = tunnelingSecurityProtocol;
+				else if (fileCfgEncrypt)
+					encryptChanelConfig->securityProtocol = fileCfgEncrypt->securityProtocol;
 			}
 		}
 		catch ( std::bad_alloc )
