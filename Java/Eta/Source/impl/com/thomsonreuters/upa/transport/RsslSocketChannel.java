@@ -1257,47 +1257,6 @@ class RsslSocketChannel extends UpaNode implements Channel
                         break;
                     case NO_DATA:
                         returnValue = TransportReturnCodes.READ_WOULD_BLOCK;
-
-                        if (_providerHelper != null && _providerHelper._javaSession)
-                        {
-                            if (RsslHttpSocketChannelProvider.debugPrint)
-                                System.out.println(" socket closed from the other end, no-data, simulated (-1) Java session.");
-
-                            _readBufStateMachine._state = ReadBufferState.NO_DATA;
-
-                            returnValue = _providerHelper.closeJavaOldSocket();
-                            if (returnValue == TransportReturnCodes.FAILURE)
-                            {
-                                if (RsslHttpSocketChannelProvider.debugPrint)
-                                    System.out.println("Java channel error.....");
-                                error.channel(this);
-                                error.errorId(TransportReturnCodes.FAILURE);
-                                error.sysError(0);
-                                error.text("Java channel error..");
-                                _needCloseSocket = true;
-                                _providerHelper.closeStreamingSocket();
-                            }
-                        }
-                        else if (_providerHelper != null && _providerHelper._wininetControl)
-                        {
-                            if (RsslHttpSocketChannelProvider.debugPrint)
-                                System.out.println(" Wininet consumer closed the old control socket.....");
-
-                            _readBufStateMachine._state = ReadBufferState.NO_DATA;
-
-                            returnValue = _providerHelper.switchWininetSession(error);
-                            if (returnValue == TransportReturnCodes.FAILURE)
-                            {
-                                if (RsslHttpSocketChannelProvider.debugPrint)
-                                    System.out.println(" Winnet control channel error.....");
-                                _needCloseSocket = true;
-                                error.channel(this);
-                                error.errorId(TransportReturnCodes.FAILURE);
-                                error.sysError(0);
-                                error.text("Winnet control channel error.....");
-                                _providerHelper.closeStreamingSocket();
-                            }
-                        }
                         break;
                     case END_OF_STREAM:
                         if (_providerHelper != null && _providerHelper._wininetControl)
