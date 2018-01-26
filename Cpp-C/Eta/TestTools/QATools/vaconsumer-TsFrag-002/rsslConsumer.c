@@ -52,11 +52,6 @@
 #include "rtr/rsslPayloadEntry.h"
 
 #include "rtr/rsslReactor.h"
-// APIQA: Commenting out internal code
-// Start TR_INTERNAL_SRC
-// #include "rtr/rsslTransportInt.h"
-// End TR_INTERNAL_SRC
-// END APIQA
 
 static RsslInt32 timeToRun = 300;
 static time_t rsslConsumerRuntime = 0;

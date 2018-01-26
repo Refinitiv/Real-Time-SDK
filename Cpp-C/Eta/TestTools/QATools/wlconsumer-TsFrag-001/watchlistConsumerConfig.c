@@ -79,13 +79,8 @@ void printUsageAndExit(int argc, char **argv)
 			" Connection options for socket, http, and encrypted connection types:\n"
 			"   [ -h <Server Hostname> ] [ -p <Port> ]\n"
 			"\n"
-#ifdef TR_INTERNAL_SRC
-			" Connection options for the reliable multicast connection type; all except -tp and -uprr must be specified:\n"
-			"   [ -sa <Send Address> ] [ -ra <Receive Address> ] [ -sp <Send Port> ] [ -rp <Receive Port> ] [ -up <Unicast Port> ] [ -tp <tcpControlPort> ] [ -prr <portRoamRange> ]\n"
-#else
 			" Connection options for the reliable multicast connection type; all must be specified:\n"
 			"   [ -sa <Send Address> ] [ -ra <Receive Address> ] [ -sp <Send Port> ] [ -rp <Receive Port> ] [ -up <Unicast Port> ]\n"
-#endif
 			"\n"
 			" Options for publishing Host Stat Message options on reliable multicast connections; -hsmAddr and -hsmPort must be specified to enable:\n"
 			"   [ -hsmAddr <Address> ] [ -hsmPort <Port> ] [ -hsmInterface <Interface Name> ] [ -hsmInterval <Seconds> ] \n"
@@ -116,14 +111,7 @@ typedef enum
 	CFG_REQUIRED_MCAST_OPTS = 
 		( CFG_HAS_SEND_ADDR | CFG_HAS_RECV_ADDR | CFG_HAS_SEND_PORT | CFG_HAS_RECV_PORT
 		  | CFG_HAS_UNICAST_PORT),
-#ifdef TR_INTERNAL_SRC
-	/* attention set CFG_HAS_UNICAST_PORT_ROAMING_RANGE and CFG_HAS_TCP_CONTROL_PORT larger than largest external value so that client facing code does not show a gap*/
-	CFG_HAS_UNICAST_PORT_ROAMING_RANGE	= 0x4000,
-	CFG_HAS_TCP_CONTROL_PORT			= 0x8000,
-	CFG_ALL_MCAST_OPTS = CFG_REQUIRED_MCAST_OPTS | CFG_HAS_UNICAST_PORT_ROAMING_RANGE | CFG_HAS_TCP_CONTROL_PORT, 
-#else
 	CFG_ALL_MCAST_OPTS = CFG_REQUIRED_MCAST_OPTS,
-#endif
 
 	/* Host Stat Message options for multicast connections. */
 	CFG_HAS_HSM_ADDR			= 0x020,
@@ -166,9 +154,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig.hsmInterface, 255, "");
 	watchlistConsumerConfig.hsmInterval = 5;
 
-#ifdef TR_INTERNAL_SRC
-	snprintf(watchlistConsumerConfig.tcpControlPort, 255, "");
-#endif
 
 	watchlistConsumerConfig.tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
@@ -234,19 +219,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			snprintf(watchlistConsumerConfig.unicastPort, 255, "%s", argv[i]);
 			configFlags |= CFG_HAS_UNICAST_PORT;
 		}
-#ifdef TR_INTERNAL_SRC
-		else if (0 == strcmp(argv[i], "-tp"))
-		{
-			if (++i == argc) printUsageAndExit(argc, argv);
-			snprintf(watchlistConsumerConfig.tcpControlPort, 255, "%s", argv[i]);
-		}
-		else if (0 == strcmp(argv[i], "-prr"))
-		{
-			if (++i == argc) printUsageAndExit(argc, argv);
-			watchlistConsumerConfig.portRoamRange = atoi(argv[i]);
-			configFlags |= CFG_HAS_UNICAST_PORT_ROAMING_RANGE;
-		}
-#endif
 		else if (0 == strcmp(argv[i], "-hsmAddr"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -431,19 +403,11 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		}
 
 		printf( "Config:\n"
-#ifdef TR_INTERNAL_SRC
-				"  Unicast Port Range: %d\n"
-				"  TCP Control Port: %s\n"
-#endif
 				"  Send Address: %s\n"
 				"  Receive Address: %s\n"
 				"  Send Port: %s\n"
 				"  Receive Port: %s\n"
 				"  Unicast Port: %s\n" ,
-#ifdef TR_INTERNAL_SRC
-				watchlistConsumerConfig.portRoamRange,
-				watchlistConsumerConfig.tcpControlPort,
-#endif
 				watchlistConsumerConfig.sendAddress,
 				watchlistConsumerConfig.recvAddress,
 				watchlistConsumerConfig.sendPort,
@@ -468,11 +432,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		/* Make sure no multicast connection options were specified. */
 		if (configFlags & CFG_ALL_MCAST_OPTS)
 		{
-#ifdef TR_INTERNAL_SRC
-			printf("Config Error: Do not specify -ra, -sa, -rp, -sp, -up, -tp, or -uprr when using a non-multicast connection.\n");
-#else
 			printf("Config Error: Do not specify -ra, -sa, -rp, -sp, or -up when using a non-multicast connection.\n");
-#endif
 			printUsageAndExit(argc, argv);
 		}
 

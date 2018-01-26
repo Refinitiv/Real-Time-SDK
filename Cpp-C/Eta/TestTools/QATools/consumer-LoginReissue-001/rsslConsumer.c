@@ -46,11 +46,6 @@
 #include "rsslYieldCurveHandler.h"
 #include "rsslSendMessage.h"
 #include "rsslPostHandler.h"
-// Start TR_INTERNAL_SRC
-// APIQA: commentin this out:
-//#include "rtr/rsslTransportInt.h"
-// END APIQA: 
-// End TR_INTERNAL_SRC
 
 
 static fd_set	readfds;

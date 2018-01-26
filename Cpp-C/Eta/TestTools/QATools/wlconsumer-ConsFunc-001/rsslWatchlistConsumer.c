@@ -218,12 +218,6 @@ int main(int argc, char **argv)
 				reactorConnectInfo.rsslConnectOptions.multicastOpts.hsmInterface = watchlistConsumerConfig.hsmInterface;
 		}
 
-#ifdef TR_INTERNAL_SRC
-		if (watchlistConsumerConfig.portRoamRange)
-			reactorConnectInfo.rsslConnectOptions.multicastOpts.portRoamRange = watchlistConsumerConfig.portRoamRange;
-		if (watchlistConsumerConfig.tcpControlPort)
-			reactorConnectInfo.rsslConnectOptions.multicastOpts.tcpControlPort = watchlistConsumerConfig.tcpControlPort;
-#endif
 	}
 
 	reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
