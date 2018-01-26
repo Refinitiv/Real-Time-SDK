@@ -676,6 +676,22 @@ public class WatchlistConsumerConfig
 		return CommandLine.booleanValue("postmultipart");
 	}	
 	
+	boolean testOnlyLoginClose()
+	{
+		return CommandLine.booleanValue("testOnlyLoginClose");
+	}
+	boolean reqItemBeforeLogin()
+	{
+		return CommandLine.booleanValue("reqItemBeforeLogin");
+	}
+	boolean loginCloseAfterLoginStatus()
+	{
+		return CommandLine.booleanValue("loginCloseAfterLoginStatus");
+	}
+	boolean loginPauseAndResume()
+	{
+		return CommandLine.booleanValue("loginPauseAndResume");
+	}
 	// End APIQA
 
     String publisherId()
@@ -1132,7 +1148,9 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("view", "Specifies each request using a basic dynamic view. Default is false.");
         CommandLine.addOption("post", "Specifies that the application should attempt to send post messages on the first requested Market Price item (i.e., on-stream). Default is false.");
         CommandLine.addOption("offpost", "Specifies that the application should attempt to send post messages on the login stream (i.e., off-stream).");
+        //APIQA
         CommandLine.addOption("postmultipart", "Specifies that the application should attempt to send post multi part messages, default is false.");
+        //END APIQA
         CommandLine.addOption("publisherInfo", "Specifies that the application should add user provided publisher Id and publisher ipaddress when posting");
         CommandLine.addOption("snapshot", "Specifies each request using non-streaming. Default is false(i.e. streaming requests.)");
         CommandLine.addOption("sl", "Requests symbol list using Symbol List domain. (symbol list name optional). Default is no symbol list requests.");
@@ -1147,6 +1165,10 @@ public class WatchlistConsumerConfig
         // APIQA
         CommandLine.addOption("singleOpen", defaultSingleOpen, "SingleOpen default set to 1, can be specified to 0 or 1");
         CommandLine.addOption("allowSuspect", defaultAllowSuspect, "Allow suspect data default set to 1, can be set to 0 or 1");
+        CommandLine.addOption("testOnlyLoginClose", "Only close login stream when runtime expires");
+        CommandLine.addOption("reqItemBeforeLogin", "Test request item befor login stream establishes");
+        CommandLine.addOption("loginCloseAfterLoginStatus", "Send login close message from rdmLoginMsgCallback after getting a login status message");
+        CommandLine.addOption("loginPauseAndResume", "Send login pause after 3 item updates and login resume after 3 src dir updates");
         // END APIQA
 
         CommandLine.addOption("runTime", defaultRuntime, "Program runtime in seconds");

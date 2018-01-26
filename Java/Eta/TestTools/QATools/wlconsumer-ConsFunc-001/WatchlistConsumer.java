@@ -53,6 +53,10 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
+//APIQA
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
+//END APIQA
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
 import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
 import com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.EventCounter;
@@ -117,7 +121,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * <p>
  * This application is intended as a basic usage example. Some of the design choices
  * were made to favor simplicity and readability over performance. This application 
- * is not intended to be used for measuring performance. This application uses
  * Value Add and shows how using Value Add simplifies the writing of UPA
  * applications. Because Value Add is a layer on top of UPA, you may see a
  * slight decrease in performance compared to writing applications directly to
@@ -257,7 +260,10 @@ public class WatchlistConsumer implements ConsumerCallback
     // APIQA: adding newItemRequested which keeps track of number of "new" items
     // (requested after initla request) requested
     private int newItemRequested = 0;
-    // END APIQA
+    
+    //APIQA:  adding a variable to count updates received
+    private long updatesReceived;
+    private int updateCount;
 
     // APIQA
     private int e1Counter = 0;
@@ -1290,6 +1296,8 @@ public class WatchlistConsumer implements ConsumerCallback
                 {
                     if (!watchlistConsumerConfig.delayInitialRequest())
                         requestItems(reactor, event.reactorChannel());
+                    if (watchlistConsumerConfig.reqItemBeforeLogin())
+                    	break;
                 }
                 // END APIQA
                 else
@@ -1512,6 +1520,23 @@ public class WatchlistConsumer implements ConsumerCallback
                         System.out.println("------------APIQA: DefaultMsgCallback UpdateMsg --  ItemName from MsgKey: " + updateMsg.msgKey().name().toString() + "; ServiceId from MsgKey: " + updateMsg.msgKey().serviceId()  + "; nameType from MsgKey: " + updateMsg.msgKey().nameType() + "\n\n");
                 }
                 itemDecoder.decodeDataBody(event.reactorChannel(), updateMsg);
+                //API QA
+                if(watchlistConsumerConfig.loginPauseAndResume()) {
+                	 updatesReceived++;
+                     // APIQA: Manufacture a login reissue:
+                     if ( updatesReceived == 3 ) {
+                         LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                         loginRequest.applyPause();
+                         loginRequest.applyNoRefresh();
+                         submitOptions.clear();
+                         if ( (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS) {
+                             System.out.println("------------APIQA: attempted login reissue failed. Error: " + errorInfo.error().text());
+                         } else {
+                             System.out.println("------------APIQA: PAUSE-ALL login reissue done.");
+                         }
+                     }  	
+                }
+                //END APIQA
                 e2Counter++;
                 e4Counter++; // For reissue
                 if (allEventCounters.size() > 0)
@@ -1676,7 +1701,20 @@ public class WatchlistConsumer implements ConsumerCallback
                 }
                 if (loginStatus.checkHasUserName())
                     System.out.println(" UserName: " + loginStatus.userName().toString());
-
+                
+            	// APIQA:  Send a login close
+                if(watchlistConsumerConfig.loginCloseAfterLoginStatus()) {
+                    submitOptions.clear();
+                    closeMsg.clear();
+                    closeMsg.streamId(loginStatus.streamId());
+                    closeMsg.msgClass(MsgClasses.CLOSE);
+                    closeMsg.domainType(DomainTypes.LOGIN);
+                    if ((chnlInfo.reactorChannel.submit(closeMsg, submitOptions, errorInfo)) != CodecReturnCodes.SUCCESS)
+                        System.out.println("Close login Stream of " + loginStatus.streamId() + " Failed.");
+                    else
+                        System.out.println("----------------APIQA: Closed login stream of " + loginStatus.streamId() + " Failed.");
+                }
+                // END APIQA
                 break;
             default:
                 System.out.println("Received Unhandled Login Msg Type: " + msgType);
@@ -1739,6 +1777,13 @@ public class WatchlistConsumer implements ConsumerCallback
                 }
                 // APIQA
                 if (!itemsRequested && watchlistConsumerConfig.delayInitialRequest())
+                {
+                    if (fieldDictionaryLoaded && enumDictionaryLoaded || itemDecoder.fieldDictionaryLoadedFromFile && itemDecoder.enumTypeDictionaryLoadedFromFile)
+                    {
+                        requestItems(reactor, event.reactorChannel());
+                    }
+                }
+                if (watchlistConsumerConfig.reqItemBeforeLogin())
                 {
                     if (fieldDictionaryLoaded && enumDictionaryLoaded || itemDecoder.fieldDictionaryLoadedFromFile && itemDecoder.enumTypeDictionaryLoadedFromFile)
                     {
@@ -1825,7 +1870,25 @@ public class WatchlistConsumer implements ConsumerCallback
                         chnlInfo.hasQServiceInfo = true;
                     }
                 }
-
+                // APIQA
+                if(watchlistConsumerConfig.loginPauseAndResume())
+                {
+                	 updateCount++;
+                     if (updateCount == 3) {
+                         // Do a Login RESUME
+                         LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                         loginRequest.flags(loginRequest.flags() &~ LoginRequestFlags.PAUSE_ALL);
+                         loginRequest.flags(loginRequest.flags() | LoginRequestFlags.NO_REFRESH);
+                         submitOptions.clear();
+                         if ( (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS) {
+                             System.out.println("------------APIQA: attempted login reissue failed. Error: " + errorInfo.error().text());
+                         } else {
+                             System.out.println("------------APIQA: RESUME-ALL login reissue done.");
+                         }
+                     }
+                }
+                // End APIQA
+                
                 // APIQA
                 e1Counter++;
                 if (allEventCounters.size() > 0)
@@ -2372,6 +2435,24 @@ public class WatchlistConsumer implements ConsumerCallback
             System.exit(ReactorReturnCodes.FAILURE);
         }
     }
+    
+     // APIQA:
+    private void closeLoginStream(ChannelInfo chnlInfo) {
+               /* encode item close */
+               submitOptions.clear();
+               closeMsg.clear();
+               closeMsg.msgClass(MsgClasses.CLOSE);
+               closeMsg.streamId(1);
+               closeMsg.domainType(DomainTypes.LOGIN);
+               closeMsg.containerType(DataTypes.NO_DATA);
+
+               if ( (chnlInfo.reactorChannel.submit(closeMsg, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS)
+               {
+                       System.out.println("\n\n----------------APIQA: Closing login stream Failed.\n");
+               } else
+                       System.out.println("\n\n----------------APIQA: Closd LOGIN stream.\n");
+     }
+       // END APIQA:
 
     private void closeItemStreams(ChannelInfo chnlInfo)
     {
@@ -2453,6 +2534,12 @@ public class WatchlistConsumer implements ConsumerCallback
 
         for (ChannelInfo chnlInfo : chnlInfoList)
         {
+        	//APIQA
+        	if (watchlistConsumerConfig.testOnlyLoginClose()) {
+        		closeLoginStream(chnlInfo);
+        		System.out.println("-----------APIQA: Closing only consumer login stream when run time expires\n\n");      		
+        	}
+        	// End APIQA
             closeItemStreams(chnlInfo);
 
             // close queue messaging streams
