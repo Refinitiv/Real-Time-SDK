@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer110", "Consumer\100
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer111", "Consumer\100_Series_Examples\111__MarketPrice__UserSpecifiedFileConfig\Consumer111_VS110.vcxproj", "{9C611DCF-52B6-4548-869C-E069BD1ABB35}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer112", "Consumer\100_Series_Examples\112__MarketPrice__TunnelingConnection\Consumer112_VS110.vcxproj", "{C3743A78-CE54-4AD7-9EE0-596E70B28812}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Consumer120", "Consumer\100_Series_Examples\120__MarketPrice__FieldListWalk\Consumer120_VS110.vcxproj", "{6F572B01-E36A-4896-B757-00D894EDB520}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DB5232C4-2812-4622-976E-64F26C10908D} = {DB5232C4-2812-4622-976E-64F26C10908D}
