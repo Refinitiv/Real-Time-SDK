@@ -537,6 +537,12 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         _minorVersion = opts.minorVersion();
         _protocolType = opts.protocolType();
         _userSpecObject = opts.userSpecObject();
+        if (opts.componentVersion() != null)
+        {
+            ByteBuffer connectOptsCompVerBB = ByteBuffer.wrap(opts.componentVersion().getBytes());
+            _connectOptsComponentInfo = new ComponentInfoImpl();
+            _connectOptsComponentInfo.componentVersion().data(connectOptsCompVerBB);
+        }        
 
         // compression
         _sessionInDecompress = opts.compressionType();
