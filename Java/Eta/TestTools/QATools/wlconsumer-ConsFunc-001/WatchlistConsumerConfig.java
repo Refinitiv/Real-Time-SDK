@@ -692,7 +692,60 @@ public class WatchlistConsumerConfig
 	{
 		return CommandLine.booleanValue("loginPauseAndResume");
 	}
+	boolean reissueDirEvery5Updates()
+	{
+		return CommandLine.booleanValue("reissueDirEvery5Updates");
+	}
+	int reissueDirWithSID()
+	{
+		return CommandLine.intValue("reissueDirWithSID");
+	}
+	int reqDirWithSID()
+	{
+		return CommandLine.intValue("reqDirWithSID");
+	}
+	boolean hasReqQos()
+	{
+		return CommandLine.booleanValue("hasReqQos");
+	}
+	boolean qosDynamic()
+	{
+		return CommandLine.booleanValue("qosDynamic");
+	}
+	int qosRate()
+	{
+		return CommandLine.intValue("qosRate");
+	}
+	int qosRateInfo()
+	{
+		return CommandLine.intValue("qosRateInfo");
+	}
+	int qosTimeliness()
+	{
+		return CommandLine.intValue("qosTimeliness");
+	}
+	int qosTimeInfo()
+	{
+		return CommandLine.intValue("qosTimeInfo");
+	}
+	int worstQosRate()
+	{
+		return CommandLine.intValue("worstQosRate");
+	}
+	int worstQosRateInfo()
+	{
+		return CommandLine.intValue("worstQosRateInfo");
+	}
+	int worstQosTimeliness()
+	{
+		return CommandLine.intValue("worstQosTimeliness");
+	}
+	int worstQosTimeInfo()
+	{
+		return CommandLine.intValue("worstQosTimeInfo");
+	}
 	// End APIQA
+	
 
     String publisherId()
     {
@@ -1169,6 +1222,19 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("reqItemBeforeLogin", "Test request item befor login stream establishes");
         CommandLine.addOption("loginCloseAfterLoginStatus", "Send login close message from rdmLoginMsgCallback after getting a login status message");
         CommandLine.addOption("loginPauseAndResume", "Send login pause after 3 item updates and login resume after 3 src dir updates");
+        CommandLine.addOption("reissueDirEvery5Updates", "Send dorectory reissue every 5 updates received upto 30 updates.");
+        CommandLine.addOption("reissueDirWithSID", "Send dorectory reissue with specify serviceId.");
+        CommandLine.addOption("reqDirWithSID", "Send Directory request at the initial with specify serviceId.");
+        CommandLine.addOption("hasReqQos", "Enable hasQos on the request.");
+        CommandLine.addOption("qosDynamic", "dynamic or static qos.");
+        CommandLine.addOption("qosRate", "qosRate.");
+        CommandLine.addOption("qosTimeliness", "qosTimeliness.");
+        CommandLine.addOption("qosTimeInfo", "qosTimeInfo.");
+        CommandLine.addOption("qosRateInfo", "qosRateInfo.");
+        CommandLine.addOption("worstQosRate", "worstQosRate.");
+        CommandLine.addOption("worstQosTimeliness", "worstQosTimeliness.");
+        CommandLine.addOption("worstQosTimeInfo", "worstQosTimeInfo.");
+        CommandLine.addOption("worstQosRateInfo", "worstQosRateInfo.");
         // END APIQA
 
         CommandLine.addOption("runTime", defaultRuntime, "Program runtime in seconds");

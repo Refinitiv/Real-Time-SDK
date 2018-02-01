@@ -57,6 +57,11 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
 //END APIQA
+//APIQA:  Added DirectoryRequest
+import com.thomsonreuters.upa.rdm.Directory;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
+//END APIQA
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
 import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
 import com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumerConfig.EventCounter;
@@ -955,8 +960,25 @@ public class WatchlistConsumer implements ConsumerCallback
 				itemRequest.requestMsg.applyMsgKeyInUpdates();
 			}
 			// END APIQA
-
-
+            
+			//APIQA
+			if (watchlistConsumerConfig.hasReqQos()) {
+	            itemRequest.applyHasQos();
+	            itemRequest.applyHasWorstQos();
+	            if (watchlistConsumerConfig.qosDynamic()) 
+	            	itemRequest.qos().dynamic(watchlistConsumerConfig.qosDynamic());
+	            else
+	            	itemRequest.qos().dynamic(false);	            
+	            itemRequest.qos().rate(watchlistConsumerConfig.qosRate());
+	            itemRequest.qos().timeliness(watchlistConsumerConfig.qosTimeliness());
+	            itemRequest.qos().timeInfo(watchlistConsumerConfig.qosTimeInfo());
+	            itemRequest.qos().rateInfo(watchlistConsumerConfig.qosRateInfo());
+	            itemRequest.worstQos().rate(watchlistConsumerConfig.worstQosRate());
+	            itemRequest.worstQos().timeliness(watchlistConsumerConfig.worstQosTimeliness());
+	            itemRequest.worstQos().timeInfo(watchlistConsumerConfig.worstQosTimeInfo());
+	            itemRequest.worstQos().rateInfo(watchlistConsumerConfig.worstQosRateInfo());
+			}
+            //END APIQA
 			if (domainType == DomainTypes.SYMBOL_LIST && watchlistConsumerConfig.itemList().get(itemListIndex).symbolListData)
 			{
 				itemRequest.symbolListData(true);
@@ -1536,6 +1558,40 @@ public class WatchlistConsumer implements ConsumerCallback
                          }
                      }  	
                 }
+                if(watchlistConsumerConfig.reissueDirEvery5Updates()) {
+                	updatesReceived++;
+                	 if ((( updatesReceived % 5 ) == 0 ) && ( updatesReceived <= 60 )) {
+                		 DirectoryRequest directoryRequest = (DirectoryRequest)chnlInfo.consumerRole.rdmDirectoryRequest();
+                		 chnlInfo.consumerRole.rdmDirectoryRequest().filter(Directory.ServiceFilterFlags.INFO |
+                			                     Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.LINK);
+                         submitOptions.clear();
+                         if ((chnlInfo.reactorChannel.submit(directoryRequest, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS) {
+                             System.out.println("------------APIQA: attempted SRC DIR reissue failed. Error: " + errorInfo.error().text());
+                         } else {
+                             System.out.println("------------APIQA: SRC DIR reissue done.");
+                         }
+                	 }
+                }
+                if(watchlistConsumerConfig.reissueDirWithSID() != 0) {
+                	 updatesReceived++;                	 
+                	 if ( updatesReceived == 5 ) {
+                		 DirectoryRequest directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();
+                		 submitOptions.clear();
+                         directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);
+                         directoryRequest.streamId(2);
+                         directoryRequest.filter(Directory.ServiceFilterFlags.INFO |
+                                     Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP);
+                         directoryRequest.applyHasServiceId();
+                         directoryRequest.serviceId(watchlistConsumerConfig.reissueDirWithSID());
+                         System.out.println("Try to reissue Directory with serviceId : " + watchlistConsumerConfig.reissueDirWithSID());
+                         if ((chnlInfo.reactorChannel.submit(directoryRequest, submitOptions, errorInfo)) !=  CodecReturnCodes.SUCCESS) {
+                             System.out.println("------------APIQA: attempted SRC DIR reissue failed. Error: " + errorInfo.error().text());
+                         } else {
+                             System.out.println("------------APIQA: SRC DIR reissue done.");
+                         }
+                	 }
+                }
+                
                 //END APIQA
                 e2Counter++;
                 e4Counter++; // For reissue
@@ -1739,6 +1795,9 @@ public class WatchlistConsumer implements ConsumerCallback
                 DirectoryRefresh directoryRefresh = (DirectoryRefresh)event.rdmDirectoryMsg();
                 System.out.println("Domain: " + DomainTypes.toString(DomainTypes.SOURCE));
                 System.out.println("Stream: " + event.rdmDirectoryMsg().streamId() + " Msg Class: " + MsgClasses.toString(MsgClasses.REFRESH));
+                // APIQA
+                System.out.println("---------APIQA: ServiceList: " +  directoryRefresh.serviceList().toString() + "\n\n");
+                // END APIQA
                 System.out.println(directoryRefresh.state().toString());
 
                 serviceList = directoryRefresh.serviceList();
@@ -1802,6 +1861,10 @@ public class WatchlistConsumer implements ConsumerCallback
 
                 System.out.println("Domain: " + DomainTypes.toString(DomainTypes.SOURCE));
                 System.out.println("Stream: " + event.rdmDirectoryMsg().streamId() + " Msg Class: " + MsgClasses.toString(MsgClasses.UPDATE));
+                
+                // APIQA:  Added this line
+                System.out.println("---------APIQA: ServiceList: " +  directoryUpdate.serviceList().toString() + "\n\n");
+                // END APIQA:  Added this line
 
                 serviceList = directoryUpdate.serviceList();
 
@@ -2266,7 +2329,7 @@ public class WatchlistConsumer implements ConsumerCallback
         chnlInfo.consumerRole.watchlistOptions().maxOutstandingPosts(5);
         chnlInfo.consumerRole.watchlistOptions().obeyOpenWindow(true);
         chnlInfo.consumerRole.watchlistOptions().channelOpenCallback(this);
-
+        
         if (itemDecoder.fieldDictionaryLoadedFromFile == false && itemDecoder.enumTypeDictionaryLoadedFromFile == false)
         {
             chnlInfo.consumerRole.dictionaryMsgCallback(this);
@@ -2312,7 +2375,13 @@ public class WatchlistConsumer implements ConsumerCallback
         System.out.println("APIQA: Allow Suspect Data set to " + allowSuspectArg);
         chnlInfo.consumerRole.rdmLoginRequest().attrib().allowSuspectData(allowSuspectArg);
         // END APIQA
-
+        // APIQA
+        if(watchlistConsumerConfig.reqDirWithSID() != 0)
+        {
+        	 chnlInfo.consumerRole.rdmDirectoryRequest().applyHasServiceId();
+             chnlInfo.consumerRole.rdmDirectoryRequest().serviceId(watchlistConsumerConfig.reqDirWithSID());
+        }
+        // End APIQA
         if (itemDecoder.fieldDictionaryLoadedFromFile == true && itemDecoder.enumTypeDictionaryLoadedFromFile == true)
         {
             chnlInfo.dictionary = itemDecoder.getDictionary();
