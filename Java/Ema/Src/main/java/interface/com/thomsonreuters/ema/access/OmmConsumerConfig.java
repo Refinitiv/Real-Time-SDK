@@ -17,18 +17,18 @@ package com.thomsonreuters.ema.access;
  * <p>OmmConsumerconfig methods override or append the existing configuration.</p>
  * 
  * <p> For a tunneling connection, ChannelType::RSSL_HTTP or ChannelType::RSSL_ENCRYPTED must be configured in
- *  Ema configuration file such as EmaConfig.xml. <p>
+ *  Ema configuration file such as EmaConfig.xml. </p>
  *  
- * <p> For a tunneling connection, supported authentication protocols are: Negotiate/Kerberos, Kerberos, NTLM, and Basic. <p>
+ * <p> For a tunneling connection, supported authentication protocols are: Negotiate/Kerberos, Kerberos, NTLM, and Basic. </p>
  * 
  *  <p>Protocols Negotiate/Kerberos or Kerberos require the following configurations:
- *             httpCredentialUserName, httpCredentialPasswd, httpCredentialDomain, and httpCredentialKRB5ConfigFile   <p>
+ *             tunnelingCredentialUserName, tunnelingCredentialPasswd, tunnelingCredentialDomain, and tunnelingCredentialKRB5ConfigFile   </p>
  *                                                             
  *  <p>Protocol NTLM requires the following configurations:
- *             httpCredentialUserName, httpCredentialPasswd, httpCredentialDomain  <p>
+ *             tunnelingCredentialUserName, tunnelingCredentialPasswd, tunnelingCredentialDomain  </p>
  *             
  *  <p> Protocol Basic requires the following configurations:
- *             httpCredentialUserName and httpCredentialPasswd   </p>
+ *             tunnelingCredentialUserName and tunnelingCredentialPasswd   </p>
  * 
  * @see OmmConsumer
  */
@@ -132,7 +132,6 @@ public interface OmmConsumerConfig
 
 	/**
 	 * The address or host name of HTTP proxy server to connect to.
-     * httpProxy has to be true. 
      * 
 	 * @param proxyHostName specifies the address or host name of HTTP proxy server
 	 *  for tunneling connection.
@@ -141,8 +140,7 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig tunnelingProxyHostName(String proxyHostName); 
 	
 	/**
-	 * The port number of HTTP proxy server to connect to.
-	 * httpProxy has to be true. Must be in the range of 0 - 65535.
+	 * The port number of HTTP proxy server to connect to. Must be in the range of 0 - 65535.
      * 
 	 * @param proxyPort specifies the port number of HTTP proxy server for tunneling connection.
 	 * @return reference to this object
@@ -177,9 +175,9 @@ public interface OmmConsumerConfig
 	  * The domain of the user to authenticate.
      *  Needed for NTLM or for Negotiate/Kerberos or for Kerberos authentication protocols.
      * 
-     * 	For Negotiate/Kerberos or for Kerberos authentication protocols, HTTPproxyDomain
+     * 	For Negotiate/Kerberos or for Kerberos authentication protocols, tunnelingCredentialDomain
      * 	should be the same as the domain in the 'realms' and 'domain_realm' sections of
-     * 	the Kerberos configuration file ({@link #httpCredentialKRB5ConfigFile()}).
+     * 	the Kerberos configuration file ({@link #tunnelingCredentialKRB5ConfigFile(String krb5ConfigFile)}).
      * 
 	 * @param domain specifies the domain used for tunneling connection.
 	 * @return reference to this object
