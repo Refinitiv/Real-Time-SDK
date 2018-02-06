@@ -27,6 +27,7 @@ import com.thomsonreuters.upa.codec.MapEntryActions;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
+import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.PostMsg;
 import com.thomsonreuters.upa.codec.Qos;
 import com.thomsonreuters.upa.codec.QosRates;
@@ -1357,40 +1358,44 @@ class WlItemHandler implements WlHandler
             case MsgClasses.GENERIC:
                 if (wlRequest.state() == WlRequest.State.OPEN)
                 {
-                    // replace service id if message submitted with service name 
-                    if (submitOptions.serviceName() != null &&
-                        ((GenericMsg)msg).checkHasMsgKey())
+                    boolean resetServiceId = false;
+                    
+                    // replace service id if message submitted with service name
+                    if (submitOptions.serviceName() != null)
                     {
-                    	if (!((GenericMsg)msg).msgKey().checkHasServiceId())
-                    	{
-                    		int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
-                    		if (serviceId < ReactorReturnCodes.SUCCESS)
-                    		{
-                    			return _watchlist.reactor().populateErrorInfo(errorInfo,
-                                    serviceId,
-                                    "WlItemHandler.submitMsg",
-                                    "Message submitted with unknown service name " + submitOptions.serviceName() + ".");                	
-                    		}
-                    		else
-                    		{
-                    			((GenericMsg)msg).msgKey().applyHasServiceId();
-                    			((GenericMsg)msg).msgKey().serviceId(serviceId);
-                    		}
-                    	}
-                    	else
-                    	{
-							return _watchlist.reactor().populateErrorInfo(errorInfo,
-									ReactorReturnCodes.INVALID_USAGE,
-									"WlItemHandler.submitMsg",
-									"Message submitted with both service name and service ID.");
-                    	}
+                        if (!((GenericMsg)msg).checkHasMsgKey())
+                        {
+                            return _watchlist.reactor().populateErrorInfo(errorInfo,
+                                                                          ReactorReturnCodes.INVALID_USAGE,
+                                                                          "WlItemHandler.submitMsg",
+                                                                          "Generic message submitted with service name but no message key.");
+                            
+                        }
+                        
+                        if ((ret = _watchlist.changeServiceNameToID(((GenericMsg)msg).msgKey(), submitOptions.serviceName(), errorInfo)) < ReactorReturnCodes.SUCCESS)
+                        {
+                            return ret;
+                        }
+                        
+                        // set resetServiceId flag
+                        resetServiceId = true;
                     }
                     
                     // replace stream id with aggregated stream id
                     msg.streamId(wlRequest.stream().streamId());
                     
                     // send message
-                    if ((ret = wlRequest.stream().sendMsg(msg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
+                    ret = wlRequest.stream().sendMsg(msg, submitOptions, errorInfo);
+                    
+                    // reset service id if necessary
+                    if (resetServiceId)
+                    {
+                        ((GenericMsg)msg).msgKey().flags(((GenericMsg)msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+                        ((GenericMsg)msg).msgKey().serviceId(0);
+                    }              
+                    
+                    // return if send message not successful
+                    if (ret < ReactorReturnCodes.SUCCESS)
                     {
                         return ret;
                     }
@@ -1576,33 +1581,48 @@ class WlItemHandler implements WlHandler
         
         if (_watchlist.numOutstandingPosts() < _watchlist.watchlistOptions().maxOutstandingPosts())
         {
+            boolean resetServiceId = false;
+            
             // validate post submit
             if ((ret = wlRequest.stream().validatePostSubmit((PostMsg)msg, errorInfo)) != ReactorReturnCodes.SUCCESS)
             {
                 return ret;
             }
             
-            // replace service id if message submitted with service name 
-            if (submitOptions.serviceName() != null && ((PostMsg)msg).msgKey().checkHasServiceId())
+            // replace service id if message submitted with service name
+            if (submitOptions.serviceName() != null)
             {
-                int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
-                if (serviceId < ReactorReturnCodes.SUCCESS)
+                if (!((PostMsg)msg).checkHasMsgKey())
                 {
-                    ret = _watchlist.reactor().populateErrorInfo(errorInfo,
-                            serviceId,
-                            "WlItemHandler.handlePost",
-                            "Message submitted with unknown service name " + submitOptions.serviceName() + ".");                	
+                    return _watchlist.reactor().populateErrorInfo(errorInfo,
+                                                                  ReactorReturnCodes.INVALID_USAGE,
+                                                                  "WlItemHandler.handlePost",
+                                                                  "Post message submitted with service name but no message key.");
+                    
                 }
-                else
+                
+                if ((ret = _watchlist.changeServiceNameToID(((PostMsg)msg).msgKey(), submitOptions.serviceName(), errorInfo)) < ReactorReturnCodes.SUCCESS)
                 {
-                	((PostMsg)msg).msgKey().applyHasServiceId();
-                	((PostMsg)msg).msgKey().serviceId(serviceId);
+                    return ret;
                 }
+                
+                // set resetServiceId flag
+                resetServiceId = true;
             }
-            
+
             // send message
             // no need to replace stream id for post message here - that's done inside sendMsg()
-            if ((ret = wlRequest.stream().sendMsg(msg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
+            ret = wlRequest.stream().sendMsg(msg, submitOptions, errorInfo);
+
+            // reset service id if necessary
+            if (resetServiceId)
+            {
+                ((PostMsg)msg).msgKey().flags(((PostMsg)msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+                ((PostMsg)msg).msgKey().serviceId(0);
+            }              
+            
+            // return if send message not successful
+            if (ret < ReactorReturnCodes.SUCCESS)
             {
                 return ret;
             }            

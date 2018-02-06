@@ -8,6 +8,7 @@ import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
+import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.PostMsg;
 import com.thomsonreuters.upa.codec.GenericMsg;
 import com.thomsonreuters.upa.codec.RefreshMsg;
@@ -236,6 +237,8 @@ class WlLoginHandler implements WlHandler
 			{
 				if (_stream.state().streamState() == StreamStates.OPEN)
 				{
+	                boolean resetServiceId = false;
+	                
 					// validate post submit
 					if ((ret = _stream.validatePostSubmit((PostMsg) msg, errorInfo)) != ReactorReturnCodes.SUCCESS)
 					{
@@ -243,39 +246,41 @@ class WlLoginHandler implements WlHandler
 					}
 
 					// replace service id if message submitted with service name
-					if (submitOptions.serviceName() != null && 
-						((PostMsg) msg).checkHasMsgKey())
+					if (submitOptions.serviceName() != null)
 					{
-						if (!((PostMsg) msg).msgKey().checkHasServiceId())
-						{
-							int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
-	                        if (serviceId < ReactorReturnCodes.SUCCESS)
-	                        {
-	                            return _watchlist.reactor().populateErrorInfo(errorInfo,
-	                                    serviceId,
-	                                    "WlLoginHandler.submitMsg",
-	                                    "Message submitted with unknown service name " + submitOptions.serviceName() + ".");                	
-	                        }
-	                        else
-	                        {
-	                        	((PostMsg) msg).msgKey().applyHasServiceId();
-	                        	((PostMsg) msg).msgKey().serviceId(serviceId);
-	                        }
-						}
-						else
-						{
-							return _watchlist.reactor().populateErrorInfo(errorInfo,
-									ReactorReturnCodes.INVALID_USAGE,
-									"WlLoginHandler.submitMsg",
-									"Message submitted with both service name and service ID.");  						
-						}
+					    if (!((PostMsg) msg).checkHasMsgKey())
+					    {
+                            return _watchlist.reactor().populateErrorInfo(errorInfo,
+                                                                          ReactorReturnCodes.INVALID_USAGE,
+                                                                          "WlLoginHandler.submitMsg",
+                                                                          "Post message submitted with service name but no message key.");
+					        
+					    }
+					    
+					    if ((ret = _watchlist.changeServiceNameToID(((PostMsg) msg).msgKey(), submitOptions.serviceName(), errorInfo)) < ReactorReturnCodes.SUCCESS)
+					    {
+					        return ret;
+					    }
+	                    
+	                    // set resetServiceId flag
+	                    resetServiceId = true;
 					}
 
 					// send message
-					if ((ret = _stream.sendMsg(msg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS) 
-					{
-						return ret;
-					}
+	                ret = _stream.sendMsg(msg, submitOptions, errorInfo);
+	                
+	                // reset service id if necessary
+	                if (resetServiceId)
+	                {
+	                    ((PostMsg) msg).msgKey().flags(((PostMsg) msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+	                    ((PostMsg) msg).msgKey().serviceId(0);
+	                }              
+	                
+	                // return if send message not successful
+	                if (ret < ReactorReturnCodes.SUCCESS)
+	                {
+	                    return ret;
+	                }
 				} 
 				else
 				{
@@ -299,20 +304,47 @@ class WlLoginHandler implements WlHandler
 		case MsgClasses.GENERIC:
 			if (_stream.state().streamState() == StreamStates.OPEN)
 			{
+			    boolean resetServiceId = false;
+			    
 				// replace service id if message submitted with service name
-				if (submitOptions.serviceName() != null
-						&& ((GenericMsg) msg).checkHasMsgKey()
-						&& ((GenericMsg) msg).msgKey().checkHasServiceId()) {
-					int serviceId = _watchlist.directoryHandler().serviceId(
-							submitOptions.serviceName());
-					((GenericMsg) msg).msgKey().serviceId(serviceId);
+				if (submitOptions.serviceName() != null)
+				{
+                    if (!((GenericMsg) msg).checkHasMsgKey())
+                    {
+                        return _watchlist.reactor().populateErrorInfo(errorInfo,
+                                                                      ReactorReturnCodes.INVALID_USAGE,
+                                                                      "WlLoginHandler.submitMsg",
+                                                                      "Generic message submitted with service name but no message key.");
+                        
+                    }
+                    
+                    if ((ret = _watchlist.changeServiceNameToID(((GenericMsg) msg).msgKey(), submitOptions.serviceName(), errorInfo)) < ReactorReturnCodes.SUCCESS)
+                    {
+                        return ret;
+                    }
+                    
+                    // set resetServiceId flag
+                    resetServiceId = true;
 				}
-
+				
 				// send message
-				if ((ret = _stream.sendMsg(msg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS) {
+				ret = _stream.sendMsg(msg, submitOptions, errorInfo);
+				
+                // reset service id if necessary
+                if (resetServiceId)
+                {
+                    ((GenericMsg) msg).msgKey().flags(((GenericMsg) msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+                    ((GenericMsg) msg).msgKey().serviceId(0);
+                }              
+                
+                // return if send message not successful
+				if (ret < ReactorReturnCodes.SUCCESS)
+				{
 					return ret;
 				}
-			} else {
+			}
+			else
+			{
 				// cannot submit generic message when stream is not open
 				return _watchlist
 						.reactor()

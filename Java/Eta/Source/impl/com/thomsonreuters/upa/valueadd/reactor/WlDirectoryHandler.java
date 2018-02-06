@@ -12,6 +12,7 @@ import com.thomsonreuters.upa.codec.GenericMsg;
 import com.thomsonreuters.upa.codec.MapEntryActions;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
+import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.StateCodes;
@@ -162,43 +163,47 @@ class WlDirectoryHandler implements WlHandler
             case MsgClasses.GENERIC:
                 if (_stream.state().streamState() == StreamStates.OPEN)
                 {
+                    boolean resetServiceId = false;
+                    
                     // replace service id if message submitted with service name 
-                    if (submitOptions.serviceName() != null &&
-                        ((GenericMsg)msg).checkHasMsgKey())
+                    if (submitOptions.serviceName() != null)
                     {
-                    	if (!((GenericMsg)msg).msgKey().checkHasServiceId())
-                    	{
-                    		int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
-                    		if (serviceId < ReactorReturnCodes.SUCCESS)
-                    		{
-                    			return _watchlist.reactor().populateErrorInfo(errorInfo,
-                    					serviceId,
-                    					"WlDirectoryHandler.submitMsg",
-                    					"Message submitted with unknown service name " + submitOptions.serviceName() + ".");                	
-                    		}
-                    		else
-                    		{
-                    			((GenericMsg)msg).msgKey().applyHasServiceId();
-                    			((GenericMsg)msg).msgKey().serviceId(serviceId);
-                    		}
-                    	}
-                    	else
-                    	{
-							return _watchlist.reactor().populateErrorInfo(errorInfo,
-									ReactorReturnCodes.INVALID_USAGE,
-									"WlDirectoryHandler.submitMsg",
-									"Message submitted with both service name and service ID.");
-                    	}
+                        if (!((GenericMsg)msg).checkHasMsgKey())
+                        {
+                            return _watchlist.reactor().populateErrorInfo(errorInfo,
+                                                                          ReactorReturnCodes.INVALID_USAGE,
+                                                                          "WlDirectoryHandler.submitMsg",
+                                                                          "Generic message submitted with service name but no message key.");
+                            
+                        }
+                        
+                        if ((ret = _watchlist.changeServiceNameToID(((GenericMsg)msg).msgKey(), submitOptions.serviceName(), errorInfo)) < ReactorReturnCodes.SUCCESS)
+                        {
+                            return ret;
+                        }
+                        
+                        // set resetServiceId flag
+                        resetServiceId = true;
                     }
                     
                     // replace stream id with aggregated stream id
 				    msg.streamId(wlRequest.stream().streamId());
                     
-                    // send message
-                    if ((ret = _stream.sendMsg(msg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
-                    {
-                        return ret;
-                    }
+	                // send message
+	                ret = _stream.sendMsg(msg, submitOptions, errorInfo);
+	                
+	                // reset service id if necessary
+	                if (resetServiceId)
+	                {
+	                    ((GenericMsg)msg).msgKey().flags(((GenericMsg)msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+	                    ((GenericMsg)msg).msgKey().serviceId(0);
+	                }              
+	                
+	                // return if send message not successful
+	                if (ret < ReactorReturnCodes.SUCCESS)
+	                {
+	                    return ret;
+	                }
                 }
                 else
                 {

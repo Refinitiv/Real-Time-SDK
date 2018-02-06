@@ -13,6 +13,7 @@ import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
+import com.thomsonreuters.upa.codec.MsgKey;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
@@ -545,6 +546,34 @@ class Watchlist extends VaNode
         returnToPool();
     }
 
+    /* Change service name to service id. */
+    int changeServiceNameToID(MsgKey msgKey, String serviceName, ReactorErrorInfo errorInfo)
+    {
+        if (msgKey.checkHasServiceId())
+        {
+            return _reactor.populateErrorInfo(errorInfo,
+                                              ReactorReturnCodes.INVALID_USAGE,
+                                              "Watchlist.changeServiceNameToID",
+                                              "Message submitted with both service name and service ID.");
+        }
+        
+        int serviceId = _directoryHandler.serviceId(serviceName);
+        if (serviceId < ReactorReturnCodes.SUCCESS)
+        {
+            return _reactor.populateErrorInfo(errorInfo,
+                                              ReactorReturnCodes.INVALID_USAGE,
+                                              "Watchlist.changeServiceNameToID",
+                                              "Message submitted with unknown service name " + serviceName + ".");                    
+        }
+        else
+        {
+            msgKey.applyHasServiceId();
+            msgKey.serviceId(serviceId);
+        }
+
+        return ReactorReturnCodes.SUCCESS;
+    }
+    
     /* Clear state of watchlist for re-use. */
     void clear()
     {
