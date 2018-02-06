@@ -825,6 +825,7 @@ class RsslSocketChannel extends UpaNode implements Channel
                     else
                     {
                         error.channel(this);
+                        error.errorId(retCode);
                         error.sysError(0);
                         error.text("value must be (0 >= value < 2^31");
                     }
@@ -839,6 +840,7 @@ class RsslSocketChannel extends UpaNode implements Channel
                     else
                     {
                         error.channel(this);
+                        error.errorId(retCode);
                         error.sysError(0);
                         error.text("value must be (0 >= value < 2^31");
                     }
@@ -852,6 +854,7 @@ class RsslSocketChannel extends UpaNode implements Channel
                     else
                     {
                         error.channel(this);
+                        error.errorId(retCode);
                         error.sysError(0);
                         error.text("value must be (0 >= value < 2^31");
                     }
@@ -865,6 +868,7 @@ class RsslSocketChannel extends UpaNode implements Channel
                     else
                     {
                         error.channel(this);
+                        error.errorId(retCode);
                         error.sysError(0);
                         error.text("value must be (0 >= value < 2^31");
                     }
@@ -878,6 +882,7 @@ class RsslSocketChannel extends UpaNode implements Channel
                     else
                     {
                         error.channel(this);
+                        error.errorId(retCode);
                         error.sysError(0);
                         error.text("value must be (0 >= value < 2^31");
                     }
@@ -891,12 +896,14 @@ class RsslSocketChannel extends UpaNode implements Channel
                     else
                     {
                         error.channel(this);
+                        error.errorId(retCode);
                         error.sysError(0);
                         error.text("value must be greater than " + ZLIB_COMPRESSION_THRESHOLD);
                     }
                     break;
                 default:
                     error.channel(this);
+                    error.errorId(retCode);
                     error.sysError(0);
                     error.text("Code is not valid.");
             }
@@ -912,8 +919,6 @@ class RsslSocketChannel extends UpaNode implements Channel
         {
             _writeLock.unlock();
         }
-
-        error.errorId(retCode);
 
         return retCode;
     }

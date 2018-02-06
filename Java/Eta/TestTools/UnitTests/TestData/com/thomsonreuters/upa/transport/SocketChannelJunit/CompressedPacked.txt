@@ -1,0 +1,17 @@
+Session java.nio.channels.SocketChannel[connected local=/0.0.0.0:1611 remote=localhost/127.0.0.1:14002] In Progress...
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 01 09 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+
+sessionAct portno=1611
+-- begin read (47 of 66 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 47 limit: 131072 thread id: 8 --
+0000: 00 2F 14 78 DA 62 E0 2B  48 4C CE 4E 4D 51 28 49   ./.x.b.+HL.NMQ(I
+0001: 2D 2E 51 50 36 64 40 E5  1B 31 88 A6 65 E6 25 E6   -.QP6d@..1..e.%.
+0002: 28 80 44 33 F3 D2 A1 C2  C6 00 00 00 00 FF FF      (.D3...........
+-- end read --
+
+-- begin read (29 of 95 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 29 limit: 131072 thread id: 8 --
+0000: 00 1D 14 62 10 80 0A 18  C1 35 A2 8B 18 31 88 41   ...b.....5...1.A
+0001: 45 8C 15 20 66 40 F5 02  00 00 00 FF FF            E.. f@.......
+-- end read --

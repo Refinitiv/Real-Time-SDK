@@ -1,0 +1,58 @@
+This  file contains the RIPC handshake, and a single UNKNOWN_INCOMPLETE message
+that is broken into two parts.
+
+The RIPC handshake:
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+
+The single KNOWN_INCOMPLETE message Part 1 (just a single byte of the message):
+0000: 01                                                 .
+
+The single KNOWN_INCOMPLETE message Part 2 (the rest of the message):
+0005: 81 02 01 7C 02 01 00 00  00 01 68 00 09 00 21      ...|... ...h...!
+0010: 4C 6F 67 69 6E 20 61 63  63 65 70 74 65 64 20 62   Login ac cepted b
+0020: 79 20 68 6F 73 74 20 78  78 78 78 78 78 78 78 78   y host x xxxxxxxx
+0030: 78 02 00 00 81 4B 26 10  78 78 78 78 78 78 2E 78   x....K&. xxxxxx.x
+0040: 78 78 78 78 78 78 78 78  01 05 81 35 08 00 0D 0D   xxxxxxxx ...5....
+0050: 41 70 70 6C 69 63 61 74  69 6F 6E 49 64 11 03 32   Applicat ionId..2
+0060: 35 36 0F 41 70 70 6C 69  63 61 74 69 6F 6E 4E 61   56.Appli cationNa
+0070: 6D 65 11 0C 72 73 73 6C  50 72 6F 76 69 64 65 72   me..rssl Provider
+0080: 08 50 6F 73 69 74 69 6F  6E 11 10 31 30 2E 39 31   .Positio n..10.91
+0090: 2E 31 36 31 2E 33 33 2F  6E 65 74 18 50 72 6F 76   .161.33/ net.Prov
+00A0: 69 64 65 50 65 72 6D 69  73 73 69 6F 6E 50 72 6F   idePermi ssionPro
+00B0: 66 69 6C 65 04 01 01 1C  50 72 6F 76 69 64 65 50   file.... ProvideP
+00C0: 65 72 6D 69 73 73 69 6F  6E 45 78 70 72 65 73 73   ermissio nExpress
+00D0: 69 6F 6E 73 04 01 01 0A  53 69 6E 67 6C 65 4F 70   ions.... SingleOp
+00E0: 65 6E 04 01 00 10 41 6C  6C 6F 77 53 75 73 70 65   en....Al lowSuspe
+00F0: 63 74 44 61 74 61 04 01  01 12 53 75 70 70 6F 72   ctData.. ..Suppor
+0100: 74 50 61 75 73 65 52 65  73 75 6D 65 04 01 00 1B   tPauseRe sume....
+0110: 53 75 70 70 6F 72 74 4F  70 74 69 6D 69 7A 65 64   SupportO ptimized
+0120: 50 61 75 73 65 52 65 73  75 6D 65 04 01 00 0E 53   PauseRes ume....S
+0130: 75 70 70 6F 72 74 4F 4D  4D 50 6F 73 74 04 01 00   upportOM MPost...
+0140: 13 53 75 70 70 6F 72 74  56 69 65 77 52 65 71 75   .Support ViewRequ
+0150: 65 73 74 73 04 01 00 14  53 75 70 70 6F 72 74 42   ests.... SupportB
+0160: 61 74 63 68 52 65 71 75  65 73 74 73 04 01 00 0E   atchRequ ests....
+0170: 53 75 70 70 6F 72 74 53  74 61 6E 64 62 79 04 01   SupportS tandby..
+0180: 00                                                 . 
+
+Received Login Response for Username: xxxxxx.xxxxxxxxx
+	State Open/Ok/None - text: Login accepted by host xxxxxxxxxx
+
+LoginResponseInfo
+	streamId: 0
+	username: xxxxxx.xxxxxxxxx
+	applicationId: 256
+	applicationName: rsslProvider
+	position: 10.91.161.33/net
+	providePermissionProfile: 1
+	providePermissionExpressions: 1
+	singleOpen: 0
+	allowSuspectData: 1
+	supportPauseResume: 0
+	supportOptimizedPauseResume: 0
+	supportOMMPost: 0
+	supportViewRequests: 0
+	supportBatchRequests: 0
+	supportStandby: 0
