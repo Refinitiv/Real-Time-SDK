@@ -78,19 +78,31 @@ public class WatchlistConsumerConfig
         // eventType specified which type of reques, ex. e2 is eventType 2 which
         // means update messages
         int eventType;
+        
+        // reissueType and reissueViewId are applicable only to reissue even "-e4", the reissue types are:
+         // 1 View
+        //  2 Pause
+        //  3 Resume
+        // (For example the command line argument: -e4 6::1:1,V3 
+        // the reissue type is View internally stored as 1, and the reissueViewId is 3.)
+        // For event types other than -e4, the value is 0 for reissueType.
+       int reissueType;
+       int reissueViewId;
 
         // startIdx and endIdx specify which indexes in list of mp arguments are
         // to be requested
         int startIdx;
         int endIdx;
 
-        public EventCounter(int eventType, int delay, int startIdx, int endIdx)
+        public EventCounter(int eventType, int delay, int startIdx, int endIdx, int reissueType, int reissueViewId)
         {
             this.eventType = eventType;
             this.delay = delay;
             this.startIdx = startIdx;
             this.endIdx = endIdx;
-        }
+            this.reissueType = reissueType;
+            this.reissueViewId = reissueViewId;
+      }
 
         public int delay()
         {
@@ -111,10 +123,18 @@ public class WatchlistConsumerConfig
         {
             return eventType;
         }
+        public int reissueType()
+        {
+            return reissueType;
+        }
+        public int reissueViewId()
+        {
+            return reissueViewId;
+        }
 
         public String printEventCounter()
         {
-            return "eventtype " + eventType + "  dalay " + delay + "   sIdx " + startIdx + "    eIdx " + endIdx;
+            return "eventtype " + eventType + "  dalay " + delay + "   sIdx " + startIdx + "    eIdx " + endIdx + "    reissueType " + reissueType;
         }
     }
 
@@ -227,7 +247,7 @@ public class WatchlistConsumerConfig
             // + viewId);
             this.viewId = viewId;
         }
-
+ 
         // END APIQA:
 
         public boolean isBatchStream()
@@ -468,7 +488,7 @@ public class WatchlistConsumerConfig
                 int numMPItems = itemNames.size();
 
                 // APIQA:an EventCounter object is made to represent every
-                // 'event' (e1, e2, e3) argument
+                // 'event' (e1, e2, e3, e4) argument
                 itemNames = CommandLine.values("e1");
                 if (itemNames != null && itemNames.size() > 0)
                 {
@@ -495,7 +515,22 @@ public class WatchlistConsumerConfig
                         addEventCounter("e3", item, numMPItems);
                     }
                 }
-
+                itemNames = CommandLine.values("e4");
+                if (itemNames != null && itemNames.size() > 0)
+                {
+                    for (String item : itemNames)
+                    {
+                        addEventCounter("e4", item, numMPItems);
+                    }
+                }
+                itemNames = CommandLine.values("e5");
+                if (itemNames != null && itemNames.size() > 0)
+                {
+                    for (String item : itemNames)
+                    {
+                        addEventCounter("e5", item, numMPItems);
+                    }
+                }
                 itemNames = CommandLine.values("mp");
 
                 // breakpoint is an index in the list of mp arguments sepcified
@@ -765,6 +800,14 @@ public class WatchlistConsumerConfig
 	//'2' is the index of the first mp item in list of mp items to request once 5 event1's have occured
 	//'6' is the index of the last mp item in list of mp items to request once 5 event 1's have occured
 	//doing -e1 7::2 (not specifying an end index) will result in only item indexed 2 to be requested, not a range
+	// NOTE: On -e4 event 4, Please read the following on how the event 4 is used:
+	// Example arguments: -h 48.22.4.1 -p 14002 -s ELEKTRON_DD  -mp GOOG.O -mp TRI.N  -e2 5::1 -e4 10::1:1,P -x
+	//  Notes: Make sure that -e2 event is prior to using -e4 because the way the counter works is unless an -e2
+	//         event opens up a new item the re-issue will not work.
+	// In the above example "-e4 10::1:1,P" would mean after -e2 opened the item "TRI.N" the "-e4 10::1:1,P" means:
+	//      -e4 -Reissue event
+	//      10::1:1,P send reissue after 10 updates on item indexed 1 which is 'TRI.N' in the above example. (because end index is also 1 '1:1'.
+	//      ',' after comma the reissue action V3 -View change V3, P pause, R resume. In the above example reissue action is P i.e pause
 	private void addEventCounter(String varName, String value, int numMPItems)
 	{
 		int eType=9;
@@ -793,6 +836,10 @@ public class WatchlistConsumerConfig
 		}
 		
 		int sIdx=0;int eIdx=numMPItems;
+		String reissueTypeStr = "";
+		int reissueType = 0;
+		int reissueViewId = 0;
+
 		if(partsOfValue[1].contains(":"))
 		{
 			try
@@ -807,7 +854,12 @@ public class WatchlistConsumerConfig
 			}
 			try
 			{
-				eIdx=(Integer.parseInt(partsOfValue[1].split(":")[1]) )+1;
+				if(partsOfValue[1].contains(",") == false)
+					eIdx=(Integer.parseInt(partsOfValue[1].split(":")[1]) )+1;
+				else
+				{
+					eIdx=(Integer.parseInt(partsOfValue[1].split(":")[1].split(",")[0]));
+				}
 			}
 			catch(Exception e)
 			{
@@ -835,8 +887,38 @@ public class WatchlistConsumerConfig
 			}
 			eIdx=sIdx+1;
 		}
+		if(partsOfValue[1].contains(","))
+		{
+			if(sIdx == eIdx)
+				eIdx =sIdx+1;
+			try
+			{
+				reissueTypeStr=partsOfValue[1].split(",")[1];
+				if(reissueTypeStr.contains("V"))
+				{
+					reissueType = 1; // View
+					reissueViewId = Integer.parseInt(reissueTypeStr.split("V")[1]);
+				}
+				else if(reissueTypeStr.contains("P"))
+				{
+					reissueType = 2; // Pause
+				}
+				else if(reissueTypeStr.contains("R"))
+				{
+					reissueType = 3; // Resume
+				}
+			}
+			catch(Exception e)
+			{
+				System.err.println("Error loading command line arguments:\t");
+				System.out.println("Invalid startIdx input");
+				System.exit(CodecReturnCodes.FAILURE);
+			}
+		}
 
-		EventCounter e = new EventCounter(eType, delayNum, sIdx, eIdx);
+		
+		
+		EventCounter e = new EventCounter(eType, delayNum, sIdx, eIdx, reissueType, reissueViewId);
 		eventCounters.add(e);
 	}
 
@@ -1065,6 +1147,8 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("e1", "Request new view item(s) after specified number of Src Directory UPDATES");
         CommandLine.addOption("e2", "Request new view item(s) after specified number of defaultMsg UPDATES");
         CommandLine.addOption("e3", "Request new view item(s) after specified number of Channel_down_reconnecting events");
+        CommandLine.addOption("e4", "Reissue on item(s) after item is established and streaming");
+        CommandLine.addOption("e5", "Request new view item(s) after specified number of defaultMsg REFRESHES");
         CommandLine.addOption("delayInitialRequest", "Delay sending initial request for items until after source directory refresh");
         // END APIQA
     }

@@ -283,6 +283,17 @@ Series400Consumer410-MultiThreadBatchView-003: This test tool implements the fol
 	+ Exits
 
 
+Series400Consumer410-MultiThreadBatchView-002: This Alter Consumer does the following things:
+	  -The main thread creates 20 Threads, each thread with its own OmmConsumer and OmmConsumerClient.
+	     And waits for all the threads to finish and terminates
+	  -Each thread uses its own OmmConsumer and makes one batchView (Snapshot) request with 500 items
+	     (there are some invalid items in the item list)
+	  -Each thread dispatches from its own OmmConsumer, and keeps track of the number of Refersh and 
+	     Status messages it receives.
+	  -When the thread receives responses to all the items, it uninitializes its Ommconsumer and terminates
+
+Series400Consumer410-MultiThreaded-002:  This test tool is using two consumer instance, 
+     Both cosumers open 10000 snapshot items. Total 20000 snapstot requests from file 20k.xml
 
 Module:  Series400Consumer430
 -----------------------------

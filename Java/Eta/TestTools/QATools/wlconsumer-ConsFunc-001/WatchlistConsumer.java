@@ -263,6 +263,8 @@ public class WatchlistConsumer implements ConsumerCallback
     private int e1Counter = 0;
     private int e2Counter = 0;
     private int e3Counter = 0;
+    private int e4Counter = 0;
+    private int e5Counter = 0;
     private ArrayList<EventCounter> allEventCounters = new ArrayList<EventCounter>();
     // END APIQA
 
@@ -275,6 +277,8 @@ public class WatchlistConsumer implements ConsumerCallback
     private final List<Integer> viewFieldList;
     // APIQA:
     private final List<String> viewElementNameList;
+    private final List<Integer> reissueViewFieldList;
+    
     boolean fieldDictionaryLoaded;
     boolean enumDictionaryLoaded;
 
@@ -300,6 +304,9 @@ public class WatchlistConsumer implements ConsumerCallback
 
         viewFieldList = new ArrayList<Integer>();
         viewElementNameList = new ArrayList<String>();
+        
+        // APIQA: reissue test
+        reissueViewFieldList = new ArrayList<Integer>();
 
         try
         {
@@ -742,6 +749,155 @@ public class WatchlistConsumer implements ConsumerCallback
 		newItemRequested++;
 		System.out.println("APIQA: New item requested: PrivateStream: "+isPrivate+", Snapshot: "+isSnap);
 		return CodecReturnCodes.SUCCESS;
+	}
+	
+	// APIQA: Reissue item
+	int reissueItem(Reactor reactor, ReactorChannel channel,  int reissueType, int reissueViewId, int itemIndex)
+	{
+		int ret = CodecReturnCodes.SUCCESS;
+
+        String nameOfItem = watchlistConsumerConfig.getNameOfItem(itemIndex);
+        if(itemIndex >= watchlistConsumerConfig.itemList().size())
+        {
+    		System.out.println("\n\n-----------------APIQA: <Item Not found in itemlist> Invalid Reissue item " + nameOfItem + ", Reissue Type: " + reissueType + ", reissueViewId: " + reissueViewId);
+    		return CodecReturnCodes.FAILURE;        	
+       	
+        }
+        ItemInfo itInfo = watchlistConsumerConfig.itemList().get(itemIndex);
+        if( itInfo == null || !(itInfo.name().equalsIgnoreCase(nameOfItem)))
+        {
+			System.out.println("\n\n-----------------APIQA: <Item Not found in itemlist> Invalid Reissue item " + nameOfItem + ", Reissue Type: " + reissueType + ", reissueViewId: " + reissueViewId);
+			return CodecReturnCodes.FAILURE;        	
+        }
+        
+		itemRequest.clear();
+
+		itemRequest.addItem(nameOfItem);
+		itemRequest.streamId(itInfo.streamId);
+		itemRequest.domainType(itInfo.domain());        
+
+		if(reissueType == 1)
+		{
+			if (!watchlistConsumerConfig.enableSnapshot())
+	            itemRequest.applyStreaming();
+			System.out.println("\n\n-----------------APIQA: Reissue item " + nameOfItem + " streamid " + itemRequest.streamId() + ", View Reissue Type: " + reissueType + ", reissueViewId: " + reissueViewId);
+			// Encoding VIEW
+			payload = CodecFactory.createBuffer(); // move it to the top to share 
+			payload.data(ByteBuffer.allocate(1024));
+
+			if (payload == null)
+			{
+				return CodecReturnCodes.FAILURE;
+			}
+			encIter.clear();
+			encIter.setBufferAndRWFVersion(payload, channel.majorVersion(), channel.minorVersion());
+			itemRequest.applyHasView();
+			reissueViewFieldList.clear();
+			if(reissueViewId == 0)
+			{
+				System.out.println("------------------APIQA: reissue StreamID: " +  itemRequest.streamId() + " Setting VIEW 0 [FIDS: 2, 4, 38]");
+				reissueViewFieldList.add(2);
+				reissueViewFieldList.add(4);
+				reissueViewFieldList.add(38);
+			}
+			else if(reissueViewId == 1)
+			{
+				System.out.println("------------------APIQA: reissue StreamID: " +  itemRequest.streamId() + " Setting VIEW 1 [FIDS 6, 22]");
+				reissueViewFieldList.add(6);
+				reissueViewFieldList.add(22);
+			}
+			else if(reissueViewId == 2)
+			{
+				System.out.println("------------------APIQA: reissue StreamID: " +  itemRequest.streamId() + " Setting VIEW 2 [FIDS 25,32]");
+				reissueViewFieldList.add(25);
+				reissueViewFieldList.add(32);
+			}
+			else if(reissueViewId == 3)
+			{
+				System.out.println("------------------APIQA: reissue StreamID: " +  itemRequest.streamId() + " Setting VIEW 3 [FIDS 25,32,267]");
+				reissueViewFieldList.add(22);
+				reissueViewFieldList.add(32);
+				reissueViewFieldList.add(267);
+			}
+			else if(reissueViewId == 4)
+			{
+				System.out.println("------------------APIQA: reissue StreamID: " +  itemRequest.streamId() + " Setting VIEW 4 [FIDS 11,38,267");
+				reissueViewFieldList.add(11);
+				reissueViewFieldList.add(38);
+				reissueViewFieldList.add(267);
+			}
+			else if(reissueViewId == 5)
+			{
+				System.out.println("------------------APIQA: reissue StreamID: " +  itemRequest.streamId() + " Setting VIEW 5 [FIDS 2,32]");
+				reissueViewFieldList.add(2);
+				reissueViewFieldList.add(32);
+			}
+			else if(reissueViewId == 6)
+			{
+				System.out.println("------------------APIQA: reissue StreamID: " +  itemRequest.streamId() + " Setting VIEW 6 [FIDS 4,7,8");
+				reissueViewFieldList.add(4);
+				reissueViewFieldList.add(7);
+				reissueViewFieldList.add(8);
+			}
+			else if(reissueViewId == 7)
+			{
+				System.out.println("------------------APIQA: reissue StreamID: " +  itemRequest.streamId() + " Setting VIEW 7 [FIDS 0-99");
+				int vIdx =0;
+				for(vIdx = 1; vIdx < 100; vIdx++ )
+					reissueViewFieldList.add(vIdx);
+			}
+			itemRequest.viewFields(reissueViewFieldList);
+			ret = itemRequest.encode(encIter);
+			if (ret < CodecReturnCodes.SUCCESS)
+			{
+				System.out.println("\n\n-----------------APIQA: Failed to encode View Reissue for item " + nameOfItem + ", Reissue Type: " + reissueType + ", reissueViewId: " + reissueViewId);
+				errorInfo.error().text("RequestItem.encode() failed");
+				errorInfo.error().errorId(ret);
+				return ret;
+			}
+			itemRequest.requestMsg.encodedDataBody(payload);
+		}
+		else if(reissueType == 2)
+		{ // Pause
+            System.out.println("-----------------APIQA: reissue for item " + nameOfItem + " streamid " + itemRequest.streamId() + ", Reissue Type: " + reissueType + ", Setting PAUSE flags ");
+			if (!watchlistConsumerConfig.enableSnapshot())
+	            itemRequest.applyStreaming();
+			itemRequest.applyPause();
+  //          itemRequest.applyNoRefresh();			
+            itemRequest.encode();
+		}
+		else if(reissueType == 3)
+		{ // Resume
+			if (!watchlistConsumerConfig.enableSnapshot())
+	            itemRequest.applyStreaming();
+           System.out.println("-----------------APIQA: reissue for item " + nameOfItem + " streamid " + itemRequest.streamId() + ", Reissue Type: " + reissueType + ", Setting Resume/Streamin ");
+           System.out.println("-----------------APIQA: Setting RESUME/Streaming flags on item reissue for user streamid " + itemRequest.streamId());
+            itemRequest.applyStreaming();
+            itemRequest.encode();
+		}
+		else
+		{
+			System.out.println("\n\n-----------------APIQA: Item " + nameOfItem + "<UNSUPPORTED/INVALID> Reissue Type: " + reissueType + ", reissueViewId: " + reissueViewId);
+			return CodecReturnCodes.FAILURE;        				
+		}
+	
+		
+		System.out.println(itemRequest.toString());
+
+	    submitOptions.clear();
+        if (watchlistConsumerConfig.serviceName() != null)
+        {
+            submitOptions.serviceName(watchlistConsumerConfig.serviceName());
+        }
+
+        ret = channel.submit(itemRequest.requestMsg, submitOptions, errorInfo);
+        if (ret < CodecReturnCodes.SUCCESS)
+        {
+            System.out.println("\nReactorChannel.submit() failed: " + ret + "(" + errorInfo.error().text() + ")\n");
+        }
+
+		return CodecReturnCodes.SUCCESS;
+		
 	}
 	//END APIQA: Requesting new item
 
@@ -1280,7 +1436,32 @@ public class WatchlistConsumer implements ConsumerCallback
                 itemState = refreshMsg.state();
                 /* Decode data body according to its domain. */
                 itemDecoder.decodeDataBody(event.reactorChannel(), refreshMsg);
-
+                e5Counter++;
+                
+                if (allEventCounters.size() > 0)
+                {
+                    for (int i = 0; i < allEventCounters.size(); ++i)
+                    {
+                        if (allEventCounters.get(i).delay() == e5Counter && allEventCounters.get(i).eventType() == 5)
+                        {
+                            int startIdx = allEventCounters.get(i).startIdx();
+                            int endIdx = allEventCounters.get(i).endIdx();
+                            for (int index = startIdx; index < endIdx; ++index)
+                            {
+                                boolean isSnap = watchlistConsumerConfig.getMPItemInfo(index, "isSnapshot");
+                                boolean isView = watchlistConsumerConfig.getMPItemInfo(index, "isView");
+                                boolean isPrivate;
+                                isPrivate = watchlistConsumerConfig.getMPItemInfo(index, "isPrivate");
+                                int vID = watchlistConsumerConfig.getViewId(index);
+                                String nameOfItem = watchlistConsumerConfig.getNameOfItem(index);
+                                requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, nameOfItem);
+                            }
+                            allEventCounters.remove(i);
+                            break;
+                        }
+                    }
+                }
+                
                 break;
 
             case MsgClasses.UPDATE:
@@ -1301,6 +1482,7 @@ public class WatchlistConsumer implements ConsumerCallback
                 itemDecoder.decodeDataBody(event.reactorChannel(), updateMsg);
 
                 e2Counter++;
+                e4Counter++; // For reissue
                 if (allEventCounters.size() > 0)
                 {
                     for (int i = 0; i < allEventCounters.size(); ++i)
@@ -1318,6 +1500,21 @@ public class WatchlistConsumer implements ConsumerCallback
                                 int vID = watchlistConsumerConfig.getViewId(index);
                                 String nameOfItem = watchlistConsumerConfig.getNameOfItem(index);
                                 requestNewItem(reactor, event.reactorChannel(), false, isPrivate, isSnap, isView, vID, nameOfItem);
+                            }
+                            allEventCounters.remove(i);
+                            break;
+                        }
+                        
+                        // Check for reissue
+                        if (allEventCounters.get(i).delay() == e4Counter && allEventCounters.get(i).eventType() == 4)
+                        {
+                            int startIdx = allEventCounters.get(i).startIdx();
+                            int endIdx = allEventCounters.get(i).endIdx();
+                            int reissueType = allEventCounters.get(i).reissueType();
+                            int reissueVid = allEventCounters.get(i).reissueViewId();
+                            for (int index = startIdx; index < endIdx; ++index)
+                            {
+                                reissueItem(reactor, event.reactorChannel(), reissueType, reissueVid, index);
                             }
                             allEventCounters.remove(i);
                             break;

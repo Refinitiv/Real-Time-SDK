@@ -297,17 +297,19 @@ class WlStream extends VaNode
         
         while ((msg = _unsentMsgQueue.poll()) != null)
         {
+            // send message
+        	ret = sendMsg(msg, _submitOptions, errorInfo);
+            
+            //should return back to pool after sendMsg() returns, otherwise sendMsg() will call addToUnsentMsgQueue()
+            //which will try to poll the same msg obj for msgCopy.
             // return msg to pool if not cached request message
             if (msg != _requestMsg)
             {
                 _msgPool.add(msg);
             }
-            
-            // send message
-            if ((ret = sendMsg(msg, _submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
-            {
+
+            if (ret < ReactorReturnCodes.SUCCESS)
                 return ret;
-            }
         }
 
         return ret;

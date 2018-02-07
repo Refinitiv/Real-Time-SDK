@@ -30,7 +30,11 @@ vaprovider-GenM-001:   Alters VAProvider to send genericMsg on login, directory 
 GenericMsg contains ElementList with one ElementEntry. 
 Also added is the ability to decode genericMsg from a consumer. 
 This VAProvider works in conjuction with the watchlist consumer code change from wlconsumer-GenM-001
-$
+
+Module:  Provider 
+---------------------------
+
+provider-Item-001:    Alters Provider which send TEMPORARY_REJECT on every 5th item request from consumer. Expand OPEN_LIMIT to 50000.
 
 Module:  Value Add Consumer 
 ---------------------------
@@ -79,8 +83,22 @@ Similarily, after 9 update events, it will request item indexed 4 (AAPL)
 Initial requests can be delayed until source dir refresh by specifying '-delayIntialRequest'
 Single open and allow suspect data can be specified by setting '-singleOpen 0(or 1)'
 and '-allowSuspect 0(or 1)' (default set to 1)
+Further extended to add event "-e4", for reissue on an item expressing View change, pause, resume.
+ NOTE: On -e4 event 4, Please read the following on how the event 4 is used:
+ Example arguments: -h 48.22.4.1 -p 14002 -s ELEKTRON_DD  -mp GOOG.O -mp TRI.N  -e2 5::1 -e4 10::1:1,P -x
+  Notes: Make sure that -e2 event is prior to using -e4 because the way the counter works is unless an -e2
+         event opens up a new item the re-issue will not work.
+   In the above example "-e4 10::1:1,P" would mean after -e2 opened the item "TRI.N" the "-e4 10::1:1,P" means:
+      -e4 -Reissue event
+      10::1:1,P send reissue after 10 updates on item indexed 1 which is 'TRI.N' in the above example. (because end index is also 1 '1:1'.
+      ',' after comma the reissue action V3 -View change V3, P pause, R resume. In the above example reissue action is P i.e pause.
 
 wlconsumer-GenM-001:  Alters WLConsumer to send genericMsg on login, directory and market price streams. 
 GenericMsg contains ElementList with one ElementEntry. 
 Also added is the ability to decode genericMsg from a provider. 
 This works in conjuction with the VAProvider code change from vaprovider-GenM-001
+
+wlconsumer-MutiThreaded-001: Alter WLConsumer which is multi-thread, this application can send 
+requests to multiple servers
+      New command line arguments 
+	  -server ${CONS_HOST1}:${PROV_PORT1}:${PROV_SERVICE1} -server ${CONS_HOST2}:${PROV_PORT2}:${PROV_SERVICE2} -itemFile 20k.xml -itemCount 10000

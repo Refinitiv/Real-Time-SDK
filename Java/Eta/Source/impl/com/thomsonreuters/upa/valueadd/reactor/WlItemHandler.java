@@ -1997,18 +1997,23 @@ class WlItemHandler implements WlHandler
                             _tempWlInteger.value(wlRequest.requestMsg().streamId());
                             _watchlist.streamIdtoWlRequestTable().remove(_tempWlInteger);
                         }
-                        
-                        if (!wlRequest.requestMsg().checkStreaming() ||
-                                ((RefreshMsg)msg).state().streamState() == StreamStates.NON_STREAMING)
-                        {   
-                            // if no more requests in stream, close stream
-                            if (wlStream.userRequestList().size() == 0 &&   
-                                wlStream.waitingRequestList().size() == 0 &&
-                                wlStream.wlService().waitingRequestList().size() == 0)
-                            {                            
-                                handleClose(wlStream, msg);
-                                _pendingSendMsgList.remove(wlStream);
-                                _snapshotStreamClosed = true;
+                  
+                        boolean closeWlStream = false;
+                        /*if no more requests in stream, close stream asap to prevent client from submitting same request
+                          on 	this wlStream during the callback because this wlStream is closing, cannot be used during
+                    	  the callback*/
+                        if (wlStream.userRequestList().size() == 0 &&   
+                            wlStream.waitingRequestList().size() == 0 &&
+                            wlStream.wlService().waitingRequestList().size() == 0)
+                        {        
+                        	closeWlStream = true;
+                            _pendingSendMsgList.remove(wlStream);
+                            _snapshotStreamClosed = true;
+                            if (wlStream.itemAggregationKey() != null)
+                            {
+                                _itemAggregationKeytoWlStreamTable.remove(wlStream.itemAggregationKey());
+                                wlStream.itemAggregationKey().returnToPool();
+                                wlStream.itemAggregationKey(null);
                             }
                         }
                         
@@ -2016,6 +2021,16 @@ class WlItemHandler implements WlHandler
                         {
                             // break out of loop for error
                             break;
+                        }
+                        else 
+                        {
+                        	if (closeWlStream)
+                        	{
+                        		handleClose(wlStream, msg);
+                        		return ret;
+                        	}
+                        	else
+                            	_watchlist.closeWlRequest(wlRequest);
                         }
                     }
                     else
@@ -2027,20 +2042,8 @@ class WlItemHandler implements WlHandler
                             break;
                         }
                     }
-                    
-                    // if snapshot request or NON_STREAMING, close watchlist request and stream if necessary
-                    if (!wlRequest.requestMsg().checkStreaming() ||
-                        ((RefreshMsg)msg).state().streamState() == StreamStates.NON_STREAMING)
-                    {
-                        // remove from list
-                        if (!(msg.domainType() == DomainTypes.SYMBOL_LIST 
-                                && (wlRequest.symbolListFlags() & SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_SNAPSHOTS)  > 0 ))
-                        {
-                            _watchlist.closeWlRequest(wlRequest);
-                        }
-                    }
                 }
-            }
+            } //done with for loop
 
             if(needtoSetPendingViewRefreshFlagOff) wlStream._pendingViewRefresh = false;
             
@@ -2789,6 +2792,18 @@ class WlItemHandler implements WlHandler
     	LinkedList<WlRequest> requestList = wlStream.userRequestList();		
   	   	LinkedList<WlRequest> waitingList = wlStream.wlService().waitingRequestList();
   	   	
+  	   	if (wlStream.itemAggregationKey() != null)
+  	   	{
+  	   		_itemAggregationKeytoWlStreamTable.remove(wlStream.itemAggregationKey());
+  	   		wlStream.itemAggregationKey().returnToPool();
+  	   		wlStream.itemAggregationKey(null);
+  	   	}
+	
+	  	_streamList.remove(wlStream);
+	  	removeItemGroupTableStream(wlStream);
+	      if (wlStream.wlService() != null)
+	      	wlStream.wlService().streamList().remove(wlStream);
+      
   	   	for ( WlRequest usrRequest = waitingList.poll(); usrRequest != null; usrRequest = waitingList.poll()) 
   	   	{
   	   		usrRequest.state(State.PENDING_REQUEST);
@@ -2817,7 +2832,7 @@ class WlItemHandler implements WlHandler
   			   ((StatusMsg)msg).state().dataState(DataStates.SUSPECT);
   		   }	
   	        _tempWlInteger.value(msg.streamId());
-  		   if ((callbackUser("WlItemHandler.handleClose", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+  		   if ((callbackUser("WlItemHandler.handleCloseRecover", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
   		   {
   			   System.out.println(" WlItemHandler handleCloseRecover callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
   		   }
@@ -2867,12 +2882,6 @@ class WlItemHandler implements WlHandler
                 addToPendingRequestTable(usrRequest, _submitOptions);
             }
 
-            if (wlStream.itemAggregationKey() != null)
-            {
-       	   	    _itemAggregationKeytoWlStreamTable.remove(wlStream.itemAggregationKey());
-       	   	    wlStream.itemAggregationKey().returnToPool();
-            }
-
     		if (usrRequest.providerDriven() && (((StatusMsg)msg).checkHasState()) && ((StatusMsg)msg).state().streamState() != StreamStates.OPEN)
     		{
       			_symbolListRequestKey.clear();
@@ -2888,14 +2897,16 @@ class WlItemHandler implements WlHandler
             	wlStream.wlService().itemGroupTableGet(((StatusMsg)msg).groupId()).openStreamList().remove(wlStream);
             if (wlStream.wlService() != null)
             	wlStream.wlService().streamList().remove(wlStream);
-        	wlStream.close();
         	
             _tempWlInteger.value(msg.streamId());
+
     		if ((callbackUser("WlItemHandler.handleCloseRecover", msg, rdmMsg, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
     		{
     			System.out.println(" WlItemHandler handleCloseRecover callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
     		}    
     	} 
+    	
+    	wlStream.close();
     }    	
 
     void handleCloseRecover(WlService wlService, Msg msg)
@@ -2908,9 +2919,6 @@ class WlItemHandler implements WlHandler
  		   if (requestList.size() == 0 ) continue;
  		   else 
  			   handleCloseRecover(wlStream, msg);
- 			
- 		  removeItemGroupTableStream(wlStream);
- 		   _streamList.remove(wlStream); 		   
   	   } 	
     }    
                             
@@ -2960,7 +2968,6 @@ class WlItemHandler implements WlHandler
     	removeItemGroupTableStream(wlStream);
         if (wlStream.wlService() != null)
         	wlStream.wlService().streamList().remove(wlStream);
-    	wlStream.close();
     	    	    	
     	for (usrRequest = requestList.poll(); usrRequest!= null; usrRequest = requestList.poll())
     	{    	 
@@ -2969,7 +2976,9 @@ class WlItemHandler implements WlHandler
     		((StatusMsg)msg).state().streamState(StreamStates.CLOSED);
     		((StatusMsg)msg).state().dataState(DataStates.SUSPECT);    	
             _tempWlInteger.value(msg.streamId());
-    		if ((callbackUser("WlItemHandler.handleClose", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+            WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().remove(_tempWlInteger);
+                        
+    		if ((callbackUser("WlItemHandler.handleClose", msg, null, wlRequest, _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
     		{
     			System.out.println(" WlItemHandler handleClose callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
     		}
@@ -2985,7 +2994,9 @@ class WlItemHandler implements WlHandler
     		}    		
 
             _watchlist.closeWlRequest(usrRequest);
-    	}             
+    	} 
+    	
+    	wlStream.close();
     }
     
     void handleCloseRecoverStatusMsg(Msg msg)
@@ -3007,11 +3018,11 @@ class WlItemHandler implements WlHandler
         {
            	_itemAggregationKeytoWlStreamTable.remove(wlStream.itemAggregationKey());
         	wlStream.itemAggregationKey().returnToPool();
+        	wlStream.itemAggregationKey(null);
         }
         
     	removeItemGroupTableStream(wlStream);
     	_streamList.remove(wlStream);
-    	wlStream.close();
     	
   	   	LinkedList<WlRequest> waitingList = wlStream.wlService().waitingRequestList();
   	   	
@@ -3034,9 +3045,10 @@ class WlItemHandler implements WlHandler
     		msg.domainType(usrRequest._requestMsg.domainType());
     		((StatusMsg)msg).state().streamState(StreamStates.CLOSED_RECOVER);
     		((StatusMsg)msg).state().dataState(DataStates.SUSPECT);
-
+    		WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().remove(_tempWlInteger);
+    		 
             _tempWlInteger.value(msg.streamId());
-    		if ((callbackUser("WlItemHandler.handleCloseRecoverStatusMsg", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+    		if ((callbackUser("WlItemHandler.handleCloseRecoverStatusMsg", msg, null, wlRequest, _errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
     		{
     			System.out.println(" WlItemHandler handleClose callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
     		}
@@ -3051,7 +3063,9 @@ class WlItemHandler implements WlHandler
     		    _providerRequestTable.remove(_symbolListRequestKey);
     		}    	
             _watchlist.closeWlRequest(usrRequest);
-    	}                 	
+    	} 
+    	
+    	wlStream.close();
     }
                                                
     void handleOpenStatus(WlStream wlStream, Msg msg)
@@ -3145,12 +3159,12 @@ class WlItemHandler implements WlHandler
         {
             _itemAggregationKeytoWlStreamTable.remove(wlStream.itemAggregationKey());
             wlStream.itemAggregationKey().returnToPool();
+            wlStream.itemAggregationKey(null);
         }
 
     	_streamList.remove(wlStream);
     	wlStream.wlService().streamList().remove(wlStream);
     	removeItemGroupTableStream(wlStream);
-    	wlStream.close();
     	    	    	
     	for (usrRequest = requestList.poll(); usrRequest!= null; usrRequest = requestList.poll())
     	{    	 
@@ -3161,8 +3175,10 @@ class WlItemHandler implements WlHandler
     		{
     			System.out.println(" WlItemHandler handleClose callbackUser failed for stream " + usrRequest.requestMsg().streamId() );
     		}
-            _watchlist.closeWlRequest(usrRequest);
+
+    		_watchlist.closeWlRequest(usrRequest);
     	}  
+    	wlStream.close();
     }
         
     
@@ -3177,8 +3193,8 @@ class WlItemHandler implements WlHandler
         {
             _itemAggregationKeytoWlStreamTable.remove(wlStream.itemAggregationKey());
             wlStream.itemAggregationKey().returnToPool();
+            wlStream.itemAggregationKey(null);
         }
-        wlStream.close();
 
         // fanout status to user and add requests to request timeout list
         LinkedList<WlRequest> requestList = wlStream.userRequestList();
@@ -3195,6 +3211,8 @@ class WlItemHandler implements WlHandler
             
             sendStatus(usrRequest.requestMsg().streamId(), usrRequest.requestMsg().domainType(), "Request timeout", usrRequest.requestMsg().checkPrivateStream());
         }
+        
+        wlStream.close();
         
         // trigger dispatch
         _watchlist.reactor().sendWatchlistDispatchNowEvent(_watchlist.reactorChannel());

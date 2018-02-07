@@ -1,0 +1,12 @@
+# file,location
+,Applications/Examples
+,Applications/PerfTools
+,Applications/Shared
+WatchlistConsumerConfig.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
+WatchlistConsumer.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
+ConsumerCallbackThread.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
+ConsumerRequestThread.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
+build.xml,Applications/Examples/
+20k.xml,Applications/Examples/
+xpp3-1.1.3_8.jar,Applications/Examples/
+xpp3_min-1.1.3_8.jar,Applications/Examples/
