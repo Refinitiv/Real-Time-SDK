@@ -1592,6 +1592,7 @@ class RsslHttpSocketChannelProvider
         _pingWriteBuffer.put(7, (byte)0x0A);
     }
 
+    @SuppressWarnings("deprecation")
     private void handleOldJavaChannel(RsslSocketChannel channel, Error error)
     {
         // in base channel
@@ -1837,7 +1838,8 @@ class RsslHttpSocketChannelProvider
             }
         }
     }
-
+    
+    @SuppressWarnings("deprecation")
     public int switchWininetSession(Error error)
     {
         // on base control rsslChannel

@@ -723,6 +723,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		_activeConfig.rsslRDMLoginRequest = config.loginReq();
 	}
 	
+	@SuppressWarnings("deprecation")
 	void readChannelConfig(EmaConfigImpl configImpl, String channelName, boolean lastChannel)
 	{
 		int maxInt = Integer.MAX_VALUE;		

@@ -141,7 +141,7 @@ public class JNIServer extends UpaNode implements Server
         return channel;
     }
 
-    @Override
+    @Override @Deprecated
     public ServerSocketChannel srvrScktChannel()
     {
         return _srvrScktChannel;

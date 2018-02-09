@@ -1230,13 +1230,13 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
         return _state;
     }
 
-    @Override
+    @Override @Deprecated
     public SocketChannel scktChannel()
     {
         return null;
     }
 
-    @Override
+    @Override @Deprecated
     public SocketChannel oldScktChannel()
     {
         return null;

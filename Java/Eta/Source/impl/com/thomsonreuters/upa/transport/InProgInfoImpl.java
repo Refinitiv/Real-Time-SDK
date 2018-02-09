@@ -43,7 +43,7 @@ public class InProgInfoImpl implements InProgInfo
         _oldScktChannel = oldScktChannel;
     }
 
-    @Override
+    @Override @Deprecated
     public java.nio.channels.SocketChannel oldScktChannel()
     {
         return _oldScktChannel;
@@ -54,7 +54,7 @@ public class InProgInfoImpl implements InProgInfo
         _newScktChannel = newScktChannel;
     }
 
-    @Override
+    @Override @Deprecated
     public java.nio.channels.SelectableChannel newScktChannel()
     {
         return _newScktChannel;

@@ -44,7 +44,7 @@ class FieldEntryImpl implements FieldEntry
         return Encoders.encodeFieldEntry(iter, this, null);
     }
 
-    @Override
+    @Override @Deprecated
     public int encode(EncodeIterator iter, Object data)
     {
         return Encoders.encodeFieldEntry(iter, this, data);

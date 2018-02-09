@@ -515,13 +515,13 @@ public class JNIChannel extends UpaNode implements Channel
         return _state;
     }
 
-    @Override
+    @Override @Deprecated
     public SocketChannel scktChannel()
     {
         return _scktChannel;
     }
 
-    @Override
+    @Override @Deprecated
     public SocketChannel oldScktChannel()
     {
         return _oldScktChannel;

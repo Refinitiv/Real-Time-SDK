@@ -533,7 +533,7 @@ class ServerImpl extends UpaNode implements Server
         return ((SharedPool)_sharedPool).bufferUsage(error);
     }
 
-    @Override
+    @Override 
     public int close(Error error)
     {
         if (_state != ChannelState.INACTIVE)
@@ -570,7 +570,7 @@ class ServerImpl extends UpaNode implements Server
         return ret;
     }
 
-    @Override
+    @Override @Deprecated
     public ServerSocketChannel srvrScktChannel()
     {
         return _srvrScktChannel;
