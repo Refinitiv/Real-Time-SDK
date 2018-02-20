@@ -228,6 +228,16 @@ extern "C" {
 #define ENUM_TYPE_DICTIONARY_STREAM_ID 4
 #define MARKETPRICE_ITEM_STREAM_ID 5
 
+#ifdef _WIN32
+#ifdef _WIN64
+#define SOCKET_PRINT_TYPE "%llu"	/* WIN64 */
+#else
+#define SOCKET_PRINT_TYPE "%u"	/* WIN32 */
+#endif
+#else
+#define SOCKET_PRINT_TYPE "%d"  /* Linux */
+#endif
+
 /* ping management information */
 typedef struct {
 	RsslUInt32	pingTimeoutServer; /* server ping timeout */

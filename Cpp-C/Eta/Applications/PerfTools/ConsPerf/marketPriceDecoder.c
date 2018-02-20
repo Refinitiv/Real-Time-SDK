@@ -38,8 +38,8 @@ RTR_C_INLINE void updateLatencyStats(ConsumerThread *pConsumerThread, TimeValue 
 	TimeValue currentTime;
 	TimeValue unitsPerMicro;
 
-	currentTime = getTimeMicro();
-	unitsPerMicro = 1;
+	currentTime = consPerfConfig.nanoTime ? getTimeNano() : getTimeMicro();
+	unitsPerMicro = consPerfConfig.nanoTime ? 1000 : 1;
 
 	switch(msgClass)
 	{

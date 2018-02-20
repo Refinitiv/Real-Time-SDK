@@ -688,7 +688,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			RsslErrorInfo rsslErrorInfo;
 #endif
 
-			printf("Connection up! Channel fd=%d\n\n", pReactorChannel->socketId);
+			printf("Connection up! Channel fd="SOCKET_PRINT_TYPE"\n\n", pReactorChannel->socketId);
 
 			/* Set file descriptor. */
 			FD_SET(pReactorChannel->socketId, &readFds);
@@ -738,7 +738,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The file descriptor representing the RsslReactorChannel has been changed.
 			 * Update our file descriptor sets. */
-			printf("Fd change: %d to %d\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
+			printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
 			FD_CLR(pReactorChannel->oldSocketId, &readFds);
 			FD_CLR(pReactorChannel->oldSocketId, &exceptFds);
 			FD_SET(pReactorChannel->socketId, &readFds);
@@ -749,7 +749,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The channel has failed and has gone down.  Print the error, close the channel, and reconnect later. */
 
-			printf("Connection down: Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("Connection down: Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -763,7 +763,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		}
 		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 		{
-			printf("Connection down, reconnecting.  Channel fd=%d\n", pReactorChannel->socketId);
+			printf("Connection down, reconnecting.  Channel fd="SOCKET_PRINT_TYPE"\n", pReactorChannel->socketId);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -781,7 +781,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		case RSSL_RC_CET_WARNING:
 		{
 			/* We have received a warning event for this channel. Print the information and continue. */
-			printf("Received warning for Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 			return RSSL_RC_CRET_SUCCESS;
 		}
@@ -1399,7 +1399,7 @@ static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReac
 			}
 			break;
 		default:
-			printf("Unhandled Domain Type %d received on channel %d\n", pMsg->msgBase.domainType, pChannel->socketId);
+			printf("Unhandled Domain Type %d received on channel "SOCKET_PRINT_TYPE"\n", pMsg->msgBase.domainType, pChannel->socketId);
 			break;
 	}
 
@@ -1439,6 +1439,9 @@ void cleanUpAndExit(int code)
 				free (chanCommands[i].groupIdBuffers[n].data);
 		}
 	}
+
+	for(i = 0; i < MAX_CHAN_COMMANDS; ++i)
+		cleanupChannelCommand(&chanCommands[i]);
 
 	cleanupFdmDictionary();
 
@@ -1485,7 +1488,7 @@ static void displayCache(ChannelCommand *pCommand)
 	printf("\nStarting Cache Display ");
 
 	if (pCommand->reactorChannel)
-		printf("(Channel %d):\n", pCommand->reactorChannel->socketId);
+		printf("(Channel "SOCKET_PRINT_TYPE"):\n", pCommand->reactorChannel->socketId);
 	else
 		printf(":\n");
 

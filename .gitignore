@@ -13,10 +13,24 @@
 *.ser
 **/cobertura_instrumented
 **/bin
-**/Ema/Libs/ema*
+**/Ema/Libs
 **/Eta/Libs
+**/Ema/Executables
+**/Eta/Executables
+**/DebugShared
+**/DebugStatic
+**/OptimizedShared
+**/OptimizedStatic
+**/OptimizedAssertShared
+**/OptimizedAssertStatic
 **/refman
-
+Cpp-C/Eta/Applications/Training/Consumer/Module_1a_Connect/CMakeLists.txt
+*/Eta/Applications/Training/*/*/CMakeLists.txt
+*/Ema/Examples/Training/*/*/*/CMakeLists.txt
+Elektron-SDK-BinaryPack
+Elektron-SDK-BinaryPack-build
+googletest
+googletest-build
 
 ## Visual Studio
 
@@ -82,3 +96,16 @@ $RECYCLE.BIN/
 
 #Mr Developer
 .mr.developer.cfg
+
+# cmake
+**/cmake_install.cmake
+**/CMakeFiles
+*.vcxproj
+*.vcxproj.filters
+*.sln
+CMakeCache.txt
+**/*_shared.dir
+**/*_static.dir
+**/EmaVersion.h
+**/rsslVersion.h
+**/LinuxSoLink

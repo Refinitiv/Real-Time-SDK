@@ -47,7 +47,7 @@ public :
 
 	void clear();
 
-	void totalCountHint( UInt32 totalCountHint );
+	void totalCountHint( UInt8 totalCountHint );
 
 	void add( UInt8 filterId, FilterEntry::FilterAction action, 
 				const ComplexType& complexType, const EmaBuffer& permission );

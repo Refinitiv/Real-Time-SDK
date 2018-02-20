@@ -133,11 +133,6 @@ Int32 Item::getStreamId() const
 	return _streamId;
 }
 
-Int32 Item::getDomainType() const
-{
-	return _domainType;
-}
-
 ClosedStatusInfo*	Item::getClosedStatusInfo()
 {
 	return _closedStatusInfo;
@@ -1570,7 +1565,7 @@ ClosedStatusInfo::ClosedStatusInfo(ProviderItem* pProviderItem, const EmaString&
 	_msgKey(),
 	_statusText(text),
 	_serviceName(),
-	_domainType(pProviderItem->getDomainType()),
+	_domainType(static_cast<UInt16>(pProviderItem->getDomainType())),
 	_streamId(pProviderItem->getStreamId()),
 	_pItem(pProviderItem),
 	_privateStream(false)

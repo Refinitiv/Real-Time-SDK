@@ -44,8 +44,6 @@ extern "C" {
 #include <unistd.h>
 #endif
 
-
-
 /* Contains the PostUserInfo all consumer connections should use when posting. 
  * Set my the main thread. */
 extern RsslPostUserInfo postUserInfo;
@@ -103,6 +101,7 @@ typedef struct {
 	ValueStatistics genMsgLatencyStats;			/* Gen Msg latency statistics. */
 	RsslBool		imageTimeRecorded;			/* Stats thread sets this once it has recorded/printed
 												 * this consumer's image retrieval time. */
+	ValueStatistics intervalUpdateDecodeTimeStats;
 } ConsumerStats;
 
 RTR_C_INLINE void consumerStatsInit(ConsumerStats *stats)
@@ -131,6 +130,7 @@ RTR_C_INLINE void consumerStatsInit(ConsumerStats *stats)
 	clearValueStatistics(&stats->postLatencyStats);
 	clearValueStatistics(&stats->genMsgLatencyStats);
 	stats->imageTimeRecorded = RSSL_FALSE;
+	clearValueStatistics(&stats->intervalUpdateDecodeTimeStats);
 }
 
 /* Keeps track of which dictionaries the consumer has. */
@@ -165,6 +165,8 @@ typedef struct {
 	time_t					nextReceivePingTime;		/* Last time we received a ping. */
 	time_t					nextSendPingTime;			/* Next time at which we should send a ping. */
 	RsslBool				receivedPing;				/* Indicates whether a ping or message was received since our last check. */
+
+	TimeRecordQueue			updateDecodeTimeRecords;	/* Time spent decoding updates. */
 
 	RsslLocalFieldSetDefDb	fListSetDef;				/* Set definition, if needed. */
 	char					setDefMemory[3825];			/* Memory for set definitions.  */

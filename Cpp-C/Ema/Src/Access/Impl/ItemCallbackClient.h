@@ -104,7 +104,9 @@ public :
 
 	Int32 getStreamId() const;
 
-	Int32 getDomainType() const;
+	UInt8 getDomainType() const {
+		return _domainType;
+	}
 
 	ClosedStatusInfo*	getClosedStatusInfo();
 

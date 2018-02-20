@@ -208,7 +208,7 @@ RsslRet processSymbolListResponse(RsslReactor *pReactor, RsslReactorChannel *pRe
 			key = (RsslMsgKey *)rsslGetMsgKey(msg);
 
 			/* Print descriptor of the channel this message was received from. */
-			printf("\n(Channel %d): ", pReactorChannel->socketId);
+			printf("\n(Channel "SOCKET_PRINT_TYPE"): ", pReactorChannel->socketId);
 
 			/* print the name of the symbolist and the domain */
 			printf("\n%.*s\nDOMAIN: %s\n", pRequest->itemName.length, pRequest->itemName.data, rsslDomainTypeToString(msg->msgBase.domainType));

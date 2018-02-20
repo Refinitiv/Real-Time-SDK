@@ -1,4 +1,4 @@
 #file,location
-IProvider.cpp,Examples/Training/IProvider/300_Series_Examples/350__Dictionary__Streaming
-IProvider.h,Examples/Training/IProvider/300_Series_Examples/350__Dictionary__Streaming
+IProvider.cpp,Examples/Training/IProvider/300_Series/350__Dictionary__Streaming
+IProvider.h,Examples/Training/IProvider/300_Series/350__Dictionary__Streaming
 makefile.examples.common,Examples/Training

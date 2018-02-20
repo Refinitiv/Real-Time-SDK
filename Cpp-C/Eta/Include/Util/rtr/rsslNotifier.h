@@ -25,6 +25,7 @@
 
 #include "rtr/os.h"
 #include "rtr/rsslVAExports.h"
+#include "rtr/rsslTransport.h"
 
 #if defined(WIN32)
 #elif defined(Linux)
@@ -32,6 +33,11 @@
 #define RSSL_NOTIFIER_EPOLL
 #else
 #include <sys/select.h>
+#endif
+
+#ifdef __cplusplus
+extern "C"
+{
 #endif
 
 /* Flags for notifier events. */
@@ -74,13 +80,13 @@ RTR_C_INLINE void rsslNotifierEventClearNotifiedFlags(RsslNotifierEvent *pEvent)
 }
 
 /* Creates an RsslNotifierEvent. */
-RSSL_VA_API RsslNotifierEvent *rsslCreateNotifierEvent();
+RSSL_API RsslNotifierEvent *rsslCreateNotifierEvent();
 
 /* Destroys an RsslNotifierEvent. */
-RSSL_VA_API void rsslDestroyNotifierEvent(RsslNotifierEvent *pEvent);
+RSSL_API void rsslDestroyNotifierEvent(RsslNotifierEvent *pEvent);
 
 /* Returns the object associated with this event. */
-RSSL_VA_API void *rsslNotifierEventGetObject(RsslNotifierEvent *pEvent);
+RSSL_API void *rsslNotifierEventGetObject(RsslNotifierEvent *pEvent);
 
 /* Used to wait for notification.
  * Triggers on any of the RsslNotifierEvents associated with it. */
@@ -92,33 +98,37 @@ typedef struct
 
 /* Initializes an RsslNotifier. 
  * - maxEventsHint: The likely max number of associated events. Setting appropriately may improve performance. */
-RSSL_VA_API RsslNotifier *rsslCreateNotifier(int maxEventsHint);
+RSSL_API RsslNotifier *rsslCreateNotifier(int maxEventsHint);
 
 /* Cleans up resources associated with an RsslNotifier. */
-RSSL_VA_API void rsslDestroyNotifier(RsslNotifier *pNotifier);
+RSSL_API void rsslDestroyNotifier(RsslNotifier *pNotifier);
 
 /* Adds an RsslNotifierEvent to the RsslNotifier. */
-RSSL_VA_API int rsslNotifierAddEvent(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent, int fd, void *object);
+RSSL_API int rsslNotifierAddEvent(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent, RsslSocket fd, void *object);
 
 /* Removes an RsslNotifierEvent from the RsslNotifier. */
-RSSL_VA_API int rsslNotifierRemoveEvent(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
+RSSL_API int rsslNotifierRemoveEvent(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
 
 /* Updates the descriptor associated with an event.  The previous descriptor must already be closed. */
-RSSL_VA_API int rsslNotifierUpdateEventFd(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent, int fd);
+RSSL_API int rsslNotifierUpdateEventFd(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent, RsslSocket fd);
 
 /* Registers the RsslNotifierEvent's file for read (and out-of-band) notfication. */
-RSSL_VA_API int rsslNotifierRegisterRead(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
+RSSL_API int rsslNotifierRegisterRead(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
 
 /* Unregisters the RsslNotifierEvent's file for read (and out-of-band) notfication. */
-RSSL_VA_API int rsslNotifierUnregisterRead(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
+RSSL_API int rsslNotifierUnregisterRead(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
 
 /* Registers the RsslNotifierEvent's file for write  notfication. */
-RSSL_VA_API int rsslNotifierRegisterWrite(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
+RSSL_API int rsslNotifierRegisterWrite(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
 
 /* Unregisters the RsslNotifierEvent's file for write  notfication. */
-RSSL_VA_API int rsslNotifierUnregisterWrite(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
+RSSL_API int rsslNotifierUnregisterWrite(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent);
 
 /* Wait for notifcation on the notifier's associated files. */
-RSSL_VA_API int rsslNotifierWait(RsslNotifier *pNotifier, long timeoutUsec);
+RSSL_API int rsslNotifierWait(RsslNotifier *pNotifier, long timeoutUsec);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

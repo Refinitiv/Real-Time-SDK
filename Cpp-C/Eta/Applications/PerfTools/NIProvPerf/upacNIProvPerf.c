@@ -38,6 +38,8 @@ static Provider provider;
 /* Logs summary information, such as application inputs and final statistics. */
 static FILE *summaryFile = NULL;
 
+static ValueStatistics intervalMsgEncodingStats;
+
 RsslBool showTransportDetails = RSSL_FALSE;
 
 static RsslInt64 nsecPerTick;
@@ -272,7 +274,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				return RSSL_RC_CRET_SUCCESS;
 			}
 
-			printf( "Channel %d active. Channel Info:\n"
+			printf( "Channel "SOCKET_PRINT_TYPE" active. Channel Info:\n"
 					"  maxFragmentSize: %u\n"
 					"  maxOutputBuffers: %u\n"
 					"  guaranteedOutputBuffers: %u\n"
@@ -314,7 +316,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			if (providerThreadConfig.totalBuffersPerPack > 1
 					&& providerThreadConfig.packingBufferLength > reactorChannelInfo.rsslChannelInfo.maxFragmentSize)
 			{
-				printf("Error(Channel %d): MaxFragmentSize %u is too small for packing buffer size %u\n",
+				printf("Error(Channel "SOCKET_PRINT_TYPE"): MaxFragmentSize %u is too small for packing buffer size %u\n",
 						pReactorChannel->socketId, reactorChannelInfo.rsslChannelInfo.maxFragmentSize, 
 						providerThreadConfig.packingBufferLength);
 				exit(-1);
@@ -402,7 +404,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The file descriptor representing the RsslReactorChannel has been changed.
 			 * Update our file descriptor sets. */
-			printf("Fd change: %d to %d\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
+			printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
 			FD_CLR(pReactorChannel->oldSocketId, &pProviderThread->readfds);
 			FD_CLR(pReactorChannel->oldSocketId, &pProviderThread->exceptfds);
 			FD_SET(pReactorChannel->socketId, &pProviderThread->readfds);
@@ -413,7 +415,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The channel has failed and has gone down.  Print the error, close the channel, and reconnect later. */
 
-			printf("Connection down: Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("Connection down: Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -423,7 +425,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		}
 		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 		{
-			printf("Connection down, reconnecting.  Channel fd=%d\n", pReactorChannel->socketId);
+			printf("Connection down, reconnecting.  Channel fd="SOCKET_PRINT_TYPE"\n", pReactorChannel->socketId);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -445,7 +447,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		case RSSL_RC_CET_WARNING:
 		{
 			/* We have received a warning event for this channel. Print the information and continue. */
-			printf("Received warning for Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 			return RSSL_RC_CRET_SUCCESS;
 		}
@@ -851,7 +853,7 @@ RsslRet processMsg(ChannelHandler *pChannelHandler, ChannelInfo* pChannelInfo, R
 	ret = rsslDecodeMsg(&dIter, &msg);				
 	if (ret != RSSL_RET_SUCCESS)
 	{
-		printf("\nrsslDecodeMsg(): Error %d on SessionData fd=%d  Size %d \n", ret, chnl->socketId, pBuffer->length);
+		printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE"  Size %d \n", ret, chnl->socketId, pBuffer->length);
 		cleanUpAndExit();
 	}
 
@@ -1028,7 +1030,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 		return 0;
 	}
 
-	printf( "Channel %d active. Channel Info:\n"
+	printf( "Channel "SOCKET_PRINT_TYPE" active. Channel Info:\n"
 			"  maxFragmentSize: %u\n"
 			"  maxOutputBuffers: %u\n"
 			"  guaranteedOutputBuffers: %u\n"
@@ -1070,7 +1072,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 	if (providerThreadConfig.totalBuffersPerPack > 1
 			&& providerThreadConfig.packingBufferLength > channelInfo.maxFragmentSize)
 	{
-		printf("Error(Channel %d): MaxFragmentSize %u is too small for packing buffer size %u\n",
+		printf("Error(Channel "SOCKET_PRINT_TYPE"): MaxFragmentSize %u is too small for packing buffer size %u\n",
 				pChannelInfo->pChannel->socketId, channelInfo.maxFragmentSize, 
 				providerThreadConfig.packingBufferLength);
 		exit(-1);

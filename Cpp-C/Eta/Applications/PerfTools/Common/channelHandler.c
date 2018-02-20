@@ -217,7 +217,7 @@ RsslRet channelHandlerWaitForChannelInit(ChannelHandler *pHandler, ChannelInfo *
 	time_interval.tv_sec = 0;
 	time_interval.tv_usec = waitTimeUsec;
 
-	selRet = select(pChannelInfo->pChannel->socketId+1, &useReadFds, &useWriteFds, 
+	selRet = select((int)(pChannelInfo->pChannel->socketId+1), &useReadFds, &useWriteFds, 
 			&useExceptFds, &time_interval);
 
 
@@ -307,7 +307,7 @@ void channelHandlerReadChannels(ChannelHandler *pHandler, TimeValue stopTimeNsec
 			time_interval.tv_usec = (long)((currentTime < stopTimeNsec) ? (stopTimeNsec - currentTime)/1000 : 0);
 			time_interval.tv_sec = 0;
 
-			selRet = select(maxFd+1, &useReadFds, &useWriteFds, &useExceptFds, &time_interval);
+			selRet = select((int)(maxFd+1), &useReadFds, &useWriteFds, &useExceptFds, &time_interval);
 		}
 
 		if (selRet == 0)

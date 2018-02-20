@@ -1,3 +1,0 @@
-# Second stream compression of string "aaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz".
-
-00 0D 04 4A A4 AA 69 00  00 00 00 FF FF            ...J..i......

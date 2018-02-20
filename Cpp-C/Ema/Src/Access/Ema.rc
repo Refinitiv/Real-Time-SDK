@@ -71,7 +71,6 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", Ema_Comments
             VALUE "CompanyName", Ema_CompanyName
             VALUE "FileDescription", "Ema\0"
             VALUE "FileVersion", Ema_VersionString
@@ -79,7 +78,6 @@ BEGIN
             VALUE "LegalCopyright", Ema_LegalCopyright
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "libema.dll\0"
-            VALUE "PrivateBuild", Ema_InternalNode
             VALUE "ProductName", Ema_ProdName
             VALUE "ProductVersion", Ema_VersionString
             VALUE "SpecialBuild", "\0"

@@ -237,7 +237,11 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 		}
 	}
 
-	// at this point, we have a fileName, a path with that name exists, and that path is a file
+	/* at this point:
+	 *    if the user specified a filename, then a path with that name exists, and that path is a file
+	 *    if the user did not specify a filename, we are using the default filename and will use
+	 *    the result of stat to determine whether or not the file exists
+	 */
 	int statResult;
 #ifdef WIN32
 	struct _stat statBuffer;
@@ -246,7 +250,7 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 	struct stat statBuffer;
 	statResult = stat(fileName.c_str(), &statBuffer);
 #endif
-	if (!statBuffer.st_size)
+	if (statResult == -1 || !statBuffer.st_size)
 	{
 		EmaString errorMsg("error reading configuration file [");
 		errorMsg.append(fileName.c_str()).append("]; file is empty");
@@ -779,7 +783,7 @@ EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
 	_portSetViaFunctionCall(),
 	_proxyHostnameSetViaFunctionCall(),
 	_proxyPortSetViaFunctionCall(),
-	_securityProtocolSetViaFunctionCall(OmmConsumerConfig::EncryptionProtocolTypes::ENC_NONE),
+	_securityProtocolSetViaFunctionCall(OmmConsumerConfig::ENC_NONE),
 	_objectName(),
 	_libSslName(),
 	_libCryptoName()
@@ -826,7 +830,7 @@ void EmaConfigImpl::clear()
 	_instanceNodeName.clear();
 	_proxyHostnameSetViaFunctionCall.clear();
 	_proxyPortSetViaFunctionCall.clear();
-	_securityProtocolSetViaFunctionCall = OmmConsumerConfig::EncryptionProtocolTypes::ENC_NONE;
+	_securityProtocolSetViaFunctionCall = OmmConsumerConfig::ENC_NONE;
 	_objectName.clear();
 	_libSslName.clear();
 	_libCryptoName.clear();
@@ -1559,7 +1563,7 @@ void EmaConfigErrorList::printErrors( OmmLoggerClient::Severity severity )
 	bool printed( false );
 	if ( _pList )
 	{
-		for ( ListElement* p = _pList; p; p = p = p->next )
+		for ( ListElement* p = _pList; p; p = p->next )
 			if ( p->error->severity() >= severity )
 			{
 				if ( !printed )

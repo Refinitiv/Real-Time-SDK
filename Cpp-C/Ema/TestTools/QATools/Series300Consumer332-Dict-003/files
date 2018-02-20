@@ -1,4 +1,4 @@
 #file,location
-Consumer.cpp,Examples/Training/Consumer/300_Series_Examples/332__Dictionary__Streaming
-Consumer.h,Examples/Training/Consumer/300_Series_Examples/332__Dictionary__Streaming
+Consumer.cpp,Examples/Training/Consumer/300_Series/332__Dictionary__Streaming
+Consumer.h,Examples/Training/Consumer/300_Series/332__Dictionary__Streaming
 makefile.examples.common,Examples/Training

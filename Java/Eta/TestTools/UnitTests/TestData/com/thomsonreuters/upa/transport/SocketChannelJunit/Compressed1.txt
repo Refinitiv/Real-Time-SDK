@@ -1,7 +1,0 @@
-# First stream compression of string "aaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz".
-
-00 4A 04 78 DA 04 C1 85  01 00 20 08 00 B0 5B C5   .J.x...... ...[.
-00 3B B0 F0 7A 37 A5 14  00 68 AD 8D 31 D6 5A E7   .;..z7...h..1.Z.
-1C 22 12 91 F7 3E 84 10  63 4C 29 E5 9C 4B 29 B5   ."...>..cL)..K).
-D6 D6 5A EF 7D 8C C1 CC  73 CE B5 D6 DE FB 9C 73   ..Z.}...s......s
-EF 15 91 F7 DE 07 00 00  FF FF                     ..........

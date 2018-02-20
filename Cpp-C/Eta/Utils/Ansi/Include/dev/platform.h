@@ -68,104 +68,6 @@
 #define DLL_EXPORT
 
 
-
-	/* Definitions for Sun hardware. */
-
-#if defined(sun4) || defined(i86pc)
-#undef DEV_THREAD_LOCAL
-#ifdef _RDEV_NO_TLS_
-#define DEV_THREAD_LOCAL
-#else
-#define DEV_THREAD_LOCAL __thread
-#endif
-
-#define DEV_UNIX
-#ifdef __sparc
-#define DEV_QUAD_32_ALIGN
-#endif
-#define DEV_FCNTL_ENABLE_ASYNC
-#define DEV_HAS_POLL
-
-		/* Definitions for Solaris 1 */
-#ifdef sun4_SunOS_41X
-#define DEV_SVR4_SIGNALS
-#endif
-
-		/* Definitions for Solaris 2 */
-#ifdef sun4_SunOS_5X 
-#define DEV_SVR4
-#endif
-
-#ifdef __GNUC__
-#define __INCLUDE_TEMPLATE_IMPL__
-#endif
-
-#include <ctype.h>
-#include <string.h>
-#include <strings.h>
-#include <stdlib.h>
-
-#endif
-
-
-
-	/* Definitions for HP hardware. */
-#ifdef hp
-
-#define DEV_UNIX
-#define DEV_SVR4
-#define DEV_QUAD_32_ALIGN
-#define DEV_IOCTL_ENABLE_ASYNC
-#undef DEV_SELECT_BITMAP_CAST
-#define DEV_HAS_POLL
-
-		/* Definitions for hp-ux versions 9.x */
-#ifdef hp_HPUX_09X
-#define DEV_SELECT_BITMAP_CAST (int *)
-#endif
-
-		/* Definitions for hp-ux versions 10.x */
-#ifdef hp_HPUX_10X
-#define DEV_SELECT_BITMAP_CAST (int *)
-#endif
-
-		/* Definitions for hp-ux versions 11.x */
-#ifdef hp_HPUX_11X
-#include	<ctype.h>
-#include	<string.h>
-#include	<unistd.h>
-#define DEV_SELECT_BITMAP_CAST (fd_set *)
-#define HP_ACC
-#define	_SYS_GETHOSTNAME_DEFINED
-#define __INCLUDE_TEMPLATE_IMPL__
-#endif
-#endif
-
-
-
-	/* Definitions for Ibmrs hardware. */
-#ifdef ibmrs
-
-#define DEV_UNIX
-#define DEV_SVR4
-#define DEV_QUAD_32_ALIGN
-#define DEV_IOCTL_ENABLE_ASYNC
-#define DEV_HAS_POLL
-
-#define __INCLUDE_TEMPLATE_IMPL__
-
-#if DEV_COMPILER_SUITE == cset
-#ifndef __CSET__
-#define __CSET__
-#endif
-#endif
-
-		/* Definitions for aix 3.2 */
-#ifdef ibmrs_AIX_32
-#endif
-
-#endif
-	
 	/* Definitions for Linux */
 #ifdef Linux
 #undef DEV_THREAD_LOCAL
@@ -197,18 +99,6 @@
 #endif
 #endif
 
-
-	/* Definitions for alpha_OSF1 hardware. */
-#ifdef alpha_OSF1
-
-#define DEV_UNIX
-#define DEV_SVR4
-#define DEV_LITTLE_ENDIAN
-#define DEV_IOCTL_ENABLE_ASYNC
-#define DEV_FCNTL_ENABLE_ASYNC
-#define DEV_HAS_POLL
-
-#endif
 
 #ifdef _MSC_VER
 #define __INCLUDE_TEMPLATE_IMPL__
@@ -256,17 +146,6 @@ typedef	char * 	caddr_t;
 #endif
 
 #endif
-
-
-	/* Definitions for VAX/VMS hardware. */
-#ifdef VMS
-
-#define DEV_LITTLE_ENDIAN
-#define DEV_QUAD_32_ALIGN
-#undef DEV_SELECT_BITMAP_CAST
-#define DEV_SELECT_BITMAP_CAST	(int *)
-
-#endif /* VMS */
 
 
 #ifndef MEM_FUNCS_FOR_LINUX

@@ -171,13 +171,13 @@ RTR_C_INLINE RsslRet rsslCleanupReactorEventQueue(RsslReactorEventQueue *pQueue)
 	RsslQueueLink *pLink;
 	RsslReactorEventImpl *pEvent;
 
-	while (pLink = rsslQueueRemoveFirstLink(&pQueue->eventQueue))
+	while ((pLink = rsslQueueRemoveFirstLink(&pQueue->eventQueue)))
 	{
 		pEvent = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorEventImpl, base.eventQueueLink, pLink);
 		free(pEvent);
 	}
 
-	while (pLink = rsslQueueRemoveFirstLink(&pQueue->eventPool))
+	while ((pLink = rsslQueueRemoveFirstLink(&pQueue->eventPool)))
 	{
 		pEvent = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorEventImpl, base.eventQueueLink, pLink);
 		free(pEvent);
@@ -275,8 +275,6 @@ RTR_C_INLINE RsslRet rsslReactorEventQueuePut(RsslReactorEventQueue *pQueue, Rss
 
 RTR_C_INLINE RsslReactorEventImpl* rsslReactorEventQueueGet(RsslReactorEventQueue *pQueue, RsslRet *pRet)
 {
-	int bytesRecvd = 0;
-	int mterr = 0;
 	RsslRet count;
 	RsslReactorEventImpl *pEvent;
 	RsslQueueLink *pLink;

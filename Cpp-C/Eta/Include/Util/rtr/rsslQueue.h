@@ -40,6 +40,11 @@ RTR_C_INLINE void rsslInitQueue(RsslQueue *pQueue)
 	pQueue->iterNext = NULL;
 }
 
+RTR_C_INLINE RsslBool rsslQueueLinkInAList(RsslQueueLink *pLink)
+{
+	return (pLink->prev || pLink->next) ? RSSL_TRUE : RSSL_FALSE;
+}
+
 RTR_C_INLINE void rsslQueueAddLinkToBack(RsslQueue *pQueue, RsslQueueLink *pLink)
 {
 	pLink->next = &pQueue->head;
@@ -135,6 +140,13 @@ RTR_C_INLINE void rsslQueueRemoveLink(RsslQueue *pQueue, RsslQueueLink *pLink)
 RTR_C_INLINE RsslQueueLink* rsslQueueRemoveFirstLink(RsslQueue *pQueue)
 {
 	RsslQueueLink *pLink = rsslQueuePeekFront(pQueue);
+	if (pLink) rsslQueueRemoveLink(pQueue, pLink);
+	return pLink;
+}
+
+RTR_C_INLINE RsslQueueLink* rsslQueueRemoveLastLink(RsslQueue *pQueue)
+{
+	RsslQueueLink *pLink = rsslQueuePeekBack(pQueue);
 	if (pLink) rsslQueueRemoveLink(pQueue, pLink);
 	return pLink;
 }

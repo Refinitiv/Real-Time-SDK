@@ -183,7 +183,7 @@ public :
 	/** Returns StatusCode.
 		@return value of StatusCode
 	*/
-	UInt16 getStatusCode() const;
+	UInt8 getStatusCode() const;
 
 	/** Returns StatusText.
 		@return EmaString containing status text information

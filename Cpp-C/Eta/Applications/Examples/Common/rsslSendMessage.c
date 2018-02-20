@@ -175,7 +175,7 @@ RsslRet sendPing(RsslChannel* chnl)
 
 	if ((ret = rsslPing(chnl, &error)) < RSSL_RET_SUCCESS)
 	{
-		printf("\nrsslPing(): Failed on fd=%d with code %d\n", chnl->socketId, ret);
+		printf("\nrsslPing(): Failed on fd="SOCKET_PRINT_TYPE" with code %d\n", chnl->socketId, ret);
 		return ret;
 	}
 	else if (ret > RSSL_RET_SUCCESS)

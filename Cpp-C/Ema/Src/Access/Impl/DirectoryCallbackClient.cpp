@@ -26,79 +26,6 @@ using namespace thomsonreuters::ema::access;
 
 const EmaString DirectoryCallbackClient::_clientName( "DirectoryCallbackClient" );
 
-CapabilityList::CapabilityList() :
-	_toString(),
-	_toStringSet( false )
-{
-	clear();
-}
-
-CapabilityList::~CapabilityList()
-{
-}
-
-CapabilityList::CapabilityList( const CapabilityList& other ) :
-	_toString(),
-	_toStringSet( false )
-{
-	copyAll( other );
-}
-
-CapabilityList& CapabilityList::operator=( const CapabilityList& other )
-{
-	if ( this != &other )
-		copyAll( other );
-
-	return *this;
-}
-
-CapabilityList& CapabilityList::clear()
-{
-	_toStringSet = false;
-
-	for ( UInt32 idx = 0; idx < _maxCapability; ++idx )
-		_list[idx] = false;
-
-	return *this;
-}
-
-void CapabilityList::copyAll( const CapabilityList& other )
-{
-	_toStringSet = false;
-
-	for ( UInt32 idx = 0; idx < _maxCapability; ++idx )
-		_list[idx] = other._list[idx];
-}
-
-bool CapabilityList::hasCapability( UInt16 capability )
-{
-	return _list[capability];
-}
-
-CapabilityList& CapabilityList::addCapability( UInt16 capability )
-{
-	_list[capability] = true;
-	_toStringSet = false;
-	return *this;
-}
-
-const EmaString& CapabilityList::toString() const
-{
-	if ( !_toStringSet )
-	{
-		_toStringSet = true;
-
-		_toString.set( "'" );
-
-		for ( UInt32 idx = 0; idx < _maxCapability; ++idx )
-			if ( _list[idx] ) _toString.append( idx ).append( " " );
-
-		_toString.append( "' " );
-	}
-
-	return _toString;
-}
-
 DictionaryList::DictionaryList() :
 	_toString(),
 	_toStringSet( false )
@@ -182,8 +109,7 @@ Info::Info() :
 	_dictionariesUsed(),
 	_toString(),
 	_isSource( 0 ),
-	_toStringSet( false ),
-	_capabilities()
+	_toStringSet( false )
 {
 }
 
@@ -201,7 +127,6 @@ Info& Info::operator=( const Info& other )
 	_dictionariesProvided = other._dictionariesProvided;
 	_dictionariesUsed = other._dictionariesUsed;
 	_isSource = other._isSource;
-	_capabilities = other._capabilities;
 	_toStringSet = false;
 	return *this;
 }
@@ -215,7 +140,6 @@ Info& Info::clear()
 	_dictionariesUsed.clear();
 	_isSource = 0;
 	_toStringSet = false;
-	_capabilities.clear();
 	return *this;
 }
 
@@ -284,18 +208,6 @@ UInt64 Info::getIsSource() const
 Info& Info::setIsSource( UInt64 isSource )
 {
 	_isSource = isSource;
-	_toStringSet = false;
-	return *this;
-}
-
-const CapabilityList& Info::getCapabilities() const
-{
-	return _capabilities;
-}
-
-Info& Info::addCapability( UInt16 capability )
-{
-	_capabilities.addCapability( capability );
 	_toStringSet = false;
 	return *this;
 }

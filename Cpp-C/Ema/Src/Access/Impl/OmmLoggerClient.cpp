@@ -87,7 +87,7 @@ void OmmLoggerClient::openLogFile( const EmaString& inFileName )
 
         for ( int i = 0; i < clientFiles.fileCount; ++i )
         {
-			if ( clientFiles.openFiles[i].fileName == fileName )
+		    if ( *(clientFiles.openFiles[i].fileName) == fileName )
 			{
 				_pFile = _pOutput = clientFiles.openFiles[i].ptr;
 				++clientFiles.openFiles[i].clientCount;
@@ -138,7 +138,7 @@ void OmmLoggerClient::openLogFile( const EmaString& inFileName )
 
 		clientFiles.openFiles[record].clientCount = 1;
 		clientFiles.openFiles[record].ptr = _pOutput;
-		clientFiles.openFiles[record].fileName = fileName;
+		clientFiles.openFiles[record].fileName = new EmaString(fileName);
 		++clientFiles.fileCount;
 	}
 
@@ -159,17 +159,23 @@ void OmmLoggerClient::closeLogFile()
 					if ( OmmLoggerClient::VerboseEnum >= _severity )
 					{
 						EmaString text( "closed " );
-						text.append( clientFiles.openFiles[i].fileName ).append( " at " ).append( timeString( true ) );
+						text.append( *(clientFiles.openFiles[i].fileName) ).append( " at " ).append( timeString( true ) );
 						log( "OmmLoggerClient", OmmLoggerClient::VerboseEnum, text );
 					}
 					fclose( clientFiles.openFiles[i].ptr );
 					clientFiles.openFiles[i].ptr = 0;
+					delete clientFiles.openFiles[i].fileName;
                     --clientFiles.fileCount;
 				}
 
 				_pFile = _pOutput = 0;				
 				break;
 			}
+	}
+
+	if ( ! clientFiles.fileCount ) {
+	  free( clientFiles.openFiles );
+	  clientFiles.openFiles = 0;
 	}
 
 	_printLock.unlock();

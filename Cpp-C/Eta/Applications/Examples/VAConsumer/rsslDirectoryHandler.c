@@ -184,6 +184,7 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 
 				if (pService->flags & RDM_SVCF_HAS_INFO)
 				{
+				    int limit;
 					if (pService->info.qosCount)
 						pCommand->qos = pService->info.qosList[0];
 					else
@@ -205,7 +206,9 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 					 * application might use.
 					 */
 					pCommand->capabilitiesCount = 0;
-					for (c = 0; c < pService->info.capabilitiesCount; c++)
+					limit = (pService->info.capabilitiesCount < MAX_NUM_CAPABILITIES ?
+							 pService->info.capabilitiesCount : MAX_NUM_CAPABILITIES);
+					for (c = 0; c < limit; c++)
 					{
 						if (pService->info.capabilitiesList[c] <= RSSL_DMT_MAX_RESERVED)
 						{

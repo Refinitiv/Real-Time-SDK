@@ -816,7 +816,7 @@ ChannelConfig::ChannelType ReliableMcastChannelConfig::getType() const
 
 EncryptedChannelConfig::EncryptedChannelConfig() :
 	HttpChannelConfig( RSSL_CONN_TYPE_ENCRYPTED ),
-	securityProtocol(RsslEncryptionProtocolTypes::RSSL_ENC_TLSV1_2)
+	securityProtocol(RSSL_ENC_TLSV1_2)
 {
 }
 
@@ -831,7 +831,7 @@ void EncryptedChannelConfig::clear()
 	hostName = DEFAULT_HOST_NAME;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
 	objectName = DEFAULT_OBJECT_NAME;
-	securityProtocol = RsslEncryptionProtocolTypes::RSSL_ENC_TLSV1_2;
+	securityProtocol = RSSL_ENC_TLSV1_2;
 }
 
 ChannelConfig::ChannelType EncryptedChannelConfig::getType() const

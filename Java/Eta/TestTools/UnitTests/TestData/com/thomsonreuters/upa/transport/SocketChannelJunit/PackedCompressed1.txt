@@ -1,5 +1,0 @@
-# First packed compressed output of TransportTest sequence.
-
-00 2F 14 78 DA 62 E0 2B  48 4C CE 4E 4D 51 28 49   ./.x.b.+ HL.NMQ(I
-2D 2E 51 50 36 64 40 E5  1B 31 88 A6 65 E6 25 E6   -.QP6d@. .1..e.%.
-28 80 44 33 F3 D2 A1 C2  C6 00 00 00 00 FF FF      (.D3.... .......

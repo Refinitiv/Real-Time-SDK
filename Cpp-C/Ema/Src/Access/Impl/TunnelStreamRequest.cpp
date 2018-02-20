@@ -552,7 +552,7 @@ TunnelStreamRequest& TunnelStreamRequest::clear()
 	return *this;
 }
 
-TunnelStreamRequest& TunnelStreamRequest::domainType( UInt16 domainType )
+TunnelStreamRequest& TunnelStreamRequest::domainType( UInt8 domainType )
 {
 	if ( domainType > 255 )
 	{

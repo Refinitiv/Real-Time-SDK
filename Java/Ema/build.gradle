@@ -1,0 +1,39 @@
+buildscript {
+        repositories {
+                jcenter()
+        }
+
+        dependencies {
+                classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+        }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+        compile project(':Ema:Core')
+        compile project(':Ema:Examples')
+        compile project(':Eta:Core')
+        compile project(':Eta:ValueAdd')
+        compile project(':Eta:ValueAddCache')
+        compile project(':Eta:AnsiPage')
+        compile project(':Eta:Applications:Shared')
+}
+
+shadowJar {
+        baseName = 'ESDK'
+}
+
+task coberturaTestFatJar (type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+        baseName = 'ESDK'
+	classifier = 'coberturaTestFatJar'
+	from ('Core/build/instrumented_classes')
+	from ('../Eta/Core/build/instrumented_classes')
+	from ('../Eta/ValueAdd/build/instrumented_classes')
+	configurations = [project.configurations.testRuntime]
+}
+
+// disable creating empty Ema.jar file 
+jar.enabled = false
+

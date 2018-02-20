@@ -263,6 +263,7 @@ RsslTunnelStream* tunnelStreamOpen(TunnelManager *pManager, RsslTunnelStreamOpen
 	{
 		if (pTunnelImpl->base.classOfService.flowControl.recvWindowSize == TS_USE_DEFAULT_RECV_WINDOW_SIZE)
 			pTunnelImpl->base.classOfService.flowControl.recvWindowSize = TS_DEFAULT_BIDRECTIONAL_WINDOW_SIZE;
+
 		if ( (RsslUInt) pTunnelImpl->base.classOfService.flowControl.recvWindowSize < pTunnelImpl->base.classOfService.common.maxFragmentSize)
 			pTunnelImpl->base.classOfService.flowControl.recvWindowSize = pTunnelImpl->base.classOfService.common.maxFragmentSize;
 	}

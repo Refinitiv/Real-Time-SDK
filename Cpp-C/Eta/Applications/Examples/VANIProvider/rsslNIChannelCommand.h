@@ -179,6 +179,13 @@ RTR_C_INLINE void rsslInitNIChannelCommand(NIChannelCommand *pChannelCommand)
 	pChannelCommand->serviceId = 0;
 }
 
+RTR_C_INLINE void rsslCleanupNIChannelCommand(NIChannelCommand *pChannelCommand)
+{
+	rsslDeleteDataDictionary(pChannelCommand->dictionary);
+	free(pChannelCommand->channelCommandArray);
+	free(pChannelCommand->loginRefreshArray);
+}
+
 RTR_C_INLINE void rsslClearNIChannelCommand(NIChannelCommand *pChannelCommand)
 {
 	rsslClearConnectOpts(&pChannelCommand->cOpts.rsslConnectOptions);

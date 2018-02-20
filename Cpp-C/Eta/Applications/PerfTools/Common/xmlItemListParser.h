@@ -11,8 +11,6 @@
 #ifndef _XML_ITEM_LIST_PARSER_H
 #define _XML_ITEM_LIST_PARSER_H
 
-#define LIBXML_STATIC
-
 #include "libxml/tree.h"
 #include "libxml/parser.h"
 

@@ -20,6 +20,11 @@
 /* item information list */
 static RsslMarketPriceItem marketPriceItemList[MAX_MARKET_PRICE_ITEM_LIST_SIZE];
 
+/* re-usable refresh and update messages and state text */
+RsslRefreshMsg refreshMsg;
+RsslUpdateMsg updateMsg;
+char stateText[MAX_ITEM_INFO_STRLEN];
+
 RsslRet encodeMPFieldList(RsslItemInfo* itemInfo, RsslEncodeIterator* encodeIter, RsslBool isPrivateStream, RsslDataDictionary* dictionary);
 
 /*
@@ -282,20 +287,15 @@ RsslRet encodeMarketPriceResponse(RsslReactorChannel* pReactorChannel, RsslItemI
 RsslRet encodeMarketPriceResponseMsgInit(RsslItemInfo* itemInfo, RsslEncodeIterator *encodeIter, RsslBool isSolicited, RsslInt32 streamId, RsslBool isStreaming, RsslBool isPrivateStream, RsslUInt16 serviceId)
 {
 	RsslRet ret = 0;
-	RsslRefreshMsg refreshMsg = RSSL_INIT_REFRESH_MSG;
-	RsslUpdateMsg updateMsg = RSSL_INIT_UPDATE_MSG;
 	RsslMsgBase* msgBase;
 	RsslMsg* msg;
-	char stateText[MAX_ITEM_INFO_STRLEN];
-	char errTxt[256];
-	RsslBuffer errorText = {255, (char*)errTxt};
 
 	/* set-up message */
 	/* set message depending on whether refresh or update */
 	if (!itemInfo->IsRefreshComplete) /* this is a refresh message */
 	{
+		rsslClearRefreshMsg(&refreshMsg);
 		msgBase = &refreshMsg.msgBase;
-		msgBase->msgClass = RSSL_MC_REFRESH;
 		if (isStreaming)
 		{
 		refreshMsg.state.streamState = RSSL_STREAM_OPEN;
@@ -336,8 +336,8 @@ RsslRet encodeMarketPriceResponseMsgInit(RsslItemInfo* itemInfo, RsslEncodeItera
 	}
 	else /* this is an update message */
 	{
+		rsslClearUpdateMsg(&updateMsg);
 		msgBase = &updateMsg.msgBase;
-		msgBase->msgClass = RSSL_MC_UPDATE;
 		/* include msg key in updates for non-interactive provider streams */
 		if (streamId < 0)
 		{

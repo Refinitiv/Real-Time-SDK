@@ -135,11 +135,6 @@ RTR_C_INLINE void tunnelStreamDataClear(TunnelStreamData *dataHeader)
 	dataHeader->base.opcode = TS_MC_DATA;
 }
 
-RTR_C_INLINE int tunnelStreamDataMsgBufferSize(TunnelStreamData *dataHeader)
-{
-	return 128;
-}
-
 RTR_C_INLINE void tunnelStreamRetransClear(TunnelStreamData *dataHeader)
 {
 	memset(dataHeader, 0, sizeof(TunnelStreamData));

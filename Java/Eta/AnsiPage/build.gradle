@@ -1,0 +1,41 @@
+def package1 = 'etaj3.1.0.L1.all.rrg'
+def version = 'etaj3.1.0.L1'
+def vendor = 'Thomson Reuters'
+
+def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
+
+eclipse {
+        project {
+                name = 'ESDK-Eta-AnsiPage'
+        }
+}
+
+// ext is used to store project level properties
+// we can use this shared manifest
+ext.sharedManifest = manifest {
+	attributes( 'Sealed': 'true',
+		'Specification-Version': package1,
+		'Specification-Vendor': vendor,
+		'Implementation-Title': 'com.thomsonreuters.upa',
+		'Implementation-Version': version,
+		'Implementation-Vendor': vendor )
+}
+
+jar {
+
+	doFirst { println 'Creating ANSI jar file' }
+
+        destinationDir = file("../Libs/")
+        baseName = 'ansipage'
+}
+
+task cleanJar (type: Delete) {
+        delete "${jar.archivePath}"
+}
+clean.dependsOn cleanJar
+
+artifacts {
+	archives jar
+}
+
+

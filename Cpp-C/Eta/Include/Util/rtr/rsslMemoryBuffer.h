@@ -32,7 +32,7 @@ extern "C" {
  * @return NULL if the buffer did not have enough space for the requested memory.
  * @see rsslReserveAlignedBufferMemory, rsslCopyBufferMemory
  */
-RSSL_VA_API void * rsslReserveBufferMemory(RsslBuffer *pBuffer, RsslUInt32 elementCount, RsslUInt32 sizeofElement);
+RSSL_API void * rsslReserveBufferMemory(RsslBuffer *pBuffer, RsslUInt32 elementCount, RsslUInt32 sizeofElement);
 
 /**
  * @brief Reserves a portion of an RsslBuffer for use as an array of one or more elements.
@@ -46,7 +46,7 @@ RSSL_VA_API void * rsslReserveBufferMemory(RsslBuffer *pBuffer, RsslUInt32 eleme
  */
 /* Reserves memory from an allocated block.
  * Similar to rsslReserveBufferMemory, but ensures the memory is aligned on an appropriate boundary. */
-RSSL_VA_API void * rsslReserveAlignedBufferMemory(RsslBuffer *pBuffer, RsslUInt32 elementCount, RsslUInt32 sizeOfElement);
+RSSL_API void * rsslReserveAlignedBufferMemory(RsslBuffer *pBuffer, RsslUInt32 elementCount, RsslUInt32 sizeOfElement);
 
 /**
  * @brief Reserves a portion of an RsslBuffer for use as a string and copies the given string.
@@ -57,7 +57,7 @@ RSSL_VA_API void * rsslReserveAlignedBufferMemory(RsslBuffer *pBuffer, RsslUInt3
  * @return NULL if the buffer did not have enough space for the requested memory.
  * @see rsslReserveBufferMemory, rsslReserveAlignedBufferMemory
  */
-RSSL_VA_API char *rsslCopyBufferMemory(RsslBuffer *pOutBuf, RsslBuffer *pInBuf, RsslBuffer *pMemoryBuffer);
+RSSL_API char *rsslCopyBufferMemory(RsslBuffer *pOutBuf, RsslBuffer *pInBuf, RsslBuffer *pMemoryBuffer);
 
 /**
  *	@}

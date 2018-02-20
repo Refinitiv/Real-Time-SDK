@@ -1,0 +1,149 @@
+apply plugin: 'net.saliman.cobertura'
+apply plugin: 'maven-publish' 
+apply plugin: 'maven' 
+apply plugin: 'signing' 
+
+def package1 = 'etaj3.1.0.L1.all.rrg'
+def ReleaseVersion = 'etaj3.1.0.G1'
+def vendor = 'Thomson Reuters'
+
+def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
+
+
+// TODO this is for the mave plugin, not using it now 
+uploadArchives { 
+        repositories { 
+                mavenDeployer { 
+//                        repository(url: "https://bams-amers-sami.int.thomsonreuters.com/artifactory/snapshot.maven.local")
+                        repository(url: "file:///local/smusial/TMP/MAVEN/")
+			addFilter('eta') { artifact, file -> artifact.name == 'eta' }
+                } 
+        } 
+}
+
+publishing {
+	publications {
+		etaj(MavenPublication) {
+			groupId 'com.thomsonreuters.upa'
+			artifactId 'upa'
+			version "$ReleaseVersion"
+		
+			from components.java
+		}
+	}
+}
+
+publishing {
+	repositories {
+		maven {
+// publis to file for now, it does not seem to work with artifactory, I'm getting 409 error, credentails do work. 
+
+//			credentials {
+//				username project.properties.mavenUser
+//				password project.properties.mavenPassword
+//			}
+// TODO 
+// decide based on version string where to put the artifacts
+//            if (project.version.endsWith("-SNAPSHOT")) {
+ //               url project.someSnapshot
+  //          } else {
+   //             url project.someRelease
+    //        }
+//                        url "https://bams-amers-sami.int.thomsonreuters.com/artifactory/snapshot.maven.local/com/thomsonreuters/ESDK"
+                        url "file:///local/smusial/TMP/"
+		}
+	}
+}
+
+cobertura {
+
+}
+
+eclipse {
+        project {
+                name = 'ESDK-Eta-Src'
+        }
+}
+
+dependencies {
+
+	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.1.2'
+	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.1.2'
+	compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.1.2'
+
+	compile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+
+	testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+}
+
+// ext is used to store project level properties
+// we can use this shared manifest
+ext.sharedManifest = manifest {
+	attributes( 'Sealed': 'true',
+		'Specification-Version': package1,
+		'Specification-Vendor': vendor,
+		'Implementation-Title': 'com.thomsonreuters.upa',
+		'Implementation-Version': ReleaseVersion,
+		'Implementation-Vendor': vendor )
+}
+
+// NEED TO ADD THE DATE
+
+jar {
+	doFirst { println 'Creating UPA jar file' }
+
+	manifest { 
+		attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition'
+		from sharedManifest 
+	}
+
+	from ('impl') 
+	{
+		include 'com/thomsonreuters/proxy/authentication/kerberos/login.conf'
+	}
+
+	destinationDir = file("../Libs/")
+	baseName = 'upa'
+}
+
+javadoc {
+        doFirst {
+                println "Generating javadoc for ETA"
+        }
+
+        destinationDir = file('../Docs/refman/upaj/')
+        title = "ETA JAVA " +  "${ReleaseVersion}"
+
+        exclude '**/*Impl.java'
+        exclude '**/JUnit*.java'
+
+        options.footer ('<a href="http://about.reuters.com/developer" target=_top>Thomson Reuters</a>')
+        options.header ('<a href="http://about.reuters.com/developer" target=_top>Thomson Reuters</a>')
+
+        options.group ('Access', 'com.thomsonreuters.ema.access')
+        options.group ('RDM', 'com.thomsonreuters.ema.rdm')
+
+        options.setWindowTitle ('ETA')
+}
+
+task cleanJar (type: Delete) {
+        delete "${jar.archivePath}"
+}
+
+task cleanJavadoc (type: Delete) {
+        delete ('../Docs/refman/')
+}
+
+clean.dependsOn cleanJar, cleanJavadoc
+
+artifacts {
+	archives jar
+}
+
+test {
+	// set to true to see the junit stdoutput
+        testLogging.showStandardStreams = false
+//	maxParallelForks = Runtime.runtime.availableProcessors()
+	maxParallelForks = 10
+}
+

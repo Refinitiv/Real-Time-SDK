@@ -83,7 +83,7 @@ public:
 
 	void setNameType(UInt8 nameType);
 
-	void setFlags(int flag);
+	void setFlags(UInt32 flags);
 
 	void setDomainType(UInt8 domainType);
 

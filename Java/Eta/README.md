@@ -55,6 +55,8 @@ At the current time, the JNI libraries support the following platform/compiler c
 	- Visual Studio 11 (2012)
 	- Visual Studio 12 (2013)
 	- Visual Studio 14 (2015)
+- Solaris 10 X86 64-bit (SunStudio12)
+- Solaris 11 X86 64-bit (SunStudio12)
 
 Users are welcome to migrate open source code to the platforms they prefer, however support for the included ETA libraries are only provided on platforms captured in the README file.
 

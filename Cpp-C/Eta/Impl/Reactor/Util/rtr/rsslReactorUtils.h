@@ -78,7 +78,7 @@ RTR_C_INLINE RsslUInt32 rsslGetEstimatedEncodedLength(RsslMsg *pRsslMsg)
 			msgSize += pKey->encAttrib.length;
 	}
 
-	if (pExtHeader = rsslGetExtendedHeader(pRsslMsg))
+	if ((pExtHeader = rsslGetExtendedHeader(pRsslMsg)))
 		msgSize += pExtHeader->length;
 
 	return msgSize;

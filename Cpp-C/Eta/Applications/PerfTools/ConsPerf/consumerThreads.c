@@ -493,7 +493,7 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 		assert(pPostItem->itemInfo.itemFlags & ITEM_IS_POST);
 
 		if (latencyUpdateNumber == i)
-			encodeStartTime = getTimeMicro();
+			encodeStartTime = consPerfConfig.nanoTime ? getTimeNano() : getTimeMicro();
 		else
 			encodeStartTime = 0;
 
@@ -594,7 +594,7 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 		if (latencyGenMsgNumber == i)
 		{
 			countStatIncr(&pConsumerThread->stats.latencyGenMsgSentCount);
-			encodeStartTime = getTimeMicro();
+			encodeStartTime = consPerfConfig.nanoTime ? getTimeNano() : getTimeMicro();
 		}
 		else
 			encodeStartTime = 0;
@@ -1354,7 +1354,7 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 			return ret;
 		} 
 
-		printf( "Channel %d active. Channel Info:\n"
+		printf( "Channel "SOCKET_PRINT_TYPE" active. Channel Info:\n"
 				"  maxFragmentSize: %u\n"
 				"  maxOutputBuffers: %u\n"
 				"  guaranteedOutputBuffers: %u\n"
@@ -1649,31 +1649,34 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 	RsslRet ret = 0;
 	RsslError closeError;
 
-	ItemInfo *pItemInfo;
-	{
-		if (pMsg->msgBase.streamId < ITEM_STREAM_ID_START || pMsg->msgBase.streamId 
+	TimeValue decodeTimeStart, decodeTimeEnd;
+	ItemInfo *pItemInfo = NULL;
+
+	if (consPerfConfig.measureDecode)
+		decodeTimeStart = getTimeNano();
+	
+	if (pMsg->msgBase.streamId < ITEM_STREAM_ID_START || pMsg->msgBase.streamId 
 				>= ITEM_STREAM_ID_START + consPerfConfig.commonItemCount + pConsumerThread->itemListCount)
-		{
-			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+	{
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
 					(char*)"Error: Received message with unexpected Stream ID: %d  Class: %s(%u) Domain: %s(%u)",
 					pMsg->msgBase.streamId,
 					rsslMsgClassToString(pMsg->msgBase.msgClass), pMsg->msgBase.msgClass,
 					rsslDomainTypeToString(pMsg->msgBase.domainType), pMsg->msgBase.domainType);
-			shutdownThreads = RSSL_TRUE;
-			return RSSL_RET_FAILURE;
-		}
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RET_FAILURE;
+	}
 
-		pItemInfo = &pConsumerThread->itemRequestList[pMsg->msgBase.streamId].itemInfo;
+	pItemInfo = &pConsumerThread->itemRequestList[pMsg->msgBase.streamId].itemInfo;
 
-		if (pItemInfo->attributes.domainType != pMsg->msgBase.domainType)
-		{
-			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+	if (pItemInfo->attributes.domainType != pMsg->msgBase.domainType)
+	{
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
 					(char*)"Error: Received message with domain type %u vs. expected type %u",
 					pMsg->msgBase.domainType, pItemInfo->attributes.domainType);
-			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
-			shutdownThreads = RSSL_TRUE;
-			return RSSL_RET_FAILURE;
-		}
+		rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RET_FAILURE;
 	}
 
 	switch(pMsg->msgBase.msgClass)
@@ -1695,6 +1698,12 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
 				shutdownThreads = RSSL_TRUE;
 				return RSSL_RET_FAILURE;
+			}
+
+			if (consPerfConfig.measureDecode)
+			{
+				decodeTimeEnd = getTimeNano();
+				timeRecordSubmit(&pConsumerThread->updateDecodeTimeRecords, decodeTimeStart, decodeTimeEnd, 1000);
 			}
 			break;
 		}
@@ -2030,7 +2039,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 							case RSSL_RET_READ_WOULD_BLOCK:
 								break;
 							case RSSL_RET_READ_FD_CHANGE:
-								printf("\nrsslRead() FD Change - Old FD: %d New FD: %d\n", pConsumerThread->pChannel->oldSocketId, pConsumerThread->pChannel->socketId);
+								printf("\nrsslRead() FD Change - Old FD: "SOCKET_PRINT_TYPE" New FD: "SOCKET_PRINT_TYPE"\n", pConsumerThread->pChannel->oldSocketId, pConsumerThread->pChannel->socketId);
 								FD_CLR(pConsumerThread->pChannel->oldSocketId, &pConsumerThread->readfds);
 								FD_CLR(pConsumerThread->pChannel->oldSocketId, &pConsumerThread->exceptfds);
 								FD_SET(pConsumerThread->pChannel->socketId, &pConsumerThread->readfds);
@@ -2441,6 +2450,7 @@ void consumerThreadInit(ConsumerThread *pConsumerThread, RsslInt32 consThreadId)
 	}
 
 	fprintf(pConsumerThread->statsFile, "UTC, Latency updates, Latency avg (usec), Latency std dev (usec), Latency max (usec), Latency min (usec), Images, Update rate (msg/sec), Posting Latency updates, Posting Latency avg (usec), Posting Latency std dev (usec), Posting Latency max (usec), Posting Latency min (usec), GenMsgs sent, GenMsgs received, GenMsg Latencies sent, GenMsg latencies received, GenMsg Latency avg (usec), GenMsg Latency std dev (usec), GenMsg Latency max (usec), GenMsg Latency min (usec), CPU usage (%%), Memory (MB)\n");
+	timeRecordQueueInit(&pConsumerThread->updateDecodeTimeRecords);
 
 	pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
 	pConsumerThread->directoryMsgCopyMemory.data = (char*)malloc(16384);
@@ -2524,7 +2534,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				return RSSL_RC_CRET_FAILURE;
 			} 
 
-			printf( "Channel %d active. Channel Info:\n"
+			printf( "Channel "SOCKET_PRINT_TYPE" active. Channel Info:\n"
 					"  maxFragmentSize: %u\n"
 					"  maxOutputBuffers: %u\n"
 					"  guaranteedOutputBuffers: %u\n"
@@ -2579,7 +2589,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The file descriptor representing the RsslReactorChannel has been changed.
 			 * Update our file descriptor sets. */
-			printf("Fd change: %d to %d\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
+			printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
 			FD_CLR(pReactorChannel->oldSocketId, &(pConsumerThread->readfds));
 			FD_CLR(pReactorChannel->oldSocketId, &(pConsumerThread->exceptfds));
 			FD_SET(pReactorChannel->socketId, &(pConsumerThread->readfds));
@@ -2590,7 +2600,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The channel has failed and has gone down.  Print the error, close the channel, and reconnect later. */
 
-			printf("Connection down: Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("Connection down: Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -2600,7 +2610,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		}
 		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 		{
-			printf("Connection down, reconnecting.  Channel fd=%d\n", pReactorChannel->socketId);
+			printf("Connection down, reconnecting.  Channel fd="SOCKET_PRINT_TYPE"\n", pReactorChannel->socketId);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -2622,7 +2632,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		case RSSL_RC_CET_WARNING:
 		{
 			/* We have received a warning event for this channel. Print the information and continue. */
-			printf("Received warning for Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 			return RSSL_RC_CRET_SUCCESS;
 		}

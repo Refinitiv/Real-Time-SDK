@@ -1,0 +1,107 @@
+apply plugin: 'net.saliman.cobertura'
+apply plugin: 'maven-publish'
+
+def package1 = 'etaj3.1.0.L1.all.rrg'
+def ReleaseVersion = 'etaj3.1.0.L1'
+def vendor = 'Thomson Reuters'
+
+def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
+
+eclipse {
+        project {
+                name = 'ESDK-Eta-ValueAdd'
+        }
+}
+
+cobertura {
+
+}
+
+publishing {
+        publications {
+                etaj(MavenPublication) {
+                        groupId 'com.thomsonreuters.upa'
+                        artifactId 'upaValueAdd'
+                        version "$ReleaseVersion"
+
+                        from components.java
+                }
+        }
+}
+
+publishing {
+        repositories {
+                maven {
+// publis to file for now, it does not seem to work with artifactory, I'm getting 409 error, credentails do work. 
+
+//                      credentials {
+//                              username project.properties.mavenUser
+//                              password project.properties.mavenPassword
+//                      }
+// TODO 
+// decide based on version string where to put the artifacts
+//            if (project.version.endsWith("-SNAPSHOT")) {
+ //               url project.someSnapshot
+  //          } else {
+   //             url project.someRelease
+    //        }
+//                        url "https://bams-amers-sami.int.thomsonreuters.com/artifactory/snapshot.maven.local/com/thomsonreuters/ESDK"
+                        url "file:///local/smusial/TMP/"
+                }
+        }
+}
+
+
+dependencies {
+	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.1.2'
+	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.1.2'
+	compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.1.2'
+
+	compile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+
+	testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+
+	compile project(':Eta:Core')
+}
+
+// ext is used to store project level properties
+// we can use this shared manifest
+ext.sharedManifest = manifest {
+	attributes( 'Sealed': 'true',
+		'Specification-Version': package1,
+		'Specification-Vendor': vendor,
+		'Implementation-Title': 'com.thomsonreuters.upa',
+		'Implementation-Version': ReleaseVersion,
+		'Implementation-Vendor': vendor )
+}
+
+// TODO NEED TO ADD THE DATE
+
+jar {
+
+	doFirst { println 'Creating ValueAdd jar file' }
+
+	manifest { 
+		attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition ValueAdd Classes'
+		from sharedManifest 
+	}
+
+        destinationDir = file("../Libs/")
+        baseName = 'upaValueAdd'
+}
+
+task cleanJar (type: Delete) {
+        delete "${jar.archivePath}"
+}
+clean.dependsOn cleanJar
+
+artifacts {
+	archives jar
+}
+
+test {
+        // set to true to see the junit stdoutput
+        testLogging.showStandardStreams = false
+        maxParallelForks = 10
+}
+

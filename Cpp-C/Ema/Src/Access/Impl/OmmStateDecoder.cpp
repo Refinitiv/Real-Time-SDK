@@ -110,7 +110,7 @@ OmmState::DataState OmmStateDecoder::getDataState() const
 	return static_cast< OmmState::DataState >( _rsslState.dataState );
 }
 
-UInt16 OmmStateDecoder::getStatusCode() const
+UInt8 OmmStateDecoder::getStatusCode() const
 {
 	return _rsslState.code;
 }

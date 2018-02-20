@@ -2704,29 +2704,25 @@ bool DirectoryServiceStore::encodeDirectoryMsg(const RsslRDMDirectoryMsg& direct
 
 void DirectoryServiceStore::freeMemory(RsslRDMDirectoryRefresh& directoryRefresh, RsslBuffer* rsslMsgBuffer)
 {
-	for (UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp)
-		if (directoryRefresh.serviceList[temp].info.qosList)
-			delete[] directoryRefresh.serviceList[temp].info.qosList;
+	if (directoryRefresh.serviceList) {
+		for (UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp) {
+			if (directoryRefresh.serviceList[temp].info.qosList)
+				delete[] directoryRefresh.serviceList[temp].info.qosList;
 
-	for (UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp)
-		if (directoryRefresh.serviceList[temp].info.dictionariesUsedList)
-			delete[] directoryRefresh.serviceList[temp].info.dictionariesUsedList;
+			if (directoryRefresh.serviceList[temp].info.dictionariesUsedList)
+				delete[] directoryRefresh.serviceList[temp].info.dictionariesUsedList;
 
-	for (UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp)
-		if (directoryRefresh.serviceList[temp].info.dictionariesProvidedList)
-			delete[] directoryRefresh.serviceList[temp].info.dictionariesProvidedList;
+			if (directoryRefresh.serviceList[temp].info.dictionariesProvidedList)
+				delete[] directoryRefresh.serviceList[temp].info.dictionariesProvidedList;
 
-	for (UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp)
-		if (directoryRefresh.serviceList[temp].info.capabilitiesList)
-			delete[] directoryRefresh.serviceList[temp].info.capabilitiesList;
+			if (directoryRefresh.serviceList[temp].info.capabilitiesList)
+				delete[] directoryRefresh.serviceList[temp].info.capabilitiesList;
 
-	for (UInt32 temp = 0; temp < directoryRefresh.serviceCount; ++temp)
-		if (directoryRefresh.serviceList[temp].linkInfo.linkList)
-			delete[] directoryRefresh.serviceList[temp].linkInfo.linkList;
-
-	if (directoryRefresh.serviceList)
+			if (directoryRefresh.serviceList[temp].linkInfo.linkList)
+				delete[] directoryRefresh.serviceList[temp].linkInfo.linkList;
+		}
 		delete[] directoryRefresh.serviceList;
-
+	}
 	if (rsslMsgBuffer && rsslMsgBuffer->data)
 		free(rsslMsgBuffer->data);
 }

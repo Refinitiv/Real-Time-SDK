@@ -1133,7 +1133,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					EmaString text( "Invalid SecurityProtocol [" );
 					text.append(tunnelingSecurityProtocol);
 					text.append( "] in Programmatic Configuration. Use default SecurityProtocol [" );
-					text.append(RsslEncryptionProtocolTypes::RSSL_ENC_TLSV1_2);
+					text.append(RSSL_ENC_TLSV1_2);
 					text.append( "] " );
 					EmaConfigError* mce( new EmaConfigError( text, OmmLoggerClient::ErrorEnum ) );
 					emaConfigErrList.add( mce );

@@ -1,0 +1,50 @@
+# 
+# This is a@m1@ template file and should @m2@ be edtied directly. 
+# Any changes required should be made in the upstream cmake script file,
+#      Training/CMakeLists.txt.in
+# 
+
+add_executable( @domainPrefix@@exampleNumber@ @sourceFileList@ )
+add_executable( @domainPrefix@@exampleNumber@_shared @sourceFileList@ )
+
+target_link_libraries( @domainPrefix@@exampleNumber@ libema ${SYSTEM_LIBRARIES} )
+target_link_libraries( @domainPrefix@@exampleNumber@_shared libema_shared ${SYSTEM_LIBRARIES} )
+
+set_target_properties( @domainPrefix@@exampleNumber@ @domainPrefix@@exampleNumber@_shared
+							PROPERTIES 
+								OUTPUT_NAME @domainPrefix@@exampleNumber@ 
+						)
+
+if (CMAKE_HOST_WIN32)
+	set_target_properties( @domainPrefix@@exampleNumber@_shared 
+                            PROPERTIES 
+                                RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD 
+									${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared 
+								RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD 
+									${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared 
+								PDB_OUTPUT_DIRECTORY_RELEASE_MD 
+									${CMAKE_PDB_OUTPUT_DIRECTORY_RELEASE_MD}/Shared 
+								PDB_OUTPUT_DIRECTORY_DEBUG_MDD 
+									${CMAKE_PDB_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared 
+                        )
+	
+	target_compile_options( @domainPrefix@@exampleNumber@	 
+								PRIVATE 
+                                    ${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
+                                    ${RCDEV_TYPE_CHECK_FLAG}
+                                    $<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
+						)
+	target_compile_options( @domainPrefix@@exampleNumber@_shared	 
+								PRIVATE 
+                                    ${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
+                                    ${RCDEV_TYPE_CHECK_FLAG}
+                                    $<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
+						)
+else()
+	set_target_properties( @domainPrefix@@exampleNumber@_shared 
+                            PROPERTIES 
+                                RUNTIME_OUTPUT_DIRECTORY 
+                                    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared
+                        )
+
+endif()

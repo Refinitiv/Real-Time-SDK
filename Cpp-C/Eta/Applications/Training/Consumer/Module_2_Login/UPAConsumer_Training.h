@@ -119,6 +119,16 @@
 #ifndef _TR_UPA_CONSUMER_TRAINING_H
 #define _TR_UPA_CONSUMER_TRAINING_H
 
+#ifdef _WIN32
+#ifdef _WIN64
+#define SOCKET_PRINT_TYPE "%llu"	/* WIN64 */
+#else
+#define SOCKET_PRINT_TYPE "%u"	/* WIN32 */
+#endif
+#else
+#define SOCKET_PRINT_TYPE "%d"  /* Linux */
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

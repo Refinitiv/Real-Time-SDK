@@ -1,0 +1,79 @@
+/* (C) Copyright 2018 Reuters, Oak Brook, IL, USA;  All rights reserved.      */
+
+/*******************************************************************************
+* 
+* ATTENTION: 
+# This is a@m1@ template file and should @m2@ be edtied directly.  
+* Any changes required should be made in the upstream template header file,
+*            ${Eta_SOURCE_DIR}/Impl/EtaJni/Include/rsslEtaJNIVersion.h.in
+*
+* This file is used in both static and shared library builds
+* The rsslEtaJNI.rc  file include this file in shared library builds
+* 
+*******************************************************************************/
+#ifndef __RSSL_ETA_JNI_VERSION_H
+#define __RSSL_ETA_JNI_VERSION_H
+
+#define STR_EXPAND(str) #str
+#define MKSTR(str) STR_EXPAND(str)
+
+#ifdef NDEBUG
+#define BLDTYPE " Release"
+#else
+#define BLDTYPE " Debug"
+#endif
+
+#define RSSL_ETA_JNI_Release_Major     @Eta_VERSION_MAJOR@		// Release major version number
+#define RSSL_ETA_JNI_Release_Minor     @Eta_VERSION_MINOR@		// Release minor version number
+#define RSSL_ETA_JNI_Product_Major     @Eta_VERSION_PATCH@ 	    // Release patch number
+#define RSSL_ETA_JNI_Product_Minor     @Eta_VERSION_TWEAK@   	// Release tweak number
+
+#define RSSL_ETA_JNI_Year				"@esdk_year@"
+#define RSSL_ETA_JNI_CompanyName		" Thomson Reuters, Oak Brook, IL"
+#define RSSL_ETA_JNI_Version			RSSL_ETA_JNI_Release_Major,RSSL_ETA_JNI_Release_Minor,RSSL_ETA_JNI_Product_Major,RSSL_ETA_JNI_Product_Minor
+#define RSSL_ETA_JNI_VersionString		MKSTR(RSSL_ETA_JNI_Release_Major) "." MKSTR(RSSL_ETA_JNI_Release_Minor) "." MKSTR(RSSL_ETA_JNI_Product_Major) "." MKSTR(RSSL_ETA_JNI_Product_Minor) " (" BLDTYPE ")"
+#define RSSL_ETA_JNI_LegalCopyRight		"(C) Copyright " RSSL_ETA_JNI_Year RSSL_ETA_JNI_CompanyName ", All Rights Reserved. "
+#define RSSL_ETA_JNI_ExternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@INTERNAL_RELEASE_TWEAK@"
+#define RSSL_ETA_JNI_ReleaseType		"@RELEASE_TYPE@"
+#define RSSL_ETA_JNI_ProdName			"Elektron Transport JNI API (ETA) C Edition"
+#define RSSL_ETA_JNI_Package			" PACKAGE " RSSL_ETA_JNI_ExternalName " " RSSL_ETA_JNI_ReleaseType
+
+static char rsslEtaJNIOrigin[]    = RSSL_ETA_JNI_LegalCopyRight;
+static char rsslEtaJNIVersion[]   = " VERSION " RSSL_ETA_JNI_ExternalName;
+static char rsslEtaJNIWhere[]     = "s.rsslEtaJNIVersion.h";
+static char rsslEtaJNIPackage[]   = RSSL_ETA_JNI_Package;
+static char rsslEtaJNIDeltaDate[] = " @esdk_timestamp@ " RSSL_ETA_JNI_Year;
+static char rsslEtaJNIComponentVersionStart[] = RSSL_ETA_JNI_ExternalName ".";
+static char rsslEtaJNIComponentVersionEnd[] = "." RSSL_ETA_JNI_ReleaseType;
+
+#define RSSL_Eta_JNI_ComponentVersionStart_Len strlen(rsslEtaJNIComponentVersionStart)
+#define RSSL_Eta_JNI_ComponentVersionEnd_Len strlen(rsslEtaJNIComponentVersionEnd)
+
+#ifdef WIN32
+static char rsslEtaJNIComponentVersionPlatform[] = "win";
+#endif
+#ifdef Linux
+static char rsslEtaJNIComponentVersionPlatform[] = "linux";
+#endif
+
+#define Rssl_Eta_JNI_ComponentVersionPlatform_Len strlen(rsslEtaJNIComponentVersionPlatform)
+
+#ifdef COMPILE_64BITS
+static char rsslBits[] = " 64-bit";
+#else
+static char rsslBits[] = " 32-bit";
+#endif
+#define Rssl_Bits_Len strlen(rsslBits)
+
+#if WIN32
+#ifdef RSSL_ETA_JNI_EXPORTS		// shared Library build
+static char rsslEtaJNILinkType[] = " Shared Library";
+#else
+static char rsslEtaJNILinkType[] = " Static";
+#endif
+#else
+extern char rsslEtaJNILinkType[];
+#endif
+
+#endif
+

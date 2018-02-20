@@ -38,7 +38,7 @@ RTR_C_INLINE void rsslClearEventSignal(RsslEventSignal *pSignal)
 }
 
 RTR_C_INLINE int rsslGetEventSignalFD(RsslEventSignal* pSignal) {
-	return pSignal->_fds[0];
+	return (int)(pSignal->_fds[0]);
 }
 
 RTR_C_INLINE void rsslCleanupEventSignal(RsslEventSignal* pSignal) 
@@ -167,7 +167,6 @@ RTR_C_INLINE int rsslInitEventSignal(RsslEventSignal* pSignal)
 	}
 #else
 	int pipeRetVal;
-	int fcntlRetVal;
 	pipeRetVal = pipe( pSignal->_fds );
 	if(pipeRetVal == -1) {
 		// Cannot create the communication pipe

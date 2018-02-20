@@ -624,7 +624,7 @@ public :
 		@return reference to this object
 		@throw OmmUnsupportedDomainTypeException if domainType is greater than 255
 	*/
-	TunnelStreamRequest& domainType( UInt16 domainType );
+	TunnelStreamRequest& domainType( UInt8 domainType );
 	
 	/** Specifies ServiceId.
 		\remark One service identification must be set, either id or name.
@@ -745,7 +745,7 @@ private :
 
 	friend class TunnelItem;
 
-	UInt16							_domainType;
+	UInt8							_domainType;
 	UInt32							_serviceId;
 	UInt32							_responseTimeout;
 	UInt32							_guaranteedOutputBuffers;

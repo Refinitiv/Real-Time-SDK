@@ -223,7 +223,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 		return 0;
 	} 
 
-	printf( "Channel %d active. Channel Info:\n"
+	printf( "Channel "SOCKET_PRINT_TYPE" active. Channel Info:\n"
 			"  maxFragmentSize: %u\n"
 			"  maxOutputBuffers: %u\n"
 			"  guaranteedOutputBuffers: %u\n"
@@ -263,7 +263,7 @@ RsslRet processActiveChannel(ChannelHandler *pChanHandler, ChannelInfo *pChannel
 	if (transportThreadConfig.totalBuffersPerPack > 1
 			&& (transportThreadConfig.msgSize + 8) * transportThreadConfig.totalBuffersPerPack > channelInfo.maxFragmentSize)
 	{
-		printf("Error(Channel %d): MaxFragmentSize %u is too small for packing buffer size %u\n",
+		printf("Error(Channel "SOCKET_PRINT_TYPE"): MaxFragmentSize %u is too small for packing buffer size %u\n",
 				pChannelInfo->pChannel->socketId, channelInfo.maxFragmentSize, 
 				(transportThreadConfig.msgSize + 8) * transportThreadConfig.totalBuffersPerPack);
 		exit(-1);
@@ -653,7 +653,7 @@ int main(int argc, char **argv)
 				}
 				else
 				{
-					printf("Server %d accepting channel %d.\n\n", rsslSrvr->socketId, chnl->socketId);
+					printf("Server "SOCKET_PRINT_TYPE" accepting channel "SOCKET_PRINT_TYPE".\n\n", rsslSrvr->socketId, chnl->socketId);
 					sendToLeastLoadedThread(chnl);
 				}
 			}
@@ -869,7 +869,7 @@ static RsslServer* bindRsslServer(RsslError* error)
 	if ((srvr = rsslBind(&sopts, error)) == 0)
 		return NULL;
 
-	printf("\nServer %d bound on port %d\n", srvr->socketId, srvr->portNumber);
+	printf("\nServer "SOCKET_PRINT_TYPE" bound on port %d\n", srvr->socketId, srvr->portNumber);
 	FD_SET(srvr->socketId,&readfds);
 	FD_SET(srvr->socketId,&exceptfds);
 	return srvr;
@@ -907,8 +907,8 @@ static RsslRet sendToLeastLoadedThread(RsslChannel *chnl)
 	RSSL_MUTEX_UNLOCK(&pConnHandler->handlerLock);
 
 	if (rsslSrvr)
-		printf("Server %d: ", rsslSrvr->socketId);
-	printf("New Channel %d passed connection to handler %d\n\n", chnl->socketId, connHandlerIndex);
+		printf("Server "SOCKET_PRINT_TYPE": ", rsslSrvr->socketId);
+	printf("New Channel "SOCKET_PRINT_TYPE" passed connection to handler %d\n\n", chnl->socketId, connHandlerIndex);
 
 	return RSSL_RET_SUCCESS;
 }

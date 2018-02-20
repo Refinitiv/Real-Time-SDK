@@ -292,19 +292,16 @@ static RsslRet _rsslEncodeServiceList(RsslEncodeIterator *pEncodeIter, RsslRDMDi
 	RsslFilterList filterList; RsslFilterEntry filterEntry;
 	RsslRet ret;
 
-	RsslUInt32 filter;
 	RsslUInt32 serviceCount;
 	RsslRDMService *pServices;
 
 	switch(pDirectoryResponse->rdmMsgBase.rdmMsgType)
 	{
 		case RDM_DR_MT_REFRESH:
-			filter = pDirectoryResponse->refresh.filter;
 			serviceCount = pDirectoryResponse->refresh.serviceCount;
 			pServices = pDirectoryResponse->refresh.serviceList;
 			break;
 		case RDM_DR_MT_UPDATE: 
-			filter = (pDirectoryResponse->update.flags & RDM_DR_UPF_HAS_FILTER) ? pDirectoryResponse->update.filter: 0;
 			serviceCount = pDirectoryResponse->update.serviceCount;
 			pServices = pDirectoryResponse->update.serviceList;
 			break;
@@ -1570,7 +1567,7 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 
 							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeMap(pIter, &map)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 
-							if (!RSSL_ERROR_INFO_CHECK(map.containerType == RSSL_DT_ELEMENT_LIST && map.keyPrimitiveType == RSSL_DT_ASCII_STRING || map.keyPrimitiveType == RSSL_DT_BUFFER, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK(map.containerType == RSSL_DT_ELEMENT_LIST && (map.keyPrimitiveType == RSSL_DT_ASCII_STRING || map.keyPrimitiveType == RSSL_DT_BUFFER), RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 							rsslClearMapEntry(&mapEntry);
 							if ((ret = rsslDecodeMapEntry(pIter, &mapEntry, &mapKey)) != RSSL_RET_END_OF_CONTAINER)
@@ -1632,7 +1629,10 @@ static RsslRet _rsslDecodeServiceList(RsslDecodeIterator *pIter, RsslBuffer *pDa
 											}
 										}
 
-										if (!RSSL_ERROR_INFO_CHECK(foundServiceLinkState, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+										if (!foundServiceLinkState) {
+										  rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "ServiceLinkState not found", 0);
+										  return  RSSL_RET_FAILURE;
+										}
 									}
 									++pService->linkInfo.linkCount;
 

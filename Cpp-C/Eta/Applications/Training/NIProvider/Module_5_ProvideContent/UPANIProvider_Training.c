@@ -565,7 +565,7 @@ int main(int argc, char **argv)
 			FD_SET(upaChannel->socketId, &cleanWriteFds);
 	}
 
-	printf("\nChannel IPC descriptor = %d\n", upaChannel->socketId);
+	printf("\nChannel IPC descriptor = "SOCKET_PRINT_TYPE"\n", upaChannel->socketId);
 
 	/******************************************************************************************************************
 				MAIN LOOP TO SEE IF RESPONSE RECEIVED FROM PROVIDER
@@ -674,7 +674,7 @@ int main(int argc, char **argv)
 						 */
 						if ((retval = rsslInitChannel(upaChannel, &inProgInfo, &error)) < RSSL_RET_SUCCESS)
 						{
-							printf("Error %s (%d) (errno: %d) encountered with rsslInitChannel fd=%d. Error Text: %s\n",
+							printf("Error %s (%d) (errno: %d) encountered with rsslInitChannel fd="SOCKET_PRINT_TYPE". Error Text: %s\n",
 								rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, upaChannel->socketId, error.text);
 							/* Closes channel, cleans up and exits the application. */
 							closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
@@ -702,7 +702,7 @@ int main(int argc, char **argv)
 										 * I/O notification mechanism. The channel initialization is still in progress and subsequent calls
 										 * to rsslInitChannel are required to complete it.
 										 */
-										printf("\nChannel In Progress - New FD: %d  Old FD: %d\n",upaChannel->socketId, inProgInfo.oldSocket );
+										printf("\nChannel In Progress - New FD: "SOCKET_PRINT_TYPE"  Old FD: "SOCKET_PRINT_TYPE"\n",upaChannel->socketId, inProgInfo.oldSocket );
 
 										/* File descriptor has changed, unregister old and register new */
 										FD_CLR(inProgInfo.oldSocket, &cleanReadFds);
@@ -715,7 +715,7 @@ int main(int argc, char **argv)
 									}
 									else
 									{
-										printf("\nChannel %d In Progress...\n", upaChannel->socketId);
+										printf("\nChannel "SOCKET_PRINT_TYPE" In Progress...\n", upaChannel->socketId);
 									}
 								}
 								break;
@@ -726,7 +726,7 @@ int main(int argc, char **argv)
 								 */
 								case RSSL_RET_SUCCESS:
 								{
-									printf("\nChannel on fd %d is now active - reading and writing can begin.\n", upaChannel->socketId);
+									printf("\nChannel on fd "SOCKET_PRINT_TYPE" is now active - reading and writing can begin.\n", upaChannel->socketId);
 
 									/*********************************************************
 									 * Connection is now active. The RsslChannel can be used for all additional
@@ -748,7 +748,7 @@ int main(int argc, char **argv)
 										closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
 									}
 
-									printf( "Channel %d active. Channel Info:\n"
+									printf( "Channel "SOCKET_PRINT_TYPE" active. Channel Info:\n"
 										"	Max Fragment Size: %u\n"
 										"	Output Buffers: %u Max, %u Guaranteed\n"
 										"	Input Buffers: %u\n"
@@ -784,7 +784,7 @@ int main(int argc, char **argv)
 								break;
 								default: /* Error handling */
 								{
-									printf("\nBad return value fd=%d <%s>\n",
+									printf("\nBad return value fd="SOCKET_PRINT_TYPE" <%s>\n",
 										upaChannel->socketId, error.text);
 									/* Closes channel, cleans up and exits the application. */
 									closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
@@ -998,7 +998,7 @@ int main(int argc, char **argv)
 						retval = rsslDecodeMsg(&decodeIter, &msg);
 						if (retval != RSSL_RET_SUCCESS)
 						{
-							printf("\nrsslDecodeMsg(): Error %d on SessionData fd=%d  Size %d \n", retval, upaChannel->socketId, msgBuf->length);
+							printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE"  Size %d \n", retval, upaChannel->socketId, msgBuf->length);
 							/* Closes channel, cleans up and exits the application. */
 							closeChannelCleanUpAndExit(upaChannel, RSSL_RET_FAILURE);
 						}
@@ -1071,7 +1071,7 @@ int main(int argc, char **argv)
 							{
 								/* File descriptor changed, typically due to tunneling keep-alive */
 								/* Unregister old socketId and register new socketId */
-								printf("\nrsslRead() FD Change - Old FD: %d New FD: %d\n", upaChannel->oldSocketId, upaChannel->socketId);
+								printf("\nrsslRead() FD Change - Old FD: "SOCKET_PRINT_TYPE" New FD: "SOCKET_PRINT_TYPE"\n", upaChannel->oldSocketId, upaChannel->socketId);
 								FD_CLR(upaChannel->oldSocketId, &cleanReadFds);
 								FD_CLR(upaChannel->oldSocketId, &cleanWriteFds);
 								FD_CLR(upaChannel->oldSocketId, &cleanExceptFds);
@@ -1091,7 +1091,7 @@ int main(int argc, char **argv)
 							{
 								if (retval_rsslRead < 0)
 								{
-									printf("Error %s (%d) (errno: %d) encountered with rsslRead fd=%d. Error Text: %s\n",
+									printf("Error %s (%d) (errno: %d) encountered with rsslRead fd="SOCKET_PRINT_TYPE". Error Text: %s\n",
 										rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError,
 										upaChannel->socketId, error.text);
 									/* Closes channel/connection, cleans up and exits the application. */
@@ -1365,7 +1365,7 @@ RsslRet processPingManagementHandler(RsslChannel* upaChannel, UpaPingManagementI
 				case RSSL_RET_FAILURE: /* fall through to default. */
 				default: /* Error handling */
 				{
-					printf("\nError %s (%d) (errno: %d) encountered with rsslPing() on fd=%d with code %d\n. Error Text: %s\n",
+					printf("\nError %s (%d) (errno: %d) encountered with rsslPing() on fd="SOCKET_PRINT_TYPE" with code %d\n. Error Text: %s\n",
 						rsslRetCodeToString(error.rsslErrorId), error.rsslErrorId, error.sysError, upaChannel->socketId, retval,
 						error.text);
 					/* Closes channel/connection, cleans up and exits the application. */

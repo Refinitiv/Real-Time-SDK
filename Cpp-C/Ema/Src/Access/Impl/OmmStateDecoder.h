@@ -44,7 +44,7 @@ public :
 
 	OmmState::DataState getDataState() const;
 
-	UInt16 getStatusCode() const;
+	UInt8 getStatusCode() const;
 
 	const EmaString& getStatusText();
 

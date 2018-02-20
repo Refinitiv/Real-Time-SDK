@@ -46,7 +46,6 @@ public:
 	static const thomsonreuters::ema::access::EmaString& getSysTimeStr();
 	static void sleep(thomsonreuters::ema::access::UInt64 millisecs);
 
-	static void getDefPosition(thomsonreuters::ema::access::EmaString& pos);
 	static thomsonreuters::ema::access::Int32 getHostAddress(thomsonreuters::ema::access::UInt32* address);
 
 	static thomsonreuters::ema::access::UInt32 getProcessId();

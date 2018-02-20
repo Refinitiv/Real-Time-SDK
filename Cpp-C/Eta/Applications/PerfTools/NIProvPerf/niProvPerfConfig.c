@@ -275,6 +275,22 @@ void initNIProvPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			sscanf(argv[iargs], "%d", &providerThreadConfig.packingBufferLength);
 		}
+		else if (0 == strcmp("-preEnc", argv[iargs]))
+		{
+			providerThreadConfig.preEncItems = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-mcastStats", argv[iargs]))
+		{
+			providerThreadConfig.takeMCastStats = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-nanoTime", argv[iargs]))
+		{
+			providerThreadConfig.nanoTime = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-measureEncode", argv[iargs]))
+		{
+			providerThreadConfig.measureEncode = RSSL_TRUE;
+		}
 		else if (0 == strcmp("-directWrite", argv[iargs]))
 		{
 			providerThreadConfig.writeFlags |= RSSL_WRITE_DIRECT_SOCKET_WRITE;
@@ -449,7 +465,15 @@ void printNIProvPerfConfig(FILE *file)
 			(niProvPerfConfig.useReactor ? "Yes" : "No")
 		  );
 
-
+	fprintf(file,
+			"  Pre-Encoded Updates: %s\n" 
+			"      Nanosecond Time: %s\n" 
+			"       Measure Encode: %s\n"
+            "      Multicast Stats: %s\n\n",
+			providerThreadConfig.preEncItems ? "Yes" : "No",
+			providerThreadConfig.nanoTime ? "Yes" : "No",
+			providerThreadConfig.measureEncode ? "Yes" : "No",
+            providerThreadConfig.takeMCastStats ? "Yes" : "No");
 }
 
 void exitWithUsage()
@@ -502,7 +526,11 @@ void exitWithUsage()
 			"                                     (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
 
 			"  -reactor                         Use the VA Reactor instead of the UPA Channel for sending and receiving.\n"
-
+			" \n"
+			"  -nanoTime                        Use nanosecond precision for latency information instead of microsecond.\n"
+			"  -preEnc                          Use Pre-Encoded updates\n"
+			"  -takeMCastStats                  Take Multicast Statistics(Warning: This enables the per-channel lock).\n"
+			"  -measureEncode                   Measure encoding time of messages.\n"
 			"\n"
 			);
 #ifdef _WIN32

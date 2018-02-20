@@ -114,7 +114,7 @@ RTR_C_INLINE RsslBuffer* rsslReactorGetBuffer(RsslReactorChannel *pReactorChanne
  * @return RsslRet codes.
  * @see RsslReactor, RsslReactorChannel, RsslErrorInfo, rsslReactorGetBuffer, rsslReactorSubmit
  */
-RTR_C_INLINE RsslRet rsslReactorReleaseBuffer(RsslReactorChannel *pReactorChannel, RsslBuffer *pBuffer, RsslErrorInfo *pError)
+RTR_C_INLINE RsslRet rsslReactorReleaseBuffer(RsslReactorChannel *unused, RsslBuffer *pBuffer, RsslErrorInfo *pError)
 {
 	RsslRet ret = rsslReleaseBuffer(pBuffer, &pError->rsslError);
 	if (ret != RSSL_RET_SUCCESS)

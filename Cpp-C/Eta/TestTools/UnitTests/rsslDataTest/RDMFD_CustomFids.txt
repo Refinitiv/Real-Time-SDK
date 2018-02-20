@@ -1,0 +1,8 @@
+! Contains custom fids, so we can test loading/encoding multiple files
+!   into one dictionary
+!ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
+!-------    -----------          ---  ----------  ----------     ------  --------   -------
+FIDTEST1    "FIDTEST1"          15001  NULL        NONE                5  MSG              5
+FIDTEST2    "FIDTEST2"          15002  NULL        NONE                3  ANSI_PAGE        0 
+FIDTEST3    "FIDTEST3"          15003  NULL        NONE 	             3  XML              0 
+FIDTEST4    "FIDTEST4"          -9004  NULL        ALPHANUMERIC       16  RMTES_STRING    16 

@@ -197,6 +197,10 @@ public :
 									A consumer or provider may send this message. */
 		
 		ErrorEnum = 270,		/*!< Indicates processing error. */
+
+		LargestValue = ErrorEnum /* should be last element in DataTypeEnum and should be
+								  * set to the largest enumeration value
+								  */
 	};
 
 	///@name Constructor

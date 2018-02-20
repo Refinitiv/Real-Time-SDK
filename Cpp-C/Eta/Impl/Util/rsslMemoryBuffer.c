@@ -1,9 +1,10 @@
-/*
- * This source code is provided under the Apache 2.0 license and is provided
- * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
- * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
-*/
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+ *|-----------------------------------------------------------------------------
+ */
 
 #include "rtr/rsslMemoryBuffer.h"
 
@@ -11,7 +12,7 @@
 #include <stdint.h>
 #endif
 
-RSSL_VA_API char *rsslCopyBufferMemory(RsslBuffer *pOutBuf, RsslBuffer *pInBuf, RsslBuffer *pMemoryBuffer)
+RSSL_API char *rsslCopyBufferMemory(RsslBuffer *pOutBuf, RsslBuffer *pInBuf, RsslBuffer *pMemoryBuffer)
 {
 	char *pBufferMem = (char*)rsslReserveAlignedBufferMemory(pMemoryBuffer, pInBuf->length, sizeof(char));
 
@@ -24,7 +25,7 @@ RSSL_VA_API char *rsslCopyBufferMemory(RsslBuffer *pOutBuf, RsslBuffer *pInBuf, 
 	return pBufferMem;
 }
 
-RSSL_VA_API void * rsslReserveAlignedBufferMemory(RsslBuffer *pBuffer, RsslUInt32 elementCount, RsslUInt32 sizeOfElement)
+RSSL_API void * rsslReserveAlignedBufferMemory(RsslBuffer *pBuffer, RsslUInt32 elementCount, RsslUInt32 sizeOfElement)
 {
 	intptr_t alignMask;
 	RsslInt32 i;
@@ -55,7 +56,7 @@ RSSL_VA_API void * rsslReserveAlignedBufferMemory(RsslBuffer *pBuffer, RsslUInt3
 	return rsslReserveBufferMemory(pBuffer, elementCount, sizeOfElement);
 }
 
-RSSL_VA_API void * rsslReserveBufferMemory(RsslBuffer *pBuffer, RsslUInt32 elementCount, RsslUInt32 sizeofElement)
+RSSL_API void * rsslReserveBufferMemory(RsslBuffer *pBuffer, RsslUInt32 elementCount, RsslUInt32 sizeofElement)
 {
 	RsslUInt64 totalBytes = elementCount * sizeofElement;
 

@@ -5,8 +5,7 @@
  * Copyright Thomson Reuters 2015. All rights reserved.
 */
 
-/* This provides handling for command-line configuration of 
- * rsslConsPerf. */
+/* This provides handling for command-line configuration of ConsPerf. */
 
 #include "consPerfConfig.h"
 #include <assert.h>
@@ -52,7 +51,10 @@ static void clearConsPerfConfig()
 	consPerfConfig.itemRequestCount = 100000;
 	consPerfConfig.commonItemCount = 0;
 	consPerfConfig.itemRequestsPerSec = 500000;
-	consPerfConfig.requestSnapshots = RSSL_FALSE; 
+	consPerfConfig.requestSnapshots = RSSL_FALSE;
+
+	consPerfConfig.nanoTime = RSSL_FALSE;
+
 	consPerfConfig.postsPerSec = 0;
 	consPerfConfig.latencyPostsPerSec = 0;
 	consPerfConfig.genMsgsPerSec = 0;
@@ -240,6 +242,14 @@ void initConsPerfConfig(int argc, char **argv)
 		else if(strcmp("-snapshot", argv[iargs]) == 0)
 		{
 			++iargs; consPerfConfig.requestSnapshots = RSSL_TRUE;
+		}
+		else if(strcmp("-nanoTime", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.nanoTime = RSSL_TRUE;
+		}
+		else if(strcmp("-measureDecode", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.measureDecode = RSSL_TRUE;
 		}
 		else if(strcmp("-postingRate", argv[iargs]) == 0)
 		{
@@ -484,7 +494,12 @@ void printConsPerfConfig(FILE *file)
 		reactorWatchlistUsageString
 	  );
 
-
+	fprintf(file,
+			"      Nanosecond Latency: %s\n"
+			"          Measure Decode: %s\n\n",
+			consPerfConfig.nanoTime ? "Yes" : "No",
+			consPerfConfig.measureDecode ? "Yes" : "No"
+		   );
 }
 
 void exitWithUsage()
@@ -532,7 +547,9 @@ void exitWithUsage()
 			"                                         (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
 			"  -reactor                             Use the VA Reactor instead of the UPA Channel for sending and receiving.\n"
 			"  -watchlist                           Use the VA Reactor watchlist instead of the UPA Channel for sending and receiving.\n"
-
+			"\n"
+			"  -nanoTime                            Assume latency has nanosecond precision instead of microsecond.\n"
+			"  -measureDecode                       Measure decode time of updates.\n\n"
 			"\n"
 			);
 #ifdef _WIN32

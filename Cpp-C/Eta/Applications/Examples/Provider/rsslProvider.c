@@ -250,7 +250,7 @@ int main(int argc, char **argv)
 						if (clientSessions[i].pingsInitialized != RSSL_TRUE)
 						{
 							initPingTimes(&clientSessions[i]);
-							printf("Using %d as pingTimeout for Channel %d\n", clientSessions[i].clientChannel->pingTimeout, clientSessions[i].clientChannel->socketId);
+							printf("Using %d as pingTimeout for Channel "SOCKET_PRINT_TYPE"\n", clientSessions[i].clientChannel->pingTimeout, clientSessions[i].clientChannel->socketId);
 						}
 
 						if ((retval = rsslFlush(clientSessions[i].clientChannel, &error)) < RSSL_RET_SUCCESS)
@@ -321,7 +321,7 @@ static void readFromChannel(RsslChannel* chnl)
 	{
 		if ((retval = rsslInitChannel(chnl, &inProg, &error)) < RSSL_RET_SUCCESS)
 		{
-			printf("\nsessionInactive fd=%d <%s>\n",
+			printf("\nsessionInactive fd="SOCKET_PRINT_TYPE" <%s>\n",
 			    chnl->socketId,error.text);
 			removeClientSessionForChannel(chnl);
 		}
@@ -332,7 +332,7 @@ static void readFromChannel(RsslChannel* chnl)
 			case RSSL_RET_CHAN_INIT_IN_PROGRESS:
 				if (inProg.flags & RSSL_IP_FD_CHANGE)
 				{
-					printf("\nChannel In Progress - New FD: %d  Old FD: %d\n",chnl->socketId, inProg.oldSocket );
+					printf("\nChannel In Progress - New FD: "SOCKET_PRINT_TYPE"  Old FD: "SOCKET_PRINT_TYPE"\n",chnl->socketId, inProg.oldSocket );
 
 					FD_CLR(inProg.oldSocket,&readfds);
 					FD_CLR(inProg.oldSocket,&exceptfds);
@@ -341,14 +341,14 @@ static void readFromChannel(RsslChannel* chnl)
 				}
 				else
 				{
-					printf("\nChannel %d connection in progress\n", chnl->socketId);
+					printf("\nChannel "SOCKET_PRINT_TYPE" connection in progress\n", chnl->socketId);
 				}
 				break;
 
 			case RSSL_RET_SUCCESS:
 				{
 					RsslChannelInfo chanInfo;
-					printf("\nClient Channel fd=%d is now ACTIVE\n" ,chnl->socketId);
+					printf("\nClient Channel fd="SOCKET_PRINT_TYPE" is now ACTIVE\n" ,chnl->socketId);
 					/* WINDOWS: change size of send/receive buffer since it's small by default */
 #ifdef _WIN32
 					if (rsslIoctl(chnl, RSSL_SYSTEM_WRITE_BUFFERS, &sendBfrSize, &error) != RSSL_RET_SUCCESS)
@@ -375,7 +375,7 @@ static void readFromChannel(RsslChannel* chnl)
 				break;
 
 			default:
-				printf("\nBad return value fd=%d <%s>\n",
+				printf("\nBad return value fd="SOCKET_PRINT_TYPE" <%s>\n",
 				       chnl->socketId,error.text);
 				removeClientSessionForChannel(chnl);
 				break;
@@ -415,7 +415,7 @@ static void readFromChannel(RsslChannel* chnl)
 						/* if channel is closed, we want to fall through */
 					case RSSL_RET_FAILURE:
 					{
-						printf("\nchannelInactive fd=%d <%s>\n",
+						printf("\nchannelInactive fd="SOCKET_PRINT_TYPE" <%s>\n",
 					    chnl->socketId,error.text);
 						removeClientSessionForChannel(chnl);
 						closeItemChnlStreams(chnl);
@@ -426,7 +426,7 @@ static void readFromChannel(RsslChannel* chnl)
 					break;
 					case RSSL_RET_READ_FD_CHANGE:
 					{
-						printf("\nrsslRead() FD Change - Old FD: %d New FD: %d\n", chnl->oldSocketId, chnl->socketId);
+						printf("\nrsslRead() FD Change - Old FD: "SOCKET_PRINT_TYPE" New FD: "SOCKET_PRINT_TYPE"\n", chnl->oldSocketId, chnl->socketId);
 						FD_CLR(chnl->oldSocketId, &readfds);
 						FD_CLR(chnl->oldSocketId, &exceptfds);
 						FD_SET(chnl->socketId, &readfds);
@@ -452,7 +452,7 @@ static void readFromChannel(RsslChannel* chnl)
 	}
 	else if (chnl->state == RSSL_CH_STATE_CLOSED)
 	{
-		printf("Channel fd=%d Closed.\n", chnl->socketId);
+		printf("Channel fd="SOCKET_PRINT_TYPE" Closed.\n", chnl->socketId);
 		removeClientSessionForChannel(chnl);
 	}
 }
@@ -475,7 +475,7 @@ static RsslServer* bindRsslServer(char* portno, RsslError* error)
 
 	if ((srvr = rsslBind(&sopts, error)) != 0)
 	{
-		printf("\nServer IPC descriptor = %d bound on port %d\n", srvr->socketId, srvr->portNumber);
+		printf("\nServer IPC descriptor = "SOCKET_PRINT_TYPE" bound on port %d\n", srvr->socketId, srvr->portNumber);
 		FD_SET(srvr->socketId,&readfds);
 		FD_SET(srvr->socketId,&exceptfds);
 	}
@@ -547,7 +547,7 @@ static void createNewClientSession(RsslServer *srvr)
 		}
 		else
 		{
-			printf("\nServer fd=%d: New client on Channel fd=%d\n",
+			printf("\nServer fd="SOCKET_PRINT_TYPE": New client on Channel fd="SOCKET_PRINT_TYPE"\n",
 				srvr->socketId,sckt->socketId);
 			FD_SET(sckt->socketId,&readfds);
 			FD_SET(sckt->socketId,&exceptfds);
@@ -633,7 +633,7 @@ static void handlePings()
 				}
 				else /* lost contact with client */
 				{
-					printf("\nLost contact with client fd=%d\n", clientSessions[i].clientChannel->socketId);
+					printf("\nLost contact with client fd="SOCKET_PRINT_TYPE"\n", clientSessions[i].clientChannel->socketId);
 					removeClientSession(&clientSessions[i]);
 				}
 			}
@@ -715,7 +715,7 @@ static RsslRet processRequest(RsslChannel* chnl, RsslBuffer* buffer)
 	ret = rsslDecodeMsg(&dIter, &msg);				
 	if (ret != RSSL_RET_SUCCESS)
 	{
-		printf("\nrsslDecodeMsg(): Error %d on SessionData fd=%d  Size %d \n", ret, chnl->socketId, buffer->length);
+		printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE"  Size %d \n", ret, chnl->socketId, buffer->length);
 		removeClientSessionForChannel(chnl);
 		return RSSL_RET_FAILURE;
 	}

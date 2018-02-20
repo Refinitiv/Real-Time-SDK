@@ -11,8 +11,6 @@
 #ifndef _XML_MSG_DATA_PARSER_H
 #define _XML_MSG_DATA_PARSER_H
 
-#define LIBXML_STATIC
-
 #include "testUtils.h"
 #include "rtr/rsslMessagePackage.h"
 #include "libxml/tree.h"

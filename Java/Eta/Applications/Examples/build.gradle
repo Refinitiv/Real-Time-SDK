@@ -1,0 +1,147 @@
+apply plugin: 'application'
+
+eclipse {
+        project {
+                name = 'ESDK-Eta-Examples'
+        }
+}
+
+dependencies {
+	compile project(':Eta:AnsiPage')
+	compile project(':Eta:ValueAdd')
+	compile project(':Eta:ValueAddCache')
+	compile project(':Eta:Applications:Shared')
+	// Adding dependency on the jdacsUpalib.jar
+	compile fileTree(dir: '../../../../Elektron-SDK-BinaryPack/Java/Eta/Libs', include: 'jdacsUpalib.jar')
+	compile fileTree(dir: '../../Libs', include: 'jdacsUpalib.jar')
+}
+
+mainClassName = 'com.thomsonreuters.upa.examples.provider.Provider'
+
+task createExtraRunApp(type: CreateStartScripts) {
+	mainClassName = 'main.java.com.thomsonreuters.upa.examples.consumer.Consumer'
+	classpath = startScripts.classpath
+	outputDir = startScripts.outputDir
+	applicationName = 'myconsumer'
+}
+
+task copyDictionary( type: Copy ) {
+
+	from '../../../etc'
+	into '.'
+}
+
+task deleteDictionary( type: Delete ) {
+	delete "$projectDir/RDMFieldDictionary"
+	delete "$projectDir/RDMFieldDictionary_large"
+	delete "$projectDir/enumtype.def"
+}
+
+run.dependsOn copyDictionary
+clean.dependsOn deleteDictionary
+
+task runProvider(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.provider.Provider'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runConsumer(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.consumer.Consumer'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runNIProvider(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.niprovider.NIProvider'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runVAProvider(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.valueadd.examples.provider.Provider'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runVAConsumer(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.valueadd.examples.consumer.Consumer'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runVANIProvider(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.valueadd.examples.niprovider.NIProvider'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runWatchlistConsumer(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumer'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runQueueConsumer(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.valueadd.examples.queueconsumer.QueueConsumer'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runGenericProv(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.genericprov.GenericProv'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runGenericCons(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.genericcons.GenericCons'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runNewsViewer(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.newsviewer.NewsViewer'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runAnsiPageExample(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.ansipage.AnsiPageExample'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runCodecExample(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.codec.CodecExample'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runEDFConsumer(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.edfexamples.edfconsumer.EDFConsumer'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task runAuthLockExample(type: JavaExec) {
+	dependsOn 'copyDictionary'
+
+	main = 'com.thomsonreuters.upa.examples.authlock.AuthLockExample'
+	classpath = sourceSets.main.runtimeClasspath
+}
+

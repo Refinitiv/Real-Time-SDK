@@ -1,0 +1,7 @@
+This 1.2.3 version has the malloc fix that was put in on the 1.1.3 version
+Modified configure script. Original saved in configure.orig.
+
+- the zconf.h file is from a configure script that did no enable the HAVE_UNISTD_H block of code. (see v 1.1.3)
+- updated configure script to use -xO4 for solaris builds since that is what is used for our products
+- the prod directory was created and populated
+- the include directory was created and populated

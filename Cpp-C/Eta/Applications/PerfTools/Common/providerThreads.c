@@ -50,6 +50,11 @@ void clearProviderThreadConfig()
 	snprintf(providerThreadConfig.statsFilename, sizeof(providerThreadConfig.statsFilename), "ProvStats");
 	snprintf(providerThreadConfig.latencyLogFilename, sizeof(providerThreadConfig.latencyLogFilename), "");
 	providerThreadConfig.logLatencyToFile = RSSL_FALSE;
+
+	providerThreadConfig.preEncItems = RSSL_FALSE;
+	providerThreadConfig.takeMCastStats = RSSL_FALSE;
+	providerThreadConfig.nanoTime = RSSL_FALSE;
+	providerThreadConfig.measureEncode = RSSL_FALSE;
 }
 
 void providerThreadConfigInit()
@@ -67,7 +72,6 @@ void providerThreadConfigInit()
 		exit(-1);
 	}
 
-
 	if (providerThreadConfig.latencyUpdatesPerSec > providerThreadConfig.ticksPerSec)
 	{
 		printf("Config Error: Latency update rate cannot be greater than total ticks per second. \n\n");
@@ -80,6 +84,30 @@ void providerThreadConfigInit()
 		exit(-1);
 	}
 
+	if (providerThreadConfig.latencyUpdatesPerSec == ALWAYS_SEND_LATENCY_UPDATE
+		&& providerThreadConfig.preEncItems == RSSL_TRUE)
+	{
+		printf("Config Error: -preEnc has no effect when always sending latency update, since it must be encoded.\n\n");
+		exit(-1);
+		}
+	if (providerThreadConfig.latencyUpdatesPerSec == 0 && providerThreadConfig.measureEncode)
+	{
+		printf("Config Error: Measuring message encoding time when latency update rate is zero. Message encoding time is only recorded for latency updates.\n\n");
+		exit(-1);
+	}
+
+	if (providerThreadConfig.latencyGenMsgsPerSec == ALWAYS_SEND_LATENCY_GENMSG
+			&& providerThreadConfig.preEncItems == RSSL_TRUE)
+	{
+		printf("Config Error: -preEnc has no effect when always sending latency genMsg, since it must be encoded.\n\n");
+		exit(-1);
+	}
+
+	if (providerThreadConfig.latencyGenMsgsPerSec == 0 && providerThreadConfig.measureEncode)
+	{
+		printf("Config Error: Measuring message encoding time when latency genMsg rate is zero. Message encoding time is only recorded for latency genMsgs.\n\n");
+		exit(-1);
+	}
 
 	if (providerThreadConfig.updatesPerSec != 0 && providerThreadConfig.updatesPerSec < providerThreadConfig.ticksPerSec)
 	{
@@ -203,6 +231,10 @@ void providerThreadInit(ProviderThread *pProvThread,
 	pProvThread->currentTicks = 0;
 	pProvThread->providerIndex = providerIndex;
 
+	if (providerThreadConfig.measureEncode)
+		timeRecordQueueInit(&pProvThread->messageEncodeTimeRecords);
+	memset(&pProvThread->prevMCastStats, 0, sizeof(pProvThread->prevMCastStats));
+
 	snprintf(tmpFilename, sizeof(tmpFilename), "%s%d.csv", 
 			providerThreadConfig.statsFilename, providerIndex + 1);
 
@@ -286,6 +318,10 @@ ProviderSession *providerSessionCreate(ProviderThread *pProvThread, RsslChannel 
 
 	initRotatingQueue(&pSession->refreshItemList);
 	initRotatingQueue(&pSession->updateItemList);
+
+	pSession->preEncMarketPriceMsgs = 0;
+	pSession->preEncMarketByOrderMsgs = 0;
+
 	pSession->openItemsCount = 0;
 	pSession->pWritingBuffer = 0;
 	pSession->packedBufferCount = 0;
@@ -305,7 +341,66 @@ ProviderSession *providerSessionCreate(ProviderThread *pProvThread, RsslChannel 
 			hashCompareStreamId
 			);
 
+	if (providerThreadConfig.preEncItems)
+	{
+		RsslInt32 i;
+		RsslInt32 updateCount;
+		/* Pre-encode the update into a buffer, using a default item setup.
+		 * All updates will copy from this buffer and change the StreamID. */
 
+		MarketPriceItem mpItem;
+		MarketByOrderItem mboItem;
+		ItemInfo itemInfo;
+		RsslRet ret;
+
+		clearMarketPriceItem(&mpItem);
+		clearMarketByOrderItem(&mboItem);
+
+		clearItemInfo(&itemInfo);
+		itemInfo.attributes.domainType = RSSL_DMT_MARKET_PRICE;
+		itemInfo.itemData = (void*)&mpItem;
+
+		updateCount = getMarketPriceUpdateMsgCount();
+		pSession->preEncMarketPriceMsgs = (RsslBuffer*)malloc(updateCount * sizeof(RsslBuffer)); assert(pSession->preEncMarketPriceMsgs);
+
+		for(i = 0; i < updateCount; ++i)
+		{
+			RsslBuffer *pEncMsgBuf = &pSession->preEncMarketPriceMsgs[i];
+			pEncMsgBuf->length = estimateItemUpdateBufferLength(&itemInfo);
+			pEncMsgBuf->data = malloc(pEncMsgBuf->length); assert(pEncMsgBuf->data);
+			if ((ret = encodeItemUpdate(pChannel, &itemInfo, pEncMsgBuf, NULL, 0)) < RSSL_RET_SUCCESS)
+			{
+				printf("Encoding pre-encoded buf: encodeItemUpdate() failed: %d\n", ret);
+				free(pSession->preEncMarketPriceMsgs[i].data);
+				free(pSession->preEncMarketPriceMsgs);
+				free(pSession);
+				return NULL;
+			}
+		}
+		assert(mpItem.iMsg == 0); /* encode function increments iMsg. If we've done everything right this should be 0 */
+
+		itemInfo.attributes.domainType = RSSL_DMT_MARKET_BY_ORDER;
+		itemInfo.itemData = (void*)&mboItem;
+
+		updateCount = getMarketByOrderUpdateMsgCount();
+		pSession->preEncMarketByOrderMsgs = (RsslBuffer*)malloc(updateCount * sizeof(RsslBuffer)); assert(pSession->preEncMarketByOrderMsgs);
+
+		for(i = 0; i < updateCount; ++i)
+		{
+			RsslBuffer *pEncMsgBuf = &pSession->preEncMarketByOrderMsgs[i];
+			pEncMsgBuf->length = estimateItemUpdateBufferLength(&itemInfo);
+			pEncMsgBuf->data = malloc(pEncMsgBuf->length); assert(pEncMsgBuf->data);
+			if ((ret = encodeItemUpdate(pChannel, &itemInfo, pEncMsgBuf, NULL, 0)) < RSSL_RET_SUCCESS)
+			{
+				printf("Encoding pre-encoded buf: encodeItemUpdate() failed: %d\n", ret);
+				free(pSession->preEncMarketByOrderMsgs[i].data);
+				free(pSession->preEncMarketByOrderMsgs);
+				free(pSession);
+				return NULL;
+			}
+		}
+		assert(mboItem.iMsg == 0); /* encode function increments iMsg. If we've done everything right this should be 0 */
+	}
 
 	if (niProvPerfConfig.useReactor == RSSL_FALSE && provPerfConfig.useReactor == RSSL_FALSE) // use UPA Channel
 	{
@@ -489,6 +584,23 @@ void providerSessionDestroy(ProviderThread *pProvThread, ProviderSession *pSessi
 {
 	RsslQueueLink *pLink;
 
+	if (pSession->preEncMarketPriceMsgs)
+	{
+		int i;
+		for (i = 0; i < getMarketPriceUpdateMsgCount(); ++i)
+			free(pSession->preEncMarketPriceMsgs[i].data);
+		free(pSession->preEncMarketPriceMsgs);
+		pSession->preEncMarketPriceMsgs = 0;
+	}
+
+	if (pSession->preEncMarketByOrderMsgs)
+	{
+		int i;
+		for (i = 0; i < getMarketByOrderUpdateMsgCount(); ++i)
+			free(pSession->preEncMarketByOrderMsgs[i].data);
+		free(pSession->preEncMarketByOrderMsgs);
+		pSession->preEncMarketByOrderMsgs = 0;
+	}
 
 	/* Free any items in the watchlist. */
 	while(pLink = rotatingQueuePeekFrontAsList(&pSession->refreshItemList))
@@ -697,6 +809,8 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 	RsslRet ret = RSSL_RET_SUCCESS;
 	ItemInfo *nextItem;
 
+	TimeValue measureEncodeStartTime, measureEncodeEndTime;
+
 	/* Determine updates to send out. Spread the remainder out over the first ticks */
 	updatesLeft = providerThreadConfig._updatesPerTick;
 	if (providerThreadConfig._updatesPerTickRemainder > pProvThread->currentTicks)
@@ -717,7 +831,7 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 		/* When appropriate, provide a latency timestamp for the updates. */
 		if (providerThreadConfig.latencyUpdatesPerSec == ALWAYS_SEND_LATENCY_UPDATE 
 				|| latencyUpdateNumber == (updatesLeft-1))
-			latencyStartTime = getTimeMicro();
+			latencyStartTime = providerThreadConfig.nanoTime ? getTimeNano() : getTimeMicro();
 		else
 			latencyStartTime = 0;
 
@@ -731,11 +845,63 @@ RsslRet sendUpdateBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 			return ret;
 		}
 
+		if (providerThreadConfig.measureEncode)
+			measureEncodeStartTime = getTimeNano();
 
-		if (ret = encodeItemUpdate(pSession->pChannelInfo->pChannel, nextItem, pSession->pWritingBuffer, NULL, 
+		if (!providerThreadConfig.preEncItems || latencyStartTime /* Latency item should always be fully encoded so we can send proper time information */)
+		{
+			if (ret = encodeItemUpdate(pSession->pChannelInfo->pChannel, nextItem, pSession->pWritingBuffer, NULL,
 					latencyStartTime) < RSSL_RET_SUCCESS)
-			return ret;
+				return ret;
+		}
+		else
+		{
+			/* Take the buffer we pre-encoded at startup and copy the data.
+			 * Change the stream ID to send it for a different item. */
 
+			RsslEncodeIterator eIter;
+			RsslBuffer *pEncMsgBuf;
+
+			switch(nextItem->attributes.domainType)
+			{
+				case RSSL_DMT_MARKET_PRICE:
+					pEncMsgBuf = &pSession->preEncMarketPriceMsgs[((MarketPriceItem*)nextItem->itemData)->iMsg];
+					getNextMarketPriceUpdate((MarketPriceItem*)nextItem->itemData);
+					break;
+
+				case RSSL_DMT_MARKET_BY_ORDER:
+					pEncMsgBuf = &pSession->preEncMarketByOrderMsgs[((MarketByOrderItem*)nextItem->itemData)->iMsg];
+					getNextMarketByOrderUpdate((MarketByOrderItem*)nextItem->itemData);
+					break;
+			}
+
+			if (rtrUnlikely(pSession->pWritingBuffer->length < pEncMsgBuf->length))
+			{
+				printf("Can't copy pre-encoded msg -- buffer is too small\n");
+				return RSSL_RET_FAILURE;
+			}
+
+			memcpy(pSession->pWritingBuffer->data, pEncMsgBuf->data, pEncMsgBuf->length);
+			pSession->pWritingBuffer->length = pEncMsgBuf->length;
+
+			rsslClearEncodeIterator(&eIter);
+			rsslSetEncodeIteratorRWFVersion(&eIter, pSession->pChannelInfo->pChannel->majorVersion,
+											pSession->pChannelInfo->pChannel->minorVersion);
+			rsslSetEncodeIteratorBuffer(&eIter, pSession->pWritingBuffer);
+			ret = rsslReplaceStreamId(&eIter, nextItem->StreamId);
+
+			if (rtrUnlikely(ret < RSSL_RET_SUCCESS))
+			{
+				printf("rsslReplaceStreamId failed: %d\n", ret);
+				return ret;
+			}
+		}
+
+		if (providerThreadConfig.measureEncode)
+		{
+			measureEncodeEndTime = getTimeNano();
+			timeRecordSubmit(&pProvThread->messageEncodeTimeRecords, measureEncodeStartTime, measureEncodeEndTime, 1000);
+		}
 
 		if ((ret =  sendItemMsgBuffer(pProvThread, pSession, updatesLeft > 1)) < RSSL_RET_SUCCESS)
 			return ret;
@@ -756,6 +922,8 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 	RsslInt32 latencyGenMsgNumber;
 	RsslRet ret = RSSL_RET_SUCCESS;
 	ItemInfo *nextItem;
+
+	TimeValue measureEncodeStartTime, measureEncodeEndTime;
 
 	/* Determine generic messages to send out. Spread the remainder out over the first ticks */
 	genMsgsLeft = providerThreadConfig._genMsgsPerTick;
@@ -779,7 +947,7 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 				|| latencyGenMsgNumber == (genMsgsLeft-1))
 		{
 			countStatIncr(&pProvThread->stats.latencyGenMsgSentCount);
-			latencyStartTime = getTimeMicro();
+			latencyStartTime = providerThreadConfig.nanoTime ? getTimeNano() : getTimeMicro();
 		}
 		else
 			latencyStartTime = 0;
@@ -794,11 +962,64 @@ RsslRet sendGenMsgBurst(ProviderThread *pProvThread, ProviderSession *pSession)
 			return ret;
 		}
 
+		if (providerThreadConfig.measureEncode)
+			measureEncodeStartTime = getTimeNano();
 
-		if (ret = encodeItemGenMsg(pSession->pChannelInfo->pChannel, nextItem, pSession->pWritingBuffer, 
-					latencyStartTime) < RSSL_RET_SUCCESS)
+		if (!providerThreadConfig.preEncItems || latencyStartTime /* Latency item should always be fully encoded so we can send proper time information */)
+		{
+			if (ret = encodeItemGenMsg(pSession->pChannelInfo->pChannel, nextItem, pSession->pWritingBuffer,
+										latencyStartTime) < RSSL_RET_SUCCESS)
 			return ret;
+		}
+		else
+		{
+			/* Take the buffer we pre-encoded at startup and copy the data.
+			 * Change the stream ID to send it for a different item. */
 
+			RsslEncodeIterator eIter;
+			RsslBuffer *pEncMsgBuf;
+
+			switch(nextItem->attributes.domainType)
+			{
+				case RSSL_DMT_MARKET_PRICE:
+					pEncMsgBuf = &pSession->preEncMarketPriceMsgs[((MarketPriceItem*)nextItem->itemData)->iMsg];
+					getNextMarketPriceUpdate((MarketPriceItem*)nextItem->itemData);
+					break;
+
+				case RSSL_DMT_MARKET_BY_ORDER:
+					pEncMsgBuf = &pSession->preEncMarketByOrderMsgs[((MarketByOrderItem*)nextItem->itemData)->iMsg];
+					getNextMarketByOrderUpdate((MarketByOrderItem*)nextItem->itemData);
+					break;
+			}
+
+			if (rtrUnlikely(pSession->pWritingBuffer->length < pEncMsgBuf->length))
+			{
+				printf("Can't copy pre-encoded msg -- buffer is too small\n");
+				return RSSL_RET_FAILURE;
+			}
+
+			memcpy(pSession->pWritingBuffer->data, pEncMsgBuf->data, pEncMsgBuf->length);
+			pSession->pWritingBuffer->length = pEncMsgBuf->length;
+
+			rsslClearEncodeIterator(&eIter);
+            rsslSetEncodeIteratorRWFVersion(&eIter, pSession->pChannelInfo->pChannel->majorVersion,
+											pSession->pChannelInfo->pChannel->minorVersion);
+			rsslSetEncodeIteratorBuffer(&eIter, pSession->pWritingBuffer);
+			ret = rsslReplaceStreamId(&eIter, nextItem->StreamId);
+
+			if (rtrUnlikely(ret < RSSL_RET_SUCCESS))
+			{
+				printf("rsslReplaceStreamId failed: %d\n", ret);
+				return ret;
+			}
+		}
+
+		if (providerThreadConfig.measureEncode)
+		{
+			measureEncodeEndTime = getTimeNano();
+			timeRecordSubmit(&pProvThread->messageEncodeTimeRecords, measureEncodeStartTime,
+								measureEncodeEndTime, 1000);
+		}
 
 		if ((ret =  sendItemMsgBuffer(pProvThread, pSession, genMsgsLeft > 1)) < RSSL_RET_SUCCESS)
 			return ret;
@@ -1161,6 +1382,11 @@ void providerInit(Provider *pProvider, ProviderType providerType,
 	initCountStat(&pProvider->msgSentCount);
 	initCountStat(&pProvider->bufferSentCount);
 
+	initCountStat(&pProvider->mcastPacketSentCount);
+	initCountStat(&pProvider->mcastPacketReceivedCount);
+	initCountStat(&pProvider->mcastRetransSentCount);
+	initCountStat(&pProvider->mcastRetransReceivedCount);
+
 	pProvider->providerThreadList = (ProviderThread*)malloc(providerThreadConfig.threadCount * sizeof(ProviderThread));
 
 	for(i = 0; i < providerThreadConfig.threadCount; ++i)
@@ -1283,6 +1509,7 @@ void providerCollectStats(Provider *pProvider, RsslBool writeStats, RsslBool dis
 
 	rsslInitQueue(&latencyRecords);
 
+	clearValueStatistics(&pProvider->intervalMsgEncodingStats);
 
 	if (timePassedSec)
 	{
@@ -1425,6 +1652,20 @@ void providerCollectStats(Provider *pProvider, RsslBool writeStats, RsslBool dis
 			if (outOfBuffersCount > 0)
 				printf("  - Stopped %llu updates due to lack of output buffers.\n", outOfBuffersCount);
 
+			if (pProvider->intervalMsgEncodingStats.count > 0)
+			{
+				printValueStatistics(stdout, "Update Encode Time (usec)", "Msgs", &pProvider->intervalMsgEncodingStats, RSSL_TRUE);
+				clearValueStatistics(&pProvider->intervalMsgEncodingStats);
+			}
+
+			if (providerThreadConfig.takeMCastStats)
+			{
+				printf("  - Multicast: Pkts Sent: %llu, Pkts Received: %llu, : Retrans sent: %llu, Retrans received: %llu\n",
+						countStatGetChange(&pProvider->mcastPacketSentCount),
+						countStatGetChange(&pProvider->mcastPacketReceivedCount),
+						countStatGetChange(&pProvider->mcastRetransSentCount),
+						countStatGetChange(&pProvider->mcastRetransReceivedCount));
+			}
 
 			/* Print packing stats, if packing is enabled. */
 			msgSentCount = countStatGetChange(&pProvider->msgSentCount);
@@ -1435,8 +1676,56 @@ void providerCollectStats(Provider *pProvider, RsslBool writeStats, RsslBool dis
 			}
 		}
 
-	}
+		if(providerThreadConfig.takeMCastStats)
+		{
+			RsslChannelInfo chnlInfo;
+			RsslQueueLink *pLink;
 
+			RSSL_QUEUE_FOR_EACH_LINK(&pProviderThread->channelHandler.activeChannelList, pLink)
+			{
+				RsslError error;
+				ChannelInfo *pChannelInfo = RSSL_QUEUE_LINK_TO_OBJECT(ChannelInfo, queueLink, pLink);
+
+				if (pChannelInfo->pChannel->state != RSSL_CH_STATE_ACTIVE)
+					continue;
+
+				if (rsslGetChannelInfo(pChannelInfo->pChannel, &chnlInfo, &error) != RSSL_RET_SUCCESS)
+				{
+					printf ("rsslGetChannelInfo() failed. errorId = %d (%s)\n", error.rsslErrorId, error.text);
+					continue;
+				}
+
+				countStatAdd(&pProvider->mcastPacketSentCount, chnlInfo.multicastStats.mcastSent);
+
+				countStatAdd(&pProvider->mcastPacketReceivedCount, chnlInfo.multicastStats.mcastRcvd);
+
+				countStatAdd(&pProvider->mcastRetransSentCount, chnlInfo.multicastStats.retransPktsSent);
+
+				countStatAdd(&pProvider->mcastRetransReceivedCount, chnlInfo.multicastStats.retransPktsRcvd);
+			}
+		}
+
+		if (providerThreadConfig.measureEncode)
+		{
+			RsslQueueLink *pLink;
+			RsslQueue timeRecords;
+
+			rsslInitQueue(&timeRecords);
+
+			timeRecordQueueGet(&pProviderThread->messageEncodeTimeRecords, &timeRecords);
+
+			RSSL_QUEUE_FOR_EACH_LINK(&timeRecords, pLink)
+			{
+				TimeRecord *pRecord = RSSL_QUEUE_LINK_TO_OBJECT(TimeRecord, queueLink, pLink);
+				double encodingTime = (double)(pRecord->endTime - pRecord->startTime)/(double)pRecord->ticks;
+
+				updateValueStatistics(&pProvider->intervalMsgEncodingStats, encodingTime);
+				updateValueStatistics(&pProvider->msgEncodingStats, encodingTime);
+			}
+
+			timeRecordQueueRepool(&pProviderThread->messageEncodeTimeRecords, &timeRecords);
+		}
+	}
 }
 
 void providerPrintSummaryStats(Provider *pProvider, FILE *file)

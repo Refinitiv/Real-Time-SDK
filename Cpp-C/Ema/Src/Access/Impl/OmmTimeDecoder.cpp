@@ -18,7 +18,7 @@ OmmTimeDecoder::OmmTimeDecoder() :
  _hexBuffer(),
  _dataCode( Data::BlankEnum ),
  _errorCode( OmmError::NoErrorEnum ),
- _format(DateTimeStringFormat::DateTimeStringFormatTypes::STR_DATETIME_RSSL)
+ _format(DateTimeStringFormat::STR_DATETIME_RSSL)
 {
 }
 

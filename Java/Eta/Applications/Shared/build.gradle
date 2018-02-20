@@ -1,0 +1,9 @@
+eclipse {
+        project {
+                name = 'ESDK-Eta-Shared'
+        }
+}
+
+dependencies {
+	compile project(':Eta:ValueAdd')
+}

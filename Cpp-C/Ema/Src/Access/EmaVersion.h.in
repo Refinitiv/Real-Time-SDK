@@ -1,0 +1,69 @@
+/* (C) Copyright 2018 Reuters, Oak Brook, IL, USA;  All rights reserved.      */
+
+/*******************************************************************************
+* 
+* ATTENTION: 
+# This is a@m1@ template file and should @m2@ be edtied directly. 
+* Any changes required should be made in the upstream template header file,
+*            ${Ema_SOURCE_DIR}/src/Access/EmaVersion.h.in
+*
+* This file is used in both static and shared library builds
+* The Ema.rc file include this file in shared library builds
+* 
+*******************************************************************************/
+#ifndef _EMA_VERSION_H_
+#define _EMA_VERSION_H_
+
+#define Ema_Release_Major		@Ema_VERSION_MAJOR@	
+#define Ema_Release_Minor		@Ema_VERSION_MINOR@
+#define Ema_Product_Major		@Ema_VERSION_PATCH@	
+#define Ema_Product_Minor		@Ema_VERSION_TWEAK@
+#define PRODNAME			"Elektron Message API EMA "
+#define PRODVERNAME			"@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@Ema_VERSION_TWEAK@"
+#define COMPANYNAME			"Thomson Reuters, Oak Brook, IL"
+#define COPYRIGHTYEAR			"@esdk_year@"
+#define COMPONENTNAME		"ema@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@INTERNAL_RELEASE_TWEAK@"
+#define DDATE				"@esdk_timestamp@ " COPYRIGHTYEAR
+
+#ifdef __EMA_STATIC_BUILD__
+	#define EMA_LINK_TYPE "Static"
+#else
+	#define EMA_LINK_TYPE "Shared Library"
+#endif
+#ifdef WIN32
+	#ifdef NDEBUG
+		#define BLDTYPE "Release_MD"
+	#else
+		#define BLDTYPE "Debug_MDd"
+	#endif
+#else
+	#ifdef NDEBUG
+		#define BLDTYPE "Optimized"
+	#else
+		#define BLDTYPE "Debug"
+	#endif
+#endif 
+
+#ifdef WIN32
+#define EMA_COMPONENT_VER_PLATFORM ".win "
+static char emaComponentBldtype[] = BLDTYPE;
+static char emaComponentLinkType[] = EMA_LINK_TYPE;
+#else
+#define EMA_COMPONENT_VER_PLATFORM ".linux "
+extern char emaComponentBldtype[];
+extern char emaComponentLinkType[]; 
+#endif
+
+#define COMPILE_BITS_STR "64-bit "
+
+
+/* ------------------------------------------------------------- */
+/* The following are used in the rc files for the windows builds */
+/* ------------------------------------------------------------- */
+#define Ema_VersionString		COMPONENTNAME " (" BLDTYPE ")\0"   /* format "6.0.0.23 (BLDTYPE)\0" */
+#define Ema_ProdName			PRODNAME "\0"
+#define Ema_Version				Ema_Release_Major,Ema_Release_Minor,Ema_Product_Major,Ema_Product_Minor
+#define Ema_CompanyName			COMPANYNAME "\0"
+#define Ema_LegalCopyright		"Copyright (C) " COPYRIGHTYEAR " " Ema_CompanyName ", All Rights Reserved."
+
+#endif //_EMA_VERSION_H_

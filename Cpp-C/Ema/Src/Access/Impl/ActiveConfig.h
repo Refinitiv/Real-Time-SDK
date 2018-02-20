@@ -466,7 +466,6 @@ public:
 	Int32			reconnectMinDelay;
 	Int32			reconnectMaxDelay;
 	bool			msgKeyInUpdates;
-	bool			catchUnhandledException;
 
 	DictionaryConfig		dictionaryConfig;
 

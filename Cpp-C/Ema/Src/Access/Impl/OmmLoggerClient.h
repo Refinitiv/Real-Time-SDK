@@ -24,7 +24,7 @@ static EmaString CR( "\n\t" );
 struct LoggerFile {
 	int			clientCount;
 	FILE*		ptr;
-	EmaString	fileName;
+	EmaString	*fileName;
 };
 
 struct LoggerClientFiles {

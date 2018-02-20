@@ -34,6 +34,16 @@
 extern "C" {
 #endif
 
+#ifdef _WIN32
+#ifdef _WIN64
+#define SOCKET_PRINT_TYPE "%llu"	/* WIN64 */
+#else
+#define SOCKET_PRINT_TYPE "%u"	/* WIN32 */
+#endif
+#else
+#define SOCKET_PRINT_TYPE "%d"  /* Linux */
+#endif
+
 /*** Convenience functions for checking function calls. Each prints out a message on failure, along with file and line information. ***/
 
 /* Checks a condition.  Prints the text of the condition upon failure. */

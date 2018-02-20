@@ -88,7 +88,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 #endif
 			printf("Connection up!\n");
 			pClientSessionInfo->clientChannel = pReactorChannel;
-			printf("\nServer fd=%d: New client on Channel fd=%d\n",
+			printf("\nServer fd="SOCKET_PRINT_TYPE": New client on Channel fd="SOCKET_PRINT_TYPE"\n",
 					pReactorChannel->pRsslServer->socketId, pReactorChannel->socketId);
 			FD_SET(pReactorChannel->socketId, &readFds);
 			FD_SET(pReactorChannel->socketId, &exceptFds);
@@ -127,7 +127,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		case RSSL_RC_CET_FD_CHANGE:
 			/* The file descriptor representing the RsslReactorChannel has been changed.
 			 * Update our file descriptor sets. */
-			printf("Fd change: %d to %d\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
+			printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
 			FD_CLR(pReactorChannel->oldSocketId, &readFds);
 			FD_CLR(pReactorChannel->oldSocketId, &exceptFds);
 			FD_SET(pReactorChannel->socketId, &readFds);
@@ -135,7 +135,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			return RSSL_RC_CRET_SUCCESS;
 		case RSSL_RC_CET_WARNING:
 			/* We have received a warning event for this channel. Print the information and continue. */
-			printf("Received warning for Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 			printf("	Error text: %s\n", pChannelEvent->pError->rsslError.text);
 			return RSSL_RC_CRET_SUCCESS;
 		case RSSL_RC_CET_CHANNEL_DOWN:
@@ -501,7 +501,7 @@ static void handleRuntime()
 			if (clientSessions[i].clientChannel != NULL)
 			{
 				/* If any tunnel streams are still open, wait for them to close before quitting. */
-				for (j = 0; j < MAX_CLIENT_SESSIONS; j++)
+				for (j = 0; j < MAX_TUNNEL_STREAMS; j++)
 				{
 					if (clientSessions[i].simpleTunnelMsgHandler[j].tunnelStreamHandler.pTunnelStream != NULL)
 				{

@@ -381,6 +381,21 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 		if (consumerThreads[i].latencyLogFile)
 			fflush(consumerThreads[i].latencyLogFile);
 
+		if (consPerfConfig.measureDecode)
+		{
+			/* Gather time records for decoding. */
+			timeRecordQueueGet(&consumerThreads[i].updateDecodeTimeRecords, &latencyRecords);
+
+			RSSL_QUEUE_FOR_EACH_LINK(&latencyRecords, pLink)
+			{
+				TimeRecord *pRecord = RSSL_QUEUE_LINK_TO_OBJECT(TimeRecord, queueLink, pLink);
+				double latency = (double)(pRecord->endTime - pRecord->startTime)/(double)pRecord->ticks;
+
+				updateValueStatistics(&consumerThreads[i].stats.intervalUpdateDecodeTimeStats, latency);
+			}
+
+			timeRecordQueueRepool(&consumerThreads[i].updateDecodeTimeRecords, &latencyRecords);
+		}
 
 		/* Collect counts. */
 		startupUpdateCount = countStatGetChange(&consumerThreads[i].stats.startupUpdateCount);
@@ -479,6 +494,12 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 			{
 				printValueStatistics(stdout, "  GenMsgLat(usec)", "Msgs", &consumerThreads[i].stats.intervalGenMsgLatencyStats, RSSL_FALSE);
 				clearValueStatistics(&consumerThreads[i].stats.intervalGenMsgLatencyStats);
+			}
+
+			if (consumerThreads[i].stats.intervalUpdateDecodeTimeStats.count > 0)
+			{
+				printValueStatistics(stdout, "  Update decode time (usec)", "Msgs", &consumerThreads[i].stats.intervalUpdateDecodeTimeStats, RSSL_TRUE);
+				clearValueStatistics(&consumerThreads[i].stats.intervalUpdateDecodeTimeStats);
 			}
 
 			if (statusCount)

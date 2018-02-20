@@ -26,34 +26,6 @@ class OmmBaseImpl;
 class Channel;
 class Item;
 
-class CapabilityList
-{
-public :
-
-	CapabilityList();
-	CapabilityList( const CapabilityList& );
-	CapabilityList& operator=( const CapabilityList& );
-	virtual ~CapabilityList();
-
-	CapabilityList& clear();
-
-	CapabilityList& addCapability( UInt16 );
-
-	bool hasCapability( UInt16 );
-
-	const EmaString& toString() const;
-
-private :
-
-	void copyAll( const CapabilityList& );
-
-	const static UInt16		_maxCapability = 65535;
-
-	bool					_list[_maxCapability];
-	mutable EmaString		_toString;
-	mutable bool			_toStringSet;
-};
-
 class DictionaryList
 {
 public :
@@ -104,9 +76,6 @@ public :
 	UInt64 getIsSource() const;
 	Info& setIsSource( UInt64 );
 
-	const CapabilityList& getCapabilities() const;
-	Info& addCapability( UInt16 );
-
 	const DictionaryList& getDictionariesProvided() const;
 	Info& addDictionaryProvided( const EmaString& );
 	Info& addDictionaryProvided( const char*, UInt32 );
@@ -125,7 +94,6 @@ private :
 	mutable EmaString	_toString;
 	UInt64				_isSource;
 	mutable bool		_toStringSet;
-	CapabilityList		_capabilities;
 };
 
 class State

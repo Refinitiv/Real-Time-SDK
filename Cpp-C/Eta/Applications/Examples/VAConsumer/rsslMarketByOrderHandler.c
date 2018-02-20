@@ -858,7 +858,7 @@ RsslRet processMarketByOrderResponse(RsslReactor *pReactor, RsslReactorChannel *
 			}
 
 			/* Print descriptor of the channel this message was received from. */
-			printf("\n(Channel %d): ", pReactorChannel->socketId);
+			printf("\n(Channel "SOCKET_PRINT_TYPE"): ", pReactorChannel->socketId);
 
 			/* print out item name from key if it has it */
 			if (key && (key->flags & RSSL_MKF_HAS_NAME))

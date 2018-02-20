@@ -216,6 +216,16 @@ extern "C" {
  */
 #define MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE 12800
 
+#ifdef _WIN32
+#ifdef _WIN64
+#define SOCKET_PRINT_TYPE "%llu"	/* WIN64 */
+#else
+#define SOCKET_PRINT_TYPE "%u"	/* WIN32 */
+#endif
+#else
+#define SOCKET_PRINT_TYPE "%d"  /* Linux */
+#endif
+
 /* ping management information */
 typedef struct {
 	RsslUInt32	pingTimeoutClient; /* client ping timeout */

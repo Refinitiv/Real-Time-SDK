@@ -14,7 +14,7 @@ using namespace thomsonreuters::ema::access;
 
 void DateTimeStringFormat::dateTimeStringFormatType(DateTimeStringFormatTypes format )
 {
-	if(format >= DateTimeStringFormat::DateTimeStringFormatTypes::STR_DATETIME_ISO8601 && format <=DateTimeStringFormat::DateTimeStringFormatTypes::STR_DATETIME_RSSL)
+	if(format >= STR_DATETIME_ISO8601 && format <= STR_DATETIME_RSSL)
 		_format = format;	
 	else
 	{

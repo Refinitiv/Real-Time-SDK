@@ -453,18 +453,18 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			break;
 		case RSSL_RC_CET_WARNING:
 			/* We have received a warning event for this channel. Print the information and continue. */
-			printf("Received warning for Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 			printf("	Error text: %s\n", pConnEvent->pError->rsslError.text);
 			return RSSL_RC_CRET_SUCCESS;
 		case RSSL_RC_CET_FD_CHANGE:
-			printf("Fd change: %d to %d\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
+			printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
 			FD_CLR(pReactorChannel->oldSocketId, &readFds);
 			FD_CLR(pReactorChannel->oldSocketId, &exceptFds);
 			FD_SET(pReactorChannel->socketId, &readFds);
 			FD_SET(pReactorChannel->socketId, &exceptFds);
 			break;
 		case RSSL_RC_CET_CHANNEL_DOWN:
-			printf("Connection down: Channel fd=%d Requesting reconnect.\n", pReactorChannel->socketId);
+			printf("Connection down: Channel fd="SOCKET_PRINT_TYPE" Requesting reconnect.\n", pReactorChannel->socketId);
 			chanCommand = (NIChannelCommand*)pReactorChannel->userSpecPtr;
 			recoverConnection(pReactor, pReactorChannel, chanCommand);
 			break;
@@ -887,6 +887,8 @@ void cleanUpAndExit()
 	rsslDestroyReactor(pReactor, &error);
 
 	uninitializeCache();
+
+	rsslCleanupNIChannelCommand(&chnlCommand);
 
 	rsslUninitialize();
 	/* WINDOWS: wait for user to enter something before exiting  */

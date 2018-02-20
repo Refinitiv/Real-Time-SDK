@@ -78,20 +78,20 @@ RTR_C_INLINE RsslHashLink *rsslHashTableFind(RsslHashTable *pTable, void *pKey, 
 #define RSSL_HASH_LINK_TO_OBJECT(__objectType, __link, __pLink) ((__objectType*)((char*)__pLink - offsetof(__objectType, __link)))
 
 /* RsslUInt16 hash functions. */
-RsslUInt32 rsslHashU16Sum(void *pKey);
-RsslBool rsslHashU16Compare(void *pKey1, void *pKey2);
+RSSL_API RsslUInt32 rsslHashU16Sum(void *pKey);
+RSSL_API RsslBool rsslHashU16Compare(void *pKey1, void *pKey2);
 
 /* RsslUInt32 hash functions. */
-RsslUInt32 rsslHashU32Sum(void *pKey);
-RsslBool rsslHashU32Compare(void *pKey1, void *pKey2);
+RSSL_API RsslUInt32 rsslHashU32Sum(void *pKey);
+RSSL_API RsslBool rsslHashU32Compare(void *pKey1, void *pKey2);
 
 /* RsslUInt64 hash functions. */
-RsslUInt32 rsslHashU64Sum(void *pKey);
-RsslBool rsslHashU64Compare(void *pKey1, void *pKey2);
+RSSL_API RsslUInt32 rsslHashU64Sum(void *pKey);
+RSSL_API RsslBool rsslHashU64Compare(void *pKey1, void *pKey2);
 
 /* RsslBuffer hash functions. */
-RsslUInt32 rsslHashBufferSum(void *pKey);
-RsslBool rsslHashBufferCompare(void *pKey1, void *pKey2);
+RSSL_API RsslUInt32 rsslHashBufferSum(void *pKey);
+RSSL_API RsslBool rsslHashBufferCompare(void *pKey1, void *pKey2);
 
 #define LOAD_FACTOR 0.75
 

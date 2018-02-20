@@ -64,6 +64,13 @@ typedef struct
 		_latencyUpdateRandomArray;				/* Determines when to send latency updates. */
 	LatencyRandomArray	
 		_latencyGenMsgRandomArray;				/* Determines when to send latency gen msgs. */
+
+	RsslBool	preEncItems;				/* Whether to use pre-encoded data rather than fully encoding. */
+	RsslBool	takeMCastStats;				/* Running a multicast connection and we want stats. */
+	RsslBool	nanoTime;   				/* Configures timestamp format. */
+	RsslBool	measureEncode;				/* Measure time to encode messages(-measureEncode) */
+	RsslBool	measureDecode;				/* Measure time to decode latency updates (-measureDecode) */
+
 	RsslInt32	*threadBindList;			/* List of CPU ID's to bind threads to */
 	RsslInt32	threadCount;				/* Number of provider threads to create. */
 	char		statsFilename[128];			/* Name of the statistics log file*/
@@ -149,6 +156,9 @@ typedef struct
 	fd_set					exceptfds;				/* Exception file descriptor set. Used for when application uses VA Reactor instead of UPA Channel. */
 	fd_set					wrtfds;					/* Write file descriptor set. Used for when application uses VA Reactor instead of UPA Channel. */
 
+	RsslMCastStats prevMCastStats;
+	TimeRecordQueue messageEncodeTimeRecords;	/* Measurement of encoding time */
+	TimeRecordQueue	updateDecodeTimeRecords;	/* Time spent decoding msgs. */
 } ProviderThread;
 
 /* Represents one channel's session.  Stores information about items requested. */
@@ -164,6 +174,9 @@ typedef struct {
 	RsslInt32		packedBufferCount;		/* Total number of buffers currently packed in pWritingBuffer */
 	TimeValue		timeActivated;			/* Time at which this channel was fully setup. */
 	RsslRet			lastWriteRet;			/* Last return from an rsslWrite call. */
+
+	RsslBuffer		*preEncMarketPriceMsgs;		/* Buffer of a pre-encoded market price message, if sending pre-encoded items;  This is allocated per-channel in case the versions are different */
+	RsslBuffer		*preEncMarketByOrderMsgs;	/* Buffer of a pre-encoded market by order message, if sending pre-encoded items;  This is allocated per-channel in case the versions are different */
 } ProviderSession;
 
 /* Clears providerThreadConfig to defaults. */
@@ -317,8 +330,14 @@ typedef struct
 	CountStat outOfBuffersCount;				/* Count of messages blocked due to running out of
 												 * output buffers. */
 	CountStat msgSentCount;						/* Count of total messages sent(used w/ packing). */
-	CountStat bufferSentCount;					/* Count of total number of buffers sent(used w/ 
-												 * packing). */
+	CountStat bufferSentCount;					/* Count of total number of buffers sent(used w/ packing). */
+
+	ValueStatistics msgEncodingStats;
+	ValueStatistics intervalMsgEncodingStats;
+	CountStat mcastPacketSentCount;
+	CountStat mcastPacketReceivedCount;
+	CountStat mcastRetransSentCount;
+	CountStat mcastRetransReceivedCount;
 } Provider;
 
 /* Initializes a provider. */

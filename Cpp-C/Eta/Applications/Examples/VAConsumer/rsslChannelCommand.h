@@ -33,7 +33,7 @@ extern "C" {
 
 #define MAX_BUFFER_LENGTH 128
 #define MAX_NUM_GROUP_ID 10
-#define MAX_NUM_CAPABILITIES 15
+#define MAX_NUM_CAPABILITIES 256
 /*
  * Store information associated with
  * an item request.
@@ -176,8 +176,6 @@ typedef struct
 	RsslUInt32 nextSeqNum;
 	double itemData;
 	ItemRequest *pPostItem;
-	char* channelCommandArray;
-	RsslBuffer channelCommandBuffer;
 
 	/* For TREP authentication login reissue */
 	RsslUInt loginReissueTime; // represented by epoch time in seconds
@@ -204,9 +202,6 @@ RTR_C_INLINE void initChannelCommand(ChannelCommand *pCommand)
 		rsslClearDataDictionary(&pCommand->dictionary);
 	}
 
-	pCommand->channelCommandArray = (char*)malloc(4096*sizeof(char));
-	pCommand->channelCommandBuffer.data = pCommand->channelCommandArray;
-	pCommand->channelCommandBuffer.length = 4096;
 
 	pCommand->nextAvailableMarketPriceStreamId = MARKETPRICE_STREAM_ID_START;
 	pCommand->nextAvailableMarketPricePrivateStreamId = MARKETPRICE_PRIVATE_STREAM_ID_START;
@@ -252,6 +247,14 @@ RTR_C_INLINE void initChannelCommand(ChannelCommand *pCommand)
 	pCommand->tunnelMessagingEnabled = RSSL_FALSE;
 	pCommand->queueMessagingEnabled = RSSL_FALSE;
 	snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "");
+}
+
+/*
+ * Cleans up a ChannelCommand
+ */
+RTR_C_INLINE void cleanupChannelCommand(ChannelCommand *pCommand)
+{
+	rsslDeleteDataDictionary(&pCommand->dictionary);
 }
 
 /*

@@ -102,25 +102,34 @@ void AppClient::processInvalidItemRequest(const ReqMsg& reqMsg, const OmmProvide
 
 void AppClient::onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event )
 {
+  try
+  {
 	switch (reqMsg.getDomainType())
-	{
-	case MMT_LOGIN:
+	  {
+	  case MMT_LOGIN:
 		processLoginRequest(reqMsg, event);
 		break;
-	case MMT_MARKET_PRICE:
+	  case MMT_MARKET_PRICE:
 		processMarketPriceRequest(reqMsg, event);
 		break;
-	case MMT_DICTIONARY:
+	  case MMT_DICTIONARY:
 		processDictionaryRequest(reqMsg, event);
 		break;
-	default:
+	  default:
 		processInvalidItemRequest(reqMsg, event);
 		break;
-	}
+	  }
+  }
+  catch ( const OmmInvalidUsageException & e )
+  {
+	cout << e << endl;
+  }
 }
 
 void AppClient::onReissue(const ReqMsg& reqMsg, const OmmProviderEvent& event)
 {
+  try
+  {
 	switch (reqMsg.getDomainType())
 	{
 	case MMT_DICTIONARY:
@@ -130,6 +139,11 @@ void AppClient::onReissue(const ReqMsg& reqMsg, const OmmProviderEvent& event)
 		processInvalidItemRequest(reqMsg, event);
 		break;
 	}
+  }
+  catch ( const OmmInvalidUsageException & e )
+  {
+	cout << e << endl;
+  }
 }
 
 

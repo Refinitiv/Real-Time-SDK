@@ -47,7 +47,7 @@ bool bindThread( long& threadId, long& cpuId )
 {
 #ifdef WIN32
 
-	DWORD_PTR cpuMask = 1 << cpuId;
+	DWORD_PTR cpuMask = 1ULL << cpuId;
 
 	// learn all available cpus for this process
 	DWORD_PTR dwprocessAffinity, dwSystemAffinity;

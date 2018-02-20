@@ -21,6 +21,10 @@
 /* item information list */
 static RsslMarketByPriceItem marketByPriceItemList[MAX_MARKET_BY_PRICE_ITEM_LIST_SIZE];
 
+/* re-usable refresh message and state text */
+RsslRefreshMsg refreshMsg;
+char stateText[MAX_ITEM_INFO_STRLEN];
+
 /*
  * Create a local set definition.
  * Set definitions are used to reduce the size of messages with a
@@ -172,11 +176,9 @@ void updateMarketByPriceItemFields(RsslMarketByPriceItem* itemInfo)
 RsslRet encodeMarketByPriceRefreshMsgInit(RsslItemInfo* itemInfo, RsslEncodeIterator *encodeIter, RsslBool isSolicited, RsslInt32 streamId, RsslBool isStreaming, RsslBool isPrivateStream, RsslUInt16 serviceId, int multiPartNo, const char* stateTextStr)
 {
 	RsslRet ret = 0;
-	RsslRefreshMsg refreshMsg = RSSL_INIT_REFRESH_MSG;
-	char stateText[MAX_ITEM_INFO_STRLEN];
 
 	/* set-up message */
-	refreshMsg.msgBase.msgClass = RSSL_MC_REFRESH;
+	rsslClearRefreshMsg(&refreshMsg);
 	if (isStreaming)
 	{
 	refreshMsg.state.streamState = RSSL_STREAM_OPEN;

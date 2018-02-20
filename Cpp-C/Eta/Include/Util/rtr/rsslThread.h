@@ -18,6 +18,7 @@ extern "C" {
 
 #include <windows.h>
 #include <process.h>
+#include "rtr/rtratomic.h"
 
 typedef struct
 {
@@ -38,11 +39,29 @@ typedef struct
 
 typedef CRITICAL_SECTION RsslMutex;
 #define RSSL_MUTEX_INIT(__pMutex) (InitializeCriticalSection(__pMutex), 0)
+#define RSSL_MUTEX_INIT_ESDK(__pMutex) (InitializeCriticalSectionAndSpinCount((__pMutex), 512), 0)
 #define RSSL_MUTEX_DESTROY(__pMutex) (DeleteCriticalSection(__pMutex), 0)
 #define RSSL_MUTEX_LOCK(__pMutex) (EnterCriticalSection(__pMutex), 0)
 #define RSSL_MUTEX_UNLOCK(__pMutex) (LeaveCriticalSection(__pMutex), 0)
 
-#else
+// TryEnterCriticalSection returns a non-zero value on success
+#define RSSL_MUTEX_TRYLOCK(__pMutex) (TryEnterCriticalSection(__pMutex) ? RSSL_TRUE : RSSL_FALSE)
+
+/* For windows need to implement as a spin lock */
+#define RSSL_STATIC_MUTEX_DECL(G_VAR)	rtr_atomic_val G_VAR=0;
+
+/* RTR_ATOMIC_SET_RETOLD returns the previous value of rtr_my_spin_lock.
+ * If it was already set to 1 then somebody else has already set it.
+ */
+#define RSSL_STATIC_MUTEX_LOCK(G_VAR) \
+		do { \
+			while (RTR_ATOMIC_SET_RETOLD(G_VAR,1) == 1) \
+				Sleep(0); \
+		} while( 0 )
+
+#define RSSL_STATIC_MUTEX_UNLOCK(G_VAR) RTR_ATOMIC_SET_RETOLD(G_VAR,0)
+
+#else	// Linux
 
 #include <pthread.h>
 
@@ -62,9 +81,17 @@ RTR_C_INLINE int RSSL_MUTEX_INIT(RsslMutex *pMutex)
 	pthread_mutexattr_settype(&mutexAttr, PTHREAD_MUTEX_RECURSIVE);
 	return pthread_mutex_init(pMutex, &mutexAttr);
 }
+#define RSSL_MUTEX_INIT_ESDK(__pMutex) (pthread_mutex_init((__pMutex),(pthread_mutexattr_t *)PTHREAD_PROCESS_PRIVATE) ? RSSL_FALSE : RSSL_TRUE)
 #define RSSL_MUTEX_DESTROY(__pMutex) (pthread_mutex_destroy(__pMutex))
 #define RSSL_MUTEX_LOCK(__pMutex) (pthread_mutex_lock(__pMutex)) 
-#define RSSL_MUTEX_UNLOCK(__pMutex) (pthread_mutex_unlock(__pMutex)) 
+#define RSSL_MUTEX_UNLOCK(__pMutex) (pthread_mutex_unlock(__pMutex))
+
+// pthread_mutex_trylock returns 0 on success
+#define RSSL_MUTEX_TRYLOCK(__pMutex) (pthread_mutex_trylock(__pMutex) ? RSSL_FALSE : RSSL_TRUE)
+
+#define RSSL_STATIC_MUTEX_DECL(G_VAR)     RsslMutex G_VAR = PTHREAD_MUTEX_INITIALIZER
+#define RSSL_STATIC_MUTEX_LOCK(G_VAR)     do { (void) RSSL_MUTEX_LOCK(&G_VAR); } while( 0 )
+#define RSSL_STATIC_MUTEX_UNLOCK(G_VAR)   do { (void) RSSL_MUTEX_UNLOCK(&G_VAR); } while( 0 )
 
 #endif
 

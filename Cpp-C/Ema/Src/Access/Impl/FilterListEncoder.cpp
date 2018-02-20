@@ -235,7 +235,7 @@ void FilterListEncoder::complete()
 	_containerComplete = true;
 }
 
-void FilterListEncoder::totalCountHint( UInt32 totalCountHint )
+void FilterListEncoder::totalCountHint( UInt8 totalCountHint )
 {
 	if ( !_containerInitialized )
 	{

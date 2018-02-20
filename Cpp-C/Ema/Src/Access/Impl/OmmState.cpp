@@ -114,7 +114,7 @@ const EmaString& OmmState::getDataStateAsString() const
 
 const EmaString& OmmState::getStatusCodeAsString() const
 {
-	switch ( getStatusCode() )
+	switch ( (RsslUInt16)getStatusCode() )
 	{
 	case NoneEnum :
 		return NoneString;
@@ -221,7 +221,7 @@ OmmState::DataState OmmState::getDataState() const
 	return _pDecoder->getDataState();
 }
 
-UInt16 OmmState::getStatusCode() const
+UInt8 OmmState::getStatusCode() const
 {
 	return _pDecoder->getStatusCode();
 }

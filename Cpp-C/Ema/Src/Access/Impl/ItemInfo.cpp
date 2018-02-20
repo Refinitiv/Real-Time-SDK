@@ -268,7 +268,7 @@ void ItemInfo::setNameType(UInt8 nameType)
 	_rsslMsgKey.nameType = nameType;
 }
 
-void ItemInfo::setFlags(int flags)
+void ItemInfo::setFlags(UInt32 flags)
 {
 	_flags = flags;
 }

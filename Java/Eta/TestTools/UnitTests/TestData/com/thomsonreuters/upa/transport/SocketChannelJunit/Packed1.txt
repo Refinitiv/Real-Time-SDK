@@ -1,6 +1,0 @@
-# First packed output of TransportTest sequence.
-
-00 3A 12 00 0E 70 61 63  6B 65 64 20 74 65 73 74   .:...packed test
-20 23 31 00 0E 70 61 63  6B 65 64 20 74 65 73 74    #1..packed test
-20 23 32 00 15 66 69 6E  61 6C 20 70 61 63 6B 69    #2..final packi
-6E 67 20 74 65 73 74 20  23 33                      ng test #3

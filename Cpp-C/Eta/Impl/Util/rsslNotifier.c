@@ -1,9 +1,10 @@
-/*
- * This source code is provided under the Apache 2.0 license and is provided
- * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
- * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
-*/
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+ *|-----------------------------------------------------------------------------
+ */
 
 #include "rtr/rsslNotifier.h"
 #include <stdlib.h>
@@ -47,24 +48,24 @@ typedef struct
 #endif
 } RsslNotifierImpl;
 
-RSSL_VA_API RsslNotifierEvent *rsslCreateNotifierEvent()
+RSSL_API RsslNotifierEvent *rsslCreateNotifierEvent()
 {
 	return (RsslNotifierEvent*)calloc(sizeof(RsslNotifierEventImpl), 1);
 }
 
-RSSL_VA_API void rsslDestroyNotifierEvent(RsslNotifierEvent *pEvent)
+RSSL_API void rsslDestroyNotifierEvent(RsslNotifierEvent *pEvent)
 {
 	free(pEvent);
 }
 
-RSSL_VA_API void *rsslNotifierEventGetObject(RsslNotifierEvent *pEvent)
+RSSL_API void *rsslNotifierEventGetObject(RsslNotifierEvent *pEvent)
 {
 	RsslNotifierEventImpl *pNotifierEventImpl = (RsslNotifierEventImpl*)pEvent;
 	return pNotifierEventImpl->_object;
 }
 
 
-RSSL_VA_API RsslNotifier *rsslCreateNotifier(int maxEventsHint)
+RSSL_API RsslNotifier *rsslCreateNotifier(int maxEventsHint)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)malloc(sizeof(RsslNotifierImpl));
 	memset(pNotifierImpl, 0, sizeof(RsslNotifierImpl));
@@ -96,7 +97,7 @@ RSSL_VA_API RsslNotifier *rsslCreateNotifier(int maxEventsHint)
 	return &pNotifierImpl->base;
 }
 
-RSSL_VA_API void rsslDestroyNotifier(RsslNotifier *pNotifier)
+RSSL_API void rsslDestroyNotifier(RsslNotifier *pNotifier)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)pNotifier;
 	free(pNotifierImpl->_events);
@@ -113,7 +114,7 @@ RSSL_VA_API void rsslDestroyNotifier(RsslNotifier *pNotifier)
 	free(pNotifierImpl);
 }
 
-RSSL_VA_API int rsslNotifierAddEvent(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent, int fd, void *object)
+RSSL_API int rsslNotifierAddEvent(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent, RsslSocket fd, void *object)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)pNotifier;
 	RsslNotifierEventImpl *pNotifierEventImpl = (RsslNotifierEventImpl*)pEvent;
@@ -169,7 +170,7 @@ RSSL_VA_API int rsslNotifierAddEvent(RsslNotifier *pNotifier, RsslNotifierEvent 
 	return 0;
 }
 
-RSSL_VA_API int rsslNotifierUpdateEventFd(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent, int fd)
+RSSL_API int rsslNotifierUpdateEventFd(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent, RsslSocket fd)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)pNotifier;
 	RsslNotifierEventImpl *pNotifierEventImpl = (RsslNotifierEventImpl*)pEvent;
@@ -195,7 +196,7 @@ RSSL_VA_API int rsslNotifierUpdateEventFd(RsslNotifier *pNotifier, RsslNotifierE
 
 }
 
-RSSL_VA_API int rsslNotifierRemoveEvent(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
+RSSL_API int rsslNotifierRemoveEvent(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)pNotifier;
 	RsslNotifierEventImpl *pNotifierEventImpl = (RsslNotifierEventImpl*)pEvent;
@@ -227,7 +228,7 @@ RSSL_VA_API int rsslNotifierRemoveEvent(RsslNotifier *pNotifier, RsslNotifierEve
 
 }
 
-RSSL_VA_API int rsslNotifierRegisterRead(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
+RSSL_API int rsslNotifierRegisterRead(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)pNotifier;
 	RsslNotifierEventImpl *pNotifierEventImpl = (RsslNotifierEventImpl*)pEvent;
@@ -238,7 +239,7 @@ RSSL_VA_API int rsslNotifierRegisterRead(RsslNotifier *pNotifier, RsslNotifierEv
 	return 0;
 }
 
-RSSL_VA_API int rsslNotifierUnregisterRead(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
+RSSL_API int rsslNotifierUnregisterRead(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)pNotifier;
 	RsslNotifierEventImpl *pNotifierEventImpl = (RsslNotifierEventImpl*)pEvent;
@@ -250,7 +251,7 @@ RSSL_VA_API int rsslNotifierUnregisterRead(RsslNotifier *pNotifier, RsslNotifier
 }
 
 
-RSSL_VA_API int rsslNotifierRegisterWrite(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
+RSSL_API int rsslNotifierRegisterWrite(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)pNotifier;
 	RsslNotifierEventImpl *pNotifierEventImpl = (RsslNotifierEventImpl*)pEvent;
@@ -261,7 +262,7 @@ RSSL_VA_API int rsslNotifierRegisterWrite(RsslNotifier *pNotifier, RsslNotifierE
 	return 0;
 }
 
-RSSL_VA_API int rsslNotifierUnregisterWrite(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
+RSSL_API int rsslNotifierUnregisterWrite(RsslNotifier *pNotifier, RsslNotifierEvent *pEvent)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)pNotifier;
 	RsslNotifierEventImpl *pNotifierEventImpl = (RsslNotifierEventImpl*)pEvent;
@@ -272,7 +273,7 @@ RSSL_VA_API int rsslNotifierUnregisterWrite(RsslNotifier *pNotifier, RsslNotifie
 	return 0;
 }
 
-RSSL_VA_API int rsslNotifierWait(RsslNotifier *pNotifier, long timeoutUsec)
+RSSL_API int rsslNotifierWait(RsslNotifier *pNotifier, long timeoutUsec)
 {
 	RsslNotifierImpl *pNotifierImpl = (RsslNotifierImpl*)pNotifier;
 	int i;
