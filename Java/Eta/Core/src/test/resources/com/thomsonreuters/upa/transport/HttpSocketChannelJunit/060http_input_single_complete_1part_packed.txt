@@ -1,0 +1,55 @@
+This  file contains the HTTP POST/OK handshake, the RIPC handshake,
+and a single (complete) packed message, where the packed message has only one part.
+The message format is as follows: 
+
+XXYZZAAAAAAAAAAAA
+
+In the message above:
+* XX is the two-byte RIPC message length (for the entire message)
+* Y is the one-byte RIPC message flag
+* ZZ is the two-byte length of the first (and only) packed message
+* AAAAAAAAAAAA represents the first (and only) packed message  
+ 
+The HTTP POST/OK handshake:
+0001: 48 54 54 50 2F 31 2E 31  20 32 30 30 20 4F 4B 0D   HTTP/1.1 200 OK.
+0002: 0A 54 72 61 6E 73 66 65  72 2D 45 6E 63 6F 64 69   .Transfer-Encodi
+0003: 6E 67 3A 20 63 68 75 6E  6B 65 64 0D 0A 43 6F 6E   ng: chunked..Con
+0004: 74 65 6E 74 2D 54 79 70  65 3A 20 61 70 70 6C 69   tent-Type: appli
+0005: 63 61 74 69 6F 6E 2F 6F  63 74 65 74 2D 73 74 72   cation/octet-str
+0006: 65 61 6D 0D 0A 0D 0A 37  0D 0A 00 07 00 00 00 00   eam....7........
+0007: 01 0D 0A                                           ...
+
+The RIPC handshake:
+0000: 34 30 0D 0A 00 40 01 01  0A 00 00 00 00 09 18 00   40...@..........
+0001: 03 14 0E 01 00 00 00 08  01 18 74 0A BA AF 3F 4D   ..........t...?M
+0002: 24 18 00 00 00 00 00 00  00 05 3D AA F7 29 32 FD   $.........=..)2.
+0003: 5C D5 11 10 55 50 41 20  4A 61 76 61 20 45 64 69   \...UPA Java Edi
+0004: 74 69 6F 6E 0D 0A                                  tion..
+
+The packed message:
+0000: 31 37 43 3B 0D 0A                                  ......
+0000: 01 7C 12 01 77 01 75 02  01 00 00 00 01 81 68 00   .|..w.u. ......h.
+0010: 09 00 22 4C 6F 67 69 6E  20 61 63 63 65 70 74 65   .."Login  accepte
+0020: 64 20 62 79 20 68 6F 73  74 20 78 78 78 78 78 78   d by hos t xxxxxx
+0030: 78 78 78 78 2E 02 00 00  81 42 26 10 78 78 78 78   xxxx.... .B&.xxxx
+0040: 78 78 2E 78 78 78 78 78  78 78 78 78 01 05 81 2C   xx.xxxxx xxxx...,
+0050: 08 00 0D 10 41 6C 6C 6F  77 53 75 73 70 65 63 74   ....Allo wSuspect
+0060: 44 61 74 61 04 01 01 0D  41 70 70 6C 69 63 61 74   Data.... Applicat
+0070: 69 6F 6E 49 64 11 03 32  35 36 0F 41 70 70 6C 69   ionId..2 56.Appli
+0080: 63 61 74 69 6F 6E 4E 61  6D 65 11 03 41 44 53 08   cationNa me..ADS.
+0090: 50 6F 73 69 74 69 6F 6E  11 10 31 30 2E 39 31 2E   Position ..10.91.
+00A0: 31 36 31 2E 35 39 2F 6E  65 74 1C 50 72 6F 76 69   161.59/n et.Provi
+00B0: 64 65 50 65 72 6D 69 73  73 69 6F 6E 45 78 70 72   dePermis sionExpr
+00C0: 65 73 73 69 6F 6E 73 04  01 01 18 50 72 6F 76 69   essions. ...Provi
+00D0: 64 65 50 65 72 6D 69 73  73 69 6F 6E 50 72 6F 66   dePermis sionProf
+00E0: 69 6C 65 04 01 00 0A 53  69 6E 67 6C 65 4F 70 65   ile....S ingleOpe
+00F0: 6E 04 01 01 0E 53 75 70  70 6F 72 74 4F 4D 4D 50   n....Sup portOMMP
+0100: 6F 73 74 04 01 01 12 53  75 70 70 6F 72 74 50 61   ost....S upportPa
+0110: 75 73 65 52 65 73 75 6D  65 04 01 01 0E 53 75 70   useResum e....Sup
+0120: 70 6F 72 74 53 74 61 6E  64 62 79 04 01 01 14 53   portStan dby....S
+0130: 75 70 70 6F 72 74 42 61  74 63 68 52 65 71 75 65   upportBa tchReque
+0140: 73 74 73 04 01 01 13 53  75 70 70 6F 72 74 56 69   sts....S upportVi
+0150: 65 77 52 65 71 75 65 73  74 73 04 01 01 1B 53 75   ewReques ts....Su
+0160: 70 70 6F 72 74 4F 70 74  69 6D 69 7A 65 64 50 61   pportOpt imizedPa
+0170: 75 73 65 52 65 73 75 6D  65 04 01 01 0D 0A         useResum e.....
+

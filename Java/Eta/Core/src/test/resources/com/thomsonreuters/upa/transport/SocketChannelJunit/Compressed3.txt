@@ -1,0 +1,3 @@
+# Third stream compression of string "aaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz".
+
+00 0C 04 A2 AE 69 00 00  00 00 FF FF               .....i......

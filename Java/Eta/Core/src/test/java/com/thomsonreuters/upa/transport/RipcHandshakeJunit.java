@@ -30,7 +30,7 @@ public class RipcHandshakeJunit
     final static int SLEEPTIMEMS = 25; // ms
     final static int TIMEOUTMS = 10000; // 10 seconds.
     final static int MAX_EXPECTED_COMPONENT_VERSION_SIZE = 253;
-    final static String BASE_TEST_DATA_DIR_NAME = "Java/Eta/TestTools/UnitTests/TestData/com/thomsonreuters/upa/transport/RipcHandshakeJunit";
+    final static String BASE_TEST_DATA_DIR_NAME = "src/test/resources/com/thomsonreuters/upa/transport/RipcHandshakeJunit";
     final static int DEFAULT_LISTEN_PORT = 4321;
     final static String DEFAULT_LISTEN_PORT_AS_STRING = Integer.toString(DEFAULT_LISTEN_PORT);
     final static int KEY_EXCHANGE = 8;
@@ -2647,7 +2647,8 @@ public class RipcHandshakeJunit
      * 
      * @param compressionType
      */
-    private void testDefaultComponentInfo(int compressionType)
+    @SuppressWarnings("deprecation")
+	private void testDefaultComponentInfo(int compressionType)
     {
         InProgInfo inProg = TransportFactory.createInProgInfo();
         Error error = TransportFactory.createError();
@@ -2786,8 +2787,10 @@ public class RipcHandshakeJunit
             // verify that the UPAJ server's channel state goes to active.
             initChannelWaitState(serverChannel, ChannelState.ACTIVE, error, inProg);            
             
-            int rcvdBufSize = ((RsslSocketChannel)consumerChannel).scktChannel().socket().getReceiveBufferSize();
-            int sendBufSize = ((RsslSocketChannel)consumerChannel).scktChannel().socket().getSendBufferSize();
+            @SuppressWarnings("deprecation")
+			int rcvdBufSize = ((RsslSocketChannel)consumerChannel).scktChannel().socket().getReceiveBufferSize();
+            @SuppressWarnings("deprecation")
+			int sendBufSize = ((RsslSocketChannel)consumerChannel).scktChannel().socket().getSendBufferSize();
 
             String defaultComponentVersion = Transport.queryVersion().productVersion();
             compareComponentVersionToReceivedComponentInfo(defaultComponentVersion, serverChannel, error);

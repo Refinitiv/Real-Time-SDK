@@ -30,8 +30,8 @@ public class WriteBufferJunit
 {
 
     private static final int DEFAULT_LISTEN_PORT = 4321;
-    private static final String BASE_TEST_DATA_DIR_NAME = "Java/Eta/TestTools/UnitTests/TestData/com/thomsonreuters/upa/transport/SocketChannelJunit";
-    private final static String RIPC_BASE_TEST_DATA_DIR_NAME = "Java/Eta/TestTools/UnitTests/TestData/com/thomsonreuters/upa/transport/RipcHandshakeJunit";
+    private static final String BASE_TEST_DATA_DIR_NAME = "src/test/resources/com/thomsonreuters/upa/transport/SocketChannelJunit";
+    private final static String RIPC_BASE_TEST_DATA_DIR_NAME = "src/test/resources/com/thomsonreuters/upa/transport/RipcHandshakeJunit";
 
     final static int SLEEPTIMEMS = 25; // ms
 
@@ -283,7 +283,8 @@ public class WriteBufferJunit
      * The bufferUsage() called before each buffer allocation returns
      * respectively: 0, 1, 2.
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void allocateBuffersTest()
     {
         final Error error = TransportFactory.createError();
@@ -349,7 +350,8 @@ public class WriteBufferJunit
      * The bufferUsage() returns 1, 2, 1, 0.
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void allocateAndReleaseBuffersTest()
     {
         final Error error = TransportFactory.createError();
@@ -446,7 +448,8 @@ public class WriteBufferJunit
      * The bufferUsage() returns 0.
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void slice3BuffersTest()
     {
         final Error error = TransportFactory.createError();
@@ -534,7 +537,8 @@ public class WriteBufferJunit
      * The bufferUsage() returns 0.
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void slice2BuffersTest()
     {
         final Error error = TransportFactory.createError();
@@ -609,7 +613,8 @@ public class WriteBufferJunit
      * buffer is different from the buffers allocated previously.
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void bigBufferBaseTest()
     {
         final Error error = TransportFactory.createError();
@@ -678,7 +683,8 @@ public class WriteBufferJunit
      * The buffers are released. Call to bufferUsage returns 0.
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void big3BufferTest()
     {
         final Error error = TransportFactory.createError();
@@ -754,7 +760,8 @@ public class WriteBufferJunit
      * The buffer is released. 
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void bigBufferSizeTest()
     {
         final Error error = TransportFactory.createError();
@@ -850,7 +857,8 @@ public class WriteBufferJunit
      * returned, as previously. 
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void bigBufferWriteFragmentedTest()
     {
         final Error error = TransportFactory.createError();
@@ -1173,7 +1181,8 @@ public class WriteBufferJunit
      * returned, as previously. 
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void bigBufferWriteWithFlushFragmentedTest()
     {
         final Error error = TransportFactory.createError();
@@ -1279,7 +1288,8 @@ public class WriteBufferJunit
      * returned, as previously. 
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void bigBufferWriteRipcTest()
     {
         final Error error = TransportFactory.createError();
@@ -1349,7 +1359,8 @@ public class WriteBufferJunit
      * returned, as previously. 
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void bigBufferPoolTest()
     {
         final Error error = TransportFactory.createError();
@@ -1445,7 +1456,8 @@ public class WriteBufferJunit
      * 
      * The call returns null.
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void packBuffersNullTest()
     {
         final Error error = TransportFactory.createError();
@@ -1495,7 +1507,8 @@ public class WriteBufferJunit
      * Data is encoded into the buffer and packed twice. The data is verified.
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void packBuffersTest()
     {
         final Error error = TransportFactory.createError();
@@ -1645,7 +1658,8 @@ public class WriteBufferJunit
     /*
      * Tests for verifying read and write buffer capacity method.
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void getCapacityTest()
     {
         // 1. read buffer capacity

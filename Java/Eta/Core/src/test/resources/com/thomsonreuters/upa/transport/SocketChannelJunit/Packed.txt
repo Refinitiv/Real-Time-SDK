@@ -1,0 +1,38 @@
+Session java.nio.channels.SocketChannel[connected local=/0.0.0.0:1616 remote=localhost/127.0.0.1:14002] In Progress...
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+
+sessionAct portno=1616
+
+-- Not actual output, fakes out parseExpectedMessages() with dummy 3 byte RIPC header
+
+0000: 00 00 00 70 61 63 6B 65  64 20 74 65 73 74 20 23   ...packe d test #
+0001: 31                                                 1
+
+readret: 64
+SessionData portno=1616  Size 14
+0000: 00 00 00 70 61 63 6B 65  64 20 74 65 73 74 20 23   ...packe d test #
+0001: 32                                                 2
+
+readret: 63
+SessionData portno=1616  Size 21
+0000: 00 00 00 66 69 6E 61 6C  20 70 61 63 6B 69 6E 67   ...final  packing
+0001: 20 74 65 73 74 20 23 33                             test #3
+
+readret: 1
+SessionData portno=1616  Size 16
+0000: 00 00 00 70 61 63 6B 69  6E 67 32 20 74 65 73 74   ...packing2  test
+0001: 20 23 31                                            #1
+
+readret: 1
+SessionData portno=1616  Size 16
+0000: 00 00 00 70 61 63 6B 69  6E 67 32 20 74 65 73 74   ...packing2  test
+0001: 20 23 32                                            #2
+
+readret: 0
+SessionData portno=1616  Size 22
+0000: 00 00 00 70 61 63 6B 69  6E 67 33 20 66 69 6E 61   ...packi ng3 fina
+0001: 6C 20 74 65 73 74 20 23 33                         l test # 3
+

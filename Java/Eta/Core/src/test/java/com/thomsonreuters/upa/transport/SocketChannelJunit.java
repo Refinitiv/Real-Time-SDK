@@ -54,7 +54,7 @@ public class SocketChannelJunit
     /*
      * The base directory name where the test data files are located
      */
-    private static final String BASE_TEST_DATA_DIR_NAME = "Java/Eta/TestTools/UnitTests/TestData/com/thomsonreuters/upa/transport/SocketChannelJunit";
+    private static final String BASE_TEST_DATA_DIR_NAME = "src/test/resources/com/thomsonreuters/upa/transport/SocketChannelJunit";
 
     /*
      * This file contains just the RIPC ConnectAck handshake message.
@@ -64,7 +64,7 @@ public class SocketChannelJunit
     /*
      * This file contains just the RIPC ConnectReq handshake message.
      */
-    public static final String RIPC_CONNECT_REQ_HANDSHAKE_FILE = "Java/Eta/TestTools/UnitTests/TestData/com/thomsonreuters/upa/transport/RipcHandshakeJunit/60_input_connectReq_Ripc13.txt";
+    public static final String RIPC_CONNECT_REQ_HANDSHAKE_FILE = "src/test/resources/com/thomsonreuters/upa/transport/RipcHandshakeJunit/60_input_connectReq_Ripc13.txt";
 
     // for blocking client/server test
     private volatile boolean _clientReady = false;
@@ -6028,255 +6028,14 @@ public class SocketChannelJunit
     	    assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
     	}
     }
-
-    /*
-     * Compressed Fragmented Write Test - compares to expected results from UPAC
-     * 
-     * Writes 7000 byte buffer.
-     * 
-     * The UPAJ writer will send 3 messages:
-     *   1. Fragment #1: first part (flags xD x8) 6149 compressed --> 6137 + 10 (header)
-     *   2. Fragment #1: second part (flags x4) 12 extra compressed bytes + 3 (header)
-     *   3. Fragment #2: single part (flags x5 x4) 873 compressed --> 873 + 6 (header)
-     * The UPAC files FragmentCompressed11.txt / 12.txt are two single-part fragments.
-     * While this is a valid sequence that can be decoded by a receiver, it does not
-     * match the way UPAJ now encodes the same compressed data. 
-     * Disabling this test since there is not a requirement to match this particular
-     * encoding used by UPAC 7.4. UPAJ 7.0 will use the CompFragment encoding in this scenario.
-     */
-    //@Test
-    public void compressedFragmentedWriteTest()
-    {
-        final Error error = TransportFactory.createError();
-        Channel channel = null;
-        ConnectOptions connectOpts = getDefaultConnectOptions();
-        connectOpts.guaranteedOutputBuffers(2);
-        WriteArgs writeArgs = TransportFactory.createWriteArgs();
-
-        try
-        {
-            InitArgs initArgs = TransportFactory.createInitArgs();
-            initArgs.globalLocking(false);
-            assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
-        	// need to create ProtocolInt for Socket, so need to connect
-        	Channel initChannel = Transport.connect(connectOpts, error);
-        	assertNotNull(initChannel);
-            channel = getNetworkReplayChannel(Transport._transports[0], 2);
-            assertNotNull(channel);
-            try
-            {
-            	while (!((RsslSocketChannel)channel).scktChannel().finishConnect()) {}
-            } catch (Exception e) {}
-
-	        // set channel state to ACTIVE
-	        ((RsslSocketChannel)channel)._state = ChannelState.ACTIVE;
-	        
-	        // set-up channel for compression
-	        ((RsslSocketChannel)channel)._sessionOutCompression = 1;
-	        ((RsslSocketChannel)channel)._sessionCompLevel = 0;
-	        ((RsslSocketChannel)channel)._compressor = ((RsslSocketChannel)channel)._ZlibCompressor;
-	        ((RsslSocketChannel)channel)._compressor.compressionLevel(((RsslSocketChannel)channel)._sessionCompLevel);
-
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ((RsslSocketChannel)channel)._totalBytesQueued = 0;
-	        
-	        // change high water mark so cannot exceed it
-	        ((RsslSocketChannel)channel)._highWaterMark = 10000;
-	        
-	        // reset fragmentation id
-	        BigBuffer._ID = 0;
-	        
-	        // get 7000 byte buffer
-            TransportBuffer buffer = channel.getBuffer(7000, false, error);
-            
-			// now populate the buffer
-			ByteBuffer bb = buffer.data();
-			for (int i = 0; i < 7000; i++)
-			{						
-				/* I know data is going to be lost here.  Since we dont care, 
-				   we just want to fill the buffer */
-				bb.put((byte)i);
-			}
-
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(channel.write(buffer, writeArgs, error) > 0);
-            assertEquals(7016, writeArgs.uncompressedBytesWritten());
-            assertEquals(7038, writeArgs.bytesWritten());
-
-	        // front of queue should contain first fragmented compressed message
-	    	TransportBufferImpl buf = (TransportBufferImpl) ((UpaQueue)((RsslSocketChannel)channel)._highPriorityQueue).poll();
-	        
-	        // should equal output from UPAC
-	        byte[] expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/FragmentedCompressed11.txt");
-	        assertNotNull(expected);
-	        byte[] bytes = new byte[buf.data().limit()];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
-
-	        // end of queue should contain second fragmented compressed message
-	        buf = (TransportBufferImpl) ((UpaQueue)((RsslSocketChannel)channel)._highPriorityQueue)._tail;
-	        
-	        // should equal output from UPAC
-	        expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/FragmentedCompressed12.txt");
-	        assertNotNull(expected);
-	        bytes = new byte[buf.data().limit()];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
-	        initChannel.close(error);
-        }
-        finally
-        {
-            if ((channel != null) && (((RsslSocketChannel)channel)._state != ChannelState.CLOSED))
-                channel.close(error);
-            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }    	
-    }
-
-    /*
-     * Compressed Fragmented Write Boundary Test - compares to expected results from UPAC
-     * 
-     * Writes 6128 byte buffer with compression level 0 that causes the compressed
-     * output not to be fragmented since still can be compressed into normal buffer.
-     * 
-     * Writes 6129 byte buffer with compression level 0 that causes the compressed
-     * output to be fragmented even though buffer size is less than maxFragmentSize.
-     * 
-     * The UPAJ 7.0 writer does not follow the same encoding algorithm as was used by UPAC 7.4.
-     * It is not a requirement to match this UPAC behavior, so this test is disabled.
-     * UPAJ will send each of these messages as a single normal compressed message
-     * (this is no longer a boundary condition in UPAJ). The UPAC behavior recorded
-     * in these files shows a single compressed message for 6128, and fragmentation
-     * for 6129 (#1 flags x5 and x8, #2 x5 and x4).
-     * 
-     */
-    //@Test
-    public void compressedFragmentedWriteBoundaryTest()
-    {
-        final Error error = TransportFactory.createError();
-        Channel channel = null;
-        ConnectOptions connectOpts = getDefaultConnectOptions();
-        connectOpts.guaranteedOutputBuffers(5);
-        WriteArgs writeArgs = TransportFactory.createWriteArgs();
-
-        try
-        {
-            InitArgs initArgs = TransportFactory.createInitArgs();
-            initArgs.globalLocking(false);
-            assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
-        	// need to create ProtocolInt for Socket, so need to connect
-        	Channel initChannel = Transport.connect(connectOpts, error);
-        	assertNotNull(initChannel);
-            channel = getNetworkReplayChannel(Transport._transports[0], 5);
-            assertNotNull(channel);
-            try
-            {
-            	while (!((RsslSocketChannel)channel).scktChannel().finishConnect()) {}
-            } catch (Exception e) {}
-
-	        // set channel state to ACTIVE
-	        ((RsslSocketChannel)channel)._state = ChannelState.ACTIVE;
-	        
-	        // set-up channel for compression
-	        ((RsslSocketChannel)channel)._sessionOutCompression = 1;
-	        ((RsslSocketChannel)channel)._sessionCompLevel = 0;
-	        ((RsslSocketChannel)channel)._compressor = ((RsslSocketChannel)channel)._ZlibCompressor;
-	        ((RsslSocketChannel)channel)._compressor.compressionLevel(((RsslSocketChannel)channel)._sessionCompLevel);
-
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ((RsslSocketChannel)channel)._totalBytesQueued = 0;
-	        
-	        // change high water mark so cannot exceed it
-	        ((RsslSocketChannel)channel)._highWaterMark = 15000;
-	        
-	        // get 6128 byte buffer
-            TransportBuffer buffer = channel.getBuffer(6128, false, error);
-            
-			// now populate the buffer
-			ByteBuffer bb = buffer.data();
-			for (int i = 0; i < 6128; i++)
-			{						
-				/* I know data is going to be lost here.  Since we dont care, 
-				   we just want to fill the buffer */
-				bb.put((byte)i);
-			}
-
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(channel.write(buffer, writeArgs, error) > 0);
-            assertEquals(6131, writeArgs.uncompressedBytesWritten());
-            assertEquals(6143, writeArgs.bytesWritten());
-
-	        // front of queue should contain first fragmented compressed message
-	    	TransportBufferImpl buf = (TransportBufferImpl) ((UpaQueue)((RsslSocketChannel)channel)._highPriorityQueue).poll();
-	        
-	        // should equal output from UPAC
-	        byte[] expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/FragmentedCompressedBoundary11.txt");
-	        assertNotNull(expected);
-	        byte[] bytes = new byte[buf.data().limit()];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
-
-	        // get 6129 byte buffer
-            buffer = channel.getBuffer(6129, false, error);
-            
-			// now populate the buffer
-			bb = buffer.data();
-			for (int i = 0; i < 6129; i++)
-			{						
-				/* I know data is going to be lost here.  Since we dont care, 
-				   we just want to fill the buffer */
-				bb.put((byte)i);
-			}
-
-			((WriteArgsImpl)writeArgs).bytesWritten(0);
-			((WriteArgsImpl)writeArgs).uncompressedBytesWritten(0);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(channel.write(buffer, writeArgs, error) > 0);
-            assertEquals(6145, writeArgs.uncompressedBytesWritten());
-            assertEquals(6165, writeArgs.bytesWritten());
-
-	        // front of queue should contain first fragmented compressed message
-	    	buf = (TransportBufferImpl) ((UpaQueue)((RsslSocketChannel)channel)._highPriorityQueue).poll();
-	        
-	        // should equal output from UPAC
-	        expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/FragmentedCompressedBoundary21.txt");
-	        assertNotNull(expected);
-	        bytes = new byte[buf.data().limit()];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
-
-	        // end of queue should contain second fragmented compressed message
-	    	buf = (TransportBufferImpl) ((UpaQueue)((RsslSocketChannel)channel)._highPriorityQueue)._tail;
-	        
-	        // should equal output from UPAC
-	        expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/FragmentedCompressedBoundary22.txt");
-	        assertNotNull(expected);
-	        bytes = new byte[buf.data().limit()];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
-	        initChannel.close(error);
-        }
-        finally
-        {
-            if (channel != null)
-                channel.close(error);
-            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }    	
-    }
     
     /*
      * Packed Write Test - compares to expected results from UPAC
      * 
      * Writes the same sequence as TransportTest writes.
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void packedWriteTest()
     {
         final Error error = TransportFactory.createError();
@@ -6383,7 +6142,8 @@ public class SocketChannelJunit
      * 
      * Writes the same sequence as TransportTest writes.
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void compressedPackedWriteTest()
     {
         final Error error = TransportFactory.createError();
@@ -8794,7 +8554,8 @@ public class SocketChannelJunit
      * </ul>
      * 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void ioctlVerifyChannelReset()
     {
         final Error error = TransportFactory.createError();
@@ -9580,7 +9341,8 @@ public class SocketChannelJunit
      * after bind() and accept(). Also verify that the values can be changed
      * with Channel.ioctl() after the channel is connected.
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void ioctlSystemReadWriteBuffersDefaultServerTest()
     {
         String inputFile = RIPC_CONNECT_REQ_HANDSHAKE_FILE;
@@ -9662,7 +9424,8 @@ public class SocketChannelJunit
      * via BindOpts prior to bind(), and Write Buffer size can be set to a
      * non-default value via AcceptOpts prior to accept().
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void ioctlSystemReadWriteBuffersServerTest()
     {
         String inputFile = RIPC_CONNECT_REQ_HANDSHAKE_FILE;
@@ -9745,7 +9508,8 @@ public class SocketChannelJunit
      * via BindOpts prior to bind(), and Write Buffer size can be set to a
      * value larger than 64K via AcceptOpts prior to accept().
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     public void ioctlSystemReadWriteBuffersLargerThan64KServerTest()
     {
         String inputFile = RIPC_CONNECT_REQ_HANDSHAKE_FILE;

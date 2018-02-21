@@ -1,0 +1,60 @@
+// This file contains a ConnectAck, a LoginStatus and a LoginRefresh.
+
+//
+// RIPC14 ConneckAck.
+//
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+
+//
+// LoginStatus
+//
+0000: 00 50 02 00 4B 03 01 00  00 00 01 20 00 1A 05 40   .P..K...... ...@
+0001: 4C 6F 67 69 6E 20 72 65  71 75 65 73 74 20 72 65   Login request re
+0002: 6A 65 63 74 65 64 20 66  6F 72 20 73 74 72 65 61   jected for strea
+0003: 6D 20 69 64 20 20 31 20  2D 20 64 65 63 6F 64 69   m id  1 - decodi
+0004: 6E 67 20 66 61 69 6C 75  72 65 3A 20 6E 75 6C 6C   ng failure: null
+
+<!-- rwfMajorVer="14" rwfMinorVer="1" -->
+<STATUS domainType="LOGIN" streamId="1" containerType="NO_DATA" flags="0x20 (HAS_STATE)" State: Closed, Recoverable/Suspect/Usage error - text: "Login request rejected for stream id  1 - decoding failure: null" dataSize="0">
+    <dataBody>
+    </dataBody>
+</STATUS>
+
+//
+// LoginRefresh
+//
+0000: 00 D6 02 00 D1 02 01 00  00 00 01 68 00 09 00 20   ...........h...
+0001: 4C 6F 67 69 6E 20 61 63  63 65 70 74 65 64 20 62   Login accepted b
+0002: 79 20 68 6F 73 74 20 6C  6F 63 61 6C 68 6F 73 74   y host localhost
+0003: 02 00 00 80 A1 26 08 58  58 58 58 58 58 58 58 01   .....&.XXXXXXXX.
+0004: 05 80 93 08 00 06 0D 41  70 70 6C 69 63 61 74 69   .......Applicati
+0005: 6F 6E 49 64 11 03 32 35  36 0F 41 70 70 6C 69 63   onId..256.Applic
+0006: 61 74 69 6F 6E 4E 61 6D  65 11 0C 55 50 41 20 50   ationName..UPA P
+0007: 72 6F 76 69 64 65 72 08  50 6F 73 69 74 69 6F 6E   rovider.Position
+0008: 11 1C 31 30 2E 39 31 2E  31 36 31 2E 32 34 38 2F   ..10.91.161.248/
+0009: 58 58 58 58 58 58 58 58  2D 58 58 58 2D 58 0A 53   XXXXXXXX-XXX-X.S
+000A: 69 6E 67 6C 65 4F 70 65  6E 04 01 00 0E 53 75 70   ingleOpen....Sup
+000B: 70 6F 72 74 4F 4D 4D 50  6F 73 74 04 01 01 14 53   portOMMPost....S
+000C: 75 70 70 6F 72 74 42 61  74 63 68 52 65 71 75 65   upportBatchReque
+000D: 73 74 73 04 01 01                                  sts...
+
+<!-- rwfMajorVer="14" rwfMinorVer="1" -->
+<REFRESH domainType="LOGIN" streamId="1" containerType="NO_DATA" flags="0x68 (HAS_MSG_KEY|SOLICITED|REFRESH_COMPLETE)" groupId="0" State: Open/Ok/None - text: "Login accepted by host localhost" dataSize="0">
+    <key flags="0x26 (HAS_NAME|HAS_NAME_TYPE|HAS_ATTRIB)" name="XXXXXXXX" nameType="1" attribContainerType="ELEMENT_LIST">
+        <attrib>
+            <elementList flags="0x08 (HAS_STANDARD_DATA)">
+                <elementEntry name="ApplicationId" dataType="ASCII_STRING" data="256"/>
+                <elementEntry name="ApplicationName" dataType="ASCII_STRING" data="UPA Provider"/>
+                <elementEntry name="Position" dataType="ASCII_STRING" data="10.91.161.248/XXXXXXXX-XXX-X"/>
+                <elementEntry name="SingleOpen" dataType="UINT" data="0"/>
+                <elementEntry name="SupportOMMPost" dataType="UINT" data="1"/>
+                <elementEntry name="SupportBatchRequests" dataType="UINT" data="1"/>
+            </elementList>
+        </attrib>
+    </key>
+    <dataBody>
+    </dataBody>
+</REFRESH>

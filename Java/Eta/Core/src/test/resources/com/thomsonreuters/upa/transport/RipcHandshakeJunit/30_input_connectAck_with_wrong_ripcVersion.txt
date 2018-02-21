@@ -1,0 +1,5 @@
+This file holds one RIPC ConneckAck that has a wrong RIPC Version.
+
+0000: 00 2F 01 01 0A 00 00 00  00 00 18 00 03 1E 0E 00   ................
+0001: 00 00 00 1B 1A 43 6F 6D  70 6F 6E 65 6E 74 20 54   .....Component T
+0002: 65 73 74 20 76 65 72 73  69 6F 6E 20 31 2E 30      est version 1.0

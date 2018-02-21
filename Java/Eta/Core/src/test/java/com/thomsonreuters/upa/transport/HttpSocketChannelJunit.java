@@ -41,7 +41,7 @@ public class HttpSocketChannelJunit
     /*
      * The base directory name where the test data files are located
      */
-    private static final String BASE_TEST_DATA_DIR_NAME = "Java/Eta/TestTools/UnitTests/TestData/com/thomsonreuters/upa/transport/HttpSocketChannelJunit";
+    private static final String BASE_TEST_DATA_DIR_NAME = "src/test/resources/com/thomsonreuters/upa/transport/HttpSocketChannelJunit";
 
     /*
      * This file contains just the RIPC ConnectAck handshake message.
@@ -930,7 +930,7 @@ public class HttpSocketChannelJunit
             {
                 if ((retval = channel.init(inProg, error)) < TransportReturnCodes.SUCCESS)
                 {
-                    String initFail = "\nChannel " + channel.scktChannel() + " inactive: "
+                    String initFail = "\nChannel " + channel.selectableChannel() + " inactive: "
                             + error.text();
                     System.err.println(initFail);
                     throw new IOException(initFail);
@@ -940,16 +940,16 @@ public class HttpSocketChannelJunit
                     switch (retval)
                     {
                         case TransportReturnCodes.CHAN_INIT_IN_PROGRESS:
-                            System.out.println("\nChannel " + channel.scktChannel()
+                            System.out.println("\nChannel " + channel.selectableChannel()
                                     + " In Progress...");
                             break;
                         case TransportReturnCodes.SUCCESS:
-                            System.out.println("\nChannel " + channel.scktChannel()
+                            System.out.println("\nChannel " + channel.selectableChannel()
                                     + " Is Active");
                             break;
                         default:
                             String badRet = "\nBad return value channel="
-                                    + channel.scktChannel() + " <" + error.text() + ">";
+                                    + channel.selectableChannel() + " <" + error.text() + ">";
                             System.out.println(badRet);
                             throw new IOException(badRet);
                     }

@@ -1,0 +1,38 @@
+This  file contains the RIPC handshake, and a fragmented message
+consisting of one "fragment header" message, and one "fragment"
+message. BOTH the fragment header message and the fragment message
+will be read from the network in a single call to SocketChannel.read()
+ 
+The format of the message containing the fragment header is as follows:
+AABCDDDDEEFFFFFFFFFF
+
+In the message above:
+* AA is the two-byte RIPC message length (for the entire message)
+* B is the one-byte RIPC message flag
+* C is the one-byte extended flag
+* DDDD is the 4 byte total length of the fragmented message data (does not include RIPC headers)  
+* EE is the two-byte fragment ID
+* FFFFFFF is the data 
+
+The format of the message containing the fragment is as follows:
+AABCDDEEE
+
+In the message above:
+* AA is the two-byte RIPC message length (for the entire message)
+* B is the one-byte RIPC message flag
+* C is the one-byte extended flag
+* DD is the two-byte fragment ID
+* EEE is the data 
+
+The RIPC handshake:
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+
+BOTH the fragment header and fragment are below, so they will
+be read in a single call to SocketChannel.read()
+0000: 00 11 03 08 00 00 00 0A  00 01 00 01 02 03 04 05   ........ ........
+0001: 06                                                 .
+0010: 00 09 03 04 00 01 07 08  09                        .........
+

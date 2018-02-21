@@ -1,0 +1,7 @@
+This file holds one RIPC13 ConneckReq with ZLIB compression.
+
+0000: 00 41 00 00 00 00 16 00 27  01 01 3C 00 00 0E 00   .A.......A.<....
+0001: 0A 58 58 58 58 58 58 58 58  58 58 0B 31 30 2E 39   .XXXXXXXXXX.10.9
+0002: 31 2E 31 36 31 2E 37 19 18  54 65 73 74 20 43 6C   1.161.7..Test Cl
+0003: 69 65 6E 74 20 56 65 72 73  69 6F 6E 20 31 2E 32   ient Version 1.2
+0004: 33

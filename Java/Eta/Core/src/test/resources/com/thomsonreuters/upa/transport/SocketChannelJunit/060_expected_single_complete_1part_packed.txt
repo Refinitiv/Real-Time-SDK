@@ -1,0 +1,70 @@
+The input file contains the RIPC handshake, and a single (complete) packed message,
+where the packed message has only one part. The message format is as follows: 
+
+XXYZZAAAAAAAAAAAA
+
+In the message above:
+* XX is the two-byte RIPC message length (for the entire message)
+* Y is the one-byte RIPC message flag
+* ZZ is the two-byte length of the first (and only) packed message
+* AAAAAAAAAAAA represents the first (and only) packed message
+
+This expected file contains:
+
+1) the RIPC handshake
+2) A non-packed version of the input message (to facilitate comparison) 
+
+The RIPC handshake:
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+
+A non-packed version of the (packed) input message:
+0000: 01 16 02 01 75 02 01 00  00 00 01 81 68 00         ....u. ......h.
+0010: 09 00 22 4C 6F 67 69 6E  20 61 63 63 65 70 74 65   .."Login  accepte
+0020: 64 20 62 79 20 68 6F 73  74 20 78 78 78 78 78 78   d by hos t xxxxxx
+0030: 78 78 78 78 2E 02 00 00  81 42 26 10 78 78 78 78   xxxx.... .B&.xxxx
+0040: 78 78 2E 78 78 78 78 78  78 78 78 78 01 05 81 2C   xx.xxxxx xxxx...,
+0050: 08 00 0D 10 41 6C 6C 6F  77 53 75 73 70 65 63 74   ....Allo wSuspect
+0060: 44 61 74 61 04 01 01 0D  41 70 70 6C 69 63 61 74   Data.... Applicat
+0070: 69 6F 6E 49 64 11 03 32  35 36 0F 41 70 70 6C 69   ionId..2 56.Appli
+0080: 63 61 74 69 6F 6E 4E 61  6D 65 11 03 41 44 53 08   cationNa me..ADS.
+0090: 50 6F 73 69 74 69 6F 6E  11 10 31 30 2E 39 31 2E   Position ..10.91.
+00A0: 31 36 31 2E 35 39 2F 6E  65 74 1C 50 72 6F 76 69   161.59/n et.Provi
+00B0: 64 65 50 65 72 6D 69 73  73 69 6F 6E 45 78 70 72   dePermis sionExpr
+00C0: 65 73 73 69 6F 6E 73 04  01 01 18 50 72 6F 76 69   essions. ...Provi
+00D0: 64 65 50 65 72 6D 69 73  73 69 6F 6E 50 72 6F 66   dePermis sionProf
+00E0: 69 6C 65 04 01 00 0A 53  69 6E 67 6C 65 4F 70 65   ile....S ingleOpe
+00F0: 6E 04 01 01 0E 53 75 70  70 6F 72 74 4F 4D 4D 50   n....Sup portOMMP
+0100: 6F 73 74 04 01 01 12 53  75 70 70 6F 72 74 50 61   ost....S upportPa
+0110: 75 73 65 52 65 73 75 6D  65 04 01 01 0E 53 75 70   useResum e....Sup
+0120: 70 6F 72 74 53 74 61 6E  64 62 79 04 01 01 14 53   portStan dby....S
+0130: 75 70 70 6F 72 74 42 61  74 63 68 52 65 71 75 65   upportBa tchReque
+0140: 73 74 73 04 01 01 13 53  75 70 70 6F 72 74 56 69   sts....S upportVi
+0150: 65 77 52 65 71 75 65 73  74 73 04 01 01 1B 53 75   ewReques ts....Su
+0160: 70 70 6F 72 74 4F 70 74  69 6D 69 7A 65 64 50 61   pportOpt imizedPa
+0170: 75 73 65 52 65 73 75 6D  65 04 01 01               useResum e...
+
+Received Login Response for Username: xxxxxx.xxxxxxxxx
+	State: Open/Ok/None - text: "Login accepted by host xxxxxxxxxx."
+
+LoginResponseInfo
+	streamId: 1
+	username: xxxxxx.xxxxxxxxx
+	applicationId: 256
+	applicationName: ADS
+	position: 10.91.161.59/net
+	providePermissionProfile: 0
+	providePermissionExpressions: 1
+	singleOpen: 1
+	allowSuspectData: 1
+	supportPauseResume: 1
+	supportOptimizedPauseResume: 1
+	supportOMMPost: 1
+	supportViewRequests: 1
+	supportBatchRequests: 1
+	supportStandby: 1
+	isSolicited: true
+
+ 

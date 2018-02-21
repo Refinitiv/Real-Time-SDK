@@ -1,0 +1,132 @@
+Ultra Performance API (UPA), Java Edition, LibraryVersionInfo
+        productVersion: upaj7.0.0.L1.all.eap
+        productInternalVersion: upaj7.0.F6
+        productDate: Fri Aug 17 04:02:25 CST 2012 Thomson Reuters
+Consumer initializing...
+Unable to load field dictionary.  Will attempt to download from provider.
+        Text: Can't open file: RDMFieldDictionary
+Unable to load enum dictionary.  Will attempt to download from provider.
+        Text: Can't open file: enumtype.def
+Starting connection...
+Attempting to connect to server localhost:14002...
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+LoginRequest:
+        streamId: 1
+        userName: Xxxxxxx.Xxxxxx
+        streaming: true
+        nameType: 1
+        applicationId: 256
+        applicationName: Consumer
+        position: 10.91.161.166/XXXXXXXXXX
+        role: 0
+
+-- begin read (391 of 410 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 391 limit: 131072 thread id: 1 --
+0000: 01 87 02 01 82 02 01 00  00 00 01 68 00 09 00 21   ...........h...!
+0001: 4C 6F 67 69 6E 20 61 63  63 65 70 74 65 64 20 62   Login accepted b
+0002: 79 20 68 6F 73 74 20 4F  41 4B 4D 57 42 45 52 4E   y host XXXXXXXXX
+0003: 32 02 00 00 81 51 26 0E  57 69 6C 6C 69 61 6D 2E   X....Q&.Xxxxxxx.
+0004: 42 65 72 6E 65 72 01 05  81 3D 08 00 0D 0D 41 70   Xxxxxx...=....Ap
+0005: 70 6C 69 63 61 74 69 6F  6E 49 64 11 03 32 35 36   plicationId..256
+0006: 0F 41 70 70 6C 69 63 61  74 69 6F 6E 4E 61 6D 65   .ApplicationName
+0007: 11 0C 72 73 73 6C 50 72  6F 76 69 64 65 72 08 50   ..rsslProvider.P
+0008: 6F 73 69 74 69 6F 6E 11  18 31 30 2E 39 31 2E 31   osition..10.91.1
+0009: 36 31 2E 31 36 36 2F 4F  41 4B 4D 57 42 45 52 4E   61.166/XXXXXXXXX
+000A: 32 18 50 72 6F 76 69 64  65 50 65 72 6D 69 73 73   X.ProvidePermiss
+000B: 69 6F 6E 50 72 6F 66 69  6C 65 04 01 01 1C 50 72   ionProfile....Pr
+000C: 6F 76 69 64 65 50 65 72  6D 69 73 73 69 6F 6E 45   ovidePermissionE
+000D: 78 70 72 65 73 73 69 6F  6E 73 04 01 01 0A 53 69   xpressions....Si
+000E: 6E 67 6C 65 4F 70 65 6E  04 01 00 10 41 6C 6C 6F   ngleOpen....Allo
+000F: 77 53 75 73 70 65 63 74  44 61 74 61 04 01 01 12   wSuspectData....
+0010: 53 75 70 70 6F 72 74 50  61 75 73 65 52 65 73 75   SupportPauseResu
+0011: 6D 65 04 01 00 1B 53 75  70 70 6F 72 74 4F 70 74   me....SupportOpt
+0012: 69 6D 69 7A 65 64 50 61  75 73 65 52 65 73 75 6D   imizedPauseResum
+0013: 65 04 01 00 0E 53 75 70  70 6F 72 74 4F 4D 4D 50   e....SupportOMMP
+0014: 6F 73 74 04 01 01 13 53  75 70 70 6F 72 74 56 69   ost....SupportVi
+0015: 65 77 52 65 71 75 65 73  74 73 04 01 00 14 53 75   ewRequests....Su
+0016: 70 70 6F 72 74 42 61 74  63 68 52 65 71 75 65 73   pportBatchReques
+0017: 74 73 04 01 01 0E 53 75  70 70 6F 72 74 53 74 61   ts....SupportSta
+0018: 6E 64 62 79 04 01 00                               ndby...
+-- end read --
+Received Login Response for Username: Xxxxxxx.Xxxxxx
+LoginRefresh:
+        streamId: 1
+        name: Xxxxxxx.Xxxxxx
+        nameType: 1
+        State: Open/Ok/None - text: "Login accepted by host XXXXXXXXXX"
+        allowSuspectData: 1
+        applicationId: 256
+        appplicationName: rsslProvider
+        position: 10.91.161.166/XXXXXXXXXX
+        providePermExpr: 1
+        providePermProfile: 1
+        singleOpen: 0
+        isSolicited: true
+        supportBatchRequests: 1
+        supportOMMPost: 1
+        supportOptimizedPauseResume: 0
+        supportStandby: 0
+        supportViewRequests: 0
+
+DirectoryRequest:
+        streamId: 2
+        streaming: true
+        filter: INFO | GROUP | STATE
+
+-- begin read (423 of 833 total bytes) cur RIPC pos: 0 prev pos: 0 new pos: 423 limit: 131072 thread id: 1 --
+0000: 01 A7 02 00 38 02 04 00  00 00 02 81 68 09 09 00   ....8.......h...
+0001: 22 53 6F 75 72 63 65 20  44 69 72 65 63 74 6F 72   "Source Director
+0002: 79 20 52 65 66 72 65 73  68 20 43 6F 6D 70 6C 65   y Refresh Comple
+0003: 74 65 64 02 00 00 80 05  08 00 00 00 07 00 04 07   ted.............
+0004: 00 01 02 01 01 FE 01 5F  00 05 02 02 01 FE 01 1C   ......._........
+0005: 08 00 0B 04 4E 61 6D 65  11 0B 44 49 52 45 43 54   ....Name..DIRECT
+0006: 5F 46 45 45 44 06 56 65  6E 64 6F 72 11 0F 54 68   _FEED.Vendor..Th
+0007: 6F 6D 73 6F 6E 20 52 65  75 74 65 72 73 08 49 73   omson Reuters.Is
+0008: 53 6F 75 72 63 65 04 01  01 0C 43 61 70 61 62 69   Source....Capabi
+0009: 6C 69 74 69 65 73 0F FE  00 0A 04 01 00 06 05 06   lities..........
+000A: 07 08 0A 16 14 44 69 63  74 69 6F 6E 61 72 69 65   .....Dictionarie
+000B: 73 50 72 6F 76 69 64 65  64 0F FE 00 13 11 00 00   sProvided.......
+000C: 02 06 52 57 46 46 6C 64  07 52 57 46 45 6E 75 6D   ..RWFFld.RWFEnum
+000D: 10 44 69 63 74 69 6F 6E  61 72 69 65 73 55 73 65   .DictionariesUse
+000E: 64 0F FE 00 13 11 00 00  02 06 52 57 46 46 6C 64   d.........RWFFld
+000F: 07 52 57 46 45 6E 75 6D  03 51 6F 53 0F FE 00 06   .RWFEnum.QoS....
+0010: 0C 00 00 01 01 22 10 53  75 70 70 6F 72 74 73 51   .....".SupportsQ
+0011: 6F 53 52 61 6E 67 65 04  01 00 08 49 74 65 6D 4C   oSRange....ItemL
+0012: 69 73 74 11 0E 5F 55 50  41 5F 49 54 45 4D 5F 4C   ist.._UPA_ITEM_L
+0013: 49 53 54 1A 53 75 70 70  6F 72 74 73 4F 75 74 4F   IST.SupportsOutO
+0014: 66 42 61 6E 64 53 6E 61  70 73 68 6F 74 73 04 01   fBandSnapshots..
+0015: 00 17 41 63 63 65 70 74  69 6E 67 43 6F 6E 73 75   ..AcceptingConsu
+0016: 6D 65 72 53 74 61 74 75  73 04 01 00 02 02 FE 00   merStatus.......
+0017: 36 08 00 03 0C 53 65 72  76 69 63 65 53 74 61 74   6....ServiceStat
+0018: 65 04 01 01 11 41 63 63  65 70 74 69 6E 67 52 65   e....AcceptingRe
+0019: 71 75 65 73 74 73 04 01  01 06 53 74 61 74 75 73   quests....Status
+001A: 0D 05 09 00 02 4F 4B                               .....OK
+-- end read --
+Received Source Directory Refresh
+DirectoryRefresh:
+        streamId: 2
+        State: Open/Ok/None - text: "Source Directory Refresh Completed"
+        clearCache: true
+        solicited: true
+        filter: INFO | GROUP | STATE
+        Service:
+                serviceId: 1
+                InfoFilter:
+                        serviceName: DIRECT_FEED
+                        vendor: Thomson Reuters
+                        isSource: 1
+                        supportsQosRange: 0
+                        supportsOutOfBandSnapshots: 0
+                        acceptingConsumerStatus: 0
+                        capabilities: [5, 6, 7, 8, 10, 22]
+                        dictionariesProvided: [RWFFld, RWFEnum]
+                        dictionariesUsed: [RWFFld, RWFEnum]
+                        qos: [Qos: Realtime/TickByTick/Static - timeInfo: 0 - rateInfo: 0]
+                StateFilter:
+                        ServiceState: 1
+                        AcceptingRequests: 1
+                        State: Open/Ok/None - text: "OK"
+
+Received serviceName: DIRECT_FEED

@@ -1,0 +1,38 @@
+This input file tests the KNOWN_INSUFFICIENT state. When we are in
+this state, we know the length of the "next" message, but there is
+insufficient space in the read buffer to accommodate it. It contains
+a RIPC handshake, and two messages described below.
+
+For this unit test, we will override the capacity of the RsslSocketChannel 
+buffer to be 36 bytes. The input file will contain two complete
+messages that, combined, will exceeded the length of the input buffer.
+Specifically, the first message we receive will have a total
+length of 32 bytes. The second message we receive will
+have a total length of 10 bytes. When the RsslSocketChannel (internally)
+performs a network read, the entire first message, plus the first
+three bytes of the second message will *almost* fill the read buffer.
+Specifically, it will leave one byte remaining in the buffer.
+
+After the first message is processed (by the application), the state
+machine will transition from the KNOWN_COMPLETE state to the
+KNOWN_INSUFFICENT state. This will require the buffer to be compacted
+before the rest of the second message can be read.
+
+The RIPC handshake:
+0000: 00 40 01 01 0A 00 00 00  00 09 18 00 03 3C 0E 01   .@...........<..
+0001: 00 00 00 08 01 18 5B 34  E8 D8 31 DC 82 DE 00 00   ......[4..1.....
+0002: 00 00 00 00 00 05 08 D2  CC 77 F6 25 4E C9 11 10   .........w.%N...
+0003: 55 50 41 20 4A 61 76 61  20 45 64 69 74 69 6F 6E   UPA Java Edition
+
+
+The hex below contains a message with a length of 32, and thre first
+three bytes of a message with a length of 10. The first call to read()
+will read all 35 bytes in, leaving one "free" byte remaining in the buffer:
+0000: 00 20 02                                          ...
+0001: 01 02 03 04 05 06 07 08  09 0A 0B 0C 0D 0E 0F 10  ........ ........
+0002: 11 12 13 14 15 16 17 18  19 1A 1B 1C 1D           ........ .....
+0003: 00 0A 02                                          ...
+
+This is the remainder of the 10 byte message (it will be read in a seperate
+network read).
+0000: 1E 1F 20 21 22 23 24                              ....... 

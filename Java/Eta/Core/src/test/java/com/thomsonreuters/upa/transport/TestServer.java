@@ -126,13 +126,13 @@ public class TestServer implements Runnable
         return _buffer;
     }
 
-    /**
+    /*
      * Sets up a non-blocking server socket, listening on the port
      * specified.
      * 
      * @param port local port number to listen on.
      */
-    private void setupServerSocket()
+    public void setupServerSocket()
     {
         try
         {
@@ -152,7 +152,7 @@ public class TestServer implements Runnable
         }
     }
 
-    /**
+    /*
      * Attempt to accept a socket on the server side. This will block until
      * a socket is accepted or a timeout occurs.
      * 
@@ -230,7 +230,7 @@ public class TestServer implements Runnable
         return 0;
     }
 
-    /**
+    /*
      * Close the socket.
      */
     public void closeSocket()
@@ -263,7 +263,7 @@ public class TestServer implements Runnable
         _socketChannel = null;
     }
 
-    /**
+    /*
      * Close the server socket.
      */
     private void closeServerSocket()
@@ -301,7 +301,7 @@ public class TestServer implements Runnable
         closeServerSocket();
     }
 
-    /**
+    /*
      * flips the buffer and then writes it on the socket.
      * 
      * @param buffer

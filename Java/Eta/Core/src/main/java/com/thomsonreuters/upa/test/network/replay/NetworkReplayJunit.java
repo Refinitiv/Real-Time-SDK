@@ -317,7 +317,7 @@ public class NetworkReplayJunit
         NetworkReplay fileReplay = NetworkReplayFactory.create();
         try
         {
-            fileReplay.parseFile("Java/Eta/TestTools/UnitTests/TestData/NetworkReplay/sample_capture.txt");
+            fileReplay.parseFile("../../../Java/Eta/TestTools/UnitTests/TestData/NetworkReplay/sample_capture.txt");
             assertTrue(fileReplay.recordsInQueue() == 5);
 
             assertArrayEquals(seq1, fileReplay.read());

@@ -61,6 +61,7 @@ dependencies {
 
 	testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
 
+	compile project(':Eta:Applications:Shared')
 	compile project(':Eta:Core')
 }
 

@@ -98,11 +98,11 @@ public class TestClient implements Runnable
         return _buffer;
     }
 
-    /**
+    /*
      * Connects a non-blocking client socket to the port specified.
-     * {@link State#SETUP} is set after this socket is connected. However,
-     * this method will fail if the connect does not finish, so there is no
-     * need to check for {@link State#SETUP}.
+     * State.SETUP is set after this socket is connected. However,
+     * this method will fail if the connect does not finish, so there
+     * is no need to check for State.SETUP.
      * 
      * @param port local port number to connect to.
      */
@@ -179,7 +179,7 @@ public class TestClient implements Runnable
         return 0;
     }
 
-    /**
+    /*
      * Close the socket.
      */
     public void closeSocket()
@@ -220,7 +220,7 @@ public class TestClient implements Runnable
         closeSocket();
     }
 
-    /**
+    /*
      * flips the buffer and then writes it on the socket.
      * 
      * @param buffer
