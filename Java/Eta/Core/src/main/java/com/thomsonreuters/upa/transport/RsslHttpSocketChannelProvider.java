@@ -1614,7 +1614,7 @@ class RsslHttpSocketChannelProvider
         }
     }
 
-    public int closeJavaOldSocket()
+	public int closeJavaOldSocket()
     {// in cases of NO_DATA and simulated read (-1) case, on base channel
         try
         {
@@ -1624,7 +1624,7 @@ class RsslHttpSocketChannelProvider
                 if (debugPrint)
                     System.out.println(" Java close socket from server side = " + rsslSocketChannel.selectableChannel().toString());
                 
-                rsslSocketChannel._oldScktChannel = rsslSocketChannel.scktChannel();
+                rsslSocketChannel._oldScktChannel = rsslSocketChannel._scktChannel;
                 _sessionIdSocketMap.remove(rsslSocketChannel._providerSessionId);
                 rsslSocketChannel.selectableChannel().close();
 
