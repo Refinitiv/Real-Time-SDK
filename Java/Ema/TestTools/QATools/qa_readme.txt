@@ -295,6 +295,45 @@ Series400Consumer410-MultiThreadBatchView-002: This Alter Consumer does the foll
 Series400Consumer410-MultiThreaded-002:  This test tool is using two consumer instance, 
      Both cosumers open 10000 snapshot items. Total 20000 snapstot requests from file 20k.xml
 
+Series400Consumer410-MultiThreadRecovery-001: Test item recovering correctly with stop/start provider
+This test tool implements the following high level steps:
+
+            Provides the following command line options:
+            -snapshot: Send item snapshot requests [default = true]
+            -numOfItemPerLoop: Send the number of item request per loop [default = 50]
+            -userDispatch: Use UserDispatch Operation Model [default = false]
+            -userDispatchTimeout: Set dispatch timeout period in microseconds 
+             if UserDispatch Operation Model [default = 1000]
+            -numOfKillProvier: [default = 1]
+            -startWaitAfterNumReqs: consumer stops sending requests after num requests has been sent. Default means sending all, only work with -snapshot false  [default = 0]
+            -startWaitTimeAfterNumReqs \tconsumer waits for the period time in milliseconds before continuing sending requests. Default means no waiting, only work with -snapshot false  [default = 0]
+            -runtime: Run time for test case in milliseconds [default = 60000]
+    
+            for example: -snapshot false -numOfItemPerLoop 2000 -numOfKillProvier 2 -startWaitAfterNumReqs 500 -startWaitTimeAfterNumReqs 25000 -userDispatch true -runtime 80000
+          
+         Consumer does the following things: 
+            + Implements ApiThread/ConsumerThread to manage OmmConsumer and control apiDispatch  
+               thread/userDispatch thread
+              - overrides desired methods
+              - provides own methods as needed
+            + Implements OmmConsumerClient class in AppClient
+            + ConsumerInstance instantiates OmmConsumer object which 
+              initializes connection and logins into specified server
+            + Instantiates three ConsumerThreads to access the same OmmConsumer instance. 
+            + Instantiates AppClient object that receives and processes item messages
+            + Opens MarketPrice items (either streaming or snapshot per user input) from 
+              each ConsumerThread where $$$ is replace by an index based 
+              on the number of items sent in a loop. Consumer sends these requests until 
+              runtime expiration.
+              - Open "IBM$$$" items for first ConsumerThread
+              - Open "TRI$$$" items for second ConsumerThread
+              - Open "YAHOO$$$" items for third ConsumerThread
+            + Processes data received from in ConsumerInstance
+              - all received messages are processed on ApiDispatch thread or UserDispath thread control 
+            + Validate if recovery succeeds
+            + Exits
+
+ 
 Module:  Series400Consumer430
 -----------------------------
 

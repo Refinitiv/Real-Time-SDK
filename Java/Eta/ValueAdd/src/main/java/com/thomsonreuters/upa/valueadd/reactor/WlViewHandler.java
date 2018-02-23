@@ -16,7 +16,6 @@ import com.thomsonreuters.upa.codec.ElementEntry;
 import com.thomsonreuters.upa.codec.ElementList;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Int;
-import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.UInt;
 import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.rdm.ViewTypes;
@@ -253,7 +252,7 @@ public class WlViewHandler
 		return CodecReturnCodes.SUCCESS;
 	}
 		
-	int aggregateViewMerge(RequestMsg streamRequestMsg, WlView aggView)
+	int aggregateViewMerge(WlView aggView)
 	{	
 	   	for (WlView view = aggView.newViews().poll(); view!= null; view = aggView.newViews().poll())
     	{		

@@ -56,6 +56,7 @@ class WlDirectoryHandler implements WlHandler
     boolean _recievedRefresh;
     boolean _roleDirectoryRequestAdded;
     int _directoryStreamId;
+    boolean _hasPendingRequest;
 
     // pool of Service 
     LinkedList<Service> _servicePool = new LinkedList<Service>();
@@ -100,6 +101,7 @@ class WlDirectoryHandler implements WlHandler
         _tempUpdateMsg = (UpdateMsg)CodecFactory.createMsg();
         _recievedRefresh = false;
         _roleDirectoryRequestAdded = false;
+        _hasPendingRequest = false;
         
         // get next id for directory stream from watchlist
         _directoryStreamId = _watchlist.nextStreamId();
@@ -977,15 +979,20 @@ class WlDirectoryHandler implements WlHandler
     int dispatch(ReactorErrorInfo errorInfo)
     {
     	int ret = ReactorReturnCodes.SUCCESS;
-        if (_stream != null)
-        {
-            ret = _stream.dispatch(errorInfo);
-            if (ret != ReactorReturnCodes.SUCCESS)
+
+		 if (_stream != null && _hasPendingRequest) 
+		 {
+	        _hasPendingRequest = false;
+	        _tempMsg.clear();
+            _watchlist.convertRDMToCodecMsg(_directoryRequest, _tempMsg);
+            ret = _stream.sendMsg(_tempMsg, _submitOptions, errorInfo);
+			if (ret != ReactorReturnCodes.SUCCESS)
             {
             	return ret;
             }
-        }
-
+		 }
+		 
+	     
         if (!_serviceCache._serviceList.isEmpty())
         {
 	        DirectoryRefresh newDirectoryRefresh = null;
@@ -1234,6 +1241,12 @@ class WlDirectoryHandler implements WlHandler
         return ret;
     }
     
+    @Override
+    public void addPendingRequest(WlStream wlStream)
+    {
+    	_hasPendingRequest = true;
+    }
+    
     /* Returns the list of services from the service cache. */
     LinkedList<WlService> serviceList()
     {
@@ -1312,6 +1325,7 @@ class WlDirectoryHandler implements WlHandler
         _requestDispatchFlag = false;
         _recievedRefresh = false;
         _roleDirectoryRequestAdded = false;
+        _hasPendingRequest = false;
     }
 
     /* Close directory stream (but don't repool it so that we keep the application's requests) */

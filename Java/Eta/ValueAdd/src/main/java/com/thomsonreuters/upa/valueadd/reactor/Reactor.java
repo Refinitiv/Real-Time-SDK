@@ -1972,23 +1972,42 @@ public class Reactor
         populateErrorInfo(errorInfo, event.errorInfo().code(), event.errorInfo().location(), event.errorInfo().error().text());
         WorkerEventTypes eventType = event.eventType();
 
+        ReactorChannel reactorChannel = event.reactorChannel();
+        int ret = ReactorReturnCodes.SUCCESS;
+        
         switch (eventType)
         {
             case FLUSH_DONE:
-                event.reactorChannel().flushRequested(false);
-                if (event.reactorChannel().flushAgain())
+            	reactorChannel.flushRequested(false);
+                if (reactorChannel.flushAgain())
                 {
                     /* Channel wrote a message since its last flush request, request flush again
                      * in case that message was not flushed. */
-                    if (sendFlushRequest(event.reactorChannel(), "Reactor.processWorkerEvent", errorInfo) != ReactorReturnCodes.SUCCESS)
+                    if (sendFlushRequest(reactorChannel, "Reactor.processWorkerEvent", errorInfo) != ReactorReturnCodes.SUCCESS)
+                    {
+                    	event.returnToPool();
                         return ReactorReturnCodes.FAILURE;
+                    }
                 }
+                
+                /* Dispatch watchlist; it may be waiting on a flush to complete if it ran out of output buffers. */
+               if (reactorChannel.watchlist() != null)
+                {
+                   if ((ret = reactorChannel.watchlist().dispatch(errorInfo)) != ReactorReturnCodes.SUCCESS)
+                 {
+                	   populateErrorInfo(errorInfo, ret,
+                               "Reactor.processWorkerEvent",
+                               "Watchlist dispatch failed - " + errorInfo.error().text());
+                	   event.returnToPool();
+                       return ret;
+                  }
+               }
                 break;
             case CHANNEL_UP:
                 processChannelUp(event, errorInfo);
                 break;
             case CHANNEL_DOWN:
-            	if (event.reactorChannel().server() == null && !event.reactorChannel().recoveryAttemptLimitReached()) // client channel
+            	if (reactorChannel.server() == null && !reactorChannel.recoveryAttemptLimitReached()) // client channel
             	{
 	                populateErrorInfo(errorInfo, ReactorReturnCodes.SUCCESS,
 	                        "Reactor.processWorkerEvent",
@@ -2004,18 +2023,16 @@ public class Reactor
                 break;
             case CHANNEL_CLOSE_ACK:
                 /* Worker is done with channel. Safe to release it. */
-                event.reactorChannel().returnToPool();
+                reactorChannel.returnToPool();
                 break;
 
             case SHUTDOWN:
                 processWorkerShutdown(event, "Reactor.processWorkerEvent", errorInfo);
                 break;
             case TUNNEL_STREAM_DISPATCH_TIMEOUT:
-                event.reactorChannel().clearTunnelStreamManagerExpireTime();
+                reactorChannel.clearTunnelStreamManagerExpireTime();
                 /* (Fall through) */
             case TUNNEL_STREAM_DISPATCH_NOW:
-                int ret = 0;
-                ReactorChannel reactorChannel = event.reactorChannel();
                 while ((ret = reactorChannel.tunnelStreamManager().dispatch(errorInfo.error())) > ReactorReturnCodes.SUCCESS);
                 if (ret < ReactorReturnCodes.SUCCESS)
                 {
@@ -2051,25 +2068,28 @@ public class Reactor
                 }
                 
                 if ((ret = reactorChannel.checkTunnelManagerEvents(errorInfo)) != ReactorReturnCodes.SUCCESS)
+                {
+                	event.returnToPool();
                     return ret;
+                }
                 
                 break;
             case WATCHLIST_TIMEOUT:
-                reactorChannel = event.reactorChannel();
                 if (reactorChannel.watchlist() != null)
                 {
                     if ((ret = reactorChannel.watchlist().timeout(errorInfo)) != ReactorReturnCodes.SUCCESS)
                     {
+                    	event.returnToPool();
                         return ret;
                     }
                 }
                 break;
             case WATCHLIST_DISPATCH_NOW:
-                reactorChannel = event.reactorChannel();
                 if (reactorChannel.watchlist() != null)
                 {
                     if ((ret = reactorChannel.watchlist().dispatch(errorInfo)) != ReactorReturnCodes.SUCCESS)
                     {
+                    	event.returnToPool();
                         return ret;
                     }
                 }

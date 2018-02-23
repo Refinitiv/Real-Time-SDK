@@ -18,4 +18,6 @@ interface WlHandler
     int requestTimeout(WlStream wlStream, ReactorErrorInfo errorInfo);
     /* Used to call back the user. */ 
     int callbackUser(String location, Msg msg, MsgBase rdmMsg, WlRequest wlRequest, ReactorErrorInfo errorInfo);    
+    /* Used to add unsent msg back to request pending list. */ 
+    void addPendingRequest(WlStream wlStream);
 }

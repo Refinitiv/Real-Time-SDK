@@ -66,7 +66,6 @@ class WlStream extends VaNode
     LinkedList<WlRequest> _userRequestList = new LinkedList<WlRequest>();
 
     // unsent message queue
-    LinkedList<Msg> _unsentMsgQueue = new LinkedList<Msg>();
     // pool of messages
     LinkedList<Msg> _msgPool = new LinkedList<Msg>();
     
@@ -259,13 +258,7 @@ class WlStream extends VaNode
     /* Handles channel up event. */
     void channelUp()
     {
-        _channelUp = true;
-        
-        // trigger dispatch if there are unsent messages to send
-        if (!_unsentMsgQueue.isEmpty())
-        {
-            _watchlist.reactor().sendWatchlistDispatchNowEvent(_watchlist.reactorChannel());
-        }
+        _channelUp = true;  
     }
     
     /* Handles channel down event. */
@@ -279,40 +272,6 @@ class WlStream extends VaNode
     void responseReceived()
     {
         _requestPending = false;
-    }
-    
-    /* Dispatch the stream. */
-    int dispatch(ReactorErrorInfo errorInfo)
-    {
-        int ret = ReactorReturnCodes.SUCCESS;
-        
-        // if stream is CLOSED just return SUCCESS
-        if (_state.streamState() == StreamStates.CLOSED)
-        {
-            return ret;
-        }
-
-        // send any unsent messages
-        Msg msg;
-        
-        while ((msg = _unsentMsgQueue.poll()) != null)
-        {
-            // send message
-        	ret = sendMsg(msg, _submitOptions, errorInfo);
-            
-            //should return back to pool after sendMsg() returns, otherwise sendMsg() will call addToUnsentMsgQueue()
-            //which will try to poll the same msg obj for msgCopy.
-            // return msg to pool if not cached request message
-            if (msg != _requestMsg)
-            {
-                _msgPool.add(msg);
-            }
-
-            if (ret < ReactorReturnCodes.SUCCESS)
-                return ret;
-        }
-
-        return ret;
     }
     
     /* Handles a timeout for the stream. */
@@ -420,7 +379,7 @@ class WlStream extends VaNode
 						_viewSubsetContained = false;
 						if(_aggregateView.viewHandler().aggregateViewContainsNewViews(_aggregateView))
 							_viewSubsetContained = true;			
-						_aggregateView.viewHandler().aggregateViewMerge((RequestMsg)msg, _aggregateView);
+						_aggregateView.viewHandler().aggregateViewMerge( _aggregateView);
 				
 						msg.flags(msg.flags() | RequestMsgFlags.HAS_VIEW);
 			   	
@@ -434,9 +393,10 @@ class WlStream extends VaNode
 					}
 					else
 					{
-						// until viewRefresh is applied
-	                    // add to unsent message queue and trigger dispatch
-                        addToUnsentMsgQueue(msg);
+						// until viewRefresh is applied		
+						// add to waiting request list
+						handler().addPendingRequest(null);
+						
 						return ReactorReturnCodes.SUCCESS;
 					}
 				}
@@ -456,154 +416,95 @@ class WlStream extends VaNode
         // encode into buffer and send out
         if (isChannelUp()) // channel is up
         {
-            if (msg.msgClass() != MsgClasses.CLOSE) // not a close message
-            {
-                // if post message, save user stream id and replace with stream id of stream
-                int userStreamId = msg.streamId();
-                if (msg.msgClass() == MsgClasses.POST)
-                {
-                    msg.streamId(_streamId);
-                }
-                    
-                if (msg.domainType() != DomainTypes.LOGIN  && 
-                		msg.msgClass() == MsgClasses.REQUEST && _userRequestList.size()  > 0)
-                {
-                	if (_requestsPausedCount == _userRequestList.size() 
-                			&& _watchlist._loginHandler._loginRefresh.checkHasFeatures() 
-                			&& _watchlist._loginHandler._loginRefresh.features().checkHasSupportOptimizedPauseResume() 
-                			&& _watchlist._loginHandler._loginRefresh.features().supportOptimizedPauseResume() == 1)
-                	{	
-                		((RequestMsg)msg).applyPause();
-                		_paused = true;
-                	}
-                	else
-                	{
-                		if (_paused)
-                		{
-                			((RequestMsg)msg).flags(((RequestMsg)msg).flags() & ~RequestMsgFlags.PAUSE);
-                            _paused = false;
-                		}                	
-                	}
-                }
-                         
-                ret =  encodeIntoBufferAndWrite(msg, submitOptions, errorInfo);
-                if (ret >= ReactorReturnCodes.SUCCESS)
-                {
-                    // start request timer if request and refresh expected and refresh not already pending
-                    if (msg.msgClass() == MsgClasses.REQUEST)
-                    {
-                        // copy submitted request message to cached request message if not done already
-                        if (msg != _requestMsg)
-                        {
-                            if ((ret = requestMsg((RequestMsg)msg)) < ReactorReturnCodes.SUCCESS)
-                            {
-                                return ret;
-                            }
-                        }
-                        
-                        // start timer if request is not already pending
-                        if (!_requestPending && !((RequestMsg)msg).checkNoRefresh())
-                        {
-                            if (startRequestTimer(errorInfo) != ReactorReturnCodes.SUCCESS)
-                            {
-                                return ReactorReturnCodes.FAILURE;
-                            }
-                        }
-                        if ( _pendingViewChange)
-                        {
-                        	// no need to send refresh back on other app streams already received
-                        	_pendingViewChange = false;                        	
-                        	if (!((RequestMsg)msg).checkNoRefresh() && !_viewSubsetContained)
-                        		_pendingViewRefresh = true;
-                                            
-                            if (_aggregateView != null && 	(int)(msg.flags() & RequestMsgFlags.HAS_VIEW) > 0)
-                            	_aggregateView.viewHandler().aggregateViewCommit(_aggregateView);
-
-                            if (_aggregateView != null && _requestsWithViewCount == 0 )
-                            {
-                            	_aggregateView.viewHandler().aggregateViewDestroy(_aggregateView);
-                            	_aggregateView = null;
-                            }                    		
-                    	}                        
-                    }
-                    
-                    // if post message and ACK required, increment number of outstanding post messages and update post tables
-                    if (msg.msgClass() == MsgClasses.POST && ((PostMsg)msg).checkAck())
-                    {
-                        // increment number of outstanding post messages
-                        _watchlist.numOutstandingPosts(_watchlist.numOutstandingPosts() + 1);
-                        
-                        // reset post message stream id back to user stream id
-                        // this is needed so ACK/NAK response fanout is sent with user stream id
-                        msg.streamId(userStreamId);
-                        
-                        // update post tables
-                        ret = updatePostTables((PostMsg)msg, errorInfo);
-                    }
-                }   
-                else if (ret == ReactorReturnCodes.NO_BUFFERS || ret == TransportReturnCodes.WRITE_FLUSH_FAILED)
-                {
-                   // change WRITE_FLUSH_FAILED and NO_BUFFERS and not post message to SUCCESS
-                    // post messages return NO_BUFFERS
-                    if (ret == TransportReturnCodes.WRITE_FLUSH_FAILED ||
-                        (ret == ReactorReturnCodes.NO_BUFFERS && msg.msgClass() != MsgClasses.POST))
-                    {
-                        ret = ReactorReturnCodes.SUCCESS;
-                    }
-                    
-                    // if returning SUCCESS, add to unsent message queue and trigger dispatch
-                    if (ret == ReactorReturnCodes.SUCCESS)
-                    {
-                        // if post message, reset post message stream id back to user stream id
-                        // this is needed so ACK/NAK response fanout is sent with user stream id
-                        if (msg.msgClass() == MsgClasses.POST)
-                        {
-                            msg.streamId(userStreamId);
-                        }
-                        
-                        // add to unsent message queue and trigger dispatch
-                        addToUnsentMsgQueue(msg);
-                        _watchlist.reactor().sendWatchlistDispatchNowEvent(_watchlist.reactorChannel());
-                    }
-                }
-                else // error
-                {
-                    // if post message, reset post message stream id back to user stream id
-                    if (msg.msgClass() == MsgClasses.POST)
-                    {
-                        msg.streamId(userStreamId);
-                    }
-                }
+	        if (msg.msgClass() != MsgClasses.CLOSE) // not a close message
+	        {
+	            if (msg.domainType() != DomainTypes.LOGIN  && 
+	            		msg.msgClass() == MsgClasses.REQUEST && _userRequestList.size()  > 0)
+	            {
+	            	if (_requestsPausedCount == _userRequestList.size() 
+	            			&& _watchlist._loginHandler._loginRefresh.checkHasFeatures() 
+	            			&& _watchlist._loginHandler._loginRefresh.features().checkHasSupportOptimizedPauseResume() 
+	            			&& _watchlist._loginHandler._loginRefresh.features().supportOptimizedPauseResume() == 1)
+	            	{	
+	            		((RequestMsg)msg).applyPause();
+	            		_paused = true;
+	            	}
+	            	else
+	            	{
+	            		if (_paused)
+	            		{
+	            			((RequestMsg)msg).flags(((RequestMsg)msg).flags() & ~RequestMsgFlags.PAUSE);
+	                        _paused = false;
+	            		}                	
+	            	}
+	            }
+	                     
+	            ret =  encodeIntoBufferAndWrite(msg, submitOptions, errorInfo);
+	            if (ret >= ReactorReturnCodes.SUCCESS)
+	            {
+	                // start request timer if request and refresh expected and refresh not already pending
+	                if (msg.msgClass() == MsgClasses.REQUEST)
+	                {
+	                    // copy submitted request message to cached request message if not done already
+	                    if (msg != _requestMsg)
+	                    {
+	                        if ((ret = requestMsg((RequestMsg)msg)) < ReactorReturnCodes.SUCCESS)
+	                        {
+	                            return ret;
+	                        }
+	                    }
+	                    
+	                    // start timer if request is not already pending
+	                    if (!_requestPending && !((RequestMsg)msg).checkNoRefresh())
+	                    {
+	                        if (startRequestTimer(errorInfo) != ReactorReturnCodes.SUCCESS)
+	                        {
+	                            return ReactorReturnCodes.FAILURE;
+	                        }
+	                    }
+	                    if ( _pendingViewChange)
+	                    {
+	                    	// no need to send refresh back on other app streams already received
+	                    	_pendingViewChange = false;                        	
+	                    	if (!((RequestMsg)msg).checkNoRefresh() && !_viewSubsetContained)
+	                    		_pendingViewRefresh = true;
+	                                        
+	                        if (_aggregateView != null && 	(int)(msg.flags() & RequestMsgFlags.HAS_VIEW) > 0)
+	                        	_aggregateView.viewHandler().aggregateViewCommit(_aggregateView);
+	
+	                        if (_aggregateView != null && _requestsWithViewCount == 0 )
+	                        {
+	                        	_aggregateView.viewHandler().aggregateViewDestroy(_aggregateView);
+	                        	_aggregateView = null;
+	                        }                    		
+	                	}                        
+	                }
+	            } 
+	            else if (ret == ReactorReturnCodes.NO_BUFFERS && msg.msgClass() != MsgClasses.POST)
+	            {
+	            	  if (msg.msgClass() == MsgClasses.REQUEST)
+	            	  {
+	            		  if (msg != requestMsg())
+								requestMsg((RequestMsg)msg);
+		            		handler().addPendingRequest(this);
+	            	  }
+	                 return ReactorReturnCodes.SUCCESS;
+	            }
             }
             else // close message
             {
                 ret = sendCloseMsg(msg, errorInfo);
             }
         }
-        else // channel is not up, queue for sending when channel comes back up
+        else // channel is not up, it means transport channel is gone, should not send out anything.
         {
-            addToUnsentMsgQueue(msg);
+        	return ReactorReturnCodes.FAILURE;
         }
         
         return ret;
     }
     
-    /* Adds message to unsent message queue for sending later. */
-    void addToUnsentMsgQueue(Msg msg)
-    {
-        // make copy of message
-        Msg msgCopy = _msgPool.poll();
-        if (msgCopy == null)
-        {
-            msgCopy = CodecFactory.createMsg();
-        }
-        msgCopy.clear();
-        msg.copy(msgCopy, CopyMsgFlags.ALL_FLAGS);
-
-        // queue for send on next dispatch
-        _unsentMsgQueue.add(msgCopy);        
-    }
-    
+   
     /* Update the applicable post tables after successfully sending a post message. */
     int updatePostTables(PostMsg postMsg, ReactorErrorInfo errorInfo)
     {
@@ -993,15 +894,6 @@ class WlStream extends VaNode
         _reactorChnlInfo.clear();
         _requestsPausedCount = 0;
         _paused = false;
-        // return any unsent messages back into message pool
-        Msg msg = null;
-        while ((msg = _unsentMsgQueue.poll()) != null)
-        {
-            if (msg != _requestMsg)
-            {
-                _msgPool.add(msg);
-            }
-        }
         _requestMsg = null;
         _itemAggregationKey = null;
         _requestExpireTime = 0;

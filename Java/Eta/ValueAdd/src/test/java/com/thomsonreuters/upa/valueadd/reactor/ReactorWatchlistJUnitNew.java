@@ -14952,4 +14952,666 @@ public class ReactorWatchlistJUnitNew
 
           TestReactorComponent.closeSession(consumer, provider);
       }
-}
+    
+    @Test
+    public void changeViewByReissueRequestWhilePendingRefreshTest()
+    {
+        /* Test changing a view on an item by another request of same user stream while waiting for that item's refresh. */
+    	/* steps:
+    	 * request an item request "TRI" on stream 5 by one user
+    	 * receive refresh on "TRI"
+    	 * reissue item request "TRI" with View (22,25) on stream 5
+    	 * reissue item request "TRI" with View (25, 1025) on stream 5
+    	 * receive refresh on "TRI"
+    	 * no refresh fanout to consumer
+    	 */
+    	
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        Msg msg = CodecFactory.createMsg();
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg receivedRefreshMsg;
+
+        int providerStreamId;
+        List<Integer> viewFieldList = new ArrayList<Integer>();
+        
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+                
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        provider.bind(opts);
+        TestReactor.openSession(consumer, provider, opts);
+        
+        /* Request TRI (no view). */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(5);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.applyStreaming();
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI");
+
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Provider receives request. */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        providerStreamId = receivedRequestMsg.streamId();
+
+
+        /* Provider sends refresh */
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applySolicited();
+        refreshMsg.applyRefreshComplete();
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        submitOptions.clear();
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Consumer receives refresh. */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(5, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));   
+
+        
+        /* Reissue TRI with BID/ASK view. */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(5);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.applyStreaming();
+        requestMsg.applyHasView();
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI");
+        viewFieldList.add(22);
+        viewFieldList.add(25);
+        encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        providerReactor.dispatch(1);
+        
+        /* Provider receives reissued request. */
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertEquals(providerStreamId, receivedRequestMsg.streamId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertTrue(receivedRequestMsg.checkHasView()); 
+        assertTrue(checkHasCorrectView(provider, receivedRequestMsg, viewFieldList)); 
+        
+        /* Reissue TRI again, now with ASK/QUOTIM. */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(5);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.applyStreaming();
+        requestMsg.applyHasView();
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI");
+        viewFieldList.add(25);
+        viewFieldList.add(1025);
+        encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+        
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Provider receives nothing (still waiting on refresh for original BID/ASK view). */
+        providerReactor.dispatch(0);
+        
+        /* Provider sends refresh (this would be for the original view). */
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applySolicited();
+        refreshMsg.applyRefreshComplete();
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        submitOptions.clear();
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Consumer receives refresh. */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(5, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));   
+        
+        /* Provider receives updated view request. */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertEquals(providerStreamId, receivedRequestMsg.streamId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertTrue(receivedRequestMsg.checkHasView()); 
+        assertTrue(checkHasCorrectView(provider, receivedRequestMsg, viewFieldList)); 
+
+        /* Provider sends refresh */
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applySolicited();
+        refreshMsg.applyRefreshComplete();
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        submitOptions.clear();
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Consumer receives refresh. */
+        consumerReactor.dispatch(1);
+
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(5, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));        
+
+        TestReactorComponent.closeSession(consumer, provider);
+    }
+    
+    @Test
+    public void changeViewByPartialReissueRequestWhilePendingRefreshTest()
+    {
+        /* Test changing a view on an item by another request of diff user stream while waiting for that item's refresh. */
+    	/* steps:
+    	 * request an item request "TRI" on stream 5 by one user
+    	 * receive refresh on "TRI"
+    	 * reissue item request "TRI" with View (22,25) on stream 5
+    	 * request third item request "TRI" with View (25, 1025) on stream 6 by second user
+    	 * receive refresh from provider
+    	 * will fanout to two users
+    	 */
+        
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        Msg msg = CodecFactory.createMsg();
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg receivedRefreshMsg;
+
+        int providerStreamId;
+        List<Integer> viewFieldList = new ArrayList<Integer>();
+        
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+                
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        provider.bind(opts);
+        TestReactor.openSession(consumer, provider, opts);
+        
+        /* Request TRI (no view). */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(5);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.applyStreaming();
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI");
+
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Provider receives request. */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        providerStreamId = receivedRequestMsg.streamId();
+
+
+        /* Provider sends refresh */
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applySolicited();
+        refreshMsg.applyRefreshComplete();
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        submitOptions.clear();
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Consumer receives refresh. */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(5, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));   
+
+        
+        /* Reissue TRI with BID/ASK view. */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(5);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.applyStreaming();
+        requestMsg.applyHasView();
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI");
+        viewFieldList.add(22);
+        viewFieldList.add(25);
+        encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        providerReactor.dispatch(1);
+        
+        /* Provider receives reissued request. */
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertEquals(providerStreamId, receivedRequestMsg.streamId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertTrue(receivedRequestMsg.checkHasView()); 
+        assertTrue(checkHasCorrectView(provider, requestMsg, viewFieldList)); 
+        
+        /* Request TRI again (not reissue), now with ASK/QUOTIM. */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(6); //from diff user
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.applyStreaming();
+        requestMsg.applyHasView();
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI");
+        viewFieldList.add(25);
+        viewFieldList.add(1025);
+        encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
+        
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Provider receives nothing (still waiting on refresh for original BID/ASK view). */
+        providerReactor.dispatch(0);
+        
+        /* Provider sends refresh (this would be for the original view). */
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applySolicited();
+        refreshMsg.applyRefreshComplete();
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        submitOptions.clear();
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Consumer receives refresh. */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(5, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));   
+        
+        /* Provider receives updated view request. */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertEquals(providerStreamId, receivedRequestMsg.streamId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertTrue(receivedRequestMsg.checkHasView()); 
+        assertTrue(checkHasCorrectView(provider, receivedRequestMsg, viewFieldList)); 
+
+        /* Provider sends refresh */
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applySolicited();
+        refreshMsg.applyRefreshComplete();
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        submitOptions.clear();
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Consumer receives one refresh, will fan out diff user (streamid 5 and 6) . */
+        consumerReactor.dispatch(2);
+
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(5, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));        
+
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(6, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));     
+        
+        TestReactorComponent.closeSession(consumer, provider);
+    }
+    
+    private boolean checkHasCorrectView( Provider provider, RequestMsg requestMsg, List<Integer> viewFieldList)
+    {
+    	ElementList elementList = CodecFactory.createElementList();
+    	ElementEntry elementEntry = CodecFactory.createElementEntry();
+    	DecodeIterator dIter = CodecFactory.createDecodeIterator();
+		Buffer viewDataElement = null;
+		elementEntry.clear();
+		elementList.clear();
+		elementEntry.clear();
+		dIter.clear();
+		int numOfFields = 0;
+		int ret;
+		int majorVersion =  provider.channel().majorVersion();
+		int minorVersion =  provider.channel().minorVersion();
+		
+		dIter.setBufferAndRWFVersion(requestMsg.encodedDataBody(), majorVersion, minorVersion);
+				
+		if (requestMsg.containerType() != DataTypes.ELEMENT_LIST)
+			return false;	
+     
+    	if ( elementList.decode(dIter, null) != CodecReturnCodes.SUCCESS )
+    		return false;
+    	
+    	boolean viewDataFound = false;
+    	boolean hasViewType = false;
+		while ((ret = elementEntry.decode(dIter)) != CodecReturnCodes.END_OF_CONTAINER)
+		{
+			if (ret != CodecReturnCodes.SUCCESS)
+				return false;
+			else
+			{
+				if (elementEntry.name().equals(ElementNames.VIEW_TYPE) &&
+						elementEntry.dataType() == DataTypes.UINT) 
+				{
+					hasViewType = true;
+				}
+				
+				if (elementEntry.name().equals(ElementNames.VIEW_DATA) &&
+					elementEntry.dataType() == DataTypes.ARRAY) 
+				{
+					viewDataElement = elementEntry.encodedData();
+					viewDataFound = true;
+				}
+			}
+		} // while
+					
+	    
+		if (!viewDataFound || !hasViewType)
+		{
+			return false;
+		}
+		else
+		{
+			dIter.clear();
+			dIter.setBufferAndRWFVersion(viewDataElement, majorVersion, minorVersion);
+			
+			Array _viewArray = CodecFactory.createArray();
+			ArrayEntry _viewArrayEntry = CodecFactory.createArrayEntry();
+			_viewArray.clear();
+			UInt _fieldId = CodecFactory.createUInt();
+			
+			if ((ret = _viewArray.decode(dIter)) == CodecReturnCodes.SUCCESS)
+			{
+				if (_viewArray.primitiveType() != DataTypes.INT)
+					return false;		
+
+				while ((ret = _viewArrayEntry.decode(dIter)) != CodecReturnCodes.END_OF_CONTAINER)
+				{								
+					if (ret < CodecReturnCodes.SUCCESS)
+						return false;		
+					else
+					{								
+						if ((ret = _fieldId.decode(dIter)) == CodecReturnCodes.SUCCESS)
+						{
+							if (!viewFieldList.contains(Integer.valueOf((int)_fieldId.toLong())))
+									return false;
+							numOfFields++;
+						}
+						else
+							return false;		
+					}								
+				}// while
+			}
+			else
+				return false;		
+		}
+    	
+		if (numOfFields > viewFieldList.size())
+			return false;
+		
+    	return true;
+    }
+   }

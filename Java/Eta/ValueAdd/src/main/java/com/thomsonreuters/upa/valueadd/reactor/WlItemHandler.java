@@ -150,6 +150,7 @@ class WlItemHandler implements WlHandler
 	boolean _snapshotStreamClosed;
 
     WlStream _currentFanoutStream;
+    boolean _hasPendingViewRequest = false;
 		
     WlItemHandler(Watchlist watchlist)
     {
@@ -994,6 +995,12 @@ class WlItemHandler implements WlHandler
             		            	
             		if (streamRequestMsg.checkNoRefresh())
                     	streamRequestMsg.flags(streamRequestMsg.flags() & ~RequestMsgFlags.NO_REFRESH);
+            		
+            		if (_hasPendingViewRequest)
+            		{
+            			wlRequest.stream().waitingRequestList().add(wlRequest);
+            			_hasPendingViewRequest = false;
+            		}
                 }
                 else
                 {
@@ -1578,13 +1585,13 @@ class WlItemHandler implements WlHandler
     int handlePost(WlRequest wlRequest, Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
-        
+        WlStream wlStream =  wlRequest.stream();
         if (_watchlist.numOutstandingPosts() < _watchlist.watchlistOptions().maxOutstandingPosts())
         {
             boolean resetServiceId = false;
             
             // validate post submit
-            if ((ret = wlRequest.stream().validatePostSubmit((PostMsg)msg, errorInfo)) != ReactorReturnCodes.SUCCESS)
+            if ((ret = wlStream.validatePostSubmit((PostMsg)msg, errorInfo)) != ReactorReturnCodes.SUCCESS)
             {
                 return ret;
             }
@@ -1612,20 +1619,29 @@ class WlItemHandler implements WlHandler
 
             // send message
             // no need to replace stream id for post message here - that's done inside sendMsg()
-            ret = wlRequest.stream().sendMsg(msg, submitOptions, errorInfo);
-
-            // reset service id if necessary
+            int userStreamId = msg.streamId();
+            msg.streamId(wlStream._streamId);
+            ret = wlStream.sendMsg(msg, submitOptions, errorInfo);
+            msg.streamId(userStreamId);
+			 // reset service id if necessary
             if (resetServiceId)
             {
                 ((PostMsg)msg).msgKey().flags(((PostMsg)msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
                 ((PostMsg)msg).msgKey().serviceId(0);
-            }              
-            
-            // return if send message not successful
+            }  
             if (ret < ReactorReturnCodes.SUCCESS)
-            {
                 return ret;
-            }            
+            else
+            {
+            	  if (((PostMsg)msg).checkAck())
+                  {
+                      // increment number of outstanding post messages
+                      _watchlist.numOutstandingPosts(_watchlist.numOutstandingPosts() + 1);
+                      
+                      // update post tables
+                      ret = wlStream.updatePostTables((PostMsg)msg, errorInfo);
+                  }
+            }
         }
         else
         {
@@ -2068,7 +2084,10 @@ class WlItemHandler implements WlHandler
                     _submitOptions.serviceName(waitingRequest.streamInfo().serviceName());
                     _submitOptions.requestMsgOptions().userSpecObj(waitingRequest.streamInfo().userSpecObject());
 
-                    ret = handleRequest(waitingRequest, waitingRequest.requestMsg(), _submitOptions, true, errorInfo);                    
+                    if (waitingRequest._reissue_hasViewChange)
+                    	ret = handleReissue(waitingRequest, waitingRequest.requestMsg(), _submitOptions, errorInfo); 
+                    else
+                    	ret = handleRequest(waitingRequest, waitingRequest.requestMsg(), _submitOptions, true, errorInfo);                    
            			if (ret < ReactorReturnCodes.SUCCESS) return ret;
                 }
             }
@@ -2210,14 +2229,6 @@ class WlItemHandler implements WlHandler
         int ret = ReactorReturnCodes.SUCCESS;
         
         // dispatch streams
-        for (int i = 0; i < _streamList.size(); i++)
-        {
-            WlStream wlStream = _streamList.get(i);
-            if ((ret = wlStream.dispatch(errorInfo)) < ReactorReturnCodes.SUCCESS)
-            {
-                return ret;
-            }
-        }
         
         // send any queued status messages to the user
         StatusMsg statusMsg = null;
@@ -2259,12 +2270,20 @@ class WlItemHandler implements WlHandler
         }
         
         // call sendMsg on all streams in pending stream send list
+        
         WlStream wlStream = null;
+        int loopCount = _pendingSendMsgList.size();
         while((wlStream = _pendingSendMsgList.poll()) != null)
         {
             if ((ret = wlStream.sendMsg(wlStream.requestMsg(), _submitOptions, _errorInfo)) < ReactorReturnCodes.SUCCESS)
-            {
                 return ret;
+            else
+            {
+            	//It occurs only in NO_BUFFERS case, need to break the loop.  
+            	if (loopCount == _pendingSendMsgList.size())
+            		return ret;
+
+            	loopCount--;
             }
         }
         
@@ -2448,11 +2467,20 @@ class WlItemHandler implements WlHandler
         
         // call sendMsg on all streams in pending stream send list
         WlStream wlStream = null;
+        int loopCount = _pendingSendMsgList.size();
         while((wlStream = _pendingSendMsgList.poll()) != null)
         {
             if ((ret = wlStream.sendMsg(wlStream.requestMsg(), _submitOptions, _errorInfo)) < ReactorReturnCodes.SUCCESS)
             {
                 return ret;
+            }
+            else
+            {
+            	//It occurs only in NO_BUFFERS case, need to break the loop.  
+            	if (loopCount == _pendingSendMsgList.size())
+            		return ret;
+
+            	loopCount--;
             }
         }
         
@@ -2782,6 +2810,22 @@ class WlItemHandler implements WlHandler
         }       
 
         return ret;
+    }
+    
+    @Override
+    public void addPendingRequest(WlStream wlStream)
+    {
+    	//if retVal is no buffer when calling stream.sentMsg(), will add the unsent request into _pendingSendMsgList
+    	if (wlStream != null)
+    	{
+    		if (!_pendingSendMsgList.contains(wlStream))
+    			_pendingSendMsgList.addFirst(wlStream);
+    	}
+    	//if the msg passed to stream.sentMsg() call is a request msg which has _pendingViewChange as true and 
+    	//has _pendingViewRefresh as true, eta should not send this request out, 
+    	//eta will put it into the waitingRequestList for sending it out after receiving refresh.
+    	else
+    		_hasPendingViewRequest = true;
     }
     
     void handleCloseRecover(Msg msg)
@@ -3253,6 +3297,7 @@ class WlItemHandler implements WlHandler
         _pendingSendMsgList.clear();
         _userStreamIdListToRecover.clear();
         _currentFanoutStream = null;
+        _hasPendingViewRequest = false;
     }
     
 	private int extractSymbolListFromMsg(WlRequest wlRequest, RequestMsg requestMsg, ReactorErrorInfo errorInfo)

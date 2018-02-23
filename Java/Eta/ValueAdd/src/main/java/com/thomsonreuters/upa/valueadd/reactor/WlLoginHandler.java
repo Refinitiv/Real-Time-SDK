@@ -48,6 +48,7 @@ class WlLoginHandler implements WlHandler
 	boolean _awaitingResumeAll;
 	boolean _userloginStreamOpen;
 	int _requestCount; // tracks pending requests so re-issues aren't sent until refresh is received
+    boolean _hasPendingRequest;
 
 	WlInteger _tempWlInteger = ReactorFactory.createWlInteger();
 
@@ -69,6 +70,8 @@ class WlLoginHandler implements WlHandler
 
 		// get next id for login stream from watchlist
 		_loginStreamId = _watchlist.nextStreamId();
+		
+		_hasPendingRequest = false;
 	}
 
 	@Override
@@ -266,10 +269,12 @@ class WlLoginHandler implements WlHandler
 	                    resetServiceId = true;
 					}
 
-					// send message
-	                ret = _stream.sendMsg(msg, submitOptions, errorInfo);
-	                
-	                // reset service id if necessary
+					int userStreamId = msg.streamId();
+		            msg.streamId(_stream._streamId);
+		            ret = _stream.sendMsg(msg, submitOptions, errorInfo);
+		            msg.streamId(userStreamId);
+
+ 					// reset service id if necessary
 	                if (resetServiceId)
 	                {
 	                    ((PostMsg) msg).msgKey().flags(((PostMsg) msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
@@ -277,10 +282,19 @@ class WlLoginHandler implements WlHandler
 	                }              
 	                
 	                // return if send message not successful
-	                if (ret < ReactorReturnCodes.SUCCESS)
-	                {
-	                    return ret;
-	                }
+		            if (ret < ReactorReturnCodes.SUCCESS)
+		                return ret;
+		            else
+		            {
+		            	  if (((PostMsg)msg).checkAck())
+		                  {
+		                      // increment number of outstanding post messages
+		                      _watchlist.numOutstandingPosts(_watchlist.numOutstandingPosts() + 1);
+		                      
+		                      // update post tables
+		                      ret = _stream.updatePostTables((PostMsg)msg, errorInfo);
+		                  }
+		            }
 				} 
 				else
 				{
@@ -945,15 +959,24 @@ class WlLoginHandler implements WlHandler
 		return ret;
 	}
 
+	@Override
+    public void addPendingRequest(WlStream wlStream)
+    {
+		_hasPendingRequest = true;
+    }
+	
 	/* Dispatch all streams for the handler. */
 	int dispatch(ReactorErrorInfo errorInfo) 
-	{
-		if (_stream != null) 
-		{
-			return _stream.dispatch(errorInfo);
-		}
-
-		return ReactorReturnCodes.SUCCESS;
+	{     
+		 if (_stream != null && _hasPendingRequest) 
+		 {
+	        _hasPendingRequest = false;
+	    	_tempMsg.clear();
+	    	_watchlist.convertRDMToCodecMsg(_loginRequest, _tempMsg);
+			return _stream.sendMsg(_stream._requestMsg, _submitOptions, errorInfo);
+		 }
+		 
+	     return ReactorReturnCodes.SUCCESS;
 	}
 
 	/* Returns whether or not watchlist login stream supports single open. */
@@ -1080,6 +1103,8 @@ class WlLoginHandler implements WlHandler
 		if (_stream != null) {
 			_stream.channelDown();
 
+			_hasPendingRequest = false;
+			
 			// set state to closed recover if current state isn't closed
 			if (_stream.state().streamState() == StreamStates.OPEN) {
 				_stream.state().clear();
@@ -1264,5 +1289,6 @@ class WlLoginHandler implements WlHandler
 		_errorInfo.clear();
 		_awaitingResumeAll = false;
 		_requestCount = 0;
+		_hasPendingRequest = false;
 	}
 }
