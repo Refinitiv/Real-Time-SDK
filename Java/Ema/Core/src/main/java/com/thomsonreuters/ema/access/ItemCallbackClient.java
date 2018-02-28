@@ -276,7 +276,7 @@ class TunnelItem<T> extends Item<T> {
 
 			if (!foundReturnedStreamId)
 			{
-				if ((streamId < _subItems.size()) && (_subItems.get(streamId).streamId() > 0))
+				if ((streamId < _subItems.size()) && (_subItems.get(streamId) != null))
 				{
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Invalid attempt to open a substream: substream streamId (").append(streamId)
