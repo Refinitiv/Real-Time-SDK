@@ -286,10 +286,8 @@ class AckMsgImpl extends MsgImpl implements AckMsg
 		_toString.setLength(0);
 		Utilities.addIndent(_toString, indent++).append("AckMsg");
 		Utilities.addIndent(_toString, indent, true).append("streamId=\"").append(streamId()).append("\"");
-		Utilities.addIndent(_toString, indent, true).append("domain=\"")
-				.append(Utilities.rdmDomainAsString(domainType())).append("\"");
-		Utilities.addIndent(_toString, indent, true).append("ackId=\"")
-				.append(Utilities.rdmDomainAsString(domainType())).append("\"");
+		Utilities.addIndent(_toString, indent, true).append("domain=\"").append(Utilities.rdmDomainAsString(domainType())).append("\"");
+		Utilities.addIndent(_toString, indent, true).append("ackId=\"").append(ackId()).append("\"");
 
 		if (hasSeqNum())
 			Utilities.addIndent(_toString, indent, true).append("seqNum=\"").append(seqNum()).append("\"");
