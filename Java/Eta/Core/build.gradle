@@ -143,7 +143,6 @@ artifacts {
 test {
 	// set to true to see the junit stdoutput
         testLogging.showStandardStreams = false
-//	maxParallelForks = Runtime.runtime.availableProcessors()
-	maxParallelForks = 10
+	maxParallelForks = Runtime.runtime.availableProcessors()
 }
 

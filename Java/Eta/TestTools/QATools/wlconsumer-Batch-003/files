@@ -1,5 +1,5 @@
 # file,location
 ,Applications/Examples
 ,Applications/Shared
-WatchlistConsumerConfig.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
-WatchlistConsumer.java,Applications/Examples/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
+WatchlistConsumerConfig.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
+WatchlistConsumer.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer

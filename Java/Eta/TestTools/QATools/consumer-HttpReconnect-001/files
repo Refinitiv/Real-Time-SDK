@@ -1,4 +1,4 @@
 # file,location
 ,Applications/Examples
 ,Applications/Shared
-Consumer.java,Applications/Examples/com/thomsonreuters/upa/examples/consumer
+Consumer.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/examples/consumer

@@ -48,7 +48,7 @@ public class SocketChannelJunit
     /*
      * The default port NetworkReplay will listen on
      */
-    private static final int DEFAULT_LISTEN_PORT = 4321;
+    private static final int DEFAULT_LISTEN_PORT = 4323;
     final static String DEFAULT_LISTEN_PORT_AS_STRING = Integer.toString(DEFAULT_LISTEN_PORT);    
     
     /*
@@ -7603,7 +7603,7 @@ public class SocketChannelJunit
 
         opts.userSpecObject("TEST CHANNEL");
         opts.unifiedNetworkInfo().address("localhost");
-        opts.unifiedNetworkInfo().serviceName("4321");
+        opts.unifiedNetworkInfo().serviceName("4323");
         opts.majorVersion(Codec.majorVersion());
         opts.minorVersion(Codec.minorVersion());
         opts.protocolType(Codec.protocolType());
@@ -7697,7 +7697,7 @@ public class SocketChannelJunit
         ConnectOptions connectOpts = TransportFactory.createConnectOptions();
         connectOpts.userSpecObject("TEST CHANNEL");
         connectOpts.unifiedNetworkInfo().address("localhost");
-        connectOpts.unifiedNetworkInfo().serviceName("4321");
+        connectOpts.unifiedNetworkInfo().serviceName("4323");
         connectOpts.majorVersion(Codec.majorVersion());
         connectOpts.minorVersion(Codec.minorVersion());
         connectOpts.protocolType(Codec.protocolType());

@@ -39,7 +39,6 @@ import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.RequestMsgFlags;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UpdateMsg;
-import com.thomsonreuters.upa.shared.rdm.marketprice.MarketPriceRequest;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.Directory;
 import com.thomsonreuters.upa.rdm.DomainTypes;
@@ -49,6 +48,7 @@ import com.thomsonreuters.upa.test.network.replay.NetworkReplay;
 import com.thomsonreuters.upa.transport.TestServer;
 import com.thomsonreuters.upa.transport.Transport;
 import com.thomsonreuters.upa.transport.TransportBuffer;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBaseImpl;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
@@ -64,9 +64,44 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 
 public class ReactorWatchlistJunit
 {
+
+	/** this is just a dummy class only for testing */
+	public class MarketPriceRequestDummmy extends MsgBaseImpl
+	{
+	    /**
+	     * Instantiates a new market price request.
+	     */
+	    public MarketPriceRequestDummmy()
+	    {
+	        this(DomainTypes.MARKET_PRICE);
+	    }
+
+		public MarketPriceRequestDummmy(int marketPrice) {
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public int domainType() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public int encode(EncodeIterator eIter) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public int decode(DecodeIterator dIter, Msg msg) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+	}	
+	
     static final int HEX_LINE_SIZE = 16;
 
-    static int _serverPort = 15127;
+    static int _serverPort = 17300;
 
     final static int CONNECT_TIMEOUT_SECONDS = 10; // 10 seconds
     final static int SELECT_TIME = 100; // 100 millisecond
@@ -455,7 +490,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(msgBuf, submitOptions, errorInfo));
             
             // attempt to submit market price RDM message, it should fail with INVALID_USAGE
-            MarketPriceRequest marketPriceRequest = new MarketPriceRequest();
+            MarketPriceRequestDummmy marketPriceRequest = new MarketPriceRequestDummmy();
             assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(marketPriceRequest, submitOptions, errorInfo));
             
             // fake that channel is down and make sure submit still works

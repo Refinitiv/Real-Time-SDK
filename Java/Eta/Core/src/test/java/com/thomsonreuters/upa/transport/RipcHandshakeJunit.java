@@ -31,7 +31,7 @@ public class RipcHandshakeJunit
     final static int TIMEOUTMS = 10000; // 10 seconds.
     final static int MAX_EXPECTED_COMPONENT_VERSION_SIZE = 253;
     final static String BASE_TEST_DATA_DIR_NAME = "src/test/resources/com/thomsonreuters/upa/transport/RipcHandshakeJunit";
-    final static int DEFAULT_LISTEN_PORT = 4321;
+    final static int DEFAULT_LISTEN_PORT = 4322;
     final static String DEFAULT_LISTEN_PORT_AS_STRING = Integer.toString(DEFAULT_LISTEN_PORT);
     final static int KEY_EXCHANGE = 8;
 

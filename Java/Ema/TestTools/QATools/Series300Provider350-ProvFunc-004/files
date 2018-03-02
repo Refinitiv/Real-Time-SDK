@@ -1,2 +1,2 @@
 #file,location
-IProvider.java,Src/examples/java/com/thomsonreuters/ema/examples/training/iprovider/series300/example350__Dictionary__Streaming
+IProvider.java,Examples/src/main/java/com/thomsonreuters/ema/examples/training/iprovider/series300/example350__Dictionary__Streaming

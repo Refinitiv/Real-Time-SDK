@@ -39,7 +39,7 @@ import com.thomsonreuters.upa.transport.UnifiedNetworkInfoImpl;
 public class TransportJunit
 {
 
-    private static final int DEFAULT_LISTEN_PORT = 4321;
+    private static final int DEFAULT_LISTEN_PORT = 4324;
     private static final String BASE_TEST_DATA_DIR_NAME = "src/test/resources/com/thomsonreuters/upa/transport/RsslSocketChannelJunit";
 
     public RsslSocketChannel getNetworkReplayChannel(Protocol transport, int numBuffers)
@@ -52,7 +52,7 @@ public class TransportJunit
 
         opts.userSpecObject("TEST CHANNEL");
         opts.unifiedNetworkInfo().address("localhost");
-        opts.unifiedNetworkInfo().serviceName("4321");
+        opts.unifiedNetworkInfo().serviceName("4324");
         opts.majorVersion(Codec.majorVersion());
         opts.minorVersion(Codec.minorVersion());
         opts.protocolType(Codec.protocolType());
@@ -483,7 +483,7 @@ public class TransportJunit
         ConnectOptions connectOpts = TransportFactory.createConnectOptions();
         connectOpts.userSpecObject("TEST CHANNEL");
         connectOpts.unifiedNetworkInfo().address("localhost");
-        connectOpts.unifiedNetworkInfo().serviceName("4321");
+        connectOpts.unifiedNetworkInfo().serviceName("4324");
         connectOpts.majorVersion(Codec.majorVersion());
         connectOpts.minorVersion(Codec.minorVersion());
         connectOpts.protocolType(Codec.protocolType());

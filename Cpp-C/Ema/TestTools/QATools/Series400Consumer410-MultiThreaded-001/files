@@ -7,3 +7,4 @@ ConsumerMutex.cpp,Examples/Training/Consumer/400_Series/410__MarketPrice__Horizo
 ConsumerMutex.h,Examples/Training/Consumer/400_Series/410__MarketPrice__HorizontalScaling
 ConsumerThread.cpp,Examples/Training/Consumer/400_Series/410__MarketPrice__HorizontalScaling
 ConsumerThread.h,Examples/Training/Consumer/400_Series/410__MarketPrice__HorizontalScaling
+CMakeLists.txt,Examples/Training/Consumer/400_Series/410__MarketPrice__HorizontalScaling

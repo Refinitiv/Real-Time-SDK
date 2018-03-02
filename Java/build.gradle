@@ -105,6 +105,13 @@ allprojects {
         	        args Eval.me( buildArgsList( commandLineArgs ) )
        		}
 	}
+
+	// set the jvmArgs for junit
+	tasks.withType ( Test ) {
+	        if ( project.hasProperty("vmArgs") ) {
+        	        jvmArgs Eval.me( buildArgsList( vmArgs ) )
+        	}
+	}
 }
 
 task wrapper( type: Wrapper ) {

@@ -70,7 +70,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 
 public class ReactorJunit
 {
-    static int _serverPort = 15123;
+    static int _serverPort = 15400;
 
     final static int CONNECT_TIMEOUT_SECONDS = 10; // 10 seconds
     final static int SELECT_TIME = 100; // 100 millisecond
@@ -5117,7 +5117,7 @@ public class ReactorJunit
         sessionOpts.reconnectMinDelay(reconnectMinDelay);
         sessionOpts.reconnectMaxDelay(reconnectMaxDelay);
 
-        consumer.testReactor().connect(sessionOpts, consumer, TestReactorComponent.nextServerPort());
+        consumer.testReactor().connect(sessionOpts, consumer, TestReactorComponent.nextReservedServerPort());
         for (int i = 0; i < 3; ++i)
         {
 
@@ -5155,7 +5155,7 @@ public class ReactorJunit
             assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too long.", deviationTimeMs <= 2000);
         }
 
-        provider.bind(sessionOpts);
+        provider.bindForReconnectTest(sessionOpts);
         provider.testReactor().accept(sessionOpts, provider);
 
         /* Provider receives channel-up/channel-ready */
@@ -5272,7 +5272,7 @@ public class ReactorJunit
         sessionOpts.reconnectMinDelay(reconnectMinDelay);
         sessionOpts.reconnectMaxDelay(reconnectMaxDelay);
 
-        consumer.testReactor().connect(sessionOpts, consumer, TestReactorComponent.nextServerPort());
+        consumer.testReactor().connect(sessionOpts, consumer, TestReactorComponent.nextReservedServerPort());
         for (int i = 0; i < reconnectAttemptLimit + 1; ++i)
         {
             /*

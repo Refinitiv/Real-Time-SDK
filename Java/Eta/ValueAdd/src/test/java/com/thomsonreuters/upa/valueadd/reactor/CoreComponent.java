@@ -143,12 +143,15 @@ public class CoreComponent
             bindOpts.clear();
             bindOpts.majorVersion(Codec.majorVersion());
             bindOpts.minorVersion(Codec.minorVersion());
-            bindOpts.serviceName(String.valueOf(_portToBind++));
             bindOpts.pingTimeout(opts.pingTimeout());
             bindOpts.minPingTimeout(opts.pingTimeout());
-            _server = Transport.bind(bindOpts, _error);
-            assertNotNull("bind failed: " + _error.errorId() + "(" + _error.text() + ")", 
-                    _server);
+            /* allow multiple tests to run at the same time, if the port is in use it might mean that
+            another parallel test is using this port, so just try to get another port */
+            while (_server == null)
+            {
+                bindOpts.serviceName(String.valueOf(_portToBind++));
+                _server = Transport.bind(bindOpts, _error);
+            }
         }
 
     }

@@ -1,0 +1,16 @@
+cmake_minimum_required (VERSION 3.8)
+
+add_executable( Cons410_static Consumer.cpp ConsumerManager.cpp ConsumerMutex.cpp ConsumerResultValidation.cpp ConsumerThread.cpp )
+add_executable( Cons410_shared Consumer.cpp ConsumerManager.cpp ConsumerMutex.cpp ConsumerResultValidation.cpp ConsumerThread.cpp )
+
+if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
+  target_link_libraries( Cons410_static ${EXAMPLE_LIBRARIES_STATIC} )
+  target_link_libraries( Cons410_shared ${EXAMPLE_LIBRARIES_SHARED} )
+else()
+    target_link_libraries( Cons410_static ${EXAMPLE_LIBRARIES_STATIC} ${SYSTEM_LIBRARIES} )
+	set_target_properties( Cons410_static PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EMA_EXAMPLES_OUTPUT_DIR} )
+	set_target_properties( Cons410_static PROPERTIES OUTPUT_NAME Cons410 )
+    target_link_libraries( Cons410_shared ${EXAMPLE_LIBRARIES_SHARED} ${SYSTEM_LIBRARIES} )
+	set_target_properties( Cons410_shared PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EMA_EXAMPLES_OUTPUT_DIR}/Shared )
+	set_target_properties( Cons410_shared PROPERTIES OUTPUT_NAME Cons410 )
+endif()

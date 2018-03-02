@@ -2,4 +2,4 @@
 ,Src/main/java/interface/com/thomsonreuters/ema/access
 ,Src/main/java/impl/com/thomsonreuters/ema/access
 EmaConfig.xml,Src/examples
-NiProvider.java,Src/examples/java/com/thomsonreuters/ema/examples/training/niprovider/series400/example430__MarketPrice__TrepAuthentication
+NiProvider.java,Examples/src/main/java/com/thomsonreuters/ema/examples/training/niprovider/series400/example430__MarketPrice__TrepAuthentication

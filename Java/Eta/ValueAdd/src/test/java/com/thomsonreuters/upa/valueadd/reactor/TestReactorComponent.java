@@ -48,12 +48,13 @@ public abstract class TestReactorComponent {
     boolean _defaultSessionDirectoryStreamIdIsSet;
     
     static int _portToBind = 16123; /** A port to use when binding servers. Incremented with each bind. */
+    static int _portToBindForReconnectTest = 16000; /** A port to use when binding servers. Incremented with each bind. */
     
     /** Returns the port the next bind call will use. Useful for testing reconnection
      * to servers that won't be bound until later in a test. */
-    static int nextServerPort()
+    static int nextReservedServerPort()
     {
-        return _portToBind;
+        return _portToBindForReconnectTest;
     }
 
     /** Returns the port of the component's server. */
@@ -146,6 +147,25 @@ public abstract class TestReactorComponent {
 		return _server;
 	}
 	
+	public void bindForReconnectTest(ConsumerProviderSessionOptions opts)
+	{
+        if (opts.connectionType() != ConnectionTypes.RELIABLE_MCAST)
+        {
+            BindOptions bindOpts = TransportFactory.createBindOptions();
+            bindOpts.clear();
+            bindOpts.majorVersion(Codec.majorVersion());
+            bindOpts.minorVersion(Codec.minorVersion());
+            bindOpts.serviceName(String.valueOf(_portToBindForReconnectTest++));
+            bindOpts.pingTimeout(opts.pingTimeout());
+            bindOpts.minPingTimeout(opts.pingTimeout());
+            _server = Transport.bind(bindOpts, _errorInfo.error());
+            assertNotNull("bind failed: " + _errorInfo.error().errorId() + "(" + _errorInfo.error().text() + ")",
+                _server);
+        }
+
+        _testReactor.registerComponentServer(this);
+	}
+
 	public void bind(ConsumerProviderSessionOptions opts)
 	{
         if (opts.connectionType() != ConnectionTypes.RELIABLE_MCAST)
@@ -154,17 +174,19 @@ public abstract class TestReactorComponent {
             bindOpts.clear();
             bindOpts.majorVersion(Codec.majorVersion());
             bindOpts.minorVersion(Codec.minorVersion());
-            bindOpts.serviceName(String.valueOf(_portToBind++));
             bindOpts.pingTimeout(opts.pingTimeout());
             bindOpts.minPingTimeout(opts.pingTimeout());
-            _server = Transport.bind(bindOpts, _errorInfo.error());
-            assertNotNull("bind failed: " + _errorInfo.error().errorId() + "(" + _errorInfo.error().text() + ")", 
-            		_server);
+            /* allow multiple tests to run at the same time, if the port is in use it might mean that
+               another parallel test is using this port, so just try to get another port */
+            while (_server == null)
+            {
+                bindOpts.serviceName(String.valueOf(_portToBind++));
+                _server = Transport.bind(bindOpts, _errorInfo.error());
+            }
         }
         
         _testReactor.registerComponentServer(this);
-	}
-	
+	}	
 	
     /** Sends a Msg to the component's channel. */
     int submit(Msg msg, ReactorSubmitOptions submitOptions)

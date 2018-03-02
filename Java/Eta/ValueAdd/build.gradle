@@ -61,8 +61,12 @@ dependencies {
 
 	testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
 
-	compile project(':Eta:Applications:Shared')
 	compile project(':Eta:Core')
+
+	testCompile project(':Eta:Core').sourceSets.test.output
+
+	// for unit test use the classes instead of the jar file, since the jar is sealed
+	testRuntime project(':Eta:Core').sourceSets.main.output
 }
 
 // ext is used to store project level properties
@@ -103,6 +107,7 @@ artifacts {
 test {
         // set to true to see the junit stdoutput
         testLogging.showStandardStreams = false
-        maxParallelForks = 10
+//        maxParallelForks = Runtime.runtime.availableProcessors()
+        maxParallelForks = 1
 }
 
