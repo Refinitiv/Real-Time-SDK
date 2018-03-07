@@ -635,6 +635,20 @@ class TunnelItem<T> extends Item<T> {
 		int retCode = 0;
 		_baseImpl.rsslErrorInfo().clear();
 
+		if (_rsslTunnelStream == null)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal Error. Tunnel stream is not open yet");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+		}
+		
 		TransportBuffer tunnelStreamBuf = _rsslTunnelStream.getBuffer(bufSize, _baseImpl.rsslErrorInfo());
 
 		if (tunnelStreamBuf == null)
