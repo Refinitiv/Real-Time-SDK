@@ -385,6 +385,9 @@ Series400Consumer440-TS-001
 	-m 6 Sets CosDataIntegrity::ReliableEnum, CosGuarantee::PersistentQueueEnum, 
 	     CosFlowControl::BidirectionalEnum 
 
+Series400Consumer440-TS-002
+    Alters consumer added code to set sub-stream with non-zero stream id	
+
 Series400Consumer440-TsFrag-001
 	Alters consumer to accept -bufSize and -fillSize as inputs.
 	The bufSize is the size of buffer requested by getBuffer().  
