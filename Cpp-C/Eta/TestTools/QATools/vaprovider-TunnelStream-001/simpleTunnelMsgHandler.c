@@ -111,6 +111,7 @@ void encodeRefreshMsg( RsslUInt8 domainType, RsslInt32 streamId, RsslBuffer* pRs
 
 		fEntry.dataType = RSSL_DT_DATE;
 		fEntry.fieldId = 16;
+		rsslClearDate(&date);
 		date.day = 7;
 		date.month = 11;
 		date.year = 1999;
@@ -118,6 +119,7 @@ void encodeRefreshMsg( RsslUInt8 domainType, RsslInt32 streamId, RsslBuffer* pRs
 
 		fEntry.dataType = RSSL_DT_TIME;
 		fEntry.fieldId = 18;
+		rsslClearTime(&time);
 		time.hour = 02;
 		time.minute = 03;
 		time.second = 04;
@@ -232,6 +234,7 @@ void encodeUpdateMsg( RsslUInt8 domainType, RsslInt32 streamId, RsslBuffer* pRss
 
 		fEntry.dataType = RSSL_DT_DATE;
 		fEntry.fieldId = 16;
+		rsslClearDate(&date);
 		date.day = 7;
 		date.month = 11;
 		date.year = 1999;
@@ -239,6 +242,7 @@ void encodeUpdateMsg( RsslUInt8 domainType, RsslInt32 streamId, RsslBuffer* pRss
 
 		fEntry.dataType = RSSL_DT_TIME;
 		fEntry.fieldId = 18;
+		rsslClearTime(&time);
 		time.hour = 02;
 		time.minute = 03;
 		time.second = 04;
