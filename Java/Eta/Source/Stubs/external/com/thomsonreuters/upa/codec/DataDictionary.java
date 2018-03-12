@@ -146,6 +146,28 @@ public interface DataDictionary
     public int encodeEnumTypeDictionary(EncodeIterator iter, int verbosity, Error error);
 
     /**
+     * Encode the enumerated types dictionary according the domain model, using
+     * the information from the tables and referencing fields present in this
+     * dictionary. This method supports building the encoded
+     * data in multiple parts -- if there is not enough available buffer space
+     * to encode the entire dictionary, subsequent calls can be made to this
+     * method, each producing the next segment of fields.
+     * Note: This method will use the type ASCII_STRING for the DISPLAY array.
+     * 
+     * @param iter Iterator to be used for encoding.
+     * @param currentEnumTableEntry Tracks which fields have been encoded. Must be initialized to 0
+     *            on the first call and is updated with each successfully encoded part. 
+     * @param verbosity The desired verbosity to encode.
+     * @param error UPA Error, to be populated in event of an error.
+     * 
+     * @return {@link CodecReturnCodes}
+     * 
+     * @see EncodeIterator
+     * @see com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues
+     */
+    public int encodeEnumTypeDictionaryAsMultiPart(EncodeIterator iter, Int currentEnumTableEntry, int verbosity, Error error);
+        
+    /**
      * Decode the enumerated types information contained in an encoded enum
      * types dictionary according to the domain model.
      * 
