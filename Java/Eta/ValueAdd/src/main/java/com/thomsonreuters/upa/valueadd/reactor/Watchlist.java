@@ -15,6 +15,7 @@ import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
 import com.thomsonreuters.upa.codec.RequestMsg;
+import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
@@ -149,20 +150,17 @@ class Watchlist extends VaNode
             // if successful, put in table and save necessary information
             if (ret >= ReactorReturnCodes.SUCCESS)
             {
-                if (wlRequest.state() != State.RETURN_TO_POOL)
+                // save submitted request
+                wlRequest.requestMsg().clear();
+                msg.copy(wlRequest.requestMsg(), CopyMsgFlags.ALL_FLAGS);
+
+                // add to watchlist request table if new request
+                if (!isReissue)
                 {
-                    // save submitted request
-                    wlRequest.requestMsg().clear();
-                    msg.copy(wlRequest.requestMsg(), CopyMsgFlags.ALL_FLAGS);
-                    
-                    // add to watchlist request table if new request
-                    if (!isReissue)
-                    {
-                        WlInteger wlInteger = ReactorFactory.createWlInteger();
-                        wlInteger.value(msg.streamId());
-                        wlRequest.tableKey(wlInteger);
-                        _streamIdtoWlRequestTable.put(wlInteger, wlRequest);
-                    }
+                    WlInteger wlInteger = ReactorFactory.createWlInteger();
+                    wlInteger.value(msg.streamId());
+                    wlRequest.tableKey(wlInteger);
+                    _streamIdtoWlRequestTable.put(wlInteger, wlRequest);
                 }
             }
             else // submit failed
@@ -170,7 +168,7 @@ class Watchlist extends VaNode
                 // return WlRequest to pool if new request
                 if (!isReissue)
                 {
-                    closeWlRequest(wlRequest);
+                    wlRequest.returnToPool();
                 }
             }
             
@@ -429,8 +427,7 @@ class Watchlist extends VaNode
     void channelDown()
     {
         _loginHandler.channelDown();        
-        _directoryHandler.channelDown();
-        _itemHandler.channelDown();
+        _directoryHandler.deleteAllServices(true); // Delete all services (this will also trigger item status fanout)
     }
 
     /* Handles channel up event. */
@@ -525,18 +522,31 @@ class Watchlist extends VaNode
         
         return ret;
     }
+
+    /* Indicates whether a request should be recovered, based on the request's properties and
+     * the received StreamState. */
+    boolean isRequestRecoverable(WlRequest wlRequest, int streamState)
+    {
+        return
+            (
+             // A request is recoverable if:
+             // - Request is not for a private stream
+             !wlRequest.requestMsg().checkPrivateStream()
+
+             // - And not a dictionary request, or is a dictionary request but didn't get full dictionary yet,
+             && (wlRequest.requestMsg().domainType() != DomainTypes.DICTIONARY || wlRequest.state() != WlRequest.State.OPEN)
+
+             // - and the StreamState is CLOSED_RECOVER and SingleOpen is enabled
+             && loginHandler().supportSingleOpen() && streamState == StreamStates.CLOSED_RECOVER
+            );
+    }
     
     void closeWlRequest(WlRequest wlRequest)
     {
+    	assert(wlRequest.state() != State.RETURN_TO_POOL);
         _tempWlInteger.value(wlRequest.requestMsg().streamId());
-        _streamIdtoWlRequestTable.remove(_tempWlInteger);
-        if (wlRequest.tableKey() != null)
-        {
-            wlRequest.tableKey().returnToPool();
-        }                
-        wlRequest.state(State.RETURN_TO_POOL);
-        wlRequest.returnToPool();
-        _itemHandler.putWlRequestViewListBackToPool(wlRequest);
+        WlRequest removedRequest = _streamIdtoWlRequestTable.remove(_tempWlInteger);
+        assert (removedRequest == wlRequest); // There should a (non-null) WlRequest in the table, and it should be this same request.
     }
     
     /* Close the watchlist. */

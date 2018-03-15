@@ -22,6 +22,7 @@ import com.thomsonreuters.upa.codec.CloseMsg;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
+import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
@@ -37,6 +38,7 @@ import com.thomsonreuters.upa.codec.QosTimeliness;
 import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.RequestMsgFlags;
+import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UpdateMsg;
 import com.thomsonreuters.upa.rdm.Dictionary;
@@ -6444,9 +6446,25 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.directoryMsgEventCount());
-            assertEquals(6, callbackHandler.defaultMsgEventCount());   // one more loginStatus, one more itemStatus callback 
+            assertEquals(7, callbackHandler.defaultMsgEventCount());   // one more loginStatus, directory update, and itemStatus callback 
+            
+            // Directory update deleting service.
             RDMDirectoryMsgEvent directoryMsgEvent1 = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent1);                       
+            assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent1.rdmDirectoryMsg().rdmMsgType());
+            assertEquals(1, ((DirectoryUpdate)directoryMsgEvent1.rdmDirectoryMsg()).serviceList().size());
+            assertEquals(MapEntryActions.DELETE, ((DirectoryUpdate)directoryMsgEvent1.rdmDirectoryMsg()).serviceList().get(0).action());
+            
+            // Item status.
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
+            assertNotNull(msgEvent);
+            assertEquals(DomainTypes.MARKET_PRICE, msgEvent.msg().domainType());
+            assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+            StatusMsg statusMsg = (StatusMsg)msgEvent.msg();
+            assertTrue(statusMsg.checkHasState());
+            assertEquals(StreamStates.OPEN, statusMsg.state().streamState());
+            assertEquals(DataStates.SUSPECT, statusMsg.state().dataState());
+            
         }
         catch (Exception e)
         {

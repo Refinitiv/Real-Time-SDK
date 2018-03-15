@@ -6,7 +6,5 @@ WatchlistConsumerConfig.java,Applications/Examples/src/main/java/com/thomsonreut
 WatchlistConsumer.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
 ConsumerCallbackThread.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
 ConsumerRequestThread.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
-build.xml,Applications/Examples/src/main/java/
-20k.xml,Applications/Examples/src/main/java/
-xpp3-1.1.3_8.jar,Applications/Examples/src/main/java/
-xpp3_min-1.1.3_8.jar,Applications/Examples/src/main/java/
+20k.xml,Applications/Examples/
+build.gradle,Applications/Examples/

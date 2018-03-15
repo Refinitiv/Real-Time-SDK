@@ -17,6 +17,7 @@ public class ConsumerProviderSessionOptions {
 	private int _numStatusEvents;
 	private int _pingTimeout = 60;
     private int _consumerChannelInitTimeout = 60;
+    private long _openWindow = -1;
 	
 	/** Returns the type of connection the session will use. */
 	public int connectionType() { return _connectionType; }
@@ -121,5 +122,17 @@ public class ConsumerProviderSessionOptions {
     public void numStatusEvents(int numStatusEvents)
     {
         _numStatusEvents = numStatusEvents;
+    }
+    
+    /** Returns the openWindow the provider will use on its service. */
+    public long openWindow()
+    {
+    	return _openWindow;
+    }
+    
+    /** Sets the openWindow the provider will use on its service. By default, value is -1 and no OpenWindow is defined. */
+    public void openWindow(long openWindow)
+    {
+    	_openWindow = openWindow;
     }
 }

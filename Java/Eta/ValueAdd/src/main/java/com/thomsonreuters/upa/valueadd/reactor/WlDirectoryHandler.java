@@ -498,10 +498,10 @@ class WlDirectoryHandler implements WlHandler
     	{
         	_servicePool.add(_directoryUpdate.serviceList().get(i));	
     	}
-    	_serviceCache.clearCache();
+    	_serviceCache.clearCache(false);
     }
     
-    void handleChannelDown(WlStream wlStream, ReactorErrorInfo errorInfo)
+    void deleteAllServices(WlStream wlStream, boolean isChannelDown, ReactorErrorInfo errorInfo)
     {
     	LinkedList<WlRequest> requestList = wlStream.userRequestList();
      	   
@@ -564,7 +564,7 @@ class WlDirectoryHandler implements WlHandler
             {
                 _servicePool.add(_directoryUpdate.serviceList().get(i));	
             }
-            _serviceCache.clearCache();
+            _serviceCache.clearCache(isChannelDown);
         }
     }
     
@@ -595,12 +595,12 @@ class WlDirectoryHandler implements WlHandler
         if (((RefreshMsg)msg).checkClearCache())
         {
             // clear service cache
-            _serviceCache.clearCache();
+            _serviceCache.clearCache(false);
 
             // if refresh is unsolicited, notify item handler all services deleted
             if (!((RefreshMsg)msg).checkSolicited())
             {
-                _watchlist.itemHandler().allServicesDeleted(msg);
+                _watchlist.directoryHandler().deleteAllServices(false);
             }
         }
         
@@ -718,12 +718,12 @@ class WlDirectoryHandler implements WlHandler
         if (((RefreshMsg)msg).checkClearCache())
         {
             // clear service cache
-            _serviceCache.clearCache();
+            _serviceCache.clearCache(false);
 
             // if refresh is unsolicited, notify item handler all services deleted
             if (!((RefreshMsg)msg).checkSolicited())
             {
-                _watchlist.itemHandler().allServicesDeleted(msg);
+                _watchlist.directoryHandler().deleteAllServices(false);
             }
         }
         
@@ -836,12 +836,12 @@ class WlDirectoryHandler implements WlHandler
         if (((StatusMsg)msg).checkClearCache())
         {
             // clear service cache
-            _serviceCache.clearCache();
+            _serviceCache.clearCache(false);
             
             // if stream state is OPEN, notify item handler all services deleted
             if (_directoryStatus.state().streamState() == StreamStates.OPEN)
             {
-                _watchlist.itemHandler().allServicesDeleted(msg);
+                _watchlist.directoryHandler().deleteAllServices(false);
             }
         }
         
@@ -1130,7 +1130,7 @@ class WlDirectoryHandler implements WlHandler
             }
 
             // clear service cache
-            _serviceCache.clearCache();
+            _serviceCache.clearCache(false);
             
             // close stream if login stream is closed
             if (_watchlist.loginHandler().wlStream().state().streamState() == StreamStates.CLOSED)
@@ -1152,11 +1152,11 @@ class WlDirectoryHandler implements WlHandler
     }
 
     /* Handles channel down event. */
-    void channelDown()
+    void deleteAllServices(boolean isChannelDown)
     {
         if (_stream != null)
         {
-            handleChannelDown(_stream, _errorInfo);
+            deleteAllServices(_stream, isChannelDown, _errorInfo);
         }
     }
     

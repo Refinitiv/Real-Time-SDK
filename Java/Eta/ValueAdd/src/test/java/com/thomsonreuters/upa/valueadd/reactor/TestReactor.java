@@ -32,6 +32,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFacto
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
@@ -645,7 +646,18 @@ public class TestReactor {
         directoryRefresh.state().code(StateCodes.NONE);
         directoryRefresh.state().text().data("Source Directory Refresh Complete");
 
-        directoryRefresh.serviceList().add(Provider.defaultService());
+        Service service = DirectoryMsgFactory.createService();
+        Provider.defaultService().copy(service);
+        
+        // Apply OpenWindow to the service if one is specified.
+        if (opts.openWindow() >= 0)
+        {
+	        service.applyHasLoad();
+	        service.load().applyHasOpenWindow();
+	        service.load().openWindow(opts.openWindow());
+        }
+        
+        directoryRefresh.serviceList().add(service);
         submitOptions.clear();
         assertTrue(provider.submitAndDispatch(directoryRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
 

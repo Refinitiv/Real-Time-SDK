@@ -48,7 +48,7 @@ class WlStream extends VaNode
     WlService _wlService;
     
     // group id associated with the stream
-    Buffer _groupId;
+    WlItemGroup _itemGroup;
     
     long _requestExpireTime;
     
@@ -218,15 +218,15 @@ class WlStream extends VaNode
     }
     
     /* Returns the group id associated with this stream. */
-    Buffer groupId()
+    WlItemGroup itemGroup()
     {
-    	return _groupId;
+    	return _itemGroup;
     }
     
     /* Sets the group id associated with this stream. */
-    void groupId(Buffer groupId)
+    void itemGroup(WlItemGroup itemGroup)
     {
-    	_groupId = groupId;
+    	_itemGroup = itemGroup;
     }
     
     /* Returns the waiting request list. Handle cases where request could not be
@@ -793,6 +793,7 @@ class WlStream extends VaNode
     /* Closes the stream. */
     void close()
     {
+        assert(!inPool());
         // set state to closed
         _state.clear();
         _state.streamState(StreamStates.CLOSED);
@@ -801,13 +802,11 @@ class WlStream extends VaNode
         if (_tableKey != null)
         {
             _watchlist.streamIdtoWlStreamTable().remove(_tableKey);
-            _tableKey.returnToPool();   
+            _tableKey.returnToPool();
+            _tableKey = null;
         }
         _requestsPausedCount = 0;
         _paused = false;
-        
-        // return this stream to pool
-        returnToPool();
     }
     
     /* Is the channel up? */
@@ -902,7 +901,7 @@ class WlStream extends VaNode
         _eIter.clear();
         _reactorChannelInfo.clear();
         _submitOptions.clear();
-        _groupId = null;
+        _itemGroup = null;
         _tableKey = null;
         _groupTableKey = null;
         _wlService = null;
@@ -924,18 +923,8 @@ class WlStream extends VaNode
             _postMsgHashMapPool.add(postMsgHashMap);
         }
         _postIdToMsgTable.clear();
-        // return any waiting requests back to pool
-        WlRequest wlRequest = null;
-        while ((wlRequest = _waitingRequestList.poll()) != null)
-        {
-            _watchlist.closeWlRequest(wlRequest);
-        }
-        // return any user requests back to pool
-        wlRequest = null;
-        while ((wlRequest = _userRequestList.poll()) != null)
-        {
-            _watchlist.closeWlRequest(wlRequest);
-        }
+        _waitingRequestList.clear();
+        _userRequestList.clear();
         if (_aggregateView != null) 
     	{
         	_aggregateView.clear();
@@ -955,4 +944,10 @@ class WlStream extends VaNode
 		_aggregateView = aggregateView;
 	}
       
+	@Override
+	public void returnToPool()
+	{
+		assert(!inPool());
+		super.returnToPool();
+	}
 }

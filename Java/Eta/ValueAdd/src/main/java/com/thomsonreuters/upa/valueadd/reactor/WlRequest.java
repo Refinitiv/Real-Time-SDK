@@ -327,4 +327,21 @@ class WlRequest extends VaNode
         _viewElemCount = 0;
         _viewType = 0;
     }
+    
+    @Override
+    public void returnToPool()
+    {
+    	assert(_state != State.RETURN_TO_POOL);
+    	
+        if (_tableKey != null)
+        {
+            _tableKey.returnToPool();
+            _tableKey = null;
+        }                
+
+        /* Mark that this WlRequest is pooled before repooling it. */
+        _state = State.RETURN_TO_POOL;
+        
+        super.returnToPool();
+    }
 }

@@ -212,8 +212,8 @@ class WlLoginHandler implements WlHandler
 		{
 		case MsgClasses.CLOSE:
 			// notify other handlers that login stream is closed
-			int ret1 = _watchlist.directoryHandler().loginStreamClosed();
-			int ret2 = _watchlist.itemHandler().loginStreamClosed(msg);
+			int ret1 = _watchlist.itemHandler().loginStreamClosed(null);
+			int ret2 = _watchlist.directoryHandler().loginStreamClosed();
 
 			if (ret1 < ReactorReturnCodes.SUCCESS) 
 			{
@@ -230,9 +230,11 @@ class WlLoginHandler implements WlHandler
 
 			// close watchlist request
 			_watchlist.closeWlRequest(wlRequest);
+			wlRequest.returnToPool();
 
 			// close stream
 			_stream.close();
+			_stream.returnToPool();
 			_stream = null;
 			break;
 		case MsgClasses.POST:
@@ -730,8 +732,8 @@ class WlLoginHandler implements WlHandler
 			case StreamStates.CLOSED_RECOVER:
 			case StreamStates.REDIRECTED:
 				// notify other handlers that login stream is closed
-				ret1 = _watchlist.directoryHandler().loginStreamClosed();
-				ret2 = _watchlist.itemHandler().loginStreamClosed(msg);
+				ret1 = _watchlist.itemHandler().loginStreamClosed(wlStream.state());
+				ret2 = _watchlist.directoryHandler().loginStreamClosed();
 
 				if (ret1 < ReactorReturnCodes.SUCCESS) 
 				{
@@ -749,9 +751,11 @@ class WlLoginHandler implements WlHandler
 					WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable()
 							.get(_tempWlInteger);
 					_watchlist.closeWlRequest(wlRequest);
+					wlRequest.returnToPool();
 
 					// close stream if state is closed
 					_stream.close();
+					_stream.returnToPool();
 					_stream = null;
 				}
 				break;

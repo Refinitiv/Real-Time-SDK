@@ -77,7 +77,7 @@ class WlServiceCache
                         _serviceList.remove(wlService);
                         
                         // notify item handler service deleted
-                        ret = _watchlist.itemHandler().serviceDeleted(wlService, msg);
+                        ret = _watchlist.itemHandler().serviceDeleted(wlService, false);
                         
                         // return table key to pool
                         wlService.tableKey().returnToPool();
@@ -168,13 +168,16 @@ class WlServiceCache
     }
     
     /* Clear the service cache. */
-    void clearCache()
+    void clearCache(boolean channelIsDown)
     {
         WlService wlService = null;
         
         // clear service list
         while ((wlService = _serviceList.poll()) != null)
         {
+            // Handle items associated with this service.
+        	_watchlist.itemHandler().serviceDeleted(wlService, channelIsDown);
+        	
             // clear service
             wlService.rdmService().clear();
             
@@ -193,6 +196,8 @@ class WlServiceCache
     /* Clear service cache for re-use. */
     void clear()
     {
-        clearCache();
+        _servicesByNameTable.clear();
+        _servicesByIdTable.clear();
+        _serviceList.clear();
     }
 }

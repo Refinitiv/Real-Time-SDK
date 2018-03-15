@@ -102,3 +102,8 @@ wlconsumer-MutiThreaded-001: Alter WLConsumer which is multi-thread, this applic
 requests to multiple servers
       New command line arguments 
 	  -server ${CONS_HOST1}:${PROV_PORT1}:${PROV_SERVICE1} -server ${CONS_HOST2}:${PROV_PORT2}:${PROV_SERVICE2} -itemFile 20k.xml -itemCount 10000
+The example needs the XmlItemInfoList object in the perftools for loading items. For Gradle, two lines must be added to the Examples gradle.build:
+	compile project(':Eta:Applications:Perftools').sourceSets.main.output
+	compile group: 'xpp3', name: 'xpp3', version: '1.1.4c'
+A gradle.build file is also included in this example's files.
+

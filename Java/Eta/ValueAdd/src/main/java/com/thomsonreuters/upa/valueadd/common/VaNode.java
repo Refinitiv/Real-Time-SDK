@@ -52,7 +52,7 @@ public class VaNode
         return _pool;
     }
     
-    boolean inPool()
+    public boolean inPool()
     {
         return _inPool;
     }
