@@ -216,6 +216,7 @@ public class TunnelStream
 	Msg _encMsg;
     Msg _decMsg;
     Msg _decSubMsg;
+    Msg _decSubMsgForSubmit;
 	DecodeIterator _decIter, _decSubIter;
 	
 	QueueMsgImpl _queueSubstreamHeader;	
@@ -389,6 +390,7 @@ public class TunnelStream
 		_encMsg = CodecFactory.createMsg();
 		_decMsg = CodecFactory.createMsg();
 		_decSubMsg = CodecFactory.createMsg();
+		_decSubMsgForSubmit = CodecFactory.createMsg();
 		_loginMsg = LoginMsgFactory.createMsg();
 		
 		_tunnelStreamState = TunnelStreamState.NOT_OPEN;
@@ -1097,11 +1099,11 @@ public class TunnelStream
         buffer.setAsInnerReadBuffer();
         
         /* Decode as QueueData message. */
-        _decSubIter.clear();
-        _decSubIter.setBufferAndRWFVersion(buffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
-        _decSubMsg.decode(_decSubIter);
+        _decIter.clear();
+        _decIter.setBufferAndRWFVersion(buffer, _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
+        _decSubMsg.decode(_decIter);
         _queueData.clear();
-        _queueData.decode(_decSubIter, _decSubMsg);
+        _queueData.decode(_decIter, _decSubMsg);
 
         /* Translate to QueueDataExpired message (source & destination should be reversed). */
         _queueDataExpired.clear();
@@ -1898,11 +1900,12 @@ public class TunnelStream
             if (containerType == DataTypes.MSG)
             {
                 tunnelBuffer.setAsInnerReadBuffer();
-                if (decodeSubstreamMsg(tunnelBuffer, error) < CodecReturnCodes.SUCCESS)
+                _decSubMsgForSubmit.clear();
+                if (decodeSubstreamMsg(tunnelBuffer, _decSubMsgForSubmit, error) < CodecReturnCodes.SUCCESS)
                 {
                     return ReactorReturnCodes.INVALID_ENCODING;
                 }
-                substreamSession = _streamIdtoQueueSubstreamTable.get(_decSubMsg.streamId());
+                substreamSession = _streamIdtoQueueSubstreamTable.get(_decSubMsgForSubmit.streamId());
             }
 
             /* Set to full buffer length. */
@@ -1915,12 +1918,12 @@ public class TunnelStream
             {
                     
                 // now set required info on BufferImpl
-                switch (_decSubMsg.msgClass())
+                switch (_decSubMsgForSubmit.msgClass())
                 {
                     case MsgClasses.GENERIC:
 
                         _queueData.clear();
-                        _queueData.decode(_decSubIter, _decSubMsg);
+                        _queueData.decode(_decSubIter, _decSubMsgForSubmit);
                         
                         // substream must be in the OPEN state to submit data
                         if (substreamSession._state != TunnelSubstreamState.OPEN)
@@ -1992,7 +1995,7 @@ public class TunnelStream
                         
                     default:
                         error.errorId(ReactorReturnCodes.FAILURE);
-                        error.text("Submitted buffer sub MsgClass invalid: " + _decSubMsg.msgClass());
+                        error.text("Submitted buffer sub MsgClass invalid: " + _decSubMsgForSubmit.msgClass());
                         return ReactorReturnCodes.FAILURE;
                 }
                     
@@ -2016,16 +2019,16 @@ public class TunnelStream
                 // if it is, open a substream
                 if (containerType == DataTypes.MSG &&
                     _classOfService.guarantee().type() == ClassesOfService.GuaranteeTypes.PERSISTENT_QUEUE &&
-                    _decSubMsg.domainType() != DomainTypes.LOGIN &&
-                    _decSubMsg.domainType() != DomainTypes.SOURCE &&
-                    _decSubMsg.domainType() != DomainTypes.DICTIONARY &&
-                    _decSubMsg.domainType() != DomainTypes.SYMBOL_LIST)
+                    _decSubMsgForSubmit.domainType() != DomainTypes.LOGIN &&
+                    _decSubMsgForSubmit.domainType() != DomainTypes.SOURCE &&
+                    _decSubMsgForSubmit.domainType() != DomainTypes.DICTIONARY &&
+                    _decSubMsgForSubmit.domainType() != DomainTypes.SYMBOL_LIST)
                 {
-                    if (_decSubMsg.msgClass() == MsgClasses.REQUEST)
+                    if (_decSubMsgForSubmit.msgClass() == MsgClasses.REQUEST)
                     {
                         // buffer is an encoded QueueRequest, open substream
                         _queueRequest.clear();
-                        _queueRequest.decode(_decSubIter, _decSubMsg);
+                        _queueRequest.decode(_decSubIter, _decSubMsgForSubmit);
                         
                         // free buffer
                         releaseBuffer(tunnelBuffer, error);
@@ -2039,7 +2042,7 @@ public class TunnelStream
                     else // reject any QueueMsg that is not a QueueRequest
                     {
                         error.errorId(ReactorReturnCodes.FAILURE);
-                        error.text("No Queue open for stream id: " + _decSubMsg.streamId());
+                        error.text("No Queue open for stream id: " + _decSubMsgForSubmit.streamId());
                         return ReactorReturnCodes.FAILURE;            
                     }
                 }
@@ -2054,8 +2057,8 @@ public class TunnelStream
                     {
                         /* if this is login refresh, let refresh through
                          * and set _providerLoginRefreshSent flag to true */
-                        if (_decSubMsg.domainType() != DomainTypes.LOGIN ||
-                            _decSubMsg.msgClass() != MsgClasses.REFRESH)
+                        if (_decSubMsgForSubmit.domainType() != DomainTypes.LOGIN ||
+                            _decSubMsgForSubmit.msgClass() != MsgClasses.REFRESH)
                         {
                             error.errorId(ReactorReturnCodes.FAILURE);
                             error.text("Authentication needs to complete before submitting other data");
@@ -2221,15 +2224,16 @@ public class TunnelStream
 	 * Decode substream msg.
 	 *
 	 * @param buffer the buffer
+	 * @param decodeSubMsg the Msg is used to decode the buffer
 	 * @param error the error
 	 * @return the int
 	 */
-	private int decodeSubstreamMsg(TunnelStreamBuffer buffer, Error error)
+	private int decodeSubstreamMsg(TunnelStreamBuffer buffer,Msg decodeSubMsg, Error error)
     {
 	    _decSubIter.clear();
         _decSubIter.setBufferAndRWFVersion(buffer, _classOfService.common().protocolMajorVersion(), _classOfService.common().protocolMinorVersion());                
 
-        return _decSubMsg.decode(_decSubIter);
+        return decodeSubMsg.decode(_decSubIter);
     }
 
 	/**
