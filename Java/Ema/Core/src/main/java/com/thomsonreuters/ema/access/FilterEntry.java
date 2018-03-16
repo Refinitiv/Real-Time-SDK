@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -694,4 +694,27 @@ public interface FilterEntry
 	 * @return reference to this object
 	 */
 	public FilterEntry ansiPage(int filterId, int action, OmmAnsiPage value, ByteBuffer permissionData);
+	
+	/** Adds no payload to the FilterEntry.
+	 * 
+	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+	 * 
+	 * @param filterId specifies filter id for the added FilterEntry
+	 * @param action specifies action for the added FilterEntry
+	 * 
+	 * @return reference to this object
+	 */
+	public FilterEntry noData(int filterId, int action);
+	
+	/** Adds no payload to the FilterEntry.
+	 * 
+	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+	 * 
+	 * @param filterId specifies filter id for the added FilterEntry
+	 * @param action specifies action for the added FilterEntry
+	 * @param permissionData specifies permissions for the added FilterEntry
+	 * 
+	 * @return reference to this object
+	 */
+	public FilterEntry noData(int filterId, int action, ByteBuffer permissionData);
 }

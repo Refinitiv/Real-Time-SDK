@@ -188,5 +188,20 @@ public interface Map extends ComplexType, Collection<MapEntry>
 	 * @return reference to this object
 	 */
 	public Map summaryData(ComplexType summaryData);
-
+	
+	/**
+	 * Specifies a primitive type for Map Entry key. This is used to override the 
+	 * default {@link com.thomsonreuters.ema.access.DataType.DataTypes#BUFFER} type. 
+	 * Call this method or any add**() method can override the default key type.
+	 * 
+	 * @throws OmmInvalidUsageException
+	 *             if an error is detected (exception will specify the cause of
+	 *             the error)
+	 * 
+	 * @param keyPrimitiveType specifies a key primitive type defined in
+	 * {@link com.thomsonreuters.ema.access.DataType.DataTypes}
+	 *  
+	 * @return reference to this object
+	 */
+	public Map keyType(int keyPrimitiveType);
 }

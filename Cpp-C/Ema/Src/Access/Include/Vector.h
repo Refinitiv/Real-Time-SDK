@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -215,6 +215,15 @@ public :
 	*/
 	Vector& add( UInt32 position, VectorEntry::VectorAction action,
 				const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a position.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] position specifies position of this entry in Vector
+		@param[in] action specifies action to be performed on this entry
+		@param[in] permissionData specifies permission data for this entry
+		@return reference to this object
+	*/
+	Vector& add( UInt32 position, VectorEntry::VectorAction action, const EmaBuffer& permissionData = EmaBuffer() );
 
 	/** Completes encoding of the Vector.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)

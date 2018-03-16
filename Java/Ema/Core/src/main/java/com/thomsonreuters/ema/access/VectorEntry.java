@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -739,4 +739,27 @@ public interface VectorEntry
 	 * @return reference to this object
 	 */
 	public VectorEntry ansiPage(long position, int action, OmmAnsiPage value, ByteBuffer permissionData);
+	
+	/** Adds no payload identified by a position.
+	 *
+	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+	 * 
+	 * @param position specifies position of this entry in Vector
+	 * @param action specifies action to be performed on this entry
+	 * 
+	 * @return reference to this object
+	 */
+	public VectorEntry noData(long position, int action);
+	
+	/** Adds no payload identified by a position.
+	 *  
+	 * @throws OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+	 * 
+	 * @param position specifies position of this entry in Vector
+	 * @param action specifies action to be performed on this entry
+	 * @param permissionData specifies permission data for this entry
+	 * 
+	 * @return reference to this object
+	 */
+	public VectorEntry noData(long position, int action, ByteBuffer permissionData);
 }

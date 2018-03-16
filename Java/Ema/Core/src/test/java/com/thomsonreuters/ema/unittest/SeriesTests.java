@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.unittest;
@@ -14,8 +14,13 @@ import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.ema.access.DataType;
+import com.thomsonreuters.ema.access.ElementEntry;
 import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.FieldEntry;
+import com.thomsonreuters.ema.access.FieldList;
 import com.thomsonreuters.ema.access.JUnitTestConnect;
+import com.thomsonreuters.ema.access.Map;
+import com.thomsonreuters.ema.access.MapEntry;
 import com.thomsonreuters.ema.access.OmmException;
 import com.thomsonreuters.ema.access.SeriesEntry;
 import com.thomsonreuters.ema.access.Series;
@@ -29,6 +34,204 @@ public class SeriesTests extends TestCase
 	public SeriesTests(String nase)
 	{
 		super(nase);
+	}
+	
+	public void testSeriesEmpty_Encode()
+	{
+		TestUtilities.printTestHead("testSeriesEmpty_Encode","Encode Series of no entry with EMA");
+		
+		try {
+			Series series =EmaFactory.createSeries();
+			FieldEntry fieldEntry = EmaFactory.createFieldEntry();
+			
+			fieldEntry.series(3, series);
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "empty Series - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testSeriesWithSummaryDataButNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testSeriesWithSummaryDataButNoPayload_Encode_Decode","Encode Series with summary data but no entry with EMA");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dataDictionary = TestUtilities.getDataDictionary();
+		
+		try
+		{
+			FieldList summaryData = EmaFactory.createFieldList();
+			summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 3056));
+			summaryData.add(EmaFactory.createFieldEntry().enumValue(15, 840));
+			summaryData.add(EmaFactory.createFieldEntry().date(3386, 2018, 2, 28));
+			
+			Series series = EmaFactory.createSeries();
+			series.totalCountHint(0).summaryData(summaryData);
+			
+			ElementList elementList = EmaFactory.createElementList();
+			elementList.info(1).add(EmaFactory.createElementEntry().series("1", series));
+			
+			ElementList elementListDec = JUnitTestConnect.createElementList();
+			JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), dataDictionary, null);
+			
+			TestUtilities.checkResult( elementListDec.infoElementListNum() == 1, "Check info of ElementList" );
+			
+			Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+			
+			ElementEntry elementEntry = elementListIt.next();
+			
+			Series seriesDec = elementEntry.series();
+			
+			TestUtilities.checkResult( seriesDec.totalCountHint() == 0, "Check totoal count hint of Series" );
+			
+			FieldList summaryDataDec = seriesDec.summaryData().fieldList();
+			
+			Iterator<FieldEntry> fieldIt = summaryDataDec.iterator();
+			
+			FieldEntry fieldEntry = fieldIt.next();
+			
+			TestUtilities.checkResult( fieldEntry.fieldId() == 1, "Check the field ID of the first field entry" );
+			TestUtilities.checkResult( fieldEntry.uintValue() == 3056, "Check the value of the first field entry" );
+			
+			fieldEntry = fieldIt.next();
+			
+			TestUtilities.checkResult( fieldEntry.fieldId() == 15, "Check the field ID of the second field entry" );
+			TestUtilities.checkResult( fieldEntry.enumValue() == 840, "Check the value of the second field entry" );
+			
+			fieldEntry = fieldIt.next();
+			TestUtilities.checkResult( fieldEntry.fieldId() == 3386, "Check the field ID of the third field entry" );
+			TestUtilities.checkResult( fieldEntry.date().year() == 2018, "Check the year value of the third field entry" );
+			TestUtilities.checkResult( fieldEntry.date().month() == 2, "Check the month value of the third field entry" );
+			TestUtilities.checkResult( fieldEntry.date().day() == 28, "Check the day value of the third field entry" );
+			
+			TestUtilities.checkResult( fieldIt.hasNext() == false, "Check whether this is an entry from FieldList");
+			
+			TestUtilities.checkResult( seriesDec.iterator().hasNext() == false, "Check whether this is an entry from Series");
+			
+			TestUtilities.checkResult( elementListIt.hasNext() == false, "Check whether this is an entry from ElementList");
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to encode no entry Series - exception not expected with text : " +  excp.getMessage()  );
+		}
+	}
+	
+	public void testSeriesWithSummaryDataButMisMatchEntryPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testSeriesWithSummaryDataButMisMatchEntryPayload_Encode_Decode","Encode Series with summary data but mismatch entry's payload with EMA");
+		
+		try
+		{
+			FieldList summaryData = EmaFactory.createFieldList();
+			summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 3056));
+			
+			ElementList elementList = EmaFactory.createElementList();
+			elementList.add(EmaFactory.createElementEntry().codeAscii("Name1"));
+		
+			Series series = EmaFactory.createSeries();
+			series.totalCountHint(0).summaryData(summaryData).add(EmaFactory.createSeriesEntry()
+					.elementList(elementList));
+			
+			Map map = EmaFactory.createMap();
+			map.add(EmaFactory.createMapEntry().keyAscii("key", MapEntry.MapAction.ADD, series));
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( true, "Fails to encode Series with summary data but mismatch entry's payload - exception expected with text : " +  excp.getMessage());
+			TestUtilities.checkResult( excp.getMessage().equals("Attempt to add entry of ELEMENT_LIST while Series entry load type is set to FIELD_LIST with summaryData() method")
+					, "Check exception text");
+			
+			return;
+		}
+		
+		TestUtilities.checkResult( false, "Fails to encode Series with summary data but mismatch entry's payload - exception expected with");
+	}
+	
+	public void testSeriesEntryWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testSeriesEntryWithNoPayload_Encode_Decode","Encode multiple Series entry with no payload");
+		
+		try
+		{
+		ByteBuffer permissionData = ByteBuffer.allocate(5);
+		permissionData.putInt(12345).flip();
+		
+		Series series = EmaFactory.createSeries();
+		series.add(EmaFactory.createSeriesEntry().noData());
+		series.add(EmaFactory.createSeriesEntry().noData());
+		
+		Series seriesDec = JUnitTestConnect.createSeries();
+		JUnitTestConnect.setRsslData(seriesDec, series, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		Iterator<SeriesEntry> seriesIt = seriesDec.iterator();
+		
+		SeriesEntry seriesEntry = seriesIt.next();
+		TestUtilities.checkResult( seriesEntry.loadType() == DataType.DataTypes.NO_DATA, "Check load type of the first entry");
+		
+		seriesEntry = seriesIt.next();
+		TestUtilities.checkResult( seriesEntry.loadType() == DataType.DataTypes.NO_DATA, "Check load type of the second entry");
+		
+		TestUtilities.checkResult( seriesIt.hasNext() == false , "Check to make sure there is no more entry");
+		
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to Encode multiple Series entry with no payload - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}	
+	}
+	
+	public void testSeriesClear_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testSeriesClear_Encode_Decode","Test Clear Series before encoding");
+		
+		try
+		{
+		FieldList summaryData = EmaFactory.createFieldList();
+		summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 4563));
+		
+		Series series = EmaFactory.createSeries();
+		series.summaryData(summaryData);
+		
+		Series seriesDec = JUnitTestConnect.createSeries();
+		JUnitTestConnect.setRsslData(seriesDec, series, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		TestUtilities.checkResult( seriesDec.summaryData().dataType() == DataType.DataTypes.FIELD_LIST, "Check data type of summary data before calling the clear method" );
+		
+		series.clear();
+		
+		TestUtilities.checkResult( series.summaryData().dataType() == DataType.DataTypes.NO_DATA, "Check data type of summary data after calling the clear method" );
+		
+		series.add(EmaFactory.createSeriesEntry().noData());
+		
+		ElementList elementList = EmaFactory.createElementList();
+		elementList.add(EmaFactory.createElementEntry().series("1", series));
+		
+		ElementList elementListDec = JUnitTestConnect.createElementList();
+		JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+		
+		ElementEntry elementEntry = elementListIt.next();
+		
+		TestUtilities.checkResult( elementEntry.name().equals("1"), "Check element list key value" );
+		
+		Iterator<SeriesEntry> seriesIt = elementEntry.series().iterator();
+		
+		SeriesEntry seriesEntry = seriesIt.next();
+		
+		TestUtilities.checkResult( seriesEntry.loadType() == DataType.DataTypes.NO_DATA, "Check the load type of the first Series entry" );
+		
+		TestUtilities.checkResult( seriesIt.hasNext() == false, "Check whether there is another Series entry" );
+		
+		TestUtilities.checkResult( elementListIt.hasNext() == false, "Check whether there is another Element entry" );
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails encode after calling the clear method - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}		
 	}
 
 	public void testSeriesContainselementLists_EncodeDecodeAll()

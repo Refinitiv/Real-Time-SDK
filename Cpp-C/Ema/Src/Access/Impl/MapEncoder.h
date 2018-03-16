@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -55,57 +55,108 @@ public :
 
 	void summaryData( const ComplexType& data );
 
+	void keyType( DataType::DataTypeEnum keyPrimitiveType );
+
 	void addKeyInt( Int64 key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
+
+	void addKeyInt(Int64 key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
 
 	void addKeyUInt( UInt64 key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
 
+	void addKeyUInt(UInt64 key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
+
 	void addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeType, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
+
+	void addKeyReal(Int64 mantissa, OmmReal::MagnitudeType magnitudeType, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
 
 	void addKeyRealFromDouble( double key, MapEntry::MapAction action,
 		const ComplexType& value,
 		OmmReal::MagnitudeType magnitudeType,
 		const EmaBuffer& permissionData );
 
+	void addKeyRealFromDouble(double key, MapEntry::MapAction action,
+		OmmReal::MagnitudeType magnitudeType,
+		const EmaBuffer& permissionData);
+
 	void addKeyFloat( float key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
+
+	void addKeyFloat(float key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
 
 	void addKeyDouble( double key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
 
+	void addKeyDouble(double key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
+
 	void addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
 
+	void addKeyDate(UInt16 year, UInt8 month, UInt8 day, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
+
 	void addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
+
+	void addKeyTime(UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
 
 	void addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond,
 		MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
 
+	void addKeyDateTime(UInt16 year, UInt8 month, UInt8 day, UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond,
+		MapEntry::MapAction action, const EmaBuffer& permissionData);
+
 	void addKeyQos( UInt32 timeliness, UInt32 rate, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
+
+	void addKeyQos(UInt32 timeliness, UInt32 rate, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
 
 	void addKeyState( OmmState::StreamState streamState, OmmState::DataState dataState, UInt8 statusCode, const EmaString& statusText,
 		MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
 
+	void addKeyState(OmmState::StreamState streamState, OmmState::DataState dataState, UInt8 statusCode, const EmaString& statusText,
+		MapEntry::MapAction action, const EmaBuffer& permissionData);
+
 	void addKeyEnum( UInt16 key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
+
+	void addKeyEnum(UInt16 key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
 
 	void addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
 
+	void addKeyBuffer(const EmaBuffer& key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
+
 	void addKeyAscii( const EmaString& key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
+
+	void addKeyAscii(const EmaString& key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
 
 	void addKeyUtf8( const EmaBuffer& key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
 
+	void addKeyUtf8(const EmaBuffer& key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
+
 	void addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData );
+
+	void addKeyRmtes(const EmaBuffer& key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData);
 
 	void complete();
 
@@ -113,7 +164,7 @@ private :
 
 	void initEncode( RsslDataType rsslKeyDataType, UInt8 rsslContainerDataType, DataType::DataTypeEnum emaLoadType );
 
-	void addDeleteActionEntry( void* keyValue, const EmaBuffer& permission, const char* methodName );
+	void addEntryWithNoPayload( void* keyValue, MapEntry::MapAction action, const EmaBuffer& permission, const char* methodName );
 
 	void addEncodedEntry( void* keyValue, MapEntry::MapAction action, 
 							const ComplexType& value, const EmaBuffer& permission, const char* methodName );
@@ -128,6 +179,9 @@ private :
 
 	void encodePermissionData( const EmaBuffer& permission );
 
+	void validateEntryKeyAndPayLoad(RsslDataType rsslKeyDataType, UInt8 rsslLoadDataType, DataType::DataTypeEnum emaLoadType,
+		const char* methodName);
+
 	RsslMap					_rsslMap;
 
 	RsslMapEntry			_rsslMapEntry;
@@ -135,6 +189,8 @@ private :
 	DataType::DataTypeEnum	_emaLoadType;
 
 	DataType::DataTypeEnum	_emaKeyType;
+
+	bool					_keyTypeSet;
 
 	bool					_containerInitialized;
 };

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -36,7 +36,8 @@ extern const EmaString& getMTypeAsString( OmmReal::MagnitudeType mType );
 
 ElementListEncoder::ElementListEncoder() :
  _rsslElementList(),
- _rsslElementEntry()
+ _rsslElementEntry(),
+ _containerInitialized( false )
 {
 }
 
@@ -50,12 +51,22 @@ void ElementListEncoder::clear()
 
 	rsslClearElementList( &_rsslElementList );
 	rsslClearElementEntry( &_rsslElementEntry );
+
+	_containerInitialized = false;
 }
 
 void ElementListEncoder::info( Int16 elementListNum )
 {
-	_rsslElementList.elementListNum = elementListNum;
-	rsslElementListApplyHasInfo( &_rsslElementList );
+	if ( !_containerInitialized )
+	{
+		_rsslElementList.elementListNum = elementListNum;
+		rsslElementListApplyHasInfo(&_rsslElementList);
+	}
+	else
+	{
+		EmaString temp("Invalid attempt to call info() when container is initialized.");
+		throwIueException(temp);
+	}
 }
 
 void ElementListEncoder::initEncode()
@@ -77,6 +88,8 @@ void ElementListEncoder::initEncode()
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
 		throwIueException( temp );
 	}
+
+	_containerInitialized = true;
 }
 
 void ElementListEncoder::addPrimitiveEntry( const EmaString& name, RsslDataType rsslDataType,
@@ -1255,6 +1268,23 @@ void ElementListEncoder::addCodeRmtes( const EmaString& name )
 	}
 
 	addPrimitiveEntry( name, RSSL_DT_RMTES_STRING, "addCodeRmtes()", 0 );
+}
+
+void ElementListEncoder::add( const EmaString& name )
+{
+	if (rsslElementListCheckHasStandardData(&_rsslElementList) == RSSL_FALSE)
+	{
+		rsslElementListApplyHasStandardData(&_rsslElementList);
+
+		acquireEncIterator();
+
+		initEncode();
+	}
+
+	RsslBuffer rsslBuffer;
+	rsslClearBuffer(&rsslBuffer);
+
+	addEncodedEntry(name, RSSL_DT_NO_DATA, "add()", rsslBuffer);
 }
 
 void ElementListEncoder::complete()

@@ -1608,26 +1608,6 @@ TEST(FilterListTests, testFilterListDecodetoString)
 
 TEST(FilterListTests, testFilterListError)
 {
-
-	{
-		try
-		{
-			FilterList fl;
-			fl.complete();
-			EXPECT_TRUE( true ) << "FilterList::complete() on empty filter list - exception not expected" ;
-
-			StaticDecoder::setData( &fl, 0 );
-
-
-			EXPECT_FALSE( fl.forth() ) << "FilterList::forth()" ;
-
-		}
-		catch ( const OmmException& )
-		{
-			EXPECT_FALSE( true ) << "FilterList::complete() on empty filter list - exception not expected" ;
-		}
-	}
-
 	{
 		try
 		{
@@ -1903,3 +1883,200 @@ TEST(FilterListTests, testFilterListError)
 
 }
 
+TEST(FilterListTests, testFilterListEmpty_Encode_Decode)
+{
+	try
+	{
+		ElementList elementList;
+		elementList.info(1);
+
+		FilterList filterList;
+		filterList.totalCountHint(0).complete();
+
+		elementList.info(5).addFilterList("1", filterList).complete();
+
+		StaticDecoder::setData(&elementList, NULL);
+
+		EXPECT_TRUE(elementList.forth()) << "Check the first entry of ElementList";
+		EXPECT_TRUE(elementList.getEntry().getName() == "1") << "Check the key name of the first element entry";
+
+		const FilterList& filterListDec = elementList.getEntry().getFilterList();
+
+		EXPECT_TRUE(filterListDec.getTotalCountHint() == 0) << "Check the total count hint attribute";
+
+		EXPECT_FALSE(filterListDec.forth()) << "Check to make sure that there is no enty in FilterList";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode empty FilterList - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(FilterListTests, testFilterListEntryWithNoPayload_Encode_Decode)
+{
+	try
+	{
+		EmaBuffer permissionData;
+		permissionData.setFrom("12345", 5);
+
+		EmaBuffer permissionData2;
+		permissionData2.setFrom("54321", 5);
+
+		FilterList filterList;
+		filterList.totalCountHint(3)
+			.add(1, FilterEntry::ClearEnum, permissionData)
+			.add(3, FilterEntry::SetEnum)
+			.add(2, FilterEntry::UpdateEnum, permissionData2)
+			.complete();
+
+		StaticDecoder::setData(&filterList, NULL);
+
+		EXPECT_TRUE(filterList.hasTotalCountHint() ) << "Check has total count hint attribute";
+		EXPECT_TRUE(filterList.getTotalCountHint() == 3) << "Check the total count hint attribute";
+
+		EXPECT_TRUE(filterList.forth()) << "Get the first filter entry";
+		EXPECT_TRUE(filterList.getEntry().getFilterId() == 1) << "Check filter ID of the first entry";
+		EXPECT_TRUE(filterList.getEntry().getAction() == FilterEntry::ClearEnum) << "Check the action of the first entry";
+		EXPECT_TRUE(filterList.getEntry().hasPermissionData()) << "Check the has permission data of the first entry";
+		EXPECT_TRUE(filterList.getEntry().getPermissionData() == permissionData) << "Check the permission data of the first entry";
+		EXPECT_TRUE(filterList.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the first entry";
+
+		EXPECT_TRUE(filterList.forth()) << "Get the second filter entry";
+		EXPECT_TRUE(filterList.getEntry().getFilterId() == 3) << "Check filter ID of the second entry";
+		EXPECT_TRUE(filterList.getEntry().getAction() == FilterEntry::SetEnum) << "Check the action of the second entry";
+		EXPECT_FALSE(filterList.getEntry().hasPermissionData()) << "Check the has permission data of the second entry";
+		EXPECT_TRUE(filterList.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the second entry";
+
+		EXPECT_TRUE(filterList.forth()) << "Get the third filter entry";
+		EXPECT_TRUE(filterList.getEntry().getFilterId() == 2) << "Check filter ID of the third entry";
+		EXPECT_TRUE(filterList.getEntry().getAction() == FilterEntry::UpdateEnum) << "Check the action of the third entry";
+		EXPECT_TRUE(filterList.getEntry().hasPermissionData()) << "Check the has permission data of the third entry";
+		EXPECT_TRUE(filterList.getEntry().getPermissionData() == permissionData2) << "Check the permission data of the third entry";
+		EXPECT_TRUE(filterList.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the third entry";
+
+		EXPECT_FALSE(filterList.forth()) << "Check to make sure that there is no more enty in FilterList";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode FilterList - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(FilterListTests, testFilterListAddTotalCountAfterInitialized)
+{
+	try
+	{
+		FilterList filterList;
+		filterList.add(3, FilterEntry::SetEnum).totalCountHint(1).complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Encode total count hint after filter list is initialized - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Invalid attempt to call totalCountHint() when container is initialized.", exp.getText().c_str());
+		return;
+	}
+
+	EXPECT_TRUE(false) << "Encode total count hint after FilterList is initialized - exception expected";
+}
+
+TEST(FilterListTests, testFilterListAddMismatchEntryDataType_Encode)
+{
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	try
+	{
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		FilterList filterList;
+		filterList.totalCountHint(2)
+			.add(1, FilterEntry::SetEnum, fieldList)
+			.add(2, FilterEntry::UpdateEnum)
+			.complete();
+
+		StaticDecoder::setData(&filterList, &dictionary);
+
+		EXPECT_TRUE(filterList.hasTotalCountHint()) << "Check has total count hint attribute";
+		EXPECT_TRUE(filterList.getTotalCountHint() == 2) << "Check the total count hint attribute";
+
+		EXPECT_TRUE(filterList.forth()) << "Get the first filter entry";
+		EXPECT_TRUE(filterList.getEntry().getFilterId() == 1) << "Check filter ID of the first entry";
+		EXPECT_TRUE(filterList.getEntry().getAction() == FilterEntry::SetEnum) << "Check the action of the first entry";
+		EXPECT_FALSE(filterList.getEntry().hasPermissionData()) << "Check the has permission data of the first entry";
+		EXPECT_TRUE(filterList.getEntry().getLoadType() == DataType::FieldListEnum) << "Check the load type of the first entry";
+
+		const FieldList& fieldListDec = filterList.getEntry().getFieldList();
+
+		EXPECT_TRUE(fieldListDec.forth()) << "Get the first field entry";
+		EXPECT_TRUE(fieldListDec.getEntry().getFieldId() == 1) << "Check the field ID of first field entry";
+		EXPECT_TRUE(fieldListDec.getEntry().getUInt() == 3056) << "Check the value of first field entry";
+		EXPECT_FALSE(fieldListDec.forth()) << "Check to make sure that there is no more entry";
+
+		EXPECT_TRUE(filterList.forth()) << "Get the second filter entry";
+		EXPECT_TRUE(filterList.getEntry().getFilterId() == 2) << "Check filter ID of the second entry";
+		EXPECT_TRUE(filterList.getEntry().getAction() == FilterEntry::UpdateEnum) << "Check the action of the second entry";
+		EXPECT_FALSE(filterList.getEntry().hasPermissionData()) << "Check the has permission data of the second entry";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode FilterList with mistmatch entry type - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(FilterListTests, testFilterListAddEntryAfterCallingComplete_Encode)
+{
+	try
+	{
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		FilterList filterList;
+		filterList.totalCountHint(1).complete();
+		filterList.add(1, FilterEntry::SetEnum, fieldList);
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Fails to encode filter list after the complete() is called - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Attempt to add an entry after complete() was called.", exp.getText().c_str());
+	}
+}
+
+TEST(FilterListTests, testFilerListClear_Encode_Decode)
+{
+	try
+	{
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		FilterList filterList;
+		filterList.totalCountHint(1)
+			.add(1, FilterEntry::ClearEnum, fieldList)
+			.clear()
+			.add(3, FilterEntry::SetEnum)
+			.add(2, FilterEntry::UpdateEnum)
+			.complete();
+
+		StaticDecoder::setData(&filterList, NULL);
+
+		EXPECT_FALSE(filterList.hasTotalCountHint()) << "Check has total count hint attribute";
+
+		EXPECT_TRUE(filterList.forth()) << "Get the second filter entry";
+		EXPECT_TRUE(filterList.getEntry().getFilterId() == 3) << "Check filter ID of the first entry";
+		EXPECT_TRUE(filterList.getEntry().getAction() == FilterEntry::SetEnum) << "Check the action of the first entry";
+		EXPECT_FALSE(filterList.getEntry().hasPermissionData()) << "Check the has permission data of the first entry";
+
+		EXPECT_TRUE(filterList.forth()) << "Get the second filter entry";
+		EXPECT_TRUE(filterList.getEntry().getFilterId() == 2) << "Check filter ID of the first entry";
+		EXPECT_TRUE(filterList.getEntry().getAction() == FilterEntry::UpdateEnum) << "Check the action of the second entry";
+		EXPECT_FALSE(filterList.getEntry().hasPermissionData()) << "Check the has permission data of the second entry";
+
+		EXPECT_FALSE(filterList.forth()) << "Check to make sure that there is no more enty in FilterList";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode FilterList - exception not expected with text" << exp.getText().c_str();
+	}
+}

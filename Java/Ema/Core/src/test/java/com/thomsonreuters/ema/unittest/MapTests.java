@@ -2,11 +2,12 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.unittest;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -16,6 +17,7 @@ import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
+import com.thomsonreuters.ema.access.ElementEntry;
 import com.thomsonreuters.ema.access.ElementList;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.FieldEntry;
@@ -24,6 +26,9 @@ import com.thomsonreuters.ema.access.JUnitTestConnect;
 import com.thomsonreuters.ema.access.Map;
 import com.thomsonreuters.ema.access.MapEntry;
 import com.thomsonreuters.ema.access.OmmException;
+import com.thomsonreuters.ema.access.OmmQos;
+import com.thomsonreuters.ema.access.OmmReal;
+import com.thomsonreuters.ema.access.OmmState;
 
 import junit.framework.TestCase;
 
@@ -47,11 +52,1128 @@ public class MapTests extends TestCase
 		}
 		catch ( OmmException excp )
 		{
-			TestUtilities.checkResult( true, "empty Map - exception expected: " +  excp.getMessage()  );
+			TestUtilities.checkResult( false, "empty Map - exception not expected: " +  excp.getMessage()  );
 			return;
 		}
-
-		TestUtilities.checkResult( false, "empty Map - did not get expected exception" );
+		
+		TestUtilities.checkResult( true, "empty Map - Can encode default Map with Buffer type for Map entry key" );
+	}
+	
+	public void testMapWithSummaryDataButNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapWithSummaryDataButNoPayload_Encode_Decode","Encode Map with summary data but no entry with EMA");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dataDictionary = TestUtilities.getDataDictionary();
+		
+		try
+		{
+			FieldList summaryData = EmaFactory.createFieldList();
+			summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 3056));
+			summaryData.add(EmaFactory.createFieldEntry().enumValue(15, 840));
+			summaryData.add(EmaFactory.createFieldEntry().date(3386, 2018, 2, 28));
+			
+			Map map = EmaFactory.createMap();
+			map.keyFieldId(11).totalCountHint(0).summaryData(summaryData);
+			
+			ElementList elementList = EmaFactory.createElementList();
+			elementList.info(1).add(EmaFactory.createElementEntry().map("1", map));
+			
+			ElementList elementListDec = JUnitTestConnect.createElementList();
+			JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), dataDictionary, null);
+			
+			Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+			
+			ElementEntry elementEntry = elementListIt.next();
+			
+			Map mapDec = elementEntry.map();
+			
+			TestUtilities.checkResult( mapDec.keyFieldId() == 11, "Check key field ID of map" );
+			TestUtilities.checkResult( mapDec.totalCountHint() == 0, "Check totoal cound hint map" );
+			
+			FieldList summaryDataDec = mapDec.summaryData().fieldList();
+			
+			Iterator<FieldEntry> fieldIt = summaryDataDec.iterator();
+			
+			FieldEntry fieldEntry = fieldIt.next();
+			
+			TestUtilities.checkResult( fieldEntry.fieldId() == 1, "Check the field ID of the first field entry" );
+			TestUtilities.checkResult( fieldEntry.uintValue() == 3056, "Check the value of the first field entry" );
+			
+			fieldEntry = fieldIt.next();
+			
+			TestUtilities.checkResult( fieldEntry.fieldId() == 15, "Check the field ID of the second field entry" );
+			TestUtilities.checkResult( fieldEntry.enumValue() == 840, "Check the value of the second field entry" );
+			
+			fieldEntry = fieldIt.next();
+			TestUtilities.checkResult( fieldEntry.fieldId() == 3386, "Check the field ID of the third field entry" );
+			TestUtilities.checkResult( fieldEntry.date().year() == 2018, "Check the year value of the third field entry" );
+			TestUtilities.checkResult( fieldEntry.date().month() == 2, "Check the month value of the third field entry" );
+			TestUtilities.checkResult( fieldEntry.date().day() == 28, "Check the day value of the third field entry" );
+			
+			TestUtilities.checkResult( fieldIt.hasNext() == false, "Check whether this is an entry from FieldList");
+			
+			TestUtilities.checkResult( mapDec.iterator().hasNext() == false, "Check whether this is an entry from Map");
+			
+			TestUtilities.checkResult( elementListIt.hasNext() == false, "Check whether this is an entry from ElementList");
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to encode no entry map - exception not expected with text : " +  excp.getMessage()  );
+		}
+	}
+	
+	public void testMapSpecifyInvalidKeyType_Encode()
+	{
+		TestUtilities.printTestHead("testMapSpecifyInvalidKeyType_Encode","Encode Map with invalid key type with EMA");
+		
+		try
+		{
+			Map map = EmaFactory.createMap();
+			map.keyType(DataTypes.FIELD_LIST);
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( true, "Fails to encode with invalid key type - exception expected with text : " +  excp.getMessage()  );
+			TestUtilities.checkResult(excp.getMessage().equals("The specified key type 'FieldList' is not a primitive type"), "Check exception message text");
+			return;
+		}
+		
+		TestUtilities.checkResult( false, "Fails to encode with invalid key type - expect exception" );
+	}
+	
+	public void testMapKeyTypeAndAddEntryKeyTypeMismatch_Encode()
+	{
+		TestUtilities.printTestHead("testMapKeyTypeAndAddEntryMismatch_Encode","Encode Map with mismatch key type");
+		
+		try
+		{
+			Map map = EmaFactory.createMap();
+			map.keyFieldId(11).totalCountHint(3).keyType(DataType.DataTypes.INT);
+			map.add(EmaFactory.createMapEntry().keyAscii("Key1", MapEntry.MapAction.ADD));
+			map.add(EmaFactory.createMapEntry().keyAscii("Key2", MapEntry.MapAction.ADD));
+			map.add(EmaFactory.createMapEntry().keyAscii("Key3", MapEntry.MapAction.ADD));
+			
+			ElementList element = EmaFactory.createElementList();
+			element.add(EmaFactory.createElementEntry().map("1", map));
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( true, "Fails to encode with invalid key type - exception expected with text : " +  excp.getMessage()  );
+			TestUtilities.checkResult(excp.getMessage().equals("Attempt to add entry of ASCII_STRING while Map entry key is set to INT with keyType() method"), "Check exception message text");
+			return;
+		}
+		
+		TestUtilities.checkResult( false, "Fails to encode with invalid key type - expect exception" );
+	}
+	
+	public void testMapKeyTypeAndAddEntryKeyTypeMatch_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapKeyTypeAndAddEntryKeyTypeMatch_Encode_Decode","Encode Map with mismatch key type");
+		
+		try
+		{
+			Map map = EmaFactory.createMap();
+			map.keyFieldId(11).totalCountHint(3).keyType(DataType.DataTypes.ASCII);
+			map.add(EmaFactory.createMapEntry().keyAscii("Key1", MapEntry.MapAction.ADD));
+			
+			ElementList elementList = EmaFactory.createElementList();
+			elementList.add(EmaFactory.createElementEntry().map("1", map));
+			
+			ElementList elementListDec = JUnitTestConnect.createElementList();
+			JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), null, null);
+			
+			Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+			
+			ElementEntry elementEntry = elementListIt.next();
+			
+			TestUtilities.checkResult( elementEntry.name().equals("1"), "Check element list key value" );
+			
+			Iterator<MapEntry> mapIt = elementEntry.map().iterator();
+			
+			MapEntry mapEntry = mapIt.next();
+			
+			TestUtilities.checkResult( mapEntry.key().ascii().ascii().equals("Key1"), "Check the key value of the first Map entry" );
+			TestUtilities.checkResult( mapEntry.action() == MapEntry.MapAction.ADD, "Check the key action of the first Map entry" );
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false, "Check whether there is another Map entry" );
+			
+			TestUtilities.checkResult( elementListIt.hasNext() == false, "Check whether there is another Element entry" );
+			
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to encode with invalid key type - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}
+		
+		TestUtilities.checkResult( true, "Encode with match key type - exception not expected" );
+	}
+	
+	public void testMapClear_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapClear_Encode_Decode","Test Clear map before encoding");
+		
+		try
+		{
+		FieldList summaryData = EmaFactory.createFieldList();
+		summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 4563));
+		
+		Map map = EmaFactory.createMap();
+		map.keyType(DataType.DataTypes.DATETIME).summaryData(summaryData);
+		
+		Map mapDec = JUnitTestConnect.createMap();
+		JUnitTestConnect.setRsslData(mapDec, map, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		TestUtilities.checkResult( mapDec.summaryData().dataType() == DataType.DataTypes.FIELD_LIST, "Check data type of summary data before calling the clear method" );
+		
+		map.clear();
+		
+		TestUtilities.checkResult( map.summaryData().dataType() == DataType.DataTypes.NO_DATA, "Check data type of summary data after calling the clear method" );
+		
+		map.keyFieldId(11);
+		map.add(EmaFactory.createMapEntry().keyAscii("Key1", MapEntry.MapAction.ADD));
+		
+		ElementList elementList = EmaFactory.createElementList();
+		elementList.add(EmaFactory.createElementEntry().map("1", map));
+		
+		ElementList elementListDec = JUnitTestConnect.createElementList();
+		JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+		
+		ElementEntry elementEntry = elementListIt.next();
+		
+		TestUtilities.checkResult( elementEntry.name().equals("1"), "Check element list key value" );
+		
+		Iterator<MapEntry> mapIt = elementEntry.map().iterator();
+		
+		MapEntry mapEntry = mapIt.next();
+		
+		TestUtilities.checkResult( mapEntry.key().ascii().ascii().equals("Key1"), "Check the key value of the first Map entry" );
+		TestUtilities.checkResult( mapEntry.action() == MapEntry.MapAction.ADD, "Check the key action of the first Map entry" );
+		
+		TestUtilities.checkResult( mapIt.hasNext() == false, "Check whether there is another Map entry" );
+		
+		TestUtilities.checkResult( elementListIt.hasNext() == false, "Check whether there is another Element entry" );
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails encode after calling the clear method - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}		
+	}
+	
+	public void testMapEntryKeyAsciiWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyAsciiWithNoPayload_Encode_Decode","Encode and decode Map with no payload for ascii key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(1234).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyAscii("ITEM1", MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyAscii("ITEM2", MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyAscii("ITEM3", MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().ascii().ascii().equals("ITEM1"), "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().ascii().ascii().equals("ITEM2"), "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData), "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().ascii().ascii().equals("ITEM3"), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode and decode Map with no payload for ascii key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyBufferWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyBufferWithNoPayload_Encode_Decode","Encode Map with no payload for buffer key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(5678).flip();
+			
+			ByteBuffer keyBuffer1 = ByteBuffer.allocate(10);
+			keyBuffer1.put("KeyBuffer1".getBytes()).flip();
+			ByteBuffer keyBuffer2 = ByteBuffer.allocate(10);
+			keyBuffer2.put("KeyBuffer2".getBytes()).flip();
+			ByteBuffer keyBuffer3 = ByteBuffer.allocate(10);
+			keyBuffer3.put("KeyBuffer3".getBytes()).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyBuffer(keyBuffer1, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyBuffer(keyBuffer2, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyBuffer(keyBuffer3, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().buffer().buffer().equals(keyBuffer1), "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().buffer().buffer().equals(keyBuffer2), "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().buffer().buffer().equals(keyBuffer3), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for buffer key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyDateWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyDateWithNoPayload_Encode_Decode","Encode Map with no payload for date key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(9101).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyDate(2018, 01, 02, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyDate(2019, 02, 03, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyDate(2020, 03, 04, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().date().toString().equals("02 JAN 2018") , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().date().toString().equals("03 FEB 2019"), "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().date().toString().equals("04 MAR 2020"), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for date key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyDateTimeWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyDateTimeWithNoPayload_Encode_Decode","Encode Map with no payload for date time key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(1213).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyDateTime(2021, 04, 05, 1, 2, 3, 4, 5, 6, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyDateTime(2022, 05, 06, 2, 3, 4, 5, 6, 7, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyDateTime(2023, 06, 07, 3, 4, 5, 6, 7, 8, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().dateTime().toString().equals("05 APR 2021 01:02:03:004:005:006") , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().dateTime().toString().equals("06 MAY 2022 02:03:04:005:006:007"), "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().dateTime().toString().equals("07 JUN 2023 03:04:05:006:007:008"), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for date time key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyDoubleWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyDoubleWithNoPayload_Encode_Decode","Encode Map with no payload for double key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(1314).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyDouble(56.55, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyDouble(65.66, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyDouble(75.77, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().ommDoubleValue().doubleValue() == 56.55 , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().ommDoubleValue().doubleValue() == 65.66, "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().ommDoubleValue().doubleValue() == 75.77, "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for double key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyEnumWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyEnumWithNoPayload_Encode_Decode","Encode Map with no payload for enum key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(1415).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyEnum(55, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyEnum(66, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyEnum(77, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().ommEnumValue().enumValue() == 55 , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().ommEnumValue().enumValue() == 66, "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().ommEnumValue().enumValue() == 77, "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for enum key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyFloatWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyFloatWithNoPayload_Encode_Decode","Encode Map with no payload for float key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(1516).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyFloat(123.4f, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyFloat(234.5f, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyFloat(345.6f, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().ommFloatValue().floatValue() == 123.4f , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().ommFloatValue().floatValue() == 234.5f, "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().ommFloatValue().floatValue() == 345.6f, "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for float key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyQosWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyQosWithNoPayload_Encode_Decode","Encode Map with no payload for qos key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(1617).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyQos(OmmQos.Timeliness.REALTIME, OmmQos.Rate.JUST_IN_TIME_CONFLATED,MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyQos(OmmQos.Timeliness.INEXACT_DELAYED, 5, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyQos(15, OmmQos.Rate.TICK_BY_TICK, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().qos().toString().equals("RealTime/JustInTimeConflated") , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().qos().toString().equals("InexactDelayed/Rate: 5"), "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().qos().toString().equals("Timeliness: 15/TickByTick") , "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for qos key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyIntWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyIntWithNoPayload_Encode_Decode","Encode Map with no payload for int key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(1718).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyInt(Integer.MAX_VALUE, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyInt(Integer.MIN_VALUE, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyInt(555, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().ommIntValue().intValue() == Integer.MAX_VALUE , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().ommIntValue().intValue() == Integer.MIN_VALUE, "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().ommIntValue().intValue() == 555, "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for int key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyRealFromDoubleWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyRealFromDoubleWithNoPayload_Encode_Decode","Encode Map with no payload for real from double key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(1819).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyReal(485.55, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyReal(9956.694, OmmReal.MagnitudeType.EXPONENT_POS_1, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyReal(1095.894, OmmReal.MagnitudeType.EXPONENT_POS_1, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().real().toString().equals("486.0") , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().real().toString().equals("9960.0"), "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().real().toString().equals("1100.0"), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for real from double key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyRealFromMantissaWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyRealFromMantissaWithNoPayload_Encode_Decode","Encode Map with no payload for real from mantissa key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(1920).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyReal(5678, OmmReal.MagnitudeType.EXPONENT_NEG_1, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyReal(9956, OmmReal.MagnitudeType.EXPONENT_NEG_2, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyReal(31095, OmmReal.MagnitudeType.EXPONENT_NEG_3, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().real().toString().equals("567.8") , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().real().toString().equals("99.56"), "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().real().toString().equals("31.095"), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for real from mantissa key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyRmtesWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyRmtesWithNoPayload_Encode_decode","Encode Map with no payload for Rmtes key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(2021).flip();
+			
+			ByteBuffer rmtesKey1 = ByteBuffer.allocate(5);
+			rmtesKey1.putInt(12345).flip();
+			
+			ByteBuffer rmtesKey2 = ByteBuffer.allocate(5);
+			rmtesKey2.putInt(67891).flip();
+			
+			ByteBuffer rmtesKey3 = ByteBuffer.allocate(5);
+			rmtesKey3.putInt(23456).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyRmtes(rmtesKey1, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyRmtes(rmtesKey2, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyRmtes(rmtesKey3, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().rmtes().asHex().equals(rmtesKey1) , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().rmtes().asHex().equals(rmtesKey2) , "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().rmtes().asHex().equals(rmtesKey3) , "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for Rmtes key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyStateWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyStateWithNoPayload_Encode_Decode","Encode Map with no payload for state key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(2122).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyState(OmmState.StreamState.OPEN, OmmState.DataState.OK, OmmState.StatusCode.NONE, "Text for key1", MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyState(OmmState.StreamState.NON_STREAMING, OmmState.DataState.SUSPECT, OmmState.StatusCode.ALREADY_OPEN, "Text for key2", MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyState(OmmState.StreamState.CLOSED, OmmState.DataState.SUSPECT, OmmState.StatusCode.INVALID_ARGUMENT, "Text for key3", MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().state().toString().equals("Open / Ok / None / 'Text for key1'") , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().state().toString().equals("Non-streaming / Suspect / Already open / 'Text for key2'") , "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().state().toString().equals("Closed / Suspect / Invalid argument / 'Text for key3'"), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for state key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyTimeWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyTimeWithNoPayload_Encode_Decode","Encode Map with no payload for time key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(2223).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyTime(8, 20, 30 , 400, 500, 600, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyTime(9, 30, 40 , 500, 600, 700, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyTime(10, 40, 50 , 600, 700, 800, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().time().toString().equals("08:20:30:400:500:600") , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().time().toString().equals("09:30:40:500:600:700") , "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().time().toString().equals("10:40:50:600:700:800"), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for time key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyUIntFromBigIntegerWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyUIntFromBigIntegerWithNoPayload_Encode_Decode","Encode Map with no payload for BigInteger key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(2324).flip();
+			
+			BigInteger key1 = new BigInteger("123");
+			BigInteger key2 = new BigInteger("234");
+			BigInteger key3 = new BigInteger("345");
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyUInt(key1, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyUInt(key2, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyUInt(key3, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().ommUIntValue().longValue() == key1.longValue() , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().ommUIntValue().longValue() == key2.longValue() , "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().ommUIntValue().longValue() == key3.longValue(), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for BigInteger key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyUIntFromLongWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyUIntFromBigIntegerWithNoPayload_Encode_Decode","Encode Map with no payload for long key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(3435).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyUInt(1234, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyUInt(2345, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyUInt(3456, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().ommUIntValue().longValue() == 1234 , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().ommUIntValue().longValue() == 2345 , "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().ommUIntValue().longValue() == 3456, "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for BigInteger key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testMapEntryKeyUtf8WithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testMapEntryKeyUtf8WithNoPayload_Encode_Decode","Encode Map with no payload for Utf8 key entry");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+		
+		try {
+			Map mapEnc = EmaFactory.createMap();
+			
+			ByteBuffer permissionData = ByteBuffer.allocate(4);
+			permissionData.putInt(3435).flip();
+			
+			ByteBuffer utf8key1 = ByteBuffer.allocate(5);
+			utf8key1.putInt(34561).flip();
+			
+			ByteBuffer utf8key2 = ByteBuffer.allocate(5);
+			utf8key1.putInt(78912).flip();
+			
+			ByteBuffer utf8key3 = ByteBuffer.allocate(5);
+			utf8key1.putInt(12135).flip();
+			
+			mapEnc.add(EmaFactory.createMapEntry().keyUtf8(utf8key1, MapEntry.MapAction.ADD));
+			mapEnc.add(EmaFactory.createMapEntry().keyUtf8(utf8key2, MapEntry.MapAction.UPDATE, permissionData));
+			mapEnc.add(EmaFactory.createMapEntry().keyUtf8(utf8key3, MapEntry.MapAction.DELETE));
+			
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			
+			Iterator<MapEntry> mapIt = mapDec.iterator();
+			
+			MapEntry mapEntryA = mapIt.next();
+			TestUtilities.checkResult( mapEntryA.key().utf8().buffer().equals(utf8key1) , "Check the key value of the first map entry");
+			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
+			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
+			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
+			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			MapEntry mapEntryB = mapIt.next();
+			TestUtilities.checkResult( mapEntryB.key().utf8().buffer().equals(utf8key2) , "Check the key value of the second map entry");
+			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
+			TestUtilities.checkResult( mapEntryB.loadType() == DataTypes.NO_DATA, "Check the load type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
+			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			MapEntry mapEntryC = mapIt.next();
+			TestUtilities.checkResult( mapEntryC.key().utf8().buffer().equals(utf8key3), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			
+			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "Encode Map with no payload for Utf8 key entry - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
 	}
 	
 	public void testMapContainsPartialEmptyFieldList_EncodeDecodeAll()

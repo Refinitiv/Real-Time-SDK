@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -72,6 +72,8 @@ void VectorEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDa
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
 		throwIueException( temp );
 	}
+
+	_containerInitialized = true;
 }
 
 void VectorEncoder::addEncodedEntry( UInt32 position, UInt8 action, const EmaBuffer& permission, const char* methodName, const RsslBuffer& rsslBuffer )
@@ -221,24 +223,47 @@ void VectorEncoder::add( UInt32 position, VectorEntry::VectorAction action, cons
 	}
 }
 
+void VectorEncoder::add(UInt32 position, VectorEntry::VectorAction action, const EmaBuffer& permission)
+{
+	if (_containerComplete)
+	{
+		EmaString temp("Attempt to add an entry after complete() was called.");
+		throwIueException(temp);
+		return;
+	}
+
+	UInt8 rsslDataType = RSSL_DT_NO_DATA;
+
+	if (!hasEncIterator())
+	{
+		acquireEncIterator();
+
+		initEncode(rsslDataType, DataType::NoDataEnum);
+	}
+	else if (_rsslVector.containerType != rsslDataType)
+	{
+		EmaString temp("Attempt to add an entry with a different DataType. Encode DataType as ");
+		temp += DataType(DataType::NoDataEnum).toString();
+		temp += EmaString(" while the expected DataType is ");
+		temp += DataType(_emaDataType);
+		throwIueException(temp);
+		return;
+	}
+
+	RsslBuffer rsslBuffer;
+	rsslClearBuffer(&rsslBuffer);
+	addEncodedEntry(position, action, permission, "add()", rsslBuffer);
+}
+
 void VectorEncoder::complete()
 {
 	if ( _containerComplete ) return;
 
 	if ( !hasEncIterator() )
 	{
-		if ( _rsslVector.containerType )
-		{
-			acquireEncIterator();
+		acquireEncIterator();
 
-			initEncode( _rsslVector.containerType, _emaDataType );
-		}
-		else
-		{
-			EmaString temp( "Attempt to complete() while no Vector::add() or Vector::summaryData() were called yet." );
-			throwIueException( temp );
-			return;
-		}
+		initEncode( convertDataType(_emaDataType), _emaDataType );
 	}
 
 	RsslRet retCode = rsslEncodeVectorComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );
@@ -268,7 +293,7 @@ void VectorEncoder::totalCountHint( UInt32 totalCountHint )
 	}
 	else
 	{
-		EmaString temp( "Invalid attempt to call totalCountHint() when container is not empty." );
+		EmaString temp( "Invalid attempt to call totalCountHint() when container is initialized." );
 		throwIueException( temp );
 	}
 }
@@ -310,7 +335,23 @@ void VectorEncoder::summaryData( const ComplexType& data )
 	}
 	else
 	{
-		EmaString temp( "Invalid attempt to call summaryData() when container is not empty." );
+		EmaString temp( "Invalid attempt to call summaryData() when container is initialized." );
+		throwIueException( temp );
+	}
+}
+
+void VectorEncoder::sortable( bool sortable )
+{
+	if ( !_containerInitialized )
+	{
+		if ( sortable )
+			_rsslVector.flags |= RSSL_VTF_SUPPORTS_SORTING;
+		else
+			_rsslVector.flags &= ~RSSL_VTF_SUPPORTS_SORTING;
+	}
+	else
+	{
+		EmaString temp( "Invalid attempt to call sortable() when container is initialized." );
 		throwIueException( temp );
 	}
 }

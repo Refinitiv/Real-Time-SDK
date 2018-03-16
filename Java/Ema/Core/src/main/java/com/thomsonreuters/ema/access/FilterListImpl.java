@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -334,25 +334,37 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 		_fillCollection = false;
 	}
 	
-	Buffer encodedData()
+	void setEncodedBufferIterator()
 	{
-		if (_encodeComplete || (_rsslEncodeIter == null) )
-			return _rsslBuffer; 
-		
-		if (_filterListCollection.isEmpty())
-			throw ommIUExcept().message("Series to be encoded is empty.");
-		
-		int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
-	    if (ret != CodecReturnCodes.SUCCESS)
+		_rsslEncodeIter.clear();
+    	int ret = _rsslEncodeIter.setBufferAndRWFVersion(_rsslBuffer, _rsslMajVer, _rsslMinVer);
+    	
+    	if (ret != CodecReturnCodes.SUCCESS)
 	    {
 	    	String errText = errorString().append("Failed to setBufferAndRWFVersion on rssl encode iterator. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
 	    	throw ommIUExcept().message(errText);
 	    }
-	    
-	    FilterEntryImpl firstEntry = (FilterEntryImpl)_filterListCollection.get(0);
-		_rsslFilterList.containerType(firstEntry._rsslFilterEntry.containerType());
+	}
+	
+	Buffer encodedData()
+	{
+		if (_encodeComplete || (_rsslEncodeIter == null) )
+			return _rsslBuffer; 
+		
+		int ret;
+		if (_filterListCollection.isEmpty())
+		{
+			_rsslFilterList.containerType(com.thomsonreuters.upa.codec.DataTypes.NO_DATA);
+		}
+		else
+		{    
+		    FilterEntryImpl firstEntry = (FilterEntryImpl)_filterListCollection.get(0);
+			_rsslFilterList.containerType(firstEntry._rsslFilterEntry.containerType());
+		}
+		
+		setEncodedBufferIterator();
 
 	    while ((ret = _rsslFilterList.encodeInit(_rsslEncodeIter)) == CodecReturnCodes.BUFFER_TOO_SMALL)
 	    {
@@ -361,7 +373,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 	    
 	    if (ret != CodecReturnCodes.SUCCESS)
 	    {
-	    	String errText = errorString().append("Failed to intialize encoding on rssl series. Reason='")
+	    	String errText = errorString().append("Failed to intialize encoding on rssl FilterList. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
 	    	throw ommIUExcept().message(errText);
@@ -378,7 +390,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 		    {
 				String errText = errorString().append("Failed to ")
 						.append("rsslFilterEntry.encode()")
-						.append(" while encoding rssl series. Reason='")
+						.append(" while encoding rssl FilterList. Reason='")
 						.append(CodecReturnCodes.toString(ret))
 						.append("'").toString();
 				throw ommIUExcept().message(errText);
@@ -388,7 +400,7 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 		ret =  _rsslFilterList.encodeComplete(_rsslEncodeIter, true);
 	    if (ret != CodecReturnCodes.SUCCESS)
 	    {
-	    	String errText = errorString().append("Failed to complete encoding on rssl series. Reason='")
+	    	String errText = errorString().append("Failed to complete encoding on rssl FilterList. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
 	        throw ommIUExcept().message(errText);

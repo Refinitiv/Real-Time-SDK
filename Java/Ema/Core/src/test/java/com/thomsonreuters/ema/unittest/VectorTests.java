@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.unittest;
@@ -14,10 +14,14 @@ import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.ema.access.DataType;
+import com.thomsonreuters.ema.access.ElementEntry;
+import com.thomsonreuters.ema.access.ElementList;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.FieldList;
 import com.thomsonreuters.ema.access.JUnitTestConnect;
+import com.thomsonreuters.ema.access.Map;
+import com.thomsonreuters.ema.access.MapEntry;
 import com.thomsonreuters.ema.access.Vector;
 import com.thomsonreuters.ema.access.VectorEntry;
 import com.thomsonreuters.ema.access.OmmException;
@@ -44,11 +48,197 @@ public class VectorTests extends TestCase
 		}
 		catch ( OmmException excp )
 		{
-			TestUtilities.checkResult( true, "empty Vector - exception expected: " +  excp.getMessage()  );
+			TestUtilities.checkResult( false, "empty Vector - exception not expected: " +  excp.getMessage()  );
 			return;
 		}
-
-		TestUtilities.checkResult( false, "empty Vector - did not get expected exception" );
+	}
+	
+	public void testVectorWithSummaryDataButNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testVectorWithSummaryDataButNoPayload_Encode_Decode","Encode Vector with summary data but no entry with EMA");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dataDictionary = TestUtilities.getDataDictionary();
+		
+		try
+		{
+			FieldList summaryData = EmaFactory.createFieldList();
+			summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 3056));
+			summaryData.add(EmaFactory.createFieldEntry().enumValue(15, 840));
+			summaryData.add(EmaFactory.createFieldEntry().date(3386, 2018, 2, 28));
+			
+			Vector vector = EmaFactory.createVector();
+			vector.totalCountHint(0).summaryData(summaryData);
+			
+			ElementList elementList = EmaFactory.createElementList();
+			elementList.info(1).add(EmaFactory.createElementEntry().vector("1", vector));
+			
+			ElementList elementListDec = JUnitTestConnect.createElementList();
+			JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), dataDictionary, null);
+			
+			TestUtilities.checkResult( elementListDec.infoElementListNum() == 1, "Check info of ElementList" );
+			
+			Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+			
+			ElementEntry elementEntry = elementListIt.next();
+			
+			Vector vectorDec = elementEntry.vector();
+			
+			TestUtilities.checkResult( vectorDec.totalCountHint() == 0, "Check totoal count hint of Vector" );
+			
+			FieldList summaryDataDec = vectorDec.summaryData().fieldList();
+			
+			Iterator<FieldEntry> fieldIt = summaryDataDec.iterator();
+			
+			FieldEntry fieldEntry = fieldIt.next();
+			
+			TestUtilities.checkResult( fieldEntry.fieldId() == 1, "Check the field ID of the first field entry" );
+			TestUtilities.checkResult( fieldEntry.uintValue() == 3056, "Check the value of the first field entry" );
+			
+			fieldEntry = fieldIt.next();
+			
+			TestUtilities.checkResult( fieldEntry.fieldId() == 15, "Check the field ID of the second field entry" );
+			TestUtilities.checkResult( fieldEntry.enumValue() == 840, "Check the value of the second field entry" );
+			
+			fieldEntry = fieldIt.next();
+			TestUtilities.checkResult( fieldEntry.fieldId() == 3386, "Check the field ID of the third field entry" );
+			TestUtilities.checkResult( fieldEntry.date().year() == 2018, "Check the year value of the third field entry" );
+			TestUtilities.checkResult( fieldEntry.date().month() == 2, "Check the month value of the third field entry" );
+			TestUtilities.checkResult( fieldEntry.date().day() == 28, "Check the day value of the third field entry" );
+			
+			TestUtilities.checkResult( fieldIt.hasNext() == false, "Check whether this is an entry from FieldList");
+			
+			TestUtilities.checkResult( vectorDec.iterator().hasNext() == false, "Check whether this is an entry from Vector");
+			
+			TestUtilities.checkResult( elementListIt.hasNext() == false, "Check whether this is an entry from ElementList");
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to encode no entry Vector - exception not expected with text : " +  excp.getMessage()  );
+		}
+	}
+	
+	public void testVectorWithSummaryDataButMisMatchEntryPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testVectorWithSummaryDataButMisMatchEntryPayload_Encode_Decode","Encode Vector with summary data but mismatch entry's payload with EMA");
+		
+		try
+		{
+			FieldList summaryData = EmaFactory.createFieldList();
+			summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 3056));
+			
+			ElementList elementList = EmaFactory.createElementList();
+			elementList.add(EmaFactory.createElementEntry().codeAscii("Name1"));
+		
+			Vector vector = EmaFactory.createVector();
+			vector.totalCountHint(0).summaryData(summaryData).add(EmaFactory.createVectorEntry()
+					.elementList(1, VectorEntry.VectorAction.INSERT, elementList));
+			
+			Map map = EmaFactory.createMap();
+			map.add(EmaFactory.createMapEntry().keyAscii("key", MapEntry.MapAction.ADD, vector));
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( true, "Fails to encode Vector with summary data but mismatch entry's payload - exception expected with text : " +  excp.getMessage());
+			TestUtilities.checkResult( excp.getMessage().equals("Attempt to add entry of ELEMENT_LIST while Vector entry load type is set to FIELD_LIST with summaryData() method")
+					, "Check exception text");
+			
+			return;
+		}
+		
+		TestUtilities.checkResult( false, "Fails to encode Vector with summary data but mismatch entry's payload - exception expected with");
+	}
+	
+	public void testVectorEntryWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testVectorEntryWithNoPayload_Encode_Decode","Encode multiple Vector entry with no payload");
+		
+		try
+		{
+		ByteBuffer permissionData = ByteBuffer.allocate(5);
+		permissionData.putInt(12345).flip();
+		
+		Vector vector = EmaFactory.createVector();
+		vector.add(EmaFactory.createVectorEntry().noData(1, VectorEntry.VectorAction.INSERT));
+		vector.add(EmaFactory.createVectorEntry().noData(2, VectorEntry.VectorAction.SET, permissionData));
+		
+		Vector vectorDec = JUnitTestConnect.createVector();
+		JUnitTestConnect.setRsslData(vectorDec, vector, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		Iterator<VectorEntry> vectorIt = vectorDec.iterator();
+		
+		VectorEntry vectorEntry = vectorIt.next();
+		TestUtilities.checkResult( vectorEntry.position() == 1, "Check the positoin of the first entry");
+		TestUtilities.checkResult( vectorEntry.action() == VectorEntry.VectorAction.INSERT, "Check the action of the first entry");
+		
+		
+		vectorEntry = vectorIt.next();
+		TestUtilities.checkResult( vectorEntry.position() == 2, "Check the positoin of the second entry");
+		TestUtilities.checkResult( vectorEntry.action() == VectorEntry.VectorAction.SET, "Check the action of the second entry");
+		TestUtilities.checkResult( vectorEntry.hasPermissionData() , "Check has permission data for second entry");
+		TestUtilities.checkResult( vectorEntry.permissionData().equals(permissionData) , "Check the permission data for the second entry");
+		
+		TestUtilities.checkResult( vectorIt.hasNext() == false , "Check to make sure there is no more entry");
+		
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to Encode multiple Vector entry with no payload - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}	
+	}
+	
+	public void testVectorClear_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testVectorClear_Encode_Decode","Test Clear Vector before encoding");
+		
+		try
+		{
+		FieldList summaryData = EmaFactory.createFieldList();
+		summaryData.add(EmaFactory.createFieldEntry().uintValue(1, 4563));
+		
+		Vector vector = EmaFactory.createVector();
+		vector.summaryData(summaryData);
+		
+		Vector vectorDec = JUnitTestConnect.createVector();
+		JUnitTestConnect.setRsslData(vectorDec, vector, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		TestUtilities.checkResult( vectorDec.summaryData().dataType() == DataType.DataTypes.FIELD_LIST, "Check data type of summary data before calling the clear method" );
+		
+		vector.clear();
+		
+		TestUtilities.checkResult( vector.summaryData().dataType() == DataType.DataTypes.NO_DATA, "Check data type of summary data after calling the clear method" );
+		
+		vector.add(EmaFactory.createVectorEntry().noData(5, VectorEntry.VectorAction.INSERT));
+		
+		ElementList elementList = EmaFactory.createElementList();
+		elementList.add(EmaFactory.createElementEntry().vector("1", vector));
+		
+		ElementList elementListDec = JUnitTestConnect.createElementList();
+		JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+		
+		ElementEntry elementEntry = elementListIt.next();
+		
+		TestUtilities.checkResult( elementEntry.name().equals("1"), "Check element list key value" );
+		
+		Iterator<VectorEntry> vectorIt = elementEntry.vector().iterator();
+		
+		VectorEntry vectorEntry = vectorIt.next();
+		
+		TestUtilities.checkResult( vectorEntry.position() == 5, "Check the position value of the first Vector entry" );
+		TestUtilities.checkResult( vectorEntry.action() == VectorEntry.VectorAction.INSERT, "Check the action of the first Vector entry" );
+		TestUtilities.checkResult( vectorEntry.loadType() == DataType.DataTypes.NO_DATA, "Check the load type of the first Vector entry" );
+		
+		TestUtilities.checkResult( vectorIt.hasNext() == false, "Check whether there is another Vector entry" );
+		
+		TestUtilities.checkResult( elementListIt.hasNext() == false, "Check whether there is another Element entry" );
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to encode after calling the clear method - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}		
 	}
 	
 	public void testVectorContainsFieldLists_EncodeDecodeAll()

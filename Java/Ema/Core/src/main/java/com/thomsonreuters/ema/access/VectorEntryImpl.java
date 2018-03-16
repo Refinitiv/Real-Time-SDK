@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -317,6 +317,40 @@ class VectorEntryImpl extends EntryImpl implements VectorEntry
 			_rsslVectorEntry.applyHasPermData();
 		}
 
+		return this;
+	}
+	
+	private VectorEntry entryValue(long position, int action, ByteBuffer permissionData)
+	{
+		if (position < 0 || position > 1073741823)
+			throw ommOORExcept().message("position is out of range [0 - 1073741823].");
+		if (action < 0 || action > 15)
+			throw ommOORExcept().message("action is out of range [0 - 15].");
+
+		_rsslVectorEntry.index(position);
+		_rsslVectorEntry.action(action);
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
+		
+		if (permissionData != null)
+		{
+			Utilities.copy(permissionData, _rsslVectorEntry.permData());
+			_rsslVectorEntry.applyHasPermData();
+		}
+
+		return this;
+	}
+
+	@Override
+	public VectorEntry noData(long position, int action)
+	{
+		entryValue(position, action, null);
+		return this;
+	}
+
+	@Override
+	public VectorEntry noData(long position, int action, ByteBuffer permissionData)
+	{
+		entryValue(position, action, permissionData);
 		return this;
 	}
 }

@@ -4263,4 +4263,52 @@ TEST(FieldListTests, testFieldListEncodeEMADecodeEMARippleToRippleToName)
     rsslDeleteDataDictionary(&dictionary);
 }
 
+TEST(FieldListTests, testFieldListAddInfoAfterInitialized)
+{
+	try
+	{
+		FieldList fieldList;
+		fieldList.addCodeUInt(1).info(1,1).complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Encode info after FieldList is initialized - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Invalid attempt to call info() when container is initialized.", exp.getText().c_str());
+		return;
+	}
 
+	EXPECT_TRUE(false) << "Encode total count hint after FieldList is initialized - exception expected";
+}
+
+TEST(FieldListTests, testFieldListClear_Encode_Decode)
+{
+	try
+	{
+		// load dictionary for decoding of the field list
+		RsslDataDictionary dictionary;
+
+		ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+		FieldList fieldList;
+		fieldList.info(1, 2).addUInt(1, 555)
+			.clear()
+			.info(3, 4).addUInt(1, 666).complete();
+
+		StaticDecoder::setData(&fieldList, &dictionary);
+
+		EXPECT_TRUE(fieldList.hasInfo()) << "Check has info attribute";
+		EXPECT_TRUE(fieldList.getInfoDictionaryId() == 3) << "Check the info dictionary ID attribute";
+		EXPECT_TRUE(fieldList.getInfoFieldListNum() == 4) << "Check the info field list num attribute";
+
+		EXPECT_TRUE(fieldList.forth()) << "Get the first Field entry";
+		EXPECT_TRUE(fieldList.getEntry().getFieldId() == 1) << "Check the field ID of the first entry";
+		EXPECT_TRUE(fieldList.getEntry().getLoadType() == DataType::UIntEnum) << "Check the load type of the first entry";
+		EXPECT_TRUE(fieldList.getEntry().getUInt() == 666) << "Check the Uint value of the first entry";
+
+		EXPECT_FALSE(fieldList.forth()) << "Check to make sure that there is no more enty in FieldList";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode FieldList - exception not expected with text" << exp.getText().c_str();
+	}
+}

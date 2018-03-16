@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -36,7 +36,8 @@ extern const EmaString& getMTypeAsString( OmmReal::MagnitudeType mType );
 
 FieldListEncoder::FieldListEncoder() :
  _rsslFieldList(),
- _rsslFieldEntry()
+ _rsslFieldEntry(),
+ _containerInitialized( false )
 {
 }
 
@@ -50,13 +51,23 @@ void FieldListEncoder::clear()
 
 	rsslClearFieldList( &_rsslFieldList );
 	rsslClearFieldEntry( &_rsslFieldEntry );
+
+	_containerInitialized = false;
 }
 
 void FieldListEncoder::info( Int16 dictionaryId, Int16 fieldListNum )
 {
-	_rsslFieldList.dictionaryId = dictionaryId;
-	_rsslFieldList.fieldListNum = fieldListNum;
-	rsslFieldListApplyHasInfo( &_rsslFieldList );
+	if (!_containerInitialized)
+	{
+		_rsslFieldList.dictionaryId = dictionaryId;
+		_rsslFieldList.fieldListNum = fieldListNum;
+		rsslFieldListApplyHasInfo(&_rsslFieldList);
+	}
+	else
+	{
+		EmaString temp("Invalid attempt to call info() when container is initialized.");
+		throwIueException(temp);
+	}
 }
 
 void FieldListEncoder::initEncode()
@@ -78,6 +89,8 @@ void FieldListEncoder::initEncode()
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
 		throwIueException( temp );
 	}
+
+	_containerInitialized = true;
 }
 
 void FieldListEncoder::addPrimitiveEntry( Int16 fieldId, RsslDataType rsslDataType,

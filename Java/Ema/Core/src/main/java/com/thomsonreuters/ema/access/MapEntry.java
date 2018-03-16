@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -340,6 +340,19 @@ public interface MapEntry
 		public MapEntry keyInt(long key, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key containing long key information
+		 * @param action specifies action to be applied to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyInt(long key, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -353,6 +366,20 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyInt(long key, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key containing long key information
+		 * @param action specifies action to be applied to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyInt(long key, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -366,7 +393,20 @@ public interface MapEntry
 		 * 
 		 * @return reference to this object
 		 */
-		public MapEntry keyUInt(long key, int action, ComplexType value);		
+		public MapEntry keyUInt(long key, int action, ComplexType value);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key containing UInt key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyUInt(long key, int action);
 		
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -384,6 +424,20 @@ public interface MapEntry
 		public MapEntry keyUInt(long key, int action, ComplexType value, ByteBuffer permissionData);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key containing UInt key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyUInt(long key, int action, ByteBuffer permissionData);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -398,6 +452,19 @@ public interface MapEntry
 		public MapEntry keyUInt(BigInteger key, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key containing UInt key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyUInt(BigInteger key, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -410,7 +477,21 @@ public interface MapEntry
 		 * 
 		 * @return reference to this object
 		 */
-		public MapEntry keyUInt(BigInteger key, int action, ComplexType value, ByteBuffer permissionData);									
+		public MapEntry keyUInt(BigInteger key, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key containing UInt key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyUInt(BigInteger key, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -428,6 +509,20 @@ public interface MapEntry
 		public MapEntry keyReal(long mantissa, int magnitudeType, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param mantissa specifies OmmReal mantissa part of key information
+		 * @param magnitudeType specifies OmmReal magnitudeType part of key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyReal(long mantissa, int magnitudeType, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -442,6 +537,21 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyReal(long mantissa, int magnitudeType, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param mantissa specifies OmmReal mantissa part of key information
+		 * @param magnitudeType specifies OmmReal magnitudeType part of key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyReal(long mantissa, int magnitudeType, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -457,6 +567,20 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyReal(double key, int action, ComplexType value);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * Default magnitudeType is {@link com.thomsonreuters.ema.access.OmmReal.MagnitudeType#EXPONENT_0}
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key specifies double to be converted to {@link com.thomsonreuters.ema.access.OmmReal}
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyReal(double key, int action);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -473,8 +597,22 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyReal(double key, int action, ComplexType value, ByteBuffer permissionData);
-
 		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * Default magnitudeType is {@link com.thomsonreuters.ema.access.OmmReal.MagnitudeType#EXPONENT_0}
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key specifies double to be converted to {@link com.thomsonreuters.ema.access.OmmReal}
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to  this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyReal(double key, int action, ByteBuffer permissionData);
+
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
@@ -491,6 +629,20 @@ public interface MapEntry
 		public MapEntry keyReal(double key, int magnitudeType, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key specifies double to be converted to {@link com.thomsonreuters.ema.access.OmmReal}
+		 * @param magnitudeType OmmReal magnitudeType used for the conversion
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyReal(double key, int magnitudeType, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -505,6 +657,21 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyReal(double key,  int magnitudeType, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key specifies double to be converted to {@link com.thomsonreuters.ema.access.OmmReal}
+		 * @param magnitudeType OmmReal magnitudeType used for the conversion
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to  this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyReal(double key,  int magnitudeType, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -521,6 +688,19 @@ public interface MapEntry
 		public MapEntry keyFloat(float key, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key containing float key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyFloat(float key, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -534,6 +714,20 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyFloat(float key, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key containing float key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyFloat(float key, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -549,6 +743,18 @@ public interface MapEntry
 		public MapEntry keyDouble(double key, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 * @param key containing double key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyDouble(double key, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -562,6 +768,20 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyDouble(double key, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key containing double key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyDouble(double key, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -581,6 +801,22 @@ public interface MapEntry
 		public MapEntry keyDate(int year, int month, int day, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 * @throws OmmOutOfRangeException if passed in OmmDate is invalid
+		 * 
+		 * @param year specifies OmmDate year part of key information (0 - 4095)
+		 * @param month specifies OmmDate month part of key information (0 - 12)
+		 * @param day specifies OmmDate day part of key information (0 - 31)
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyDate(int year, int month, int day, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -597,6 +833,23 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyDate(int year, int month, int day, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 * @throws OmmOutOfRangeException if passed in OmmDate is invalid
+		 * 
+		 * @param year specifies OmmDate year part of key information (0 - 4095)
+		 * @param month specifies OmmDate month part of key information (0 - 12)
+		 * @param day specifies OmmDate day part of key information (0 - 31)
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyDate(int year, int month, int day, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -617,6 +870,25 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ComplexType value);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 * @throws OmmOutOfRangeException if passed in OmmTime is invalid
+		 * 
+		 * @param hour specifies OmmTime hour part of key information (0 - 23)
+		 * @param minute specifies OmmTime minute part of key information (0 - 59)
+		 * @param second specifies OmmTime second part of key information (0 - 60)
+		 * @param millisecond specifies OmmTime millisecond part of key information (0 - 999)
+		 * @param microsecond specifies OmmTime microsecond part of key information (0 - 999)
+		 * @param nanosecond specifies OmmTime nanosecond part of key information (0 - 999)
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action);
 		
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -640,6 +912,26 @@ public interface MapEntry
 		public MapEntry keyTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ComplexType value, ByteBuffer permissionData);
 
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 * @throws OmmOutOfRangeException if passed in OmmTime is invalid
+		 * 
+		 * @param hour specifies OmmTime hour part of key information (0 - 23)
+		 * @param minute specifies OmmTime minute part of key information (0 - 59)
+		 * @param second specifies OmmTime second part of key information (0 - 60)
+		 * @param millisecond specifies OmmTime millisecond part of key information (0 - 999)
+		 * @param microsecond specifies OmmTime microsecond part of key information (0 - 999)
+		 * @param nanosecond specifies OmmTime nanosecond part of key information (0 - 999)
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ByteBuffer permissionData);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -661,6 +953,28 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ComplexType value);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 * @throws OmmOutOfRangeException if passed in OmmDateTime is invalid
+		 * 
+		 * @param year specifies OmmDateTime year part of key information (0 - 4095)
+		 * @param month specifies OmmDateTime month part of key information (0 - 12)
+		 * @param day specifies OmmDateTime day part of key information (0 - 31)
+		 * @param hour specifies OmmDateTime hour part of key information (0 - 23)
+		 * @param minute specifies OmmDateTime minute part of key information (0 - 59)
+		 * @param second specifies OmmDateTime second part of key information (0 - 60)
+		 * @param millisecond specifies OmmDateTime millisecond part of key information (0 - 999)
+		 * @param microsecond specifies OmmDateTime microsecond part of key information (0 - 999)
+		 * @param nanosecond specifies OmmDateTime nanosecond part of key information (0 - 999)
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action);
 		
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -687,6 +1001,29 @@ public interface MapEntry
 		public MapEntry keyDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ComplexType value, ByteBuffer permissionData);
 
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 * @throws OmmOutOfRangeException if passed in OmmDateTime is invalid
+		 * 
+		 * @param year specifies OmmDateTime year part of key information (0 - 4095)
+		 * @param month specifies OmmDateTime month part of key information (0 - 12)
+		 * @param day specifies OmmDateTime day part of key information (0 - 31)
+		 * @param hour specifies OmmDateTime hour part of key information (0 - 23)
+		 * @param minute specifies OmmDateTime minute part of key information (0 - 59)
+		 * @param second specifies OmmDateTime second part of key information (0 - 60)
+		 * @param millisecond specifies OmmDateTime millisecond part of key information (0 - 999)
+		 * @param microsecond specifies OmmDateTime microsecond part of key information (0 - 999)
+		 * @param nanosecond specifies OmmDateTime nanosecond part of key information (0 - 999)
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, int microsecond, int nanosecond, int action, ByteBuffer permissionData);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -700,6 +1037,20 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyQos(int timeliness, int rate, int action, ComplexType value);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param timeliness specifies {@link com.thomsonreuters.ema.access.OmmQos.Timeliness} part of key information
+		 * @param rate specifies {@link com.thomsonreuters.ema.access.OmmQos.Rate} part of key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyQos(int timeliness, int rate, int action);
 		
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -716,6 +1067,21 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyQos(int timeliness, int rate, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param timeliness specifies {@link com.thomsonreuters.ema.access.OmmQos.Timeliness} part of key information
+		 * @param rate specifies {@link com.thomsonreuters.ema.access.OmmQos.Rate} part of key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to  this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyQos(int timeliness, int rate, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -735,6 +1101,22 @@ public interface MapEntry
 		public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param streamState specifies {@link com.thomsonreuters.ema.access.OmmState.StreamState} part of key information
+		 * @param dataState specifies {@link com.thomsonreuters.ema.access.OmmState.DataState} part of key information
+		 * @param statusCode specifies {@link com.thomsonreuters.ema.access.OmmState.StatusCode} part of key information
+		 * @param statusText specifies OmmState text part of key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -751,6 +1133,23 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param streamState specifies {@link com.thomsonreuters.ema.access.OmmState.StreamState} part of key information
+		 * @param dataState specifies {@link com.thomsonreuters.ema.access.OmmState.DataState} part of key information
+		 * @param statusCode specifies {@link com.thomsonreuters.ema.access.OmmState.StatusCode} part of key information
+		 * @param statusText specifies OmmState text part of key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -767,6 +1166,19 @@ public interface MapEntry
 		public MapEntry keyEnum(int key, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key int containing Enum key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyEnum(int key, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -780,6 +1192,20 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyEnum(int key, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key int containing Enum key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyEnum(int key, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -796,6 +1222,19 @@ public interface MapEntry
 		public MapEntry keyBuffer(ByteBuffer key, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key ByteBuffer containing Buffer key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyBuffer(ByteBuffer key, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -809,6 +1248,20 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyBuffer(ByteBuffer key, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key ByteBuffer containing Buffer key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyBuffer(ByteBuffer key, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -825,6 +1278,19 @@ public interface MapEntry
 		public MapEntry keyAscii(String key, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key String containing Ascii key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyAscii(String key, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -838,6 +1304,20 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyAscii(String key, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key String containing Ascii key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyAscii(String key, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -854,6 +1334,19 @@ public interface MapEntry
 		public MapEntry keyUtf8(ByteBuffer key, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key ByteBuffer containing Utf8 key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyUtf8(ByteBuffer key, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -867,6 +1360,20 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyUtf8(ByteBuffer key, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key ByteBuffer containing Utf8 key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyUtf8(ByteBuffer key, int action, ByteBuffer permissionData);
 
 		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
@@ -883,6 +1390,19 @@ public interface MapEntry
 		public MapEntry keyRmtes(ByteBuffer key, int action, ComplexType value);
 		
 		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key ByteBuffer containing Rmtes key information
+		 * @param action specifies action to apply to the entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyRmtes(ByteBuffer key, int action);
+		
+		/**
 		 * Adds complex OMM data identified by a specific simple type of OMM data.
 		 * 
 		 * @throws OmmInvalidUsageException if an error is detected (exception will
@@ -896,5 +1416,19 @@ public interface MapEntry
 		 * @return reference to this object
 		 */
 		public MapEntry keyRmtes(ByteBuffer key, int action, ComplexType value, ByteBuffer permissionData);
+		
+		/**
+		 * Adds no payload identified by a specific simple type of OMM data.
+		 * 
+		 * @throws OmmInvalidUsageException if an error is detected (exception will
+		 *        specify the cause of the error)
+		 *        
+		 * @param key ByteBuffer containing Rmtes key information
+		 * @param action specifies action to apply to the entry
+		 * @param permissionData ByteBuffer containing permission data related to this entry
+		 * 
+		 * @return reference to this object
+		 */
+		public MapEntry keyRmtes(ByteBuffer key, int action, ByteBuffer permissionData);
 
 }

@@ -90,7 +90,7 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 
 		_rsslElementList.elementListNum(elementListNum);
 		_rsslElementList.applyHasInfo();
-		return null;
+		return this;
 	}
 
 	@Override

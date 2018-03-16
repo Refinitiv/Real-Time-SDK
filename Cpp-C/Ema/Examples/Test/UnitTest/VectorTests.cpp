@@ -1747,20 +1747,6 @@ TEST(VectorTests, testVectorContainsMapsEncodeDecodeAll)
 
 TEST(VectorTests, testVectorError)
 {
-
-	{
-		try
-		{
-			Vector vec;
-			vec.complete();
-			EXPECT_FALSE( true ) << "Vector::complete() on empty vector - exception expected" ;
-		}
-		catch ( const OmmException& )
-		{
-			EXPECT_TRUE( true ) << "Vector::complete() on empty vector - exception expected" ;
-		}
-	}
-
 	{
 		try
 		{
@@ -2073,3 +2059,287 @@ TEST(VectorTests, testVectorError)
 	}
 }
 
+TEST(VectorTests, testVectorEmpty_Encode_Decode)
+{
+	try
+	{
+		ElementList elementList;
+		elementList.info(1);
+
+		Vector vector;
+		vector.sortable(true).totalCountHint(0).complete();
+
+		elementList.info(5).addVector("1", vector).complete();
+
+		StaticDecoder::setData(&elementList, NULL);
+
+		EXPECT_TRUE(elementList.forth()) << "Check the first element list";
+		EXPECT_TRUE(elementList.getEntry().getName() == "1") << "Check the key name of the first element entry";
+
+		const Vector& vectorDec = elementList.getEntry().getVector();
+
+		EXPECT_TRUE(vectorDec.hasTotalCountHint()) << "Check has total count hint attribute";
+		EXPECT_TRUE(vectorDec.getSortable()) << "Check the sortable attribute";
+		EXPECT_TRUE(vectorDec.getTotalCountHint() == 0) << "Check the total count hint attribute";
+
+		EXPECT_FALSE(vectorDec.forth()) << "Check to make sure that there is no enty in Vector";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode empty Vector - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(VectorTests, testVectorEntryWithNoPayload_Encode_Decode)
+{
+	try
+	{
+		EmaBuffer permissionData;
+		permissionData.setFrom("12345", 5);
+
+		EmaBuffer permissionData2;
+		permissionData2.setFrom("54321", 5);
+
+		Vector vector;
+		vector.totalCountHint(5)
+			.add(3, VectorEntry::InsertEnum)
+			.add(2, VectorEntry::SetEnum, permissionData)
+			.add(4, VectorEntry::UpdateEnum)
+			.add(0, VectorEntry::ClearEnum, permissionData2)
+			.add(1, VectorEntry::DeleteEnum)
+			.complete();
+
+		StaticDecoder::setData(&vector, NULL);
+
+		EXPECT_FALSE(vector.getSortable()) << "Check the sortable attribute";
+		EXPECT_TRUE(vector.hasTotalCountHint()) << "Check has total count hint attribute";
+		EXPECT_TRUE(vector.getTotalCountHint() == 5) << "Check the total count hint attribute";
+
+		EXPECT_TRUE(vector.forth()) << "Get the first Vector entry";
+		EXPECT_TRUE(vector.getEntry().getPosition() == 3) << "Check the position of the first entry";
+		EXPECT_TRUE(vector.getEntry().getAction() == VectorEntry::InsertEnum) << "Check the action of the first entry";
+		EXPECT_FALSE(vector.getEntry().hasPermissionData()) << "Check the has permission data of the first entry";
+		EXPECT_TRUE(vector.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the first entry";
+
+		EXPECT_TRUE(vector.forth()) << "Get the second Vector entry";
+		EXPECT_TRUE(vector.getEntry().getPosition() == 2) << "Check the position of the second entry";
+		EXPECT_TRUE(vector.getEntry().getAction() == VectorEntry::SetEnum) << "Check the action of the second entry";
+		EXPECT_TRUE(vector.getEntry().hasPermissionData()) << "Check the has permission data of the second entry";
+		EXPECT_TRUE(vector.getEntry().getPermissionData() == permissionData) << "Check the permission data of the second entry";
+		EXPECT_TRUE(vector.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the second entry";
+
+		EXPECT_TRUE(vector.forth()) << "Get the third Vector entry";
+		EXPECT_TRUE(vector.getEntry().getPosition() == 4) << "Check the position of the third entry";
+		EXPECT_TRUE(vector.getEntry().getAction() == VectorEntry::UpdateEnum) << "Check the action of the third entry";
+		EXPECT_FALSE(vector.getEntry().hasPermissionData()) << "Check the has permission data of the third entry";
+		EXPECT_TRUE(vector.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the third entry";
+
+		EXPECT_TRUE(vector.forth()) << "Get the fourth Vector entry";
+		EXPECT_TRUE(vector.getEntry().getPosition() == 0) << "Check the position of the fourth entry";
+		EXPECT_TRUE(vector.getEntry().getAction() == VectorEntry::ClearEnum) << "Check the action of the fourth entry";
+		EXPECT_TRUE(vector.getEntry().hasPermissionData()) << "Check the has permission data of the fourth entry";
+		EXPECT_TRUE(vector.getEntry().getPermissionData() == permissionData2) << "Check the permission data of the fourth entry";
+		EXPECT_TRUE(vector.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the fourth entry";
+
+		EXPECT_TRUE(vector.forth()) << "Get the fifth Vector entry";
+		EXPECT_TRUE(vector.getEntry().getPosition() == 1) << "Check the position of the fifth entry";
+		EXPECT_TRUE(vector.getEntry().getAction() == VectorEntry::DeleteEnum) << "Check the action of the fifth entry";
+		EXPECT_FALSE(vector.getEntry().hasPermissionData()) << "Check the has permission data of the fifth entry";
+		EXPECT_TRUE(vector.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the fifth entry";
+
+		EXPECT_FALSE(vector.forth()) << "Check to make sure that there is no more enty in Vector";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode Vector - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(VectorTests, testVectorAddTotalCountAfterInitialized)
+{
+	try
+	{
+		Vector vector;
+		vector.add(3, VectorEntry::InsertEnum).totalCountHint(5).complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Encode total count hint after Vector is initialized - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Invalid attempt to call totalCountHint() when container is initialized.", exp.getText().c_str());
+		return;
+	}
+
+	EXPECT_TRUE(false) << "Encode total count hint after Vector is initialized - exception expected";
+}
+
+TEST(VectorTests, testVectorAddSummaryDataAfterInitialized)
+{
+	try
+	{
+		FieldList summaryData;
+		summaryData.addUInt(1, 3056).complete();
+
+		Vector vector;
+		vector.add(2, VectorEntry::InsertEnum).summaryData(summaryData).complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Encode summary data after Vector is initialized - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Invalid attempt to call summaryData() when container is initialized.", exp.getText().c_str());
+		return;
+	}
+
+	EXPECT_TRUE(false) << "Encode summary data after Vector is initialized - exception expected";
+}
+
+TEST(VectorTests, testVectorSetSortableAfterInitialized)
+{
+	try
+	{
+		Vector vector;
+		vector.add(3, VectorEntry::UpdateEnum).sortable(true).complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Encode the sortable flag after Vector is initialized - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Invalid attempt to call sortable() when container is initialized.", exp.getText().c_str());
+		return;
+	}
+
+	EXPECT_TRUE(false) << "Encode the sortable flag after Vector is initialized - exception expected";
+}
+
+TEST(VectorTests, testVectorAddMismatchEntryDataType_Encode)
+{
+	try
+	{
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		Vector vector;
+		vector.totalCountHint(2).sortable(false)
+			.add(1, VectorEntry::InsertEnum, fieldList)
+			.add(2, VectorEntry::DeleteEnum)
+			.complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Fails to encode Vector with mistmatch entry type - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Attempt to add an entry with a different DataType. Encode DataType as NoData while the expected DataType is FieldList", exp.getText().c_str());
+	}
+}
+
+TEST(VectorTests, testVectorAddEntryAfterCallingComplete_Encode)
+{
+	try
+	{
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		Vector vector;
+		vector.totalCountHint(1).sortable(false).complete();
+			vector.add(1, VectorEntry::InsertEnum, fieldList);
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Fails to encode Vector after the complete() is called - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Attempt to add an entry after complete() was called.", exp.getText().c_str());
+	}
+}
+
+TEST(VectorTests, testVectorClear_Encode_Decode)
+{
+	try
+	{
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		Vector vector;
+		vector.totalCountHint(1).sortable(false)
+			.add(1, VectorEntry::InsertEnum, fieldList)
+			.clear().sortable(true)
+			.add(2, VectorEntry::DeleteEnum)
+			.add(3, VectorEntry::ClearEnum)
+			.complete();
+
+		StaticDecoder::setData(&vector, NULL);
+
+		EXPECT_FALSE(vector.hasTotalCountHint()) << "Check has total count hint attribute";
+		EXPECT_TRUE(vector.getSortable()) << "Check the sortable attribute";
+
+		EXPECT_TRUE(vector.forth()) << "Get the first Vector entry";
+		EXPECT_TRUE(vector.getEntry().getPosition() == 2) << "Check the position of the first entry";
+		EXPECT_TRUE(vector.getEntry().getAction() == VectorEntry::DeleteEnum) << "Check the action of the first entry";
+		EXPECT_FALSE(vector.getEntry().hasPermissionData()) << "Check the has permission data of the first entry";
+		EXPECT_TRUE(vector.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the first entry";
+
+		EXPECT_TRUE(vector.forth()) << "Get the second Vector entry";
+		EXPECT_TRUE(vector.getEntry().getPosition() == 3) << "Check the position of the second entry";
+		EXPECT_TRUE(vector.getEntry().getAction() == VectorEntry::ClearEnum) << "Check the action of the second entry";
+		EXPECT_FALSE(vector.getEntry().hasPermissionData()) << "Check the has permission data of the second entry";
+		EXPECT_TRUE(vector.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the second entry";
+
+		EXPECT_FALSE(vector.forth()) << "Check to make sure that there is no more enty in Vector";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode Vector - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(VectorTests, testVectorWithSummaryDataButNoEntry_Encode_Decode)
+{
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	try
+	{
+
+		FieldList summaryData;
+		summaryData.addUInt(1, 3056).addEnum(15, 840).addDate(3386, 2018, 2, 28).complete();
+
+		Vector vector;
+		vector.totalCountHint(0).summaryData(summaryData).complete();
+
+		ElementList elementList;
+
+		elementList.info(1);
+
+		elementList.addVector("1", vector).complete();
+
+		StaticDecoder::setData(&elementList, &dictionary);
+
+		EXPECT_TRUE(elementList.forth());
+
+		EXPECT_TRUE(elementList.getEntry().getVector().getTotalCountHint() == 0) << "Check key total count hint from Vector";
+
+		const FieldList& decodeFieldList = elementList.getEntry().getVector().getSummaryData().getFieldList();
+		EXPECT_TRUE(decodeFieldList.forth());
+
+		EXPECT_TRUE(decodeFieldList.getEntry().getFieldId() == 1) << "Check the field ID of the first field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getUInt() == 3056) << "Check the value of the first field entry";
+		EXPECT_TRUE(decodeFieldList.forth());
+
+		EXPECT_TRUE(decodeFieldList.getEntry().getFieldId() == 15) << "Check the field ID of the second field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getEnum() == 840) << "Check the value of the second field entry";
+		EXPECT_TRUE(decodeFieldList.forth());
+		EXPECT_TRUE(decodeFieldList.getEntry().getFieldId() == 3386) << "Check the field ID of the third field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getDate().getYear() == 2018) << "Check the year value of the third field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getDate().getMonth() == 2) << "Check the month value of the third field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getDate().getDay() == 28) << "Check the day value of the third field entry";
+
+		EXPECT_FALSE(decodeFieldList.forth()) << "Check whether this is an entry from FieldList";
+
+
+		EXPECT_FALSE(elementList.getEntry().getVector().forth()) << "Check whether this is an entry from Vector";
+
+		EXPECT_FALSE(elementList.forth()) << "Check whether this is an entry from ElementList";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_TRUE(false) << "Fails to encode summary data but no entry - exception not expected with text : " << exp.getText().c_str();
+		return;
+	}
+}

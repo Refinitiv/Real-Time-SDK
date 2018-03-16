@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -280,6 +280,7 @@ public :
 
 	/** Specifies Info.
 		\remark The FieldList Info is optional. If used, it must be set prior to adding anything to FieldList.
+		@throw OmmInvalidUsageException if this method is called after adding an entry to FieldList.
 		@param[in] dictionaryId dictionary id of the RdmFieldDictioanry associated with this FieldList
 		@param[in] fieldListNum FieldList template number
 		@return reference to this object

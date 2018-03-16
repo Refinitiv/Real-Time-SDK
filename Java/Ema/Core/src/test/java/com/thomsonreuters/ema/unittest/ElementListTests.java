@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.unittest;
@@ -16,6 +16,7 @@ import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.ema.access.Data;
+import com.thomsonreuters.ema.access.DataType;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.ElementEntry;
 import com.thomsonreuters.ema.access.ElementList;
@@ -33,6 +34,9 @@ import com.thomsonreuters.ema.access.OmmQos;
 import com.thomsonreuters.ema.access.OmmReal;
 import com.thomsonreuters.ema.access.OmmState;
 import com.thomsonreuters.ema.access.OmmXml;
+import com.thomsonreuters.ema.access.Series;
+import com.thomsonreuters.ema.access.Vector;
+import com.thomsonreuters.ema.access.VectorEntry;
 import com.thomsonreuters.ema.rdm.*;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
 
@@ -1740,5 +1744,107 @@ public class ElementListTests extends TestCase
 			TestUtilities.checkResult("ElementList set invalid date - exception expected : "+ excp.getMessage(), true );
 		}
 	}
+	
+	public void testElementListEntryWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testElementListEntryWithNoPayload_Encode_Decode","Encode multiple Element entry with no payload");
+		
+		try
+		{		
+		ElementList elementList = EmaFactory.createElementList();
+		elementList.add(EmaFactory.createElementEntry().noData("Element1"));
+		elementList.add(EmaFactory.createElementEntry().noData("Element2"));
+		
+		ElementList elementListDec = JUnitTestConnect.createElementList();
+		JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+		
+		ElementEntry elementEntry = elementListIt.next();
+		TestUtilities.checkResult( elementEntry.name().equals("Element1"), "Check the name of the first entry");
+		TestUtilities.checkResult( elementEntry.loadType() == DataType.DataTypes.NO_DATA, "Check the load type of the first entry");
+		
+		elementEntry = elementListIt.next();
+		TestUtilities.checkResult( elementEntry.name().equals("Element2"), "Check the name of the second entry");
+		TestUtilities.checkResult( elementEntry.loadType() == DataType.DataTypes.NO_DATA, "Check the load type of the second entry");
+		
+		TestUtilities.checkResult( elementListIt.hasNext() == false , "Check to make sure there is no more entry");
+		
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to Encode multiple ElementList entry with no payload - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}	
+	}
+	
+	public void testElementListClear_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testElementListClear_Encode_Decode","Test Clear ElementList before encoding");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dataDictionary = TestUtilities.getDataDictionary();
+		
+		try
+		{
+		FieldList fieldList = EmaFactory.createFieldList();
+		fieldList.add(EmaFactory.createFieldEntry().uintValue(1, 3056));
+		fieldList.add(EmaFactory.createFieldEntry().enumValue(15, 840));
+		
+		Series series = EmaFactory.createSeries();
+		series.add(EmaFactory.createSeriesEntry().noData());
+		
+		ElementList elementList = EmaFactory.createElementList();
+		elementList.add(EmaFactory.createElementEntry().series("element1", series));
+		
+		ElementList elementListDec = JUnitTestConnect.createElementList();
+		JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), dataDictionary, null);
+		
+		TestUtilities.checkResult( elementListDec.iterator().next().loadType() == DataType.DataTypes.SERIES, "Check data type of entry before calling the clear method" );
+		
+		elementList.clear();
+		
+		TestUtilities.checkResult( elementList.isEmpty() , "Check whether the ElementList is empty after calling the clear method" );
+		
+		elementList.add(EmaFactory.createElementEntry().noData("element2"));
+		elementList.add(EmaFactory.createElementEntry().fieldList("element3", fieldList));
+		
+		elementListDec.clear();
+		
+		JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), dataDictionary, null);
+		
+		Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+		
+		ElementEntry elementEntry = elementListIt.next();
+		
+		TestUtilities.checkResult( elementEntry.name().equals("element2"), "Check the key value of the first entry" );
+		TestUtilities.checkResult( elementEntry.loadType() == DataType.DataTypes.NO_DATA, "Check the load type of the first entry" );
+		
+		elementEntry = elementListIt.next();
+		TestUtilities.checkResult( elementEntry.name().equals("element3"), "Check the key value of the second entry" );
+		TestUtilities.checkResult( elementEntry.loadType() == DataType.DataTypes.FIELD_LIST, "Check the load type of the second entry" );
+		
+		FieldList fieldListDec = elementEntry.fieldList();
+		
+		Iterator<FieldEntry> fieldIt = fieldListDec.iterator();
+		
+		FieldEntry fieldEntry = fieldIt.next();
+		
+		TestUtilities.checkResult( fieldEntry.fieldId() == 1, "Check the field ID of the first field entry" );
+		TestUtilities.checkResult( fieldEntry.uintValue() == 3056, "Check the value of the first field entry" );
+		
+		fieldEntry = fieldIt.next();
+		
+		TestUtilities.checkResult( fieldEntry.fieldId() == 15, "Check the field ID of the second field entry" );
+		TestUtilities.checkResult( fieldEntry.enumValue() == 840, "Check the value of the second field entry" );
+		
+		TestUtilities.checkResult( fieldIt.hasNext() == false, "Check whether this is an entry from FieldList");
 
+		TestUtilities.checkResult( elementListIt.hasNext() == false, "Check whether there is another Element entry" );
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to encode after calling the clear method - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}		
+	}
 }

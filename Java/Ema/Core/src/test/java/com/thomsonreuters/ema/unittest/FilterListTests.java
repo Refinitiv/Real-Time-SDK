@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.unittest;
@@ -14,7 +14,11 @@ import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.ema.access.DataType;
+import com.thomsonreuters.ema.access.ElementEntry;
+import com.thomsonreuters.ema.access.ElementList;
 import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.FieldEntry;
+import com.thomsonreuters.ema.access.FieldList;
 import com.thomsonreuters.ema.access.FilterList;
 import com.thomsonreuters.ema.access.JUnitTestConnect;
 import com.thomsonreuters.ema.access.FilterEntry;
@@ -30,6 +34,137 @@ public class FilterListTests extends TestCase
 	public FilterListTests(String name)
 	{
 		super(name);
+	}
+	
+	public void testFilterListEmpty_Encode()
+	{
+		TestUtilities.printTestHead("testFilterListEmpty_Encode","Encode FilterList of no entry with EMA");
+		
+		try {
+			FilterList filterList =EmaFactory.createFilterList() ;
+			FieldEntry fieldEntry = EmaFactory.createFieldEntry();
+			
+			fieldEntry.filterList(3, filterList);
+		}
+		catch ( OmmException excp )
+		{
+			TestUtilities.checkResult( false, "empty FilterList - exception not expected: " +  excp.getMessage()  );
+			return;
+		}
+	}
+	
+	public void testFilterEntryWithNoPayload_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testFilterEntryWithNoPayload_Encode_Decode","Encode multiple Filter entry with no payload");
+		
+		com.thomsonreuters.upa.codec.DataDictionary dataDictionary = TestUtilities.getDataDictionary();
+		
+		try
+		{
+		ByteBuffer permissionData = ByteBuffer.allocate(5);
+		permissionData.putInt(12345).flip();
+		
+		FieldList fieldListEnc = EmaFactory.createFieldList();
+		fieldListEnc.add(EmaFactory.createFieldEntry().uintValue(1, 3056));
+		
+		FilterList filterList = EmaFactory.createFilterList();
+		filterList.add(EmaFactory.createFilterEntry().noData(1, FilterEntry.FilterAction.SET));
+		filterList.add(EmaFactory.createFilterEntry().noData(2, FilterEntry.FilterAction.UPDATE, permissionData));
+		filterList.add(EmaFactory.createFilterEntry().fieldList(3, FilterEntry.FilterAction.SET, fieldListEnc));
+		
+		FilterList filterListDec = JUnitTestConnect.createFilterList();
+		JUnitTestConnect.setRsslData(filterListDec, filterList, Codec.majorVersion(), Codec.minorVersion(), dataDictionary, null);
+		
+		Iterator<FilterEntry> filerListIt = filterListDec.iterator();
+		
+		FilterEntry filterEntry = filerListIt.next();
+		TestUtilities.checkResult( filterEntry.filterId() == 1, "Check the filter ID of the first entry");
+		TestUtilities.checkResult( filterEntry.action() == FilterEntry.FilterAction.SET, "Check the action of the first entry");
+		TestUtilities.checkResult( filterEntry.hasPermissionData() == false , "Check has permission data for first entry");
+		
+		filterEntry = filerListIt.next();
+		TestUtilities.checkResult( filterEntry.filterId() == 2, "Check the filter ID of the second entry");
+		TestUtilities.checkResult( filterEntry.action() == FilterEntry.FilterAction.UPDATE, "Check the action of the second entry");
+		TestUtilities.checkResult( filterEntry.hasPermissionData() , "Check has permission data for second entry");
+		TestUtilities.checkResult( filterEntry.permissionData().equals(permissionData) , "Check the permission data for the second entry");
+		
+		filterEntry = filerListIt.next();
+		TestUtilities.checkResult( filterEntry.filterId() == 3, "Check the filter ID of the third entry");
+		TestUtilities.checkResult( filterEntry.action() == FilterEntry.FilterAction.SET, "Check the action of the third entry");
+		TestUtilities.checkResult( filterEntry.hasPermissionData() == false , "Check has permission data for third entry");
+		
+		FieldList fieldListDec = filterEntry.fieldList();
+		
+		Iterator<FieldEntry> fieldIt = fieldListDec.iterator();
+		
+		FieldEntry fieldEntry = fieldIt.next();
+		
+		TestUtilities.checkResult( fieldEntry.fieldId() == 1, "Check the field ID of the first field entry" );
+		TestUtilities.checkResult( fieldEntry.uintValue() == 3056, "Check the value of the first field entry" );
+		TestUtilities.checkResult( fieldIt.hasNext() == false, "Check whether this is an entry from FieldList");
+		
+		TestUtilities.checkResult( filerListIt.hasNext() == false , "Check to make sure there is no more entry");
+		
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to Encode multiple FilterList entry with no payload - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}	
+	}
+	
+	public void testFilterListClear_Encode_Decode()
+	{
+		TestUtilities.printTestHead("testFilterListClear_Encode_Decode","Test Clear FilterList before encoding");
+		
+		try
+		{
+		FieldList fieldList = EmaFactory.createFieldList();
+		fieldList.add(EmaFactory.createFieldEntry().uintValue(1, 4563));
+		
+		FilterList filterList = EmaFactory.createFilterList();
+		filterList.totalCountHint(1).add(EmaFactory.createFilterEntry().fieldList(3, FilterEntry.FilterAction.SET, fieldList));
+		
+		FilterList filterListDec = JUnitTestConnect.createFilterList();
+		JUnitTestConnect.setRsslData(filterListDec, filterList, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		TestUtilities.checkResult( filterListDec.iterator().next().loadType() == DataType.DataTypes.FIELD_LIST, "Check data type of an entry before calling the clear method" );
+		
+		filterList.clear();
+		
+		TestUtilities.checkResult( filterList.isEmpty() , "Check whether FilterList is empty after calling the clear method" );
+		
+		filterList.add(EmaFactory.createFilterEntry().noData(5, FilterEntry.FilterAction.UPDATE));
+		
+		ElementList elementList = EmaFactory.createElementList();
+		elementList.add(EmaFactory.createElementEntry().filterList("1", filterList));
+		
+		ElementList elementListDec = JUnitTestConnect.createElementList();
+		JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		Iterator<ElementEntry> elementListIt = elementListDec.iterator();
+		
+		ElementEntry elementEntry = elementListIt.next();
+		
+		TestUtilities.checkResult( elementEntry.name().equals("1"), "Check element list key value" );
+		
+		Iterator<FilterEntry> filterIt = elementEntry.filterList().iterator();
+		
+		FilterEntry filterEntry = filterIt.next();
+		
+		TestUtilities.checkResult( filterEntry.filterId() == 5, "Check the filter ID value of the first FilterList entry" );
+		TestUtilities.checkResult( filterEntry.action() == FilterEntry.FilterAction.UPDATE, "Check the action of the first FilterList entry" );
+		TestUtilities.checkResult( filterEntry.loadType() == DataType.DataTypes.NO_DATA, "Check the load type of the first FilterList entry" );
+		
+		TestUtilities.checkResult( filterIt.hasNext() == false, "Check whether there is another FilterList entry" );
+		
+		TestUtilities.checkResult( elementListIt.hasNext() == false, "Check whether there is another Element entry" );
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to encode after calling the clear method - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}		
 	}
 
 	public void testFilterListContainsFieldListsElementLists_EncodeDecodeAll()

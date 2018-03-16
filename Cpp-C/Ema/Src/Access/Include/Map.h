@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -227,12 +227,14 @@ public :
 	Map& clear();
 
 	/** Specifies KeyFieldId.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@pram[in] fieldId specifies key field id
 		@return reference to this object
 	*/
 	Map& keyFieldId( Int16 fieldId );
 
 	/** Specifies TotalCountHint.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@param[in] totalCountHint specifies total count hint
 		@return reference to this object
 	*/
@@ -240,21 +242,41 @@ public :
 
 	/** Specifies the SummaryData OMM Data.
 		\remark Call to summaryData( ) must happen prior to calling any add***( ) method
+		\remark the data type of summary data must match with the load type of Map entry
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@param[in] summaryData specifies complex type as summaryData
 		@return reference to this object
 	*/
 	Map& summaryData( const ComplexType& summaryData );
 
+	/** Specifies a primitive type for Map entry key.
+		\remark This method is used to override the default BUFFER data type.
+		\remark Call this method or any add**() method can override the default key type.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@pram[in] keyPrimitiveType specifies a primitive type for the Key
+		@return reference to this object
+	*/
+	Map& keyType( DataType::DataTypeEnum keyPrimitiveType );
+
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@param[in] key containing Int64 key information
 		@param[in] action specifies action to be applied to the entry
 		@param[in] value specifies complex type associated with this entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
 		@return reference to this object
 	*/
 	Map& addKeyInt( Int64 key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key containing Int64 key information
+		@param[in] action specifies action to be applied to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyInt( Int64 key, MapEntry::MapAction action, const EmaBuffer& permissionData = EmaBuffer() );
 
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
@@ -266,6 +288,15 @@ public :
 	*/
 	Map& addKeyUInt( UInt64 key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key containing UInt64 key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyUInt( UInt64 key, MapEntry::MapAction action, const EmaBuffer& permissionData = EmaBuffer() );
 
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
@@ -279,17 +310,40 @@ public :
 	Map& addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeType, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
 
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] mantissa specifies OmmReal::mantissa part of key information
+		@param[in] magnitudeType specifies OmmReal::magnitudeType part of key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeType, MapEntry::MapAction action,
+		const EmaBuffer& permissionData = EmaBuffer() );
+
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@param[in] key specifies double to be converted to OmmReal
-		@param[in] magnitudeType OmmReal::magnitudeType used for the conversion (default value is OmmReal::Exponent0Enum)
 		@param[in] action specifies action to apply to the entry
 		@param[in] value complex type contained in this entry
+		@param[in] magnitudeType OmmReal::magnitudeType used for the conversion (default value is OmmReal::Exponent0Enum)
 		@param[in] permissionData EmaBuffer containing permission data related to this entry
 		@return reference to this object
 	*/
 	Map& addKeyRealFromDouble( double key, MapEntry::MapAction action,
 		const ComplexType& value,
+		OmmReal::MagnitudeType magnitudeType = OmmReal::Exponent0Enum,
+		const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key specifies double to be converted to OmmReal
+		@param[in] action specifies action to apply to the entry
+		@param[in] magnitudeType OmmReal::magnitudeType used for the conversion (default value is OmmReal::Exponent0Enum)
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyRealFromDouble( double key, MapEntry::MapAction action,
 		OmmReal::MagnitudeType magnitudeType = OmmReal::Exponent0Enum,
 		const EmaBuffer& permissionData = EmaBuffer() );
 
@@ -304,6 +358,15 @@ public :
 	Map& addKeyFloat( float key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
 
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key containing float key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyFloat( float key, MapEntry::MapAction action, const EmaBuffer& permissionData = EmaBuffer() );
+
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@param[in] key containing double key information
@@ -314,6 +377,15 @@ public :
 	*/
 	Map& addKeyDouble( double key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key containing double key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyDouble(double key, MapEntry::MapAction action, const EmaBuffer& permissionData = EmaBuffer());
 
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
@@ -328,6 +400,19 @@ public :
 	*/
 	Map& addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@throw OmmOutOfRangeException if passed in OmmDate is invalid
+		@param[in] year specifies OmmDate::year part of key information (0 - 4095)
+		@param[in] month specifies OmmDate::month part of key information (0 - 12)
+		@param[in] day specifies OmmDate::day part of key information (0 - 31)
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapAction action,
+		const EmaBuffer& permissionData = EmaBuffer() );
 
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
@@ -347,6 +432,23 @@ public :
 		UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond,
 		MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@throw OmmOutOfRangeException if passed in OmmTime is invalid
+		@param[in] hour specifies OmmTime::hour part of key information (0 - 23)
+		@param[in] minute specifies OmmTime::minute part of key information (0 - 59)
+		@param[in] second specifies OmmTime::second part of key information (0 - 60)
+		@param[in] millisecond specifies OmmTime::millisecond part of key information (0 - 999)
+		@param[in] microsecond specifies OmmTime::microsecond part of key information (0 - 999)
+		@param[in] nanosecond specifies OmmTime::nanosecond part of key information (0 - 999)
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyTime( UInt8 hour, UInt8 minute, UInt8 second,
+		UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond,
+		MapEntry::MapAction action, const EmaBuffer& permissionData = EmaBuffer() );
 
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
@@ -371,6 +473,27 @@ public :
 		MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
 
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@throw OmmOutOfRangeException if passed in OmmDateTime is invalid
+		@param[in] year specifies OmmDateTime::year part of key information (0 - 4095)
+		@param[in] month specifies OmmDateTime::month part of key information (0 - 12)
+		@param[in] day specifies OmmDateTime::day part of key information (0 - 31)
+		@param[in] hour specifies OmmDateTime::hour part of key information (0 - 23)
+		@param[in] minute specifies OmmDateTime::minute part of key information (0 - 59)
+		@param[in] second specifies OmmDateTime::second part of key information (0 - 60)
+		@param[in] millisecond specifies OmmDateTime::millisecond part of key information  (0 - 999)
+		@param[in] microsecond specifies OmmDateTime::microsecond part of key information  (0 - 999)
+		@param[in] nanosecond specifies OmmDateTime::nanosecond part of key information  (0 - 999)
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyDateTime( UInt16 year, UInt8 month, UInt8 day,
+		UInt8 hour, UInt8 minute, UInt8 second,
+		UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond,
+		MapEntry::MapAction action, const EmaBuffer& permissionData = EmaBuffer() );
+
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@param[in] timeliness specifies OmmQos::timeliness part of key information
@@ -382,6 +505,17 @@ public :
 	*/
 	Map& addKeyQos( UInt32 timeliness, UInt32 rate, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] timeliness specifies OmmQos::timeliness part of key information
+		@param[in] rate specifies OmmQos::rate part of key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyQos( UInt32 timeliness, UInt32 rate, MapEntry::MapAction action,
+		const EmaBuffer& permissionData = EmaBuffer() );
 
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
@@ -398,6 +532,19 @@ public :
 		MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
 
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] streamState specifies OmmState::streamState part of key information
+		@param[in] dataState specifies OmmState::dataState part of key information
+		@param[in] statusCode specifies OmmState::statusCode part of key information
+		@param[in] statusText specifies OmmState::text part of key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyState( OmmState::StreamState streamState, OmmState::DataState dataState, UInt8 statusCode, const EmaString& statusText,
+		MapEntry::MapAction action, const EmaBuffer& permissionData = EmaBuffer() );
+
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@param[in] key UInt16 containing Enum key information
@@ -408,6 +555,16 @@ public :
 	*/
 	Map& addKeyEnum( UInt16 key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key UInt16 containing Enum key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyEnum( UInt16 key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData = EmaBuffer() );
 
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
@@ -420,6 +577,16 @@ public :
 	Map& addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
 
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key EmaBuffer containing Buffer key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData = EmaBuffer() );
+
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@param[in] key EmaString containing Ascii key information
@@ -430,6 +597,16 @@ public :
 	*/
 	Map& addKeyAscii( const EmaString& key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key EmaString containing Ascii key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyAscii( const EmaString& key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData = EmaBuffer() );
 
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
@@ -442,6 +619,16 @@ public :
 	Map& addKeyUtf8( const EmaBuffer& key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer() );
 
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key EmaBuffer containing Utf8 key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyUtf8( const EmaBuffer& key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData = EmaBuffer() );
+
 	/** Adds complex OMM data identified by a specific simple type of OMM data.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@param[in] key EmaBuffer containing Rmtes key information
@@ -452,6 +639,16 @@ public :
 	*/
 	Map& addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
 		const ComplexType& value, const EmaBuffer& permissionData = EmaBuffer()	);
+
+	/** Adds no payload identified by a specific simple type of OMM data.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@param[in] key EmaBuffer containing Rmtes key information
+		@param[in] action specifies action to apply to the entry
+		@param[in] permissionData EmaBuffer containing permission data related to this entry
+		@return reference to this object
+	*/
+	Map& addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
+		const EmaBuffer& permissionData = EmaBuffer() );
 
 	/** Completes encoding of Map.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)

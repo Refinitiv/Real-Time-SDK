@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -153,6 +153,7 @@ public :
 
 	/** Specifies TotalCountHint.
 		@param[in] totalCountHint specifies total count hint
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@return reference to this object
 	*/
 	Series& totalCountHint( UInt32 totalCountHint );
@@ -160,6 +161,7 @@ public :
 	/** Specifies the SummaryData OMM Data.
 		\remark Call to summaryData( ) must happen prior to calling the add( ) method
 		@param[in] summaryData specifies complex type as summaryData
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
 		@return reference to this object
 	*/
 	Series& summaryData( const ComplexType& data );
@@ -171,6 +173,12 @@ public :
 		@return reference to this object
 	*/
 	Series& add( const ComplexType& value );
+
+	/** Adds an entry with no payload to the Series.
+		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)
+		@return reference to this object
+	*/
+	Series& add();
 
 	/** Completes encoding of the Series.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)

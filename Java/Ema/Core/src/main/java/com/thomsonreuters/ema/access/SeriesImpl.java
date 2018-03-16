@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -25,6 +25,8 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	private LinkedList<SeriesEntry> _seriesCollection = new LinkedList<SeriesEntry>(); 
 	private DataImpl _summaryDecoded;
 	private PayloadAttribSummaryImpl _summaryData;
+	private int _summaryDataType = com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
+	private boolean _summaryDataTypeSet = false;
 	
 	SeriesImpl() 
 	{
@@ -80,6 +82,9 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	@Override
 	public void clear()
 	{
+		_summaryDataTypeSet = false;
+		_summaryDataType = com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
+		
 		if (_rsslEncodeIter != null)
 		{
 			super.clear();
@@ -108,6 +113,9 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	{
 		if (summaryData == null)
 			throw ommIUExcept().message("Passed in summaryData is null");
+		
+		_summaryDataType = summaryData.dataType();
+		_summaryDataTypeSet = true;
 
 		_rsslSeries.applyHasSummaryData();
 		Utilities.copy(((DataImpl) summaryData).encodedData(), _rsslSeries.encodedSummaryData());
@@ -405,24 +413,43 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	Buffer encodedData()
 	{
 		if (_encodeComplete || (_rsslEncodeIter == null) )
-			return _rsslBuffer; 
+			return _rsslBuffer;
+		
+		int ret;
+		int entryType = _summaryDataType;
 		
 		if (_seriesCollection.isEmpty())
-			throw ommIUExcept().message("Series to be encoded is empty.");
-	    
-	    SeriesEntryImpl firstEntry = (SeriesEntryImpl)_seriesCollection.get(0);
-	    int entryType = firstEntry._entryDataType;
-	    
-	    if ( entryType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
-	    {
-	    	_rsslSeries.containerType(entryType);
-	    }
-	    else
-	    {
-	    	_rsslSeries.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
-	    }
-	    
-	    int ret;
+		{
+			_rsslSeries.containerType(entryType);
+		}
+		else
+		{
+		    SeriesEntryImpl firstEntry = (SeriesEntryImpl)_seriesCollection.get(0);
+		    
+		    if ( firstEntry._entryDataType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
+		    {
+		    	if ( _summaryDataTypeSet && (entryType !=  firstEntry._entryDataType) )
+				{
+					String errText = errorString().append("Attempt to add entry of ")
+							.append(com.thomsonreuters.upa.codec.DataTypes.toString(firstEntry._entryDataType))
+							.append(" while Series entry load type is set to ")
+							.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType))
+							.append(" with summaryData() method").toString();
+					throw ommIUExcept().message(errText);
+				}
+				else
+				{
+					entryType = firstEntry._entryDataType;
+				}
+		    	
+		    	_rsslSeries.containerType(entryType);
+		    }
+		    else
+		    {
+		    	entryType = com.thomsonreuters.upa.codec.DataTypes.UNKNOWN;
+		    	_rsslSeries.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
+		    }
+		}
 	    
 	    setEncodedBufferIterator();
 		
@@ -451,7 +478,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 			{
 				String errText = errorString().append("Attempt to add entry of ")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(seriesEntry._entryDataType))
-						.append("while Series contains=")
+						.append(" while Series contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType)).toString();
 				throw ommIUExcept().message(errText);
 			}

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -91,7 +91,7 @@ class GlobalPool
 	
 	static DateTime getDateTime()
 	{
-		if ( _DatePool.size() == 0)
+		if ( _DateTimePool.size() == 0)
 		{
 			return CodecFactory.createDateTime();
 		}
@@ -101,7 +101,7 @@ class GlobalPool
 	
 	static Double getDouble()
 	{
-		if ( _DatePool.size() == 0)
+		if ( _DoublePool.size() == 0)
 		{
 			return CodecFactory.createDouble();
 		}

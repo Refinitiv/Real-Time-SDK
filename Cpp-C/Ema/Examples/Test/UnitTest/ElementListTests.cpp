@@ -3330,3 +3330,141 @@ TEST(ElementListTests, testElementListError)
 
 }
 
+TEST(ElementListTests, testElementListEmpty_Encode_Decode)
+{
+	try
+	{
+		ElementList elementList;
+		elementList.info(5).complete();
+
+		Series series;
+		series.add(elementList).complete();
+
+		StaticDecoder::setData(&series, NULL);
+
+		EXPECT_TRUE(series.forth()) << "Check the first Series";
+
+		const ElementList& elementListDec = series.getEntry().getElementList();
+
+		EXPECT_TRUE(elementListDec.hasInfo()) << "Check has info attribute";
+		EXPECT_TRUE(elementListDec.getInfoElementListNum() == 5) << "Check the element list info num attribute";
+		EXPECT_FALSE(elementListDec.forth()) << "Check to make sure that there is no element entry";
+
+		EXPECT_FALSE(series.forth()) << "Check to make sure that there is no enty in Series";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode empty ElementList - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(ElementListTests, testElementEntryWithNoPayload_Encode_Decode)
+{
+	try
+	{
+		ElementList elementList;
+		elementList.info(5)
+			.add("Name1").add("Name2")
+			.complete();
+
+		StaticDecoder::setData(&elementList, NULL);
+
+		EXPECT_TRUE(elementList.hasInfo()) << "Check has info attribute";
+		EXPECT_TRUE(elementList.getInfoElementListNum() == 5) << "Check the element list info num attribute";
+
+		EXPECT_TRUE(elementList.forth()) << "Get the first ElementList entry";
+		EXPECT_TRUE(elementList.getEntry().getName() == "Name1" ) << "Check the element name the first entry";
+		EXPECT_TRUE(elementList.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the first entry";
+
+		EXPECT_TRUE(elementList.forth()) << "Get the second ElementList entry";
+		EXPECT_TRUE(elementList.getEntry().getName() == "Name2") << "Check the element name the second entry";
+		EXPECT_TRUE(elementList.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the second entry";
+
+		EXPECT_FALSE(elementList.forth()) << "Check to make sure that there is no more enty in ElementList";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode ElementList - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(ElementListTests, testElementListAddInfoAfterInitialized)
+{
+	try
+	{
+		ElementList elementList;
+		elementList.add("ElementName").info(5).complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Encode info after ElementList is initialized - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Invalid attempt to call info() when container is initialized.", exp.getText().c_str());
+		return;
+	}
+
+	EXPECT_TRUE(false) << "Encode total count hint after ElementList is initialized - exception expected";
+}
+
+TEST(ElementListTests, testElementListAddEntryAfterCallingComplete_Encode)
+{
+	try
+	{
+		ElementList elementList;
+		elementList.info(1).complete();
+		elementList.add("Name1");
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Fails to encode ElementList after the complete() is called - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Attempt to add an entry after complete() was called.", exp.getText().c_str());
+	}
+}
+
+TEST(ElementListTests, testElementListClear_Encode_Decode)
+{
+	try
+	{
+		// load dictionary for decoding of the field list
+		RsslDataDictionary dictionary;
+
+		ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		ElementList elementList;
+		elementList.info(4)
+			.addFieldList("1", fieldList)
+			.clear().info(6)
+			.addFieldList("2", fieldList)
+			.add("3")
+			.complete();
+
+		StaticDecoder::setData(&elementList, &dictionary);
+
+		EXPECT_TRUE(elementList.hasInfo()) << "Check has info attribute";
+		EXPECT_TRUE(elementList.getInfoElementListNum() == 6) << "Check the info value attribute";
+
+		EXPECT_TRUE(elementList.forth()) << "Get the first Element entry";
+		EXPECT_TRUE(elementList.getEntry().getName() == "2") << "Check the name of the first entry";
+		EXPECT_TRUE(elementList.getEntry().getLoadType() == DataType::FieldListEnum) << "Check the load type of the first entry";
+
+		const FieldList& fieldListDec = elementList.getEntry().getFieldList();
+
+		EXPECT_TRUE(fieldListDec.forth()) << "Check the first field entry";
+		EXPECT_TRUE(fieldListDec.getEntry().getFieldId() == 1) << "Check the field ID of first entry";
+		EXPECT_TRUE(fieldListDec.getEntry().getUInt() == 3056) << "Check the value of first entry";
+
+		EXPECT_FALSE(fieldListDec.forth()) << "Check to make sure that there is no more entry";
+		
+		EXPECT_TRUE(elementList.forth()) << "Get the second Element entry";
+		EXPECT_TRUE(elementList.getEntry().getName() == "3") << "Check the name of the second entry";
+		EXPECT_TRUE(elementList.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the second entry";
+
+		EXPECT_FALSE(elementList.forth()) << "Check to make sure that there is no more enty in ElementList";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode ElementList - exception not expected with text" << exp.getText().c_str();
+	}
+}

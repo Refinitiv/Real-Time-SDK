@@ -1107,20 +1107,23 @@ void seriesOfElementList_RsslEncodeEmaDecode( bool useSetDefinitions, std::strin
 
 TEST(SeriesTests, testSeriesEmptyEncode)
 {
-
 	try
 	{
-		Series s;
-		s.complete();
+		Series series;
+		series.totalCountHint(0).complete();
+
+		StaticDecoder::setData(&series, NULL);
+
+		EXPECT_TRUE(series.hasTotalCountHint()) << "Check has total count hint attribute";
+		EXPECT_TRUE(series.getTotalCountHint() == 0) << "Check the total count hint attribute";
+		EXPECT_FALSE(series.forth()) << "Check to make sure that there is no enty in Series";
 	}
 	catch ( OmmException& excp )
 	{
 		EmaString text;
-		EXPECT_TRUE( true ) << text.append( "empty Series - exception expected: " ).append( excp.getText() ) ;
+		EXPECT_FALSE( true ) << text.append( "empty Series - exception not expected: " ).append( excp.getText() ) ;
 		return;
 	}
-
-	EXPECT_FALSE( true ) << "empty Series - did not get expected exception" ;
 }
 
 TEST(SeriesTests, testSeriesContainsFieldListsEncodeDecodeAll)
@@ -1665,20 +1668,6 @@ TEST(SeriesTests, testSeriesPrePostBindFieldList)
 
 TEST(SeriesTests, testSeriesError)
 {
-
-	{
-		try
-		{
-			Series series;
-			series.complete();
-			EXPECT_FALSE( true ) << "Series::complete() on empty series - exception expected" ;
-		}
-		catch ( const OmmException& )
-		{
-			EXPECT_TRUE( true ) << "Series::complete() on empty series - exception expected" ;
-		}
-	}
-
 	{
 		try
 		{
@@ -1989,6 +1978,197 @@ TEST(SeriesTests, testSeriesError)
 	{
 		EXPECT_FALSE( true ) << "Series::summaryData( GenericMsg ) while GenericMsg is populated - exception not expected" ;
 	}
-
 }
 
+TEST(SeriesTests, testSeriesEntryWithNoPayload_Encode_Decode)
+{
+	try
+	{
+		Series series;
+		series.totalCountHint(3)
+			.add()
+			.add()
+			.add()
+			.complete();
+
+		StaticDecoder::setData(&series, NULL);
+
+		EXPECT_TRUE(series.hasTotalCountHint()) << "Check wheter has total count hint in Series";
+		EXPECT_TRUE(series.getTotalCountHint() == 3) << "Check total count hint of Series";
+
+		EXPECT_TRUE(series.forth()) << "Get the first Series entry";
+		EXPECT_TRUE(series.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the first entry";
+
+		EXPECT_TRUE(series.forth()) << "Get the second Series entry";
+		EXPECT_TRUE(series.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the second entry";
+
+		EXPECT_TRUE(series.forth()) << "Get the third Series entry";
+		EXPECT_TRUE(series.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the third entry";
+
+		EXPECT_FALSE(series.forth()) << "Check to make sure that there is no more enty in Series";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode Series - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(SeriesTests, testSeriesAddTotalCountAfterInitialized)
+{
+	try
+	{
+		Series series;
+		series.add().totalCountHint(5).complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Encode total count hint after Series is initialized - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Invalid attempt to call totalCountHint() when container is initialized.", exp.getText().c_str());
+		return;
+	}
+
+	EXPECT_TRUE(false) << "Encode total count hint after Series is initialized - exception expected";
+}
+
+TEST(SeriesTests, testSeriesAddSummaryDataAfterInitialized)
+{
+	try
+	{
+		FieldList summaryData;
+		summaryData.addUInt(1, 3056).complete();
+
+		Series series;
+		series.add().summaryData(summaryData).complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Encode summary data after Series is initialized - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Invalid attempt to call summaryData() when container is initialized.", exp.getText().c_str());
+		return;
+	}
+
+	EXPECT_TRUE(false) << "Encode summary data after Series is initialized - exception expected";
+}
+
+TEST(SeriesTests, testSeriesAddMismatchEntryDataType_Encode)
+{
+	try
+	{
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		Series series;
+		series.totalCountHint(2)
+			.add(fieldList)
+			.add()
+			.complete();
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Fails to encode Series with mistmatch entry type - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Attempt to add an entry with a different DataType. Encode DataType as NoData while the expected DataType is FieldList", exp.getText().c_str());
+	}
+}
+TEST(SeriesTests, testSeriesAddEntryAfterCallingComplete_Encode)
+{
+	try
+	{
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		Series series;
+		series.totalCountHint(1).complete();
+		series.add(fieldList);
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(false) << "Fails to encode Series after the complete() is called - exception expected with text" << exp.getText().c_str();
+		EXPECT_STREQ("Attempt to add an entry after complete() was called.", exp.getText().c_str());
+	}
+}
+
+TEST(SeriesTests, testSeriesClear_Encode_Decode)
+{
+	try
+	{
+		FieldList fieldList;
+		fieldList.addUInt(1, 3056).complete();
+
+		Series series;
+		series.totalCountHint(1)
+			.add(fieldList)
+			.clear()
+			.add()
+			.complete();
+
+		StaticDecoder::setData(&series, NULL);
+
+		EXPECT_FALSE(series.hasTotalCountHint()) << "Check has total count hint attribute";
+
+		EXPECT_TRUE(series.forth()) << "Get the first Series entry";
+		EXPECT_TRUE(series.getEntry().getLoadType() == DataType::NoDataEnum) << "Check the load type of the first entry";
+
+		EXPECT_FALSE(series.forth()) << "Check to make sure that there is no more enty in Series";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Fails to encode and decode Series - exception not expected with text" << exp.getText().c_str();
+	}
+}
+
+TEST(SeriesTests, testSeriesWithSummaryDataButNoEntry_Encode_Decode)
+{
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	try
+	{
+
+		FieldList summaryData;
+		summaryData.addUInt(1, 3056).addEnum(15, 840).addDate(3386, 2018, 2, 28).complete();
+
+		Series series;
+		series.totalCountHint(0).summaryData(summaryData).complete();
+
+		ElementList elementList;
+
+		elementList.info(1);
+
+		elementList.addSeries("1", series).complete();
+
+		StaticDecoder::setData(&elementList, &dictionary);
+
+		EXPECT_TRUE(elementList.forth());
+
+		EXPECT_TRUE(elementList.getEntry().getSeries().getTotalCountHint() == 0) << "Check key total count hint from Series";
+
+		const FieldList& decodeFieldList = elementList.getEntry().getSeries().getSummaryData().getFieldList();
+		EXPECT_TRUE(decodeFieldList.forth());
+
+		EXPECT_TRUE(decodeFieldList.getEntry().getFieldId() == 1) << "Check the field ID of the first field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getUInt() == 3056) << "Check the value of the first field entry";
+		EXPECT_TRUE(decodeFieldList.forth());
+
+		EXPECT_TRUE(decodeFieldList.getEntry().getFieldId() == 15) << "Check the field ID of the second field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getEnum() == 840) << "Check the value of the second field entry";
+		EXPECT_TRUE(decodeFieldList.forth());
+		EXPECT_TRUE(decodeFieldList.getEntry().getFieldId() == 3386) << "Check the field ID of the third field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getDate().getYear() == 2018) << "Check the year value of the third field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getDate().getMonth() == 2) << "Check the month value of the third field entry";
+		EXPECT_TRUE(decodeFieldList.getEntry().getDate().getDay() == 28) << "Check the day value of the third field entry";
+
+		EXPECT_FALSE(decodeFieldList.forth()) << "Check whether this is an entry from FieldList";
+
+
+		EXPECT_FALSE(elementList.getEntry().getSeries().forth()) << "Check whether this is an entry from Series";
+
+		EXPECT_FALSE(elementList.forth()) << "Check whether this is an entry from ElementList";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_TRUE(false) << "Fails to encode summary data but no entry - exception not expected with text : " << exp.getText().c_str();
+		return;
+	}
+}

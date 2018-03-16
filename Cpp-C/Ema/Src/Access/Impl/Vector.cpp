@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -197,6 +197,17 @@ Vector& Vector::add( UInt32 position, VectorEntry::VectorAction action,
 	return *this;
 }
 
+Vector& Vector::add( UInt32 position, VectorEntry::VectorAction action,
+	const EmaBuffer& permissionData )
+{
+	if (!_pEncoder)
+		_pEncoder = g_pool._vectorEncoderPool.getItem();
+
+	_pEncoder->add(position, action, permissionData);
+
+	return *this;
+}
+
 const Vector& Vector::complete()
 {
 	if ( !_pEncoder )
@@ -223,6 +234,16 @@ Vector& Vector::summaryData( const ComplexType& data )
 		_pEncoder = g_pool._vectorEncoderPool.getItem();
 
 	_pEncoder->summaryData( data );
+
+	return *this;
+}
+
+Vector& Vector::sortable( bool sortable )
+{
+	if (!_pEncoder)
+		_pEncoder = g_pool._vectorEncoderPool.getItem();
+
+	_pEncoder->sortable( sortable );
 
 	return *this;
 }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -172,6 +172,17 @@ FilterList& FilterList::add( UInt8 filterId, FilterEntry::FilterAction action,
 		_pEncoder = g_pool._filterListEncoderPool.getItem();
 
 	_pEncoder->add( filterId, action, value, permissionData );
+
+	return *this;
+}
+
+FilterList& FilterList::add( UInt8 filterId, FilterEntry::FilterAction action,
+	const EmaBuffer& permissionData )
+{
+	if (!_pEncoder)
+		_pEncoder = g_pool._filterListEncoderPool.getItem();
+
+	_pEncoder->add( filterId, action, permissionData );
 
 	return *this;
 }

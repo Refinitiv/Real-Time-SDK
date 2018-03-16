@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -72,6 +72,8 @@ void SeriesEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDa
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
 		throwIueException( temp );
 	}
+
+	_containerInitialized = true;
 }
 
 void SeriesEncoder::addEncodedEntry( const char* methodName, const RsslBuffer& rsslBuffer )
@@ -193,24 +195,47 @@ void SeriesEncoder::add( const ComplexType& complexType )
 	}
 }
 
+void SeriesEncoder::add()
+{
+	if (_containerComplete)
+	{
+		EmaString temp("Attempt to add an entry after complete() was called.");
+		throwIueException(temp);
+		return;
+	}
+
+	UInt8 rsslDataType = RSSL_DT_NO_DATA;
+
+	if (!hasEncIterator())
+	{
+		acquireEncIterator();
+
+		initEncode(rsslDataType, DataType::NoDataEnum);
+	}
+	else if (_rsslSeries.containerType != rsslDataType)
+	{
+		EmaString temp("Attempt to add an entry with a different DataType. Encode DataType as ");
+		temp += DataType(DataType::NoDataEnum).toString();
+		temp += EmaString(" while the expected DataType is ");
+		temp += DataType(_emaDataType);
+		throwIueException(temp);
+		return;
+	}
+
+	RsslBuffer rsslBuffer;
+	rsslClearBuffer(&rsslBuffer);
+	addEncodedEntry("add()", rsslBuffer);
+}
+
 void SeriesEncoder::complete()
 {
 	if ( _containerComplete ) return;
 
-	if ( !hasEncIterator() )
+	if (!hasEncIterator())
 	{
-		if ( _rsslSeries.containerType )
-		{
-			acquireEncIterator();
+		acquireEncIterator();
 
-			initEncode( _rsslSeries.containerType, _emaDataType );
-		}
-		else
-		{
-			EmaString temp( "Attempt to complete() while no Series::add() or Series::summaryData() were called yet." );
-			throwIueException( temp );
-			return;
-		}
+		initEncode(convertDataType(_emaDataType), _emaDataType);
 	}
 
 	RsslRet retCode = rsslEncodeSeriesComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );
@@ -240,7 +265,7 @@ void SeriesEncoder::totalCountHint( UInt32 totalCountHint )
 	}
 	else
 	{
-		EmaString temp( "Invalid attempt to call totalCountHint() when container is not empty." );
+		EmaString temp( "Invalid attempt to call totalCountHint() when container is initialized." );
 		throwIueException( temp );
 	}
 }
@@ -281,7 +306,7 @@ void SeriesEncoder::summaryData( const ComplexType& data )
 	}
 	else
 	{
-		EmaString temp( "Invalid attempt to call summaryData() when container is not empty." );
+		EmaString temp( "Invalid attempt to call summaryData() when container is initialized." );
 		throwIueException( temp );
 	}
 }

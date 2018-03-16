@@ -3049,11 +3049,9 @@ TEST(MapTests, testMapEmptyEncode)
 	catch ( OmmException& excp )
 	{
 		EmaString text;
-		EXPECT_TRUE( true ) << text.append( "empty Map - exception expected: " ).append( excp.getText() ) ;
+		EXPECT_FALSE( true ) << text.append( "empty Map - exception not expected: " ).append( excp.getText() ) ;
 		return;
 	}
-
-	EXPECT_FALSE( true ) << "empty Map - did not get expected exception" ;
 }
 
 TEST(MapTests, testMapContainsFieldListsEncodeDecodeAll)
@@ -5897,11 +5895,11 @@ TEST(MapTests, testMapError)
 		{
 			Map m;
 			m.complete();
-			EXPECT_FALSE( true ) << "Map::complete() on empty Map - exception expected" ;
+			EXPECT_TRUE( true ) << "Map::complete() on empty Map - Can encode default Map with Buffer type for Map entry key" ;
 		}
 		catch ( const OmmException& )
 		{
-			EXPECT_TRUE( true ) << "Map::complete() on empty Map - exception expected" ;
+			EXPECT_FALSE( true ) << "Map::complete() on empty Map - exception not expected" ;
 		}
 	}
 
@@ -5911,11 +5909,10 @@ TEST(MapTests, testMapError)
 			Map m;
 			m.totalCountHint( 2 );
 			m.complete();
-			EXPECT_FALSE( true ) << "Map::complete() on empty Map with total count hint - exception expected" ;
 		}
-		catch ( const OmmException& )
+		catch ( const OmmException& excp)
 		{
-			EXPECT_TRUE( true ) << "Map::complete() on empty Map with total count hint - exception expected" ;
+			EXPECT_FALSE( true ) << "Map::complete() on empty Map with total count hint - exception not expected : " << excp.getText().c_str();
 		}
 	}
 
@@ -5926,11 +5923,11 @@ TEST(MapTests, testMapError)
 			m.keyFieldId( 12 );
 			m.totalCountHint( 2 );
 			m.complete();
-			EXPECT_FALSE( true ) << "Map::complete() on empty Map with total count hint and key field id - exception expected" ;
+			EXPECT_TRUE( true ) << "Map::complete() on empty Map with total count hint and key field id - exception expected" ;
 		}
 		catch ( const OmmException& )
 		{
-			EXPECT_TRUE( true ) << "Map::complete() on empty Map with total count hint and key field id - exception expected" ;
+			EXPECT_FALSE( true ) << "Map::complete() on empty Map with total count hint and key field id - exception expected" ;
 		}
 	}
 
@@ -5960,11 +5957,11 @@ TEST(MapTests, testMapError)
 			el.addBuffer( "entry", EmaBuffer( "123", 3 ) ).complete();
 			m.summaryData( el );
 			m.complete();
-			EXPECT_FALSE( true ) << "Map::complete() on Map with complete summary - exception expected()" ;
+			EXPECT_TRUE( true ) << "Map::complete() on Map with complete summary - exception not expected()" ;
 		}
 		catch ( const OmmException& )
 		{
-			EXPECT_TRUE( true ) << "Map::complete() on Map  with complete summary - exception expected" ;
+			EXPECT_FALSE( true ) << "Map::complete() on Map  with complete summary - exception not expected" ;
 		}
 	}
 
@@ -6603,7 +6600,7 @@ TEST(MapTests, testMapClear_Encode_Decode)
 
 		Map map;
 
-		map.keyType(DataType::DateTimeEnum).summaryData(summaryData).complete();
+		map.keyType(DataType::DataTypeEnum::DateTimeEnum).summaryData(summaryData).complete();
 
 		StaticDecoder::setData(&map, &dictionary);
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,8 +20,9 @@ MapEncoder::MapEncoder() :
  _rsslMap(),
  _rsslMapEntry(),
  _emaLoadType( DataType::NoDataEnum ),
- _emaKeyType( DataType::NoDataEnum ),
- _containerInitialized( false )
+ _emaKeyType( DataType::BufferEnum ),
+ _containerInitialized( false ),
+ _keyTypeSet( false )
 {
 }
 
@@ -38,9 +39,11 @@ void MapEncoder::clear()
 
 	_emaLoadType = DataType::NoDataEnum;
 
-	_emaKeyType = DataType::NoDataEnum;
+	_emaKeyType = DataType::BufferEnum;
 
 	_containerInitialized = false;
+
+	_keyTypeSet = false;
 }
 
 void MapEncoder::initEncode( RsslDataType rsslKeyDataType, UInt8 rsslContainerDataType, DataType::DataTypeEnum emaLoadType )
@@ -56,6 +59,17 @@ void MapEncoder::initEncode( RsslDataType rsslKeyDataType, UInt8 rsslContainerDa
 		temp += EmaString( " while the expected DataType is " );
 		temp += DataType( _emaLoadType );
 		throwIueException( temp );
+		return;
+	}
+
+	if ( _keyTypeSet && (_emaKeyType != rsslKeyDataType ) )
+	{
+		EmaString temp("Attempt to add an entry key type of ");
+		temp += DataType((DataType::DataTypeEnum)rsslKeyDataType).toString();
+		temp += EmaString(" while Map entry key is set to ");
+		temp += DataType(_emaKeyType).toString();
+		temp += EmaString(" with the keyType() method");
+		throwIueException(temp);
 		return;
 	}
 
@@ -82,11 +96,11 @@ void MapEncoder::initEncode( RsslDataType rsslKeyDataType, UInt8 rsslContainerDa
 	_containerInitialized = true;
 }
 
-void MapEncoder::addDeleteActionEntry( void* keyValue, const EmaBuffer& permission, const char* methodName )
+void MapEncoder::addEntryWithNoPayload( void* keyValue, MapEntry::MapAction action, const EmaBuffer& permission, const char* methodName )
 {
-	rsslClearBuffer( &_rsslMapEntry.encData );
+	rsslClearMapEntry(&_rsslMapEntry);
 
-	_rsslMapEntry.action = RSSL_MPEA_DELETE_ENTRY;
+	_rsslMapEntry.action = action;
 
 	encodePermissionData( permission );
 
@@ -110,6 +124,8 @@ void MapEncoder::addDeleteActionEntry( void* keyValue, const EmaBuffer& permissi
 void MapEncoder::addEncodedEntry( void* keyValue, MapEntry::MapAction action, 
 	const ComplexType& value, const EmaBuffer& permission, const char* methodName )
 {
+	rsslClearMapEntry(&_rsslMapEntry);
+
 	_rsslMapEntry.encData = value.getEncoder().getRsslBuffer();
 
 	_rsslMapEntry.action = action;
@@ -136,6 +152,8 @@ void MapEncoder::addEncodedEntry( void* keyValue, MapEntry::MapAction action,
 void MapEncoder::addDecodedEntry( void* keyValue, MapEntry::MapAction action, 
 	const ComplexType& value, const EmaBuffer& permission, const char* methodName )
 {
+	rsslClearMapEntry(&_rsslMapEntry);
+
 	_rsslMapEntry.encData = const_cast<ComplexType&>( value ).getDecoder().getRsslBuffer();
 
 	_rsslMapEntry.action = action;
@@ -201,6 +219,45 @@ void MapEncoder::endEncodingEntry() const
 		EmaString temp( "Failed to end encoding entry in Map. Reason='" );
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
 		throwIueException( temp );
+	}
+}
+
+void MapEncoder::validateEntryKeyAndPayLoad(RsslDataType rsslKeyDataType, UInt8 rsslLoadDataType, DataType::DataTypeEnum emaLoadType,
+	const char* methodName)
+{
+	if (_containerComplete)
+	{
+		EmaString temp("Attempt to add an entry after complete() was called.");
+		throwIueException(temp);
+		return;
+	}
+
+	if (!hasEncIterator())
+	{
+		acquireEncIterator();
+
+		initEncode(rsslKeyDataType, rsslLoadDataType, emaLoadType);
+
+		_emaKeyType = (DataType::DataTypeEnum)rsslKeyDataType;
+		_emaLoadType = emaLoadType;
+	}
+	else if (_emaKeyType != rsslKeyDataType)
+	{
+		EmaString temp("Attempt to ");
+		temp += methodName;
+		temp += " while established key data type is ";
+		temp += DataType(_emaKeyType).toString();
+		throwIueException(temp);
+		return;
+	}
+	else if (_rsslMap.containerType != rsslLoadDataType)
+	{
+		EmaString temp("Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of ");
+		temp += DataType(emaLoadType).toString();
+		temp += EmaString(" while the expected DataType is ");
+		temp += DataType(_emaLoadType);
+		throwIueException(temp);
+		return;
 	}
 }
 
@@ -274,48 +331,39 @@ void MapEncoder::summaryData( const ComplexType& data )
 	}
 }
 
+void MapEncoder::keyType( DataType::DataTypeEnum keyPrimitiveType )
+{
+	if (_containerComplete)
+	{
+		EmaString temp("Attempt to call keyType() after complete() was called.");
+		throwIueException(temp);
+		return;
+	}
+
+	if (keyPrimitiveType > DataType::RmtesEnum || keyPrimitiveType == DataType::ArrayEnum)
+	{
+		EmaString temp("The specified key type '");
+		temp.append(DataType(keyPrimitiveType)).append("' is not a primitive type");
+		throwIueException(temp);
+		return;
+	}
+
+	_emaKeyType = keyPrimitiveType;
+	_keyTypeSet = true;
+}
+
 void MapEncoder::addKeyInt( Int64 key, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_INT, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::IntEnum;
-	}
-	else if ( _emaKeyType != DataType::IntEnum )
-	{
-		EmaString temp( "Attempt to addKeyInt() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_INT, rsslDataType, value.getDataType(), "addKeyInt()");
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &key, permissionData, "addKeyInt()" );
+		addEntryWithNoPayload( &key, action, permissionData, "addKeyInt()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -346,48 +394,26 @@ void MapEncoder::addKeyInt( Int64 key, MapEntry::MapAction action,
 	}
 }
 
+void MapEncoder::addKeyInt(Int64 key, MapEntry::MapAction action,
+	 const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_INT, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyInt()");
+
+	addEntryWithNoPayload(&key, action, permissionData, "addKeyInt()");
+}
+
 void MapEncoder::addKeyUInt( UInt64 key, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_UINT, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::UIntEnum;
-	}
-	else if ( _emaKeyType != DataType::UIntEnum )
-	{
-		EmaString temp( "Attempt to addKeyUInt() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_UINT, rsslDataType, value.getDataType(), "addKeyUInt()");
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &key, permissionData, "addKeyUInt()" );
+		addEntryWithNoPayload( &key, action, permissionData, "addKeyUInt()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -417,46 +443,23 @@ void MapEncoder::addKeyUInt( UInt64 key, MapEntry::MapAction action,
 		startEncodingEntry( &key, action, permissionData, "addKeyUInt()" );
 	}
 }
+void MapEncoder::addKeyUInt(UInt64 key, MapEntry::MapAction action,
+	const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_UINT, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyUInt()");
+
+	addEntryWithNoPayload(&key, action, permissionData, "addKeyUInt()");
+}
 
 void MapEncoder::addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeType, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
+
+	validateEntryKeyAndPayLoad(RSSL_DT_REAL, rsslDataType, value.getDataType(), "addKeyReal()");
 	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
-
-		initEncode( RSSL_DT_REAL, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::RealEnum;
-	}
-	else if ( _emaKeyType != DataType::RealEnum )
-	{
-		EmaString temp( "Attempt to addKeyReal() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
-
 	RsslReal real;
 	real.hint = magnitudeType;
 	real.value = mantissa;
@@ -464,7 +467,7 @@ void MapEncoder::addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeTyp
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &real, permissionData, "addKeyReal()" );
+		addEntryWithNoPayload( &real, action, permissionData, "addKeyReal()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -495,44 +498,27 @@ void MapEncoder::addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeTyp
 	}
 }
 
+void MapEncoder::addKeyReal(Int64 mantissa, OmmReal::MagnitudeType magnitudeType, MapEntry::MapAction action,
+	const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_REAL, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyReal()");
+
+	RsslReal real;
+	real.hint = magnitudeType;
+	real.value = mantissa;
+	real.isBlank = false;
+
+	addEntryWithNoPayload(&real, action, permissionData, "addKeyReal()");
+}
+
 void MapEncoder::addKeyRealFromDouble( double key, MapEntry::MapAction action,
 	const ComplexType& value, OmmReal::MagnitudeType magnitudeType, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_REAL, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::RealEnum;
-	}
-	else if ( _emaKeyType != DataType::RealEnum )
-	{
-		EmaString temp( "Attempt to addKeyRealFromDouble() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_REAL, rsslDataType, value.getDataType(), "addKeyRealFromDouble()");
 
 	RsslReal real;
 	if ( RSSL_RET_SUCCESS != rsslDoubleToReal( &real, &key, magnitudeType ) )
@@ -545,7 +531,7 @@ void MapEncoder::addKeyRealFromDouble( double key, MapEntry::MapAction action,
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &real, permissionData, "addKeyRealFromDouble()" );
+		addEntryWithNoPayload( &real, action, permissionData, "addKeyRealFromDouble()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -576,48 +562,35 @@ void MapEncoder::addKeyRealFromDouble( double key, MapEntry::MapAction action,
 	}
 }
 
+void MapEncoder::addKeyRealFromDouble(double key, MapEntry::MapAction action,
+	OmmReal::MagnitudeType magnitudeType, const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_REAL, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyRealFromDouble()");
+
+	RsslReal real;
+	if (RSSL_RET_SUCCESS != rsslDoubleToReal(&real, &key, magnitudeType))
+	{
+		EmaString temp("Attempt to addKeyRealFromDouble() with invalid magnitudeType='");
+		temp.append(getMTypeAsString(magnitudeType)).append("'. ");
+		throwIueException(temp);
+		return;
+	}
+
+	addEntryWithNoPayload(&real, action, permissionData, "addKeyRealFromDouble()");
+}
+
 void MapEncoder::addKeyFloat( float key, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
+
+	validateEntryKeyAndPayLoad(RSSL_DT_FLOAT, rsslDataType, value.getDataType(), "addKeyFloat()");
 	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
-
-		initEncode( RSSL_DT_FLOAT, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::FloatEnum;
-	}
-	else if ( _emaKeyType != DataType::FloatEnum )
-	{
-		EmaString temp( "Attempt to addKeyFloat() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
-
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &key, permissionData, "addKeyFloat()" );
+		addEntryWithNoPayload( &key, action, permissionData, "addKeyFloat()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -648,48 +621,25 @@ void MapEncoder::addKeyFloat( float key, MapEntry::MapAction action,
 	}
 }
 
+void MapEncoder::addKeyFloat(float key, MapEntry::MapAction action, const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_FLOAT, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyFloat()");
+
+	addEntryWithNoPayload(&key, action, permissionData, "addKeyFloat()");
+}
+
 void MapEncoder::addKeyDouble( double key, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
+
+	validateEntryKeyAndPayLoad(RSSL_DT_DOUBLE, rsslDataType, value.getDataType(), "addKeyDouble()");
 	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
-
-		initEncode( RSSL_DT_DOUBLE, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::DoubleEnum;
-	}
-	else if ( _emaKeyType != DataType::DoubleEnum )
-	{
-		EmaString temp( "Attempt to addKeyDouble() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
-
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &key, permissionData, "addKeyDouble()" );
+		addEntryWithNoPayload(&key, action, permissionData, "addKeyDouble()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -720,16 +670,16 @@ void MapEncoder::addKeyDouble( double key, MapEntry::MapAction action,
 	}
 }
 
+void MapEncoder::addKeyDouble(double key, MapEntry::MapAction action, const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_DOUBLE, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyDouble()");
+
+	addEntryWithNoPayload(&key, action, permissionData, "addKeyDouble()");
+}
+
 void MapEncoder::addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	RsslDate date;
 	date.year = year;
 	date.month = month;
@@ -748,35 +698,12 @@ void MapEncoder::addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapA
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
+
+	validateEntryKeyAndPayLoad(RSSL_DT_DATE, rsslDataType, value.getDataType(), "addKeyDate()");
 	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
-
-		initEncode( RSSL_DT_DATE, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::DateEnum;
-	}
-	else if ( _emaKeyType != DataType::DateEnum )
-	{
-		EmaString temp( "Attempt to addKeyDate() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
-
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &date, permissionData, "addKeyDate()" );
+		addEntryWithNoPayload( &date, action, permissionData, "addKeyDate()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -807,16 +734,32 @@ void MapEncoder::addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapA
 	}
 }
 
-void MapEncoder::addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond, 
-	MapEntry::MapAction action, const ComplexType& value, const EmaBuffer& permissionData )
+void MapEncoder::addKeyDate(UInt16 year, UInt8 month, UInt8 day, MapEntry::MapAction action,
+	const EmaBuffer& permissionData)
 {
-	if ( _containerComplete )
+	RsslDate date;
+	date.year = year;
+	date.month = month;
+	date.day = day;
+
+	if (RSSL_FALSE == rsslDateIsValid(&date))
 	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		EmaString temp("Attempt to specify invalid date. Passed in value is='");
+		temp.append((UInt32)month).append(" / ").
+			append((UInt32)day).append(" / ").
+			append((UInt32)year).append("'.");
+		throwOorException(temp);
 		return;
 	}
 
+	validateEntryKeyAndPayLoad(RSSL_DT_DATE, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyDate()");
+
+	addEntryWithNoPayload(&date, action, permissionData, "addKeyDate()");
+}
+
+void MapEncoder::addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond, 
+	MapEntry::MapAction action, const ComplexType& value, const EmaBuffer& permissionData )
+{
 	RsslTime time;
 	time.hour = hour;
 	time.minute = minute;
@@ -841,35 +784,12 @@ void MapEncoder::addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mill
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_TIME, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::TimeEnum;
-	}
-	else if ( _emaKeyType != DataType::TimeEnum )
-	{
-		EmaString temp( "Attempt to addKeyTime() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_TIME, rsslDataType, value.getDataType(), "addKeyTime()");
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &time, permissionData, "addKeyTime()" );
+		addEntryWithNoPayload( &time, action, permissionData, "addKeyTime()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -900,16 +820,38 @@ void MapEncoder::addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mill
 	}
 }
 
-void MapEncoder::addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond,
-	UInt16 microsecond, UInt16 nanosecond, MapEntry::MapAction action, const ComplexType& value, const EmaBuffer& permissionData )
+void MapEncoder::addKeyTime(UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond,
+	MapEntry::MapAction action, const EmaBuffer& permissionData)
 {
-	if ( _containerComplete )
+	RsslTime time;
+	time.hour = hour;
+	time.minute = minute;
+	time.second = second;
+	time.millisecond = millisecond;
+	time.microsecond = microsecond;
+	time.nanosecond = nanosecond;
+
+	if (RSSL_FALSE == rsslTimeIsValid(&time))
 	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
+		EmaString temp("Attempt to specify invalid time. Passed in value is='");
+		temp.append((UInt32)hour).append(":").
+			append((UInt32)minute).append(":").
+			append((UInt32)second).append(".").
+			append((UInt32)millisecond).append(".").
+			append((UInt32)microsecond).append(".").
+			append((UInt32)nanosecond).append("'.");
+		throwOorException(temp);
 		return;
 	}
 
+	validateEntryKeyAndPayLoad(RSSL_DT_TIME, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyTime()");
+
+	addEntryWithNoPayload(&time, action, permissionData, "addKeyTime()");
+}
+
+void MapEncoder::addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond,
+	UInt16 microsecond, UInt16 nanosecond, MapEntry::MapAction action, const ComplexType& value, const EmaBuffer& permissionData )
+{
 	RsslDateTime dateTime;
 	dateTime.date.year = year;
 	dateTime.date.month = month;
@@ -940,35 +882,12 @@ void MapEncoder::addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_DATETIME, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::DateTimeEnum;
-	}
-	else if ( _emaKeyType != DataType::DateTimeEnum )
-	{
-		EmaString temp( "Attempt to addKeyDateTime() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_DATETIME, rsslDataType, value.getDataType(), "addKeyDateTime()");
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &dateTime, permissionData, "addKeyDateTime()" );
+		addEntryWithNoPayload( &dateTime, action, permissionData, "addKeyDateTime()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -999,51 +918,56 @@ void MapEncoder::addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour
 	}
 }
 
+void MapEncoder::addKeyDateTime(UInt16 year, UInt8 month, UInt8 day, UInt8 hour, UInt8 minute, UInt8 second, UInt16 millisecond,
+	UInt16 microsecond, UInt16 nanosecond, MapEntry::MapAction action, const EmaBuffer& permissionData)
+{
+	RsslDateTime dateTime;
+	dateTime.date.year = year;
+	dateTime.date.month = month;
+	dateTime.date.day = day;
+	dateTime.time.hour = hour;
+	dateTime.time.minute = minute;
+	dateTime.time.second = second;
+	dateTime.time.millisecond = millisecond;
+	dateTime.time.microsecond = microsecond;
+	dateTime.time.nanosecond = nanosecond;
+
+	if (RSSL_FALSE == rsslDateTimeIsValid(&dateTime))
+	{
+		EmaString temp("Attempt to specify invalid date time. Passed in value is='");
+		temp.append((UInt32)month).append(" / ").
+			append((UInt32)day).append(" / ").
+			append((UInt32)year).append("  ").
+			append((UInt32)hour).append(":").
+			append((UInt32)minute).append(":").
+			append((UInt32)second).append(".").
+			append((UInt32)millisecond).append(".").
+			append((UInt32)microsecond).append(".").
+			append((UInt32)nanosecond).append("'.");
+		throwOorException(temp);
+		return;
+	}
+
+	validateEntryKeyAndPayLoad(RSSL_DT_DATETIME, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyDateTime()");
+
+	addEntryWithNoPayload(&dateTime, action, permissionData, "addKeyDateTime()");
+}
+
 void MapEncoder::addKeyQos( UInt32 timeliness, UInt32 rate, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_QOS, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::QosEnum;
-	}
-	else if ( _emaKeyType != DataType::QosEnum )
-	{
-		EmaString temp( "Attempt to addKeyQos() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_QOS, rsslDataType, value.getDataType(), "addKeyQos()");
 
 	RsslQos qos;
 	OmmQosDecoder::convertToRssl( &qos, timeliness, rate );
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &qos, permissionData, "addKeyQos()" );
+		addEntryWithNoPayload( &qos, action, permissionData, "addKeyQos()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -1074,44 +998,25 @@ void MapEncoder::addKeyQos( UInt32 timeliness, UInt32 rate, MapEntry::MapAction 
 	}
 }
 
+void MapEncoder::addKeyQos(UInt32 timeliness, UInt32 rate, MapEntry::MapAction action,
+	const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_QOS, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyQos()");
+
+	RsslQos qos;
+	OmmQosDecoder::convertToRssl(&qos, timeliness, rate);
+
+	addEntryWithNoPayload(&qos, action, permissionData, "addKeyQos()");
+}
+
 void MapEncoder::addKeyState( OmmState::StreamState streamState, OmmState::DataState dataState, UInt8 statusCode, const EmaString& statusText,
 	MapEntry::MapAction action, const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_STATE, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::StateEnum;
-	}
-	else if ( _emaKeyType != DataType::StateEnum )
-	{
-		EmaString temp( "Attempt to addKeyState() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_STATE, rsslDataType, value.getDataType(), "addKeyState()");
 
 	RsslState state;
 	state.streamState = streamState;
@@ -1122,7 +1027,7 @@ void MapEncoder::addKeyState( OmmState::StreamState streamState, OmmState::DataS
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &state, permissionData, "addKeyState()" );
+		addEntryWithNoPayload( &state, action, permissionData, "addKeyState()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -1153,48 +1058,33 @@ void MapEncoder::addKeyState( OmmState::StreamState streamState, OmmState::DataS
 	}
 }
 
+void MapEncoder::addKeyState(OmmState::StreamState streamState, OmmState::DataState dataState, UInt8 statusCode, const EmaString& statusText,
+	MapEntry::MapAction action, const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_STATE, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyState()");
+
+	RsslState state;
+	state.streamState = streamState;
+	state.dataState = dataState;
+	state.code = statusCode;
+	state.text.data = (char*)statusText.c_str();
+	state.text.length = statusText.length();
+
+	addEntryWithNoPayload(&state, action, permissionData, "addKeyState()");
+}
+
 void MapEncoder::addKeyEnum( UInt16 key, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_ENUM, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::EnumEnum;
-	}
-	else if ( _emaKeyType != DataType::EnumEnum )
-	{
-		EmaString temp( "Attempt to addKeyEnum() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_ENUM, rsslDataType, value.getDataType(), "addKeyEnum()");
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &key, permissionData, "addKeyEnum()" );
+		addEntryWithNoPayload( &key, action, permissionData, "addKeyEnum()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -1225,44 +1115,21 @@ void MapEncoder::addKeyEnum( UInt16 key, MapEntry::MapAction action,
 	}
 }
 
+void MapEncoder::addKeyEnum(UInt16 key, MapEntry::MapAction action, const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_ENUM, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyEnum()");
+
+	addEntryWithNoPayload(&key, action, permissionData, "addKeyEnum()");
+}
+
 void MapEncoder::addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_BUFFER, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::BufferEnum;
-	}
-	else if ( _emaKeyType != DataType::BufferEnum )
-	{
-		EmaString temp( "Attempt to addKeyBuffer() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_BUFFER, rsslDataType, value.getDataType(), "addKeyBuffer()");
 
 	RsslBuffer buffer;
 	buffer.data = (char*)key.c_buf();
@@ -1270,7 +1137,7 @@ void MapEncoder::addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &buffer, permissionData, "addKeyBuffer()" );
+		addEntryWithNoPayload( &buffer, action, permissionData, "addKeyBuffer()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -1301,44 +1168,26 @@ void MapEncoder::addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
 	}
 }
 
+void MapEncoder::addKeyBuffer(const EmaBuffer& key, MapEntry::MapAction action,
+	const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_BUFFER, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyBuffer()");
+
+	RsslBuffer buffer;
+	buffer.data = (char*)key.c_buf();
+	buffer.length = key.length();
+
+	addEntryWithNoPayload(&buffer, action, permissionData, "addKeyBuffer()");
+}
+
 void MapEncoder::addKeyAscii( const EmaString& key, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_ASCII_STRING, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::AsciiEnum;
-	}
-	else if ( _emaKeyType != DataType::AsciiEnum )
-	{
-		EmaString temp( "Attempt to addKeyAscii() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_ASCII_STRING, rsslDataType, value.getDataType(), "addKeyAscii()");
 
 	RsslBuffer buffer;
 	buffer.data = (char*)key.c_str();
@@ -1346,7 +1195,7 @@ void MapEncoder::addKeyAscii( const EmaString& key, MapEntry::MapAction action,
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &buffer, permissionData, "addKeyAscii()" );
+		addEntryWithNoPayload( &buffer, action, permissionData, "addKeyAscii()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -1377,52 +1226,34 @@ void MapEncoder::addKeyAscii( const EmaString& key, MapEntry::MapAction action,
 	}
 }
 
+void MapEncoder::addKeyAscii(const EmaString& key, MapEntry::MapAction action,
+	const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_ASCII_STRING, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyAscii()");
+
+	RsslBuffer buffer;
+	buffer.data = (char*)key.c_str();
+	buffer.length = key.length();
+
+	addEntryWithNoPayload(&buffer, action, permissionData, "addKeyAscii()");
+}
+
 void MapEncoder::addKeyUtf8( const EmaBuffer& key, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
+
+	validateEntryKeyAndPayLoad(RSSL_DT_UTF8_STRING, rsslDataType, value.getDataType(), "addKeyUtf8()");
 	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
-
-		initEncode( RSSL_DT_UTF8_STRING, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::Utf8Enum;
-	}
-	else if ( _emaKeyType != DataType::Utf8Enum )
-	{
-		EmaString temp( "Attempt to addKeyUtf8() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
-
 	RsslBuffer buffer;
 	buffer.data = (char*)key.c_buf();
 	buffer.length = key.length();
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &buffer, permissionData, "addKeyUtf8()" );
+		addEntryWithNoPayload( &buffer, action, permissionData, "addKeyUtf8()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -1453,44 +1284,26 @@ void MapEncoder::addKeyUtf8( const EmaBuffer& key, MapEntry::MapAction action,
 	}
 }
 
+void MapEncoder::addKeyUtf8(const EmaBuffer& key, MapEntry::MapAction action,
+	const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_UTF8_STRING, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyUtf8()");
+
+	RsslBuffer buffer;
+	buffer.data = (char*)key.c_buf();
+	buffer.length = key.length();
+
+	addEntryWithNoPayload(&buffer, action, permissionData, "addKeyUtf8()");
+}
+
 void MapEncoder::addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
 	const ComplexType& value, const EmaBuffer& permissionData )
 {
-	if ( _containerComplete )
-	{
-		EmaString temp( "Attempt to add an entry after complete() was called." );
-		throwIueException( temp );
-		return;
-	}
-
 	const Encoder& enc = value.getEncoder();
 
 	UInt8 rsslDataType = enc.convertDataType( value.getDataType() );
-	
-	if ( !hasEncIterator() )
-	{
-		acquireEncIterator();
 
-		initEncode( RSSL_DT_RMTES_STRING, rsslDataType, value.getDataType() );
-
-		_emaKeyType = DataType::RmtesEnum;
-	}
-	else if ( _emaKeyType != DataType::RmtesEnum )
-	{
-		EmaString temp( "Attempt to addKeyRmtes() while established key data type is " );
-		temp += DataType( _emaKeyType ).toString();
-		throwIueException( temp );
-		return;
-	}
-	else if ( _rsslMap.containerType != rsslDataType )
-	{
-		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
-		temp += DataType( value.getDataType() ).toString();
-		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaLoadType );
-		throwIueException( temp );
-		return;
-	}
+	validateEntryKeyAndPayLoad(RSSL_DT_RMTES_STRING, rsslDataType, value.getDataType(), "addKeyRmtes()");
 
 	RsslBuffer buffer;
 	buffer.data = (char*)key.c_buf();
@@ -1498,7 +1311,7 @@ void MapEncoder::addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
 
 	if ( action == MapEntry::DeleteEnum )
 	{
-		addDeleteActionEntry( &buffer, permissionData, "addKeyRmtes()" );
+		addEntryWithNoPayload( &buffer, action, permissionData, "addKeyRmtes()" );
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
@@ -1529,15 +1342,27 @@ void MapEncoder::addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
 	}
 }
 
+void MapEncoder::addKeyRmtes(const EmaBuffer& key, MapEntry::MapAction action,
+	const EmaBuffer& permissionData)
+{
+	validateEntryKeyAndPayLoad(RSSL_DT_RMTES_STRING, RSSL_DT_NO_DATA, DataType::NoDataEnum, "addKeyRmtes()");
+
+	RsslBuffer buffer;
+	buffer.data = (char*)key.c_buf();
+	buffer.length = key.length();
+
+	addEntryWithNoPayload(&buffer, action, permissionData, "addKeyRmtes()");
+}
+
 void MapEncoder::complete()
 {
 	if ( _containerComplete ) return;
 
 	if ( !hasEncIterator() )
 	{
-		EmaString temp( "Cannot complete an empty Map" );
-		throwIueException( temp );
-		return;
+		acquireEncIterator();
+
+		initEncode(_emaKeyType, convertDataType(_emaLoadType), _emaLoadType);
 	}
 
 	RsslRet retCode = rsslEncodeMapComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );

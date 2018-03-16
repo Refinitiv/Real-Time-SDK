@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -206,6 +206,29 @@ void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, c
 	}
 }
 
+void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, const EmaBuffer& permission )
+{
+	if (_containerComplete)
+	{
+		EmaString temp("Attempt to add an entry after complete() was called.");
+		throwIueException(temp);
+		return;
+	}
+
+	UInt8 rsslDataType = RSSL_DT_NO_DATA;
+
+	if (!hasEncIterator())
+	{
+		acquireEncIterator();
+
+		initEncode(rsslDataType);
+	}
+
+	RsslBuffer rsslBuffer;
+	rsslClearBuffer(&rsslBuffer);
+	addEncodedEntry(filterId, action, rsslDataType, permission, "add()", rsslBuffer);
+}
+
 void FilterListEncoder::complete()
 {
 	if ( _containerComplete ) return;
@@ -244,7 +267,7 @@ void FilterListEncoder::totalCountHint( UInt8 totalCountHint )
 	}
 	else
 	{
-		EmaString temp( "Invalid attempt to call totalCountHint() when container is not empty." );
+		EmaString temp( "Invalid attempt to call totalCountHint() when container is initialized." );
 		throwIueException( temp );
 	}
 }

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -352,10 +352,13 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action,
 			ComplexType value, ByteBuffer permissionData)
 	{
+		Buffer bufferText = CodecFactory.createBuffer();
 		_keyData = CodecFactory.createState();
+		
 		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).streamState(streamState) ||
 				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).dataState(dataState) ||
-				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).code(statusCode) || statusText == null)
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).code(statusCode) || statusText == null ||
+				CodecReturnCodes.SUCCESS != bufferText.data(statusText) ||  CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).text(bufferText) )
 		{
 			String errText = errorString().append("Attempt to specify invalid state. Passed in value is='" )
 					.append( streamState ).append( " / " )
@@ -501,11 +504,415 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 		}
 	}
 	
+	private void entryValue(int action, ByteBuffer permissionData)
+	{
+		if (action < 0 || action > 15)
+			throw ommOORExcept().message("action is out of range [0 - 15].");
+
+		_rsslMapEntry.action(action);
+		_entryDataType = com.thomsonreuters.upa.codec.DataTypes.NO_DATA;	
+		
+		if (permissionData != null)
+		{
+			Utilities.copy(permissionData, _rsslMapEntry.permData());
+			_rsslMapEntry.applyHasPermData();
+		}
+	}
+	
 	MapEntryImpl entryValue(DataImpl mapEntryKey, DataImpl load)
 	{
 		_load = load;
 		_keyDataDecoded.data(mapEntryKey);
 		
+		return this;
+	}
+
+	@Override
+	public MapEntry keyInt(long key, int action)
+	{
+		keyInt(key,action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyInt(long key, int action, ByteBuffer permissionData)
+	{	
+		_keyData = CodecFactory.createInt();
+		((com.thomsonreuters.upa.codec.Int) _keyData).value(key);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.INT;
+		
+		return this;
+	}
+
+	@Override
+	public MapEntry keyUInt(long key, int action)
+	{
+		keyUInt(key,action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyUInt(long key, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt) _keyData).value(key);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
+						
+		return this;
+	}
+
+	@Override
+	public MapEntry keyUInt(BigInteger key, int action)
+	{
+		keyUInt(key, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyUInt(BigInteger key, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createUInt();
+		((com.thomsonreuters.upa.codec.UInt) _keyData).value(key);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.UINT;
+		
+		return this;
+	}
+
+	@Override
+	public MapEntry keyReal(long mantissa, int magnitudeType, int action)
+	{
+		keyReal(mantissa, magnitudeType, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyReal(long mantissa, int magnitudeType, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_keyData).value(mantissa, magnitudeType) )
+		{
+			String errText = errorString().append("Attempt to specify invalid real value. Passed in value is='" )
+										.append( mantissa ).append( " / " )
+										.append( magnitudeType ).append( "'." ).toString();
+			throw ommIUExcept().message(errText);
+		}
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
+		
+		return this;
+	}
+
+	@Override
+	public MapEntry keyReal(double key, int action)
+	{
+		keyReal(key, OmmReal.MagnitudeType.EXPONENT_0, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyReal(double key, int action, ByteBuffer permissionData) {
+		
+		keyReal(key, OmmReal.MagnitudeType.EXPONENT_0, action, permissionData);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyReal(double key, int magnitudeType, int action) {
+		
+		keyReal(key, magnitudeType, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyReal(double key, int magnitudeType, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createReal();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Real)_keyData).value(key, magnitudeType) )
+		{
+			String errText = errorString().append("Attempt to specify invalid real value. Passed in value is='" )
+										.append( key ).append( " / " )
+										.append( magnitudeType ).append( "'." ).toString();
+			throw ommIUExcept().message(errText);
+		}
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.REAL;
+						
+		return this;
+	}
+
+	@Override
+	public MapEntry keyFloat(float key, int action)
+	{
+		keyFloat(key, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyFloat(float key, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createFloat();
+		((com.thomsonreuters.upa.codec.Float) _keyData).value(key);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.FLOAT;
+			
+		return this;
+	}
+
+	@Override
+	public MapEntry keyDouble(double key, int action)
+	{
+		keyDouble(key, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyDouble(double key, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createDouble();
+		((com.thomsonreuters.upa.codec.Double) _keyData).value(key);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.DOUBLE;
+						
+		return this;
+	}
+
+	@Override
+	public MapEntry keyDate(int year, int month, int day, int action)
+	{
+		keyDate(year,month, day, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyDate(int year, int month, int day, int action, ByteBuffer permissionData)
+	{
+		_keyData =  dateValue(year, month, day);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.DATE;
+			
+		return this;
+	}
+
+	@Override
+	public MapEntry keyTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond,
+			int action)
+	{
+		keyTime(hour, minute, second, millisecond, microsecond, nanosecond, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyTime(int hour, int minute, int second, int millisecond, int microsecond, int nanosecond,
+			int action, ByteBuffer permissionData)
+	{
+		_keyData = timeValue(hour, minute, second, millisecond, microsecond, nanosecond);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.TIME;
+				
+		return this;
+	}
+
+	@Override
+	public MapEntry keyDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond,
+			int microsecond, int nanosecond, int action)
+	{
+		keyDateTime(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond,
+			int microsecond, int nanosecond, int action, ByteBuffer permissionData)
+	{
+		_keyData = dateTimeValue(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.DATETIME;
+				
+		return this;
+	}
+
+	@Override
+	public MapEntry keyQos(int timeliness, int rate, int action)
+	{
+		keyQos(timeliness, rate, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyQos(int timeliness, int rate, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createQos();
+		Utilities.toRsslQos(rate, timeliness, (com.thomsonreuters.upa.codec.Qos) _keyData);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.QOS;
+		
+		return this;
+	}
+
+	@Override
+	public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action)
+	{
+		keyState(streamState, dataState, statusCode, statusText, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyState(int streamState, int dataState, int statusCode, String statusText, int action,
+			ByteBuffer permissionData)
+	{
+		Buffer bufferText = CodecFactory.createBuffer();
+		_keyData = CodecFactory.createState();
+		
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).streamState(streamState) ||
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).dataState(dataState) ||
+				CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).code(statusCode) || statusText == null ||
+				CodecReturnCodes.SUCCESS != bufferText.data(statusText) ||  CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.State)_keyData).text(bufferText) )
+		{
+			String errText = errorString().append("Attempt to specify invalid state. Passed in value is='" )
+					.append( streamState ).append( " / " )
+					.append( dataState ).append( " / " )
+					.append( statusCode ).append( "/ " )
+					.append( statusText ).append( "." ).toString();
+				throw ommIUExcept().message(errText);
+		}
+		
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.STATE;
+		
+		return this;
+	}
+
+	@Override
+	public MapEntry keyEnum(int key, int action)
+	{
+		keyEnum(key, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyEnum(int key, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createEnum();
+		if (CodecReturnCodes.SUCCESS != ((com.thomsonreuters.upa.codec.Enum)_keyData).value(key) )
+		{
+			String errText = errorString().append("Attempt to specify invalid enum. Passed in key is='" )
+					.append( key ).append( "." ).toString();
+				throw ommIUExcept().message(errText);
+		}
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.ENUM;
+			
+		return this;
+	}
+
+	@Override
+	public MapEntry keyBuffer(ByteBuffer key, int action)
+	{
+		keyBuffer(key, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyBuffer(ByteBuffer key, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createBuffer();
+		Utilities.copy(key, (Buffer) _keyData);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+			
+		return this;
+	}
+
+	@Override
+	public MapEntry keyAscii(String key, int action)
+	{
+		keyAscii(key, action, (ByteBuffer)null);
+		return this;
+	}
+
+	@Override
+	public MapEntry keyAscii(String key, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createBuffer();
+		if (CodecReturnCodes.SUCCESS != ((Buffer)_keyData).data(key) )
+		{
+			String errText = errorString().append("Attempt to specify invalid string. Passed in key is='" )
+					.append( key ).append( "." ).toString();
+				throw ommIUExcept().message(errText);
+		}
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.ASCII_STRING;
+				
+		return this;
+	}
+
+	@Override
+	public MapEntry keyUtf8(ByteBuffer key, int action)
+	{
+		return keyUtf8(key, action, (ByteBuffer)null);
+	}
+
+	@Override
+	public MapEntry keyUtf8(ByteBuffer key, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createBuffer();
+		Utilities.copy(key, (Buffer) _keyData);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.UTF8_STRING;
+	
+		return this;
+	}
+
+	@Override
+	public MapEntry keyRmtes(ByteBuffer key, int action)
+	{
+		return keyRmtes(key, action, (ByteBuffer)null);
+	}
+
+	@Override
+	public MapEntry keyRmtes(ByteBuffer key, int action, ByteBuffer permissionData)
+	{
+		_keyData = CodecFactory.createBuffer();
+		Utilities.copy(key, (Buffer) _keyData);
+
+		entryValue(action, permissionData);
+
+		_keyDataType = com.thomsonreuters.upa.codec.DataTypes.RMTES_STRING;
+	
 		return this;
 	}
 }

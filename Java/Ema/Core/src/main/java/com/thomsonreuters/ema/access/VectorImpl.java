@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -26,6 +26,8 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	private LinkedList<VectorEntry> _vectorCollection = new LinkedList<VectorEntry>(); 
 	private DataImpl _summaryDecoded;
 	private PayloadAttribSummaryImpl _summaryData;
+	private int _summaryDataType = com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
+	private boolean _summaryDataTypeSet = false;
 	
 	VectorImpl() 
 	{
@@ -88,6 +90,9 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	@Override
 	public void clear()
 	{
+		_summaryDataTypeSet = false;
+		_summaryDataType = com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
+		
 		if (_rsslEncodeIter != null)
 		{
 			super.clear();
@@ -125,6 +130,9 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	{
 		if (summaryData == null)
 			throw ommIUExcept().message("Passed in summaryData is null");
+		
+		_summaryDataType = summaryData.dataType();
+		_summaryDataTypeSet = true;
 
 		_rsslVector.applyHasSummaryData();
 		Utilities.copy(((DataImpl) summaryData).encodedData(), _rsslVector.encodedSummaryData());
@@ -434,25 +442,44 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	Buffer encodedData()
 	{
 		if (_encodeComplete || (_rsslEncodeIter == null))
-			return _rsslBuffer; 
+			return _rsslBuffer;
+		
+		int ret;
+		int entryType = _summaryDataType;
 		
 		if (_vectorCollection.isEmpty())
-			throw ommIUExcept().message("Series to be encoded is empty.");
-	    
-	    VectorEntryImpl firstEntry = (VectorEntryImpl)_vectorCollection.get(0);
-	    int entryType = firstEntry._entryDataType;
-	    
-	    if ( entryType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
-	    {
-	    	_rsslVector.containerType(entryType);
-	    }
-	    else
-	    {
-	    	_rsslVector.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
-	    }
-	    
-	    int ret;
-	    
+		{
+			_rsslVector.containerType(entryType);
+		}
+		else
+		{
+		    VectorEntryImpl firstEntry = (VectorEntryImpl)_vectorCollection.get(0);
+		    
+		    if ( firstEntry._entryDataType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
+		    {
+		    	if ( _summaryDataTypeSet && (entryType !=  firstEntry._entryDataType) )
+				{
+					String errText = errorString().append("Attempt to add entry of ")
+							.append(com.thomsonreuters.upa.codec.DataTypes.toString(firstEntry._entryDataType))
+							.append(" while Vector entry load type is set to ")
+							.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType))
+							.append(" with summaryData() method").toString();
+					throw ommIUExcept().message(errText);
+				}
+				else
+				{
+					entryType = firstEntry._entryDataType;
+				}
+		    	
+		    	_rsslVector.containerType(entryType);
+		    }
+		    else
+		    {
+		    	entryType = com.thomsonreuters.upa.codec.DataTypes.UNKNOWN;
+		    	_rsslVector.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
+		    }
+		}
+		    
 	    setEncodedBufferIterator();
 
 	    while ((ret = _rsslVector.encodeInit(_rsslEncodeIter, 0, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL)
@@ -466,7 +493,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 	    
 	    if (ret != CodecReturnCodes.SUCCESS)
 	    {
-	    	String errText = errorString().append("Failed to intialize encoding on rssl series. Reason='")
+	    	String errText = errorString().append("Failed to intialize encoding on rssl Vector. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
 	    	throw ommIUExcept().message(errText);
@@ -480,7 +507,7 @@ class VectorImpl extends CollectionDataImpl implements Vector
 			{
 				String errText = errorString().append("Attempt to add entry of ")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(vectorEntry._entryDataType))
-						.append("while Series contains=")
+						.append(" while Vector contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType)).toString();
 				throw ommIUExcept().message(errText);
 			}
@@ -494,17 +521,17 @@ class VectorImpl extends CollectionDataImpl implements Vector
 		    {
 				String errText = errorString().append("Failed to ")
 						.append("rsslVectorEntry.encode()")
-						.append(" while encoding rssl series. Reason='")
+						.append(" while encoding rssl Vector. Reason='")
 						.append(CodecReturnCodes.toString(ret))
 						.append("'").toString();
 				throw ommIUExcept().message(errText);
 		    }
-		 }
+		}
 		 
 		ret =  _rsslVector.encodeComplete(_rsslEncodeIter, true);
 	    if (ret != CodecReturnCodes.SUCCESS)
 	    {
-	    	String errText = errorString().append("Failed to complete encoding on rssl series. Reason='")
+	    	String errText = errorString().append("Failed to complete encoding on rssl Vector. Reason='")
 	    								.append(CodecReturnCodes.toString(ret))
 	    								.append("'").toString();
 	        throw ommIUExcept().message(errText);

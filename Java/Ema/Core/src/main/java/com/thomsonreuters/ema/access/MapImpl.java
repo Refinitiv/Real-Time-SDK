@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -27,6 +27,10 @@ class MapImpl extends CollectionDataImpl implements Map
 	private LinkedList<MapEntry> _mapCollection = new LinkedList<MapEntry>(); 
 	private DataImpl _summaryDecoded;
 	private PayloadAttribSummaryImpl _summaryData;
+	private int _keyType  = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+	private int _summaryDataType = com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
+	private boolean _keyTypeSet = false;
+	private boolean _summaryDataTypeSet = false;
 	
 	MapImpl() 
 	{
@@ -189,6 +193,11 @@ class MapImpl extends CollectionDataImpl implements Map
 	@Override
 	public void clear()
 	{
+		_keyTypeSet = false;
+		_summaryDataTypeSet = false;
+		_keyType  = com.thomsonreuters.upa.codec.DataTypes.BUFFER;
+		_summaryDataType = com.thomsonreuters.upa.codec.DataTypes.NO_DATA;
+		
 		if (_rsslEncodeIter != null)
 		{
 			super.clear();
@@ -229,6 +238,9 @@ class MapImpl extends CollectionDataImpl implements Map
 	{
 		if (summaryData == null)
 			throw ommIUExcept().message("Passed in summaryData is null");
+		
+		_summaryDataType = summaryData.dataType();
+		_summaryDataTypeSet = true;
 
 		_rsslMap.applyHasSummaryData();
 		Utilities.copy(((DataImpl)summaryData).encodedData(), _rsslMap.encodedSummaryData());
@@ -482,25 +494,62 @@ class MapImpl extends CollectionDataImpl implements Map
 	Buffer encodedData()
 	{
 		if (_encodeComplete || (_rsslEncodeIter == null))
-			return _rsslBuffer; 
+			return _rsslBuffer;
+		
+		int keyType  = _keyType;
+		int entryType = _summaryDataType;
 		
 		if (_mapCollection.isEmpty())
-			throw ommIUExcept().message("Map to be encoded is empty.");
-	    
-	    MapEntryImpl firstEntry = (MapEntryImpl)_mapCollection.get(0);
-	    int keyType = firstEntry._keyDataType; 
-	    int entryType = firstEntry._entryDataType;
-		_rsslMap.keyPrimitiveType(keyType);
-				
-		if( firstEntry._entryDataType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
 		{
+			_rsslMap.keyPrimitiveType(keyType);
 			_rsslMap.containerType(entryType);
 		}
 		else
 		{
-			_rsslMap.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
+			MapEntryImpl firstEntry = (MapEntryImpl)_mapCollection.get(0);
+			
+			if( _keyTypeSet && (_keyType != firstEntry._keyDataType) )
+			{
+				String errText = errorString().append("Attempt to add entry of ")
+						.append(com.thomsonreuters.upa.codec.DataTypes.toString(firstEntry._keyDataType))
+						.append(" while Map entry key is set to ")
+						.append(com.thomsonreuters.upa.codec.DataTypes.toString(_keyType))
+						.append(" with keyType() method").toString();
+				throw ommIUExcept().message(errText);
+			}
+			else
+			{
+				keyType = firstEntry._keyDataType;
+			}
+			
+			_rsslMap.keyPrimitiveType(keyType);
+			
+			if( firstEntry._entryDataType != com.thomsonreuters.upa.codec.DataTypes.UNKNOWN )
+			{
+				if ( _summaryDataTypeSet && (entryType !=  firstEntry._entryDataType) )
+				{
+					String errText = errorString().append("Attempt to add entry of ")
+							.append(com.thomsonreuters.upa.codec.DataTypes.toString(firstEntry._entryDataType))
+							.append(" while Map entry load type is set to ")
+							.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType))
+							.append(" with summaryData() method").toString();
+					throw ommIUExcept().message(errText);
+				}
+				else
+				{
+					entryType = firstEntry._entryDataType;
+				}
+				
+				_rsslMap.containerType(entryType);
+			}
+			else
+			{
+				entryType = com.thomsonreuters.upa.codec.DataTypes.UNKNOWN;
+				
+				_rsslMap.containerType(Utilities.toRsslDataType(firstEntry.loadType()));
+			}
 		}
-		
+			
 		int ret;
 		
 		setEncodedBufferIterator();
@@ -530,7 +579,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			{
 				String errText = errorString().append("Attempt to add entry of ")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(mapEntry._keyDataType))
-						.append("while Map key contains=")
+						.append(" while Map key contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(keyType)).toString();
 				throw ommIUExcept().message(errText);
 			}
@@ -539,7 +588,7 @@ class MapImpl extends CollectionDataImpl implements Map
 			{
 				String errText = errorString().append("Attempt to add entry of ")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(mapEntry._entryDataType))
-						.append("while Map contains=")
+						.append(" while Map contains=")
 						.append(com.thomsonreuters.upa.codec.DataTypes.toString(entryType)).toString();
 				throw ommIUExcept().message(errText);
 			}
@@ -702,5 +751,20 @@ class MapImpl extends CollectionDataImpl implements Map
 	
 			_mapCollection.clear();
 		}
+	}
+
+	@Override
+	public Map keyType(int keyPrimitiveType)
+	{
+		if ( keyPrimitiveType > DataTypes.RMTES || keyPrimitiveType == DataTypes.ARRAY )
+		{
+			String errText = errorString().append("The specified key type '").append(DataType.asString(keyPrimitiveType))
+				.append("' is not a primitive type").toString();
+			throw ommIUExcept().message(errText);
+		}
+		
+		_keyType = keyPrimitiveType;
+		_keyTypeSet = true;
+		return this;
 	}
 }
