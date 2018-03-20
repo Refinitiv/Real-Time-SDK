@@ -3393,6 +3393,9 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 									return RSSL_RET_INVALID_ARGUMENT;
 								}
 
+								// save filter from request
+								pDirectoryRequest->filter = pDirectoryReqMsg->filter;
+
 								/* Move request back to list of new requests so we provide
 								 * a new refresh out of cache. */
 								pDirectoryRequest->state = WL_DR_REQUEST_PENDING_REFRESH;

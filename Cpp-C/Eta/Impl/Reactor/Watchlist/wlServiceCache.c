@@ -1126,16 +1126,16 @@ RsslRet wlServiceCacheGetServiceList(WlServiceCache *pServiceCache, WlServiceLis
 		pServiceList->serviceCount = 1;
 		pServiceList->serviceList = wlServiceList;
 
+		if ((ret = wlServiceCacheSetRefreshLinkInfo(pService, &pService->rdm.linkInfo, pErrorInfo))
+				!= RSSL_RET_SUCCESS)
+			return ret;
+
 		wlServiceList[0] = pService->rdm;
 		wlServiceList[0].action = RSSL_MPEA_ADD_ENTRY;
 		wlServiceList[0].info.action = RSSL_FTEA_SET_ENTRY;
 		wlServiceList[0].state.action = RSSL_FTEA_SET_ENTRY;
 		wlServiceList[0].load.action = RSSL_FTEA_SET_ENTRY;
 		wlServiceList[0].linkInfo.action = RSSL_FTEA_SET_ENTRY;
-
-		if ((ret = wlServiceCacheSetRefreshLinkInfo(pService, &pService->rdm.linkInfo, pErrorInfo))
-				!= RSSL_RET_SUCCESS)
-			return ret;
 
 		return RSSL_RET_SUCCESS;
 	}
@@ -1152,16 +1152,16 @@ RsslRet wlServiceCacheGetServiceList(WlServiceCache *pServiceCache, WlServiceLis
 		pServiceList->serviceCount = 1;
 		pServiceList->serviceList = wlServiceList;
 
+		if ((ret = wlServiceCacheSetRefreshLinkInfo(pService, &pService->rdm.linkInfo, pErrorInfo))
+				!= RSSL_RET_SUCCESS)
+			return ret;
+
 		wlServiceList[0] = pService->rdm;
 		wlServiceList[0].action = RSSL_MPEA_ADD_ENTRY;
 		wlServiceList[0].info.action = RSSL_FTEA_SET_ENTRY;
 		wlServiceList[0].state.action = RSSL_FTEA_SET_ENTRY;
 		wlServiceList[0].load.action = RSSL_FTEA_SET_ENTRY;
 		wlServiceList[0].linkInfo.action = RSSL_FTEA_SET_ENTRY;
-
-		if ((ret = wlServiceCacheSetRefreshLinkInfo(pService, &pService->rdm.linkInfo, pErrorInfo))
-				!= RSSL_RET_SUCCESS)
-			return ret;
 
 		return RSSL_RET_SUCCESS;
 	}

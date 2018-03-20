@@ -38,6 +38,7 @@ typedef struct
 {
 	WlRequestBase			base;			/* Base request. */
 	RsslUInt8				flags;			/* WlDirectoryRequestFlags. */
+	RsslUInt32				filter;			/* filter from request so correct refresh can be returned to user */
 	RsslQueueLink			qlRequestedService;
 	WlRequestedService		*pRequestedService;	/* Service associated with this request, if any
 												 * (otherwise the request is for all services). */

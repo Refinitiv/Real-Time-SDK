@@ -23,6 +23,9 @@ WlDirectoryRequest *wlDirectoryRequestCreate(RsslRDMDirectoryRequest *pDirectory
 	wlRequestBaseInit(&pDirectoryRequest->base, pDirectoryReqMsg->rdmMsgBase.streamId, 
 			pDirectoryReqMsg->rdmMsgBase.domainType, pUserSpec);
 	
+	// save filter from request
+	pDirectoryRequest->filter = pDirectoryReqMsg->filter;
+	
 	return pDirectoryRequest;
 }
 
@@ -117,6 +120,74 @@ RsslRet wlSendDirectoryMsgToRequest(WlBase *pBase, WlDirectoryRequest *pDirector
 			streamInfo.pServiceName = &pDirectoryRequest->pRequestedService->serviceName;
 		else
 			assert(pDirectoryRequest->pRequestedService->flags & WL_RSVC_HAS_ID);
+	}
+
+	/* set directory response filter and service flags correctly on fanned out RDM directory message */
+	if (pDirectoryMsg && pDirectoryRequest->filter > 0)
+	{
+		RsslUInt32 serviceCount, i;
+		if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH)
+		{
+			serviceCount = pDirectoryMsg->refresh.serviceCount;
+			pDirectoryMsg->refresh.filter = pDirectoryRequest->filter;
+		}
+		else if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE)
+		{
+			serviceCount = pDirectoryMsg->update.serviceCount;
+			pDirectoryMsg->update.filter = pDirectoryRequest->filter;
+		}
+		for (i = 0; i < serviceCount; i++)
+		{
+			if ((pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_INFO_FILTER) == 0)
+			{
+				if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH)
+					pDirectoryMsg->refresh.serviceList[i].flags &= ~RDM_SVCF_HAS_INFO;
+				else if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE)
+					pDirectoryMsg->update.serviceList[i].flags &= ~RDM_SVCF_HAS_INFO;
+			}
+			if ((pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_STATE_FILTER) == 0)
+			{
+				if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH)
+					pDirectoryMsg->refresh.serviceList[i].flags &= ~RDM_SVCF_HAS_STATE;
+				else if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE)
+					pDirectoryMsg->update.serviceList[i].flags &= ~RDM_SVCF_HAS_STATE;
+			}
+			if ((pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_GROUP_FILTER) == 0)
+			{
+				if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH)
+					pDirectoryMsg->refresh.serviceList[i].groupStateCount = 0;
+				else if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE)
+					pDirectoryMsg->update.serviceList[i].groupStateCount = 0;
+			}
+			if ((pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_LOAD_FILTER) == 0)
+			{
+				if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH)
+					pDirectoryMsg->refresh.serviceList[i].flags &= ~RDM_SVCF_HAS_LOAD;
+				else if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE)
+					pDirectoryMsg->update.serviceList[i].flags &= ~RDM_SVCF_HAS_LOAD;
+			}
+			if ((pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_DATA_FILTER) == 0)
+			{
+				if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH)
+					pDirectoryMsg->refresh.serviceList[i].flags &= ~RDM_SVCF_HAS_DATA;
+				else if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE)
+					pDirectoryMsg->update.serviceList[i].flags &= ~RDM_SVCF_HAS_DATA;
+			}
+			if ((pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_LINK_FILTER) == 0)
+			{
+				if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH)
+					pDirectoryMsg->refresh.serviceList[i].flags &= ~RDM_SVCF_HAS_LINK;
+				else if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE)
+					pDirectoryMsg->update.serviceList[i].flags &= ~RDM_SVCF_HAS_LINK;
+			}
+			if ((pDirectoryRequest->filter & RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER) == 0)
+			{
+				if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH)
+					pDirectoryMsg->refresh.serviceList[i].flags &= ~RDM_SVCF_HAS_SEQ_MCAST;
+				else if (pDirectoryMsg->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE)
+					pDirectoryMsg->update.serviceList[i].flags &= ~RDM_SVCF_HAS_SEQ_MCAST;
+			}
+		}
 	}
 
 	return (*pBase->config.msgCallback)(&pBase->watchlist, &msgEvent, pErrorInfo);

@@ -663,82 +663,36 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 		return RSSL_RC_CRET_SUCCESS;
 	}
 
-	switch ( pDirectoryMsg->rdmMsgBase.rdmMsgType )
+	if (pEvent && pEvent->baseMsgEvent.pStreamInfo && pEvent->baseMsgEvent.pStreamInfo->pUserSpec)
 	{
-	case RDM_DR_MT_REFRESH:
-	{
-		RsslState* pState = &pDirectoryMsg->refresh.state;
+		SingleItem* pItem = (SingleItem*)pEvent->baseMsgEvent.pStreamInfo->pUserSpec;
 
-		if ( pState->streamState != RSSL_STREAM_OPEN )
-		{
-			_ommBaseImpl.closeChannel( pRsslReactorChannel );
-
-			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			{
-				EmaString tempState( 0, 256 );
-				stateToString( pState, tempState );
-
-				EmaString temp( "RDMDirectory stream was closed with refresh message " );
-				temp.append( tempState );
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
-			}
-
-			processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pRsslReactorChannel->userSpecPtr );
-
-			break;
-		}
-		else if ( pState->dataState == RSSL_DATA_SUSPECT )
-		{
-			if ( OmmLoggerClient::WarningEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-			{
-				EmaString tempState( 0, 256 );
-				stateToString( pState, tempState );
-
-				EmaString temp( "RDMDirectory stream state was changed to suspect with refresh message " );
-				temp.append( tempState );
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
-			}
-
-			_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenSuspectEnum );
-
-			processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pRsslReactorChannel->userSpecPtr );
-			break;
-		}
-
-		_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenOkEnum );
-
-		if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
-		{
-			EmaString tempState( 0, 256 );
-			stateToString( pState, tempState );
-
-			EmaString temp( "RDMDirectory stream was open with refresh message " );
-			temp.append( tempState );
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
-		}
-
-		processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pRsslReactorChannel->userSpecPtr );
-		break;
+		return processCallback(pRsslReactor, pRsslReactorChannel, pEvent, pItem);
 	}
-	case RDM_DR_MT_STATUS:
+	else
 	{
-		if ( pDirectoryMsg->status.flags & RDM_DR_STF_HAS_STATE )
+		switch ( pDirectoryMsg->rdmMsgBase.rdmMsgType )
 		{
-			RsslState* pState = &pDirectoryMsg->status.state;
-
+		case RDM_DR_MT_REFRESH:
+		{
+			RsslState* pState = &pDirectoryMsg->refresh.state;
+	
 			if ( pState->streamState != RSSL_STREAM_OPEN )
 			{
 				_ommBaseImpl.closeChannel( pRsslReactorChannel );
-
+	
 				if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 				{
 					EmaString tempState( 0, 256 );
 					stateToString( pState, tempState );
-
-					EmaString temp( "RDMDirectory stream was closed with status message " );
+	
+					EmaString temp( "RDMDirectory stream was closed with refresh message " );
 					temp.append( tempState );
 					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 				}
+	
+				processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pRsslReactorChannel->userSpecPtr );
+	
 				break;
 			}
 			else if ( pState->dataState == RSSL_DATA_SUSPECT )
@@ -747,66 +701,114 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 				{
 					EmaString tempState( 0, 256 );
 					stateToString( pState, tempState );
-
-					EmaString temp( "RDMDirectory stream state was changed to suspect with status message " );
+	
+					EmaString temp( "RDMDirectory stream state was changed to suspect with refresh message " );
 					temp.append( tempState );
 					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
 				}
-
+	
 				_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenSuspectEnum );
+	
+				processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pRsslReactorChannel->userSpecPtr );
 				break;
 			}
-
+	
+			_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenOkEnum );
+	
 			if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString tempState( 0, 256 );
 				stateToString( pState, tempState );
-
-				EmaString temp( "RDMDirectory stream was open with status message " );
+	
+				EmaString temp( "RDMDirectory stream was open with refresh message " );
 				temp.append( tempState );
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 			}
-
-			_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenOkEnum );
+	
+			processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pRsslReactorChannel->userSpecPtr );
+			break;
 		}
-		else
+		case RDM_DR_MT_STATUS:
 		{
-			if ( OmmLoggerClient::WarningEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			if ( pDirectoryMsg->status.flags & RDM_DR_STF_HAS_STATE )
 			{
-				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, "Received RDMDirectory status message without the state" );
+				RsslState* pState = &pDirectoryMsg->status.state;
+	
+				if ( pState->streamState != RSSL_STREAM_OPEN )
+				{
+					_ommBaseImpl.closeChannel( pRsslReactorChannel );
+	
+					if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+					{
+						EmaString tempState( 0, 256 );
+						stateToString( pState, tempState );
+	
+						EmaString temp( "RDMDirectory stream was closed with status message " );
+						temp.append( tempState );
+						_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+					}
+					break;
+				}
+				else if ( pState->dataState == RSSL_DATA_SUSPECT )
+				{
+					if ( OmmLoggerClient::WarningEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+					{
+						EmaString tempState( 0, 256 );
+						stateToString( pState, tempState );
+	
+						EmaString temp( "RDMDirectory stream state was changed to suspect with status message " );
+						temp.append( tempState );
+						_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
+					}
+	
+					_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenSuspectEnum );
+					break;
+				}
+	
+				if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+				{
+					EmaString tempState( 0, 256 );
+					stateToString( pState, tempState );
+	
+					EmaString temp( "RDMDirectory stream was open with status message " );
+					temp.append( tempState );
+					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
+				}
+	
+				_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenOkEnum );
 			}
+			else
+			{
+				if ( OmmLoggerClient::WarningEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+				{
+					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, "Received RDMDirectory status message without the state" );
+				}
+			}
+			break;
 		}
-		break;
-	}
-	case RDM_DR_MT_UPDATE:
-	{
-		if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		case RDM_DR_MT_UPDATE:
 		{
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, "Received RDMDirectory update message" );
+			if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			{
+				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, "Received RDMDirectory update message" );
+			}
+	
+			processDirectoryPayload( pDirectoryMsg->update.serviceCount, pDirectoryMsg->update.serviceList, pRsslReactorChannel->userSpecPtr );
+			break;
 		}
-
-		processDirectoryPayload( pDirectoryMsg->update.serviceCount, pDirectoryMsg->update.serviceList, pRsslReactorChannel->userSpecPtr );
-		break;
-	}
-	default:
-	{
-		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+		default:
 		{
-			EmaString temp( "Received unknown RDMDirectory message type" );
-			temp.append( CR )
-			.append( "message type value " )
-			.append( pDirectoryMsg->rdmMsgBase.rdmMsgType );
-			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
+			{
+				EmaString temp( "Received unknown RDMDirectory message type" );
+				temp.append( CR )
+				.append( "message type value " )
+				.append( pDirectoryMsg->rdmMsgBase.rdmMsgType );
+				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
+			}
+			break;
 		}
-		break;
-	}
-	}
-
-	if ( pEvent && pEvent->baseMsgEvent.pStreamInfo && pEvent->baseMsgEvent.pStreamInfo->pUserSpec )
-	{
-		SingleItem* pItem = (SingleItem*) pEvent->baseMsgEvent.pStreamInfo->pUserSpec;
-
-		return processCallback( pRsslReactor, pRsslReactorChannel, pEvent, pItem );
+		}
 	}
 
 	return RSSL_RC_CRET_SUCCESS;
