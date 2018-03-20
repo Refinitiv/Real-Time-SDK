@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.30
-!tag Build_RDMD  4.20.30
-!tag DT_Version  18.12
-!tag Date        8-Jan-2018
+!tag RT_Version  4.20.31
+!tag Build_RDMD  4.20.31
+!tag DT_Version  18.21
+!tag Date        26-Feb-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -43,7 +43,7 @@ RDN_EXCHID     4
      10        "TOR"   Toronto Stock Exchange
      11        "MON"   Montreal Stock Exchange
      12        "TSX"   TSX Venture Exchange
-     13        "DEX"   Direct Edge Holdings - EDGX (CTA)
+     13        "DEX"   Cboe EDGX Exchange
      14        "AOE"   NYSE American Options Exchange
      15        "NYO"   New York Options Exchange
      16        "PHO"   Philadelphia Options Exchange
@@ -70,9 +70,9 @@ RDN_EXCHID     4
      37        "TFE"   Toronto Futures Exchange
      38        "MIO"   Montreal SE IOM division
      39        "NMS"   NASDAQ Stock Market Exchange Large Cap (formally known as NASDAQ NATIONAL MARKET SYSTEM)
-     40        "DEA"   Direct Edge Holdings - EDGA (CTA)
+     40        "DEA"   Cboe EDGA Exchange
      41        "MOE"   Montreal Options Exchange
-     42        "BTY"   BATS Y Exchange (CTA)
+     42        "BTY"   Cboe BYX Exchange
      43        "NAS"   NASDAQ Capital Market (from NASDAQ SmallCap)
      44        "MDM"   Montreal SE Mercantile Division
      45        "SCE"   Shanghai Cereals & Oils Exchange
@@ -355,6 +355,9 @@ LEG3_CURR  13571
 LEG4_CURR  13573
 RPT_BS_CCY 13586
 PD_P_CCY   13588
+OR_INV_CCY 13590
+BASE_CURR  13592
+CAN_P_CCY  13593
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -926,7 +929,7 @@ BIDXID      3298
      10        "TOR"   Toronto Stock Exchange
      11        "CVE"   TSX Venture Exchange (formerly known as Canadian Ventures Exchange)
      12        "PTX"   Canadian Securities Exchange/PURE - CSE Listed & Other Canadian Listed Securities
-     13        "DEX"   Direct Edge Holdings - EDGX (CTA)
+     13        "DEX"   Cboe EDGX Exchange
      14        "LQN"   Liquidnet Canada
      15        "TCM"   TriAct MatchNow
      16        "OMG"   Omega
@@ -942,13 +945,13 @@ BIDXID      3298
      29        "ISJ"   ISE Mercury
      30        "MPO"   MIAX Pearl Options Exchange
      37        "ISS"   Intl Securities Exch Equities
-     40        "DEA"   Direct Edge Holdings - EDGA (CTA)
-     42        "BTY"   BATS Y Exchange (CTA)
+     40        "DEA"   Cboe EDGA Exchange
+     42        "BTY"   Cboe BYX Exchange
      43        "NAS"   Nasdaq Stock Exchange
      47        "u  "   OTC Other, source NASDAQ
      53        "ADF"   NASD Alternative Display Facility
     132        "AQC"   NASDAQ Limit Order Matching System (NAQCESS)
-    217        "BAT"   BATS Exch Equities
+    217        "BAT"   Cboe BZX Exchange
     220        "TRF"   NASD Trade Reporting Facility
     221        "TMX"   TMX Select
     222        "CXX"   Nasdaq CX2
@@ -7038,7 +7041,7 @@ LEG4_EXCH  13574
      10        "TOR"   Toronto Stock Exchange
      11        "MON"   Montreal Stock Exchange
      12        "TSX"   TSX Venture Exchange
-     13        "DEX"   Direct Edge Holdings - EDGX (CTA)
+     13        "DEX"   Cboe EDGX Exchange
      14        "AOE"   NYSE American Options Exchange
      15        "NYO"   New York Options Exchange
      16        "PHO"   Philadelphia Options Exchange
@@ -7065,9 +7068,9 @@ LEG4_EXCH  13574
      37        "TFE"   Toronto Futures Exchange
      38        "MIO"   Montreal SE IOM division
      39        "NMS"   NASDAQ Stock Market Exchange Large Cap (formally known as NASDAQ NATIONAL MARKET SYSTEM)
-     40        "DEA"   Direct Edge Holdings - EDGA (CTA)
+     40        "DEA"   Cboe EDGA Exchange
      41        "MOE"   Montreal Options Exchange
-     42        "BTY"   BATS Y Exchange (CTA)
+     42        "BTY"   Cboe BYX Exchange
      43        "NAS"   NASDAQ Capital Market (from NASDAQ SmallCap)
      44        "MDM"   Montreal SE Mercantile Division
      45        "SCE"   Shanghai Cereals & Oils Exchange
@@ -7296,7 +7299,7 @@ LEG4_EXCH  13574
     268        "CST"   Stockholm SE - Chi-X
     269        "CAT"   Athens SE - Chi-X
     270        "BSW"   Beijing Swap Centres
-    271        "BAT"   BATS Trading Inc
+    271        "BAT"   Cboe BZX Exchange
     272        "OML"   OMLX:London Securities & Derivatives Exchange
     273        "PRA"   PSE CASH MARKET L1 AND L2
     274        "CDN"   Canadian over the counter Echange
@@ -7802,13 +7805,13 @@ LEG4_EXCH  13574
     774        "GME"   Gestore Mercato Energetico SpA
     775        "FMC"   Forward Market Curve
     776        "OCN"   OCEAN CONNECT
-    777        "GCZ"   BATS Trading for Nasdaq OMX Global Select Markets
+    777        "GCZ"   Cboe BZX Exchange - Nasdaq Global Select Market
     778        "MEP"   Metal Expert
     779        "ESQ"   ESALQ
     780        "BNX"   BLUENEXT
     781        "CRI"   Costa Rica Stock Exchange
-    782        "LCZ"   BATS Trading for Nasdaq OMX Global Market (Large Cap)
-    783        "SCZ"   BATS Trading for Nasdaq OMX Capital Markets(Small Cap)
+    782        "LCZ"   Cboe BZX Exchange - Nasdaq Global Market
+    783        "SCZ"   Cboe BZX Exchange - Nasdaq Capital Market
     784        "CSI"   CHINA SECURITIES INDEX COMPANY
     785        "UPC"   UNLISTED PUBLIC COMPANY MARKET (UPCOM)
     786        "ALV"   ALPHA TRADING SYSTEMS TSX VENTURE-CANADIAN ATS L1
@@ -7978,12 +7981,12 @@ LEG4_EXCH  13574
     950        "BKL"   BAIKAL
     951        "CHA"   AUSTRALIA - CHI-X
     952        "SNL"   SNL ENERGY
-    953        "GCD"   Direct Edge Holdings - EDGX - Global Select Market
-    954        "LCD"   Direct Edge Holdings - EDGX - Global Market
-    955        "SCD"   Direct Edge Holdings - EDGX - Capital Market
-    956        "GDA"   Direct Edge Holdings - EDGA - Global Select Market
-    957        "LDA"   Direct Edge Holdings - EDGA - Global Market
-    958        "SDA"   Direct Edge Holdings - EDGA - Capital Market
+    953        "GCD"   Cboe EDGX Exchange - Nasdaq Global Select Market
+    954        "LCD"   Cboe EDGX Exchange - Nasdaq Global Market
+    955        "SCD"   Cboe EDGX Exchange - Nasdaq Capital Market
+    956        "GDA"   Cboe EDGA Exchange - Nasdaq Global Select Market
+    957        "LDA"   Cboe EDGA Exchange - Nasdaq Global Market
+    958        "SDA"   Cboe EDGA Exchange - Nasdaq Capital Market
     959        "RFX"   ROSARIO FUTURES EXCHANGE 
     960        "MUI"   Musashi
     961        "JDA"   Japan Securities Dealers Association (JSDA)
@@ -8002,9 +8005,9 @@ LEG4_EXCH  13574
     974        "DS2"   QATAR EXCHANGE LEVEL 2
     975        "OE1"   NASDAQ OMX Nordic Equity Level 1
     976        "NBS"   NATIONAL BANK OF SERBIA
-    977        "LCY"   BATS Y For NASDAQ OMX Global Market (Large Cap)
-    978        "SCY"   BATS Y For NASDAQ OMX Capital Market (Small Cap)
-    979        "GCY"   BATS Y For NASDAQ OMX Global Select Market 
+    977        "LCY"   Cboe BYX Exchange - Nasdaq Global Market
+    978        "SCY"   Cboe BYX Exchange - Nasdaq Capital Market
+    979        "GCY"   Cboe BYX Exchange - Nasdaq Global Select Market
     980        "SHO"   Daily Short Sale (U.S. exchanges)
     981        "GCT"   GLOBECOT
     982        "MEN"   Mendoza Stock Exchange (deprecated)
@@ -8271,7 +8274,7 @@ LEG4_EXCH  13574
    1243        "FSC"   FTSE CUREX FX INDEX BASKETS (REAL-TIME)
    1244        "UCB"   US CENSUS BUREAU
    1245        "RIA"   Central Dispatching Department of Fuel and Energy Complex
-   1246        "BYX"   BATS Y LEVEL - 2 (BATS MULTICAST - ELEKTRON)
+   1246        "BYX"   Cboe BYX PITCH
    1247        "NA3"   NAIROBI SECURITIES EXCHANGE BONDS DATA
    1248        "CB2"   CBOE FUTURES EXCHANGE L1 AND L2
    1249        "OMR"   Oil Market Report
@@ -8355,7 +8358,7 @@ LEG4_EXCH  13574
    1327        "SNR"   Snam Rete Gas S.p.A
    1328        "WIN"   WINGAS UK Limited
    1329        "CJC"   Shanghai JC Intelligence Co. Ltd. (JCI)
-   1330        "BZX"   BATS Global Markets - BZX Exchange - Level 2 (Elektron)
+   1330        "BZX"   Cboe BZX PITCH
    1331        "CLN"   CAROLINA CAPITAL MARKETS
    1332        "KGE"   KRX Gold Spot Exchange
    1333        "DXA"   Direct EDGE Multicast - EDGA
@@ -8481,7 +8484,7 @@ LEG4_EXCH  13574
    1453        "SMC"   SMC-SOMA CORRETORA
    1454        "PCW"   PetroChem Wire LLC
    1455        "SMP"   Euronext - Smartpool
-   1456        "BT1"   BATS ONE - LEVEL 1 (PRODUCT)
+   1456        "BT1"   Cboe BATS One
    1457        "OTG"   OTC Global Holdings, LP
    1458        "TMA"   TRAX APA
    1459        "EIT"   Energy Exchange Istanbul
@@ -8509,6 +8512,15 @@ LEG4_EXCH  13574
    1481        "MBV"   MTS BONDVISION
    1482        "USW"   US Wheat Associates
    1483        "EXT"   Euronext Optiq APA
+   1484        "HJK"   H. JUERGEN KIEFER GMBH
+   1485        "DWB"   Dealerweb
+   1486        "HND"   HNX DERIVATIVE MARKET
+   1487        "EBT"   EURONEXT BLOCK (MTF)
+   1488        "E88"   Not allocated (was HUDEX (Hungarian Derivatives Exchange))
+   1489        "PSX"   PAKISTAN STOCK EXCHANGE
+   1490        "MSK"   MTS SLOVAKIA
+   1491        "JBP"   JSE BOND ETP
+   1492        "NSF"   Nasdaq Futures Exchange (NFX)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16749,6 +16761,7 @@ ROUTE_INDX 12977
      70   "HS4     "   Delivery US Gulf. Redelivery Skaw / Passero
      71   "HS5     "   Delivery South East Asia via Australia. Redelivery Singapore - Japan
      72   "HS6     "   Delivery South Korea - Japan via NOPAC. Redelivery Singapore - Japan
+     73   "TD3C    "   Middle East Gulf to China
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17398,9 +17411,65 @@ DVC_IND    13041
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET341 13042
-PRE_1ET342 13043
-PRE_1ET343 13044
+IOI_SIDE   13042
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   undefined
+      1        "BID"   Bid
+      2        "ASK"   Ask
+      3        "BAS"   Bid and Ask
+      4        "UD "   Undisclosed
+!
+! ACRONYM    FID
+! -------    ---
+!
+MBS_CLASS  13043
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "A  "   Class A 30 Year Freddie Mac, Fannie Mae
+      2        "B  "   Class B 15 Year Freddie Mac, Fannie Mae, Ginnie Mae
+      3        "C  "   Class C 30 Year Ginnie Mae
+      4        "D  "   Class D Balloons, Freddie Mac, Fannie Mae, All ARMs/VRMs/, Multifamily/GPMs/, Mobile Homes, Freddie Mac, Fannie Mae, Ginnie Mae
+!
+! ACRONYM    FID
+! -------    ---
+!
+SETTLE_MTH 13044
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "Jan     "   January
+      2   "Feb     "   February
+      3   "Mar     "   March
+      4   "Apr     "   April
+      5   "May     "   May
+      6   "Jun     "   June
+      7   "Jul     "   July
+      8   "Aug     "   August
+      9   "Sep     "   September
+     10   "Oct     "   October
+     11   "Nov     "   November
+     12   "Dec     "   December
+     13   "Jan/Feb "   Jan/Feb
+     14   "Feb/Mar "   Feb/Mar
+     15   "Mar/Apr "   Mar/Apr
+     16   "Apr/May "   Apr/May
+     17   "May/Jun "   May/Jun
+     18   "Jun/Jul "   Jun/Jul
+     19   "Jul/Aug "   Jul/Aug
+     20   "Aug/Sep "   Aug/Sep
+     21   "Sep/Oct "   Sep/Oct
+     22   "Oct/Nov "   Oct/Nov
+     23   "Nov/Dec "   Nov/Dec
+     24   "Dec/Jan "   Dec/Jan
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET344 13045
 PRE_1ET345 13046
 PRE_1ET346 13047
@@ -17848,6 +17917,7 @@ EXCHCD_TP2 13415
       1        "GID"   Group + Instrument Code
       2        "SRN"   State Registration Number
       3        "OCX"   OCX Code
+      4        "GTA"   Group Ticker Plant ID -- Turquoise Lit Auction Book
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18990,6 +19060,7 @@ CB_INST_LV 13493
 ! -------    ---
 !
 LMT_STATUS 13494
+LMT_STS_2  13591
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -20035,6 +20106,30 @@ ORGN_PORT  13579
     302   "AU ABP  "   Abbot Point
     303   "DE KEL  "   Kiel
     304   "IT FCO  "   Fiumicino
+    305   "CN SHA  "   Shanghai
+    306   "CN SZX  "   Shenzhen
+    307   "CN CAN  "   Guangzhou
+    308   "US EWR  "   Newark
+    309   "US NYC  "   New York
+    310   "US SAV  "   Savannah
+    311   "US CHS  "   Charleston
+    312   "US LGB  "   Long Beach
+    313   "US LAX  "   Los Angeles
+    314   "US TIW  "   Tacoma
+    315   "US SEA  "   Seattle
+    316   "US OAK  "   Oakland
+    317   "EG PSD  "   Port Said
+    318   "ES BCN  "   Barcelona
+    319   "ES VLC  "   Valencia
+    320   "GR PIR  "   Piraeus
+    321   "IT GIT  "   Gioia Tauro
+    322   "MT MAR  "   Marsaxlokk
+    323   "TR AMB  "   Ambarli
+    324   "GB FXT  "   Felixstowe
+    325   "UY MVD  "   Montevideo
+    326   "CL SAI  "   San Antonio
+    327   "EC GYE  "   Guayaquil
+    328   "PE CLL  "   Callao
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20340,6 +20435,11 @@ LOAD_ZONE  13578
     942   "WST AUS "   West Australia
     943   "WST MED "   West Mediterranean
     944   "WST MEX "   West Mexico
+    945   "USEC    "   US East Coast
+    946   "ACSA    "   Atlantic Coast South America
+    947   "EUR     "   Europe
+    948   "PAC CST "   Pacific Coast
+    949   "SOU AMR "   South America
    2000   "MUL     "   Multinational
    2001   "SUP     "   Supra-National
    2002   "EUZ     "   Euro Zone
@@ -20725,8 +20825,8 @@ MIFD_SUBCL 13589
      35       "EUAA"   European Union Aviation Allowances (EUAA)
      36       "EUAL"   European Union Allowances (EUA)
      37       "FDRV"   Freight Derivatives
-     38       "FFMC"   Fixed to Float (multi currency)
-     39       "FFSC"   Fixed to Float (single currency)
+     38       "FFMC"   Float to Float (multi currency)
+     39       "FFSC"   Float to Float (single currency)
      40       "FRAS"   FRA
      41       "FUTR"   IR Futures
      42       "FXFR"   FX futures
@@ -20764,18 +20864,17 @@ MIFD_SUBCL 13589
      74       "SWPT"   Swaptions
      75       "VOIF"   Volatility index futures/ forwards
      76       "VOIO"   Volatility index options
-     77       "XFMC"   Float to Float  (multi currency)
-     78       "XFSC"   Float to Float (single currency)
+     77       "XFMC"   Fixed to Float (multi currency)
+     78       "XFSC"   Fixed to Float (single currency)
      79       "XXMC"   Fixed to Fixed (multi currency)
      80       "XXSC"   Fixed to Fixed (single currency)
+     81       "ETCS"   Exchange traded commodities
+     82       "ETNS"   Exchange traded notes
+     83       "CDSB"   Bespoke Basket Credit Default Swaps (CDS)
 !
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET269 13590
-PRE_2ET270 13591
-PRE_2ET271 13592
-PRE_2ET272 13593
 PRE_2ET273 13594
 PRE_2ET274 13595
 PRE_2ET275 13596
