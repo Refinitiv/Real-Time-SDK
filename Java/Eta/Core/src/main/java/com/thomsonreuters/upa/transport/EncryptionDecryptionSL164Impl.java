@@ -2,7 +2,7 @@ package com.thomsonreuters.upa.transport;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.Random;
+import java.security.SecureRandom;
 
 import com.thomsonreuters.upa.transport.Error;
 import com.thomsonreuters.upa.transport.Channel;
@@ -18,11 +18,11 @@ class EncryptionDecryptionSL164Impl implements EncryptDecryptHelpers
     private ByteBuffer _footer;
     private static final int TR_SL1_64_KEY_BIT_LEN = 64;
     private static final int TR_SL1_64_KEY_LEN = (TR_SL1_64_KEY_BIT_LEN / 8);
-    private Random _randGen;
+    private SecureRandom _randGen;
     private short[] _secretKey;
 	
     {
-        _randGen = new Random();
+        _randGen = new SecureRandom();
         _randGen.setSeed(System.currentTimeMillis());
         _secretKey = new short[TR_SL1_64_KEY_LEN];
         _footer = ByteBuffer.allocate(4);
