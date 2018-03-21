@@ -16083,7 +16083,7 @@ public class ReactorWatchlistJUnitNew
     	/* steps:
     	 * request an item request "TRI" on stream 5 by one user
     	 * receive refresh on "TRI"
-    	 * reissue item request "TRI" with View (22,25) on stream 5
+    	 * reissue item request "TRI" with View (22,25,-32768,32767) on stream 5
     	 * reissue item request "TRI" with View (25, 1025) on stream 5
     	 * receive refresh on "TRI"
     	 * no refresh fanout to consumer
@@ -16212,6 +16212,8 @@ public class ReactorWatchlistJUnitNew
         requestMsg.msgKey().name().data("TRI");
         viewFieldList.add(22);
         viewFieldList.add(25);
+        viewFieldList.add(-32768);
+        viewFieldList.add(32767);        
         encodeViewFieldIdList(consumer.reactorChannel(), viewFieldList, requestMsg);
 
         submitOptions.clear();
@@ -16704,7 +16706,7 @@ public class ReactorWatchlistJUnitNew
 			Array _viewArray = CodecFactory.createArray();
 			ArrayEntry _viewArrayEntry = CodecFactory.createArrayEntry();
 			_viewArray.clear();
-			UInt _fieldId = CodecFactory.createUInt();
+			Int _fieldId = CodecFactory.createInt();
 			
 			if ((ret = _viewArray.decode(dIter)) == CodecReturnCodes.SUCCESS)
 			{

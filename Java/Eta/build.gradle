@@ -17,7 +17,7 @@ dependencies {
         compile project(':Eta:ValueAddCache')
         compile project(':Eta:AnsiPage')
         compile project(':Eta:Applications:Shared')
-        compile project(':Eta:Applications:Perftools')
+        compile project(':Eta:Applications:PerfTools')
 }
 
 shadowJar {

@@ -616,6 +616,41 @@ public class Consumer
                     Thread.sleep(5000);
                     consumer.reissue(EmaFactory.createReqMsg().domainType(EmaRdm.MMT_LOGIN).initialImage(false).pause(false).name(loginuser1), login_handle);
                 }
+                else if (temp == 31)
+                {
+                    OmmArray ommArray = EmaFactory.createOmmArray();
+                    ommArray.add(EmaFactory.createOmmArrayEntry().intValue(22));
+                    ommArray.add(EmaFactory.createOmmArrayEntry().intValue(-32768));
+                    ommArray.add(EmaFactory.createOmmArrayEntry().intValue(-32767));
+                    ommArray.add(EmaFactory.createOmmArrayEntry().intValue(-100));
+                    ommArray.add(EmaFactory.createOmmArrayEntry().intValue(6));
+
+                    ElementList elementList = EmaFactory.createElementList();
+                    elementList.add(EmaFactory.createElementEntry().uintValue(":ViewType", 1));
+                    elementList.add(EmaFactory.createElementEntry().array(":ViewData", ommArray));
+
+
+                    OmmArray ommArray2 = EmaFactory.createOmmArray();
+                    ommArray2.add(EmaFactory.createOmmArrayEntry().intValue(25));
+                    ommArray2.add(EmaFactory.createOmmArrayEntry().intValue(22));
+                    ommArray2.add(EmaFactory.createOmmArrayEntry().intValue(-32768));
+                    ommArray2.add(EmaFactory.createOmmArrayEntry().intValue(-100));
+
+                    ElementList elementList2 = EmaFactory.createElementList();
+                    elementList2.add(EmaFactory.createElementEntry().uintValue(":ViewType", 1));
+                    elementList2.add(EmaFactory.createElementEntry().array(":ViewData", ommArray2));
+
+                    long h1 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").payload(elementList2), client, closure2);
+                    long h2 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("IBM.N"), client, closure3);
+                    long h3 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").interestAfterRefresh(false), client, closure4);
+		    // Sleep 3 seconds
+                    Thread.sleep(3000);
+                    long h4 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").payload(elementList).interestAfterRefresh(false), client, closure1);
+		    // Sleep 15 seconds
+                    Thread.sleep(15000);
+                    long h5 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").payload(elementList).interestAfterRefresh(false), client, closure1);
+
+		}
                 else if (temp == 99)
                 {
                     System.out.println("Selected option 99");

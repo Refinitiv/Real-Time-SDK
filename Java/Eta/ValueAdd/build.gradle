@@ -1,56 +1,68 @@
 apply plugin: 'net.saliman.cobertura'
-apply plugin: 'maven-publish'
-
-def package1 = 'etaj3.1.0.L1.all.rrg'
-def ReleaseVersion = 'etaj3.1.0.L1'
-def vendor = 'Thomson Reuters'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
-eclipse {
-        project {
-                name = 'ESDK-Eta-ValueAdd'
-        }
+group = "com.thomsonreuters.upa.valueadd"
+archivesBaseName = "upaValueAdd"
+version "$SpecificationVersion"
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
+            }
+
+            pom.project {
+                name "$archivesBaseName"
+                    packaging 'jar'
+                    url 'https://github.com/thomsonreuters/Elektron-SDK'
+                    description 'Elektron Transport API (ETA) Java Edition ValueAdd Classes'
+
+                    scm {
+                        connection 'scm:git:git://github.com/thomsonreuters/Elektron-SDK.git'
+                            developerConnection 'scm:git:ssh://github.com:thomsonreuters/Elektron-SDK.git'
+                            url 'http://github.com/thomsonreuters/Elektron-SDK/tree/master'
+                    }
+
+                developers {
+                    developer {
+                        organization 'Thomson Reuters'
+                    }
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        } 
+    } 
+}
+
+signing {
+    sign configurations.archives
 }
 
 cobertura {
-
+     coverageFormats = ['html', 'xml']
 }
 
-publishing {
-        publications {
-                etaj(MavenPublication) {
-                        groupId 'com.thomsonreuters.upa'
-                        artifactId 'upaValueAdd'
-                        version "$ReleaseVersion"
-
-                        from components.java
-                }
-        }
+eclipse {
+    project {
+        name = 'ESDK-Eta-ValueAdd'
+    }
 }
-
-publishing {
-        repositories {
-                maven {
-// publis to file for now, it does not seem to work with artifactory, I'm getting 409 error, credentails do work. 
-
-//                      credentials {
-//                              username project.properties.mavenUser
-//                              password project.properties.mavenPassword
-//                      }
-// TODO 
-// decide based on version string where to put the artifacts
-//            if (project.version.endsWith("-SNAPSHOT")) {
- //               url project.someSnapshot
-  //          } else {
-   //             url project.someRelease
-    //        }
-//                        url "https://bams-amers-sami.int.thomsonreuters.com/artifactory/snapshot.maven.local/com/thomsonreuters/ESDK"
-                        url "file:///local/smusial/TMP/"
-                }
-        }
-}
-
 
 dependencies {
 	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.1.2'
@@ -67,20 +79,21 @@ dependencies {
 
 	// for unit test use the classes instead of the jar file, since the jar is sealed
 	testRuntime project(':Eta:Core').sourceSets.main.output
+
+	// needed for cobertura
+        testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+
 }
 
-// ext is used to store project level properties
-// we can use this shared manifest
 ext.sharedManifest = manifest {
-	attributes( 'Sealed': 'true',
-		'Specification-Version': package1,
-		'Specification-Vendor': vendor,
-		'Implementation-Title': 'com.thomsonreuters.upa',
-		'Implementation-Version': ReleaseVersion,
-		'Implementation-Vendor': vendor )
+        attributes( 'Sealed': 'true',
+                'Build-Date': BuildDate,
+                'Specification-Version': SpecificationVersion,
+                'Specification-Vendor': vendor,
+                'Implementation-Title': group,
+                'Implementation-Version': etaImplementationVersion,
+                'Implementation-Vendor': vendor )
 }
-
-// TODO NEED TO ADD THE DATE
 
 jar {
 
@@ -95,13 +108,47 @@ jar {
         baseName = 'upaValueAdd'
 }
 
+javadoc {
+        doFirst {
+                println "Generating javadoc for ValueAdd"
+        }
+
+        exclude '**/*Impl.java'
+        exclude '**/JUnit*.java'
+
+        destinationDir = file('../Docs/refman/upajvalueadd/')
+        title = "ETA ValueAdd JAVA " +  "${SpecificationVersion}"
+
+        options.footer ("${javadoc_footer}")
+        options.header ("${javadoc_header}")
+        options.bottom ("${javadoc_bottom}")
+
+        options.setWindowTitle ('ETA ValueAdd')
+}
+
 task cleanJar (type: Delete) {
         delete "${jar.archivePath}"
 }
 clean.dependsOn cleanJar
 
+task javadocJar (type: Jar) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+        destinationDir = jar.destinationDir
+
+        manifest {
+		attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition ValueAdd Classes'
+                from sharedManifest
+        }
+}
+
+task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+}
+
 artifacts {
-	archives jar
+        archives javadocJar, sourcesJar
 }
 
 test {

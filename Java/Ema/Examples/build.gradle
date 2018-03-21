@@ -7,10 +7,6 @@ eclipse {
 }
 
 dependencies {
-	compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
-
-	compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.12'
-
 	compile project(':Ema:Core')
 }
 
@@ -52,6 +48,7 @@ fileTree('.') {
 
 	def TaskName = (exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1) ).replaceAll('\\D+', '')
 	def TaskDescription = (exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1))
+    def ExampleType 
 
 	// create tasks names, descriptions based on the type of the example and example number
 	if ( exampleMainLocation.contains('niprovider') )
@@ -59,22 +56,27 @@ fileTree('.') {
 		TaskName = 'runniprovider' + TaskName
 		TaskDescription = 'NiProvider ' + TaskDescription
 		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.NiProvider'
+        ExampleType = 'Non Interactive Provider'
 	}
 	else if ( exampleMainLocation.contains('consumer') )
 	{
 		TaskName = 'runconsumer' + TaskName
 		TaskDescription = 'Consumer ' + TaskDescription
 		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.Consumer'
+        ExampleType = 'Consumer'
 	}
 	else if ( exampleMainLocation.contains('iprovider') )
 	{
 		TaskName = 'runiprovider' + TaskName
 		TaskDescription = 'IProvider ' + TaskDescription
 		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.IProvider'
+        ExampleType = 'Interactive Provider'
 	}
 
 	// creating tasks for running all the examples dynamically
 	task "${TaskName}" ( type: JavaExec ) {
+        group 'Run EMA ' + ExampleType + ' Application Examples'
+
 		description 'This task runs the ' + TaskDescription
 
 		tasks.copyDictionary.execute()	

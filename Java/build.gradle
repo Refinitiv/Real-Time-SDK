@@ -1,3 +1,5 @@
+import org.ajoberstar.grgit.*
+
 buildscript {
         repositories {
                 mavenCentral()
@@ -6,6 +8,7 @@ buildscript {
 
         dependencies {
                 classpath "net.saliman:gradle-cobertura-plugin:2.5.1"
+                classpath "org.ajoberstar:gradle-git:1.6.0"
         }
 }
 
@@ -17,6 +20,10 @@ apply plugin: 'net.saliman.cobertura'
 
 subprojects {
 	apply plugin: 'java'
+
+        sourceCompatibility = 1.7
+        targetCompatibility = 1.7
+
 	apply plugin: 'eclipse'
 
 	repositories {
@@ -27,7 +34,7 @@ subprojects {
 ext.YEAR = '2018'
 // NOTE! please update the tag in the BinaryPack repo
 // for a new release below in the cloneBinaryPack task.
-ext.BuildDate = 'Thu Apr 26 10:35:01 CDT ' + "$YEAR"
+ext.BuildDate = 'Thu Apr 11 10:35:01 CDT ' + "$YEAR"
 ext.SpecificationVersion = '3.2.0.1'
 ext.SpecificationVersionShort = '3.2.0'
 // Comment out line below to publish offical release
@@ -70,14 +77,10 @@ allprojects {
 		compile group: 'junit', name: 'junit', version: '4.12'
 
 		testCompile group: 'junit', name: 'junit', version: '4.12'
-
-		// this was needed for cobertura
-		testRuntime "org.slf4j:slf4j-log4j12:1.7.5"
-		testRuntime "log4j:log4j:1.2.7"
 	}
 
 	compileJava {
-		options.compilerArgs += ["-Werror"]
+		// options.compilerArgs += ["-Werror"]
 		// options.compilerArgs += ["-Xlint:cast"]
 	        options.compilerArgs += ["-Xlint:deprecation"]
 	        options.compilerArgs += ["-Xlint:divzero"]
@@ -91,6 +94,7 @@ allprojects {
 	}
 
         tasks.withType( JavaCompile ) {
+                dependsOn cloneBinaryPack
                 options.fork = true
                 options.incremental = true
         }
@@ -111,11 +115,24 @@ allprojects {
 	        if ( project.hasProperty("vmArgs") ) {
         	        jvmArgs Eval.me( buildArgsList( vmArgs ) )
         	}
+
+		minHeapSize = "1024m"
+		maxHeapSize = "2048m"
 	}
 }
 
 task wrapper( type: Wrapper ) {
 	gradleVersion = '4.2.1'
+}
+
+task uploadAll ( ) {
+	dependsOn ':Eta:AnsiPage:uploadArchives'
+	dependsOn ':Eta:Core:uploadArchives'
+	dependsOn ':Eta:ValueAdd:uploadArchives'
+	dependsOn ':Eta:ValueAddCache:uploadArchives'
+	dependsOn ':Ema:Core:uploadArchives'
+
+	description 'Uploads All artifacts to maven central'
 }
 
 // this method creates a list of arguments that are used in setting the jvmArgs and commnadLineArgs
@@ -134,5 +151,11 @@ def buildArgsList ( options ) {
 	return cla.substring( 0, cla.lastIndexOf(',') ) + "]"
 }
 
+// can't use a dynamic date for manifest since it triggers a build each time even when nothing changed
+def getDate() {
+	def date = new Date()
+	def formattedDate = date.format('E MMM dd HH:mm:ss z yyyy ')
+	return formattedDate
+}
 // disable creating empty Java.jar file 
 jar.enabled = false

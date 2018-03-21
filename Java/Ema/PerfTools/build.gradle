@@ -1,0 +1,73 @@
+apply plugin: 'application'
+
+eclipse {
+	project {
+		name = 'ESDK-Ema-PerfTools'
+	}
+}
+
+dependencies {
+        // version 1.1.3_8 not available on mavencentral
+        compile group: 'xpp3', name: 'xpp3', version: '1.1.4c'
+	compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+
+	compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.12'
+
+	compile project(':Ema:Core')
+}
+
+mainClassName = 'com.thomsonreuters.ema.perftools.emajconsperf.emajConsPerf'
+
+def JVM_OPTIONS = "-server -XX:+ForceTimeHighResolution -Xms2048m -Xmx2048m"
+def APP_ARGS
+
+javadoc {
+    doFirst {
+        println "Generating javadoc for EMA PerfTools"
+    }
+
+    destinationDir = file('../Docs/refman/emajperftools')
+    title = "Elektron Message API (EMA) " +  "${SpecificationVersion}" + " - Java Edition Performance Tools Examples"
+
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.setWindowTitle ('EMA Performance Tools')
+}
+
+task runEMAPerfConsumer(type: JavaExec) {
+    dependsOn 'copyDictionary'
+    group 'Run EMA Performance Tools Examples'
+    description "Run EMAJ OMM Consumer performance application"
+
+    if (JVM_OPTIONS)
+        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+
+    // command line options
+    //.............................
+    // - uncomment and add to APP_ARGS to specify the command line options
+    APP_ARGS = "-steadyStateTime 90 -tickRate 1000 -requestRate 5000 -itemCount 100000 -itemFile 350k.xml -threads 1"
+
+    if (APP_ARGS)
+        args Eval.me ( buildArgsList ( APP_ARGS ) )
+
+    main = 'com.thomsonreuters.ema.perftools.emajconsperf.emajConsPerf'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task copyDictionary( type: Copy ) {
+	from '../../etc'
+	into '.'
+}
+
+task deleteDictionary( type: Delete ) {
+	delete "$projectDir/RDMFieldDictionary"
+	delete "$projectDir/RDMFieldDictionary_large"
+	delete "$projectDir/enumtype.def"
+}
+
+run.dependsOn copyDictionary
+clean.dependsOn deleteDictionary
+
+

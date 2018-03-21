@@ -22,6 +22,7 @@ import com.thomsonreuters.upa.codec.ElementEntry;
 import com.thomsonreuters.upa.codec.ElementList;
 import com.thomsonreuters.upa.codec.GenericMsg;
 import com.thomsonreuters.upa.codec.GenericMsgFlags;
+import com.thomsonreuters.upa.codec.Int;
 import com.thomsonreuters.upa.codec.MapEntry;
 import com.thomsonreuters.upa.codec.MapEntryActions;
 import com.thomsonreuters.upa.codec.Msg;
@@ -134,7 +135,7 @@ class WlItemHandler implements WlHandler
 	boolean _hasViewType;
 	Buffer _viewDataElement = CodecFactory.createBuffer();
 	boolean _viewDataFound;
-	UInt _fieldId = CodecFactory.createUInt();
+	Int _fieldId = CodecFactory.createInt();
 	final int VIEW_ACTION_SET = 1;
 	final int VIEW_ACTION_MAINTAIN = 2;
 	final int VIEW_ACTION_NONE = 3;
@@ -3329,14 +3330,14 @@ class WlItemHandler implements WlHandler
 								{								
 									if ((ret = _fieldId.decode(_dIter)) == CodecReturnCodes.SUCCESS)
 									{
-										if (_fieldId.toBigInteger().intValue() < -32768 || _fieldId.toBigInteger().intValue() > 32767)
+										if (_fieldId.toLong() < Short.MIN_VALUE || _fieldId.toLong() > Short.MAX_VALUE)
 										{
 											_watchlist.reactor().populateErrorInfo(errorInfo,
 													ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
 													"Field id in view request is outside the valid ID range <" + _fieldId + ">");
 												return CodecReturnCodes.FAILURE;												
 										}	
-										wlRequest._viewFieldIdList.add(_fieldId.toBigInteger().intValue());
+										wlRequest._viewFieldIdList.add((int) _fieldId.toLong());
 										_viewElemCount++;
 									}
 									else
@@ -3443,14 +3444,14 @@ class WlItemHandler implements WlHandler
 									{								
 										if ((ret = _fieldId.decode(_dIter)) == CodecReturnCodes.SUCCESS)
 										{
-											if (_fieldId.toBigInteger().intValue() < -32768 || _fieldId.toBigInteger().intValue() > 32767)
+											if (_fieldId.toLong() < Short.MIN_VALUE || _fieldId.toLong() > Short.MAX_VALUE)
 											{
 												_watchlist.reactor().populateErrorInfo(errorInfo,
 														ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
 														"Field id in view request is outside the valid ID range <" + _fieldId + ">");
 													return CodecReturnCodes.FAILURE;												
 											}		
-											wlRequest._viewFieldIdList.add(_fieldId.toBigInteger().intValue());
+											wlRequest._viewFieldIdList.add((int)_fieldId.toLong());
 											_viewElemCount++;
 										}
 										else

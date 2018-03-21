@@ -80,6 +80,9 @@ Series100Consumer110-ConsFunc-001
     -m 30: Requests these market price items: TRI.N with view.
 		   After 2 seconds, sends login reissue with PAUSE flag.
 		   After 5 seconds, sends login reissue to resume data.
+    -m 31: Request TRI.N with view2, IBM and TRI.N as snapshot
+	       After 3 seconds, request TRI.N with view1 as snapshot (view 1 & view2 have overlapping FIDs)
+	       After 15 seconds, request TRI.N with view1 as snapshot again
 	-m 99: Requests a market price item with 99 view FIDS.
 
 

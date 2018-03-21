@@ -31,6 +31,11 @@ GenericMsg contains ElementList with one ElementEntry.
 Also added is the ability to decode genericMsg from a consumer. 
 This VAProvider works in conjuction with the watchlist consumer code change from wlconsumer-GenM-001
 
+vaprovider-ProvFunc-001: Adds command line arguments to turn set open window to specified value. Also altered to accept view requests.
+
+vaprovider-ProvFunc-002: Market price refresh/updates were altered to send out negative FIDs 
+
+
 Module:  Provider 
 ---------------------------
 

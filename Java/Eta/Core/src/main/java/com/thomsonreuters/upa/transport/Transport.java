@@ -30,11 +30,16 @@ public class Transport
         _libVersionInfo.productInternalVersion(_package.getImplementationVersion());
         _libVersionInfo.productVersion(_package.getSpecificationVersion());
         
+        if (_libVersionInfo.productInternalVersion() == null)
+        {
+            _libVersionInfo.productInternalVersion("UPA Java Edition");
+        }
         if (_libVersionInfo.productVersion() == null)
         {
             _libVersionInfo.productVersion("UPA Java Edition");
         }
-        _defaultComponentVersionBuffer = ByteBuffer.wrap(_libVersionInfo.productVersion().getBytes());
+        
+        _defaultComponentVersionBuffer = ByteBuffer.wrap(_libVersionInfo.productInternalVersion().getBytes());
         _initLock = new ReentrantLock();
     }
 
