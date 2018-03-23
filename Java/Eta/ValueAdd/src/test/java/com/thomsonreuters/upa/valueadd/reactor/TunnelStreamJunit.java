@@ -37,6 +37,7 @@ import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.RequestMsg;
+import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.StateCodes;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.ClassesOfService.AuthenticationTypes;
@@ -339,6 +340,175 @@ public class TunnelStreamJunit
         consumerReactor.close();
         providerReactor.close();
     }
+    
+    
+    /** This consumer submit post message in the callback message of TunnelStreamMsgEvent. */
+    class MsgSubmitConsumer extends Consumer
+    {
+    	MsgSubmitConsumer(TestReactor reactor)
+    	{
+    		super(reactor);
+    	}
+
+        @Override
+        public int defaultMsgCallback(TunnelStreamMsgEvent event)
+        {
+            super.defaultMsgCallback(event);
+            Msg msg = CodecFactory.createMsg();
+
+            assertEquals(MsgClasses.REFRESH, event.msg().msgClass() );
+
+            msg.clear();
+            msg.msgClass(MsgClasses.POST);
+            msg.domainType(DomainTypes.MARKET_PRICE);
+            msg.streamId(6); // Set stream ID of post message
+            assertEquals(ReactorReturnCodes.SUCCESS, event.tunnelStream().submit(msg, _errorInfo));
+
+            // Confirm that submitting did not modify our received message.
+            assertEquals(MsgClasses.REFRESH, event.msg().msgClass() );
+
+            return ReactorReturnCodes.SUCCESS;
+        }
+    }
+    
+    @Test
+    public void tunnelStreamMsgTestSubmittingMsgInCallbackTest()
+    {
+        /* Test opening a TunnelStream to exchange messages and submitting a post message in the client callback */
+       
+        TestReactorEvent event;
+        TunnelStreamStatusEvent tsStatusEvent;
+        TunnelStreamMsgEvent tsMsgEvent;
+        TunnelStream consTunnelStream;
+        TunnelStream provTunnelStream;
+        
+        /* Setup some sample data. */
+        String sampleString = "PETER CAPALDI"; 
+        ByteBuffer sampleData = ByteBuffer.allocateDirect(sampleString.length());
+        sampleData.put(sampleString.getBytes());
+               
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+                
+        /* Create consumer. */
+        Consumer consumer = new MsgSubmitConsumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(_enableWatchlist);
+     
+        
+        /* Create provider. */
+        TunnelStreamProvider provider = new TunnelStreamProvider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+        providerRole.tunnelStreamListenerCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        provider.bind(opts);
+        TestReactor.openSession(consumer, provider, opts);
+        
+        /* Open a TunnelStream. */
+        TunnelStreamOpenOptions tsOpenOpts = ReactorFactory.createTunnelStreamOpenOptions();
+        tsOpenOpts.name("Tunnel1");
+        tsOpenOpts.statusEventCallback(consumer);
+        tsOpenOpts.queueMsgCallback(consumer);
+        tsOpenOpts.defaultMsgCallback(consumer);
+        tsOpenOpts.classOfService().dataIntegrity().type(DataIntegrityTypes.RELIABLE);
+        tsOpenOpts.streamId(5);
+        tsOpenOpts.serviceId(Provider.defaultService().serviceId());
+        tsOpenOpts.domainType(DomainTypes.SYSTEM);
+        tsOpenOpts.userSpecObject(consumer);
+
+        Consumer.OpenedTunnelStreamInfo openedTsInfo = consumer.openTunnelStream(provider, tsOpenOpts);
+        consTunnelStream = openedTsInfo.consumerTunnelStream();
+        provTunnelStream = openedTsInfo.providerTunnelStream();
+        
+        /* Test tunnel stream accessors */
+        assertEquals(5, consTunnelStream.streamId());
+        /* Provider sends a refresh to the consumer. */
+        Msg msg = CodecFactory.createMsg();
+
+        _tsSubmitOpts.clear();
+        _tsSubmitOpts.containerType(DataTypes.MSG);
+        msg.clear();
+        msg.msgClass(MsgClasses.REFRESH);
+        msg.streamId(5);
+        msg.containerType(DataTypes.NO_DATA);
+        ((RefreshMsg)msg).state().streamState(StreamStates.OPEN);
+        ((RefreshMsg)msg).state().dataState(DataStates.OK);
+
+        assertEquals(ReactorReturnCodes.SUCCESS, provTunnelStream.submit(msg, _errorInfo));
+        providerReactor.dispatch(0);
+        
+        /* Consumer receives the message. */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
+        tsMsgEvent = (TunnelStreamMsgEvent)event.reactorEvent();
+        assertEquals(DataTypes.MSG, tsMsgEvent.containerType());
+        assertEquals(MsgClasses.REFRESH, tsMsgEvent.msg().msgClass());
+        
+        /* Provider receives a post. */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_MSG, event.type());
+        tsMsgEvent = (TunnelStreamMsgEvent)event.reactorEvent();
+        assertEquals(DataTypes.MSG, tsMsgEvent.containerType());
+        assertEquals(MsgClasses.POST, tsMsgEvent.msg().msgClass());
+        assertEquals(6, tsMsgEvent.msg().streamId());
+        
+        /* Provider closes the tunnel stream, starting FIN/ACK teardown */
+        provTunnelStream.close(false, _errorInfo);
+        providerReactor.dispatch(0);
+        
+        /* Consumer receives the open/suspect event */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+        tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+        assertEquals(null, tsStatusEvent.authInfo());
+        assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
+        assertEquals(StreamStates.OPEN, tsStatusEvent.state().streamState());
+        assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
+        assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
+        assertNotNull(tsStatusEvent.tunnelStream());
+        consumerReactor.dispatch(0);
+        
+        /* Provider Reactor internally responds to FIN (no message). */
+        providerReactor.dispatch(0);
+        
+        /* Consumer receives the close event */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.TUNNEL_STREAM_STATUS, event.type());
+        tsStatusEvent = (TunnelStreamStatusEvent)event.reactorEvent();
+        assertEquals(null, tsStatusEvent.authInfo());
+        assertEquals(consumer.reactorChannel(), tsStatusEvent.reactorChannel());
+        assertEquals(StreamStates.CLOSED, tsStatusEvent.state().streamState());
+        assertEquals(DataStates.SUSPECT, tsStatusEvent.state().dataState());
+        assertEquals(StateCodes.NONE, tsStatusEvent.state().code());
+        assertNotNull(tsStatusEvent.tunnelStream());
+        consumerReactor.dispatch(0);
+        
+        TestReactorComponent.closeSession(consumer, provider);
+        consumerReactor.close();
+        providerReactor.close();
+    }
+    
 
     @Test
     public void tunnelStreamCleanupTest()
