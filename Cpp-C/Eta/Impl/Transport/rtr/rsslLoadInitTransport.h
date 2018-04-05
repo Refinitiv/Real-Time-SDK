@@ -27,7 +27,7 @@
 #define RSSL_LI_C_ERR_FMT					"ERROR: [%s]:%d Closing %s, <%u>\n"
 #define RSSL_LI_RESET_DLERROR                  
 #define RSSL_LI_DLOPEN(FILENAME)		LoadLibrary(TEXT(FILENAME))
-#define RSSL_LI_DLCLOSE( HANDLE )		FreeLibrary( HANDLE )
+#define RSSL_LI_DLCLOSE( HANDLE )		(!FreeLibrary( HANDLE ))
 #define RSSL_LI_DLSYM(MODULE,FUNCNAME)	GetProcAddress((MODULE), (FUNCNAME))
 #define RSSL_LI_GET_DLERROR				GetLastError()
 #define RSSL_LI_CHK_DLERROR( pfx, err )\
