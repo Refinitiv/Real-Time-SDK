@@ -1273,7 +1273,7 @@ public class Module_5_HandleItemRequest
 
                 /* send close status messages to all streams on the connected client channel */
 
-                if ((retCode = sendDictionaryCloseStatusMessage(channel, error, channelInfo.maxFragmentSize())) != TransportReturnCodes.SUCCESS)
+                if ((retCode = sendDictionaryCloseStatusMessage(channel, error, channelInfo.maxFragmentSize())) < TransportReturnCodes.SUCCESS)
 
                 {
                     /* When you send close status message to dictionary stream, we want to make a best effort to get this across the network as it will gracefully
@@ -1322,7 +1322,7 @@ public class Module_5_HandleItemRequest
      * @param code - if exit is due to errors/exceptions *
      * @param dictionary - data dictionary *
      *********************************************************/
-    public static void closeChannelServerCleanUpAndExit(Channel channel, Server server, Selector selector, int code, DataDictionary dictionary)
+	public static void closeChannelServerCleanUpAndExit(Channel channel, Server server, Selector selector, int code, DataDictionary dictionary)
     {
         Error error = TransportFactory.createError();
 
@@ -4030,7 +4030,6 @@ public class Module_5_HandleItemRequest
         marketPriceItemRequestInfo_ItemName = null;
         marketPriceItemRequestInfo_IsInUse = false;
         marketPriceItemRequestInfo_IsRefreshComplete = false;
-        marketPriceItemRequestInfo_ItemData = null;
         marketPriceItemRequestInfo_MsgKey.clear(); /* Clears an  message key */
         marketPriceItemRequestInfo_MsgKey.name().data(marketPriceItemRequestInfo_ItemName);
     }

@@ -1145,7 +1145,7 @@ public class Module_4_ProvideDictionary
 
                 /* send close status messages to all streams on the connected client channel */
 
-                if ((retCode = sendDictionaryCloseStatusMessage(channel, error, channelInfo.maxFragmentSize())) != TransportReturnCodes.SUCCESS)
+                if ((retCode = sendDictionaryCloseStatusMessage(channel, error, channelInfo.maxFragmentSize())) < TransportReturnCodes.SUCCESS)
 
                 {
                     /* When you send close status message to dictionary stream, we want to make a best effort to get this across the network as it will gracefully
