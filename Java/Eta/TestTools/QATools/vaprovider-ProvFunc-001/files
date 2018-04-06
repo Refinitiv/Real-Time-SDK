@@ -1,0 +1,7 @@
+# file,location
+,Applications/Examples
+,Applications/Shared
+DirectoryHandler.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/provider
+LoginHandler.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/provider
+ProviderCmdLineParser.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/provider
+Provider.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/provider

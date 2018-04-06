@@ -2,3 +2,4 @@
 Consumer.java,Examples/src/main/java/com/thomsonreuters/ema/examples/training/consumer/series400/example410__MarketPrice__HorizontalScaling
 ,Src/perftools
 20k.xml,Src/examples/
+build.gradle,Examples

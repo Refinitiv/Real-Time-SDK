@@ -7,6 +7,7 @@
 
 #include "Consumer.h"
 #include <cstring>
+#include <stdlib.h>
 
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;

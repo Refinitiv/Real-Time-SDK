@@ -713,7 +713,8 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 			RsslBuffer *sendBuf;
 			RsslEncodeIterator encodeIter = RSSL_INIT_ENCODE_ITERATOR;
 
-			if ((sendBuf = rsslReactorGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error)) == NULL)
+			// update below line as fix ESDK-1439 if ((sendBuf = rsslReactorGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error)) == NULL)
+			if ((sendBuf = rsslGetBuffer(itemRequestInfoList[i].Chnl, MAX_MSG_SIZE, RSSL_FALSE, &error)) == NULL)
 			{
 				printf("\n rsslReactorGetBuffer() Failed (rsslErrorId = %d)\n", error.rsslError.rsslErrorId);
 				return RSSL_RET_FAILURE;
