@@ -63,6 +63,10 @@ import junit.framework.TestCase;
 
 final class TestUtilities extends TestCase
 {
+	
+	private static String fieldDictionaryFileName = "./src/test/resources/com/thomsonreuters/ema/unittest/DataDictionaryTest/RDMTestDictionary";
+	private static String enumTableFileName = "./src/test/resources/com/thomsonreuters/ema/unittest/DataDictionaryTest/testenumtype.def";
+	
 	static class EncodingTypeFlags
 	{
 		static final int PRIMITIVE_TYPES = 1;
@@ -8760,8 +8764,8 @@ final class TestUtilities extends TestCase
         // load field and Type dictionaries
         dictionary.clear();
 
-        checkResult(CodecReturnCodes.SUCCESS, dictionary.loadFieldDictionary("../TestTools/UnitTests/TestData/RDMTestDictionary", error));
-        checkResult(CodecReturnCodes.SUCCESS, dictionary.loadEnumTypeDictionary("../TestTools/UnitTests/TestData/testenumtype.def", error));
+        checkResult(CodecReturnCodes.SUCCESS, dictionary.loadFieldDictionary(fieldDictionaryFileName, error));
+        checkResult(CodecReturnCodes.SUCCESS, dictionary.loadEnumTypeDictionary(enumTableFileName, error));
         
         // set-up message
         msg.msgClass(MsgClasses.REFRESH);

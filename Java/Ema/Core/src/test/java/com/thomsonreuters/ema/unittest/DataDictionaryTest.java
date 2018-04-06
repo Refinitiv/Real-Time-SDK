@@ -36,8 +36,8 @@ public class DataDictionaryTest extends TestCase {
 	private static DataDictionary globalDataDictionary;
 	private static com.thomsonreuters.upa.transport.Error rsslError = com.thomsonreuters.upa.transport.TransportFactory.createError();
 	
-	private static String fieldDictionaryFileName = "../TestTools/UnitTests/TestData/RDMTestDictionary";
-	private static String enumTableFileName = "../TestTools/UnitTests/TestData/testenumtype.def";
+	private static String fieldDictionaryFileName = "./src/test/resources/com/thomsonreuters/ema/unittest/DataDictionaryTest/RDMTestDictionary";
+	private static String enumTableFileName = "./src/test/resources/com/thomsonreuters/ema/unittest/DataDictionaryTest/testenumtype.def";
 //	private static String fieldDictionaryFileName = "./Java/Ema/TestTools/UnitTests/TestData/RDMTestDictionary";
 //	private static String enumTableFileName = "./Java/Ema/TestTools/UnitTests/TestData/testenumtype.def";
 	
