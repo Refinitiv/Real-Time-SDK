@@ -86,10 +86,16 @@ public class TunnelStreamRequestImpl implements TunnelStreamRequest
 	}
 
 	@Override
-	public TunnelStreamRequest guaranteedOuputBuffers(int outputBuffers)
+	public TunnelStreamRequest guaranteedOutputBuffers(int outputBuffers)
 	{
 		_guaranteedOutputBuffers = outputBuffers;
 		return this;
+	}
+
+	@Override @Deprecated
+	public TunnelStreamRequest guaranteedOuputBuffers(int outputBuffers)
+	{
+		return guaranteedOutputBuffers(outputBuffers);
 	}
 
 	@Override

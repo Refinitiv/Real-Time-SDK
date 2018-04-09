@@ -47,7 +47,13 @@ public interface TunnelStreamRequest
 	/*
 	 * Specifies the number of guaranteed output buffers available for the tunnel stream.
 	 */
+	@Deprecated
 	public TunnelStreamRequest guaranteedOuputBuffers(int outputBuffers);
+	
+	/*
+	 * Specifies the number of guaranteed output buffers available for the tunnel stream.
+	 */
+	public TunnelStreamRequest guaranteedOutputBuffers(int outputBuffers);
 	
 	/*
 	 * Specifies the ClassOfService member
