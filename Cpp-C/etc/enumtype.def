@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.31
 !tag Build_RDMD  4.20.31
-!tag DT_Version  18.21
-!tag Date        26-Feb-2018
+!tag DT_Version  18.31
+!tag Date        30-Mar-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -34,7 +34,7 @@ RDN_EXCHID     4
       1        "ASE"   NYSE American
       2        "NYS"   New York Stock Exchange
       3        "BOS"   Boston Stock Exchange
-      4        "CIN"   National Stock Exchange (formerly Cincinnati Stock Exchange)
+      4        "CIN"   NYSE National Exchange (formerly National Stock Exchange)
       5        "PSE"   NYSE Arca
       6        "XPH"   NASDAQ OMX PSX when trading in SIAC (formerly Philadelphia Stock Exchange)
       7        "THM"   NASDAQ InterMarket
@@ -634,10 +634,14 @@ CAN_P_CCY  13593
    2024        "UST"   Thousands of US dollars
    2025        "XVN"   Ven
    2026        "CRU"   Costa Rican Unidad de Desarrolla
-   2027        "BTC"   bitcoin
-   2028        "UYR"   Unidades Reajustables
+   2027        "BTC"   Bitcoin
+   2028        "UYR"   Uruguayan Peso en Unidades Reajustables
    2029        "BYk"   Belarusian Kapeyka
    2030        "BCH"   Bitcoin Cash
+   2031        "ETH"   Ethereum
+   2032        "XRP"   Ripple
+   2033        "NTK"   Neurotoken
+   2034        "LTC"   Litecoin
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7032,7 +7036,7 @@ LEG4_EXCH  13574
       1        "ASE"   NYSE American
       2        "NYS"   New York Stock Exchange
       3        "BOS"   Boston Stock Exchange
-      4        "CIN"   National Stock Exchange (formerly Cincinnati Stock Exchange)
+      4        "CIN"   NYSE National Exchange (formerly National Stock Exchange)
       5        "PSE"   NYSE Arca
       6        "XPH"   NASDAQ OMX PSX when trading in SIAC (formerly Philadelphia Stock Exchange)
       7        "THM"   NASDAQ InterMarket
@@ -7581,7 +7585,7 @@ LEG4_EXCH  13574
     550        "IMQ"   US Intermarket Level 2
     551        "LCA"   NYSE American when trading NASDAQ Global Market
     552        "LCB"   Boston Stock Exchange for Nasdaq Large Cap
-    553        "LCC"   Cincinnati Stock Exchange for Nasdaq Large Cap
+    553        "LCC"   NYSE National Exchange for Nasdaq Large Cap
     554        "LCM"   Chicago Stock Exchange for Nasdaq Large Cap
     555        "LCN"   New York Stock Exchange for Nasdaq Large Cap
     556        "LCP"    NYSE Arca FOR NASDAQ LARGE CAP
@@ -7591,7 +7595,7 @@ LEG4_EXCH  13574
     560        "NMQ"   NASDAQ Stock Market Exchange Consolidated Large Cap
     561        "SCA"   NYSE American when trading NASDAQ Global Market
     562        "SCB"   Boston Stock Exchange for Nasdaq Capital Market
-    563        "SCC"   Cincinnati Stock Exchange for Nasdaq Capital Market
+    563        "SCC"   NYSE National Exchange for Nasdaq Capital Market
     564        "SCM"   Chicago Stock Exchange for Nasdaq Capital Market
     565        "SCN"   New York Stock Exchange for Nasdaq Capital Market
     566        "SCP"   NYSE Arca FOR NASDAQ SMALL CAP
@@ -7680,7 +7684,7 @@ LEG4_EXCH  13574
     649        "GSB"   Boston SE when trading Nasdaq Global Select Market
     650        "GSW"   CBOE when trading Nasdaq Global Select Market
     651        "GSM"   Chicago SE when trading Nasdaq Global Select Market
-    652        "GSC"   National SE when trading Nasdaq Global Select Market
+    652        "GSC"   NYSE National Exchange when trading Nasdaq Global Select Market
     653        "GSI"   ISE when trading Nasdaq Global Select Market
     654        "GSL"   NASD TRF when trading Nasdaq Global Select Market
     655        "GSP"   NYSE Arca when trading Nasdaq Global Select Market
@@ -8516,11 +8520,14 @@ LEG4_EXCH  13574
    1485        "DWB"   Dealerweb
    1486        "HND"   HNX DERIVATIVE MARKET
    1487        "EBT"   EURONEXT BLOCK (MTF)
-   1488        "E88"   Not allocated (was HUDEX (Hungarian Derivatives Exchange))
+   1488        "HDX"   HUDEX (Hungarian Derivatives Exchange)
    1489        "PSX"   PAKISTAN STOCK EXCHANGE
    1490        "MSK"   MTS SLOVAKIA
    1491        "JBP"   JSE BOND ETP
    1492        "NSF"   Nasdaq Futures Exchange (NFX)
+   1493        "493"   Not allocated (was BGC PARTNERS (MTF))
+   1494        "BGO"   BGC Partners (MiFID II)
+   1495        "SMS"   Secondary Market Solution
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20130,6 +20137,44 @@ ORGN_PORT  13579
     326   "CL SAI  "   San Antonio
     327   "EC GYE  "   Guayaquil
     328   "PE CLL  "   Callao
+    329   "AR BHI  "   Bahia Blanca
+    330   "AR BDE  "   Escobar
+    331   "BE ZEE  "   Zeebrugge
+    332   "BR PCE  "   Pecem
+    333   "BR SSA  "   Salvador
+    334   "CL QTV  "   Quintero
+    335   "CN MEZ  "   Meizhou
+    336   "CN YSN  "   Yangshan
+    337   "CN YTN  "   Yantian
+    338   "DO CAU  "   Caucedo
+    339   "EG AIS  "   Ain Sukhna
+    340   "GQ PET  "   Punta Europa
+    341   "FR MTX  "   Montoir-de-Bretagne
+    342   "GR REV  "   Revithoussa
+    343   "IN DHP  "   Dabhol
+    344   "ID PJG  "   Lampung
+    345   "IT PVT  "   Porto Levante
+    346   "JM MBJ  "   Montego Bay
+    347   "JP HKD  "   Hakodate
+    348   "JP KWS  "   Kawasaki
+    349   "MX ATM  "   Altamira
+    350   "MX ZLO  "   Manzanillo
+    351   "NG BON  "   Bonny
+    352   "NO MLK  "   Melkoya
+    353   "PK BQM  "   Bin Qasim
+    354   "PL SWI  "   Swinoujscie
+    355   "PR GUY  "   Guayanilla
+    356   "QA RLF  "   Ras Laffan
+    357   "RU PGN  "   Prigorodnoye
+    358   "KR TYG  "   Tongyeong
+    359   "ES SAG  "   Sagunto
+    360   "TW TXG  "   Taichung
+    361   "TH MTP  "   Map Ta Phut
+    362   "TT PTF  "   Point Fortin
+    363   "AE DAS  "   Das Island
+    364   "GB MLF  "   Milford Haven
+    365   "US NSS  "   Sabine Pass
+    366   "YE BLH  "   Balhaf
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20440,6 +20485,7 @@ LOAD_ZONE  13578
     947   "EUR     "   Europe
     948   "PAC CST "   Pacific Coast
     949   "SOU AMR "   South America
+    950   "WCSA    "   West Coast South America
    2000   "MUL     "   Multinational
    2001   "SUP     "   Supra-National
    2002   "EUZ     "   Euro Zone
