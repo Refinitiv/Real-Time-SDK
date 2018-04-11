@@ -483,18 +483,21 @@ class WlItemHandler implements WlHandler
                         if (requestMsg.checkStreaming() && !streamRequestMsg.checkStreaming())
                         	streamRequestMsg.applyStreaming();
                         
-                        // send message to stream if streaming or it is a snapshot with no request pending
-                        if (sendNow && (requestMsg.checkStreaming() 
-                        		|| (!requestMsg.checkStreaming() && !wlStream.requestPending()) ))
+                        if (sendNow)
                         {
-                            // increment number of outstanding requests if not dictionary domain and a request isn't currently pending
-                            if (requestMsg.domainType() != DomainTypes.DICTIONARY && !wlStream.requestPending() && !requestMsg.checkNoRefresh())
+                            // send message to stream if streaming or it is a snapshot with no request pending
+                            if (requestMsg.checkStreaming() || !wlStream.requestPending())
                             {
-                                wlService.numOutstandingRequests(wlService.numOutstandingRequests() + 1);
-                            }
-                            
-                            ret = wlStream.sendMsg(streamRequestMsg, submitOptions, _errorInfo);
-                        }                        
+                                // increment number of outstanding requests if not dictionary domain and a request isn't currently pending
+                                if (requestMsg.domainType() != DomainTypes.DICTIONARY && !wlStream.requestPending() && !requestMsg.checkNoRefresh())
+                                {
+                                    wlService.numOutstandingRequests(wlService.numOutstandingRequests() + 1);
+                                }
+
+                                ret = wlStream.sendMsg(streamRequestMsg, submitOptions, _errorInfo);
+                            }                        
+                            // Otherwise already waiting on a response and have nothing to send right now.
+                        }
                         else // if not sendNow, add stream to pending send message list if not already there
                         {
                             if (!_pendingSendMsgList.contains(wlStream))

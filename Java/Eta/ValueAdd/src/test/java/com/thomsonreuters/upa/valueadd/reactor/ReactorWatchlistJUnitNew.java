@@ -9345,6 +9345,17 @@ public class ReactorWatchlistJUnitNew
     @Test
     public void snapshotOnStreamingAggregationTest()
     {
+        snapshotOnStreamingAggregationTest(false);
+    }
+
+    @Test
+    public void snapshotOnStreamingAggregationTest_dispatchBetweenItemRequests()
+    {
+        snapshotOnStreamingAggregationTest(true);
+    }
+
+    public void snapshotOnStreamingAggregationTest(boolean dispatchBetweenItemRequests)
+    {
 		/* Test aggregation of a snapshot request onto a streaming request. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -9405,7 +9416,10 @@ public class ReactorWatchlistJUnitNew
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
         submitOptions.requestMsgOptions().userSpecObj(testUserSpecObj);
-        assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        if (dispatchBetweenItemRequests)
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        else
+            assertTrue(consumer.submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
 
         /* Consumer sends snapshot request for same item (does not apply streaming flag). */
         requestMsg.clear();
@@ -9419,7 +9433,7 @@ public class ReactorWatchlistJUnitNew
         submitOptions.requestMsgOptions().userSpecObj(testUserSpecObj);
         assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
         
-        /* Provider receives request. */
+        /* Provider receives one request, priority 1/1 (snapshot doesn't count towards priority). */
         providerReactor.dispatch(1);
         
         event = providerReactor.pollEvent();
@@ -9433,6 +9447,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
         assertTrue(receivedRequestMsg.msgKey().checkHasName());
         assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+        assertTrue(receivedRequestMsg.checkHasPriority());
+        assertEquals(1, receivedRequestMsg.priority().priorityClass());
+        assertEquals(1, receivedRequestMsg.priority().count());
         assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
         providerStreamId = receivedRequestMsg.streamId();
         
@@ -9449,6 +9466,7 @@ public class ReactorWatchlistJUnitNew
         refreshMsg.msgKey().name().data("TRI.N");
         refreshMsg.state().streamState(StreamStates.OPEN);
         refreshMsg.state().dataState(DataStates.OK);
+        refreshMsg.applySolicited();
         refreshMsg.applyRefreshComplete();
         assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
         
@@ -9471,6 +9489,8 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
         assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkRefreshComplete());
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
@@ -9493,6 +9513,8 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
         assertEquals(StreamStates.NON_STREAMING, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkRefreshComplete());
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
@@ -9515,6 +9537,330 @@ public class ReactorWatchlistJUnitNew
         assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());
         receivedUpdateMsg = (UpdateMsg)msgEvent.msg();
         assertEquals(5, receivedUpdateMsg.streamId());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedUpdateMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedUpdateMsg.containerType());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+
+        /* Request the snapshot again on stream 6. */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(6);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI.N");
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        submitOptions.requestMsgOptions().userSpecObj(testUserSpecObj);
+        assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Provider receives request. */
+        providerReactor.dispatch(1);
+        
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertFalse(receivedRequestMsg.checkNoRefresh());
+        assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasName());
+        assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+        assertTrue(receivedRequestMsg.checkHasPriority());
+        assertEquals(1, receivedRequestMsg.priority().priorityClass());
+        assertEquals(1, receivedRequestMsg.priority().count());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+        assertEquals(providerStreamId, receivedRequestMsg.streamId());
+        
+        /* Provider sends refresh .*/
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI.N");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        refreshMsg.applySolicited();
+        refreshMsg.applyRefreshComplete();
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Consumer receives nonstreaming refresh, only on stream 6 (refresh was solicited by stream 6; stream 5 doesn't need it). */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(6, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertTrue(receivedRefreshMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.NON_STREAMING, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkRefreshComplete());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+        assertNotNull(msgEvent.streamInfo().userSpecObject());
+        assertEquals(testUserSpecObj, msgEvent.streamInfo().userSpecObject());
+
+        /* Provider sends an update. */
+        updateMsg.clear();
+        updateMsg.msgClass(MsgClasses.UPDATE);
+        updateMsg.streamId(providerStreamId);
+        updateMsg.domainType(DomainTypes.MARKET_PRICE);
+        updateMsg.containerType(DataTypes.NO_DATA);
+        assertTrue(provider.submitAndDispatch(updateMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        
+        /* Consumer receives the update, only on stream 5. */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());
+        receivedUpdateMsg = (UpdateMsg)msgEvent.msg();
+        assertEquals(5, receivedUpdateMsg.streamId());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedUpdateMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedUpdateMsg.containerType());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+        
+        TestReactorComponent.closeSession(consumer, provider);
+    }
+
+    @Test
+    public void streamingAggregationTest()
+    {
+    	streamingAggregationTest(false);
+    }
+
+    @Test
+    public void streamingAggregationTest_dispatchBetweenItemRequests()
+    {
+    	streamingAggregationTest(true);
+    }
+
+    public void streamingAggregationTest(boolean dispatchBetweenItemRequests)
+    {
+		/* Test aggregation of two streaming items. */
+        
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
+        RefreshMsg receivedRefreshMsg;
+        UpdateMsg updateMsg = (UpdateMsg)CodecFactory.createMsg();
+        UpdateMsg receivedUpdateMsg;
+        int providerStreamId;
+        WlInteger testUserSpecObj = ReactorFactory.createWlInteger();
+        testUserSpecObj.value(997);
+        
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+                
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        provider.bind(opts);
+        TestReactor.openSession(consumer, provider, opts);
+        
+        /* Consumer sends streaming request. */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(5);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.applyStreaming();
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI.N");
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        submitOptions.requestMsgOptions().userSpecObj(testUserSpecObj);
+        if (dispatchBetweenItemRequests)
+            assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        else
+            assertTrue(consumer.submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Consumer sends streaming request for same item . */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(6);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.applyStreaming();
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI.N");
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        submitOptions.requestMsgOptions().userSpecObj(testUserSpecObj);
+        assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        
+        providerReactor.dispatch(2);
+        
+        /* Provider receives request. */
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertFalse(receivedRequestMsg.checkNoRefresh());
+        assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasName());
+        assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+        providerStreamId = receivedRequestMsg.streamId();
+
+        /* Provider receives priority change due to second request. */
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasName());
+        assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+        assertTrue(receivedRequestMsg.checkHasPriority());
+        assertEquals(1, receivedRequestMsg.priority().priorityClass());
+        assertEquals(2, receivedRequestMsg.priority().count());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+        assertEquals(providerStreamId, receivedRequestMsg.streamId());
+        
+        /* Provider sends refresh .*/
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI.N");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        refreshMsg.applySolicited();
+        refreshMsg.applyRefreshComplete();
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        
+        /* Consumer receives two refreshes. */
+        consumerReactor.dispatch(2);
+        
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(5, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertTrue(receivedRefreshMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkRefreshComplete());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+        assertNotNull(msgEvent.streamInfo().userSpecObject());
+        assertEquals(testUserSpecObj, msgEvent.streamInfo().userSpecObject());
+
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals(6, receivedRefreshMsg.streamId());
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertTrue(receivedRefreshMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkRefreshComplete());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+        assertNotNull(msgEvent.streamInfo().userSpecObject());
+        assertEquals(testUserSpecObj, msgEvent.streamInfo().userSpecObject());
+        
+        /* Provider sends an update. */
+        updateMsg.clear();
+        updateMsg.msgClass(MsgClasses.UPDATE);
+        updateMsg.streamId(providerStreamId);
+        updateMsg.domainType(DomainTypes.MARKET_PRICE);
+        updateMsg.containerType(DataTypes.NO_DATA);
+        assertTrue(provider.submitAndDispatch(updateMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        
+        /* Consumer receives the update on both streams. */
+        consumerReactor.dispatch(2);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());
+        receivedUpdateMsg = (UpdateMsg)msgEvent.msg();
+        assertEquals(5, receivedUpdateMsg.streamId());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedUpdateMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedUpdateMsg.containerType());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+        
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.UPDATE, msgEvent.msg().msgClass());
+        receivedUpdateMsg = (UpdateMsg)msgEvent.msg();
+        assertEquals(6, receivedUpdateMsg.streamId());
         assertEquals(DomainTypes.MARKET_PRICE, receivedUpdateMsg.domainType());
         assertEquals(DataTypes.NO_DATA, receivedUpdateMsg.containerType());
         assertNotNull(msgEvent.streamInfo());
