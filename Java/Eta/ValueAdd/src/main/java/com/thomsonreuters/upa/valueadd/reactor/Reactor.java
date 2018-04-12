@@ -2328,70 +2328,6 @@ public class Reactor
             reactorChannel.flushAgain(false);
     }
 
-    private void encodeAndWriteLoginClose(LoginClose loginClose, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
-    {
-        // get a buffer for the login close
-        Channel channel = reactorChannel.channel();
-
-        if (channel == null || channel.state() != ChannelState.ACTIVE)
-            return;
-
-        TransportBuffer msgBuf = channel.getBuffer(getMaxFragmentSize(reactorChannel, errorInfo), false,
-                                                   errorInfo.error());
-        if (msgBuf == null)
-        {
-            populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                              "Reactor.encodeAndWriteLoginClose",
-                              "Failed to obtain a TransportBuffer, reason="
-                                      + errorInfo.error().text());
-            return;
-        }
-
-        _eIter.clear();
-        _eIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-
-        int retval = loginClose.encode(_eIter);
-        if (retval != CodecReturnCodes.SUCCESS)
-        {
-            populateErrorInfo(errorInfo,
-                              ReactorReturnCodes.FAILURE,
-                              "Reactor.encodeAndWriteLoginClose",
-                              "Encoding of login close failed: <"
-                                      + TransportReturnCodes.toString(retval) + ">");
-            return;
-        }
-
-        if (_reactorOptions.xmlTracing() == true)
-        {
-            _xmlIter.clear();
-            _xmlIter.setBufferAndRWFVersion(msgBuf,
-            								reactorChannel.channel().majorVersion(),
-            								reactorChannel.channel().minorVersion());
-            _xmlString.setLength(0);
-			_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
-							  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
-					          .append("<!-- ").append(new java.util.Date()).append(" -->")
-					          .append(_xmlMsg.decodeToXml(_xmlIter, null));
-			System.out.println(_xmlString);
-        }
-        retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
-        if (retval > TransportReturnCodes.SUCCESS)
-        {
-            sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteLoginClose", errorInfo);
-        }
-        else if (retval < TransportReturnCodes.SUCCESS)
-        {
-            populateErrorInfo(errorInfo,
-                              ReactorReturnCodes.FAILURE,
-                              "Reactor.encodeAndWriteLoginClose",
-                              "Channel.write failed to write login close: <"
-                                      + CodecReturnCodes.toString(retval) + ">" + " error="
-                                      + errorInfo.error().text());
-        }
-        else
-            reactorChannel.flushAgain(false);
-    }
-
     private void encodeAndWriteDirectoryRequest(DirectoryRequest directoryRequest, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
     {
         // get a buffer for the directory request
@@ -2551,70 +2487,6 @@ public class Reactor
                               ReactorReturnCodes.FAILURE,
                               "Reactor.encodeAndWriteDirectoryRefresh",
                               "Channel.write failed to write directory refresh: <"
-                                      + CodecReturnCodes.toString(retval) + ">" + " error="
-                                      + errorInfo.error().text());
-        }
-        else
-            reactorChannel.flushAgain(false);
-    }
-
-    private void encodeAndWriteDirectoryClose(DirectoryClose directoryClose, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
-    {
-        // get a buffer for the login close
-        Channel channel = reactorChannel.channel();
-        
-        if (channel == null || channel.state() != ChannelState.ACTIVE)
-        	return;
-
-        TransportBuffer msgBuf = channel.getBuffer(getMaxFragmentSize(reactorChannel, errorInfo), false,
-                                                   errorInfo.error());
-        if (msgBuf == null)
-        {
-            populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                              "Reactor.encodeAndWriteDirectoryClose",
-                              "Failed to obtain a TransportBuffer, reason="
-                                      + errorInfo.error().text());
-            return;
-        }
-
-        _eIter.clear();
-        _eIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-
-        int retval = directoryClose.encode(_eIter);
-        if (retval != CodecReturnCodes.SUCCESS)
-        {
-            populateErrorInfo(errorInfo,
-                              ReactorReturnCodes.FAILURE,
-                              "Reactor.encodeAndWriteDirectoryClose",
-                              "Encoding of directory close failed: <"
-                                      + TransportReturnCodes.toString(retval) + ">");
-            return;
-        }
-
-        if (_reactorOptions.xmlTracing() == true)
-        {
-            _xmlIter.clear();
-            _xmlIter.setBufferAndRWFVersion(msgBuf,
-            								reactorChannel.channel().majorVersion(),
-            								reactorChannel.channel().minorVersion());
-            _xmlString.setLength(0);
-			_xmlString.append("\n<!-- Outgoing Reactor message -->\n")
-							  .append("<!-- ").append(reactorChannel.channel().selectableChannel().toString()).append(" -->\n")
-					          .append("<!-- ").append(new java.util.Date()).append(" -->")
-					          .append(_xmlMsg.decodeToXml(_xmlIter, null));
-			System.out.println(_xmlString);
-        }
-        retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
-        if (retval > TransportReturnCodes.SUCCESS)
-        {
-            sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDirectoryClose", errorInfo);
-        }
-        else if (retval < TransportReturnCodes.SUCCESS)
-        {
-            populateErrorInfo(errorInfo,
-                              ReactorReturnCodes.FAILURE,
-                              "Reactor.encodeAndWriteDirectoryClose",
-                              "Channel.write failed to write directory close: <"
                                       + CodecReturnCodes.toString(retval) + ">" + " error="
                                       + errorInfo.error().text());
         }
@@ -3346,43 +3218,6 @@ public class Reactor
 	                                     "Reactor is shutdown, closeChannel ignored");
 	        else if (reactorChannel.state() == State.CLOSED)
 	            return ReactorReturnCodes.SUCCESS;
-	
-	        // send LoginClose and DirectoryClose messages
-	        ReactorRole reactorRole = reactorChannel.role();
-	        if (reactorRole != null)
-	        {
-    	        if (reactorRole.type() == ReactorRoleTypes.CONSUMER)
-    	        {
-    	            DirectoryClose directoryClose = ((ConsumerRole)reactorRole).rdmDirectoryClose();
-    			    if (directoryClose != null)
-    			    {
-    			        // a rdmDirectoryClose was specified, send it out.
-    			        encodeAndWriteDirectoryClose(directoryClose, reactorChannel, errorInfo);
-    			    }
-    	            LoginClose loginClose = ((ConsumerRole)reactorRole).rdmLoginClose();
-    			    if (loginClose != null)
-    			    {
-    			        // a rdmLoginClose was specified, send it out.
-    			        encodeAndWriteLoginClose(loginClose, reactorChannel, errorInfo);
-    			    }
-    	        }
-    	        else if (reactorRole.type() == ReactorRoleTypes.NIPROVIDER)
-    	        {
-                    DirectoryClose directoryClose = ((NIProviderRole)reactorRole).rdmDirectoryClose();
-                    if (directoryClose != null)
-                    {
-                        // a rdmDirectoryClose was specified, send it out.
-                        encodeAndWriteDirectoryClose(directoryClose, reactorChannel, errorInfo);
-                    }               
-	            
-    	            LoginClose loginClose = ((NIProviderRole)reactorRole).rdmLoginClose();
-    			    if (loginClose != null)
-    			    {
-    			        // a rdmLoginClose was specified, send it out.
-    			        encodeAndWriteLoginClose(loginClose, reactorChannel, errorInfo);
-    			    }	        	
-    	        }
-	        }
 
 		    // set the ReactorChannel's state to CLOSED.
 	        // and remove it from the queue.

@@ -27,9 +27,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 public class ConsumerRole extends ReactorRole
 {
     LoginRequest _loginRequest = null;
-    LoginClose _loginClose = null;
     DirectoryRequest _directoryRequest = null;
-    DirectoryClose _directoryClose = null;
     DictionaryRequest _fieldDictionaryRequest = null;
     DictionaryClose _fieldDictionaryClose = null;
     DictionaryRequest _enumDictionaryRequest = null;
@@ -128,29 +126,6 @@ public class ConsumerRole extends ReactorRole
     }
     
     /**
-     * The LoginClose to be sent to close the Login stream.
-     * This corresponds to the LoginRequest sent during the
-     * connection establishment process.
-     *
-     * @return the login close
-     */
-    LoginClose rdmLoginClose()
-    {
-    	if (_loginRequest == null)
-    		return null;
-    	
-    	if (_loginClose == null)
-    	{
-    		_loginClose = (LoginClose)LoginMsgFactory.createMsg();
-    		_loginClose.rdmMsgType(LoginMsgType.CLOSE);
-    	}
-    	
-    	_loginClose.streamId(_loginRequest.streamId());
-    	
-        return _loginClose;
-    }
-    
-    /**
      *  A Directory Request to be sent during the setup of a Consumer-Provider
      * session. This can be populated with a user's specific information or
      * invoke {@link #initDefaultRDMDirectoryRequest()} to populate with default
@@ -204,29 +179,6 @@ public class ConsumerRole extends ReactorRole
         return;
     }
     
-    /**
-     * The DirectoryClose to be sent to close the Directory stream.
-     * This corresponds to the DirectoryRequest sent during the
-     * connection establishment process.
-     *
-     * @return the directory close
-     */
-    DirectoryClose rdmDirectoryClose()
-    {
-    	if (_directoryRequest == null)
-    		return null;
-    	
-    	if (_directoryClose == null)
-    	{
-    		_directoryClose = (DirectoryClose)DirectoryMsgFactory.createMsg();
-    		_directoryClose.rdmMsgType(DirectoryMsgType.CLOSE);
-    	}
-    	
-    	_directoryClose.streamId(_directoryRequest.streamId());
-    	
-        return _directoryClose;
-    }
-
     /**
      * Field dictionary name.
      *

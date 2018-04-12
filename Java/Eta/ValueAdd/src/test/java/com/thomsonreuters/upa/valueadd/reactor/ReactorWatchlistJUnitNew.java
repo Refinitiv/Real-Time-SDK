@@ -8906,15 +8906,7 @@ public class ReactorWatchlistJUnitNew
        consumer.close();
 
        /* Provider receives channel-down event. */
-       providerReactor.dispatch(2);
-       
-
-       RDMDirectoryMsgEvent directoryMsgEvent;                
-       event = providerReactor.pollEvent();
-       assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
-       directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
-       assertEquals(provider.defaultSessionDirectoryStreamId(), directoryMsgEvent.rdmDirectoryMsg().streamId());
-       assertEquals(DirectoryMsgType.CLOSE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
+       providerReactor.dispatch(1);
    
        event = providerReactor.pollEvent();
        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
