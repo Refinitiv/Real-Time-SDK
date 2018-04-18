@@ -1623,7 +1623,7 @@ public class Consumer implements ConsumerCallback
     {
         System.out.println("\nStarting Cache Display ");
 
-        if (chnlInfo.reactorChannel != null)
+		if (chnlInfo.reactorChannel.channel() != null)
         {
             cacheDisplayStr.setLength(0);
             cacheDisplayStr.append("Channel :");
