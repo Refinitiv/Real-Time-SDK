@@ -15,85 +15,62 @@ The Elektron-SDK has support for Linux and Windows.  Please see the individual A
 ## Common Setup
 This section shows the required setup needed before you can build any of the APIs within this package.
 
-Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA as detailed below.  
-In addition, this repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product. 
+Firstly, obtain the source from this repository. It will contain all of the required source to build ESDK as detailed below.  
+In addition, this repository depends on the "Elektron-SDK-BinaryPack" (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product. 
 
+## Building ESDK
 
-## Building ETA
+**Using CMake**:
 
-#### ETA Special Instructions
-The ETA package contains transport, decoder, encoder, and cache components.  
-The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters and the source code is not included on GitHub. 
-This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
-This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.
-
-####1) Build the ETA 
+CMake can be downloaded from https://cmake.org
 
 **For Linux**:
 
-Navigate to `Eta/Impl` 
--	Run `make all` to build Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location of the `Elektron-SDK-BinaryPack` repository.
--	Run `make stubs` to build only the Stub libraries.  **WARNING** This will overwrite libraries in the `Libs` location with the compiled Stub libraries.
--	Run `make rsslVA` to build only Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.  This is the same as the `make all` target.
+At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the optimized Makefile files:
 
-This will build both static and shared versions of the libraries and will build Optimized libraries by default.  
-If Optimized_Assert libraries are preferred, this can be modified from within the makefiles.
+cmake -HElektron-SDK -Bbuild-esdk
+where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created)
 
-**NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink to properly soft link for versioned libraries. These are located in the submodule folder under your clone location and then `Elektron-SDK-BinaryPack/Cpp-C/Eta`
+Issue the following command to build debug Makefile files:
+
+cmake -HElektron-SDK -Bbuild-esdk –DCMAKE_BUILD_TYPE=Debug
+
+The cmake command builds all needed Makefile files (and related dependencies) in the build-esdk directory. 
+
+Go to the build-esdk directory and type "make" to create the ESDK libraries. Note that the libraries are sent to the Elektron-SDK directory (i.e., not the build-esdk directory).
 
 **For Windows**:
 
-Navigate to `Eta/Impl` 
-Select the `vcxproj` for the specific library you want to build, or use the provided solution (or `sln`) file to build in **Visual Studio**.  
+Note: The following details regarding Windows and CMake require the use of Cygwin. Cygwin can be downloaded from https://cygwin.com
 
-When building via the solution, select the configuration combination you want (Static, Shared, Debug, Release, etc) and select `Build -> Build Solution` this will create both static and shared libraries for all targets.  
+At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the Solution and vcxproj files:
 
+cmake -HElektron-SDK -Bbuild-esdk -G "VisualStudioVersion"
+where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created)
 
-####2) Build the Transport API Examples
+"VisualStudioVersion" is the visual studio version (e.g., "Visual Studio 14 2015 Win64"). A list of visual studio versions can be obtained by typing "cmake -help". 
 
-Navigate to `Eta/Applications`, locate the example, performance tool, or training suite you would like to build. Run the makefile or open and build the windows solution file (when applicable) or the vcxproj.
+The cmake command builds all needed Solution and vcxproj files (and other related files) in the build-esdk directory. You open these files and build all libraries and examples in the same fashion as you did with prior ESDKs.
+Note that the build output is sent to the Elektron-SDK directory (i.e., not the build-esdk directory).
 
-####3) Run the ETA Examples
+Note that only the following Windows versions are supported.
 
-Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
+Visual Studio 15 2017
+Visual Studio 14 2015
+Visual Studio 12 2013
+Visual Studio 11 2012
 
-**NOTE** If you have built using the 'stub' libraries, the examples run but fail.  
+**32 bit support**:
 
-## Building EMA
+CMake has build support for 32 bit platforms.
 
-EMA is built upon ETA.  Before you can build EMA you must build ETA as described above. Once you have the ETA libraries in place you can then build the EMA libraries and the examples.
+Linux: Add "-DBUILD_32_BIT_ETA=ON" to the cmake build
 
-
-####1) Get or build the libxml2 library.
-If your system does not already have libxml2 available, you can build the version that is contained in this release. Just navigate to `Eta/Utils/libxml2` and run the makefile or build the windows project file. 
-
-
-####2) Build the EMA library
-
-To build the EMA library, navigate to the `Ema/Src/Access` folder and run the makefile or build the windows project. Note that when building the shared object version of the EMA library, libxml2 is statically linked into it.  
-
-####3) Build the EMA examples
-
-After that, you can build any of the EMA examples. Navigate to the example you wish to build and you will find both a makefile and windows project file.
-
-####4) Get access to a providing application. 
-
-You will need a provider component to connect the EMA consumer applications to.  This can be an ADS or API provider application from ETA or RFA.
-
-####5) Run the EMA Examples
-
-Once the provider is running and accessible, you can run the EMA examples.  When running examples build using shared libraries you will need to make sure that the ETA libraries are local or in your path.
-
-That should do it!  
-
-### Windows Solution Files
-
-As an alternative, after you build ETA as described above, you can build using the windows solution files.  Solutions files can be found in the `.../Ema/Examples/Training` directory or the `.../Ema/Src/Access`.  
-
+Windows: Don't add Win64 to the "VisualStudioVersion" (i.e., use "Visual Studio 14 2015" vs "Visual Studio 14 2015 Win64")
 
 # Developing 
 
-If you have discover any issues with regards to this project, please feel free to create an Issue.
+If you discover any issues with this project, please feel free to create an Issue.
 
 If you have coding suggestions that you would like to provide for review, please create a Pull Request.
 

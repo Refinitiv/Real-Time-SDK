@@ -15,85 +15,48 @@ The Elektron-SDK has support for JDK 1.7 and JDK 1.8.  Please see the individual
 ## Common Setup
 This section shows the required setup needed before you can build any of the APIs within this package.
 
-Firstly, obtain the source from this repository. It will contain all of the required source to build EMA and ETA as detailed below.
+Firstly, obtain the source from this repository. It will contain all of the required source to build ESDK as detailed below.
 In addition, this repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product. 
-This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.  In addition, any classpaths should be updated to also include jars from the submodule library location, which will be your clone location followed by `Elektron-SDK-BinaryPack/Java/Eta/Libs`
 
+## Building ESDK
 
-## Building ETA
+**Using Gradle**:
 
-#### ETA Special Instructions
-The ETA package contains transport, decoder, encoder, and cache components.  
-The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters and the source code is not included on GitHub. 
-This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+Gradle can be downloaded from https://gradle.org
 
+Navigate to `Elektron-SDK/Java` and issue the appropriate Gradle command as follows:
 
-####1) Build the ETA API 
+	- Windows: gradlew.bat jar
+	- Linux: ./gradlew jar
+	
+	This command builds the jar files.
 
-**Using Apache Ant**:
+#### Running examples
 
-Ant can be downloaded from http://ant.apache.org
+To run an example, issue the appropriate command as follows:
+	  
+	- Windows: gradlew.bat runExampleName [-PcommandLineArgs="arguments"]
+	- Linux: ./gradlew runExampleName [-PcommandLineArgs="arguments"]
+	(where runExampleName is the name of the example to run and arguments are the example arguments, only ETA supports the use of arguments)
+	 
+Issue the following command to get a list of all example names.
+	  
+	- Windows: gradlew.bat tasks --all
+	- Linux: ./gradlew tasks --all
 
-Navigate to `Eta/Source` 
--	Run `ant all` to build Reactor and its dependencies.  This will use the fully functional JAR files and libraries provided in the `Libs` location of the `Elektron-SDK-BinaryPack` repository.
--	Run `ant build-stubs` to build only the Stub libraries.  This will build to a `bin` location. 
--	Run `ant build` or `ant build-valueadd` to build only Reactor and its dependencies.  This will link to the fully functional JAR files and libraries provided in the `Libs` location.  This is the same as the `ant all` target.
+ETA example, the following command runs the VAConsumer example.
+		
+	- Windows: gradlew.bat runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
+	- Linux: ./gradlew runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
 
-
-####2) Build the ETA API Examples
-
-Navigate to `Eta/Applications`, locate the example or performance tool you would like to build. 
-The Example applications are located in `Eta/Applications/Examples`
-The Performance Tools are located in `Eta/Applications/PerfTools`
--	Run `ant` to build all examples/performance tools or select the target from inside the build.xml file to built a specific example or performance tool.
--	Optionally, these can be built using the bat or ksh script files if preferred over ant.
-
-####3) Run the ETA Examples
-
-Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
-
-**NOTE** If you have built using the 'stub' libraries, the examples run but fail.  
-
-## Building EMA
-
-Follow the steps below to build EMA library and examples.
-
-
-
-
-####1) Build the EMA library
-
-**Using Apache Ant**:
-
-To build EMA library (`ema.jar`), navigate to `Src` and run the `ant` command. 
-The `ant` script first builds the underlying ETA libraries (`upaValueAdd.jar`) and then builds the EMA library.
-
-####2) Obtain the ETA library (upa.jar) 
-Copy the `Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar` from the binary pack to the `...\Eta\Libs\` directory. Alternatively, specify the Java CLASSPATH to point to `Elektron-SDK-BinaryPack/Java/Eta/Libs/upa.jar`. 
-
-
-####3) Build the EMA examples
-To build EMA examples, navigate to `Src/examples` and run the `ant` command. The `ant` script will build all of the examples.
-
-
-####4) Get access to a providing application. 
-
-You will need a provider component to connect the EMA consumer applications to.  This can be an ADS or API provider application from ETA or RFA.
-
-####5) Run the EMA Examples
-
-Once the provider is running and accessible, you can run the EMA examples. 
-
-Set the `CLASSPATH` to include the required jars.
-
-See `.../Src/examples/example100__MarketPrice__Streaming.bat` for an example of setting the `CLASSPATH` and running an example
-
-That should do it!  
-
+EMA example, the following command runs the example270__SymbolList example.
+		
+	- Windows: gradlew.bat runconsumer270
+	- Linux: ./gradlew runconsumer270
 
 # Developing 
 
-If you have discover any issues with regards to this project, please feel free to create an Issue.
+If you discover any issues with this project, please feel free to create an Issue.
 
 If you have coding suggestions that you would like to provide for review, please create a Pull Request.
 

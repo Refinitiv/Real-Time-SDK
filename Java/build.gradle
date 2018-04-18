@@ -135,7 +135,7 @@ task uploadAll ( ) {
 	description 'Uploads All artifacts to maven central'
 }
 
-// this method creates a list of arguments that are used in setting the jvmArgs and commnadLineArgs
+// this method creates a list of arguments that are used in setting the jvmArgs and commandLineArgs
 def buildArgsList ( options ) {
 	// remove spaces 
 	def arguments = options.tokenize()
