@@ -498,7 +498,7 @@ class WlStream extends VaNode
         }
         else // channel is not up, it means transport channel is gone, should not send out anything.
         {
-        	return ReactorReturnCodes.FAILURE;
+        	return ReactorReturnCodes.SUCCESS;
         }
         
         return ret;

@@ -25,8 +25,10 @@ import com.thomsonreuters.upa.codec.Array;
 import com.thomsonreuters.upa.codec.ArrayEntry;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CloseMsg;
+import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
+import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
@@ -55,12 +57,22 @@ import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UInt;
 import com.thomsonreuters.upa.codec.GenericMsg;
 import com.thomsonreuters.upa.codec.UpdateMsg;
+import com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues;
+import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.Directory;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.rdm.SymbolList;
 import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.rdm.ViewTypes;
+import com.thomsonreuters.upa.transport.TransportBuffer;
+import com.thomsonreuters.upa.transport.TransportFactory;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryClose;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
@@ -18888,6 +18900,463 @@ public class ReactorWatchlistJUnitNew
         assertTrue(consumer.submitAndDispatch(closeMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
 
         /* Provider receives nothing. */
+        providerReactor.dispatch(0);
+
+        TestReactorComponent.closeSession(consumer, provider);
+    }
+
+    /* Consumer that reissues TRI on stream 5 with priority to 1,2 (this priority will be used
+     * for the item when the watchlist recovers it). 
+     * Also submits a PostMsg and GenericMsg on stream 5, which will fail because there is no longer a stream to the provider. */
+    class SubmitOnDisconnectConsumer extends Consumer
+    {
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        PostMsg postMsg = (PostMsg)CodecFactory.createMsg();
+        GenericMsg genericMsg = (GenericMsg)CodecFactory.createMsg();
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
+        
+        public SubmitOnDisconnectConsumer(TestReactor testReactor)
+        {
+            super(testReactor);
+        }
+
+        public int reactorChannelEventCallback(ReactorChannelEvent event)
+        {
+            if (event.eventType() == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
+            {
+                /* Re-request TRI. Set priority to 1,2. */
+                requestMsg.clear();
+                requestMsg.msgClass(MsgClasses.REQUEST);
+                requestMsg.streamId(5);
+                requestMsg.domainType(DomainTypes.MARKET_PRICE);
+                requestMsg.applyStreaming();
+                requestMsg.msgKey().applyHasName();
+                requestMsg.msgKey().name().data("TRI.N");
+                requestMsg.applyHasPriority();
+                requestMsg.priority().priorityClass(1);
+                requestMsg.priority().count(2);
+                submitOptions.clear();
+                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+                assertTrue(submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+                /* Submit a PostMsg. This should fail since the stream to the provider is gone. */
+                postMsg.clear();
+                postMsg.msgClass(MsgClasses.POST);
+                postMsg.streamId(5);
+                postMsg.domainType(DomainTypes.MARKET_PRICE);
+                postMsg.containerType(DataTypes.NO_DATA); 
+                postMsg.applyPostComplete();
+                submitOptions.clear();
+                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+                assertEquals(ReactorReturnCodes.INVALID_USAGE, reactorChannel().submit(postMsg, submitOptions, errorInfo));
+
+                /* Submit a GenericMsg. This should fail since the stream to the provider is gone. */
+                genericMsg.clear();
+                genericMsg.msgClass(MsgClasses.GENERIC);
+                genericMsg.streamId(5);
+                genericMsg.domainType(DomainTypes.MARKET_PRICE);
+                genericMsg.containerType(DataTypes.NO_DATA);
+                submitOptions.clear();
+                submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+                assertEquals(ReactorReturnCodes.INVALID_USAGE, reactorChannel().submit(genericMsg, submitOptions, errorInfo));
+
+            }
+
+            return super.reactorChannelEventCallback(event);
+        }
+    }
+
+
+    @Test
+    public void channelDownCallbackSubmitTest()
+    {
+        /* Test submitting messages when the channel goes down. */
+
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        Msg msg = CodecFactory.createMsg();
+        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg receivedRefreshMsg;
+        StatusMsg receivedStatusMsg;
+        int providerStreamId;
+
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+
+        /* Create consumer. */
+        Consumer consumer = new SubmitOnDisconnectConsumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        opts.reconnectAttemptLimit(-1);
+        provider.bind(opts);
+        TestReactor.openSession(consumer, provider, opts);
+
+        /* Consumer requests TRI. */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(5);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.applyStreaming();
+        requestMsg.msgKey().applyHasName();
+        requestMsg.msgKey().name().data("TRI.N");
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Provider receives request for TRI. */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertFalse(receivedRequestMsg.checkNoRefresh());
+        assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasName());
+        assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+        providerStreamId = receivedRequestMsg.streamId();
+
+        /* Provider sends refresh. */
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI.N");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        refreshMsg.applySolicited();
+        refreshMsg.applyRefreshComplete();
+
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Consumer receives refresh. */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertTrue(receivedRefreshMsg.checkHasMsgKey());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedRefreshMsg.msgKey().checkHasName());
+        assertTrue(receivedRefreshMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(receivedRefreshMsg.checkSolicited());
+        assertTrue(receivedRefreshMsg.checkRefreshComplete());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+
+        /* Provider disconnects. */
+        provider.closeChannel();
+
+        /* Consumer receives channel-down event, login status, directory update, and TRI status. */
+        consumerReactor.dispatch(4);
+        event = consumer.testReactor().pollEvent();
+        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+        ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+        assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+
+        RDMLoginMsgEvent loginMsgEvent;                
+        event = consumer.testReactor().pollEvent();
+        assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+        loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+        assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
+
+        RDMDirectoryMsgEvent directoryMsgEvent;                
+        event = consumer.testReactor().pollEvent();
+        assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+        directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+        assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
+
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+        receivedStatusMsg = (StatusMsg)msgEvent.msg();
+        assertEquals(DomainTypes.MARKET_PRICE, receivedStatusMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedStatusMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedStatusMsg.state().streamState());
+        assertEquals(DataStates.SUSPECT, receivedStatusMsg.state().dataState());
+        assertNotNull(msgEvent.streamInfo());
+        assertEquals(5, receivedStatusMsg.streamId());
+
+        /* Reconnect and reestablish login/directory streams. */
+        TestReactor.openSession(consumer, provider, opts, true);
+
+        /* Provider receives request for TRI, priority 1,2 (changed by consumer in callback). */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertFalse(receivedRequestMsg.checkNoRefresh());
+        assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasName());
+        assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+        assertTrue(receivedRequestMsg.checkHasPriority());
+        assertEquals(1, receivedRequestMsg.priority().priorityClass());
+        assertEquals(2, receivedRequestMsg.priority().count());
+
+        TestReactorComponent.closeSession(consumer, provider);
+    }    
+
+    @Test
+    public void dictionaryRecoveryTest()
+    {
+        /* Test dictionary recovery behavior --
+         * - A dictionary that has not received a complete refresh is recovered
+         * - A dictionary that has received a complete refresh is not recovered */
+    	DataDictionary dictionary = CodecFactory.createDataDictionary();
+    	com.thomsonreuters.upa.transport.Error error = TransportFactory.createError();
+    	ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
+    	EncodeIterator eIter = CodecFactory.createEncodeIterator();
+    	
+        assertEquals(CodecReturnCodes.SUCCESS, dictionary.loadFieldDictionary("../../etc/RDMFieldDictionary", error));
+    	
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        RDMDictionaryMsgEvent dictionaryMsgEvent;
+        DictionaryRequest dictionaryRequest = (DictionaryRequest)DictionaryMsgFactory.createMsg();
+        DictionaryRequest receivedDictionaryRequest;
+        DictionaryStatus receivedDictionaryStatus;
+        DictionaryRefresh dictionaryRefresh = (DictionaryRefresh)DictionaryMsgFactory.createMsg();
+        DictionaryRefresh receivedDictionaryRefresh;
+        int providerStreamId;
+
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        opts.reconnectAttemptLimit(-1);
+        provider.bind(opts);
+        TestReactor.openSession(consumer, provider, opts);
+
+        /* Consumer sends dictionary request. */
+        dictionaryRequest.clear();
+        dictionaryRequest.rdmMsgType(DictionaryMsgType.REQUEST);
+        dictionaryRequest.streamId(5);
+        dictionaryRequest.applyStreaming();
+        dictionaryRequest.dictionaryName().data("RWFFld");
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submitAndDispatch(dictionaryRequest, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Provider receives dictionary request. */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.DICTIONARY_MSG, event.type());
+        dictionaryMsgEvent = (RDMDictionaryMsgEvent)event.reactorEvent();
+        assertEquals(DictionaryMsgType.REQUEST, dictionaryMsgEvent.rdmDictionaryMsg().rdmMsgType());
+
+        receivedDictionaryRequest = (DictionaryRequest)dictionaryMsgEvent.rdmDictionaryMsg();
+        assertTrue(receivedDictionaryRequest.checkStreaming());
+        assertEquals(Provider.defaultService().serviceId(), receivedDictionaryRequest.serviceId());
+        assertTrue(receivedDictionaryRequest.dictionaryName().toString().equals("RWFFld"));
+        assertEquals(DomainTypes.DICTIONARY, receivedDictionaryRequest.domainType());
+
+        /* Disconnect Provider. */
+        provider.closeChannel();
+        
+        /* Consumer receives channel event, Login Status, Directory Update, and open/suspect status for the dictionary. */
+        consumerReactor.dispatch(4);
+        event = consumer.testReactor().pollEvent();
+        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+        ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+        assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+
+        RDMLoginMsgEvent loginMsgEvent;                
+        event = consumer.testReactor().pollEvent();
+        assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+        loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+        assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
+
+        RDMDirectoryMsgEvent directoryMsgEvent;                
+        event = consumer.testReactor().pollEvent();
+        assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+        directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+        assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
+
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.DICTIONARY_MSG, event.type());
+        dictionaryMsgEvent = (RDMDictionaryMsgEvent) event.reactorEvent();
+        assertEquals(DictionaryMsgType.STATUS, dictionaryMsgEvent.rdmDictionaryMsg().rdmMsgType());
+        receivedDictionaryStatus = (DictionaryStatus) dictionaryMsgEvent.rdmDictionaryMsg();
+        assertEquals(5, receivedDictionaryStatus.streamId());
+        assertTrue(receivedDictionaryStatus.checkHasState());
+        assertEquals(StreamStates.OPEN, receivedDictionaryStatus.state().streamState());
+        assertEquals(DataStates.SUSPECT, receivedDictionaryStatus.state().dataState());
+        assertNotNull(dictionaryMsgEvent.streamInfo());
+        assertNotNull(dictionaryMsgEvent.streamInfo().serviceName());
+        assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));      
+
+        /* Reconnect and reestablish login/directory streams. */
+        TestReactor.openSession(consumer, provider, opts, true);
+
+        /* Provider receives dictionary request. */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.DICTIONARY_MSG, event.type());
+        dictionaryMsgEvent = (RDMDictionaryMsgEvent)event.reactorEvent();
+        assertEquals(DictionaryMsgType.REQUEST, dictionaryMsgEvent.rdmDictionaryMsg().rdmMsgType());
+
+        receivedDictionaryRequest = (DictionaryRequest)dictionaryMsgEvent.rdmDictionaryMsg();
+        assertTrue(receivedDictionaryRequest.checkStreaming());
+        assertEquals(Provider.defaultService().serviceId(), receivedDictionaryRequest.serviceId());
+        assertTrue(receivedDictionaryRequest.dictionaryName().toString().equals("RWFFld"));
+        assertEquals(VerbosityValues.NORMAL, receivedDictionaryRequest.verbosity());
+        providerStreamId = receivedDictionaryRequest.streamId();
+
+    	/* Encode full dictionary refresh. */
+        dictionaryRefresh.clear();
+        dictionaryRefresh.rdmMsgType(DictionaryMsgType.REFRESH);
+        dictionaryRefresh.streamId(providerStreamId);
+        dictionaryRefresh.applySolicited();
+        dictionaryRefresh.dictionaryName().data("RWFFld");
+        dictionaryRefresh.dictionaryType(Dictionary.Types.FIELD_DEFINITIONS);
+        dictionaryRefresh.verbosity(VerbosityValues.NORMAL);
+        dictionaryRefresh.serviceId(Provider.defaultService().serviceId());
+        dictionaryRefresh.state().streamState(StreamStates.OPEN);
+        dictionaryRefresh.state().dataState(DataStates.OK);
+        dictionaryRefresh.dictionary(dictionary);
+        
+        TransportBuffer buffer = provider.reactorChannel().getBuffer(1000000, false, errorInfo);
+    	eIter.clear();
+    	eIter.setBufferAndRWFVersion(buffer, provider.reactorChannel().majorVersion(), provider.reactorChannel().majorVersion());
+        assertEquals(CodecReturnCodes.SUCCESS, dictionaryRefresh.encode(eIter));
+        submitOptions.clear();
+        assertTrue(provider.reactorChannel().submit(buffer, submitOptions, errorInfo) >= ReactorReturnCodes.SUCCESS);
+        providerReactor.dispatch(0);
+
+        /* Consumer receives refresh. */
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.DICTIONARY_MSG, event.type());
+        dictionaryMsgEvent = (RDMDictionaryMsgEvent) event.reactorEvent();
+        assertEquals(DictionaryMsgType.REFRESH, dictionaryMsgEvent.rdmDictionaryMsg().rdmMsgType());
+
+        receivedDictionaryRefresh = (DictionaryRefresh)dictionaryMsgEvent.rdmDictionaryMsg();
+        assertEquals(5, receivedDictionaryRefresh.streamId());
+        assertTrue(receivedDictionaryRefresh.checkSolicited()); 
+        assertTrue(receivedDictionaryRefresh.checkRefreshComplete()); 
+        assertEquals(StreamStates.OPEN, receivedDictionaryRefresh.state().streamState());
+        assertEquals(DataStates.OK, receivedDictionaryRefresh.state().dataState());
+        assertEquals(Provider.defaultService().serviceId(), receivedDictionaryRefresh.serviceId());
+        assertNotNull(dictionaryMsgEvent.streamInfo());
+        assertNotNull(dictionaryMsgEvent.streamInfo().serviceName());
+        assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));     
+
+        /* Disconnect Provider. */
+        provider.closeChannel();
+        
+        /* Consumer receives channel event, Login Status, Directory Update, and closed-recover/suspect status for the dictionary. */
+        consumerReactor.dispatch(4);
+        event = consumer.testReactor().pollEvent();
+        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+        channelEvent = (ReactorChannelEvent)event.reactorEvent();
+        assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+              
+        event = consumer.testReactor().pollEvent();
+        assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+        loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+        assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
+            
+        event = consumer.testReactor().pollEvent();
+        assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+        directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+        assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
+        
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.DICTIONARY_MSG, event.type());
+        dictionaryMsgEvent = (RDMDictionaryMsgEvent) event.reactorEvent();
+        assertEquals(DictionaryMsgType.STATUS, dictionaryMsgEvent.rdmDictionaryMsg().rdmMsgType());
+        receivedDictionaryStatus = (DictionaryStatus) dictionaryMsgEvent.rdmDictionaryMsg();
+        assertEquals(5, receivedDictionaryStatus.streamId());
+        assertTrue(receivedDictionaryStatus.checkHasState());
+        assertEquals(StreamStates.CLOSED_RECOVER, receivedDictionaryStatus.state().streamState());
+        assertEquals(DataStates.SUSPECT, receivedDictionaryStatus.state().dataState());
+        assertNotNull(dictionaryMsgEvent.streamInfo());
+        assertNotNull(dictionaryMsgEvent.streamInfo().serviceName());
+        assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString())); 
+
+        /* Reconnect and reestablish login/directory streams. */
+        TestReactor.openSession(consumer, provider, opts, true);
+
+        /* Provider receives nothing (dictionary not recovered). */
         providerReactor.dispatch(0);
 
         TestReactorComponent.closeSession(consumer, provider);

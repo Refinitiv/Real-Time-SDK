@@ -14,11 +14,14 @@ import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
+import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.RequestMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.valueadd.common.VaNode;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsg;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
 import com.thomsonreuters.upa.valueadd.reactor.WlRequest.State;
 
 /* The top-level watchlist class that routes both submitted and received message to the appropriate handlers. */
@@ -216,6 +219,14 @@ class Watchlist extends VaNode
         // convert to Codec message
         _tempMsg.clear();
         convertRDMToCodecMsg(rdmMsg, _tempMsg);
+        
+        if (rdmMsg.domainType() == DomainTypes.DICTIONARY && ((DictionaryMsg)rdmMsg).rdmMsgType() == DictionaryMsgType.REQUEST
+                && submitOptions.serviceName() != null)
+        {
+        	// DictionaryRequest.serviceId is not optional. If a service name was provided, let that take precedence over 
+            // serviceId -- remove the serviceId from this message so that we don't get an error for having specified both.
+        	_tempMsg.msgKey().flags(_tempMsg.msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+        }
         
         // submit with method that takes Codec message as argument
         return submitMsg(_tempMsg, submitOptions, errorInfo);

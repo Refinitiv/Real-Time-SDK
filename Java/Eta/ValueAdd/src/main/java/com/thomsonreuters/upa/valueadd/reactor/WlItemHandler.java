@@ -1755,7 +1755,6 @@ class WlItemHandler implements WlHandler
     public int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
-        MsgBase rdmMsg = null;
         WlService wlService = wlStream.wlService();
         
         _currentFanoutStream = wlStream;
@@ -1767,20 +1766,6 @@ class WlItemHandler implements WlHandler
             {
                 RefreshMsg refreshMsg = (RefreshMsg)msg;
 
-                // if dictionary domain, create RDM dictionary message
-                if (refreshMsg.domainType() == DomainTypes.DICTIONARY)
-                {
-                    _rdmDictionaryMsg.clear();
-                    _rdmDictionaryMsg.rdmMsgType(DictionaryMsgType.REFRESH);
-                    if ((ret = _rdmDictionaryMsg.decode(dIter, refreshMsg)) > CodecReturnCodes.SUCCESS)
-                    {
-                        _currentFanoutStream = null;
-                        return ret;
-                    }
-
-                    rdmMsg = _rdmDictionaryMsg;
-                }                    
-
                 _msgState = refreshMsg.state();
                 readRefreshMsg(wlStream, refreshMsg, errorInfo);
                 break;
@@ -1789,20 +1774,6 @@ class WlItemHandler implements WlHandler
             case MsgClasses.STATUS:
             {
                 StatusMsg statusMsg = (StatusMsg)msg;
-
-                // if dictionary domain, create RDM dictionary message
-                if (statusMsg.domainType() == DomainTypes.DICTIONARY)
-                {
-                    _rdmDictionaryMsg.clear();
-                    _rdmDictionaryMsg.rdmMsgType(DictionaryMsgType.STATUS);
-                    if ((ret = _rdmDictionaryMsg.decode(dIter, statusMsg)) > CodecReturnCodes.SUCCESS)
-                    {
-                        _currentFanoutStream = null;
-                        return ret;
-                    }
-
-                    rdmMsg = _rdmDictionaryMsg;
-                }                    
 
                 if (statusMsg.checkHasState())
                 	_msgState = statusMsg.state();
@@ -1847,9 +1818,6 @@ class WlItemHandler implements WlHandler
             WlRequest usrRequest = null;
             for (usrRequest = wlStream.userRequestList().poll(); usrRequest != null; usrRequest = wlStream.userRequestList().poll())
             {
-                _userStreamIdListToRecover.add(usrRequest.requestMsg().streamId());
-                usrRequest.state(State.PENDING_REQUEST);
-
                 msg.streamId(usrRequest.requestMsg().streamId());
                 msg.domainType(usrRequest.requestMsg().domainType());
 
@@ -1857,6 +1825,9 @@ class WlItemHandler implements WlHandler
                 {
                     int origDataState = _msgState.dataState();
 
+                    _userStreamIdListToRecover.add(usrRequest.requestMsg().streamId());
+                    usrRequest.state(State.PENDING_REQUEST);
+                    
                     _msgState.streamState(StreamStates.OPEN);
                     _msgState.dataState(DataStates.SUSPECT);
 
@@ -1864,7 +1835,7 @@ class WlItemHandler implements WlHandler
                     _submitOptions.requestMsgOptions().userSpecObj(usrRequest.streamInfo().userSpecObject());  		
                     addToPendingRequestTable(usrRequest, _submitOptions);
 
-                    if ((ret = callbackUser("WlItemHandler.readMsg", msg, rdmMsg, usrRequest, errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                    if ((ret = callbackUser("WlItemHandler.readMsg", msg, null, usrRequest, errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                         break;
 
                     // Restore original state on message before next fanout.
@@ -1875,7 +1846,7 @@ class WlItemHandler implements WlHandler
                 {
                     closeWlRequest(usrRequest);
 
-                    if ((ret = callbackUser("WlItemHandler.readMsg", msg, rdmMsg, usrRequest, errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                    if ((ret = callbackUser("WlItemHandler.readMsg", msg, null, usrRequest, errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                         break;
                     
                     repoolWlRequest(usrRequest);
@@ -2292,16 +2263,6 @@ class WlItemHandler implements WlHandler
          
         while ((statusMsg = _statusMsgDispatchList.poll()) != null)
         {
-            // callback user
-            MsgBase rdmMsg = null;
-            if (statusMsg.domainType() == DomainTypes.DICTIONARY)
-            {
-                _rdmDictionaryMsg.clear();
-                _rdmDictionaryMsg.rdmMsgType(DictionaryMsgType.STATUS);
-                _watchlist.convertCodecToRDMMsg(statusMsg, _rdmDictionaryMsg);
-                rdmMsg = _rdmDictionaryMsg;            
-            }
-            
             _tempWlInteger.value(statusMsg.streamId());
             WlRequest wlRequest = _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger);
             boolean requestClosed = (statusMsg.checkHasState() && statusMsg.state().streamState() != StreamStates.OPEN);
@@ -2309,7 +2270,7 @@ class WlItemHandler implements WlHandler
             if (requestClosed)
             	closeWlRequest(wlRequest);
             
-            ret = callbackUser("WlItemHandler.dispatch", statusMsg, rdmMsg, wlRequest, errorInfo);
+            ret = callbackUser("WlItemHandler.dispatch", statusMsg, null, wlRequest, errorInfo);
             
             if (requestClosed)
             	repoolWlRequest(wlRequest);
@@ -2717,6 +2678,7 @@ class WlItemHandler implements WlHandler
         {
             int ret;
             removeWlStreamFromService(wlStream);
+            _statusMsg.domainType(wlStream.domainType());
             if ((ret = readMsg(wlStream, null, _statusMsg, _errorInfo)) != ReactorReturnCodes.SUCCESS)
                 return ret;
         }    
@@ -2860,15 +2822,42 @@ class WlItemHandler implements WlHandler
         }
         else // dictionary domain
         {
-            if (rdmMsg == null)
+
+            /* Decode to a DictionaryMsg. */
+
+            _rdmDictionaryMsg.clear();
+            switch(msg.msgClass())
             {
-                rdmMsg = _rdmDictionaryMsg;
+                case MsgClasses.REFRESH:
+                    _rdmDictionaryMsg.rdmMsgType(DictionaryMsgType.REFRESH);
+                    break;
+                case MsgClasses.STATUS:
+                    _rdmDictionaryMsg.rdmMsgType(DictionaryMsgType.STATUS);
+                    break;
+                default:
+                    return _watchlist.reactor().populateErrorInfo(errorInfo,
+                            ReactorReturnCodes.FAILURE, "ItemHandler.callbackUser",
+                            "Unknown message class for dictionary: < " + MsgClasses.toString(msg.msgClass()) + ">");
+
             }
+
+            _dIter.clear();
+            if (msg.encodedDataBody().data() != null)
+                _dIter.setBufferAndRWFVersion(msg.encodedDataBody(), _watchlist.reactorChannel().majorVersion(),
+                        _watchlist.reactorChannel().minorVersion());
+
+            if ((ret = _rdmDictionaryMsg.decode(_dIter, msg)) < CodecReturnCodes.SUCCESS)
+            {
+                return _watchlist.reactor().populateErrorInfo(errorInfo,
+                        ret, "ItemHandler.callbackUser",
+                        "DictionaryMsg.decode() failed: < " + CodecReturnCodes.toString(ret) + ">");
+            }
+
             ret = _watchlist.reactor().sendAndHandleDictionaryMsgCallback(location,
                                                                           _watchlist.reactorChannel(),
                                                                           null,
                                                                           msg,
-                                                                          (DictionaryMsg)rdmMsg,
+                                                                          _rdmDictionaryMsg,
                                                                           (wlRequest != null ? wlRequest.streamInfo() : null),
                                                                           errorInfo);
 
