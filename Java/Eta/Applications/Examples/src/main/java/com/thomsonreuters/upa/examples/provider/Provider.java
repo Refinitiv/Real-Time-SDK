@@ -92,12 +92,12 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
- * build.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
- * com.thomsonreuters.upa.examples.provider.Provider [-p srvrPortNo] [-id
- * Serviceid] [-s serviceName] [-x] [-runtime runTime]
+ * Linux: ./gradlew runProvider -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runProvider -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
  * <ul>
  * <li>-id Service id. Default is <i>1</i>.

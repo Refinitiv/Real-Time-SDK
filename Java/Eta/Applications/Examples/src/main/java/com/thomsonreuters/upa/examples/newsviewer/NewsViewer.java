@@ -67,14 +67,12 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
- * build.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
- * com.thomsonreuters.upa.examples.newsviewer.NewsViewer [-h srvrHostName] [-p
- * srvrPortNo] [-uname loginUserName] [-s serviceName] [-item newsItem|
- * [-runtime runTime] [-font fontName] [-fontSize fontSize]
- * 
+ * Linux: ./gradlew runNewsViewer -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runNewsViewer -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
  * <ul>
  * <li>-h Server host name. Default is <i>localhost</i>.

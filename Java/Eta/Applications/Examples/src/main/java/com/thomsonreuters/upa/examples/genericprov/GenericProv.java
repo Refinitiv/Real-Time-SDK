@@ -61,12 +61,12 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
- * build.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
- * com.thomsonreuters.upa.examples.genericprov.GenericProv [-p srvrPortNo]
- * [-i interfaceName] [-s serviceName] [-id serviceId] [-x] [-runtime runTime]
+ * Linux: ./gradlew runGenericProv -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runGenericProv -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
  * <ul>
  * <li>-p Server port number. Default is <i>14002</i>.

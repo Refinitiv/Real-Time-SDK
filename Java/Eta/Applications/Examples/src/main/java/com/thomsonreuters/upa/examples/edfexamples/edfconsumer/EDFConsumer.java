@@ -55,19 +55,12 @@ import com.thomsonreuters.upa.transport.TransportFactory;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
- * build.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
- * com.thomsonreuters.upa.examples.edfexamples.edfconsumer.EDFConsumer [-mp marketPriceItemName] 
- * [-mbo marketByOrderItemName] [-mbp marketByPriceItemName] [-rtda realTimeServerAddress]
- * [-rtdp realTimeServerPort] [-rtif realTimeNetworkInterface] [-ssa snapshotServerAddress]
- * [-ssp snapshotServerPort] [-grsa gapRequestServerAddress] [-grsp gapRequestServerPort]
- * [-gfsa gapFillServerAddress] [-gfsp gapFillServerPort] [-gfif gapFillNetworkInterface]
- * [-rdsa refDataServerAddress] [-rfsp refDataServerPort] [-serviceId serviceId] 
- * [-setDefDictName globalSetDefDictionaryName]
- * [-runtime runTime] [-x]
- * 
+ * Linux: ./gradlew runEDFConsumer -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runEDFConsumer -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
  * <ul>
  * <li>-mp Market Price domain item name. The user can

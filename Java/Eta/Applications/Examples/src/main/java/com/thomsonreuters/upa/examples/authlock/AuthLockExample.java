@@ -13,11 +13,10 @@ import java.util.List;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
- * build.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar;../../Libs/jdacsUpalib.jar
- * com.thomsonreuters.upa.examples.authlock.AuthLockExample
+ * Linux: ./gradlew runAuthLockExample<br>
+ * Windows: gradlew.bat runAuthLockExample
  */
 public class AuthLockExample
 {

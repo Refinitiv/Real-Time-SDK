@@ -68,12 +68,12 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
- * build.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
- * com.thomsonreuters.upa.examples.genericcons.GenericCons [-h srvrHostName] [-p srvrPortNo]
- * [-i interfaceName] [-uname loginUserName] [-s serviceName] [-x] [-runtime runTime]
+ * Linux: ./gradlew runGenericCons -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runGenericCons -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
  * <ul>
  * <li>-h Server host name. Default is <i>localhost</i>.

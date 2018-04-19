@@ -82,13 +82,12 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
- * build.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
- * com.thomsonreuters.upa.examples.niprovider.NIProvider [-h infraHostName] [-p
- * infraPortNo] [-uname loginUserName] [-s serviceName] [-id serviceId] [-mp
- * marketPriceItemName] [-mbo marketByOrderItemName] [-x] [-runtime runTime]
+ * Linux: ./gradlew runNIProvider -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runNIProvider -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
  * <ul>
  * <li>-h Infrastructure host name for TCP socket. Default is <i>localhost</i>.
