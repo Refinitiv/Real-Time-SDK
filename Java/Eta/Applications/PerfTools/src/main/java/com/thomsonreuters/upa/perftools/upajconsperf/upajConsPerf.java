@@ -65,15 +65,14 @@ import com.thomsonreuters.upa.perftools.common.XmlMsgData;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * From the <i>Applications/PerfTools</i> directory run <i>ant</i> or <i>buildPerfTools.bat/ksh</i> script to
- * build performance examples.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * Run example with the following command:
- * <p>
- * java -cp ../../Libs/upa.jar;../../Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin
- *  com.thomsonreuters.upa.perftools.upajconsperf.upajConsPerf
- * <p> 
- * <i>-help</i> displays command line options, with a brief description of each option
+ * Linux: ./gradlew runETAPerfConsumer -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runETAPerfConsumer -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
+ * </p>
+ * <i>-help</i> displays all command line arguments, with a brief description of each one
  */
 public class upajConsPerf implements ShutdownCallback
 {

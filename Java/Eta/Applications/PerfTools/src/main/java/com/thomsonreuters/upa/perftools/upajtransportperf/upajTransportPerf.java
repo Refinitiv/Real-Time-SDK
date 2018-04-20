@@ -70,15 +70,15 @@ import com.thomsonreuters.upa.transport.TransportReturnCodes;
  * No additional files are necessary to run this application.
  * <p>
  * <em>Running the application:</em>
- * From the <i>Applications/PerfTools</i> directory run <i>ant</i> or <i>buildPerfTools.bat/ksh</i> script to
- * build performance examples.
  * <p>
- * Run example with the following command:
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ../../Libs/upa.jar;../../Libs/upaValueAdd.jar;./xpp3-1.1.3_8.jar;./xpp3_min-1.1.3_8.jar;bin
- * com.thomsonreuters.upa.perftools.upajtransportperf.upajTransportPerf
+ * Linux: ./gradlew runETAPerfTransport -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runETAPerfTransport -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
- * <i>-help</i> displays command line options, with a brief description of each option
+ * <i>-help</i> displays all command line arguments, with a brief description of each one
  */
 public class upajTransportPerf implements ShutdownCallback
 {   

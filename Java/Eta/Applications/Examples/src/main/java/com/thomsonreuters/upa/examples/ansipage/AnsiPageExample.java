@@ -31,7 +31,10 @@ import com.thomsonreuters.upa.ansipage.PageUpdate;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * Runs as a stand-alone with no arguments.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
+ * <p>
+ * Linux: ./gradlew runAnsiPageExample<br>
+ * Windows: gradlew.bat runAnsiPageExample
  */
 
 public class AnsiPageExample
