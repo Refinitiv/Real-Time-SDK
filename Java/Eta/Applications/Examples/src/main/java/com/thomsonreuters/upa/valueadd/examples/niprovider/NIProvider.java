@@ -93,14 +93,12 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * </p>
  * <H2>Running the application:</H2>
  * <p>
- * Change directory to the <i>ValueAdd/Examples</i> directory and run <i>ant</i> to
- * build.
- * </p>
- * <p> 
- * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
- * com.thomsonreuters.upa.valueadd.examples.niprovider.NIProvider
- * [-c &lt;hostname&gt;:&lt;port&gt; &lt;service &gt; &lt;domain&gt;:&lt;item name&gt;,...]
- * [-uname &lt;LoginUsername&gt;] [-runtime &lt;seconds&gt;] [-bc &lt;backup hostname&gt;:&lt; backup port&gt;]
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
+ * <p>
+ * Linux: ./gradlew runVANIProvider -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runVANIProvider -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below for Tcp primary and backup connection.
  * </p>
  * <ul>
  * <li>-c specifies a tcp connection to open and a list of items to provide:
@@ -118,13 +116,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  *  </ul>
  * </ul>
  * <p>
- * Tcp primary connection and Tcp backup connection can be replaced by reliable multicast primary and backup multicast connections. 
- * </p>
- * <p> 
- * java -cp ./obj;../../Libs/upa.jar;../Libs/upaValueAdd.jar;../Libs/upaValueAddCache.jar
- * com.thomsonreuters.upa.valueadd.examples.niprovider.NIProvider
- * [-segmentedMulticast &lt;sa&gt;:&lt;sp&gt;:&lt;if&gt; &lt;ra&gt;:&lt;rp&gt; &lt;up&gt; &lt;service &gt; &lt;domain&gt;:&lt;item name&gt;,...]
- * [-uname &lt;LoginUsername&gt;] [-runtime &lt;seconds&gt;] [-mbc &lt;bsa&gt;:&lt;bsp&gt;:&lt;bif&gt; &lt;bra&gt;:&lt;brp&gt; &lt;bup&gt;] [-cache]
+ * Arguments are listed below for reliable multicast primary and backup connection. 
  * </p>
  * <ul>
  * <li>-segmentedMulticast specifies a reliable multicast connection to open and a list of items to provide:
@@ -149,6 +141,9 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  *  <li>bup:     Backup unicast port of ADH to connect to  
  *  </ul>
  * </ul>
+ * <p>
+ * Additional arguments are listed below. 
+ * </p>
  * <ul>
  * <li>-uname Login user name. Default is system user name.
  * <li>-x. Provides XML tracing of messages.

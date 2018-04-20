@@ -68,13 +68,12 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
  * </p> 
  * <H2>Running the application:</H2>
  * <p>
- * Change directory to the <i>ValueAdd/Examples</i> directory and run <i>ant</i> to
- * build.
- * </p>
- * <p> 
- * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar
- * com.thomsonreuters.upa.valueadd.examples.queueconsumer.QueueConsumer
- * [-c &lt;hostname&gt;:&lt;port&gt; ]
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
+ * <p>
+ * Linux: ./gradlew runQueueConsumer -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runQueueConsumer -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
  * <ul>
  * <li>-c specifies a connection to open:
