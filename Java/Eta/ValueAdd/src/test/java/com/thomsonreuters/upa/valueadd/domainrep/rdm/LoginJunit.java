@@ -579,7 +579,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = requestMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = requestMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -629,7 +629,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = requestMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = requestMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -679,7 +679,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = requestMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = requestMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -729,7 +729,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = requestMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = requestMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -778,7 +778,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = requestMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = requestMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -1432,7 +1432,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = refreshMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = refreshMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -1481,7 +1481,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = refreshMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = refreshMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -1531,7 +1531,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = refreshMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = refreshMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -1581,7 +1581,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = refreshMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = refreshMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -1631,7 +1631,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = refreshMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = refreshMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);
@@ -2301,7 +2301,7 @@ public class LoginJunit
         assertEquals(CodecReturnCodes.SUCCESS, ret);
        
         ret = statusMsg.encodeKeyAttribComplete(encIter, true);
-        assertEquals(CodecReturnCodes.ENCODE_CONTAINER, ret);
+        assertEquals(CodecReturnCodes.SUCCESS, ret);
 
         ret = statusMsg.encodeComplete(encIter, true);
         assertEquals(CodecReturnCodes.SUCCESS, ret);

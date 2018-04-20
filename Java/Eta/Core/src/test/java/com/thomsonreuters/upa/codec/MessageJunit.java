@@ -54,6 +54,7 @@ import com.thomsonreuters.upa.codec.Time;
 import com.thomsonreuters.upa.codec.UpdateMsg;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.InstrumentNameTypes;
+import com.thomsonreuters.upa.rdm.UpdateEventTypes;
 
 public class MessageJunit
 {
@@ -3372,6 +3373,162 @@ public class MessageJunit
         masks = new int[masksSize];
         allocateFlagCombinations(masks, genericMasksAll, genericMasksAll.length, false);
         genericMsgTest(1);
+    }
+
+    /* Flags for for behaviors in encodeMsgWithNoDataTest */
+    private class encodeMsgWithNoDataTest_Flags
+    {
+        static final int NONE = 0x0;                /* Don't send attrib or extended header */
+        static final int ENCODE_ATTRIB = 0x1;       /* Encode MsgKey attrib inline */
+        static final int ENCODE_EXTHDR = 0x2;       /* Encode Extended Header inline */
+        static final int PRE_ENCODE_ATTRIB = 0x4;   /* Use pre-encoded attrib instead of encoding it inline */
+        static final int PRE_ENCODE_EXTHDR = 0x8;   /* Use pre-encoded extended header instead of encoding it inline */
+    }
+
+    /* Behavior cases in encodeMsgWithNoDataTest. */
+    int encodeMsgWithNoDataTest_Cases[] = 
+    {
+        encodeMsgWithNoDataTest_Flags.NONE,
+        encodeMsgWithNoDataTest_Flags.ENCODE_ATTRIB,
+        encodeMsgWithNoDataTest_Flags.PRE_ENCODE_ATTRIB,
+        encodeMsgWithNoDataTest_Flags.ENCODE_EXTHDR,
+        encodeMsgWithNoDataTest_Flags.PRE_ENCODE_EXTHDR,
+        encodeMsgWithNoDataTest_Flags.ENCODE_ATTRIB | encodeMsgWithNoDataTest_Flags.ENCODE_EXTHDR,
+        encodeMsgWithNoDataTest_Flags.ENCODE_ATTRIB | encodeMsgWithNoDataTest_Flags.PRE_ENCODE_EXTHDR,
+        encodeMsgWithNoDataTest_Flags.PRE_ENCODE_ATTRIB | encodeMsgWithNoDataTest_Flags.PRE_ENCODE_EXTHDR,
+        encodeMsgWithNoDataTest_Flags.PRE_ENCODE_ATTRIB | encodeMsgWithNoDataTest_Flags.ENCODE_EXTHDR,
+    };
+
+    @Test
+    public void encodeMsgWithNoDataTest()
+    {
+        /* Test encoding messages with a NO_DATA container type, with and without adding a payload
+         * (adding a payload should result in an error). 
+         * Test this with and without encoding MsgKey.attrib and extendedHeader. */
+
+        UpdateMsg updateMsg = (UpdateMsg)CodecFactory.createMsg();
+        DecodeIterator attribDecIter = CodecFactory.createDecodeIterator();
+
+        /* Create pre-encoded field list */
+        Buffer preEncodedFieldListBuffer = CodecFactory.createBuffer();
+        preEncodedFieldListBuffer.data(ByteBuffer.allocate(1024));
+        encIter.clear();
+        encIter.setBufferAndRWFVersion(preEncodedFieldListBuffer, Codec.majorVersion(), Codec.minorVersion());
+        encodeFieldList(encIter);
+        
+        for (int i = 0; i < encodeMsgWithNoDataTest_Cases.length; ++i)
+        {
+            /* If j is 0, don't encode payload. Do encode payload if j is 1.  */
+            for (int j = 0; j < 2; ++j)
+            {
+                int testCase = encodeMsgWithNoDataTest_Cases[i];
+
+                updateMsg.clear();
+                updateMsg.msgClass(MsgClasses.UPDATE);
+                updateMsg.containerType(DataTypes.NO_DATA);
+                updateMsg.streamId(1);
+                updateMsg.domainType(DomainTypes.MARKET_PRICE);
+                updateMsg.updateType(UpdateEventTypes.QUOTE);
+
+                /* ExtendedHeader flag, and pre-encoded value if desired. */
+                if ((testCase & (encodeMsgWithNoDataTest_Flags.ENCODE_EXTHDR | encodeMsgWithNoDataTest_Flags.PRE_ENCODE_EXTHDR)) != 0)
+                {
+                    updateMsg.applyHasExtendedHdr();
+
+                    if ((testCase & encodeMsgWithNoDataTest_Flags.PRE_ENCODE_EXTHDR) != 0)
+                        updateMsg.extendedHeader().data(extendedHeader);
+                }
+
+                /* MsgKey Attrib flag, and pre-encoded value if desired. */
+                if ((testCase & (encodeMsgWithNoDataTest_Flags.ENCODE_ATTRIB | encodeMsgWithNoDataTest_Flags.PRE_ENCODE_ATTRIB)) != 0)
+                {
+                    updateMsg.applyHasMsgKey();
+
+                    updateMsg.msgKey().applyHasName();
+                    updateMsg.msgKey().name().data("TRI.N");
+                    updateMsg.msgKey().applyHasAttrib();
+                    updateMsg.msgKey().attribContainerType(DataTypes.FIELD_LIST);
+
+                    if ((testCase & encodeMsgWithNoDataTest_Flags.PRE_ENCODE_ATTRIB) != 0)
+                        updateMsg.msgKey().encodedAttrib().data(preEncodedFieldListBuffer.data(), 0, preEncodedFieldListBuffer.length());
+                }
+
+                /* Init message encode. */
+                encBuf.data().position(0);
+                setupEncodeIterator();
+                if ((testCase & (encodeMsgWithNoDataTest_Flags.ENCODE_ATTRIB)) != 0)
+                    assertEquals(CodecReturnCodes.ENCODE_MSG_KEY_ATTRIB, updateMsg.encodeInit(encIter, 0));
+                else if ((testCase & (encodeMsgWithNoDataTest_Flags.ENCODE_EXTHDR)) != 0)
+                    assertEquals(CodecReturnCodes.ENCODE_EXTENDED_HEADER, updateMsg.encodeInit(encIter, 0));
+                else
+                    assertEquals(CodecReturnCodes.SUCCESS, updateMsg.encodeInit(encIter, 0));
+
+                /* If inline-encoding Key-Opaque, do so now. */
+                if ((testCase & (encodeMsgWithNoDataTest_Flags.ENCODE_ATTRIB)) != 0)
+                {
+                    encodeFieldList(encIter); 
+
+                    if ((testCase & (encodeMsgWithNoDataTest_Flags.ENCODE_EXTHDR)) != 0)
+                        assertEquals(CodecReturnCodes.ENCODE_EXTENDED_HEADER, updateMsg.encodeKeyAttribComplete(encIter, true));
+                    else
+                        assertEquals(CodecReturnCodes.SUCCESS, updateMsg.encodeKeyAttribComplete(encIter, true));
+                }
+
+                /* If inline-encoding extendedHeader, do so now. */
+                if ((testCase & (encodeMsgWithNoDataTest_Flags.ENCODE_EXTHDR)) != 0)
+                {
+                    Buffer buffer = CodecFactory.createBuffer();
+                    assertEquals(CodecReturnCodes.SUCCESS, encIter.encodeNonRWFInit(buffer));
+                    buffer.data().put(extendedHeader.getBytes());
+                    assertEquals(CodecReturnCodes.SUCCESS, encIter.encodeNonRWFComplete(buffer, true));
+                    assertEquals(CodecReturnCodes.SUCCESS, updateMsg.encodeExtendedHeaderComplete(encIter, true));
+                }
+
+                if (j == 1)
+                {
+                    /* Encode a field list, then complete the message to get the error. */
+                    encodeFieldList(encIter);
+                    assertEquals(CodecReturnCodes.INVALID_DATA, updateMsg.encodeComplete(encIter, true));
+                }
+                else
+                {
+                    /* Complete the message. */
+                    assertEquals(CodecReturnCodes.SUCCESS, updateMsg.encodeComplete(encIter, true));
+
+                    /* Decode the message. */
+                    Msg decMsg = (UpdateMsg)CodecFactory.createMsg();
+                    setupDecodeIterator();
+                    assertEquals(CodecReturnCodes.SUCCESS, decMsg.decode(decIter));
+                    assertEquals(MsgClasses.UPDATE, decMsg.msgClass());
+
+                    UpdateMsg decUpdateMsg = (UpdateMsg)decMsg;
+                    assertEquals(DataTypes.NO_DATA, decUpdateMsg.containerType());
+                    assertEquals(1, decUpdateMsg.streamId());
+                    assertEquals(DomainTypes.MARKET_PRICE, decUpdateMsg.domainType());
+                    assertEquals(UpdateEventTypes.QUOTE, decUpdateMsg.updateType());
+
+                    /* Check MsgKey attrib */
+                    if ((testCase & (encodeMsgWithNoDataTest_Flags.ENCODE_ATTRIB | encodeMsgWithNoDataTest_Flags.PRE_ENCODE_ATTRIB)) != 0)
+                    {
+                        assertTrue(decUpdateMsg.checkHasMsgKey());
+                        assertTrue(decUpdateMsg.msgKey().checkHasAttrib());
+                        assertEquals(DataTypes.FIELD_LIST, decUpdateMsg.msgKey().attribContainerType());
+
+                        attribDecIter.clear();
+                        attribDecIter.setBufferAndRWFVersion(decUpdateMsg.msgKey().encodedAttrib(), Codec.majorVersion(), Codec.minorVersion());
+                        decodeFieldList(attribDecIter);
+                    }
+
+                    /* Check extended header */
+                    if ((testCase & (encodeMsgWithNoDataTest_Flags.ENCODE_EXTHDR | encodeMsgWithNoDataTest_Flags.PRE_ENCODE_EXTHDR)) != 0)
+                    {
+                        assertTrue(decUpdateMsg.checkHasExtendedHdr());
+                        assertEquals(extendedHeaderLen, decUpdateMsg.extendedHeader().length());
+                        assertTrue(isMemEqual(decUpdateMsg.extendedHeader(), extendedHeader, extendedHeaderLen));
+                    }
+                }
+            }
+        }
     }
 
 }

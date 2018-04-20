@@ -1541,7 +1541,15 @@ class Encoders
             _levelInfo._encodingState = EncodeIteratorStates.ENTRIES;
             iter._writer.position(iter._curBufPos);
 
-            return CodecReturnCodes.ENCODE_CONTAINER;
+            /* now store current location so we can check it to ensure user did not put data
+             * when they shouldnt */
+            /* count has been filled in already */
+            _levelInfo._countWritePos = iter._curBufPos;
+
+            if (msg.containerType() != DataTypes.NO_DATA)
+            	return CodecReturnCodes.ENCODE_CONTAINER;
+            
+            return CodecReturnCodes.SUCCESS;
         }
     }
 
@@ -1563,6 +1571,19 @@ class Encoders
              * Typically this should be the same as iter.buffer.data. */
             iter._curBufPos = _levelInfo._initElemStartPos;
             iter._writer.position(iter._curBufPos);
+        }
+        else
+        {
+            Msg msg = (Msg)_levelInfo._listType;
+            if (msg.containerType() == DataTypes.NO_DATA && _levelInfo._countWritePos != iter._curBufPos)
+            {
+                /* user encoded payload when they should not have */
+                /* roll back */
+                iter._curBufPos = _levelInfo._initElemStartPos;
+                _levelInfo._initElemStartPos = 0;
+                iter._writer.position(iter._curBufPos);
+                return CodecReturnCodes.INVALID_DATA;
+            }
         }
 
         --iter._encodingLevel;
@@ -2580,6 +2601,7 @@ class Encoders
         int headerSize;
         EncodeIteratorImpl iter = (EncodeIteratorImpl)iterInt;
         EncodingLevel _levelInfo = iter._levelInfo[iter._encodingLevel];
+        Msg msg = (Msg)(_levelInfo._listType);
 
         /* Validations */
         assert null != iter : "Invalid parameters or parameters passed in as NULL";
@@ -2636,7 +2658,6 @@ class Encoders
             /* if they still need to encode extended header do that */
             if (_levelInfo._encodingState == EncodeIteratorStates.OPAQUE_AND_EXTENDED_HEADER)
             {
-                Msg msg = (Msg)_levelInfo._listType;
                 Buffer extHdr;
                 assert null != msg : "Invalid parameters or parameters passed in as NULL";
                 /* see if the extended header was pre-encoded */
@@ -2673,9 +2694,17 @@ class Encoders
                     iter._writer.writeShort(headerSize);
                     iter._writer.position(iter._curBufPos);
 
+                    /* now store current location so we can check it to ensure user did not put data
+                     * when they shouldnt */
+                    /* count has been filled in already */
+                    _levelInfo._countWritePos = iter._curBufPos;
+
                     _levelInfo._encodingState = EncodeIteratorStates.ENTRIES;
 
-                    ret = CodecReturnCodes.ENCODE_CONTAINER;
+                    if (msg.containerType() != DataTypes.NO_DATA)
+                        ret =  CodecReturnCodes.ENCODE_CONTAINER;
+                    else
+                        ret = CodecReturnCodes.SUCCESS;
                 }
                 else
                 {
@@ -2720,7 +2749,15 @@ class Encoders
 
                 _levelInfo._encodingState = EncodeIteratorStates.ENTRIES;
 
-                ret = CodecReturnCodes.ENCODE_CONTAINER;
+                /* now store current location so we can check it to ensure user did not put data
+                 * when they shouldnt */
+                /* count has been filled in already */
+                _levelInfo._countWritePos = iter._curBufPos;
+
+                if (msg.containerType() != DataTypes.NO_DATA)
+                    ret = CodecReturnCodes.ENCODE_CONTAINER;
+                else
+                    ret = CodecReturnCodes.SUCCESS;
             }
         }
         else
@@ -2785,6 +2822,12 @@ class Encoders
             iter._writer.position(_levelInfo._countWritePos);
             iter._writer.writeShort(headerSize);
             iter._writer.position(iter._curBufPos);
+
+            /* now store current location so we can check it to ensure user did not put data
+             * when they shouldnt */
+            /* count has been filled in already */
+            _levelInfo._countWritePos = iter._curBufPos;
+
 
             /* should be ready to encode entries - don't save length for data */
             _levelInfo._encodingState = EncodeIteratorStates.ENTRIES;
