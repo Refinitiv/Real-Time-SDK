@@ -215,7 +215,7 @@ public interface OmmConsumerConfig
 	 * The key store file that contains your own private keys, and public key certificates you received
 	 * from someone else.
      * 
-	 * @param keyStoreFile specifies key storing file for tunneling connection.
+	 * @param keyStoreFile specifies key storing file for tunneling connection. The JDK utility 'keytool' creates this file.
 	 * @return reference to this object
 	 */
     public OmmConsumerConfig tunnelingKeyStoreFile(String keyStoreFile);
