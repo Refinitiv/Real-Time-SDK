@@ -41,8 +41,6 @@ Go to the build-esdk directory and type "make" to create the ESDK libraries. Not
 
 **For Windows**:
 
-Note: The following details regarding Windows and CMake require the use of Cygwin. Cygwin can be downloaded from https://cygwin.com
-
 At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the Solution and vcxproj files:
 
 cmake -HElektron-SDK -Bbuild-esdk -G "VisualStudioVersion"

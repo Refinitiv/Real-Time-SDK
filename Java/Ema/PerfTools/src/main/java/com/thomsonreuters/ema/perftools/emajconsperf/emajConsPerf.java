@@ -62,10 +62,14 @@ import com.thomsonreuters.ema.perftools.common.XmlItemInfoList;
  * <p>
  * <em>Running the application:</em>
  * <p>
- * From the <i>PerfTools</i> directory run <i>ant</i> or <i>buildPerfTools.bat/ksh</i> script to
- * build performance examples.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * <i>-help</i> displays command line options, with a brief description of each option
+ * Linux: ./gradlew runEMAPerfConsumer -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runEMAPerfConsumer -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
+ * </p>
+ * <i>-help</i> displays all command line arguments, with a brief description of each one
  */
 public class emajConsPerf implements ShutdownCallback
 {
