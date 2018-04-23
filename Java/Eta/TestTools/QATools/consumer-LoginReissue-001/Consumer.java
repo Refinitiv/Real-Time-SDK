@@ -79,22 +79,13 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
  * <p>
  * <H2>Running the application:</H2>
  * <p>
- * Change directory to the <i>Applications/Examples</i> directory and run <i>ant</i> to
- * build.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ./bin;../../Libs/upaValueAdd.jar;../../Libs/upa.jar
- * com.thomsonreuters.upa.examples.consumer.Consumer [-h srvrHostName] [-p
- * srvrPortNo] [-uname loginUserName] [-s serviceName] [-mp|-mpps
- * marketPriceItemName] [-mbo|-mbops marketByOrderItemName] [-mbp|-mbpps
- * marketByPriceItemName] [-yc|-ycps yieldCurveItemName] [-view viewFlag]
- * [-post postFlag] [-offpost offPostFlag] [-publisherInfo id, ipaddress] [-snapshot snapShotFlag]
- * [-sl symbolListName] [-x] [-connectionType connectionType]
- * [-runtime runTime]  [-proxy true or false] [-ph proxy server hostName]
- * [-pp proxy port number] [-plogin proxy userName] [-ppasswd proxy password]
- * [-pdomain proxy domain] [-krbfile proxyKRBFile] [-keyfile keystoreFile] [-keypasswd keystore password]
- * [-at authenticationToken] [-ax authenticationExtended] [-aid applicationId]
- *   
- * <p>
+ * Linux: ./gradlew runConsumer -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runConsumer -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
+ * </p>
  * <ul>
  * <li>-h Server host name. Default is <i>localhost</i>.
  * <li>-p Server port number. Default is <i>14002</i>.

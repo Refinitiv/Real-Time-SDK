@@ -136,17 +136,13 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * </p> 
  * <H2>Running the application:</H2>
  * <p>
- * Change directory to the <i>ValueAdd/Examples</i> directory and run <i>ant</i> to
- * build.
- * </p>
- * <p> 
- * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
- * com.thomsonreuters.upa.valueadd.examples.consumer.Consumer
- * [-c &lthostname&gt:&ltport&gt &ltservice name&gt &ltdomain&gt:&ltitem name&gt,...]
- * [-uname &ltLoginUsername&gt] [-view] [-post] [-offpost]  [-publisherInfo &ltuserId,address&gt] [-snapshot] [-runtime &ltseconds&gt]
- * [-cache] [-cacheInterval &ltseconds&gt]
- * </p>
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
+ * Linux: ./gradlew runVAConsumer -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runVAConsumer -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
+ * </p>
  * <ul>
  * <li>-c specifies a connection to open and a list of items to request:
  * <ul>

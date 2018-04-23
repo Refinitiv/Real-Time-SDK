@@ -147,15 +147,13 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamRequestEvent;
  * </p>
  * <H2>Running the application:</H2>
  * <p>
- * Change directory to the <i>ValueAdd/Examples</i> directory and run <i>ant</i> to
- * build.
- * </p>
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
  * <p>
- * java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
- * com.thomsonreuters.upa.valueadd.examples.provider.Provider [-p &ltport number&gt]
- * [-i &ltinterface name&gt] [-s &ltservice name&gt] [-id &ltservice ID&gt] [-cache] [-runtime &ltseconds&gt]
+ * Linux: ./gradlew runVAProvider -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runVAProvider -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
- * <p>
  * <ul>
  * <li>-p server port number (defaults to 14002)
  * <li>-i interface name (defaults to null)

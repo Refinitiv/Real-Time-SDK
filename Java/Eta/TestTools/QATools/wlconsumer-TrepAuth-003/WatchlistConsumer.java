@@ -130,23 +130,13 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * </p> 
  * <H2>Running the application:</H2>
  * <p>
- * Change directory to the <i>ValueAdd/Examples</i> directory and run <i>ant</i> to
- * build.
+ * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
+ * <p>
+ * Linux: ./gradlew runWatchlistConsumer -PcommandLineArgs="arguments"<br>
+ * Windows: gradlew.bat runWatchlistConsumer -PcommandLineArgs="arguments"<br>
+ * <br>
+ * Arguments are listed below.
  * </p>
- * <p>
- *  java -cp ./bin;../../Libs/upa.jar;../../Libs/upaValueAdd.jar;../../Libs/upaValueAddCache.jar
- * com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsumer [-h srvrHostName]
- * [-p srvrPortNo] [-u loginUserName] [-s serviceName] [-mp marketPriceItemName]
- * [-mbo marketByOrderItemName] [-mbp marketByPriceItemName] [-yc yieldCurveItemName] [-view viewFlag]
- * [-post postFlag] [-offpost offPostFlag] [-publisherInfo id, ipaddress] [-snapshot snapShotFlag]
- * [-sl symbolListName] [ -sld     For each occurance, requests item on the Symbol List domain and data streams for items on that list.[-x] [-c connectionType] [-runTime runTime]
- * [-proxy true or false] [-ph proxy server hostName] [-pp proxy port number]
- * [-plogin proxy userName] [-ppasswd proxy password] [-pdomain proxy domain]
- * [-krbfile proxyKRBFile] [-keyfile keystoreFile] [-keypasswd keystore password]
- * [-tunnel] [-tsDomain domain] [-tsAuth] [-qSourceName name] [-qDestName name] [-tsServiceName name]
- * [-at authenticationToken] [-ax authenticationExtended] [-aid applicationId]
- *   
- * <p>
  * <ul>
  * <li>-h Server host name. Default is <i>localhost</i>.
  * <li>-p Server port number. Default is <i>14002</i>.
