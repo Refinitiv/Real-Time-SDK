@@ -26,8 +26,8 @@ Gradle can be downloaded from https://gradle.org
 
 Navigate to `Elektron-SDK/Java` and issue the appropriate Gradle command as follows:
 
-	- Windows: gradlew.bat jar
-	- Linux: ./gradlew jar
+	Windows: gradlew.bat jar
+	Linux: ./gradlew jar
 	
 	This command builds the jar files.
 
@@ -35,24 +35,24 @@ Navigate to `Elektron-SDK/Java` and issue the appropriate Gradle command as foll
 
 To run an example, issue the appropriate command as follows:
 	  
-	- Windows: gradlew.bat runExampleName [-PcommandLineArgs="arguments"]
-	- Linux: ./gradlew runExampleName [-PcommandLineArgs="arguments"]
+	Windows: gradlew.bat runExampleName [-PcommandLineArgs="arguments"]
+	Linux: ./gradlew runExampleName [-PcommandLineArgs="arguments"]
 	(where runExampleName is the name of the example to run and arguments are the example arguments, only ETA supports the use of arguments)
 	 
 Issue the following command to get a list of all example names.
 	  
-	- Windows: gradlew.bat tasks --all
-	- Linux: ./gradlew tasks --all
+	Windows: gradlew.bat tasks --all
+	Linux: ./gradlew tasks --all
 
 ETA example, the following command runs the VAConsumer example.
 		
-	- Windows: gradlew.bat runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
-	- Linux: ./gradlew runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
+	Windows: gradlew.bat runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
+	Linux: ./gradlew runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
 
 EMA example, the following command runs the example270__SymbolList example.
 		
-	- Windows: gradlew.bat runconsumer270
-	- Linux: ./gradlew runconsumer270
+	Windows: gradlew.bat runconsumer270
+	Linux: ./gradlew runconsumer270
 
 # Developing 
 

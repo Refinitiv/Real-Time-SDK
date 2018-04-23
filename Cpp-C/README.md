@@ -28,12 +28,12 @@ CMake can be downloaded from https://cmake.org
 
 At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the optimized Makefile files:
 
-cmake -HElektron-SDK -Bbuild-esdk
-where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created)
+	cmake -HElektron-SDK -Bbuild-esdk
+	(where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created))
 
 Issue the following command to build debug Makefile files:
 
-cmake -HElektron-SDK -Bbuild-esdk –DCMAKE_BUILD_TYPE=Debug
+	cmake -HElektron-SDK -Bbuild-esdk –DCMAKE_BUILD_TYPE=Debug
 
 The cmake command builds all needed Makefile files (and related dependencies) in the build-esdk directory. 
 
@@ -43,8 +43,8 @@ Go to the build-esdk directory and type "make" to create the ESDK libraries. Not
 
 At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the Solution and vcxproj files:
 
-cmake -HElektron-SDK -Bbuild-esdk -G "VisualStudioVersion"
-where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created)
+	cmake -HElektron-SDK -Bbuild-esdk -G "VisualStudioVersion"
+	(where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created))
 
 "VisualStudioVersion" is the visual studio version (e.g., "Visual Studio 14 2015 Win64"). A list of visual studio versions can be obtained by typing "cmake -help". 
 

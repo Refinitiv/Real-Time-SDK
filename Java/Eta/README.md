@@ -7,40 +7,46 @@ The Transport API is the re-branding of the Ultra Performance API (UPA), which i
 
 ETA Java contains open source components.  The transport, decoder, encoder, and cache components are open source. 
 This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls ETA dependent libraries from that location.
-This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.  In addition, any classpaths should be updated to also include jars from the submodule library location, which will be your clone location followed by `Elektron-SDK-BinaryPack/Java/Eta/Libs`
 
 
 # Building the Transport API
 
 This section assumes that the reader has obtained the source from this repository. 
-It will contain all of the required source to the Transport API Reactor, its dependencies, and the ETA stub libraries.  
+It will contain all of the required source to build the Transport API.  
 It also includes source code for all example applications, performance measurement applications, and training suite applications to help
 users understand how to develop to this API.
 
 
-####1) Build the Transport API 
+#### Build the Transport API
 
-**Using Apache Ant**:
+**Using Gradle**:
 
-Ant can be downloaded from http://ant.apache.org
+Gradle can be downloaded from https://gradle.org
 
-Navigate to `Eta/Source` 
--	Run `ant all` to build the ETA SOurce code, the Reactor and its dependencies. This will build the libraries in the `Libs` location.
--	Run `ant build-stubs` to build only the Stub libraries. This will build to a `bin` location.
+Navigate to `Elektron-SDK/Java` and issue the appropriate Gradle command as follows:
 
+	Windows: gradlew.bat jar
+	Linux: ./gradlew jar
+	
+	This command builds the jar files.
 
-####2) Build the Transport API Examples
+#### Running examples
 
-Navigate to `Eta/Applications`, locate the example or performance tool you would like to build. 
-The Example applications are located in `Eta/Applications/Examples`
-The Performance Tools are located in `Eta/Applications/PerfTools`
--	Run `ant` to build all examples/performance tools or select the target from inside the build.xml file to built a specific example or performance tool.
+To run an example, issue the appropriate command as follows:
+	  
+	Windows: gradlew.bat runExampleName [-PcommandLineArgs="arguments"]
+	Linux: ./gradlew runExampleName [-PcommandLineArgs="arguments"]
+	(where runExampleName is the name of the example to run and arguments are the example arguments)
+	 
+Issue the following command to get a list of all example names.
+	  
+	Windows: gradlew.bat tasks --all
+	Linux: ./gradlew tasks --all
 
-####3) Run the ETA Examples
-
-Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
-
-**NOTE** If you have built using the 'stub' libraries, the examples run but fail. 
+ETA example, the following command runs the VAConsumer example.
+		
+	Windows: gradlew.bat runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
+	Linux: ./gradlew runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
 
 ####Supported Platforms
 ETA Java can be used with a J2SE7 or J2SE8 compilant JVM.  
@@ -51,27 +57,22 @@ At the current time, the JNI libraries support the following platform/compiler c
 - Oracle Linux Server 7.X 64-bit (gcc4.8.2)
 - CentOS 7.X 64-bit (gcc4.8.2) using the Oracle Linux libraries
 - Windows 7 64-bit, Windows 8 64-bit, Windows 8.1 64-bit, Windows 10 64-bit, Windows Server 2008 64-bit, Windows Server 2012 64-bit
-	- Visual Studio 10 (2010)
 	- Visual Studio 11 (2012)
 	- Visual Studio 12 (2013)
 	- Visual Studio 14 (2015)
-- Solaris 10 X86 64-bit (SunStudio12)
-- Solaris 11 X86 64-bit (SunStudio12)
+	- Visual Studio 15 (2017)
 
 Users are welcome to migrate open source code to the platforms they prefer, however support for the included ETA libraries are only provided on platforms captured in the README file.
 
 # Obtaining the Thomson Reuters Field Dictionaries
 
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Eta/etc` and also distributed with the ETA Binary Package.  
+The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Java/etc`.  
 In addition, the most current version can be downloaded from the Customer Zone from the following location.
 
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - General
 - **Products**: TREP Templates Service Pack
-
-Place the downloaded `enumtype.def` and `RDMFieldDictionary` under `/Eta/etc`
-If these are not present when building some of the applications, their build will fail when they reach the step to copy these.  The executable will still be built properly.  
 
 # Documentation
 
@@ -103,7 +104,7 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 # Developing 
 
-If you discover any issues with regards to this project, please feel free to create an Issue.
+If you discover any issues with this project, please feel free to create an Issue.
 
 If you have coding suggestions that you would like to provide for review, please create a Pull Request.
 
@@ -130,17 +131,12 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
     - A transport-level API allowing for connectivity using TCP, HTTP, HTTPS,
          sockets, reliable and unreliable UDP multicast, and Shared Memory.  
     - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages.
-	
-	-*Transport and Encoder/Decoders are available in all Transport API distributions, with stub implementations available on GitHub.*
 - RMTES Support.
-      Several structures and functions can be used to process RMTES content 
-      and convert to several Unicode formats for interpretation. 
+	-	Several structures and functions can be used to process RMTES content and convert to several Unicode formats for interpretation. 
 	  
 	  -*Available in all Transport API distributions as part of binary libraries.*
 - Open Source performance tools:
-      Allow users to measure the performance through their system.  Customers 
-      can modify the tools to suit their specific needs.  These are found
-      in the Value Add portion of this package.
+	-	Allow users to measure the performance through their system.  Customers can modify the tools to suit their specific needs.  These are found in the Value Add portion of this package.
 	  
 	  -*Available in the full Transport API distribution and on GitHub*
 - Open Source value added helpers:
@@ -159,7 +155,8 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
 		respective domain representation for easier, more logical 
 		access to content.
 	- The Administration Domain Model Representations are RDM specific
-		representations of the OMM administrative domain models.  This Value Added Component contains structures that represent the 
+		representations of the OMM administrative domain models. This
+        Value Added Component contains structures that represent the 
 		messages within the Login, Source Directory, and Dictionary 
 		domains.  This component also handles all encoding and decoding
 		functionality for these domain models, so the application needs
@@ -185,35 +182,24 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
 ####General Capabilities
 Transport API provides the following general capabilities independent of the type of application:
 - ETA can internally fragment and reassemble large messages.
-- ETA applications can pack multiple, small messages into the same 
-      network buffer.
+- ETA applications can pack multiple, small messages into the same network buffer.
 - ETA can internally perform data compression and decompression.
-- ETA applications can choose their locking model based on need. Locking 
-      can be enabled globally, within a connection, or disabled entirely, 
-      allowing clients to develop single-threaded, multi-threaded thread safe, 
-      or thread-aware solutions.
-- ETA applications have full control over the number of message buffers 
-      and can dynamically increase or decrease this quantity during runtime.
-- ETA does not have configuration file, log file, or message file 
-      dependencies: everything is programmatic.
-- ETA allows users to write messages at different priority levels, 
-      allowing higher priority messages to be sent before lower priority 
-      messages.
-- ETA applications can create and manage both standard and private 
-      data streams.
-- ETA Reactor applications can create and manage standard, private,
-	  and tunnel streams.
+- ETA applications can choose their locking model based on need. Locking can be enabled globally, within a connection, or disabled entirely, allowing clients to develop single-threaded, multi-threaded thread safe, or thread-aware solutions.
+- ETA applications have full control over the number of message buffers and can dynamically increase or decrease this quantity during runtime.
+- ETA does not have configuration file, log file, or message file dependencies: everything is programmatic.
+- ETA allows users to write messages at different priority levels, allowing higher priority messages to be sent before lower priority messages.
+- ETA applications can create and manage both standard and private data streams.
+- ETA Reactor applications can create and manage standard, private, and tunnel streams.
 
 #OMM Application Type Abilities
 
 ####Consumer Applications
 Users can use Transport API to write consumer-based applications capable of the following:
 - Make Streaming and Snapshot based subscription requests.
-- Perform Batch, Views, and Symbol List requests to capable provider applications,
-      including ADS.
+- Perform Batch, Views, and Symbol List requests to capable provider applications, including ADS.
 - Pause and Resume active data streams open to the ADS.
 - Send Post Messages to capable provider applications, including ADS
-      (used for making Consumer-based Publishing and Contributions).
+(used for making Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 
 ####Provider Applications: Interactive
@@ -221,28 +207,20 @@ Users can use Transport API to write interactive providers capable of the follow
 - Receive requests and respond to Streaming and Snapshot based Requests.
 - Receive and respond to requests for Batch, Views, and Symbol Lists.
 - Receive requests for Pause and Resume on active Data Streams.
-- Receive and acknowledge Post Messages (used when receiving Consumer-based 
-	  Publishing and Contributions).
+- Receive and acknowledge Post Messages
+(used when receiving Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
 ####Provider Applications: Non-Interactive
-Users can use Transport APi to write non-interactive applications that start up and begin publishing data to ADH.
-- Connect to one or many ADH devices using TCP sockets or reliable UDP multicast, 
-	  making only configuration changes. 
+Users can use Transport API to write non-interactive applications that start up and begin publishing data to ADH.
+- Connect to one or many ADH devices using TCP sockets or reliable UDP multicast, making only configuration changes.
 
 ####Reactor Based Consumer and Provider Applications
-- Reactor applications can take advantage of an event-driven 
-      distribution model
-- Reactor will manage ping heartbeats and ensure that user
-      written content is flushed out as effectively as possible.
-- Reactor applications can use the watchlist functionality for
-      item recovery, like-request aggregation, fan out, and group status 
-      handling.
-- Reactor applications can leverage the tunnel streams capability, 
-      allowing for a private stream with end-to-end flow control, 
-      reliability, authentication, and (when communicating with a Queue
-      Provider) persistent queue messaging.
+- Reactor applications can take advantage of an event-driven distribution model
+- Reactor will manage ping heartbeats and ensure that user written content is flushed out as effectively as possible.
+- Reactor applications can use the watchlist functionality for item recovery, like-request aggregation, fan out, and group status handling.
+- Reactor applications can leverage the tunnel streams capability, allowing for a private stream with end-to-end flow control, reliability, authentication, and (when communicating with a Queue Provider) persistent queue messaging.
 
 
 # Notes:

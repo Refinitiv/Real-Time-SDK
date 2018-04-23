@@ -5,9 +5,9 @@
 
 The Elektron Message API: This is an easy-to-use, performant, open source message layer API. The Elektron Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Thomson Reuters based on customer feedback.
 
-EMA is written on top of the Elektron Transport API (ETA) utilizing    the Value Added Reactor and Watchlist.  
+EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-(C) Copyright 2016 Thomson Reuters Limited. All rights reserved,
+(C) Copyright 2018 Thomson Reuters Limited. All rights reserved,
 Reuters Oak Brook, IL USA
   
 
@@ -15,9 +15,7 @@ Reuters Oak Brook, IL USA
 # Message API Features and Functionality
 
 ##Consumer Features:
-- Default Admin Domain Requests: EMA uses default login, directory and 
-      dictionary request while connecting to server. This provides minimum 
-      configuration for applications to get up and running.   
+- Default Admin Domain Requests: EMA uses default login, directory and dictionary request while connecting to server. This provides minimum configuration for applications to get up and running.   
 
 - Connection Failover: EMA can be configured to specify a list of failover servers via ChannelSet configuration.  In the event that the consumer's connection attempt fails, EMA will utilize the next channel in the ChannelSet list.
 
@@ -70,7 +68,7 @@ Reuters Oak Brook, IL USA
 # Product Content
 
 - EMA libraries [binaries not included in GitHub distribution]
-- Ant script files to build EMA library
+- Gradle script files to build EMA library
 - EMA Examples
 - TREP Dictionary
 - Documentation 
@@ -90,6 +88,7 @@ Reuters Oak Brook, IL USA
 - Readme (This File)
 - License File
 - Test Results
+- ESDK Java Migration Guide
 	
 
 
@@ -167,7 +166,7 @@ See the top level Elektron-SDK README.md for details.
 # Obtaining the Thomson Reuters Field Dictionaries
 
 
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Ema/Etc`.
+The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Java/etc`.
 
 In addition, the most current version can be downloaded from the Customer Zone from the following location.
 
@@ -175,8 +174,6 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - General
 - **Products**: TREP Templates Service Pack
-
-Place the downloaded `enumtype.def` and `RDMFieldDictionary` under `/Ema/Etc` If these are not present when building some of the applications, their build will fail when they reach the step to copy these. The executable will still be built properly. 
 
 # Contributing
 Please see the top level **README.md** file for details.

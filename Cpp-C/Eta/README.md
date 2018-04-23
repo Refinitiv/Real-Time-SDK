@@ -5,50 +5,65 @@ This is the **Elektron Transport API (ETA)**, the high performance, low latency,
 The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data.  All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
 
 
-ETA contains both closed source and open source components.  The transport, decoder, encoder, and cache components are closed source and is proprietary to Thomson Reuters.  As a result, the source code is not included on GitHub. 
+ETA contains open source components.  The transport, decoder, encoder, and cache components are open source. 
 This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
-This repository uses submodules for this cross-dependency, so users should add the `--recursive` option to their git clone command.
 
 
 # Building the Transport API
 
 This section assumes that the reader has obtained the source from this repository. 
-It will contain all of the required source to the Transport API Reactor, its dependencies, and the ETA stub libraries.  
+It will contain all of the required source to build the Transport API.  
 It also includes source code for all example applications, performance measurement applications, and training suite applications to help
 users understand how to develop to this API.
 
 
-####1) Build the Transport API 
+#### Build the Transport API
+
+**Using CMake**:
+
+CMake can be downloaded from https://cmake.org
 
 **For Linux**:
 
-Navigate to `Eta/Impl` 
--	Run `make all` to build Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.
--	Run `make stubs` to build only the Stub libraries.  **WARNING** This will overwrite libraries in the `Libs` location with the compiled Stub libraries.
--	Run `make rsslVA` to build only Reactor and its dependencies.  This will link to the fully functional libraries provided in the `Libs` location.  This is the same as the `make all` target.
+At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the optimized Makefile files:
 
-This will build both static and shared versions of the libraries and will build Optimized libraries by default.  
-If Optimized_Assert libraries are preferred, this can be modified from within the makefiles.
+	cmake -HElektron-SDK -Bbuild-esdk
+	(where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created))
 
-**NOTE:** If you are using shared libraries, you will need to run the LinuxSoLink or to properly soft link for versioned libraries. These are located in the submodule folder under your clone location and then `Elektron-SDK-BinaryPack/Cpp-C/Eta`
+Issue the following command to build debug Makefile files:
+
+	cmake -HElektron-SDK -Bbuild-esdk –DCMAKE_BUILD_TYPE=Debug
+
+The cmake command builds all needed Makefile files (and related dependencies) in the build-esdk directory. 
+
+Go to the build-esdk directory and type "make" to create the ESDK libraries. Note that the libraries are sent to the Elektron-SDK directory (i.e., not the build-esdk directory).
 
 **For Windows**:
 
-Navigate to `Eta/Impl` 
-Select the `vcxproj` for the specific library you want to build, or use the provided solution (or `sln`) file to build in **Visual Studio**.  
+At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the Solution and vcxproj files:
 
-When building via the solution, select the configuration combination you want (Static, Shared, Debug, Release, etc) and select `Build -> Build Solution` this will create both static and shared libraries for all targets.  
+	cmake -HElektron-SDK -Bbuild-esdk -G "VisualStudioVersion"
+	(where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created))
 
+"VisualStudioVersion" is the visual studio version (e.g., "Visual Studio 14 2015 Win64"). A list of visual studio versions can be obtained by typing "cmake -help". 
 
-####2) Build the Transport API Examples
+The cmake command builds all needed Solution and vcxproj files (and other related files) in the build-esdk directory. You open these files and build all libraries and examples in the same fashion as you did with prior ESDKs.
+Note that the build output is sent to the Elektron-SDK directory (i.e., not the build-esdk directory).
 
-Navigate to `Eta/Applications`, locate the example, performance tool, or training suite you would like to build. Run the makefile or open and build the windows solution file (when applicable) or the vcxproj.
+Note that only the following Windows versions are supported.
 
-####3) Run the ETA Examples
+Visual Studio 15 2017
+Visual Studio 14 2015
+Visual Studio 12 2013
+Visual Studio 11 2012
 
-Run the application from the command line using the appropriate execution commands.  Most applications have a help menu that can be viewed with a -? option.
+**32 bit support**:
 
-**NOTE** If you have built using the 'stub' libraries, the examples run but fail. 
+CMake has build support for 32 bit platforms.
+
+Linux: Add "-DBUILD_32_BIT_ETA=ON" to the cmake build
+
+Windows: Don't add Win64 to the "VisualStudioVersion" (i.e., use "Visual Studio 14 2015" vs "Visual Studio 14 2015 Win64")
 
 ####Supported Platforms
 The makefiles and Windows project files provided facilitate building on a subset of platforms, generally overlapping with platforms supported or qualified by the product.
@@ -59,26 +74,23 @@ At the current time, the makefiles and project files support the following platf
 - Oracle Linux Server 7.X 64-bit (gcc4.8.2)
 - CentOS 7.X 64-bit (gcc4.8.2)
 - Windows 7 64-bit, Windows 8 64-bit, Windows 8.1 64-bit, Windows 10 64-bit, Windows Server 2008 64-bit, Windows Server 2012 64-bit
-	- Visual Studio 10 (2010)
 	- Visual Studio 11 (2012)
 	- Visual Studio 12 (2013)
 	- Visual Studio 14 (2015)
+	- Visual Studio 15 (2017)
 
 
 Users are welcome to migrate open source code to the platforms they prefer, however support for the included ETA libraries are only provided on platforms captured in the README file.
 
 # Obtaining the Thomson Reuters Field Dictionaries
 
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Eta/etc` and also distributed with the full Elektron SDK Package.  
+The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Cpp-C/etc`.  
 In addition, the most current version can be downloaded from the Customer Zone from the following location.
 
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - General
 - **Products**: TREP Templates Service Pack
-
-Place the downloaded `enumtype.def` and `RDMFieldDictionary` under `/Eta/etc`
-If these are not present when building some of the applications, their build will fail when they reach the step to copy these.  The executable will still be built properly.  
 
 # Documentation
 
@@ -142,9 +154,7 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
       and convert to several Unicode formats for interpretation. 
 	  
 - Open Source performance tools:
-      Allow users to measure the performance through their system.  Customers 
-      can modify the tools to suit their specific needs.  These are found
-      in the Value Add portion of this package.
+    - Allow users to measure the performance through their system.  Customers can modify the tools to suit their specific needs.  These are found in the Value Add portion of this package.
 	  
 - Open Source value added helpers:
     - Reactor is a connection management and event processing
@@ -162,7 +172,8 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
 		respective domain representation for easier, more logical 
 		access to content.
 	- The Administration Domain Model Representations are RDM specific
-		representations of the OMM administrative domain models.  This Value Added Component contains structures that represent the 
+		representations of the OMM administrative domain models.  This
+        Value Added Component contains structures that represent the 
 		messages within the Login, Source Directory, and Dictionary 
 		domains.  This component also handles all encoding and decoding
 		functionality for these domain models, so the application needs
@@ -185,35 +196,24 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
 ####General Capabilities
 Transport API provides the following general capabilities independent of the type of application:
 - ETA can internally fragment and reassemble large messages.
-- ETA applications can pack multiple, small messages into the same 
-      network buffer.
+- ETA applications can pack multiple, small messages into the same network buffer.
 - ETA can internally perform data compression and decompression.
-- ETA applications can choose their locking model based on need. Locking 
-      can be enabled globally, within a connection, or disabled entirely, 
-      allowing clients to develop single-threaded, multi-threaded thread safe, 
-      or thread-aware solutions.
-- ETA applications have full control over the number of message buffers 
-      and can dynamically increase or decrease this quantity during runtime.
-- ETA does not have configuration file, log file, or message file 
-      dependencies: everything is programmatic.
-- ETA allows users to write messages at different priority levels, 
-      allowing higher priority messages to be sent before lower priority 
-      messages.
-- ETA applications can create and manage both standard and private 
-      data streams.
-- ETA Reactor applications can create and manage standard, private,
-	  and tunnel streams.
+- ETA applications can choose their locking model based on need. Locking can be enabled globally, within a connection, or disabled entirely, allowing clients to develop single-threaded, multi-threaded thread safe, or thread-aware solutions.
+- ETA applications have full control over the number of message buffers and can dynamically increase or decrease this quantity during runtime.
+- ETA does not have configuration file, log file, or message file dependencies: everything is programmatic.
+- ETA allows users to write messages at different priority levels, allowing higher priority messages to be sent before lower priority messages.
+- ETA applications can create and manage both standard and private data streams.
+- ETA Reactor applications can create and manage standard, private, and tunnel streams.
 
 #OMM Application Type Abilities
 
 ####Consumer Applications
 Users can use Transport API to write consumer-based applications capable of the following:
 - Make Streaming and Snapshot based subscription requests.
-- Perform Batch, Views, and Symbol List requests to capable provider applications,
-      including ADS.
+- Perform Batch, Views, and Symbol List requests to capable provider applications, including ADS.
 - Pause and Resume active data streams open to the ADS.
-- Send Post Messages to capable provider applications, including ADS
-      (used for making Consumer-based Publishing and Contributions).
+- Send Post Messages to capable provider applications, including ADS 
+(used for making Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 
 ####Provider Applications: Interactive
@@ -221,28 +221,20 @@ Users can use Transport API to write interactive providers capable of the follow
 - Receive requests and respond to Streaming and Snapshot based Requests.
 - Receive and respond to requests for Batch, Views, and Symbol Lists.
 - Receive requests for Pause and Resume on active Data Streams.
-- Receive and acknowledge Post Messages (used when receiving Consumer-based 
-	  Publishing and Contributions).
+- Receive and acknowledge Post Messages
+(used when receiving Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
 ####Provider Applications: Non-Interactive
 Users can use Transport APi to write non-interactive applications that start up and begin publishing data to ADH.
-- Connect to one or many ADH devices using TCP sockets or reliable UDP multicast, 
-	  making only configuration changes. 
+- Connect to one or many ADH devices using TCP sockets or reliable UDP multicast, making only configuration changes. 
 
 ####Reactor Based Consumer and Provider Applications
-- Reactor applications can take advantage of an event-driven 
-      distribution model
-- Reactor will manage ping heartbeats and ensure that user
-      written content is flushed out as effectively as possible.
-- Reactor applications can use the watchlist functionality for
-      item recovery, like-request aggregation, fan out, and group status 
-      handling.
-- Reactor applications can leverage the tunnel streams capability, 
-      allowing for a private stream with end-to-end flow control, 
-      reliability, authentication, and (when communicating with a Queue
-      Provider) persistent queue messaging.
+- Reactor applications can take advantage of an event-driven distribution model
+- Reactor will manage ping heartbeats and ensure that user written content is flushed out as effectively as possible.
+- Reactor applications can use the watchlist functionality for item recovery, like-request aggregation, fan out, and group status handling.
+- Reactor applications can leverage the tunnel streams capability, allowing for a private stream with end-to-end flow control, reliability, authentication, and (when communicating with a Queue Provider) persistent queue messaging.
 
 
 # Notes:

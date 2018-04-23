@@ -5,9 +5,9 @@
 
 The Elektron Message API: This is an easy-to-use, performant, open source message layer API. The Elektron Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Thomson Reuters based on customer feedback.
 
-EMA is written on top of the Elektron Transport API (ETA) utilizing    the Value Added Reactor and Watchlist.  
+EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-(C) Copyright 2016 Thomson Reuters Limited. All rights reserved,
+(C) Copyright 2018 Thomson Reuters Limited. All rights reserved,
 Reuters Oak Brook, IL USA
   
 
@@ -18,41 +18,28 @@ Reuters Oak Brook, IL USA
 
 ##Consumer Features:
 
-- ADS Multicast: Applications can connect to the ADS Multicast 
-	  component by specifying the connection type RSSL_RELIABLE_MCAST.  
+- ADS Multicast: Applications can connect to the ADS Multicast component by specifying the connection type RSSL_RELIABLE_MCAST.  
 	  
 - RSSL Encrypted and HTTP Connectivity
 
-- Connection Failover: EMA can be configured to specify a 
-	  list of failover servers via ChannelSet configuration.  In the event that the
-	  consumer's connection attempt fails, EMA will utilize the next channel in 
-	  the ChannelSet list.
+- Connection Failover: EMA can be configured to specify a list of failover servers via ChannelSet configuration.  In the event that the consumer's connection attempt fails, EMA will utilize the next channel in the ChannelSet list.
 
-- Default Admin Domain Requests: EMA uses default login, directory and 
-      dictionary request while connecting to server. This provides minimum 
-      configuration for applications to get up and running. 
+- Default Admin Domain Requests: EMA uses default login, directory and dictionary request while connecting to server. This provides minimum configuration for applications to get up and running.
 	  
-- Configurable Admin Domain Requests:  EMA provides means for modifying the
-      default admin domain requests. 
+- Configurable Admin Domain Requests:  EMA provides means for modifying the default admin domain requests. 
       
-- Tunnel Streams: EMA supports private streams, with additional associated 
-      behaviors (e.g., end-to-end authentication, guaranteed delivery, and
-      flow control).
+- Tunnel Streams: EMA supports private streams, with additional associated behaviors (e.g., end-to-end authentication, guaranteed delivery, and flow control).
 	  
-- Batch Request: Application may use a single request message to specify 
-      interest in multiple items via the item list
+- Batch Request: Application may use a single request message to specify interest in multiple items via the item list
 	  
-- Dynamic View:	Application may specify a subset of fields or elements of a 
-      particular item
+- Dynamic View:	Application may specify a subset of fields or elements of a particular item
 	  
-- Optimized Pause and Resume: Application may request server to pause and 
-      resume item stream
+- Optimized Pause and Resume: Application may request server to pause and resume item stream
 	
 - Single Open: EMA supports application selected single open functionality
 	  
 	
-- Programmatic Config	Enables application to programmatically specify and 
-      overwrite EMA configuration
+- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
 	
 
 		
@@ -77,21 +64,18 @@ Reuters Oak Brook, IL USA
 
 - TCP/IP Connectivity
 
-- RMTES Decoder	EMA provides a built in RMTES decoder. IF desired, application
-      may cache RmtesBuffer objects and apply all the received changes to them.
+- RMTES Decoder	EMA provides a built in RMTES decoder. IF desired, application may cache RmtesBuffer objects and apply all the received changes to them.
 	
-- Data::toString()	All OMM containers, primitives and messages may simply be
-      printed out to screen in a standardized output format. 
+- Data::toString()	All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format.
 	
-- Data::getAsHex()	Applications may obtain binary representations of all OMM 
-      containers, primitives and messages.
+- Data::getAsHex()	Applications may obtain binary representations of all OMM containers, primitives and messages.
 
 - File Config:	Enables applications to specify EMA configuration in an EmaConfig.xml file
 
 
 # Product Content
 
-- Makefile/Windows project files to build EMA library
+- CMake files to build EMA library
 - EMA Examples
 - TREP Dictionary
 - Documentation 
@@ -107,6 +91,7 @@ Reuters Oak Brook, IL USA
 - Readme (This File)
 - License File
 - Test Results
+- ESDK C/C++ Migration Guide
 	
 Elektron Message API Documentation is also available online at https://customers.reuters.com/a/ODL/EMA_C/3.0/HTML_Documentation/index.html 
 
@@ -143,10 +128,10 @@ Elektron Message API Documentation is also available online at https://customers
       - GCC compiler suite version 4.8.2 or higher for CentOS 7.0 (64-bit)
 
       (Windows)
-      - Microsoft Visual C++ 10.0 64-bit (visual Studio 2010)
       - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
       - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
 	  - Microsoft Visual C++ 14.0 64-bit (Visual Studio 2015)
+	  - Microsoft Visual C++ 15.0 64-bit (Visual Studio 2017)
 	  
       ---------------------------------------------------------
       Enterprise Platform for Real-Time - RSSL/RWF connections
@@ -170,19 +155,17 @@ See the top level Elektron-SDK README.md for details.
 
 - ESDK-380 If CompressionType is set to "None", the CompressionThreshold range check still occurs
 - ESDK-421 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA
-- ESDK-414 EMA is using the incorrect attribute info when sending Generic Messages
 - ESDK-455: Shared windows solution file doesn't build ema if the libxml2 library in eta doesn't already exist. 
 - ESDK-398 XMLTrace may not flush all information to trace file 
 - ESDK-385 ChannelSet with two multicast channels userQLimit set incorrectly 
 - ESDK-395 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
 - ESDK-374 Random exit issue with NiProvider, application does not exit.
-- ESDK-361 When overriding admin messages using addAdminMessage and if the service is down at start-up the the dictionary will not be downloaded properly.
  
 
 # Obtaining the Thomson Reuters Field Dictionaries
 
 
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Ema/Etc`.
+The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Cpp-C/etc`.
 
 In addition, the most current version can be downloaded from the Customer Zone from the following location.
 
@@ -190,8 +173,6 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 - **Category**: MDS - General
 - **Products**: TREP Templates Service Pack
-
-Place the downloaded `enumtype.def` and `RDMFieldDictionary` under `/Ema/Etc` If these are not present when building some of the applications, their build will fail when they reach the step to copy these. The executable will still be built properly. 
 
 # Contributing
 Please see the top level **README.md** file for details.
