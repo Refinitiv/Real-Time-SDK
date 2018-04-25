@@ -22,7 +22,10 @@ In addition, this repository depends on the `Elektron-SDK-BinaryPack` (http://ww
 
 **Using Gradle**:
 
+Gradle is now used to build ESDK.
 Gradle can be downloaded from https://gradle.org
+
+Refer to the ESDK Java Migration Guide for more detailed Gradle build instructions than what is described below.
 
 Navigate to `Elektron-SDK/Java` and issue the appropriate Gradle command as follows:
 

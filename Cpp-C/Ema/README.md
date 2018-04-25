@@ -92,8 +92,9 @@ Reuters Oak Brook, IL USA
 - License File
 - Test Results
 - ESDK C/C++ Migration Guide
+- EMA Examples Supported Features Matrix (EMACPP_Examples.pdf)
 	
-Elektron Message API Documentation is also available online at https://customers.reuters.com/a/ODL/EMA_C/3.0/HTML_Documentation/index.html 
+Elektron Message API Documentation is also available online at https://developers.thomsonreuters.com/elektron/elektron-sdk-cc/docs 
 
 
 # Hardware/OS Requirements

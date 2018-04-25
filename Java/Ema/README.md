@@ -89,7 +89,7 @@ Reuters Oak Brook, IL USA
 - License File
 - Test Results
 - ESDK Java Migration Guide
-	
+- EMA Examples Supported Features Matrix (EMAJ_Examples.pdf)
 
 
 # Hardware/OS Requirements

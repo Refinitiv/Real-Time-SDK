@@ -9,45 +9,6 @@ ETA Java contains open source components.  The transport, decoder, encoder, and 
 This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls ETA dependent libraries from that location.
 
 
-# Building the Transport API
-
-This section assumes that the reader has obtained the source from this repository. 
-It will contain all of the required source to build the Transport API.  
-It also includes source code for all example applications, performance measurement applications, and training suite applications to help
-users understand how to develop to this API.
-
-
-#### Build the Transport API
-
-**Using Gradle**:
-
-Gradle can be downloaded from https://gradle.org
-
-Navigate to `Elektron-SDK/Java` and issue the appropriate Gradle command as follows:
-
-	Windows: gradlew.bat jar
-	Linux: ./gradlew jar
-	
-	This command builds the jar files.
-
-#### Running examples
-
-To run an example, issue the appropriate command as follows:
-	  
-	Windows: gradlew.bat runExampleName [-PcommandLineArgs="arguments"]
-	Linux: ./gradlew runExampleName [-PcommandLineArgs="arguments"]
-	(where runExampleName is the name of the example to run and arguments are the example arguments)
-	 
-Issue the following command to get a list of all example names.
-	  
-	Windows: gradlew.bat tasks --all
-	Linux: ./gradlew tasks --all
-
-ETA example, the following command runs the VAConsumer example.
-		
-	Windows: gradlew.bat runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
-	Linux: ./gradlew runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
-
 ####Supported Platforms
 ETA Java can be used with a J2SE7 or J2SE8 compilant JVM.  
 These can be downloaded from http://www.oracle.com 

@@ -9,66 +9,10 @@ ETA contains open source components.  The transport, decoder and encoder are ope
 This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
 
 
-# Building the Transport API
-
-This section assumes that the reader has obtained the source from this repository. 
-It will contain all of the required source to build the Transport API.  
-It also includes source code for all example applications, performance measurement applications, and training suite applications to help
-users understand how to develop to this API.
-
-
-#### Build the Transport API
-
-**Using CMake**:
-
-CMake can be downloaded from https://cmake.org
-
-**For Linux**:
-
-At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the optimized Makefile files:
-
-	cmake -HElektron-SDK -Bbuild-esdk
-	(where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created))
-
-Issue the following command to build debug Makefile files:
-
-	cmake -HElektron-SDK -Bbuild-esdk –DCMAKE_BUILD_TYPE=Debug
-
-The cmake command builds all needed Makefile files (and related dependencies) in the build-esdk directory. 
-
-Go to the build-esdk directory and type "make" to create the ESDK libraries. Note that the libraries are sent to the Elektron-SDK directory (i.e., not the build-esdk directory).
-
-**For Windows**:
-
-At the same directory level as the resulting Elektron-SDK directory, issue the following command to build the Solution and vcxproj files:
-
-	cmake -HElektron-SDK -Bbuild-esdk -G "VisualStudioVersion"
-	(where Elektron-SDK is the ESDK directory and build-esdk is the directory where all build output is placed (note that build-esdk is automatically created))
-
-"VisualStudioVersion" is the visual studio version (e.g., "Visual Studio 14 2015 Win64"). A list of visual studio versions can be obtained by typing "cmake -help". 
-
-The cmake command builds all needed Solution and vcxproj files (and other related files) in the build-esdk directory. You open these files and build all libraries and examples in the same fashion as you did with prior ESDKs.
-Note that the build output is sent to the Elektron-SDK directory (i.e., not the build-esdk directory).
-
-Note that only the following Windows versions are supported.
-
-Visual Studio 15 2017
-Visual Studio 14 2015
-Visual Studio 12 2013
-Visual Studio 11 2012
-
-**32 bit support**:
-
-CMake has build support for 32 bit platforms.
-
-Linux: Add "-DBUILD_32_BIT_ETA=ON" to the cmake build
-
-Windows: Don't add Win64 to the "VisualStudioVersion" (i.e., use "Visual Studio 14 2015" vs "Visual Studio 14 2015 Win64")
-
 ####Supported Platforms
-The makefiles and Windows project files provided facilitate building on a subset of platforms, generally overlapping with platforms supported or qualified by the product.
+Only a subset of platforms is supported, generally overlapping with platforms supported or qualified by the product.
 
-At the current time, the makefiles and project files support the following platform/compiler combinations:
+At the current time, the following platform/compiler combinations are supported:
 - RedHat Advanced Server 6.X 64-bit (gcc4.4.4)
 - Oracle Linux Server 6.X 64-bit (gcc4.4.4)
 - Oracle Linux Server 7.X 64-bit (gcc4.8.2)

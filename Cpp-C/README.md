@@ -22,7 +22,10 @@ In addition, this repository depends on the "Elektron-SDK-BinaryPack" (http://ww
 
 **Using CMake**:
 
+Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files.
 CMake can be downloaded from https://cmake.org
+
+Refer to the ESDK C/C++ Migration Guide for more detailed CMake build instructions than what is described below.
 
 **For Linux**:
 
