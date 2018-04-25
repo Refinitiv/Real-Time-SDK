@@ -37,6 +37,8 @@ typedef struct
 #define RSSL_THREAD_JOIN(__threadId) WaitForSingleObject((__threadId).handle, INFINITE)
 #define RSSL_THREAD_RETURN() 0
 
+#define RSSL_THREAD_KILL(__pThreadId) TerminateThread((__pThreadId)->handle, 0)
+
 typedef CRITICAL_SECTION RsslMutex;
 #define RSSL_MUTEX_INIT(__pMutex) (InitializeCriticalSection(__pMutex), 0)
 #define RSSL_MUTEX_INIT_ESDK(__pMutex) (InitializeCriticalSectionAndSpinCount((__pMutex), 512), 0)
@@ -72,6 +74,7 @@ typedef pthread_t RsslThreadId;
 
 #define RSSL_THREAD_RETURN() (void*)NULL
 #define RSSL_THREAD_JOIN(__threadId) pthread_join((__threadId), NULL)
+#define RSSL_THREAD_KILL(__pThreadId) pthread_cancel(*(__pThreadId))
 
 typedef pthread_mutex_t RsslMutex;
 RTR_C_INLINE int RSSL_MUTEX_INIT(RsslMutex *pMutex)

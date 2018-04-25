@@ -113,6 +113,9 @@ if (EXISTS "${CMAKE_BINARY_DIR}/${_ep_name}")
 	set(${_ep_name}_DIR "${CMAKE_BINARY_DIR}/${_ep_name}")
 endif()
 
+add_subdirectory(${${_ep_name}_SOURCE_DIR}
+                 ${${_ep_name}_BINARY_DIR})
+
 unset(_ep_name)
 unset(_EP_PROJ_NAME)
 unset(_EP_PREFIX_DIR)

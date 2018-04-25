@@ -8215,9 +8215,7 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 			break;
 	}
 
-	//set rsslSocketChannel->mutex when global lock and per-channel locks enabled
-	if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
-		rsslSocketChannel->mutex = &(rsslChnlImpl->chanMutex);
+
 
 #ifdef MUTEX_DEBUG
 	printf("UNLOCK rsslServerSocketChannel -- rsslSocketAccept\n");
@@ -8232,6 +8230,10 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 	}
 	else
 	{
+		//set rsslSocketChannel->mutex when global lock and per-channel locks enabled
+		if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
+			rsslSocketChannel->mutex = &(rsslChnlImpl->chanMutex);
+
 		/* map RsslSocketChannel to RsslChannel struct */
 		_rsslSocketToChannel(rsslChnlImpl, rsslSocketChannel);
 		rsslChnlImpl->transportInfo = rsslSocketChannel;
@@ -8546,15 +8548,12 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 #ifdef MUTEX_DEBUG
 	  printf("LOCK rsslChnlImpl->chanMutex -- rsslSocketRead\n");
 #endif
-#ifdef WIN32
-	  EnterCriticalSection(&rsslChnlImpl->chanMutex);
-#else
+
 	  if (RSSL_MUTEX_LOCK(&rsslChnlImpl->chanMutex))
 	  {
 		*readRet = RSSL_RET_READ_IN_PROGRESS;
 		return NULL;
 	  }
-#endif
 	}
 
 	/* if this channel has a returnBuffer - clean it */

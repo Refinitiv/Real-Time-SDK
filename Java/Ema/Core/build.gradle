@@ -77,8 +77,6 @@ dependencies {
         testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
 }
 
-// ext is used to store project level properties
-// we can use this shared manifest
 ext.sharedManifest = manifest {
 		attributes( 'Sealed': 'true',
 			'Build-Date': BuildDate,

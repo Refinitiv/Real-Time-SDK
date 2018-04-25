@@ -73,12 +73,6 @@ if(CMAKE_HOST_UNIX)
     configure_file(${esdk_SOURCE_DIR}/CMake/LinuxSoLink.in ${esdk_SOURCE_DIR}/LinuxSoLink @ONLY)
 endif()
 
-include(ExternalProject)
-find_package(Git)
-if (RCDEV_DEFAULT_ARGS)
-    list(APPEND esdk_DEFAULT_ARGS ${RCDEV_DEFAULT_ARGS})
-endif()
-
 # If there is a CMAKE_BUILD_TYPE it is important to ensure it is passed down.
 if(CMAKE_BUILD_TYPE)
     list(APPEND _EP_DEFAULT_ARGS "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
@@ -88,7 +82,8 @@ if (RCDEV_DEFAULT_ARGS)
     list(APPEND _EP_DEFAULT_ARGS ${RCDEV_DEFAULT_ARGS})
 endif()
 
-include(addExternal_Elektron-SDK-BinaryPack)
+if(BUILD_ELEKTRON-SDK-BINARYPACK)
+	include(addExternal_Elektron-SDK-BinaryPack)
 	
 	find_package(Elektron-SDK-BinaryPack ${esdk_VERSION} MODULE REQUIRED )
 				

@@ -12,12 +12,18 @@
 void watchlistDirectoryTest_NoRdmCallbacks(WtfCallbackAction action);
 void watchlistDirectoryTest_OneService();
 void watchlistDirectoryTest_ServiceUpdate();
+void watchlistDirectoryTest_ServiceUpdateLinkFilterOnly();
+void watchlistDirectoryTest_ServiceUpdatePartialFilter();
 void watchlistDirectoryTest_RsslMsgClose();
 void watchlistDirectoryTest_MultipleRequests();
 void watchlistDirectoryTest_DirectoryStatus();
 void watchlistDirectoryDataTest_OneService();
+void watchlistDirectoryDataTestDataFilterOnly_OneService();
 void watchlistDirectoryDataTest_Links();
+void watchlistDirectoryDataTestLinkFilterOnly_Links();
 void watchlistDirectoryDataTest_Groups();
+void watchlistDirectoryDataTestGroupFilterOnly_Groups();
+void watchlistDirectoryDataTestDataFilterOnly_Data();
 void watchlistDirectoryTest_DeleteService();
 void watchlistDirectoryTest_BigDirectory();
 void watchlistDirectoryTest_DuplicateServiceName();
@@ -382,6 +388,7 @@ void watchlistDirectoryTest_ServiceUpdate()
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	directoryRequest.filter |= (RDM_DIRECTORY_SERVICE_LOAD_FILTER | RDM_DIRECTORY_SERVICE_DATA_FILTER | RDM_DIRECTORY_SERVICE_LINK_FILTER | RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER);
 	rsslClearReactorSubmitMsgOptions(&opts);
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
 	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
@@ -477,6 +484,7 @@ void watchlistDirectoryTest_ServiceUpdate()
 
 	/* Consumer requests directory again. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	directoryRequest.filter |= (RDM_DIRECTORY_SERVICE_LOAD_FILTER | RDM_DIRECTORY_SERVICE_DATA_FILTER | RDM_DIRECTORY_SERVICE_LINK_FILTER | RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER);
 	rsslClearReactorSubmitMsgOptions(&opts);
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
 	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
@@ -492,7 +500,7 @@ void watchlistDirectoryTest_ServiceUpdate()
 	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
 
-	/* Check info update. */
+	/* Check info refresh. */
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].flags & RDM_SVCF_HAS_INFO);
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.action == RSSL_FTEA_SET_ENTRY);
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.capabilitiesCount == 2);
@@ -501,14 +509,14 @@ void watchlistDirectoryTest_ServiceUpdate()
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.capabilitiesList[1]
 			== newCapabilitiesList[1]);
 
-	/* Check state update. */
+	/* Check state refresh. */
 	ASSERT_TRUE(pDirectoryRefresh->serviceCount == 1);
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].flags & RDM_SVCF_HAS_STATE);
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].state.action == RSSL_FTEA_SET_ENTRY);
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].state.serviceState == 0);
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].state.serviceState == 0);
 
-	/* Check load filter update. */
+	/* Check load filter refresh. */
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].flags & RDM_SVCF_HAS_LOAD);
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.action == RSSL_FTEA_SET_ENTRY);
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.openWindow == 55555);
@@ -1746,6 +1754,7 @@ void watchlistDirectoryDataTest_OneService()
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	directoryRequest.filter |= (RDM_DIRECTORY_SERVICE_LOAD_FILTER | RDM_DIRECTORY_SERVICE_DATA_FILTER | RDM_DIRECTORY_SERVICE_LINK_FILTER | RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER);
 	rsslClearReactorSubmitMsgOptions(&opts);
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
 	opts.requestMsgOptions.pUserSpec = (void*)0x77775555;
@@ -1948,6 +1957,7 @@ void watchlistDirectoryDataTest_OneService()
 		if (uh == 0)
 		{
 			rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+			directoryRequest.filter |= (RDM_DIRECTORY_SERVICE_LOAD_FILTER | RDM_DIRECTORY_SERVICE_DATA_FILTER | RDM_DIRECTORY_SERVICE_LINK_FILTER | RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER);
 			rsslClearReactorSubmitMsgOptions(&opts);
 			opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
 			wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
@@ -2269,6 +2279,7 @@ void watchlistDirectoryDataTest_Links()
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	directoryRequest.filter |= (RDM_DIRECTORY_SERVICE_LOAD_FILTER | RDM_DIRECTORY_SERVICE_DATA_FILTER | RDM_DIRECTORY_SERVICE_LINK_FILTER | RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER);
 	rsslClearReactorSubmitMsgOptions(&opts);
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
 	opts.requestMsgOptions.pUserSpec = (void*)0x77775555;
@@ -2397,6 +2408,7 @@ void watchlistDirectoryDataTest_Links()
 
 	/* Consumer re-requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	directoryRequest.filter |= (RDM_DIRECTORY_SERVICE_LOAD_FILTER | RDM_DIRECTORY_SERVICE_DATA_FILTER | RDM_DIRECTORY_SERVICE_LINK_FILTER | RDM_DIRECTORY_SERVICE_SEQ_MCAST_FILTER);
 	rsslClearReactorSubmitMsgOptions(&opts);
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
 	wtfSubmitMsg(&opts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);

@@ -6600,7 +6600,7 @@ TEST(MapTests, testMapClear_Encode_Decode)
 
 		Map map;
 
-		map.keyType(DataType::DataTypeEnum::DateTimeEnum).summaryData(summaryData).complete();
+		map.keyType(DataType::DateTimeEnum).summaryData(summaryData).complete();
 
 		StaticDecoder::setData(&map, &dictionary);
 
