@@ -77,7 +77,6 @@ Reuters Oak Brook, IL USA
 
 - CMake files to build EMA library
 - EMA Examples
-- TREP Dictionary
 - Documentation 
 	
 			

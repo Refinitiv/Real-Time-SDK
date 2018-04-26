@@ -44,8 +44,10 @@ To run an example, issue the appropriate command as follows:
 	 
 Issue the following command to get a list of all example names.
 	  
-	Windows: gradlew.bat tasks --all
-	Linux: ./gradlew tasks --all
+	ETA Windows: gradlew.bat Eta:Applications:Examples:tasks --all
+	ETA Linux: ./gradlew Eta:Applications:Examples:tasks --all
+	EMA Windows: gradlew.bat Ema:Examples:tasks --all
+	EMA Linux: ./gradlew Ema:Examples:tasks --all
 
 ETA example, the following command runs the VAConsumer example.
 		

@@ -70,7 +70,6 @@ Reuters Oak Brook, IL USA
 - EMA libraries [binaries not included in GitHub distribution]
 - Gradle script files to build EMA library
 - EMA Examples
-- TREP Dictionary
 - Documentation 
 - SLF4J logging API libraries
 - Apache Commons Configuration libraries 
