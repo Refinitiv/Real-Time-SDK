@@ -10,6 +10,52 @@ Transport and OMM encoder/decoder API.  It is used by the Thomson Reuters Enterp
 
 The Elektron-SDK has support for JDK 1.7 and JDK 1.8.  Please see the individual API README.md files for further details.
 
+# Maven Central
+
+For ease of product use, as of the ESDK 1.2 release, Thomson Reuters maintains its ESDK Jar files on Maven Central.
+
+You can download ESDK libraries and dependencies from Maven Central using several different tools, specific
+procedural instructions are not included here. Maven uses the following syntax to specify ESDK dependencies:
+
+	<dependency>
+		<groupId>com.thomsonreuters.ema</groupId>
+		<artifactId>ema</artifactId>
+		<version>3.2.0.1</version>
+	</dependency>
+
+	<dependency>
+		<groupId>com.thomsonreuters.upa</groupId>
+		<artifactId>upa</artifactId>
+		<version>3.2.0.1</version>
+	</dependency>
+
+	<dependency>
+		<groupId>com.thomsonreuters.upa.valueadd</groupId>
+		<artifactId>upaValueAdd</artifactId>
+		<version>3.2.0.1</version>
+	</dependency>
+
+	<dependency>
+		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
+		<artifactId>upaValueAddCache</artifactId>
+		<version>3.2.0.1</version>
+	</dependency>
+
+	<dependency>
+		<groupId>com.thomsonreuters.upa.ansi</groupId>
+		<artifactId>ansipage</artifactId>
+		<version>3.2.0.1</version>
+	</dependency>
+
+Gradle uses the following syntax to specify ESDK dependencies:
+
+	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.2.0.1'
+	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.2.0.1'
+	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.2.0.1'
+	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.2.0.1'                    
+	compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.2.0.1'  
+
+
 # Building the APIs
 
 ## Common Setup
