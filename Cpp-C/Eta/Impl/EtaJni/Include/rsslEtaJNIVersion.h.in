@@ -34,12 +34,13 @@
 #define RSSL_ETA_JNI_VersionString		MKSTR(RSSL_ETA_JNI_Release_Major) "." MKSTR(RSSL_ETA_JNI_Release_Minor) "." MKSTR(RSSL_ETA_JNI_Product_Major) "." MKSTR(RSSL_ETA_JNI_Product_Minor) " (" BLDTYPE ")"
 #define RSSL_ETA_JNI_LegalCopyRight		"(C) Copyright " RSSL_ETA_JNI_Year RSSL_ETA_JNI_CompanyName ", All Rights Reserved. "
 #define RSSL_ETA_JNI_ExternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@INTERNAL_RELEASE_TWEAK@"
+#define RSSL_ETA_JNI_InternalName       "eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@Eta_VERSION_TWEAK@"
 #define RSSL_ETA_JNI_ReleaseType		"@RELEASE_TYPE@"
 #define RSSL_ETA_JNI_ProdName			"Elektron Transport JNI API (ETA) C Edition"
 #define RSSL_ETA_JNI_Package			" PACKAGE " RSSL_ETA_JNI_ExternalName " " RSSL_ETA_JNI_ReleaseType
 
 static char rsslEtaJNIOrigin[]    = RSSL_ETA_JNI_LegalCopyRight;
-static char rsslEtaJNIVersion[]   = " VERSION " RSSL_ETA_JNI_ExternalName;
+static char rsslEtaJNIVersion[]   = " VERSION " RSSL_ETA_JNI_InternalName;
 static char rsslEtaJNIWhere[]     = "s.rsslEtaJNIVersion.h";
 static char rsslEtaJNIPackage[]   = RSSL_ETA_JNI_Package;
 static char rsslEtaJNIDeltaDate[] = " @esdk_timestamp@ " RSSL_ETA_JNI_Year;
