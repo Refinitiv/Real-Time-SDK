@@ -29,14 +29,14 @@ string(TIMESTAMP esdk_year %Y)
 if (DEFINED RCDEV_DL_SOURCE)
     set(_download_site ${RCDEV_DL_SOURCE})
 else()
-    set(_download_site "https://github.com/")
+    set(_download_site "https://github.com/thomsonreuters")
 endif()
 set(Elektron-SDK-BinaryPack_repo "${_download_site}/Elektron-SDK-BinaryPack.git")
 
 if (DEFINED RCDEV_BP_BRANCH)
 	set(Elektron-SDK-BinaryPack_tag ${RCDEV_BP_BRANCH})
 else()
-	set(Elektron-SDK-BinaryPack_tag origin/ESDK-1390_LinuxFix)
+	set(Elektron-SDK-BinaryPack_tag origin/Elektron-SDK_1.2.0.1)
 endif()
 
 #
