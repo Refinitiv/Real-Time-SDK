@@ -111,7 +111,7 @@ RSSL_THREAD_DECLARE(deadlockThread, pArg)
 
 	while (!testComplete)
 	{
-		selectTime.tv_sec = 15;
+		selectTime.tv_sec = 30;
 		selectTime.tv_usec = 0;
 
 		useread = readfds;
@@ -127,7 +127,9 @@ RSSL_THREAD_DECLARE(deadlockThread, pArg)
 		{
 			if (FD_ISSET(deadlockPipe._fds[0], &useread))
 			{
+	            RSSL_MUTEX_LOCK(&pipeLock);
 				rsslResetEventSignal(&deadlockPipe);
+	            RSSL_MUTEX_UNLOCK(&pipeLock);
 				continue;
 			}
 		}
@@ -764,8 +766,10 @@ public:
 
 		writeOpts.writeLoop(blocking);
 
+        resetDeadlockTimer();
+
 		while (!shutdownTest)
-			continue;
+		    time_sleep(500);	
 
 		rsslCloseChannel(chnl, &err);
 	}
@@ -942,6 +946,7 @@ protected:
 		}
 
 		RSSL_THREAD_JOIN(serverThread);
+		RSSL_THREAD_JOIN(clientThread);
 
 		serverChannel = serverChnl.pChnl;
 		clientChannel = clientOpts.pChnl;
@@ -1120,6 +1125,7 @@ protected:
 		}
 
 		RSSL_THREAD_JOIN(serverThread);
+		RSSL_THREAD_JOIN(clientThread);
 
 		serverChannel = serverChnl.pChnl;
 		clientChannel = clientOpts.pChnl;
