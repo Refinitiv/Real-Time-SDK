@@ -36,7 +36,7 @@ set(Elektron-SDK-BinaryPack_repo "${_download_site}/Elektron-SDK-BinaryPack.git"
 if (DEFINED RCDEV_BP_BRANCH)
 	set(Elektron-SDK-BinaryPack_tag ${RCDEV_BP_BRANCH})
 else()
-	set(Elektron-SDK-BinaryPack_tag origin/Elektron-SDK_1.2.0.1.L1)
+	set(Elektron-SDK-BinaryPack_tag Elektron-SDK_1.2.0.1.L1)
 endif()
 
 #
