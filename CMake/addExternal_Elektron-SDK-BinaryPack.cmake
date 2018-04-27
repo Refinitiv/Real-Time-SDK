@@ -49,7 +49,7 @@ set(_EP_DOWNLOAD_DIR "${_EP_BINARY_DIR}/${_ep_name}-download")
 set(_EP_STAMP_DIR "${_EP_BINARY_DIR}/stamp")
 set(_EP_TMP_DIR   "${_EP_BINARY_DIR}/tmp")
 set(_EP_INSTALL_DIR "${_EP_BINARY_DIR}/install")
-set(_EP_CMAKE_ARGS ${_EP_DEFAULT_ARGS})
+set(_EP_CMAKE_ARGS )
 
 
 if (NOT (IS_DIRECTORY "${${_ep_name}_BINARY_DIR}" )
