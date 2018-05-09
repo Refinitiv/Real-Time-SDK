@@ -422,5 +422,20 @@ public class RealJunit
 		
 		testRealField();
 	}
-
+	
+	@Test
+	public void realNaNTest() 
+	{
+		Real  testReal = CodecFactory.createReal();
+		
+		// test double with NaN
+		testReal.value(java.lang.Double.NaN, 0);
+		assertTrue(java.lang.Double.isNaN(testReal.toDouble()));
+		assertTrue(testReal.hint() == RealHints.NOT_A_NUMBER);
+		
+		// test float with NaN
+		testReal.value(java.lang.Float.NaN, 0);
+		assertTrue(java.lang.Float.isNaN((float)testReal.toDouble()));
+		assertTrue(testReal.hint() == RealHints.NOT_A_NUMBER);
+	}
 }

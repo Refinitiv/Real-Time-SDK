@@ -79,7 +79,7 @@ class RealImpl implements Real
             return CodecReturnCodes.INVALID_ARGUMENT;
         }
 
-        if (value == java.lang.Double.NaN)
+        if (java.lang.Double.isNaN(value))
         {
             _value = 0;
             _hint = RealHints.NOT_A_NUMBER;
@@ -115,7 +115,7 @@ class RealImpl implements Real
             return CodecReturnCodes.INVALID_ARGUMENT;
         }
 
-        if (value == java.lang.Float.NaN)
+        if (java.lang.Float.isNaN(value))
         {
             _value = 0;
             _hint = RealHints.NOT_A_NUMBER;
