@@ -196,6 +196,7 @@ int main( int argc, char* argv[] )
 					loginMsg.authenticationExtended(authnExtendedBuf);
 				}
 				consumer.reissue(loginMsg.getMessage(), loginClient._handle);
+				loginClient._TTReissue = 0;
 			}
 			sleep(1000);
 		}

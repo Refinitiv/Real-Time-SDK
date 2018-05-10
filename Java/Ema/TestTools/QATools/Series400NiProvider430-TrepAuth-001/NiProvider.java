@@ -267,6 +267,7 @@ public class NiProvider
                             loginReq.authenticationExtended(ByteBuffer.wrap(authenticationExtended.getBytes()));
 
                         provider.reissue(loginReq.message(), appLoginClient.handle);
+                        appLoginClient.ttReissue != 0;
                     }
                     // APIQA:
                     if (sendRefreshMsg)

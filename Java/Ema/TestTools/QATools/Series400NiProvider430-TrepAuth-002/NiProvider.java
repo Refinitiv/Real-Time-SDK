@@ -218,6 +218,7 @@ public class NiProvider
 						loginReq.authenticationExtended(ByteBuffer.wrap(authenticationExtended.getBytes()));
 					
 					provider.reissue(loginReq.message(), appLoginClient.handle);
+					appLoginClient.ttReissue = 0;
 				}
 				fieldList.clear();
 				fieldList.add(EmaFactory.createFieldEntry().real(22, 3991 + i, OmmReal.MagnitudeType.EXPONENT_NEG_2));
