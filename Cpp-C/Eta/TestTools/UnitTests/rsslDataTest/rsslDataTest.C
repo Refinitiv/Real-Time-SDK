@@ -20,6 +20,7 @@
 #endif
 #include "gtest/gtest.h"
 
+#include <limits>
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
@@ -7021,6 +7022,27 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT_4);
 	ASSERT_EQ(testReal.value,(-9223372036854775807 - 1));
 
+	/* Additional Real conversion tests */
+	rsslClearBuffer(&testDataBuf);
+	testDataBuf.data = testData;
+	testDataBuf.length = sizeof(testData);
+
+	testReal.isBlank = false;
+	testReal.hint = RSSL_RH_EXPONENT7;
+	testReal.value = (std::numeric_limits<RsslInt>::max)();
+
+	ASSERT_TRUE( rsslRealToString(&testDataBuf, &testReal) == RSSL_RET_SUCCESS );
+	ASSERT_TRUE( rsslNumericStringToReal(&testRealOut, &testDataBuf) == RSSL_RET_SUCCESS );
+	ASSERT_TRUE( rsslRealIsEqual(&testReal, &testRealOut) == RSSL_TRUE );
+
+	rsslClearBuffer(&testDataBuf);
+	testDataBuf.data = testData;
+	testDataBuf.length = sizeof(testData);
+	testReal.value = (std::numeric_limits<RsslInt>::min)();
+
+	ASSERT_TRUE( rsslRealToString(&testDataBuf, &testReal) == RSSL_RET_SUCCESS );
+	ASSERT_TRUE( rsslNumericStringToReal(&testRealOut, &testDataBuf) == RSSL_RET_SUCCESS );
+	ASSERT_TRUE( rsslRealIsEqual(&testReal, &testRealOut) == RSSL_TRUE );
 
 	/* Date conversion test */
 	testDate.month = 2;
