@@ -252,6 +252,7 @@ public:
 							else
 							{
 								q->e->addValue( p->e );
+								delete( p->e );
 							}
 						}
 
