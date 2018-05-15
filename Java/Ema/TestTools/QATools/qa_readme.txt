@@ -122,7 +122,7 @@ Series100Consumer112-ConsFunc-002
     Alters consumer added addition argument -objectname to set
 	httpObjectName
 
-Module:  Series300Consumer130
+Module:  Series100Consumer130
 -----------------------------
 Series100Consumer130-MultiThreadBatchView-001
 	Alters consumer to request items from a file in batch, batch-snapshot and view 
@@ -189,6 +189,13 @@ Series300Consumer333-GenM-002
    Alters the Consumer to send a GenericMsg on login stream with the name (in key) changed from the typical 
    "ConsumerConnectionStatus" to "GENERIC". Also added is the ability to process a GenericMsg from a provider.
    This altered code works in conjunction with Series300Provider320-GenM-001.   
+
+Module:  Series300Consumer341
+---------------------------
+Series300Consumer341-ConsFunc-001
+   Alters the Consumer to send repeatedly offstream post with a delay of 20 seconds in between
+
+
 
 Module:  Series400Consumer410 
 ---------------------------
@@ -463,6 +470,15 @@ Series100Provider100-ProvFunc-005
 Series100Provider100-ProvFunc-006
 	Alters Interactive Provider to send a STATUS message with empty/null state every 5 
 	seconds after provider is created.
+
+Module:  Series100Provider161 
+-------------------------------
+Series100Provider161-ProvFunc-001
+	Alters Interactive Provider for the following:
+		a.  Turns on a flag to support posting, in outbound login refresh 
+		b.  Removes code which previously rejected login requests in this example 
+	This altered code works in conjunction with Series300Consumer341-ConsFunc-001 to test off-stream posting timeout 
+	functionality. 
 
 Module:  Series300Provider320
 ---------------------------

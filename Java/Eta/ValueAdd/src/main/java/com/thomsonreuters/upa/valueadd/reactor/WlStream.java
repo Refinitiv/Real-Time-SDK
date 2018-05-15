@@ -699,7 +699,8 @@ class WlStream extends VaNode
         WlInteger tempWlInteger = ReactorFactory.createWlInteger();
         tempWlInteger.value(_ackMsg.streamId());
         
-        return _handler.callbackUser("WlStream.sendNak", _ackMsg, null, _watchlist.streamIdtoWlRequestTable().get(tempWlInteger), errorInfo);
+        // call back item handler with NAK message
+        return _watchlist.itemHandler().callbackUser("WlStream.sendNak", _ackMsg, null, _watchlist.streamIdtoWlRequestTable().get(tempWlInteger), errorInfo);
     }
     
     /* Encodes a UPA message into buffer and writes to channel. */

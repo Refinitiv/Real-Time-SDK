@@ -1900,7 +1900,8 @@ public class ReactorWatchlistJunit
             
             // wait for post ACK time to expire
 
-            // dispatch the next events
+            // dispatch the next events, turn off event RAISE
+            callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.SUCCESS);
             ReactorJunit.dispatchReactor(selector, reactor, 6000);
             
             // make sure _postTimeoutInfoList is empty
@@ -1908,7 +1909,7 @@ public class ReactorWatchlistJunit
             // make sure _postIdToMsgTable is empty
             assertEquals(0, watchlist.loginHandler().wlStream()._postIdToMsgTable.size());
             
-            // make sure NAK was received in callback
+            // make sure NAK was received in default callback
             assertEquals(3, callbackHandler.defaultMsgEventCount());
             msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
