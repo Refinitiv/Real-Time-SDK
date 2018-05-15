@@ -1274,7 +1274,7 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 			{
 				if ( trailzerocount == 0 )
 					trailzerovalue = value;
-				while ( *strptr == '0' && strptr < endptr)
+				while ( *strptr == '0' && strptr <= endptr)
 				{
 					trailzerocount++;
 					strptr++;
