@@ -101,6 +101,9 @@ class AppClient implements OmmConsumerClient
                     case DataTypes.ERROR:
                         System.out.println(fe.error().errorCode() + "( " + fe.error().codeAsString() + " )");
                         break;
+                    case DataTypes.RMTES :
+                        System.out.println(fe.rmtes());
+                        break;
                     case DataTypes.ENUM:
                         System.out.println(fe.enumValue());
                         break;

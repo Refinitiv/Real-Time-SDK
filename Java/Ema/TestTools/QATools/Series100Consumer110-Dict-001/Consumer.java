@@ -143,6 +143,9 @@ class AppClient implements OmmConsumerClient
                     case DataTypes.ENUM:
                         System.out.println(elementEntry.enumValue());
                         break;
+                    case DataTypes.RMTES :
+                        System.out.println(elementEntry.rmtes());
+                        break;
                     case DataTypes.ERROR:
                         System.out.println(elementEntry.error().errorCode() + " (" + elementEntry.error().errorCodeAsString() + ")");
                         break;
@@ -189,6 +192,9 @@ class AppClient implements OmmConsumerClient
                     case DataTypes.ENUM:
                         System.out.println(arrayEntry.enumValue());
                         break;
+                    case DataTypes.RMTES :
+                        System.out.println(arrayEntry.rmtes());
+                        break;
                     case DataTypes.ERROR:
                         System.out.println(arrayEntry.error().errorCode() + " (" + arrayEntry.error().errorCodeAsString() + ")");
                         break;
@@ -232,7 +238,7 @@ class AppClient implements OmmConsumerClient
                         System.out.println(fieldEntry.enumValue());
                         break;
                     case DataTypes.RMTES:
-                        System.out.println(fieldEntry.rmtes().toString());
+                        System.out.println(fieldEntry.rmtes());
                         break;
                     case DataTypes.ERROR:
                         System.out.println(fieldEntry.error().errorCode() + " (" + fieldEntry.error().errorCodeAsString() + ")");

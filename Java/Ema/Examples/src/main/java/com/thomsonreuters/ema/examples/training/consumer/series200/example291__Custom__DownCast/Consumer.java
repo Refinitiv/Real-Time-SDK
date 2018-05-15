@@ -19,6 +19,7 @@ import com.thomsonreuters.ema.access.OmmEnum;
 import com.thomsonreuters.ema.access.OmmError;
 import com.thomsonreuters.ema.access.OmmInt;
 import com.thomsonreuters.ema.access.OmmReal;
+import com.thomsonreuters.ema.access.OmmRmtes;
 import com.thomsonreuters.ema.access.OmmTime;
 import com.thomsonreuters.ema.access.OmmUInt;
 import com.thomsonreuters.ema.access.RefreshMsg;
@@ -147,6 +148,9 @@ class AppClient implements OmmConsumerClient
 				break;
 			case DataTypes.ASCII :
 				System.out.println("OmmAscii: " + ((OmmAscii)data).ascii());
+				break;
+			case DataTypes.RMTES :
+				System.out.println("OmmRmtes: " + ((OmmRmtes)data).rmtes());
 				break;
 			case DataTypes.ERROR :
 				System.out.println("Decoding error: " + ((OmmError)data).errorCodeAsString());

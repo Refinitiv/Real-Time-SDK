@@ -165,6 +165,9 @@ class AppClient implements OmmConsumerClient
                         System.out.println();
                     }
                         break;
+                    case DataTypes.RMTES :
+                        System.out.println(elementEntry.rmtes());
+                        break;
                     case DataTypes.ERROR:
                         System.out.println(elementEntry.error().errorCode() + " (" + elementEntry.error().errorCodeAsString() + ")");
                         break;
@@ -209,6 +212,9 @@ class AppClient implements OmmConsumerClient
                         break;
                     case DataTypes.ARRAY:
                         System.out.println(fieldEntry.array());
+                        break;
+                    case DataTypes.RMTES :
+                        System.out.println(fieldEntry.rmtes());
                         break;
                     case DataTypes.ERROR:
                         System.out.println(fieldEntry.error().errorCode() + " (" + fieldEntry.error().errorCodeAsString() + ")");

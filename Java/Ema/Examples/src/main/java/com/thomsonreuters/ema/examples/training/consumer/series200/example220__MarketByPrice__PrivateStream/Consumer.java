@@ -128,7 +128,7 @@ class AppClient implements OmmConsumerClient
 					System.out.println(fieldEntry.hasEnumDisplay() ? fieldEntry.enumDisplay() : fieldEntry.enumValue());
 					break;
 				case DataTypes.RMTES :
-					System.out.println(fieldEntry.rmtes().toString());
+					System.out.println(fieldEntry.rmtes());
 					break;
 				case DataTypes.ERROR :
 					System.out.println("(" + fieldEntry.error().errorCodeAsString() + ")");
