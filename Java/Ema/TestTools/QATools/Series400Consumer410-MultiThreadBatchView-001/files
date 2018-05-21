@@ -1,2 +1,3 @@
 #file,location
 Consumer.java,Examples/src/main/java/com/thomsonreuters/ema/examples/training/consumer/series400/example410__MarketPrice__HorizontalScaling
+build.gradle,Examples

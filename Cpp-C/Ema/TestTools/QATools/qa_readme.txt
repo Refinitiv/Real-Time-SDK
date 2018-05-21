@@ -158,6 +158,9 @@ Series300Consumer331-ConsFunc-002
                  -directoryFilter 5 (SERVICE_INFO_FILTER | SERVICE_GROUP_FILTER)
                  -directoryFilter 63 (SERVICE_INFO_FILTER | SERVICE_GROUP_FILTER | SERVICE_STATE_FILTER | SERVICE_LOAD_FILTER | SERVICE_DATA_FILTER | SERVICE_LINK_FILTER)
 
+Series300Consumer331-ConsFunc-003
+	Alters consumer to request directory with interestAfterRefresh(false) 
+
 Module:  Series300Consumer332
 ---------------------------
 

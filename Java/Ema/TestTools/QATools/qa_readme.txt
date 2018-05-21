@@ -6,7 +6,14 @@ Disclaimer:  Please note that this is not a comprehensive list of all test varia
 
 List of altered code directories:
 -----------------------------------------------------------------------------------------
+Module:  Series100Consumer100
+-----------------
+Series100Consumer100-ConsFunc-001
+    Alters consumer that sleep for 1 second before requesting item, 
+	calls uninitialize() right after requesting item
 
+-----------------
+Series100Consumer100-ConsFunc-001
 Module:  Series100Consumer110 
 -----------------
 
@@ -157,6 +164,9 @@ Series300Consumer331-SrcReissue-001
 Series300Consumer331-ConsFunc-001
 	Alters consumer to request directory using info filter without a serviceName. 
 	Also, alters consumer to not send out item requests.
+
+Series300Consumer331-ConsFunc-003
+    Alters consumer to request directory with interestAfterRefresh(false)
 
 Module:  Series300Consumer332
 ---------------------------

@@ -371,23 +371,37 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	{
 		try
 		{
-			_userLock.lock();
+			if (_activeServerConfig.userDispatch == OperationModel.API_DISPATCH)
+			{
+				if (_executor != null)
+				{
+					_executor.shutdown();
+					_threadRunning = false;
+					_eventReceived = true;
+					_selector.wakeup();
+					if (!_executor.awaitTermination(SHUTDOWN_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS))
+					{
+						if (_loggerClient.isErrorEnabled())
+						{
+							strBuilder().append("Failed to uninitialize OmmBaseImpl (_executor.awaitTermination() timed out).");
+							_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
+						}
+					}
+				}			
+				_userLock.lock();
+			}
+			else
+			{
+				_userLock.lock();
+				_threadRunning = false;
+				_eventReceived = true;
+				_selector.wakeup();
+			}
 			
 			if (_state == OmmImplState.NOT_INITIALIZED)
 				return;
 			
 			_state = OmmImplState.NOT_INITIALIZED;
-			
-			_threadRunning = false;
-			_eventReceived = true;
-			
-			_selector.wakeup();
-
-			if (_executor != null)
-			{
-				_executor.shutdown();
-				while (!_executor.awaitTermination(SHUTDOWN_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
-			}			
 			
 			if (ReactorReturnCodes.SUCCESS != _rsslReactor.shutdown(_rsslErrorInfo))
 			{
@@ -835,8 +849,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 					}
 	
 					return false;
-				} 
-			
+				}
+				
 				if ( _eventReceived)
 					return true;
 				
