@@ -160,11 +160,11 @@ public class Consumer
 		
 			LoginReq loginReq = EmaFactory.Domain.createLoginReq();
 			
-			long loginHandle = consumer.registerClient(loginReq.message(), appClient);
+			consumer.registerClient(loginReq.message(), appClient);
 			
 	        ReqMsg reqMsg = EmaFactory.createReqMsg();
 			
-			long handle = consumer.registerClient(reqMsg.serviceName("DIRECT_FEED").name("IBM.N"), appClient);
+			consumer.registerClient(reqMsg.serviceName("DIRECT_FEED").name("IBM.N"), appClient);
 
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		} 

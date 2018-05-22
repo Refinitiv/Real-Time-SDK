@@ -1809,7 +1809,7 @@ public class Module_5_HandleItemRequest
                         if (retCode == CodecReturnCodes.SUCCESS)
                         {
                             /* ApplicationId */
-                            if (element.name().toString().equals(ElementNames.APPID))
+                            if (element.name().equals(ElementNames.APPID))
                             {
                                 loginRequestInfo_ApplicationId = element.encodedData().toString();
                             }

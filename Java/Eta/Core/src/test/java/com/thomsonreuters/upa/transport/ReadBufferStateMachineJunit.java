@@ -21,7 +21,7 @@ import com.thomsonreuters.upa.transport.RsslSocketChannel;
 /**
  * These are some *very* basic tests of the
  * {@link ReadBufferStateMachine} to test some corner cases not handled by
- * the real JUnit tests in {@link SocketChannelJunit} 
+ * the real JUnit tests in {@link SocketChannelJunitTest} 
  */
 public class ReadBufferStateMachineJunit
 {

@@ -198,10 +198,10 @@ public class IProvider
 			
 			while( appClient.loginHandle == 0 ) Thread.sleep(1000);
 			
-			long rwfFld = provider.registerClient(EmaFactory.createReqMsg().name("RWFFld").filter(EmaRdm.DICTIONARY_NORMAL)
+			provider.registerClient(EmaFactory.createReqMsg().name("RWFFld").filter(EmaRdm.DICTIONARY_NORMAL)
 					.serviceName("DIRECT_FEED").domainType(EmaRdm.MMT_DICTIONARY), appClient);
 			
-			long rwfEnum = provider.registerClient(EmaFactory.createReqMsg().name("RWFEnum").filter(EmaRdm.DICTIONARY_NORMAL)
+			provider.registerClient(EmaFactory.createReqMsg().name("RWFEnum").filter(EmaRdm.DICTIONARY_NORMAL)
 					.serviceName("DIRECT_FEED").domainType(EmaRdm.MMT_DICTIONARY), appClient);
 			
 			while ( appClient.itemHandle == 0 ) Thread.sleep(1000);

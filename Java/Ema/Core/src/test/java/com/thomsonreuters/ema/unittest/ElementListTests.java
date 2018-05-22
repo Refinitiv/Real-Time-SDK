@@ -35,8 +35,6 @@ import com.thomsonreuters.ema.access.OmmReal;
 import com.thomsonreuters.ema.access.OmmState;
 import com.thomsonreuters.ema.access.OmmXml;
 import com.thomsonreuters.ema.access.Series;
-import com.thomsonreuters.ema.access.Vector;
-import com.thomsonreuters.ema.access.VectorEntry;
 import com.thomsonreuters.ema.rdm.*;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
 
@@ -85,7 +83,6 @@ public class ElementListTests extends TestCase
 		TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.ARRAY", ee1.load().dataType()== DataTypes.ARRAY );
 		TestUtilities.checkResult("ElementEntry.code() ==Data.DataCode.NO_CODE", ee1.code() ==Data.DataCode.NO_CODE);
 		OmmArray ar2 = ee1.array();
-		Iterator<OmmArrayEntry> arrayIter = ar2.iterator();
 		TestUtilities.checkResult("OmmArray.size == 500", ar2.size() == 500);
 
   		System.out.println("\ntestElementList_ReEncodeEMAWithBigBuffer passed");

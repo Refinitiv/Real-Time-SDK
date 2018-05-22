@@ -2177,8 +2177,6 @@ class WlItemHandler implements WlHandler
         // Fanout if open; otherwise, recovery code will do it.
         if (!((StatusMsg)msg).checkHasState() || ((StatusMsg)msg).state().streamState() == StreamStates.OPEN)
         {
-            int ret;
-            
             // fanout status message to user requests associated with the stream
             for (int i = 0; i < wlStream.userRequestList().size(); i++)
             {
@@ -2190,7 +2188,7 @@ class WlItemHandler implements WlHandler
                 // callback user
                 _tempWlInteger.value(msg.streamId());
 
-                if ((ret = callbackUser("WlItemHandler.readStatusMsg", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
+                if (callbackUser("WlItemHandler.readStatusMsg", msg, null, _watchlist.streamIdtoWlRequestTable().get(_tempWlInteger), errorInfo) < ReactorCallbackReturnCodes.SUCCESS)
                 {
                     // break out of loop for error
                     break;

@@ -1494,7 +1494,7 @@ public class Module_3_ProvideDirectory
                         if (retCode == CodecReturnCodes.SUCCESS)
                         {
                             /* ApplicationId */
-                            if (element.name().toString().equals(ElementNames.APPID))
+                            if (element.name().equals(ElementNames.APPID))
                             {
                                 loginRequestInfo_ApplicationId = element.encodedData().toString();
                             }

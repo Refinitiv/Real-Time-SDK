@@ -6,6 +6,7 @@ import com.sun.management.OperatingSystemMXBean;
 /**
  *  Resource Statistics (CPU and Memory Usage).
  */
+@SuppressWarnings("restriction")
 public class ResourceUsageStats
 {
     // note: Java 7 (Oracle JDK) introduced the following method for obtaining the current proceses's CPU usage.

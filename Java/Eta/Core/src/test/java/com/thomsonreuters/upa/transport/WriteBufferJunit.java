@@ -957,14 +957,14 @@ public class WriteBufferJunit
 
         try
         {
-            replay = RipcHandshakeJunit.parseReplayFile(inputFile);
+            replay = RipcHandshakeJunitTest.parseReplayFile(inputFile);
 
-            RipcHandshakeJunit.initTransport(false); // initialize RSSL
+            RipcHandshakeJunitTest.initTransport(false); // initialize RSSL
 
             server.wait(TestServer.State.SETUP);
 
             // make UPA call to connect to server.
-            if ((consumerChannel = RipcHandshakeJunit.connectToRsslServer("localhost",
+            if ((consumerChannel = RipcHandshakeJunitTest.connectToRsslServer("localhost",
                                                        String.valueOf(DEFAULT_LISTEN_PORT), error)) == null)
             {
                 fail("Unable to connect to RSSL server: <" + error.text() + ">");
@@ -998,7 +998,7 @@ public class WriteBufferJunit
                                 + retry);
                     }
                     // initChannel should send connectReq to our server.
-                    channelState = RipcHandshakeJunit.initChannel(consumerChannel, error, inProg);
+                    channelState = RipcHandshakeJunitTest.initChannel(consumerChannel, error, inProg);
                     assertEquals(ChannelState.INITIALIZING, channelState);
 
                     if (server.check(TestServer.State.READABLE))
@@ -1029,7 +1029,7 @@ public class WriteBufferJunit
                                             .position()));
                 }
 
-                RipcHandshakeJunit.compareExpectedConnectReq(server.buffer(), expectedRipcVersion--, Transport.queryVersion().productVersion());
+                RipcHandshakeJunitTest.compareExpectedConnectReq(server.buffer(), expectedRipcVersion--, Transport.queryVersion().productVersion());
 
                 if (DEBUG)
                 {
@@ -1054,7 +1054,7 @@ public class WriteBufferJunit
                     }
 
                     // initChannel should send connectReq to our server.
-                    channelState = RipcHandshakeJunit.initChannel(consumerChannel, error, inProg);
+                    channelState = RipcHandshakeJunitTest.initChannel(consumerChannel, error, inProg);
                     if (noProtocolsExpectedFlag && fallBackCount == 0
                             && channelState == ChannelState.INACTIVE)
                     {
@@ -1091,7 +1091,7 @@ public class WriteBufferJunit
                         + Transport.toHexString(server.buffer(), 0, server.buffer().position()));
             }
 
-            RipcHandshakeJunit.compareExpectedConnectReq(server.buffer(), expectedRipcVersion, Transport.queryVersion().productVersion());
+            RipcHandshakeJunitTest.compareExpectedConnectReq(server.buffer(), expectedRipcVersion, Transport.queryVersion().productVersion());
 
             if (DEBUG)
             {
@@ -1105,7 +1105,7 @@ public class WriteBufferJunit
             {
                 // initChannel should read connectAck.
                 // wait for the channel to become active
-                channelState = RipcHandshakeJunit.initChannel(consumerChannel, error, inProg);
+                channelState = RipcHandshakeJunitTest.initChannel(consumerChannel, error, inProg);
                 if (channelState == ChannelState.ACTIVE)
                     break;
                 else
@@ -1116,7 +1116,7 @@ public class WriteBufferJunit
 
             if (fallBackRipcVersion >= 13)
             {
-                RipcHandshakeJunit.compareComponentVersionToReceivedComponentInfo(receivedComponentVersion, consumerChannel, error);
+                RipcHandshakeJunitTest.compareComponentVersionToReceivedComponentInfo(receivedComponentVersion, consumerChannel, error);
             }
             
             
@@ -1144,7 +1144,7 @@ public class WriteBufferJunit
         }
         finally
         {
-            RipcHandshakeJunit.cleanupForTestsWithTestServer(replay, consumerChannel, server, tServer, error);
+            RipcHandshakeJunitTest.cleanupForTestsWithTestServer(replay, consumerChannel, server, tServer, error);
         }
 
         try

@@ -25,7 +25,6 @@ import com.thomsonreuters.upa.codec.Array;
 import com.thomsonreuters.upa.codec.ArrayEntry;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CloseMsg;
-import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.DataDictionary;
@@ -67,7 +66,6 @@ import com.thomsonreuters.upa.rdm.ElementNames;
 import com.thomsonreuters.upa.rdm.ViewTypes;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.transport.TransportFactory;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryClose;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
@@ -18728,7 +18726,6 @@ public class ReactorWatchlistJUnitNew
         CloseMsg receivedCloseMsg;
         LoginStatus loginStatus = (LoginStatus)LoginMsgFactory.createMsg();
         LoginStatus receivedLoginStatus;
-        ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
         int providerStreamId;
 
         /* Create reactors. */

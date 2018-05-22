@@ -112,13 +112,13 @@ public class ItemRequestHandler
                 // If the streamId does not match, reject the redundant request.
                 _itemAttributes.domainType(msg.domainType());
                 _itemAttributes.msgKey(msgKey);
-                ItemInfo itemInfo = findAlreadyOpenedItem(providerSession, msg, _itemAttributes);
+                ItemInfo itemInfo = findAlreadyOpenedItem(providerSession, _itemAttributes);
                 if (itemInfo != null && itemInfo.streamId() != msg.streamId())
                 {
                     return sendRequestReject(providerThread, providerSession, msg, ItemRejectReason.ITEM_ALREADY_OPENED, error);
                 }
 
-                if (isStreamInUse(providerSession, msg.streamId(), msgKey))
+                if (isStreamInUse(providerSession, msg.streamId(), _itemAttributes))
                 {
                     return sendRequestReject(providerThread, providerSession, msg, ItemRejectReason.STREAM_ALREADY_IN_USE, error);
                 }
@@ -315,19 +315,19 @@ public class ItemRequestHandler
     /*
      * Is stream with stream id in use. 
      */
-    private boolean isStreamInUse(ProviderSession providerSession, Integer streamId, MsgKey msgKey)
+    private boolean isStreamInUse(ProviderSession providerSession, int streamId, ItemAttributes attributes)
     {
-        ItemInfo itemInfo = providerSession.itemAttributesTable().get(streamId);
+        ItemInfo itemInfo = providerSession.itemAttributesTable().get(attributes);
         if (itemInfo == null)
             return false;
 
-        return !itemInfo.attributes().msgKey().equals(msgKey);
+        return (itemInfo.streamId() == streamId && itemInfo.attributes().msgKey().equals(attributes.msgKey()));
     }
 
     /*
      * Retrieves item from the item watch list.
      */
-    private ItemInfo findAlreadyOpenedItem(ProviderSession providerSession, Msg msg, ItemAttributes attributes)
+    private ItemInfo findAlreadyOpenedItem(ProviderSession providerSession, ItemAttributes attributes)
     {
         return providerSession.itemAttributesTable().get(attributes);
     }

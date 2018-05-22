@@ -21,7 +21,6 @@ import com.thomsonreuters.ema.access.ElementEntry;
 import com.thomsonreuters.ema.access.ElementList;
 import com.thomsonreuters.ema.access.Vector;
 import com.thomsonreuters.ema.access.VectorEntry;
-import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.FieldList;
@@ -228,7 +227,7 @@ public class Consumer
 			
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 		
-			long handle = consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
+			consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
 
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		} 

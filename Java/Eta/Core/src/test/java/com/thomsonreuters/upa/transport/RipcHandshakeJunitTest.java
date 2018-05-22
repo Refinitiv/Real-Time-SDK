@@ -24,7 +24,7 @@ import com.thomsonreuters.upa.test.network.replay.NetworkReplay;
 import com.thomsonreuters.upa.test.network.replay.NetworkReplayFactory;
 import com.thomsonreuters.upa.transport.Ripc.CompressionTypes;
 
-public class RipcHandshakeJunit
+public class RipcHandshakeJunitTest
 {
     final static boolean DEBUG = false;
     final static int SLEEPTIMEMS = 25; // ms

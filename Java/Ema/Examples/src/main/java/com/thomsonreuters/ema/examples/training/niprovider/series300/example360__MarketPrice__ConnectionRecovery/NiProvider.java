@@ -15,7 +15,6 @@ import com.thomsonreuters.ema.access.PostMsg;
 import com.thomsonreuters.ema.access.RefreshMsg;
 import com.thomsonreuters.ema.access.ReqMsg;
 import com.thomsonreuters.ema.access.StatusMsg;
-import com.thomsonreuters.ema.rdm.EmaRdm;
 
 
 class AppClient implements OmmProviderClient
@@ -95,8 +94,6 @@ public class NiProvider
 			provider = EmaFactory.createOmmProvider(config.operationModel(OmmNiProviderConfig.OperationModel.USER_DISPATCH)
 					.username("user"), appClient);
 
-			ReqMsg reqMsg = EmaFactory.createReqMsg();
-				
             provider.dispatch( 1000000 );
                         
 			long itemHandle = 6;

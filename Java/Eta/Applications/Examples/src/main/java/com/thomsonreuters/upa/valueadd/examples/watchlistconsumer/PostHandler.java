@@ -1,6 +1,5 @@
 package com.thomsonreuters.upa.valueadd.examples.watchlistconsumer;
 
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 

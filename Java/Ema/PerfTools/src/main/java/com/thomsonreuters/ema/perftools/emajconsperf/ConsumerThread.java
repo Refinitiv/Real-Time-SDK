@@ -5,9 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import com.thomsonreuters.ema.access.AckMsg;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.GenericMsg;
+import com.thomsonreuters.ema.access.Msg;
 import com.thomsonreuters.ema.access.OmmConsumer;
 import com.thomsonreuters.ema.access.OmmConsumerClient;
 import com.thomsonreuters.ema.access.OmmConsumerEvent;
@@ -458,7 +458,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
     		_consThreadInfo._stats.refreshCount().increment();
     		
     		//If we are still retrieving images, check if this item still needs one.
-			if(!_marketPriceDecoder.decodeResponse(DataTypes.REFRESH_MSG, refreshMsg.payload().fieldList(), _consThreadInfo, _consPerfConfig.downcastDecoding()))
+			if(!_marketPriceDecoder.decodeResponse((Msg)refreshMsg, refreshMsg.payload().fieldList(), _consThreadInfo, _consPerfConfig.downcastDecoding()))
 			{
 				shutdownConsumer("Decoding failure");
         		return;
@@ -536,7 +536,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 		}
 		if (_consThreadInfo._stats.firstUpdateTime() == 0)
 			_consThreadInfo._stats.firstUpdateTime(System.nanoTime());
-		if(!_marketPriceDecoder.decodeResponse(DataTypes.UPDATE_MSG, updateMsg.payload().fieldList(), _consThreadInfo, _consPerfConfig.downcastDecoding()))
+		if(!_marketPriceDecoder.decodeResponse((Msg)updateMsg, updateMsg.payload().fieldList(), _consThreadInfo, _consPerfConfig.downcastDecoding()))
 		{
 			shutdownConsumer("Decoding failure");
     		return;

@@ -1016,10 +1016,6 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, tempTrace.toString(), Severity.TRACE));
 		}	
 	}    
-	 
-	private void encryptedConfiguration(com.thomsonreuters.upa.transport.ConnectOptions rsslOptions)
-	{
-	}
 
 	private void setRsslReactorChannel(ReactorChannel rsslReactorChannl, ReactorChannelInfo rsslReactorChannlInfo, ReactorErrorInfo rsslReactorErrorInfo)
 	{

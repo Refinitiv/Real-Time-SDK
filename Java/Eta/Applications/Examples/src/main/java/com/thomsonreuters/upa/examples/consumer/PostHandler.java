@@ -1,6 +1,5 @@
 package com.thomsonreuters.upa.examples.consumer;
 
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import com.thomsonreuters.upa.codec.Buffer;

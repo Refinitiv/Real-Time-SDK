@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
-import com.thomsonreuters.ema.access.OmmBaseImpl.OmmImplState;
 import com.thomsonreuters.ema.access.OmmProvider.DispatchReturn;
 import com.thomsonreuters.ema.access.OmmProvider.DispatchTimeout;
 import com.thomsonreuters.ema.access.OmmIProviderConfig.OperationModel;

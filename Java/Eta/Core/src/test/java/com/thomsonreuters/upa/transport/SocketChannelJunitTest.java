@@ -29,7 +29,7 @@ import com.thomsonreuters.upa.test.network.replay.NetworkReplay;
 import com.thomsonreuters.upa.test.network.replay.NetworkReplayFactory;
 import com.thomsonreuters.upa.test.network.replay.NetworkReplayUtil;
 
-public class SocketChannelJunit
+public class SocketChannelJunitTest
 {
     @BeforeClass
     public static void setRunningInJunits()

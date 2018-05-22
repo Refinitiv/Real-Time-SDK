@@ -292,7 +292,7 @@ public class Consumer
 			
 			appClient.setOmmConsumer(consumer);
 			
-			long handle = consumer.registerClient(EmaFactory.createReqMsg().domainType(200).serviceName("DIRECT_FEED")
+			consumer.registerClient(EmaFactory.createReqMsg().domainType(200).serviceName("DIRECT_FEED")
 																			.name("IBM.XYZ")
 																			.privateStream(true), appClient, (Integer)1);
 

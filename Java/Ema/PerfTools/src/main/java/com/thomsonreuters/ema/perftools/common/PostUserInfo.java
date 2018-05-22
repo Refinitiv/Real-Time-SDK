@@ -4,6 +4,6 @@ package com.thomsonreuters.ema.perftools.common;
 public class PostUserInfo
 {
 	// post user information
-	public String userAddr;
+	public long userAddr;
 	public long userId;
 }

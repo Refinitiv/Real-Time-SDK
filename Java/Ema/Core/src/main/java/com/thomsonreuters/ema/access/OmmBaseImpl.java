@@ -30,7 +30,6 @@ import com.thomsonreuters.ema.access.OmmConsumer.DispatchReturn;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchTimeout;
 import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
-import com.thomsonreuters.ema.access.OmmServerBaseImpl.OmmImplState;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;

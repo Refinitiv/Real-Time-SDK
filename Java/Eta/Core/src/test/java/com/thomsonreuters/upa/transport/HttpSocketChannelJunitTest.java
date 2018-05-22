@@ -16,7 +16,7 @@ import com.thomsonreuters.upa.test.network.replay.NetworkReplay;
 import com.thomsonreuters.upa.test.network.replay.NetworkReplayFactory;
 import com.thomsonreuters.upa.test.network.replay.NetworkReplayUtil;
 
-public class HttpSocketChannelJunit
+public class HttpSocketChannelJunitTest
 {
     @BeforeClass
     public static void setRunningInJunits()

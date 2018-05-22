@@ -4,17 +4,16 @@ import java.util.Iterator;
 
 import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.DataType;
+import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.FieldList;
 import com.thomsonreuters.ema.access.Msg;
-import com.thomsonreuters.ema.access.OmmArray;
 import com.thomsonreuters.ema.access.OmmAscii;
 import com.thomsonreuters.ema.access.OmmBuffer;
 import com.thomsonreuters.ema.access.OmmDate;
 import com.thomsonreuters.ema.access.OmmDateTime;
 import com.thomsonreuters.ema.access.OmmDouble;
 import com.thomsonreuters.ema.access.OmmEnum;
-import com.thomsonreuters.ema.access.OmmError;
 import com.thomsonreuters.ema.access.OmmException;
 import com.thomsonreuters.ema.access.OmmFloat;
 import com.thomsonreuters.ema.access.OmmInt;
@@ -26,7 +25,8 @@ import com.thomsonreuters.ema.access.OmmTime;
 import com.thomsonreuters.ema.access.OmmUInt;
 import com.thomsonreuters.ema.access.OmmUtf8;
 import com.thomsonreuters.ema.perftools.common.PostUserInfo;
-import com.thomsonreuters.ema.access.DataType.DataTypes;
+import com.thomsonreuters.ema.access.RefreshMsg;
+import com.thomsonreuters.ema.access.UpdateMsg;
 
 /**
  * This is the market price decoder for the emajConsPerf application.
@@ -39,21 +39,33 @@ public class MarketPriceDecoder
 
     private FieldEntry _fEntry; /* field entry */
     private OmmUInt _fidUIntValue; /* storage for UInt */
-    private OmmInt _fidIntValue; /* storage for Int */
-    private OmmReal _fidRealValue; /* storage for Real */
-    private OmmEnum  _fidEnumValue; /* storage for Enum */
-    private OmmDate _fidDateValue; /* storage for Date */
-    private OmmTime _fidTimeValue; /* storage for Time */
-    private OmmDateTime _fidDateTimeValue; /* storage for DateTime */
-    private OmmFloat _fidFloatValue; /* storage for Float */
+    @SuppressWarnings("unused")
+	private OmmInt _fidIntValue; /* storage for Int */
+    @SuppressWarnings("unused")
+	private OmmReal _fidRealValue; /* storage for Real */
+    @SuppressWarnings("unused")
+	private OmmEnum  _fidEnumValue; /* storage for Enum */
+    @SuppressWarnings("unused")
+	private OmmDate _fidDateValue; /* storage for Date */
+    @SuppressWarnings("unused")
+	private OmmTime _fidTimeValue; /* storage for Time */
+    @SuppressWarnings("unused")
+	private OmmDateTime _fidDateTimeValue; /* storage for DateTime */
+    @SuppressWarnings("unused")
+	private OmmFloat _fidFloatValue; /* storage for Float */
+    @SuppressWarnings("unused")
     private OmmDouble _fidDoubleValue; /* storage for Double */
+    @SuppressWarnings("unused")
     private OmmQos _fidQosValue; /* storage for QOS */
+    @SuppressWarnings("unused")
     private OmmState _fidStateValue; /* storage for State */
+    @SuppressWarnings("unused")
     private OmmBuffer _fidBufferValue; /* storage for Buffer */
+    @SuppressWarnings("unused")
     private OmmRmtes _fidRmtesValue; /* storage for Buffer */
+    @SuppressWarnings("unused")
     private OmmUtf8 _fidUtf8Value; /* storage for Buffer */
-    private OmmError _fidErrorValue; /* storage for Buffer */
-    private OmmArray _fidArrayValue; /* storage for Buffer */
+    @SuppressWarnings("unused")
     private OmmAscii _fidAsciiValue; /* storage for Buffer */
     private PostUserInfo _postUserInfo; /* post user information */
     
@@ -70,13 +82,13 @@ public class MarketPriceDecoder
     /**
      *  Decode the update.
      *
-     * @param msgType the msg type
+     * @param msg the EMA msg
      * @param fieldList the field list
      * @param _consThreadInfo the cons thread info
      * @param downcastDecoding the downcast decoding
      * @return true, if successful
      */
-	public boolean decodeResponse(int msgType, FieldList fieldList, ConsumerThreadInfo _consThreadInfo, boolean downcastDecoding)
+	public boolean decodeResponse(Msg msg, FieldList fieldList, ConsumerThreadInfo _consThreadInfo, boolean downcastDecoding)
 	{
 		long timeTracker = 0;
 		long postTimeTracker = 0;
@@ -147,14 +159,14 @@ public class MarketPriceDecoder
 								return false;
 						}
 						
-						if (msgType == DataTypes.UPDATE_MSG)
+						if (msg.dataType() == DataTypes.UPDATE_MSG)
 						{
 							if(_fEntry.fieldId() == TIM_TRK_1_FID)
 								timeTracker = _fidUIntValue.longValue();
 							if(_fEntry.fieldId() == TIM_TRK_2_FID)
 								postTimeTracker = _fidUIntValue.longValue();
 						}
-						else if(msgType == DataTypes.GENERIC_MSG)
+						else if(msg.dataType() == DataTypes.GENERIC_MSG)
 						{
 						    if(_fEntry.fieldId() == TIM_TRK_3_FID)
 						        genMsgTimeTracker = _fidUIntValue.longValue();
@@ -221,14 +233,14 @@ public class MarketPriceDecoder
 								return false;
 						}
 						
-						if (msgType == DataTypes.UPDATE_MSG)
+						if (msg.dataType() == DataTypes.UPDATE_MSG)
 						{
 							if(_fEntry.fieldId() == TIM_TRK_1_FID)
 								timeTracker = _fidUIntValue.longValue();
 							if(_fEntry.fieldId() == TIM_TRK_2_FID)
 								postTimeTracker = _fidUIntValue.longValue();
 						}
-						else if(msgType == DataTypes.GENERIC_MSG)
+						else if(msg.dataType() == DataTypes.GENERIC_MSG)
 						{
 						    if(_fEntry.fieldId() == TIM_TRK_3_FID)
 						        genMsgTimeTracker = _fidUIntValue.longValue();
@@ -245,11 +257,10 @@ public class MarketPriceDecoder
 		if (timeTracker > 0)
 			_consThreadInfo.timeRecordSubmit(_consThreadInfo.latencyRecords(), timeTracker, System.nanoTime()/1000, 1);
 		
-		//TODO
-//		if(postTimeTracker > 0 && checkPostUserInfo(msg))
-//			_consThreadInfo.timeRecordSubmit(_consThreadInfo.genMsgLatencyRecords(), timeTracker, System.nanoTime()/1000, 1);
-//        if(genMsgTimeTracker > 0)
-//            _consThreadInfo.timeRecordSubmit(_consThreadInfo.postLatencyRecords(), timeTracker, System.nanoTime()/1000, 1);
+		if(postTimeTracker > 0 && checkPostUserInfo(msg))
+			_consThreadInfo.timeRecordSubmit(_consThreadInfo.genMsgLatencyRecords(), postTimeTracker, System.nanoTime()/1000, 1);
+        if(genMsgTimeTracker > 0)
+            _consThreadInfo.timeRecordSubmit(_consThreadInfo.postLatencyRecords(), genMsgTimeTracker, System.nanoTime()/1000, 1);
 
 		return true;
 	}
@@ -257,7 +268,22 @@ public class MarketPriceDecoder
 	/* Checks for PostUserInfo. */
 	private boolean checkPostUserInfo(Msg msg)
 	{
-		//TODO
-		return true;
+		/* If post user info is present, make sure it matches our info.
+		 * Otherwise, assume any posted information present came from us anyway(return true). */
+		switch(msg.dataType())
+		{
+			case DataTypes.REFRESH_MSG:
+				RefreshMsg refreshMsg = (RefreshMsg)msg;
+				return (!refreshMsg.hasPublisherId() ||
+				 refreshMsg.publisherIdUserAddress() == _postUserInfo.userAddr &&
+				 refreshMsg.publisherIdUserId() == _postUserInfo.userId);
+			case DataTypes.UPDATE_MSG:
+				UpdateMsg updateMsg = (UpdateMsg)msg;
+				return (!updateMsg.hasPublisherId() ||
+				 updateMsg.publisherIdUserAddress() == _postUserInfo.userAddr &&
+				 updateMsg.publisherIdUserId() == _postUserInfo.userId);
+			default:
+				return true;
+		}
 	}
 }

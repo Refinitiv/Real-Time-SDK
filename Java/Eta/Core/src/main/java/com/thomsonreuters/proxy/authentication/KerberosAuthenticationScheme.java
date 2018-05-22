@@ -307,7 +307,8 @@ public class KerberosAuthenticationScheme implements IAuthenticationScheme
             @Override
             public AppConfigurationEntry[] getAppConfigurationEntry(String cname)
             {
-                 String name = com.sun.security.auth.module.Krb5LoginModule.class.getName();
+                @SuppressWarnings("restriction")
+				String name = com.sun.security.auth.module.Krb5LoginModule.class.getName();
 
                  loginConfigOptions.put("com.sun.security.auth.module.Krb5LoginModule", "required");
                  String useTC = System.getProperty("krb_login_config_useTicketCache");

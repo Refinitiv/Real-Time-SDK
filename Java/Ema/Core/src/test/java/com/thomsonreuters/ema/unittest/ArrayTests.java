@@ -7,6 +7,8 @@
 
 package com.thomsonreuters.ema.unittest;
 
+import static org.junit.Assert.assertEquals;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -98,21 +100,21 @@ public class ArrayTests
 			array.itemLength(0); //varying size only
 			array.primitiveType(DataTypes.ASCII_STRING);
 				
-		    int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 				
 			Buffer bufText = CodecFactory.createBuffer();
 			bufText.data("ABC");
-			ret = arrayEntry.encode(iter,bufText);
+			assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 			
 			bufText.clear();
 			bufText.data( "DEFGH");
-			ret = arrayEntry.encode(iter,bufText);
+			assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 				
 			bufText.clear();
 			bufText.data( "KLMNOPQRS");
-			ret = arrayEntry.encode(iter,bufText);
+			assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 
-			ret =  array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 
 
 			// Now do EMA decoding of OmmArray of Ascii
@@ -127,7 +129,7 @@ public class ArrayTests
 			 OmmArrayEntry ae1 = arIter.next();
 			TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.ASCII, "OmmArrayEntry.loadType() ==  DataType.DataTypes.ASCII" );
 			try {
-				long intValue = ae1.uintValue();
+				ae1.uintValue();
 				TestUtilities.checkResult( false, "OmmArray with three Ascii - exception expected" );
 			}
 			catch ( OmmException excp )
@@ -157,7 +159,7 @@ public class ArrayTests
 				 OmmArrayEntry ae = arIter.next();
 				TestUtilities.checkResult( ae.loadType()==  DataType.DataTypes.ASCII, "OmmArrayEntry.loadType() ==  DataType.DataTypes.ASCII" );
 				try {
-					long intValue = ae.uintValue();
+					ae.uintValue();
 					TestUtilities.checkResult( false, "OmmArray with three Ascii - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -206,19 +208,19 @@ public class ArrayTests
 				array.itemLength(0); //varying size only
 				array.primitiveType(DataTypes.ASCII_STRING);
 					
-			   int  ret = array.encodeInit(iter);
+				assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 					
 				Buffer bufText = CodecFactory.createBuffer();
 				bufText.data("ABC");
-				ret = arrayEntry.encode(iter,bufText);
+				assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 				
-				ret = arrayEntry.encodeBlank(iter);
+				assertEquals(arrayEntry.encodeBlank(iter), CodecReturnCodes.SUCCESS);
 					
 				bufText.clear();
 				bufText.data( "KLMNOPQRS");
-				ret = arrayEntry.encode(iter,bufText);
+				assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 	
-				ret =  array.encodeComplete(iter, true);
+				assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 				
 				//Now do EMA decoding of OmmArray of Ascii On Blank
 	           OmmArray ar = JUnitTestConnect.createOmmArray();
@@ -233,7 +235,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()==  DataType.DataTypes.ASCII, "OmmArrayEntry.loadType() ==  DataType.DataTypes.ASCII" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Ascii (one blank) - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -264,7 +266,7 @@ public class ArrayTests
 					OmmArrayEntry ae = arIter.next();
 					TestUtilities.checkResult( ae.loadType()==  DataType.DataTypes.ASCII, "OmmArrayEntry.loadType() ==  DataType.DataTypes.ASCII" );
 					try {
-							long intValue = ae.uintValue();
+							ae.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three Ascii (one blank) - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -347,25 +349,25 @@ public class ArrayTests
 			array.itemLength(0); //varying size only
 			array.primitiveType(DataTypes.DATE);
 				
-		   int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 				
 			Date date = CodecFactory.createDate();
 			date.year(1111);
 			date.month(11);
 			date.day( 1);
-			ret = arrayEntry.encode(iter,date);
+			assertEquals(arrayEntry.encode(iter,date), CodecReturnCodes.SUCCESS);
 			
 			date.year(2222);
 			date.month(2);
 			date.day( 2);
-			ret = arrayEntry.encode(iter,date);
+			assertEquals(arrayEntry.encode(iter,date), CodecReturnCodes.SUCCESS);
 
 			date.year(3333);
 			date.month(3);
 			date.day( 3);
-			ret = arrayEntry.encode(iter,date);
+			assertEquals(arrayEntry.encode(iter,date), CodecReturnCodes.SUCCESS);
 
-			ret =  array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 				
 				//Now do EMA decoding of OmmArray of Dates
 	           OmmArray ar = JUnitTestConnect.createOmmArray();
@@ -380,7 +382,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.DATE, "OmmArrayEntry.loadType() == DataType.DataTypes.DATE" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Date - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -418,7 +420,7 @@ public class ArrayTests
 					ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.DATE, "OmmArrayEntry.loadType() == DataType.DataTypes.DATE" );
 					try {
-							long uintValue = ae1.uintValue();
+							ae1.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three Date - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -470,16 +472,16 @@ public class ArrayTests
 		array.primitiveType(DataTypes.DOUBLE);
 		com.thomsonreuters.upa.codec.Double value = CodecFactory.createDouble();
 
-		int  ret = array.encodeInit(iter);
+		assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 		
 
 		for ( int i = 0; i < numValues; i++ )
 		{
 			value.value(values[i]);
-			ret = arrayEntry.encode(iter, value );
+			assertEquals(arrayEntry.encode(iter, value ), CodecReturnCodes.SUCCESS);
 		}
 
-		ret =  array.encodeComplete(iter, true);
+		assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 	}
 
 	void testArrayDouble_Decode( boolean fixedSize )
@@ -507,7 +509,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.DOUBLE, "OmmArrayEntry.loadType() == DataType.DataTypes.DOUBLE" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Double - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -539,7 +541,7 @@ public class ArrayTests
 					 ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.DOUBLE, "OmmArrayEntry.loadType() == DataType.DataTypes.DOUBLE" );
 					try {
-							long intValue = ae1.uintValue();
+							ae1.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three Double - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -585,15 +587,15 @@ public class ArrayTests
 		array.primitiveType(DataTypes.FLOAT);
 		com.thomsonreuters.upa.codec.Float value = CodecFactory.createFloat();
 
-		int  ret = array.encodeInit(iter);
+		assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 		
 		for ( int i = 0; i < numValues; i++ )
 		{
 			value.value(values[i]);
-			ret = arrayEntry.encode(iter, value );
+			assertEquals(arrayEntry.encode(iter, value ), CodecReturnCodes.SUCCESS);
 		}
 
-		ret =  array.encodeComplete(iter, true);
+		assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 	}
 
 	void testArrayFloat_Decode( boolean fixedSize )
@@ -622,7 +624,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.FLOAT, "OmmArrayEntry.loadType() == DataType.DataTypes.FLOAT" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Float - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -654,7 +656,7 @@ public class ArrayTests
 					ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.FLOAT, "OmmArrayEntry.loadType() == DataType.DataTypes.FLOAT" );
 					try {
-							long intValue = ae1.intValue();
+							ae1.intValue();
 							TestUtilities.checkResult( false, "OmmArray with three Float - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -701,15 +703,15 @@ public class ArrayTests
 		array.primitiveType(DataTypes.INT);
 		com.thomsonreuters.upa.codec.Int value = CodecFactory.createInt();
 
-		int  ret = array.encodeInit(iter);
+		assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 		
 		for ( int i = 0; i < numValues; i++ )
 		{
 			value.value(values[i]);
-			ret = arrayEntry.encode(iter, value );
+			assertEquals(arrayEntry.encode(iter, value ), CodecReturnCodes.SUCCESS);
 		}
 
-		ret =  array.encodeComplete(iter, true);
+		assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 	}
 
 	void testArrayInt_Decode( boolean fixedSize )
@@ -738,7 +740,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.INT, "OmmArrayEntry.loadType() == DataType.DataTypes.INT" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Int - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -770,7 +772,7 @@ public class ArrayTests
 					ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.INT, "OmmArrayEntry.loadType() == DataType.DataTypes.INT" );
 					try {
-							long uintValue = ae1.uintValue();
+							ae1.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three Int - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -821,18 +823,18 @@ public class ArrayTests
 			
 			com.thomsonreuters.upa.codec.Real real = CodecFactory.createReal();
 
-			int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 			
 			real.value(11, RealHints.EXPONENT_2);
-			ret = arrayEntry.encode(iter, real);
+			assertEquals(arrayEntry.encode(iter, real), CodecReturnCodes.SUCCESS);
 
 			real.value(22, RealHints.FRACTION_2);
-			ret = arrayEntry.encode(iter, real);
+			assertEquals(arrayEntry.encode(iter, real), CodecReturnCodes.SUCCESS);
 
 			real.value(-33, RealHints.FRACTION_2);
-			ret = arrayEntry.encode(iter, real);
+			assertEquals(arrayEntry.encode(iter, real), CodecReturnCodes.SUCCESS);
 
-			ret =  array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 
 				//Now do EMA decoding of OmmArray
 	           OmmArray ar = JUnitTestConnect.createOmmArray();
@@ -847,7 +849,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.REAL, "OmmArrayEntry.loadType() == DataType.DataTypes.REAL" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Real - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -882,7 +884,7 @@ public class ArrayTests
 					 ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.REAL, "OmmArrayEntry.loadType() == DataType.DataTypes.REAL" );
 					try {
-							long intValue = ae1.uintValue();
+							ae1.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three Real - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -936,18 +938,18 @@ public class ArrayTests
 			
 			com.thomsonreuters.upa.codec.Real real = CodecFactory.createReal();
 
-			int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 			
 			real.blank();
-			ret = arrayEntry.encode(iter, real);
+			assertEquals(arrayEntry.encode(iter, real), CodecReturnCodes.SUCCESS);
 
 			real.value(22, RealHints.FRACTION_2);
-			ret = arrayEntry.encode(iter, real);
+			assertEquals(arrayEntry.encode(iter, real), CodecReturnCodes.SUCCESS);
 
 			real.value(-33, RealHints.FRACTION_2);
-			ret = arrayEntry.encode(iter, real);
+			assertEquals(arrayEntry.encode(iter, real), CodecReturnCodes.SUCCESS);
 
-			ret =  array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 
 
 				//Now do EMA decoding of OmmArray of Reals
@@ -963,7 +965,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.REAL, "OmmArrayEntry.loadType() == DataType.DataTypes.REAL" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Real (one blank) - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -998,7 +1000,7 @@ public class ArrayTests
 					 OmmArrayEntry ae = arIter.next();
 					TestUtilities.checkResult( ae.loadType()== DataType.DataTypes.REAL, "OmmArrayEntry.loadType() == DataType.DataTypes.REAL" );
 					try {
-							long intValue = ae.uintValue();
+							ae.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three Real (one blank) - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -1047,16 +1049,16 @@ public class ArrayTests
 		array.primitiveType(DataTypes.UINT);
 		com.thomsonreuters.upa.codec.UInt value = CodecFactory.createUInt();
 
-		int  ret = array.encodeInit(iter);
+		assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 		
 
 		for ( int i = 0; i < numValues; i++ )
 		{
 			value.value(values[i]);
-			ret = arrayEntry.encode(iter, value );
+			assertEquals(arrayEntry.encode(iter, value ), CodecReturnCodes.SUCCESS);
 		}
 
-		ret =  array.encodeComplete(iter, true);
+		assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 	}
 
 	void testArrayUInt_Decode( boolean fixedSize )
@@ -1085,7 +1087,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.UINT, "OmmArrayEntry.loadType() == DataType.DataTypes.UINT" );
 				try {
-						long intValue = ae1.intValue();
+						ae1.intValue();
 						TestUtilities.checkResult( false, "OmmArray with three UInt - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -1117,7 +1119,7 @@ public class ArrayTests
 					ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.UINT, "OmmArrayEntry.loadType() == DataType.DataTypes.UINT" );
 					try {
-							long intValue = ae1.intValue();
+							ae1.intValue();
 							TestUtilities.checkResult( false, "OmmArray with three UInt - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -1167,28 +1169,28 @@ public class ArrayTests
 			array.itemLength(fixedSize ? 5 : 0); //varying size only
 			array.primitiveType(DataTypes.TIME);
 				
-		   int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 
-			Time time = CodecFactory.createTime();;
+			Time time = CodecFactory.createTime();
 			time.hour(02);
 			time.minute(03);
 			time.second( 04);
 			time.millisecond(05);
-			ret = arrayEntry.encode(iter,time);
+			assertEquals(arrayEntry.encode(iter,time), CodecReturnCodes.SUCCESS);
 				
 			time.hour(04);
 			time.minute(05);
 			time.second( 06);
 			time.millisecond(07);
-			ret = arrayEntry.encode(iter,time);
+			assertEquals(arrayEntry.encode(iter,time), CodecReturnCodes.SUCCESS);
 
 			time.hour(14);
 			time.minute(15);
 			time.second( 16);
 			time.millisecond(17);
-			ret = arrayEntry.encode(iter,time);
+			assertEquals(arrayEntry.encode(iter,time), CodecReturnCodes.SUCCESS);
 			
-			ret = array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 			
 
 				//Now do EMA decoding of OmmArray of Times
@@ -1204,7 +1206,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.TIME, "OmmArrayEntry.loadType() == DataType.DataTypes.ENUM" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Time - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -1244,7 +1246,7 @@ public class ArrayTests
 					ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.TIME, "OmmArrayEntry.loadType() == DataType.DataTypes.ENUM" );
 					try {
-							long uintValue = ae1.uintValue();
+							ae1.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three Time - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -1305,7 +1307,7 @@ public class ArrayTests
 				array.itemLength(fixedSize ? 9 : 0); //varying size only
 				array.primitiveType(DataTypes.DATETIME);
 					
-			   int  ret = array.encodeInit(iter);
+				assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 	
 				DateTime dateTime = CodecFactory.createDateTime();
 				dateTime.year(1111);
@@ -1315,7 +1317,7 @@ public class ArrayTests
 				dateTime.minute(15);
 				dateTime.second( 16);
 				dateTime.millisecond(17);
-				ret = arrayEntry.encode(iter,dateTime);
+				assertEquals(arrayEntry.encode(iter,dateTime), CodecReturnCodes.SUCCESS);
 					
 				dateTime.year(2222);
 				dateTime.month(2);
@@ -1324,7 +1326,7 @@ public class ArrayTests
 				dateTime.minute(15);
 				dateTime.second( 16);
 				dateTime.millisecond(17);
-				ret = arrayEntry.encode(iter,dateTime);
+				assertEquals(arrayEntry.encode(iter,dateTime), CodecReturnCodes.SUCCESS);
 				
 				dateTime.year(3333);
 				dateTime.month(3);
@@ -1333,9 +1335,9 @@ public class ArrayTests
 				dateTime.minute(15);
 				dateTime.second( 16);
 				dateTime.millisecond(17);
-				ret = arrayEntry.encode(iter,dateTime);
+				assertEquals(arrayEntry.encode(iter,dateTime), CodecReturnCodes.SUCCESS);
 			
-				ret = array.encodeComplete(iter, true);
+				assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 			
 
 				//Now do EMA decoding of OmmArray of DateTimes
@@ -1351,7 +1353,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.DATETIME, "OmmArrayEntry.loadType() == DataType.DataTypes.DATETIME" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three DateTime - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -1403,7 +1405,7 @@ public class ArrayTests
 					ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.DATETIME, "OmmArrayEntry.loadType() == DataType.DataTypes.DATETIME" );
 					try {
-							long uintValue = ae1.uintValue();
+							ae1.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three DateTime - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -1471,21 +1473,21 @@ public class ArrayTests
 			array.itemLength(0); //varying size only
 			array.primitiveType(DataTypes.BUFFER);
 				
-		   int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 				
 			Buffer bufText = CodecFactory.createBuffer();
 			bufText.data("ABC");
-			ret = arrayEntry.encode(iter,bufText);
+			assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 			
 			bufText.clear();
 			bufText.data( "DEFGH");
-			ret = arrayEntry.encode(iter,bufText);
+			assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 				
 			bufText.clear();
 			bufText.data( "KLMNOPQRS");
-			ret = arrayEntry.encode(iter,bufText);
+			assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 
-			ret =  array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 
 				
 			//Now do EMA decoding of OmmArray of Buffers
@@ -1503,7 +1505,7 @@ public class ArrayTests
 			 OmmArrayEntry ae1 = arIter.next();
 			TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
 			try {
-				long intValue = ae1.uintValue();
+				ae1.uintValue();
 				TestUtilities.checkResult( false, "OmmArray with three Buffer - exception expected" );
 			}
 			catch ( OmmException excp )
@@ -1535,7 +1537,7 @@ public class ArrayTests
 				ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
 				try {
-					long uintValue = ae1.uintValue();
+					ae1.uintValue();
 					TestUtilities.checkResult( false, "OmmArray with three Buffer - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -1585,7 +1587,7 @@ public class ArrayTests
 			array.itemLength(0); //varying size only
 			array.primitiveType(DataTypes.QOS);
 				
-		   int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 				
 			Qos qos = CodecFactory.createQos();
 			qos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.REALTIME);
@@ -1593,23 +1595,23 @@ public class ArrayTests
 			qos.dynamic(true);
 			qos.rateInfo(0);
 			qos.timeInfo( 0);
-			ret = arrayEntry.encode(iter,qos);
+			assertEquals(arrayEntry.encode(iter,qos), CodecReturnCodes.SUCCESS);
 
 			qos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.REALTIME);
 			qos.rate(com.thomsonreuters.upa.codec.QosRates.TIME_CONFLATED);
 			qos.dynamic(true);
 			qos.rateInfo(9);
 			qos.timeInfo( 0);
-			ret = arrayEntry.encode(iter,qos);
+			assertEquals(arrayEntry.encode(iter,qos), CodecReturnCodes.SUCCESS);
 			
 			qos.timeliness(com.thomsonreuters.upa.codec.QosTimeliness.DELAYED);
 			qos.rate(com.thomsonreuters.upa.codec.QosRates.JIT_CONFLATED);
 			qos.dynamic(true);
 			qos.rateInfo(0);
 			qos.timeInfo( 15);
-			ret = arrayEntry.encode(iter,qos);
+			assertEquals(arrayEntry.encode(iter,qos), CodecReturnCodes.SUCCESS);
 		
-			ret =  array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 
 				//Now do EMA decoding of OmmArray of Qos
 	           OmmArray ar = JUnitTestConnect.createOmmArray();
@@ -1624,7 +1626,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.QOS, "OmmArrayEntry.loadType() == DataType.DataTypes.QOS" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Qos - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -1660,7 +1662,7 @@ public class ArrayTests
 					ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.QOS, "OmmArrayEntry.loadType() == DataType.DataTypes.QOS" );
 					try {
-							long uintValue = ae1.uintValue();
+							ae1.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three Qos - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -1712,28 +1714,28 @@ public class ArrayTests
 			array.itemLength(0); //varying size only
 			array.primitiveType(DataTypes.STATE);
 				
-		   int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 				
 			State state = CodecFactory.createState();
 			state.streamState( com.thomsonreuters.upa.codec.StreamStates.OPEN);
 			state.dataState(com.thomsonreuters.upa.codec.DataStates.OK);
 			state.code(com.thomsonreuters.upa.codec.StateCodes.NONE);
 			state.text().data( "Succeeded");
-			ret = arrayEntry.encode(iter,state);
+			assertEquals(arrayEntry.encode(iter,state), CodecReturnCodes.SUCCESS);
 
 			state.streamState( com.thomsonreuters.upa.codec.StreamStates.CLOSED_RECOVER);
 			state.dataState(com.thomsonreuters.upa.codec.DataStates.SUSPECT);
 			state.code(com.thomsonreuters.upa.codec.StateCodes.TIMEOUT);
 			state.text().data("Suspect Data");
-			ret = arrayEntry.encode(iter,state);
+			assertEquals(arrayEntry.encode(iter,state), CodecReturnCodes.SUCCESS);
 
 			state.streamState( com.thomsonreuters.upa.codec.StreamStates.CLOSED);
 			state.dataState(com.thomsonreuters.upa.codec.DataStates.SUSPECT);
 			state.code(com.thomsonreuters.upa.codec.StateCodes.USAGE_ERROR);
 			state.text().data("Usage Error");
-			ret = arrayEntry.encode(iter,state);
+			assertEquals(arrayEntry.encode(iter,state), CodecReturnCodes.SUCCESS);
 		
-			ret =  array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 
 
 				//Now do EMA decoding of OmmArray of States
@@ -1749,7 +1751,7 @@ public class ArrayTests
 				 OmmArrayEntry ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()==DataType.DataTypes.STATE, "OmmArrayEntry.loadType() ==DataType.DataTypes.STATE" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three State - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -1793,7 +1795,7 @@ public class ArrayTests
 					ae1 = arIter.next();
 					TestUtilities.checkResult( ae1.loadType()==DataType.DataTypes.STATE, "OmmArrayEntry.loadType() ==DataType.DataTypes.STATE" );
 					try {
-							long uintValue = ae1.uintValue();
+							ae1.uintValue();
 							TestUtilities.checkResult( false, "OmmArray with three State - exception expected" );
 					}
 					catch ( OmmException excp )
@@ -1856,18 +1858,18 @@ public class ArrayTests
 			array.itemLength(fixedSize ? 2 : 0); //varying size only
 			array.primitiveType(DataTypes.ENUM);
 				
-		   int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 		   com.thomsonreuters.upa.codec.Enum testEnum = CodecFactory.createEnum();
 			testEnum.value(29);
-			ret = arrayEntry.encode(iter,testEnum);
+			assertEquals(arrayEntry.encode(iter,testEnum), CodecReturnCodes.SUCCESS);
 
 			testEnum.value(5300);
-			ret = arrayEntry.encode(iter,testEnum);
+			assertEquals(arrayEntry.encode(iter,testEnum), CodecReturnCodes.SUCCESS);
 			
 			testEnum.value(8100);
-			ret = arrayEntry.encode(iter,testEnum);
+			assertEquals(arrayEntry.encode(iter,testEnum), CodecReturnCodes.SUCCESS);
 		
-			ret =  array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 
 
 			//Now do EMA decoding of OmmArray of Enums
@@ -1883,7 +1885,7 @@ public class ArrayTests
 			 OmmArrayEntry ae1 = arIter.next();
 			TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.ENUM, "OmmArrayEntry.loadType() == DataType.DataTypes.ENUM" );
 			try {
-				long intValue = ae1.uintValue();
+				ae1.uintValue();
 				TestUtilities.checkResult( false, "OmmArray with three Enum - exception expected" );
 			}
 			catch ( OmmException excp )
@@ -1917,7 +1919,7 @@ public class ArrayTests
 				ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.ENUM, "OmmArrayEntry.loadType() == DataType.DataTypes.ENUM" );
 				try {
-					long intValue = ae1.uintValue();
+					ae1.uintValue();
 					TestUtilities.checkResult( false, "OmmArray with three Enum - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -1965,21 +1967,21 @@ public class ArrayTests
 			array.itemLength(0); //varying size only
 			array.primitiveType(DataTypes.UTF8_STRING);
 				
-		   int  ret = array.encodeInit(iter);
+			assertEquals(array.encodeInit(iter), CodecReturnCodes.SUCCESS);
 				
 			Buffer bufText = CodecFactory.createBuffer();
 			bufText.data("ABC");
-			ret = arrayEntry.encode(iter,bufText);
+			assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 			
 			bufText.clear();
 			bufText.data( "DEFGH");
-			ret = arrayEntry.encode(iter,bufText);
+			assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 				
 			bufText.clear();
 			bufText.data( "KLMNOPQRS");
-			ret = arrayEntry.encode(iter,bufText);
+			assertEquals(arrayEntry.encode(iter,bufText), CodecReturnCodes.SUCCESS);
 
-			ret =  array.encodeComplete(iter, true);
+			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 			
 			//Now do EMA decoding of OmmArray of Utf8
 	       OmmArray ar = JUnitTestConnect.createOmmArray();
@@ -1994,7 +1996,7 @@ public class ArrayTests
 			 OmmArrayEntry ae1 = arIter.next();
 			TestUtilities.checkResult( ae1.loadType()==DataType.DataTypes.UTF8, "OmmArrayEntry.loadType() ==DataType.DataTypes.UTF8" );
 			try {
-				long intValue = ae1.uintValue();
+				ae1.uintValue();
 				TestUtilities.checkResult( false, "OmmArray with three Utf8 - exception expected" );
 			}
 			catch ( OmmException excp )
@@ -2028,7 +2030,7 @@ public class ArrayTests
 				ae1 = arIter.next();
 				TestUtilities.checkResult( ae1.loadType()==DataType.DataTypes.UTF8, "OmmArrayEntry.loadType() ==DataType.DataTypes.UTF8" );
 				try {
-					long intValue = ae1.uintValue();
+					ae1.uintValue();
 					TestUtilities.checkResult( false, "OmmArray with three Utf8 - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -2100,8 +2102,6 @@ public class ArrayTests
 		Array array = CodecFactory.createArray();
 		ArrayEntry arEntry = CodecFactory.createArrayEntry();
 		Int intValue = CodecFactory.createInt();
-		Buffer decArraybuf;
-		long longValue;
 			
 		DecodeIterator decodeIter = CodecFactory.createDecodeIterator() ;
 		decodeIter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
@@ -2150,7 +2150,7 @@ public class ArrayTests
 			 OmmArrayEntry ae1 = iter.next();
 			TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
 			try {
-				long intValue = ae1.uintValue();
+				ae1.uintValue();
 				TestUtilities.checkResult( false, "OmmArray with three Buffer - exception expected" );
 			}
 			catch ( OmmException excp )
@@ -2186,7 +2186,7 @@ public class ArrayTests
 				ae1 = iter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
 				try {
-					long uintValue = ae1.uintValue();
+					ae1.uintValue();
 					TestUtilities.checkResult( false, "OmmArray with three Buffer - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -2252,7 +2252,7 @@ public class ArrayTests
 				OmmArrayEntry ae1 = iter.next();
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
 				try {
-						long intValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Buffer (with 2 blanks) - exception expected" );
 				}
 				catch ( OmmException excp )
@@ -2297,7 +2297,7 @@ public class ArrayTests
 					ae1 = iter.next();
 					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
 					try {
-						long uintValue = ae1.uintValue();
+						ae1.uintValue();
 						TestUtilities.checkResult( false, "OmmArray with three Buffer (with 2 blanks) - exception expected" );
 					}
 					catch ( OmmException excp )

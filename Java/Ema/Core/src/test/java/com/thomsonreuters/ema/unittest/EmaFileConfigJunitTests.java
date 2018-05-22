@@ -20,7 +20,7 @@ import com.thomsonreuters.ema.rdm.EmaRdm;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.GenericMsg;
 
-public class EmaFileConfigTests extends TestCase  
+public class EmaFileConfigJunitTests extends TestCase  
 {
 	
 	public static final int ChannelTypeSocket = 0;
@@ -31,7 +31,7 @@ public class EmaFileConfigTests extends TestCase
 	public static final int CompressionTypeZLib = 1;
 	public static final int CompressionTypeLZ4 = 2;
 	
-	public EmaFileConfigTests(String name)
+	public EmaFileConfigJunitTests(String name)
 	{
 		super(name);
 	}
@@ -358,7 +358,6 @@ public class EmaFileConfigTests extends TestCase
 		TestUtilities.checkResult("ChannelSet value=Channel_4, Channel_5", cons4Channel.contentEquals("Channel_4,Channel_5"));
 		
 		// Test Individual Channel attributes and Common attributes.
-		String[] pieces = cons4Channel.split(",");
 		String tempTestName = "channelConnType == ChannelType::RSSL_SOCKET ";
 		
 		//the follow code was commented out due to non-support conn type.

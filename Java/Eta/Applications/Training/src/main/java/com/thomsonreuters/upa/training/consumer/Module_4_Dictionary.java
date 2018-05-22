@@ -2085,7 +2085,7 @@ public class Module_4_Dictionary
     						System.out.printf("\nReceived Source Directory Update for Decoded Service Id: %d", serviceId.toLong());
 
     					/* if this is the current serviceId we are interested in */
-    					if ((serviceId.equals(serviceDiscoveryInfo_serviceId)) && (serviceDiscoveryInfo_serviceNameFound == true))
+    					if ((serviceId.toLong() == serviceDiscoveryInfo_serviceId) && (serviceDiscoveryInfo_serviceNameFound == true))
     					{
     						/* this is the current serviceId we are interested in and requested by the UPA Consumer application */
     						System.out.printf(" (%s)\n", serviceDiscoveryInfo_serviceName);

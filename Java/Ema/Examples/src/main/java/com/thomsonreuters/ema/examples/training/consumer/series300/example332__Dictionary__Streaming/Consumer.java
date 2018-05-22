@@ -176,13 +176,13 @@ public class Consumer
 
 			ReqMsg reqMsg = EmaFactory.createReqMsg();
 
-			 long fldHandle = consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DICTIONARY).name("RWFFld").
+			consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DICTIONARY).name("RWFFld").
 					 filter(EmaRdm.DICTIONARY_NORMAL), appClient);
 
-			long enumHandle = consumer.registerClient(reqMsg.clear().domainType(EmaRdm.MMT_DICTIONARY).name("RWFEnum").
+			consumer.registerClient(reqMsg.clear().domainType(EmaRdm.MMT_DICTIONARY).name("RWFEnum").
 					filter(EmaRdm.DICTIONARY_NORMAL),appClient);
 
-			long handle = consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
+			consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
 
 			Thread.sleep(60000); // API calls onRefreshMsg(), onUpdateMsg() and
 									// onStatusMsg()

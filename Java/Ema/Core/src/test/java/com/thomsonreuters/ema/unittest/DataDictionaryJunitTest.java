@@ -30,7 +30,7 @@ import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.ema.rdm.EnumType;
 
-public class DataDictionaryTest extends TestCase {
+public class DataDictionaryJunitTest extends TestCase {
 	
 	private static com.thomsonreuters.upa.codec.DataDictionary globalEtaDataDictionary;
 	private static DataDictionary globalDataDictionary;
@@ -77,7 +77,7 @@ public class DataDictionaryTest extends TestCase {
 		}
 	}
 	
-	public DataDictionaryTest(String name)
+	public DataDictionaryJunitTest(String name)
 	{
 		super(name);
 	}
@@ -901,7 +901,7 @@ public class DataDictionaryTest extends TestCase {
 		
 		try
 		{
-			DataDictionary dictionaryData = EmaFactory.createDictionaryUtility().dataDictionary(fieldList);
+			EmaFactory.createDictionaryUtility().dataDictionary(fieldList);
 			TestUtilities.checkResult(false, "DictionaryUtility.dataDictionary(FieldList) - exception expected");
 		}
 		catch (OmmException excp)
@@ -1240,7 +1240,7 @@ public class DataDictionaryTest extends TestCase {
 
 		try
 		{
-			EnumType enumType = globalDataDictionary.enumType(4, 15);
+			globalDataDictionary.enumType(4, 15);
 			TestUtilities.checkResult(true, "Calling DictionaryUtility.enumType(fid, enumvalue) from an existing EnumType - exception not expected");
 		}
 		catch (OmmException excp)

@@ -396,7 +396,7 @@ public class FieldListTests extends TestCase
 			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.ERROR", fe1.loadType() == DataTypes.ERROR );
 			TestUtilities.checkResult("FieldEntry.ErrorCode() == FieldIdNotFound" , fe1.error().errorCode() == OmmError.ErrorCode.FIELD_ID_NOT_FOUND);
 			try {
-				long intValue = fe1.intValue();
+				fe1.intValue();
 				TestUtilities.checkResult( "FieldList with all data types - exception expected", false);
 			}
 			catch ( OmmException excp )
@@ -437,7 +437,7 @@ public class FieldListTests extends TestCase
 				TestUtilities.checkResult("FieldEntry.ErrorCode() == FieldIdNotFound" ,  fe1.error().errorCode() == OmmError.ErrorCode.FIELD_ID_NOT_FOUND);
 
 				try {
-					long intValue = fe1.uintValue();
+					fe1.uintValue();
 					TestUtilities.checkResult( "FieldList with all data types - exception expected : ", false);
 				}
 				catch ( OmmException excp )

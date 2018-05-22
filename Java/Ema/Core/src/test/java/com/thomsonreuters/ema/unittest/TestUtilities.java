@@ -1838,7 +1838,6 @@ final class TestUtilities extends TestCase
 	{
 		// use this to store and check return codes
 		int retVal;
-		boolean success = true;
 
 		int majorVersion = Codec.majorVersion();  // This should be initialized to the MAJOR version of RWF being encoded
 		int minorVersion = Codec.minorVersion();  // This should be initialized to the MINOR version of RWF being encoded

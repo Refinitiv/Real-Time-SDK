@@ -147,7 +147,7 @@ public class Consumer
 			
 			appClient.setOmmConsumer(consumer);
 			
-			long handle = consumer.registerClient(EmaFactory.createReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), appClient, Integer.valueOf(1));
+			consumer.registerClient(EmaFactory.createReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), appClient, Integer.valueOf(1));
 
 			long startTime = System.currentTimeMillis();
 			while (startTime + 60000 > System.currentTimeMillis())

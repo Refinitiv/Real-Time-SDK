@@ -73,6 +73,7 @@ class AppClient implements OmmConsumerClient
 	public void onAckMsg(AckMsg ackMsg, OmmConsumerEvent consumerEvent){}
 	public void onAllMsg(Msg msg, OmmConsumerEvent consumerEvent){}
 
+	@SuppressWarnings("unused")
 	void decode(FieldList fieldList)
 	{
 		try

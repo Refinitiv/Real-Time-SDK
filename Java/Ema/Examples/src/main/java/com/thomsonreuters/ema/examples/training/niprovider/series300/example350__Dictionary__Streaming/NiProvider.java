@@ -130,10 +130,10 @@ public class NiProvider
             
             provider = EmaFactory.createOmmProvider(config.username("user"));
 			
-            long rwfFld = provider.registerClient(EmaFactory.createReqMsg().name("RWFFld").filter(EmaRdm.DICTIONARY_NORMAL)
+            provider.registerClient(EmaFactory.createReqMsg().name("RWFFld").filter(EmaRdm.DICTIONARY_NORMAL)
 					.serviceName("TEST_NI_PUB").domainType(EmaRdm.MMT_DICTIONARY), appClient);
 			
-            long rwfEnum = provider.registerClient(EmaFactory.createReqMsg().name("RWFEnum").filter(EmaRdm.DICTIONARY_NORMAL)
+            provider.registerClient(EmaFactory.createReqMsg().name("RWFEnum").filter(EmaRdm.DICTIONARY_NORMAL)
 					.serviceName("TEST_NI_PUB").domainType(EmaRdm.MMT_DICTIONARY), appClient);
             
             long triHandle = 6;

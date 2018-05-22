@@ -263,7 +263,11 @@ public class emajConsPerf implements ShutdownCallback
 			try
 			{
 				_postUserInfo.userId = Thread.currentThread().getId();
-				_postUserInfo.userAddr = InetAddress.getLocalHost().getHostAddress();
+				byte[] bytes = InetAddress.getLocalHost().getAddress();
+				for (byte b : bytes)  
+				{  
+					_postUserInfo.userAddr = _postUserInfo.userAddr << 8 | (b & 0xFF);  
+				}
 			}
 			catch (Exception e)
 			{

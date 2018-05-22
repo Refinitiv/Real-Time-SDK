@@ -618,7 +618,6 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		}
 
 		String dictName = rsslRequestMsg.msgKey().name().toString();
-		int ret = CodecReturnCodes.SUCCESS;
 		
 		if (dictName.equals(DictionaryCallbackClient.DICTIONARY_RWFFID))
 		{
@@ -627,7 +626,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 				 _rsslFidDictReq = (DictionaryRequest)DictionaryMsgFactory.createMsg();
 				 _rsslFidDictReq.rdmMsgType(DictionaryMsgType.REQUEST);
 			 }
-			 if ((ret =decodeDictionaryReqMsg(_rsslFidDictReq, rsslRequestMsg)) < 0)
+			 if (decodeDictionaryReqMsg(_rsslFidDictReq, rsslRequestMsg) < 0)
 			 {
 				 _rsslFidDictReq = null;
 				 String temp = "Failed to convert rssl dictionary msg to RDM msg. Message ignored.";
@@ -651,7 +650,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 				 _rsslEnumDictReq = (DictionaryRequest)DictionaryMsgFactory.createMsg();
 				 _rsslEnumDictReq.rdmMsgType(DictionaryMsgType.REQUEST);
 			 }
-			 if ((ret = decodeDictionaryReqMsg(_rsslEnumDictReq, rsslRequestMsg)) < 0)
+			 if (decodeDictionaryReqMsg(_rsslEnumDictReq, rsslRequestMsg) < 0)
 			 {
 				 _rsslEnumDictReq = null;
 				 String temp = "Failed to convert rssl dictionary msg to RDM msg. Message ignored.";
@@ -772,8 +771,6 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 
 abstract class EmaConfigServerImpl extends EmaConfigBaseImpl
 {	
-	private DirectoryRefresh 					_rsslDirectoryRefresh;
-	
 	private DecodeIterator    					_rsslDecIter;
 	private String              				_portSetViaFunctionCall;
 	
