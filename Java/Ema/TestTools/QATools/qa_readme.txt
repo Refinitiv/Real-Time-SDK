@@ -136,11 +136,24 @@ Series100Consumer130-MultiThreadBatchView-001
 	requests. This tools uses multiple threads. The items are read in from a file: 1k.xml. 
 	The tools uses a distinct third of items from file to make the 3 types of requests mentioned.
 
+Module:  Series100Consumer140
+-----------------------------
+Series100Consumer140-ConsFunc-001
+    Alters consumer to decode mapEntry Key using EmaUtility.asAsciiString() 
+	  This altered code works in conjunction with Series100Provider140-ProvFunc-001.
+
+
 Module:  Series200Consumer200
 -----------------------------
 
 Series200Consumer200-ConsFunc-001
      Alters consumer to decode Date/Time/DateTime and print using ISO 8601
+
+Module:  Series200Consumer270
+-----------------------------
+
+Series200Consumer270-ConsFunc-001
+    Alters consumer to decode mapEntry Key using EmaUtility.asAsciiString()
 
 Module:  Series300Consumer300
 -----------------------------
@@ -480,6 +493,13 @@ Series100Provider100-ProvFunc-005
 Series100Provider100-ProvFunc-006
 	Alters Interactive Provider to send a STATUS message with empty/null state every 5 
 	seconds after provider is created.
+
+Module:  Series100Provider140 
+-------------------------------
+Series100Provider140-ProvFunc-001
+    Alters Interactive Provider to send a MBO item response with the MapEntry key altered to be encoded as a Buffer 
+	MapEntry Key is read from file xmlKeyList 
+	This altered code works in conjunction with Series100Consumer140-ConsFunc-001
 
 Module:  Series100Provider161 
 -------------------------------

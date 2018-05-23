@@ -2,12 +2,13 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 /**
  * 
@@ -91,4 +92,39 @@ public class EmaUtility
 
         return all.toString();
 	}
+	
+	/**
+     * Converts the underlying buffer into a String representation of the OmmBuffer.
+     * This should only be called when the OmmBuffer is known to contain String data. 
+     * This method creates garbage unless the underlying OmmBuffer is a String.
+	 * 
+	 * @param ommBuffer OmmBuffer used
+	 * @param charset to be used to decode the OmmBuffer
+	 * @return String representation of the OmmBuffer
+	 */
+	public static String asString( OmmBuffer ommBuffer, Charset charset )
+	{
+		if (ommBuffer != null)
+		{
+			ByteBuffer buffer = ommBuffer.buffer();
+			byte[] bytes = new byte[ buffer.limit() ];             
+			buffer.get( bytes, 0, buffer.limit() );
+			return new String( bytes, charset );
+		}
+		return null;
+	}	
+	
+	/**
+     * Converts the underlying buffer into an ASCII String representation of the OmmBuffer.
+     * This should only be called when the OmmBuffer is known to contain ASCII data. 
+     * This method is using the US-ASCII for Charset.
+     * This method creates garbage unless the underlying OmmBuffer is a String.
+	 * 
+	 * @param ommBuffer OmmBuffer used
+	 * @return ASCII String representation of the OmmBuffer
+	 */
+	public static String asAsciiString( OmmBuffer ommBuffer )
+	{
+		return asString( ommBuffer, Charset.forName( "US-ASCII" ) );
+	}		
 }
