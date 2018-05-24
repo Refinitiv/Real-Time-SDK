@@ -9,6 +9,7 @@ package com.thomsonreuters.ema.unittest;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -20,6 +21,7 @@ import com.thomsonreuters.ema.access.DataType.DataTypes;
 import com.thomsonreuters.ema.access.ElementEntry;
 import com.thomsonreuters.ema.access.ElementList;
 import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.EmaUtility;
 import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.FieldList;
 import com.thomsonreuters.ema.access.JUnitTestConnect;
@@ -335,10 +337,13 @@ public class MapTests extends TestCase
 			keyBuffer2.put("KeyBuffer2".getBytes()).flip();
 			ByteBuffer keyBuffer3 = ByteBuffer.allocate(10);
 			keyBuffer3.put("KeyBuffer3".getBytes()).flip();
-			
+			ByteBuffer keyBuffer4 = ByteBuffer.allocate(20);
+			keyBuffer4.put("ËÃÄÅÇÈÉÊÒÓ".getBytes(Charset.forName("ISO-8859-1"))).flip();			
+
 			mapEnc.add(EmaFactory.createMapEntry().keyBuffer(keyBuffer1, MapEntry.MapAction.ADD));
 			mapEnc.add(EmaFactory.createMapEntry().keyBuffer(keyBuffer2, MapEntry.MapAction.UPDATE, permissionData));
 			mapEnc.add(EmaFactory.createMapEntry().keyBuffer(keyBuffer3, MapEntry.MapAction.DELETE));
+			mapEnc.add(EmaFactory.createMapEntry().keyBuffer(keyBuffer4, MapEntry.MapAction.DELETE));			
 			
 			Map mapDec = JUnitTestConnect.createMap();
 			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
@@ -351,6 +356,7 @@ public class MapTests extends TestCase
 			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	
 			TestUtilities.checkResult( mapEntryA.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the first map entry");
 			TestUtilities.checkResult( mapEntryA.hasPermissionData() == false, "Check wheter the first map entry has permission data");
+			TestUtilities.checkResult( EmaUtility.asAsciiString(mapEntryA.key().buffer()).equals("KeyBuffer1") == true, "Check if EmaUtility.asAsciiString converts the string correctly" );
 			MapEntry mapEntryB = mapIt.next();
 			TestUtilities.checkResult( mapEntryB.key().buffer().buffer().equals(keyBuffer2), "Check the key value of the second map entry");
 			TestUtilities.checkResult( mapEntryB.action() == MapEntry.MapAction.UPDATE, "Check the action of the second map entry");
@@ -358,12 +364,23 @@ public class MapTests extends TestCase
 			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
 			TestUtilities.checkResult( mapEntryB.hasPermissionData(), "Check wheter the second map entry has permission data");
 			TestUtilities.checkResult( mapEntryB.permissionData().equals(permissionData) == true, "Compare the permission data of the second map entry");
+			TestUtilities.checkResult( EmaUtility.asAsciiString(mapEntryB.key().buffer()).equals("KeyBuffer2") == true, "Check if EmaUtility.asAsciiString converts the string correctly" );
 			MapEntry mapEntryC = mapIt.next();
 			TestUtilities.checkResult( mapEntryC.key().buffer().buffer().equals(keyBuffer3), "Check the key value of the third map entry");
 			TestUtilities.checkResult( mapEntryC.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
 			TestUtilities.checkResult( mapEntryC.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
-			TestUtilities.checkResult( mapEntryB.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
-			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");
+			TestUtilities.checkResult( mapEntryC.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryC.hasPermissionData() == false, "Check wheter the third map entry has permission data");		
+			TestUtilities.checkResult( EmaUtility.asAsciiString(mapEntryC.key().buffer()).equals("KeyBuffer3") == true, "Check if EmaUtility.asAsciiString converts the string correctly" );
+			MapEntry mapEntryD = mapIt.next();
+			TestUtilities.checkResult( mapEntryD.key().buffer().buffer().equals(keyBuffer4), "Check the key value of the third map entry");
+			TestUtilities.checkResult( mapEntryD.action() == MapEntry.MapAction.DELETE, "Check the action of the third map entry");
+			TestUtilities.checkResult( mapEntryD.loadType() == DataTypes.NO_DATA, "Check the load type of the third map entry");
+			TestUtilities.checkResult( mapEntryD.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
+			TestUtilities.checkResult( mapEntryD.hasPermissionData() == false, "Check wheter the third map entry has permission data");			
+			
+			TestUtilities.checkResult( EmaUtility.asAsciiString(mapEntryD.key().buffer()).equals("ËÃÄÅÇÈÉÊÒÓ") == false, "Check if EmaUtility.asAsciiString converts the string correctly with ISO-8859-1 charset" );			
+			TestUtilities.checkResult( EmaUtility.asString(mapEntryD.key().buffer(), Charset.forName("ISO-8859-1")).equals(new String("ËÃÄÅÇÈÉÊÒÓ".getBytes(Charset.forName("ISO-8859-1")), Charset.forName("ISO-8859-1"))) == true, "Check if EmaUtility.asAsciiString converts the string correctly with ISO-8859-1 charset" );
 			
 			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
 		}

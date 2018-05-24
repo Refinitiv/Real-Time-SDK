@@ -26,16 +26,16 @@ class TimeImpl implements Time
     // for value(String) method
     private String trimmedVal;
     private Matcher matcher;
-    private Pattern timePattern1 = Pattern.compile("(\\d+):(\\d+):(\\d+):(\\d+)");
-    private Pattern timePattern2 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");
-    private Pattern timePattern3 = Pattern.compile("(\\d+):(\\d+):(\\d+)");
-    private Pattern timePattern4 = Pattern.compile("(\\d+):(\\d+)");
-    private Pattern timePattern5 = Pattern.compile("(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)");
-    private Pattern timePattern6 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");
-    private Pattern timePattern7 = Pattern.compile("(\\d+):(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)");
-    private Pattern timePattern8 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");
-    private Pattern timePattern9 = Pattern.compile("(\\d+):(\\d+):(\\d+)\\.(\\d+)"); // ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48.009216350
-    private Pattern timePattern10 = Pattern.compile("(\\d+):(\\d+):(\\d+),(\\d+)"); // ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48,009216350
+    private static final Pattern TIME_PATTERN_1 = Pattern.compile("(\\d+):(\\d+):(\\d+):(\\d+)");
+    private static final Pattern TIME_PATTERN_2 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");
+    private static final Pattern TIME_PATTERN_3 = Pattern.compile("(\\d+):(\\d+):(\\d+)");
+    private static final Pattern TIME_PATTERN_4 = Pattern.compile("(\\d+):(\\d+)");
+    private static final Pattern TIME_PATTERN_5 = Pattern.compile("(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)");
+    private static final Pattern TIME_PATTERN_6 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");
+    private static final Pattern TIME_PATTERN_7 = Pattern.compile("(\\d+):(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)");
+    private static final Pattern TIME_PATTERN_8 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");
+    private static final Pattern TIME_PATTERN_9 = Pattern.compile("(\\d+):(\\d+):(\\d+)\\.(\\d+)"); // ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48.009216350
+    private static final Pattern TIME_PATTERN_10 = Pattern.compile("(\\d+):(\\d+):(\\d+),(\\d+)"); // ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48,009216350
    
     @Override
     public void clear()
@@ -419,7 +419,7 @@ class TimeImpl implements Time
         		return CodecReturnCodes.INVALID_ARGUMENT;
 
         	// ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48.009216350 
-        	matcher = timePattern9.matcher(trimmedVal);
+        	matcher = TIME_PATTERN_9.matcher(trimmedVal);
         	if (matcher.matches())
         	{
                 ret = hour(Integer.parseInt(matcher.group(1)));
@@ -436,7 +436,7 @@ class TimeImpl implements Time
         	}
         	
         	// ISO8601 hh:mm:ss.nnnnnnnnn e.g. 08:37:48,009216350
-        	matcher = timePattern10.matcher(trimmedVal);
+        	matcher = TIME_PATTERN_10.matcher(trimmedVal);
         	if (matcher.matches())
         	{
                 ret = hour(Integer.parseInt(matcher.group(1)));
@@ -452,7 +452,7 @@ class TimeImpl implements Time
         		return iso8601FractionalStingTimeToTime(matcher.group(4));
         	}        	
             // hh:mm:ss:lll:uuu:nnn
-            matcher = timePattern7.matcher(trimmedVal);
+            matcher = TIME_PATTERN_7.matcher(trimmedVal);
             if (matcher.matches())
             {
                 ret = hour(Integer.parseInt(matcher.group(1)));
@@ -478,7 +478,7 @@ class TimeImpl implements Time
             }
 
             // hh mm ss lll uuu nnn
-            matcher = timePattern8.matcher(trimmedVal);
+            matcher = TIME_PATTERN_8.matcher(trimmedVal);
             if (matcher.matches())
             {
                 ret = hour(Integer.parseInt(matcher.group(1)));
@@ -504,7 +504,7 @@ class TimeImpl implements Time
             }
 
             // hh:mm:ss:lll:uuu
-            matcher = timePattern5.matcher(trimmedVal);
+            matcher = TIME_PATTERN_5.matcher(trimmedVal);
             if (matcher.matches())
             {
                 ret = hour(Integer.parseInt(matcher.group(1)));
@@ -527,7 +527,7 @@ class TimeImpl implements Time
             }
 
             // hh mm ss lll uuu nnn
-            matcher = timePattern6.matcher(trimmedVal);
+            matcher = TIME_PATTERN_6.matcher(trimmedVal);
             if (matcher.matches())
             {
                 ret = hour(Integer.parseInt(matcher.group(1)));
@@ -549,7 +549,7 @@ class TimeImpl implements Time
                 return CodecReturnCodes.SUCCESS;
             }
 
-            matcher = timePattern1.matcher(trimmedVal);
+            matcher = TIME_PATTERN_1.matcher(trimmedVal);
             if (matcher.matches())
             {
                 ret = hour(Integer.parseInt(matcher.group(1)));
@@ -568,7 +568,7 @@ class TimeImpl implements Time
                 return CodecReturnCodes.SUCCESS;
             }
 
-            matcher = timePattern2.matcher(trimmedVal);
+            matcher = TIME_PATTERN_2.matcher(trimmedVal);
             if (matcher.matches())
             {
                 ret = hour(Integer.parseInt(matcher.group(1)));
@@ -587,7 +587,7 @@ class TimeImpl implements Time
                 return CodecReturnCodes.SUCCESS;
             }
 
-            matcher = timePattern3.matcher(trimmedVal);
+            matcher = TIME_PATTERN_3.matcher(trimmedVal);
             if (matcher.matches())
             {
                 ret = hour(Integer.parseInt(matcher.group(1)));
@@ -603,7 +603,7 @@ class TimeImpl implements Time
                 return CodecReturnCodes.SUCCESS;
             }
 
-            matcher = timePattern4.matcher(trimmedVal);
+            matcher = TIME_PATTERN_4.matcher(trimmedVal);
             if (matcher.matches())
             {
                 ret = hour(Integer.parseInt(matcher.group(1)));

@@ -14,15 +14,16 @@ class DateImpl implements Date
     int _year;
     int _format = DateTimeStringFormatTypes.STR_DATETIME_RSSL;
     
-    private String[] _months = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
+    // English 3-letter month names
+    protected static final String[] MONTHS_EN = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
 
     // for value(String) method
     private String trimmedVal;
-    private Pattern datePattern1 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)");
-    private Pattern datePattern2 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)");
-    private Pattern datePattern3 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)");
-    private Pattern datePattern4 = Pattern.compile("(\\d+)-(\\d+)-(\\d+)"); // ISO8601 date 'YYYY-MM-DD'
-    private Pattern datePattern5 = Pattern.compile("(\\d+)"); // ISO8601 date 'YYYYMMDD'
+    private static final Pattern DATE_PATTERN_1 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)");
+    private static final Pattern DATE_PATTERN_2 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)");
+    private static final Pattern DATE_PATTERN_3 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)");
+    private static final Pattern DATE_PATTERN_4 = Pattern.compile("(\\d+)-(\\d+)-(\\d+)"); // ISO8601 date 'YYYY-MM-DD'
+    private static final Pattern DATE_PATTERN_5 = Pattern.compile("(\\d+)"); // ISO8601 date 'YYYYMMDD'
     
     // Converts RsslDate to string in ISO8601 'YYYY-MM-DD' format (e.g. 2003-06-01).
     public String toStringIso8601()
@@ -84,7 +85,7 @@ class DateImpl implements Date
 
         if (_month != 0)
         {
-            retStr.append(String.format("%s ",_months[_month - 1]));
+            retStr.append(String.format("%s ",MONTHS_EN[_month - 1]));
         }
         else
         {
@@ -275,7 +276,7 @@ class DateImpl implements Date
                 blank();
                 return CodecReturnCodes.SUCCESS;
             }
-            Matcher matcher = datePattern5.matcher(trimmedVal);
+            Matcher matcher = DATE_PATTERN_5.matcher(trimmedVal);
             if (matcher.matches() && matcher.groupCount() == 1)
             {	// ISO8601 date YYYYMMDD format.
             	
@@ -298,7 +299,7 @@ class DateImpl implements Date
             	return CodecReturnCodes.SUCCESS;
             }
             
-            matcher = datePattern4.matcher(trimmedVal);
+            matcher = DATE_PATTERN_4.matcher(trimmedVal);
             if (matcher.matches() && matcher.groupCount() == 3)
             {	// ISO8601 Date YYYY-MM-DD format.
                 int a = Integer.parseInt(matcher.group(1));
@@ -316,7 +317,7 @@ class DateImpl implements Date
                     return ret;  	
             	return CodecReturnCodes.SUCCESS;
             }
-            matcher = datePattern1.matcher(trimmedVal);
+            matcher = DATE_PATTERN_1.matcher(trimmedVal);
 
             if (matcher.matches() && matcher.groupCount() == 3)
             {
@@ -369,7 +370,7 @@ class DateImpl implements Date
 
             if (Character.isDigit(trimmedVal.charAt(3)))
             {
-                matcher = datePattern2.matcher(trimmedVal);
+                matcher = DATE_PATTERN_2.matcher(trimmedVal);
                 if (matcher.matches() && matcher.groupCount() == 3)
                 {
                     int a = Integer.parseInt(matcher.group(1));
@@ -425,7 +426,7 @@ class DateImpl implements Date
             }
             else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
             {
-                matcher = datePattern3.matcher(trimmedVal);
+                matcher = DATE_PATTERN_3.matcher(trimmedVal);
                 if (matcher.matches() && matcher.groupCount() == 3)
                 {
                     int a = Integer.parseInt(matcher.group(1));
@@ -479,7 +480,7 @@ class DateImpl implements Date
 
         for (i = 0; i < 12; i++)
         {
-            if (monthStr.equalsIgnoreCase(_months[i]))
+            if (monthStr.equalsIgnoreCase(MONTHS_EN[i]))
             {
                 month = i + 1;
                 break;

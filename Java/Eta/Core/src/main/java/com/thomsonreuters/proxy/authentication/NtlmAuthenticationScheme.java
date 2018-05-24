@@ -20,8 +20,8 @@ class NtlmAuthenticationScheme implements IAuthenticationScheme
     private static final String[] RequiredCredentials = {
         CredentialName.DOMAIN, CredentialName.USERNAME, CredentialName.PASSWORD, CredentialName.LOCAL_HOSTNAME };
     private final NTLMEngineImpl _ntlmEgine = new NTLMEngineImpl();
-    private final Pattern _proxyAuthenticatePattern = Pattern.compile("Proxy-Authenticate: " + NTLM_RESPONSE_PREFIX + "(\\S+)");
-    private final Pattern _wwwAuthenticatePattern = Pattern.compile("WWW-Authenticate: " + NTLM_RESPONSE_PREFIX + "(\\S+)");
+    private static final Pattern PROXY_AUTHENTICATE_PATTERN = Pattern.compile("Proxy-Authenticate: " + NTLM_RESPONSE_PREFIX + "(\\S+)");
+    private static final Pattern WWW_AUTHENTICATE_PATTERN = Pattern.compile("WWW-Authenticate: " + NTLM_RESPONSE_PREFIX + "(\\S+)");
 
     private int ntlmResponseCount = 0;
     boolean stopScheme = false;
@@ -202,11 +202,11 @@ class NtlmAuthenticationScheme implements IAuthenticationScheme
 
         if (httpResponseCode == 407)
         {
-            matcher = _proxyAuthenticatePattern.matcher(response);
+            matcher = PROXY_AUTHENTICATE_PATTERN.matcher(response);
         }
         else
         {
-            matcher = _wwwAuthenticatePattern.matcher(response);
+            matcher = WWW_AUTHENTICATE_PATTERN.matcher(response);
         }
 
         if (matcher.find() && matcher.groupCount() >= 1)
