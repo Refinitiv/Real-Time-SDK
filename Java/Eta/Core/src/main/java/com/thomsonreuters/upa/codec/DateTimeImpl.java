@@ -1,5 +1,6 @@
 package com.thomsonreuters.upa.codec;
 
+import static com.thomsonreuters.upa.codec.DateImpl.MONTHS_EN;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -13,59 +14,58 @@ class DateTimeImpl implements DateTime
     
     private Calendar _calendar;
     private Matcher matcher;
-    private static String months[] = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
     
     // for value(String) method
     private String trimmedVal;
 	
     // Date + time to milli
-    private Pattern datetimePattern1 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+)");  // m/d/y h:m:s:milli
-    private Pattern datetimePattern2 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");  // d my y h m s milli
-    private Pattern datetimePattern3 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");// d month y h m s milli
-    private Pattern datetimePattern4 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)"); //m/d/y h m s milli
-    private Pattern datetimePattern5 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+)"); // d m y h:m:s:milli
-    private Pattern datetimePattern6 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+)"); // d month year h:m:s:milli
+    private static final Pattern DATETIME_PATTERN_1 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+)");  // m/d/y h:m:s:milli
+    private static final Pattern DATETIME_PATTERN_2 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");  // d my y h m s milli
+    private static final Pattern DATETIME_PATTERN_3 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");// d month y h m s milli
+    private static final Pattern DATETIME_PATTERN_4 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)"); //m/d/y h m s milli
+    private static final Pattern DATETIME_PATTERN_5 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+)"); // d m y h:m:s:milli
+    private static final Pattern DATETIME_PATTERN_6 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+)"); // d month year h:m:s:milli
     
     // date + time to nano
-    private Pattern datetimePattern7 =
+    private static final Pattern DATETIME_PATTERN_7 =
             Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)");  // m/d/y h:m:s:milli:micro:nano
-    private Pattern datetimePattern8 =
+    private static final Pattern DATETIME_PATTERN_8 =
             Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");  // d my y h m s milli micro nano
-    private Pattern datetimePattern9 =
+    private static final Pattern DATETIME_PATTERN_9 =
             Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");// d month y h m s milli micro nano
-    private Pattern datetimePattern10 =
+    private static final Pattern DATETIME_PATTERN_10 =
             Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)"); //m/d/y h m s milli micro nano
-    private Pattern datetimePattern11 =
+    private static final Pattern DATETIME_PATTERN_11 =
             Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)"); // d m y h:m:s:milli:micro:nano
-    private Pattern datetimePattern12 =
+    private static final Pattern DATETIME_PATTERN_12 =
             Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)"); // d month year h:m:s:milli:micro:nano
     
-    private Pattern datetimePattern13 =
+    private static final Pattern DATETIME_PATTERN_13 =
             Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)");  // m/d/y h:m:s:milli:micro
-    private Pattern datetimePattern14 =
+    private static final Pattern DATETIME_PATTERN_14 =
             Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");  // d my y h m s milli micro 
-    private Pattern datetimePattern15 =
+    private static final Pattern DATETIME_PATTERN_15 =
             Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");// d month y h m s milli micro 
-    private Pattern datetimePattern16 =
+    private static final Pattern DATETIME_PATTERN_16 =
             Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)"); //m/d/y h m s milli micro 
-    private Pattern datetimePattern17 =
+    private static final Pattern DATETIME_PATTERN_17 =
             Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)"); // d m y h:m:s:milli:micro
-    private Pattern datetimePattern18 =
+    private static final Pattern DATETIME_PATTERN_18 =
             Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+):(\\d+):(\\d+)"); // d month year h:m:s:milli:micro
     
-    private Pattern datetimePattern19 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+):(\\d+):(\\d+)");  // m/d/y h:m:s
-    private Pattern datetimePattern20 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");  // d my y h m s 
-    private Pattern datetimePattern21 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");// d month y h m s 
-    private Pattern datetimePattern22 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)"); //m/d/y h m s 
-    private Pattern datetimePattern23 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+)"); // d m y h:m:s
-    private Pattern datetimePattern24 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+)"); // d month year h:m:s
+    private static final Pattern DATETIME_PATTERN_19 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+):(\\d+):(\\d+)");  // m/d/y h:m:s
+    private static final Pattern DATETIME_PATTERN_20 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");  // d my y h m s 
+    private static final Pattern DATETIME_PATTERN_21 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");// d month y h m s 
+    private static final Pattern DATETIME_PATTERN_22 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)"); //m/d/y h m s 
+    private static final Pattern DATETIME_PATTERN_23 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+)"); // d m y h:m:s
+    private static final Pattern DATETIME_PATTERN_24 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+):(\\d+):(\\d+)"); // d month year h:m:s
     
-    private Pattern datetimePattern25 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+):(\\d+)");  // m/d/y h:m
-    private Pattern datetimePattern26 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");  // d my y h m  
-    private Pattern datetimePattern27 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");// d month y h m 
-    private Pattern datetimePattern28 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+)\\s(\\d+)"); //m/d/y h m  
-    private Pattern datetimePattern29 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+):(\\d+)"); // d m y h:m
-    private Pattern datetimePattern30 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+):(\\d+)"); // d month year h:m
+    private static final Pattern DATETIME_PATTERN_25 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+):(\\d+)");  // m/d/y h:m
+    private static final Pattern DATETIME_PATTERN_26 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");  // d my y h m  
+    private static final Pattern DATETIME_PATTERN_27 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+)\\s(\\d+)");// d month y h m 
+    private static final Pattern DATETIME_PATTERN_28 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)\\s(\\d+)\\s(\\d+)"); //m/d/y h m  
+    private static final Pattern DATETIME_PATTERN_29 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)\\s(\\d+):(\\d+)"); // d m y h:m
+    private static final Pattern DATETIME_PATTERN_30 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)\\s(\\d+):(\\d+)"); // d month year h:m
  
     DateTimeImpl()
     {
@@ -123,7 +123,7 @@ class DateTimeImpl implements DateTime
     private int matchDTToMin(String value)
     {
         int ret = CodecReturnCodes.SUCCESS;
-        matcher = datetimePattern25.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_25.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -185,7 +185,7 @@ class DateTimeImpl implements DateTime
 
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern26.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_26.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -247,7 +247,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern27.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_27.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -295,7 +295,7 @@ class DateTimeImpl implements DateTime
             }
         }
 
-        matcher = datetimePattern28.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_28.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -356,7 +356,7 @@ class DateTimeImpl implements DateTime
         }
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern29.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_29.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -418,7 +418,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern30.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_30.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -475,7 +475,7 @@ class DateTimeImpl implements DateTime
     private int matchDTToSec(String value)
     {
         int ret = CodecReturnCodes.SUCCESS;
-        matcher = datetimePattern19.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_19.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -539,7 +539,7 @@ class DateTimeImpl implements DateTime
 
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern20.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_20.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -603,7 +603,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern21.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_21.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -653,7 +653,7 @@ class DateTimeImpl implements DateTime
             }
         }
 
-        matcher = datetimePattern22.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_22.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -716,7 +716,7 @@ class DateTimeImpl implements DateTime
         }
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern23.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_23.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -780,7 +780,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern24.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_24.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -839,7 +839,7 @@ class DateTimeImpl implements DateTime
     private int matchDTToMilli(String value)
     {
         int ret = CodecReturnCodes.SUCCESS;
-        matcher = datetimePattern1.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_1.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -905,7 +905,7 @@ class DateTimeImpl implements DateTime
 
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern2.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_2.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -971,7 +971,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern3.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_3.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1023,7 +1023,7 @@ class DateTimeImpl implements DateTime
             }
         }
 
-        matcher = datetimePattern4.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_4.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -1088,7 +1088,7 @@ class DateTimeImpl implements DateTime
         }
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern5.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_5.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1154,7 +1154,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern6.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_6.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1215,7 +1215,7 @@ class DateTimeImpl implements DateTime
     private int matchDTToMicro(String value)
     {
         int ret = CodecReturnCodes.SUCCESS;
-        matcher = datetimePattern13.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_13.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -1283,7 +1283,7 @@ class DateTimeImpl implements DateTime
 
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern14.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_14.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1351,7 +1351,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern15.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_15.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1405,7 +1405,7 @@ class DateTimeImpl implements DateTime
             }
         }
 
-        matcher = datetimePattern16.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_16.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -1472,7 +1472,7 @@ class DateTimeImpl implements DateTime
         }
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern17.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_17.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1540,7 +1540,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern18.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_18.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1604,7 +1604,7 @@ class DateTimeImpl implements DateTime
     {
         int ret = CodecReturnCodes.SUCCESS;
 
-        matcher = datetimePattern7.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_7.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -1674,7 +1674,7 @@ class DateTimeImpl implements DateTime
 
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern8.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_8.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1744,7 +1744,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern9.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_9.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1800,7 +1800,7 @@ class DateTimeImpl implements DateTime
             }
         }
 
-        matcher = datetimePattern10.matcher(trimmedVal);
+        matcher = DATETIME_PATTERN_10.matcher(trimmedVal);
         if (matcher.matches())
         {
             int a = Integer.parseInt(matcher.group(1));
@@ -1869,7 +1869,7 @@ class DateTimeImpl implements DateTime
         }
         if (Character.isDigit(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern11.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_11.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -1939,7 +1939,7 @@ class DateTimeImpl implements DateTime
         }
         else if (Character.isUpperCase(trimmedVal.charAt(3)) || Character.isLowerCase(trimmedVal.charAt(3)))
         {
-            matcher = datetimePattern12.matcher(trimmedVal);
+            matcher = DATETIME_PATTERN_12.matcher(trimmedVal);
             if (matcher.matches())
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -2084,7 +2084,7 @@ class DateTimeImpl implements DateTime
 
         for (i = 0; i < 12; i++)
         {
-            if (months[i].equalsIgnoreCase(monthStr))
+            if (MONTHS_EN[i].equalsIgnoreCase(monthStr))
             {
                 month = i + 1;
                 break;

@@ -14,11 +14,11 @@ class ProxyAuthenticatorImpl implements IProxyAuthenticator
     private static final String END_OF_CHUNK = "\r\n\r\n";
 
     private IAuthenticationScheme _authScheme;
-    private final Pattern _httpVersionPattern = Pattern.compile("^\\s*HTTP/1.. (\\d+)");
-    private final Pattern _proxyAuthenticatePattern = Pattern.compile("Proxy-[a|A]uthenticate: (\\w+)");
-    private final Pattern _wwwAuthenticatePattern = Pattern.compile("WWW-[a|A]uthenticate: (\\w+)");
-    private final Pattern _proxyConnectionClosePattern = Pattern.compile("Proxy-[c|C]onnection: close");
-    private final Pattern _connectionClosePattern = Pattern.compile("Connection: [c|C]lose");
+    private static final Pattern HTTP_VERSION_PATTERN = Pattern.compile("^\\s*HTTP/1.. (\\d+)");
+    private static final Pattern PROXY_AUTHENTICATE_PATTERN = Pattern.compile("Proxy-[a|A]uthenticate: (\\w+)");
+    private static final Pattern WWW_AUTHENTICATE_PATTERN = Pattern.compile("WWW-[a|A]uthenticate: (\\w+)");
+    private static final Pattern PROXY_CONNECTION_CLOSE_PATTERN = Pattern.compile("Proxy-[c|C]onnection: close");
+    private static final Pattern CONNECTION_CLOSE_PATTERN = Pattern.compile("Connection: [c|C]lose");
 	
     boolean negotiateHasFailed = false;
     boolean kerberosHasFailed = false;
@@ -188,11 +188,11 @@ class ProxyAuthenticatorImpl implements IProxyAuthenticator
 
         if (httpResponseCode == 407)
         {
-            matcher = _proxyAuthenticatePattern.matcher(response);
+            matcher = PROXY_AUTHENTICATE_PATTERN.matcher(response);
         }
         else
         {
-            matcher = _wwwAuthenticatePattern.matcher(response);
+            matcher = WWW_AUTHENTICATE_PATTERN.matcher(response);
         }
 
         while (matcher.find())
@@ -208,13 +208,13 @@ class ProxyAuthenticatorImpl implements IProxyAuthenticator
 
     private boolean responseContainsProxyClose(String response)
     {
-        Matcher matcher = _proxyConnectionClosePattern.matcher(response);
+        Matcher matcher = PROXY_CONNECTION_CLOSE_PATTERN.matcher(response);
         return matcher.find();
     }
 	
     private boolean responseContainsConnectionClose(String response)
     {
-        Matcher matcher = _connectionClosePattern.matcher(response);
+        Matcher matcher = CONNECTION_CLOSE_PATTERN.matcher(response);
         return matcher.find();
     }
 
@@ -239,7 +239,7 @@ class ProxyAuthenticatorImpl implements IProxyAuthenticator
             {
                 for (String chunk : responseChunks)
                 {
-                    Matcher matcher = _httpVersionPattern.matcher(chunk);
+                    Matcher matcher = HTTP_VERSION_PATTERN.matcher(chunk);
 
                     if (matcher.find() && matcher.groupCount() >= 1)
                     {
