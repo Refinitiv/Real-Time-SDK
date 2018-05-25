@@ -93,15 +93,17 @@ public class EmaUtility
         return all.toString();
 	}
 	
-	/**
-     * Converts the underlying buffer into a String representation of the OmmBuffer.
-     * This should only be called when the OmmBuffer is known to contain String data. 
-     * This method creates garbage unless the underlying OmmBuffer is a String.
-	 * 
-	 * @param ommBuffer OmmBuffer used
-	 * @param charset to be used to decode the OmmBuffer
-	 * @return String representation of the OmmBuffer
-	 */
+        /**
+        * Converts the underlying buffer into a String representation of the OmmBuffer.
+        * This should only be called when the OmmBuffer is known to contain String data. 
+        * This method creates garbage unless the underlying OmmBuffer is a String.
+        * Please note, that conversion of RMTES buffer to String is not supported 
+        * by this method.
+        *  
+        * @param ommBuffer OmmBuffer used
+        * @param charset to be used to decode the OmmBuffer
+        * @return String representation of the OmmBuffer
+        */
 	public static String asString( OmmBuffer ommBuffer, Charset charset )
 	{
 		if (ommBuffer != null)
@@ -114,15 +116,17 @@ public class EmaUtility
 		return null;
 	}	
 	
-	/**
-     * Converts the underlying buffer into an ASCII String representation of the OmmBuffer.
-     * This should only be called when the OmmBuffer is known to contain ASCII data. 
-     * This method is using the US-ASCII for Charset.
-     * This method creates garbage unless the underlying OmmBuffer is a String.
-	 * 
-	 * @param ommBuffer OmmBuffer used
-	 * @return ASCII String representation of the OmmBuffer
-	 */
+        /**
+        * Converts the underlying buffer into an ASCII String representation of the OmmBuffer.
+        * This should only be called when the OmmBuffer is known to contain ASCII data. 
+        * This method is using the US-ASCII for Charset.
+        * This method creates garbage unless the underlying OmmBuffer is a String.
+        * Please note, that conversion of RMTES buffer to String is not supported 
+        * by this method.
+        * 
+        * @param ommBuffer OmmBuffer used
+        * @return ASCII String representation of the OmmBuffer
+        */
 	public static String asAsciiString( OmmBuffer ommBuffer )
 	{
 		return asString( ommBuffer, Charset.forName( "US-ASCII" ) );
