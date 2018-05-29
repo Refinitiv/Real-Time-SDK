@@ -34,13 +34,13 @@ subprojects {
 ext.YEAR = '2018'
 // NOTE! please update the tag in the BinaryPack repo
 // for a new release below in the cloneBinaryPack task.
-ext.BuildDate = 'Thu Apr 26 10:35:01 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.2.0.1'
+ext.BuildDate = 'Tue May 29 10:35:01 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.2.0.2'
 ext.SpecificationVersionShort = '3.2.0'
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
-ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
-ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
+ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.G1.all.gload'
+ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.G1.all.gload'
 ext.vendor = 'Thomson Reuters'
 ext.javadoc_footer = '<a href="https://developers.thomsonreuters.com/" target=_top>Thomson Reuters</a>'
 ext.javadoc_header = '<a href="https://developers.thomsonreuters.com/" target=_top>Thomson Reuters</a>'

@@ -12,8 +12,8 @@ unset(esdk_DEPENDS_LIST)
 # esdk Version information
 #[====================================================================]
 set(INTERNAL_API_VERSION_MAJOR 3)
-set(INTERNAL_RELEASE_TWEAK L1)
-set(RELEASE_TYPE rrg)
+set(INTERNAL_RELEASE_TWEAK G1)
+set(RELEASE_TYPE gload)
 
 set( librssl_SO_VERSION 7 )
 set( librsslVA_SO_VERSION 10 )
@@ -36,7 +36,7 @@ set(Elektron-SDK-BinaryPack_repo "${_download_site}/Elektron-SDK-BinaryPack.git"
 if (DEFINED RCDEV_BP_BRANCH)
 	set(Elektron-SDK-BinaryPack_tag ${RCDEV_BP_BRANCH})
 else()
-	set(Elektron-SDK-BinaryPack_tag Elektron-SDK_1.2.0.1.L1)
+	set(Elektron-SDK-BinaryPack_tag Elektron-SDK_1.2.0.2.L1)
 endif()
 
 #
