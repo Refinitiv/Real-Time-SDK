@@ -110,6 +110,7 @@ else()
             Impl/OmmAscii.cpp Impl/OmmAsciiDecoder.cpp Impl/OmmAsciiDecoder.h
             Impl/OmmBaseImpl.cpp Impl/OmmBaseImpl.h Impl/OmmBaseImplMap.h
             Impl/OmmBuffer.cpp Impl/OmmBufferDecoder.cpp Impl/OmmBufferDecoder.h
+			Impl/OmmCommonImpl.cpp
             Impl/OmmConsumer.cpp Impl/OmmConsumerActiveConfig.cpp Impl/OmmConsumerActiveConfig.h
             Impl/OmmConsumerClient.cpp
             Impl/OmmConsumerConfig.cpp Impl/OmmConsumerConfigImpl.cpp Impl/OmmConsumerConfigImpl.h

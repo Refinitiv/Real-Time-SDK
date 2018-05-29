@@ -205,14 +205,7 @@ protected:
 #endif
 
 #ifdef USING_POLL
-	pollfd*			_eventFds;
-	nfds_t			_eventFdsCount;
-	nfds_t			_eventFdsCapacity;
-	int				_pipeReadEventFdsIdx;
 	int				_serverReadEventFdsIdx;
-
-	void removeFd(int);
-	int addFd(int, short);
 #endif
 	Mutex						_userLock;
 	Mutex						_pipeLock;
