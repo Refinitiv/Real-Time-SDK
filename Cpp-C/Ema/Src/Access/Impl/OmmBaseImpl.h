@@ -16,10 +16,6 @@
 #define USING_PPOLL
 #endif
 
-#ifdef USING_PPOLL
-#include <poll.h>
-#endif
-
 #include "rtr/rsslReactor.h"
 #include "EmaList.h"
 #include "EmaVector.h"
@@ -224,15 +220,6 @@ protected:
 	fd_set			_exceptFds;
 #endif
 
-#ifdef USING_POLL
-	pollfd*			_eventFds;
-	nfds_t			_eventFdsCount;
-	nfds_t			_eventFdsCapacity;
-	int				_pipeReadEventFdsIdx;
-
-	void removeFd( int );
-	int addFd( int, short );
-#endif
 	Mutex						_userLock;
 	Mutex						_pipeLock;
 	Mutex						_timeOutLock;

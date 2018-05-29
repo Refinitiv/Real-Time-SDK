@@ -11,12 +11,24 @@
 
 #include "EmaVector.h"
 #include "Mutex.h"
+#include "ActiveConfig.h"
 
 #ifdef WIN32
 #include <windows.h>
 #else
 #include <sys/time.h>
 #include <stdio.h>
+#endif
+
+#ifdef WIN32
+#define USING_SELECT
+#else
+#define USING_POLL
+#define USING_PPOLL
+#endif
+
+#ifdef USING_PPOLL
+#include <poll.h>
 #endif
 
 namespace thomsonreuters {
@@ -66,6 +78,20 @@ public:
 		virtual Mutex& getUserMutex() = 0;
 
 		virtual bool isAtExit() = 0;
+
+#ifdef USING_POLL
+  void removeFd( int );
+  int addFd( int, short events = POLLIN );
+#endif
+
+protected:
+#ifdef USING_POLL
+  pollfd*			_eventFds;
+  nfds_t			_eventFdsCount;
+  nfds_t			_eventFdsCapacity;
+  int				_pipeReadEventFdsIdx;
+#endif
+
 };
 
 template <class T> class OmmBaseImplMap

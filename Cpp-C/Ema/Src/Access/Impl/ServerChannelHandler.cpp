@@ -72,7 +72,6 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 			}
 
 			ommServerBase->getServerChannelHandler().addClientSession(clientSession);
-
 			ommServerBase->addSocket(pRsslReactorChannel->socketId);
 
 			if (rsslReactorChannelIoctl(pRsslReactorChannel, RSSL_SYSTEM_WRITE_BUFFERS, &ommServerBase->getActiveConfig().pServerConfig->sysSendBufSize , &rsslErrorInfo) != RSSL_RET_SUCCESS)
@@ -226,8 +225,6 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 					ommServerBase->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
 				}
 			}
-
-			ommServerBase->addSocket(pRsslReactorChannel->socketId);
 
 			return RSSL_RC_CRET_SUCCESS;
 		}

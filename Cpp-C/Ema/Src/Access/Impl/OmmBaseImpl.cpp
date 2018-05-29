@@ -26,8 +26,6 @@
 #include <sys/time.h>
 #endif
 
-#include <new>
-
 #define	EMA_BIG_STR_BUFF_SIZE (1024*4)
 
 using namespace thomsonreuters::ema::access;
@@ -46,38 +44,6 @@ class DummyProvClient : public thomsonreuters::ema::access::OmmProviderClient
 
 static DummyConsClient defaultConsClient;
 static DummyProvClient defaultProvClient;
-
-#ifdef USING_POLL
-int OmmBaseImpl::addFd( int fd, short events = POLLIN )
-{
-	if ( _eventFdsCount == _eventFdsCapacity )
-	{
-		_eventFdsCapacity *= 2;
-		pollfd* tmp( new pollfd[ _eventFdsCapacity ] );
-		for ( int i = 0; i < _eventFdsCount; ++i )
-			tmp[ i ] = _eventFds[ i ];
-		delete [] _eventFds;
-		_eventFds = tmp;
-	}
-	_eventFds[ _eventFdsCount ].fd = fd;
-	_eventFds[ _eventFdsCount ].events = events;
-
-	return _eventFdsCount++;
-}
-
-void OmmBaseImpl::removeFd( int fd )
-{
-	_pipeReadEventFdsIdx = -1;
-	for ( int i = 0; i < _eventFdsCount; ++i )
-		if ( _eventFds[ i ].fd == fd )
-		{
-			if ( i < _eventFdsCount - 1 )
-				_eventFds[ i ] = _eventFds[ _eventFdsCount - 1 ];
-			--_eventFdsCount;
-			break;
-		}
-}
-#endif
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_activeConfig(activeConfig),

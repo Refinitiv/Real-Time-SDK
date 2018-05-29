@@ -32,43 +32,9 @@
 #include <sys/time.h>
 #endif
 
-#include <new>
-
 #define	EMA_BIG_STR_BUFF_SIZE (1024*4)
 
 using namespace thomsonreuters::ema::access;
-
-#ifdef USING_POLL
-int OmmServerBaseImpl::addFd(int fd, short events = POLLIN)
-{
-	if (_eventFdsCount == _eventFdsCapacity)
-	{
-		_eventFdsCapacity *= 2;
-		pollfd* tmp(new pollfd[_eventFdsCapacity]);
-		for (int i = 0; i < _eventFdsCount; ++i)
-			tmp[i] = _eventFds[i];
-		delete[] _eventFds;
-		_eventFds = tmp;
-	}
-	_eventFds[_eventFdsCount].fd = fd;
-	_eventFds[_eventFdsCount].events = events;
-
-	return _eventFdsCount++;
-}
-
-void OmmServerBaseImpl::removeFd(int fd)
-{
-	_pipeReadEventFdsIdx = -1;
-	for (int i = 0; i < _eventFdsCount; ++i)
-		if (_eventFds[i].fd == fd)
-		{
-			if (i < _eventFdsCount - 1)
-				_eventFds[i] = _eventFds[_eventFdsCount - 1];
-			--_eventFdsCount;
-			break;
-		}
-}
-#endif
 
 OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, OmmProviderClient& ommProviderClient, void* closure) :
 	_activeServerConfig(activeServerConfig),
