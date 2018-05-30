@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.31
-!tag Build_RDMD  4.20.31
-!tag DT_Version  18.31
-!tag Date        30-Mar-2018
+!tag RT_Version  4.20.32
+!tag Build_RDMD  4.20.32
+!tag DT_Version  18.41
+!tag Date        7-May-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -358,6 +358,8 @@ PD_P_CCY   13588
 OR_INV_CCY 13590
 BASE_CURR  13592
 CAN_P_CCY  13593
+QUOTE_CUR  13594
+CURRENCY_D 13595
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -549,6 +551,7 @@ CAN_P_CCY  13593
     905        "SAh"   Saudi Arabian Halalah
     906        "QAd"   Qatari Dirham
     907        "AEf"   UAE Fils
+    928        "VES"   Venezuelan Bolivar Soberano
     929        "MRU"   Mauritanian Ouguiya
     930        "STN"   Sao Tome and Principe Dobra
     931        "CUC"   Cuba Convertible Peso
@@ -556,7 +559,7 @@ CAN_P_CCY  13593
     933        "BYN"   Belarusian Ruble
     934        "TMT"   Turkmenistan New Manat
     936        "GHS"   Ghana Cedi
-    937        "VEF"   Venezuelan Bolivar
+    937        "VEF"   Venezuelan Bolivar Fuerte
     938        "SDG"   SUDANESE POUND
     940        "UYI"   Uruguay Peso en Unidades Indexadas
     941        "RSD"   Serbian Dinar
@@ -642,6 +645,7 @@ CAN_P_CCY  13593
    2032        "XRP"   Ripple
    2033        "NTK"   Neurotoken
    2034        "LTC"   Litecoin
+   2035        "BOF"   Bolivian Unidad de Fomento de Vivienda
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -925,7 +929,7 @@ BIDXID      3298
       1        "ASE"   NYSE American
       2        "NYS"   New York Stock Exchange
       3        "BOS"   Boston Stock Exchange
-      4        "CIN"   Cincinatti Stock Exchange
+      4        "CIN"   NYSE National (formerly National Stock Exchange)
       5        "PSE"   NYSE Arca
       6        "XPH"   Philadelphia Stock Exchange
       7        "THM"   Third Market Stock - OTC
@@ -1493,6 +1497,7 @@ LIQ_RATING 12896
 ! -------    ---
 !
 BOND_TYPE    104
+BOND_TP_D  13067
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -6502,6 +6507,7 @@ CLOSE5_TP   5892
      25          "*"   zaraba closing.
      26          "#"   closed with interrupt/itayose/stoppage.
      27          "R"   reference price
+     28          "P"   Previous Day Close Price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8043,7 +8049,7 @@ LEG4_EXCH  13574
    1008        "FEX"   Financial and Energy Exchange
    1009        "BCP"   Bank of Canada Commodities Index 
    1010        "HTS"   HTS ( Hellenic Transmission System Operator SA)
-   1011        "BTQ"   Consolidated Issues listed by BATS Exchange
+   1011        "BTQ"   Consolidated Issues Listed by Cboe Exchange
    1012        "EMC"   EMC ( European Market Coupling Company )
    1013        "LMX"   London Multi Asset Exchange
    1014        "CIT"   CitiCIP
@@ -8528,6 +8534,9 @@ LEG4_EXCH  13574
    1493        "493"   Not allocated (was BGC PARTNERS (MTF))
    1494        "BGO"   BGC Partners (MiFID II)
    1495        "SMS"   Secondary Market Solution
+   1496        "XCB"   SIX Corporate Bonds
+   1497        "BKE"   BOE SONIA FIXING MP
+   1498        "SKI"   Spaceknow Inc
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15409,6 +15418,26 @@ SRC_MMRG2  12969
 SRC_MMRG3  12970
 SRC_MMRG4  12971
 SRC_MMRG5  12972
+SRC_MDISC1 13047
+SRC_MDISC2 13048
+SRC_MDISC3 13049
+SRC_MDISC4 13050
+SRC_MDISC5 13051
+SRC_MPRC1  13052
+SRC_MPRC2  13053
+SRC_MPRC3  13054
+SRC_MPRC4  13055
+SRC_MPRC5  13056
+SRC_MSPD1  13057
+SRC_MSPD2  13058
+SRC_MSPD3  13059
+SRC_MSPD4  13060
+SRC_MSPD5  13061
+SRC_MYLD1  13062
+SRC_MYLD2  13063
+SRC_MYLD3  13064
+SRC_MYLD4  13065
+SRC_MYLD5  13066
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -17445,6 +17474,8 @@ MBS_CLASS  13043
 ! -------    ---
 !
 SETTLE_MTH 13044
+LEG2_SET_M 13045
+LEG3_SET_M 13046
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -17477,30 +17508,17 @@ SETTLE_MTH 13044
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET344 13045
-PRE_1ET345 13046
-PRE_1ET346 13047
-PRE_1ET347 13048
-PRE_1ET348 13049
-PRE_1ET349 13050
-PRE_1ET350 13051
-PRE_1ET351 13052
-PRE_1ET352 13053
-PRE_1ET353 13054
-PRE_1ET354 13055
-PRE_1ET355 13056
-PRE_1ET356 13057
-PRE_1ET357 13058
-PRE_1ET358 13059
-PRE_1ET359 13060
-PRE_1ET360 13061
-PRE_1ET361 13062
-PRE_1ET362 13063
-PRE_1ET363 13064
-PRE_1ET364 13065
-PRE_1ET365 13066
-PRE_1ET366 13067
-PRE_1ET367 13068
+DATTRD_RUL 13068
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0      "     "   Undefined
+      1      "B    "   Only allow Buy first then Sell in the same day
+      2      "B&S  "   Allow both Buy first then Sell and Sell first then Buy in the same day
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET368 13069
 PRE_1ET369 13070
 PRE_1ET370 13071
@@ -19334,6 +19352,7 @@ DRKCOND_1  13521
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
+      1   "MID     "   Midpoint Trade
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20921,8 +20940,6 @@ MIFD_SUBCL 13589
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET273 13594
-PRE_2ET274 13595
 PRE_2ET275 13596
 PRE_2ET276 13597
 PRE_2ET277 13598
