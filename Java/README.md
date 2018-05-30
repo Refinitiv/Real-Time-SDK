@@ -20,40 +20,40 @@ procedural instructions are not included here. Maven uses the following syntax t
 	<dependency>
 		<groupId>com.thomsonreuters.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.2.0.1</version>
+		<version>3.2.0.2</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa</groupId>
 		<artifactId>upa</artifactId>
-		<version>3.2.0.1</version>
+		<version>3.2.0.2</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd</groupId>
 		<artifactId>upaValueAdd</artifactId>
-		<version>3.2.0.1</version>
+		<version>3.2.0.2</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
 		<artifactId>upaValueAddCache</artifactId>
-		<version>3.2.0.1</version>
+		<version>3.2.0.2</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.2.0.1</version>
+		<version>3.2.0.2</version>
 	</dependency>
 
 Gradle uses the following syntax to specify ESDK dependencies:
 
-	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.2.0.1'
-	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.2.0.1'
-	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.2.0.1'
-	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.2.0.1'                    
-	compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.2.0.1'  
+	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.2.0.2'
+	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.2.0.2'
+	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.2.0.2'
+	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.2.0.2'                    
+	compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.2.0.2'  
 
 
 # Building the APIs
