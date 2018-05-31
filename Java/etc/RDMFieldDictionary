@@ -4,14 +4,14 @@
 ! Thomson Reuters. Thomson Reuters may update or remove this
 ! document at any time without notice.
 !
-!   Version	 4.20.31_TREP_18.31		04/02/2018
-!	* Modified 04/02/2018 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.31.
+!   Version	 4.20.32_TREP_18.41		05/09/2018
+!	* Modified 05/09/2018 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.32.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.31_TREP
+!   Version: 4.20.32_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.31
-!tag Build     2
-!tag Date      05-Mar-2018
+!tag Version   4.20.32
+!tag Build     004
+!tag Date      09-May-2018
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -17830,11 +17830,11 @@ ASK_SZ_DSP "ASK SIZE DISPLAYED"  6538  NULL        INTEGER            15  INT64 
 !
 ! The total quantity of displayed shares on the Ask Side MBP book
 !
-BID_DATE1  "BID DATE"            6539  NULL        DATE               11  DATE             4
+BID_DATE1  "BID DATE"            6539  BID_DATE2   DATE               11  DATE             4
 !
 ! The date associated with BID_TIME1
 !
-ASK_DATE1  "ASK DATE"            6540  NULL        DATE               11  DATE             4
+ASK_DATE1  "ASK DATE"            6540  ASK_DATE2   DATE               11  DATE             4
 !
 ! The date associated with ASK_TIME1
 !
@@ -19783,28 +19783,40 @@ STRGY_SEQ  "STRGY TRD SEQ"       7119  NULL        INTEGER            15  INT64 
 !
 ! Strategy trade sequence number
 !
-PRE_INT241 "PRED INTEGER 241"    7120  NULL        INTEGER            15  INT64            6
-PRE_INT242 "PRED INTEGER 242"    7121  NULL        INTEGER            15  INT64            6
-PRE_INT243 "PRED INTEGER 243"    7122  NULL        INTEGER            15  INT64            6
-PRE_INT244 "PRED INTEGER 244"    7123  NULL        INTEGER            15  INT64            6
-PRE_INT245 "PRED INTEGER 245"    7124  NULL        INTEGER            15  INT64            6
-PRE_INT246 "PRED INTEGER 246"    7125  NULL        INTEGER            15  INT64            6
-PRE_INT247 "PRED INTEGER 247"    7126  NULL        INTEGER            15  INT64            6
-PRE_INT248 "PRED INTEGER 248"    7127  NULL        INTEGER            15  INT64            6
-PRE_INT249 "PRED INTEGER 249"    7128  NULL        INTEGER            15  INT64            6
-PRE_INT250 "PRED INTEGER 250"    7129  NULL        INTEGER            15  INT64            6
-PRE_INT251 "PRED INTEGER 251"    7130  NULL        INTEGER            15  INT64            6
-PRE_INT252 "PRED INTEGER 252"    7131  NULL        INTEGER            15  INT64            6
-PRE_INT253 "PRED INTEGER 253"    7132  NULL        INTEGER            15  INT64            6
-PRE_INT254 "PRED INTEGER 254"    7133  NULL        INTEGER            15  INT64            6
-PRE_INT255 "PRED INTEGER 255"    7134  NULL        INTEGER            15  INT64            6
-PRE_INT256 "PRED INTEGER 256"    7135  NULL        INTEGER            15  INT64            6
-PRE_INT257 "PRED INTEGER 257"    7136  NULL        INTEGER            15  INT64            6
-PRE_INT258 "PRED INTEGER 258"    7137  NULL        INTEGER            15  INT64            6
-PRE_INT259 "PRED INTEGER 259"    7138  NULL        INTEGER            15  INT64            6
-PRE_INT260 "PRED INTEGER 260"    7139  NULL        INTEGER            15  INT64            6
-PRE_INT261 "PRED INTEGER 261"    7140  NULL        INTEGER            15  INT64            6
-PRE_INT262 "PRED INTEGER 262"    7141  NULL        INTEGER            15  INT64            6
+PD_NUMMOV  "PRVD TRD NUM MOV"    7120  NULL        INTEGER            15  INT64            6
+!
+! Number of previous days trades
+!
+IMP_NARD1  "NUM IMP ASK ORDS1"   7121  NULL        INTEGER            15  INT64            6
+IMP_NARD2  "NUM IMP ASK ORDS2"   7122  NULL        INTEGER            15  INT64            6
+IMP_NARD3  "NUM IMP ASK ORDS3"   7123  NULL        INTEGER            15  INT64            6
+IMP_NARD4  "NUM IMP ASK ORDS4"   7124  NULL        INTEGER            15  INT64            6
+IMP_NARD5  "NUM IMP ASK ORDS5"   7125  NULL        INTEGER            15  INT64            6
+IMP_NARD6  "NUM IMP ASK ORDS6"   7126  NULL        INTEGER            15  INT64            6
+IMP_NARD7  "NUM IMP ASK ORDS7"   7127  NULL        INTEGER            15  INT64            6
+IMP_NARD8  "NUM IMP ASK ORDS8"   7128  NULL        INTEGER            15  INT64            6
+IMP_NARD9  "NUM IMP ASK ORDS9"   7129  NULL        INTEGER            15  INT64            6
+IMP_NARD10 "NUM IMP ASK ORDS10"  7130  NULL        INTEGER            15  INT64            6
+!
+! The number of implied ask orders in an orderbook row.
+!
+IMP_NBRD1  "NUM IMP BID ORDS1"   7131  NULL        INTEGER            15  INT64            6
+IMP_NBRD2  "NUM IMP BID ORDS2"   7132  NULL        INTEGER            15  INT64            6
+IMP_NBRD3  "NUM IMP BID ORDS3"   7133  NULL        INTEGER            15  INT64            6
+IMP_NBRD4  "NUM IMP BID ORDS4"   7134  NULL        INTEGER            15  INT64            6
+IMP_NBRD5  "NUM IMP BID ORDS5"   7135  NULL        INTEGER            15  INT64            6
+IMP_NBRD6  "NUM IMP BID ORDS6"   7136  NULL        INTEGER            15  INT64            6
+IMP_NBRD7  "NUM IMP BID ORDS7"   7137  NULL        INTEGER            15  INT64            6
+IMP_NBRD8  "NUM IMP BID ORDS8"   7138  NULL        INTEGER            15  INT64            6
+IMP_NBRD9  "NUM IMP BID ORDS9"   7139  NULL        INTEGER            15  INT64            6
+IMP_NBRD10 "NUM IMP BID ORDS10"  7140  NULL        INTEGER            15  INT64            6
+!
+! The number of implied bid orders in an orderbook row.
+!
+IMP_NO_ORD "NUM IMP ORDS"        7141  NULL        INTEGER            15  INT64            6
+!
+! The number of implied orders in an orderbook row.
+!
 PRE_INT263 "PRED INTEGER 263"    7142  NULL        INTEGER            15  INT64            6
 PRE_INT264 "PRED INTEGER 264"    7143  NULL        INTEGER            15  INT64            6
 PRE_INT265 "PRED INTEGER 265"    7144  NULL        INTEGER            15  INT64            6
@@ -26408,37 +26420,85 @@ QT_VALD_DT "QUOTE VALID DT"      9317  NULL        DATE               11  DATE  
 !
 ! Date the Quote is valid to
 !
-PRE_DT207  "PRED DATE 207"       9318  NULL        DATE               11  DATE             4
+HSTCL2_TDT "SECOND CLS TRD DT"   9318  NULL        DATE               11  DATE             4
 !
-! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+! Trade Execution date of the secondary close price as held in HST_CLOSE2.
 !
 PRE_DT208  "PRED DATE 208"       9319  NULL        DATE               11  DATE             4
 PRE_DT209  "PRED DATE 209"       9320  NULL        DATE               11  DATE             4
 !
 ! TBD
 !
-PRE_DT210  "PRED DATE 210"       9321  NULL        DATE               11  DATE             4
-PRE_DT211  "PRED DATE 211"       9322  NULL        DATE               11  DATE             4
-PRE_DT212  "PRED DATE 212"       9323  NULL        DATE               11  DATE             4
-PRE_DT213  "PRED DATE 213"       9324  NULL        DATE               11  DATE             4
-PRE_DT214  "PRED DATE 214"       9325  NULL        DATE               11  DATE             4
-PRE_DT215  "PRED DATE 215"       9326  NULL        DATE               11  DATE             4
-PRE_DT216  "PRED DATE 216"       9327  NULL        DATE               11  DATE             4
-PRE_DT217  "PRED DATE 217"       9328  NULL        DATE               11  DATE             4
-PRE_DT218  "PRED DATE 218"       9329  NULL        DATE               11  DATE             4
-PRE_DT219  "PRED DATE 219"       9330  NULL        DATE               11  DATE             4
-PRE_DT220  "PRED DATE 220"       9331  NULL        DATE               11  DATE             4
-PRE_DT221  "PRED DATE 221"       9332  NULL        DATE               11  DATE             4
-PRE_DT222  "PRED DATE 222"       9333  NULL        DATE               11  DATE             4
-PRE_DT223  "PRED DATE 223"       9334  NULL        DATE               11  DATE             4
-PRE_DT224  "PRED DATE 224"       9335  NULL        DATE               11  DATE             4
-PRE_DT225  "PRED DATE 225"       9336  NULL        DATE               11  DATE             4
-PRE_DT226  "PRED DATE 226"       9337  NULL        DATE               11  DATE             4
-PRE_DT227  "PRED DATE 227"       9338  NULL        DATE               11  DATE             4
-PRE_DT228  "PRED DATE 228"       9339  NULL        DATE               11  DATE             4
-PRE_DT229  "PRED DATE 229"       9340  NULL        DATE               11  DATE             4
-PRE_DT230  "PRED DATE 230"       9341  NULL        DATE               11  DATE             4
-PRE_DT231  "PRED DATE 231"       9342  NULL        DATE               11  DATE             4
+LEG2_ISSDT "LEG2 ISSUE DATE"     9321  NULL        DATE               11  DATE             4
+!
+! Issue Date - Leg 2
+!
+LEG3_ISSDT "LEG3 ISSUE DATE"     9322  NULL        DATE               11  DATE             4
+!
+! Issue Date - Leg 3 
+!
+LEG2_NTFDT "LEG2 NTF DT"         9323  NULL        DATE               11  DATE             4
+!
+! Leg 2 Notification Date
+!
+LEG3_NTFDT "LEG3 NTF DT"         9324  NULL        DATE               11  DATE             4
+!
+! Leg 3 Notification Date
+!
+LEG2_SETDT "LEG2 SETLMENT DT"    9325  NULL        DATE               11  DATE             4
+!
+! Settlement Date - Leg 2
+!
+LEG3_SETDT "LEG3 SETLMENT DT"    9326  NULL        DATE               11  DATE             4
+!
+! Settlement Date - Leg 3
+!
+ASK_DATE2  "ASK DATE 2"          9327  ASK_DATE3   DATE               11  DATE             4
+ASK_DATE3  "ASK DATE 3"          9328  ASK_DATE4   DATE               11  DATE             4
+ASK_DATE4  "ASK DATE 4"          9329  ASK_DATE5   DATE               11  DATE             4
+ASK_DATE5  "ASK DATE 5"          9330  NULL        DATE               11  DATE             4
+!
+! Date of last ask quote update.
+!
+BID_DATE2  "BID DATE 2"          9331  BID_DATE3   DATE               11  DATE             4
+BID_DATE3  "BID DATE 3"          9332  BID_DATE4   DATE               11  DATE             4
+BID_DATE4  "BID DATE 4"          9333  BID_DATE5   DATE               11  DATE             4
+BID_DATE5  "BID DATE 5"          9334  NULL        DATE               11  DATE             4
+!
+! Date of last bid quote update.
+!
+CALC_TO_DT "CALC TO CD DATE"     9335  NULL        DATE               11  DATE             4
+!
+! Calculation To code date
+!
+LIQ_FEE_DT "LIQ FEE DATE"        9336  NULL        DATE               11  DATE             4
+!
+! Date when Liquidity Fee went into effect.
+!
+RDM_GT_DT  "RDM GATE DATE"       9337  NULL        DATE               11  DATE             4
+!
+! Date when Redemption Gate went into effect.
+!
+YLD_7D_DT  "YLD 7D DATE"         9338  NULL        DATE               11  DATE             4
+!
+! The date value associated with the Subsidized 7 Day Yield - YLD_7DAY.
+!
+EXPIR_DT_D "EXPIRY DATE D"       9339  NULL        DATE               11  DATE             4
+!
+! Dynamic Reference Field - Expiry Date.
+!
+MATUR_DT_D "MATURITY DATE D"     9340  NULL        DATE               11  DATE             4
+!
+! Dynamic Reference Field - Maturity Date.
+!
+SC_HLT_DT  "SEC HALT DATE"       9341  NULL        DATE               11  DATE             4
+!
+! Secondary field for the date a security was originally halted/suspended.
+!
+SC_HLTR_DT "SEC HALT RESUME DT"  9342  NULL        DATE               11  DATE             4
+!
+! Secondary field for trade resumption date for a halted/suspended security.
+!
 PRE_DT232  "PRED DATE 232"       9343  NULL        DATE               11  DATE             4
 PRE_DT233  "PRED DATE 233"       9344  NULL        DATE               11  DATE             4
 PRE_DT234  "PRED DATE 234"       9345  NULL        DATE               11  DATE             4
@@ -29273,7 +29333,7 @@ CURVE_VAL  "CURVE VALUE"        10517  NULL        PRICE              17  REAL64
 !
 ! Curve Value
 !
-DISC_FACT  "DISC FACTOR"        10518  NULL        PRICE              17  REAL64           7
+DISC_FACT  "DISC FACTOR"        10518  DISC_FACT2  PRICE              17  REAL64           7
 !
 ! Discount Factor
 !
@@ -29285,70 +29345,255 @@ QUOTE_SIZE "QUOTE SIZE"         10520  NULL        PRICE              17  REAL64
 !
 ! The number of shares or lots related to the quote
 !
-PRERL1530  "PRED REAL 1530"     10521  NULL        PRICE              17  REAL64           7
-PRERL1531  "PRED REAL 1531"     10522  NULL        PRICE              17  REAL64           7
-PRERL1532  "PRED REAL 1532"     10523  NULL        PRICE              17  REAL64           7
-PRERL1533  "PRED REAL 1533"     10524  NULL        PRICE              17  REAL64           7
-PRERL1534  "PRED REAL 1534"     10525  NULL        PRICE              17  REAL64           7
-PRERL1535  "PRED REAL 1535"     10526  NULL        PRICE              17  REAL64           7
-PRERL1536  "PRED REAL 1536"     10527  NULL        PRICE              17  REAL64           7
-PRERL1537  "PRED REAL 1537"     10528  NULL        PRICE              17  REAL64           7
-PRERL1538  "PRED REAL 1538"     10529  NULL        PRICE              17  REAL64           7
-PRERL1539  "PRED REAL 1539"     10530  NULL        PRICE              17  REAL64           7
-PRERL1540  "PRED REAL 1540"     10531  NULL        PRICE              17  REAL64           7
-PRERL1541  "PRED REAL 1541"     10532  NULL        PRICE              17  REAL64           7
-PRERL1542  "PRED REAL 1542"     10533  NULL        PRICE              17  REAL64           7
-PRERL1543  "PRED REAL 1543"     10534  NULL        PRICE              17  REAL64           7
-PRERL1544  "PRED REAL 1544"     10535  NULL        PRICE              17  REAL64           7
-PRERL1545  "PRED REAL 1545"     10536  NULL        PRICE              17  REAL64           7
-PRERL1546  "PRED REAL 1546"     10537  NULL        PRICE              17  REAL64           7
-PRERL1547  "PRED REAL 1547"     10538  NULL        PRICE              17  REAL64           7
-PRERL1548  "PRED REAL 1548"     10539  NULL        PRICE              17  REAL64           7
-PRERL1549  "PRED REAL 1549"     10540  NULL        PRICE              17  REAL64           7
-PRERL1550  "PRED REAL 1550"     10541  NULL        PRICE              17  REAL64           7
-PRERL1551  "PRED REAL 1551"     10542  NULL        PRICE              17  REAL64           7
-PRERL1552  "PRED REAL 1552"     10543  NULL        PRICE              17  REAL64           7
-PRERL1553  "PRED REAL 1553"     10544  NULL        PRICE              17  REAL64           7
-PRERL1554  "PRED REAL 1554"     10545  NULL        PRICE              17  REAL64           7
-PRERL1555  "PRED REAL 1555"     10546  NULL        PRICE              17  REAL64           7
-PRERL1556  "PRED REAL 1556"     10547  NULL        PRICE              17  REAL64           7
-PRERL1557  "PRED REAL 1557"     10548  NULL        PRICE              17  REAL64           7
-PRERL1558  "PRED REAL 1558"     10549  NULL        PRICE              17  REAL64           7
-PRERL1559  "PRED REAL 1559"     10550  NULL        PRICE              17  REAL64           7
-PRERL1560  "PRED REAL 1560"     10551  NULL        PRICE              17  REAL64           7
-PRERL1561  "PRED REAL 1561"     10552  NULL        PRICE              17  REAL64           7
-PRERL1562  "PRED REAL 1562"     10553  NULL        PRICE              17  REAL64           7
-PRERL1563  "PRED REAL 1563"     10554  NULL        PRICE              17  REAL64           7
-PRERL1564  "PRED REAL 1564"     10555  NULL        PRICE              17  REAL64           7
-PRERL1565  "PRED REAL 1565"     10556  NULL        PRICE              17  REAL64           7
-PRERL1566  "PRED REAL 1566"     10557  NULL        PRICE              17  REAL64           7
-PRERL1567  "PRED REAL 1567"     10558  NULL        PRICE              17  REAL64           7
-PRERL1568  "PRED REAL 1568"     10559  NULL        PRICE              17  REAL64           7
-PRERL1569  "PRED REAL 1569"     10560  NULL        PRICE              17  REAL64           7
-PRERL1570  "PRED REAL 1570"     10561  NULL        PRICE              17  REAL64           7
-PRERL1571  "PRED REAL 1571"     10562  NULL        PRICE              17  REAL64           7
-PRERL1572  "PRED REAL 1572"     10563  NULL        PRICE              17  REAL64           7
-PRERL1573  "PRED REAL 1573"     10564  NULL        PRICE              17  REAL64           7
-PRERL1574  "PRED REAL 1574"     10565  NULL        PRICE              17  REAL64           7
-PRERL1575  "PRED REAL 1575"     10566  NULL        PRICE              17  REAL64           7
-PRERL1576  "PRED REAL 1576"     10567  NULL        PRICE              17  REAL64           7
-PRERL1577  "PRED REAL 1577"     10568  NULL        PRICE              17  REAL64           7
-PRERL1578  "PRED REAL 1578"     10569  NULL        PRICE              17  REAL64           7
-PRERL1579  "PRED REAL 1579"     10570  NULL        PRICE              17  REAL64           7
-PRERL1580  "PRED REAL 1580"     10571  NULL        PRICE              17  REAL64           7
-PRERL1581  "PRED REAL 1581"     10572  NULL        PRICE              17  REAL64           7
-PRERL1582  "PRED REAL 1582"     10573  NULL        PRICE              17  REAL64           7
-PRERL1583  "PRED REAL 1583"     10574  NULL        PRICE              17  REAL64           7
-PRERL1584  "PRED REAL 1584"     10575  NULL        PRICE              17  REAL64           7
-PRERL1585  "PRED REAL 1585"     10576  NULL        PRICE              17  REAL64           7
-PRERL1586  "PRED REAL 1586"     10577  NULL        PRICE              17  REAL64           7
-PRERL1587  "PRED REAL 1587"     10578  NULL        PRICE              17  REAL64           7
-PRERL1588  "PRED REAL 1588"     10579  NULL        PRICE              17  REAL64           7
-PRERL1589  "PRED REAL 1589"     10580  NULL        PRICE              17  REAL64           7
-PRERL1590  "PRED REAL 1590"     10581  NULL        PRICE              17  REAL64           7
-PRERL1591  "PRED REAL 1591"     10582  NULL        PRICE              17  REAL64           7
-PRERL1592  "PRED REAL 1592"     10583  NULL        PRICE              17  REAL64           7
-PRERL1593  "PRED REAL 1593"     10584  NULL        PRICE              17  REAL64           7
+AMERCL_BYL "AMER CLOSE BID YLD" 10521  NULL        PRICE              17  REAL64           7
+!
+! Today's America Close Bid Yield
+!
+AMERCL_AYL "AMER CLOSE ASK YLD" 10522  NULL        PRICE              17  REAL64           7
+!
+! Today's America Close Ask Yield
+!
+EURCL_BYL  "EURO CLOSE BID YLD" 10523  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Close Bid Yield
+!
+EURCL_AYL  "EURO CLOSE ASK YLD" 10524  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Close Ask Yield
+!
+ASIACL_BYL "ASIA CLOSE BID YLD" 10525  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Close Bid Yield
+!
+ASIACL_AYL "ASIA CLOSE ASK YLD" 10526  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Close Ask Yield
+!
+AMERNC_BID "AMER BID NET CHG"   10527  NULL        PRICE              17  REAL64           7
+!
+! Today's America Bid Net Change
+!
+AMERNC_ASK "AMER ASK NET CHG"   10528  NULL        PRICE              17  REAL64           7
+!
+! Today's America Ask Net Change
+!
+AMERNC_BYL "AMER BID YLD NCHG"  10529  NULL        PRICE              17  REAL64           7
+!
+! Today's America Bid Yield Net Change
+!
+AMERNC_AYL "AMER ASK YLD NCHG"  10530  NULL        PRICE              17  REAL64           7
+!
+! Today's America Ask Yield Net Change
+!
+AMERPC_BID "AMER BID PCT CHG"   10531  NULL        PRICE              17  REAL64           7
+!
+! Today's America Bid % Change
+!
+AMERPC_ASK "AMER ASK PCT CHG"   10532  NULL        PRICE              17  REAL64           7
+!
+! Today's America Ask % Change
+!
+AMERPC_BYL "AMER BID YLD PCHG"  10533  NULL        PRICE              17  REAL64           7
+!
+! Today's America Bid Yield % Change
+!
+AMERPC_AYL "AMER ASK YLD PCHG"  10534  NULL        PRICE              17  REAL64           7
+!
+! Today's America Ask Yield % Change
+!
+EURNC_BID  "EURO BID NET CHG"   10535  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Bid Net Change
+!
+EURNC_ASK  "EURO ASK NET CHG"   10536  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Ask Net Change
+!
+EURNC_BYL  "EURO BID YLD NCHG"  10537  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Bid Yield Net Change
+!
+EURNC_AYL  "EURO ASK YLD NCHG"  10538  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Ask Yield Net Change
+!
+EURPC_BID  "EURO BID PCT CHG"   10539  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Bid % Change
+!
+EURPC_ASK  "EURO ASK PCT CHG"   10540  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Ask % Change
+!
+EURPC_BYL  "EURO BID YLD PCHG"  10541  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Bid Yield % Change
+!
+EURPC_AYL  "EURO ASK YLD PCHG"  10542  NULL        PRICE              17  REAL64           7
+!
+! Today's Europe Ask Yield % Change
+!
+ASIANC_BID "ASIA BID NET CHG"   10543  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Bid Net Change
+!
+ASIANC_ASK "ASIA ASK NET CHG"   10544  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Ask Net Change
+!
+ASIANC_BYL "ASIA BID YLD NCHG"  10545  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Bid Yield Net Change
+!
+ASIANC_AYL "ASIA ASK YLD NCHG"  10546  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Ask Yield Net Change
+!
+ASIAPC_BID "ASIA BID PCT CHG"   10547  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Bid % Change
+!
+ASIAPC_ASK "ASIA ASK PCT CHG"   10548  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Ask % Change
+!
+ASIAPC_BYL "ASIA BID YLD PCHG"  10549  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Bid Yield % Change
+!
+ASIAPC_AYL "ASIA ASK YLD PCHG"  10550  NULL        PRICE              17  REAL64           7
+!
+! Today's Asia Ask Yield % Change
+!
+LEG3_CPN   "LEG3 COUPON RATE"   10551  NULL        PRICE              17  REAL64           7
+!
+! Coupon Rate - Leg 3
+!
+MA14       "MOVING AVG 14 DAY"  10552  NULL        PRICE              17  REAL64           7
+MA20       "MOVING AVG 20 DAY"  10553  NULL        PRICE              17  REAL64           7
+MA40       "MOVING AVG 40 DAY"  10554  NULL        PRICE              17  REAL64           7
+MA50       "MOVING AVG 50 DAY"  10555  NULL        PRICE              17  REAL64           7
+!
+! Moving average of the n last working days indicator values.
+!
+PCTCH_300D "PCT CHNG 300D"      10556  NULL        PRICE              17  REAL64           7
+!
+! Percent Change - Close Price - 300 Days.
+!
+PCTCHG_2W  "PCT CHNG 2W"        10557  NULL        PRICE              17  REAL64           7
+!
+! Percentage change of current close price comparing to 2-week historical close.
+!
+RSI_15     "RSI 15 EVENTS"      10558  NULL        PRICE              17  REAL64           7
+!
+! 15 events relative strength indicator value.
+!
+CONGSTN_PR "CONGESTION PRC"     10559  NULL        PRICE              17  REAL64           7
+!
+! Congestion Price - The congestion component of the Location Marginal Price.
+!
+LOC_MRG_PR "LOC MARGINAL PRC"   10560  NULL        PRICE              17  REAL64           7
+!
+! Location Marginal Price - Calculated at a given interval based on actual grid 
+! operating conditions.
+!
+LOSS_PR    "LOSS PRC"           10561  NULL        PRICE              17  REAL64           7
+!
+! Loss Price - The loss component of the Location Marginal Price.
+!
+NRG_COMP   "NRG COMPONENT PRC"  10562  NULL        PRICE              17  REAL64           7
+!
+! Energy Component - The energy component of Location Marginal Price.
+!
+DISC_FACT2 "DISC FACTOR 2"      10563  NULL        PRICE              17  REAL64           7
+DISC_FACT3 "DISC FACTOR 3"      10564  NULL        PRICE              17  REAL64           7
+!
+! Ripple FID for Discount factor.
+!
+COUPN_RT_D "COUPON RATE D"      10565  NULL        PRICE              17  REAL64           7
+!
+! Dynamic Reference Field - Coupon Rate.
+!
+OA_CNVX_B  "OA CNVX BID"        10566  NULL        PRICE              17  REAL64           7
+!
+! Option Adjusted Convexity - from BID.
+!
+OA_DUR_B   "OA DUR BID"         10567  NULL        PRICE              17  REAL64           7
+!
+! Option Adjusted Duration - from BID.
+!
+OA_DV01_B  "OA DV01 BID"        10568  NULL        PRICE              17  REAL64           7
+!
+! Option Adjusted DV01 - from BID.
+!
+OA_SCNVX_B "OA SPRD CNVX BID"   10569  NULL        PRICE              17  REAL64           7
+!
+! Option Adjusted Spread Convexity - from BID. 
+!
+OA_SPDDURB "OA SPRD DUR BID"    10570  NULL        PRICE              17  REAL64           7
+!
+! Option Adjusted Spread Duration - from BID.
+!
+ATM_CORR   "ATM CORR"           10571  NULL        PRICE              17  REAL64           7
+!
+! ATM Correlation.
+!
+ATM_STRIKE "ATIM STRIKE"        10572  NULL        PRICE              17  REAL64           7
+!
+! ATM Strike - Strike at which the option will be exercised.
+!
+BPV_OBM    "BPV OIS BDC MID"    10573  NULL        PRICE              17  REAL64           7
+!
+! Basis Point Volatility - Basis Point Per Day Volatility is the Norm Volatility 
+! divided by the square root of 252 (days) - (Mid value, OIS Discounted, Business day 
+! count).
+!
+BPV_OCM    "BPV OIS CDC MID"    10574  NULL        PRICE              17  REAL64           7
+!
+! Basis Point Volatility - Basis Point Per Day Volatility is the Norm Volatility 
+! divided by the square root of 252 (days) - (Mid value, OIS Discounted, Calendar day 
+! count).
+!
+SHIFT      "SHIFT"              10575  NULL        PRICE              17  REAL64           7
+!
+! Shift - Shift to apply in the Shifted Lognormal Volatility model.
+!
+VOLVOL     "VOL OF VOL"         10576  NULL        PRICE              17  REAL64           7
+!
+! Vol of Vol - Volatility of the volatility in the SABR model.
+!
+MTCH_FRQ   "MATCHING FREQ"      10577  NULL        PRICE              17  REAL64           7
+!
+! Matching frequency of the trade matching engine.
+!
+BLK_MN_OSZ "BLK MIN ORD SZ"     10578  NULL        PRICE              17  REAL64           7
+!
+! Block Trade Minimum Order Size.
+!
+BLK_MX_OSZ "BLK MAX ORD SZ"     10579  NULL        PRICE              17  REAL64           7
+!
+! Block Trade Maximum Order Size.
+!
+BLK_OS_OSZ "BLK OS SPRD ORD SZ" 10580  NULL        PRICE              17  REAL64           7
+!
+! Block Trade Outside Spread? Order Size.
+!
+O_DISCFACT "OPEN DISC FACTOR"   10581  NULL        PRICE              17  REAL64           7
+!
+! The opening Discount Factor of the day.
+!
+H_DISCFACT "HIGH DISC FACTOR"   10582  NULL        PRICE              17  REAL64           7
+!
+! The highest Discount Factor of the day.
+!
+L_DISCFACT "LOW DISC FACTOR"    10583  NULL        PRICE              17  REAL64           7
+!
+! The lowest Discount Factor of the day.
+!
+C_DISCFACT "CLOSE DISC FACTOR"  10584  NULL        PRICE              17  REAL64           7
+!
+! The closing Discount Factor of the day.
+!
 PRERL1594  "PRED REAL 1594"     10585  NULL        PRICE              17  REAL64           7
 PRERL1595  "PRED REAL 1595"     10586  NULL        PRICE              17  REAL64           7
 PRERL1596  "PRED REAL 1596"     10587  NULL        PRICE              17  REAL64           7
@@ -30520,9 +30765,18 @@ IOI_COND_N "IOI PRC COND CODE"  11661  NULL        ALPHANUMERIC        4  RMTES_
 !
 ! The Indication of Interest (IOI) price condition code as represented in the feed
 !
-PRE_4TX105 "PRED 4 TXT 105"     11662  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX106 "PRED 4 TXT 106"     11663  NULL        ALPHANUMERIC        4  RMTES_STRING     4
-PRE_4TX107 "PRED 4 TXT 107"     11664  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+MIC_CODE_D "MIC CODE D"         11662  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Dynamic Reference Field - MIC CODE.
+!
+ODD_A_TN   "ODD ASK TONE"       11663  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Odd Lot ask price qualifier.
+!
+ODD_B_TN   "ODD BID TONE"       11664  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Odd Lot bid price qualifier.
+!
 PRE_4TX108 "PRED 4 TXT 108"     11665  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX109 "PRED 4 TXT 109"     11666  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX110 "PRED 4 TXT 110"     11667  NULL        ALPHANUMERIC        4  RMTES_STRING     4
@@ -30615,7 +30869,10 @@ QUOTE_TN2  "QUOTE TONE 2"       11699  NULL        ALPHANUMERIC        8  RMTES_
 !
 ! Secondary Quote Qualifier
 !
-PRE_8TX019 "PRED 8 TXT 019"     11700  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+CFI_CODE_D "CFI CODE D"         11700  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! Dynamic Reference Field - CFI Code.
+!
 PRE_8TX020 "PRED 8 TXT 020"     11701  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX021 "PRED 8 TXT 021"     11702  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX022 "PRED 8 TXT 022"     11703  NULL        ALPHANUMERIC        8  RMTES_STRING     8
@@ -30947,9 +31204,9 @@ PDTRDP_XID "PRVD TRD PRC XID"   11860  NULL        ALPHANUMERIC       10  RMTES_
 ! MIC segment code or other identifiers of the venue where the last update of PDTRDPRC 
 ! originated from
 !
-PRE_10T136 "PRED 10 TXT 136"    11861  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+CALC_TO    "CALC TO CODE"       11861  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
-! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+! Calculation To code.
 !
 PRE_10T137 "PRED 10 TXT 137"    11862  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T138 "PRED 10 TXT 138"    11863  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -31005,8 +31262,16 @@ QT_MPT_ID  "QUOTE MPANT ID"     11876  NULL        ALPHANUMERIC       10  RMTES_
 !
 ! Market Participant ID
 !
-PRE_10T152 "PRED 10 TXT 152"    11877  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T153 "PRED 10 TXT 153"    11878  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+SC_HLT_RN  "SEC HALT REASON"    11877  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Secondary field for native feed code articulating the reason a security is halted or 
+! suspended.
+!
+SC_HLTR_RN "SEC HALT RSM RSN"   11878  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Secondary field for native feed code articulating the reason a security is resumed 
+! for trading.
+!
 PRE_10T154 "PRED 10 TXT 154"    11879  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T155 "PRED 10 TXT 155"    11880  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T156 "PRED 10 TXT 156"    11881  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -31151,11 +31416,26 @@ ASK_LEI    "ASK LEI"            11998  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! Legal Entity Identifier of ask
 !
-PRE_24T072 "PRED 24 TXT 072"    11999  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T073 "PRED 24 TXT 073"    12000  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T074 "PRED 24 TXT 074"    12001  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T075 "PRED 24 TXT 075"    12002  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T076 "PRED 24 TXT 076"    12003  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+QUOTE_LEI  "QUOTE LEI"          11999  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Legal Entity Identifier for quotes
+!
+LEG3_CLA_N "LEG3 CLA N"         12000  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Native instrument classification code - Leg 3
+!
+RCS_ASC2_D "RCS ASSET CLA 2 D"  12001  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Dynamic Reference Field - RCS AS CL2.
+!
+HLT_MKT_CD "HALT MARKET CODE"   12002  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Trade halt market code.
+!
+SC_HMKT_CD "SEC HALT MKT CODE"  12003  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Secondary field for trade halt market code.
+!
 PRE_24T077 "PRED 24 TXT 077"    12004  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T078 "PRED 24 TXT 078"    12005  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T079 "PRED 24 TXT 079"    12006  NULL        ALPHANUMERIC       24  RMTES_STRING    24
@@ -31566,11 +31846,29 @@ INST_DESC2 "INST DESCRIPTION 2" 12272  NULL        ALPHANUMERIC       60  RMTES_
 ! Instrument Description
 !
 CNTX_NAME  "CONTEXT NAME"       12273  NULL        ALPHANUMERIC       60  RMTES_STRING    60
-PRE_60T003 "PRED 60 TXT 003"    12274  NULL        ALPHANUMERIC       60  RMTES_STRING    60
-PRE_60T004 "PRED 60 TXT 004"    12275  NULL        ALPHANUMERIC       60  RMTES_STRING    60
-PRE_60T005 "PRED 60 TXT 005"    12276  NULL        ALPHANUMERIC       60  RMTES_STRING    60
-PRE_60T006 "PRED 60 TXT 006"    12277  NULL        ALPHANUMERIC       60  RMTES_STRING    60
-PRE_60T007 "PRED 60 TXT 007"    12278  NULL        ALPHANUMERIC       60  RMTES_STRING    60
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+TRD_ID_EXT "TRD ID EXT"         12274  NULL        ALPHANUMERIC       60  RMTES_STRING    60
+!
+! Unique Trade ID - Extended
+!
+INS_TRDIDE "INS TRDIDE"         12275  NULL        ALPHANUMERIC       60  RMTES_STRING    60
+!
+! Unique Trade ID for inserted/corrected trades - Extended
+!
+CAN_TRDIDE "CAN TRDIDE"         12276  NULL        ALPHANUMERIC       60  RMTES_STRING    60
+!
+! Trade ID for cancelled trades - Extended
+!
+PD_TRDIDE  "PD TRDIDE"          12277  NULL        ALPHANUMERIC       60  RMTES_STRING    60
+!
+! Unique Trade ID - Extended for trades today but executed on any previous day
+!
+QTE_ID     "QTE ID"             12278  NULL        ALPHANUMERIC       60  RMTES_STRING    60
+!
+! Quote ID
+!
 PRE_60T008 "PRED 60 TXT 008"    12279  NULL        ALPHANUMERIC       60  RMTES_STRING    60
 PRE_60T009 "PRED 60 TXT 009"    12280  NULL        ALPHANUMERIC       60  RMTES_STRING    60
 PRE_60T010 "PRED 60 TXT 010"    12281  NULL        ALPHANUMERIC       60  RMTES_STRING    60
@@ -33073,30 +33371,54 @@ SETTLE_MTH "SETTLE MONTH"       13044  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 ! Settlement month
 !
-PRE_1ET344 "PRED 1 ET 344"      13045  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET345 "PRED 1 ET 345"      13046  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET346 "PRED 1 ET 346"      13047  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET347 "PRED 1 ET 347"      13048  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET348 "PRED 1 ET 348"      13049  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET349 "PRED 1 ET 349"      13050  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET350 "PRED 1 ET 350"      13051  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET351 "PRED 1 ET 351"      13052  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET352 "PRED 1 ET 352"      13053  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET353 "PRED 1 ET 353"      13054  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET354 "PRED 1 ET 354"      13055  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET355 "PRED 1 ET 355"      13056  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET356 "PRED 1 ET 356"      13057  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET357 "PRED 1 ET 357"      13058  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET358 "PRED 1 ET 358"      13059  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET359 "PRED 1 ET 359"      13060  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET360 "PRED 1 ET 360"      13061  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET361 "PRED 1 ET 361"      13062  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET362 "PRED 1 ET 362"      13063  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET363 "PRED 1 ET 363"      13064  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET364 "PRED 1 ET 364"      13065  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET365 "PRED 1 ET 365"      13066  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET366 "PRED 1 ET 366"      13067  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET367 "PRED 1 ET 367"      13068  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+LEG2_SET_M "LEG2 SET M"         13045  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Settlement Month Code - Leg 2
+!
+LEG3_SET_M "LEG3 SET M"         13046  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Settlement Month Code - Leg 3
+!
+SRC_MDISC1 "MID DISC SOURCE 1"  13047  SRC_MDISC2  ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MDISC2 "MID DISC SOURCE 2"  13048  SRC_MDISC3  ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MDISC3 "MID DISC SOURCE 3"  13049  SRC_MDISC4  ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MDISC4 "MID DISC SOURCE 4"  13050  SRC_MDISC5  ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MDISC5 "MID DISC SOURCE 5"  13051  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Five rippled FIDs to indicate the source for Mid Discount rate.
+!
+SRC_MPRC1  "MID PRC SOURCE 1"   13052  SRC_MPRC2   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MPRC2  "MID PRC SOURCE 2"   13053  SRC_MPRC3   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MPRC3  "MID PRC SOURCE 3"   13054  SRC_MPRC4   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MPRC4  "MID PRC SOURCE 4"   13055  SRC_MPRC5   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MPRC5  "MID PRC SOURCE 5"   13056  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Five rippled FIDs to indicate the source for Mid price.
+!
+SRC_MSPD1  "MID SPRD SOURCE 1"  13057  SRC_MSPD2   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MSPD2  "MID SPRD SOURCE 2"  13058  SRC_MSPD3   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MSPD3  "MID SPRD SOURCE 3"  13059  SRC_MSPD4   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MSPD4  "MID SPRD SOURCE 4"  13060  SRC_MSPD5   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MSPD5  "MID SPRD SOURCE 5"  13061  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Five rippled FIDs to indicate the source for Mid spread.
+!
+SRC_MYLD1  "MID YIELD SOURCE 1" 13062  SRC_MYLD2   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MYLD2  "MID YIELD SOURCE 2" 13063  SRC_MYLD3   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MYLD3  "MID YIELD SOURCE 3" 13064  SRC_MYLD4   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MYLD4  "MID YIELD SOURCE 4" 13065  SRC_MYLD5   ENUMERATED    3 ( 8 )  ENUM             1
+SRC_MYLD5  "MID YIELD SOURCE 5" 13066  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Five rippled FIDs to indicate the source for Mid yield.
+!
+BOND_TP_D  "BOND TP D"          13067  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Dynamic Reference Field - Bond Type.
+!
+DATTRD_RUL "DAY TRADING RULE"   13068  NULL        ENUMERATED    3 ( 5 )  ENUM             1
+!
+! Day Trading rule.
+!
 PRE_1ET368 "PRED 1 ET 368"      13069  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET369 "PRED 1 ET 369"      13070  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET370 "PRED 1 ET 370"      13071  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -34158,8 +34480,14 @@ CAN_P_CCY  "CAN PRC CURRENCY"   13593  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 ! Currency associated with CAN_PRC
 !
-PRE_2ET273 "PRED 2 ET 273"      13594  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET274 "PRED 2 ET 274"      13595  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+QUOTE_CUR  "QUOTE CURRENCY"     13594  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Quote currency
+!
+CURRENCY_D "CURRENCY D"         13595  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Dynamic Reference Field - Currency.
+!
 PRE_2ET275 "PRED 2 ET 275"      13596  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET276 "PRED 2 ET 276"      13597  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET277 "PRED 2 ET 277"      13598  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -35163,12 +35491,12 @@ EFRPTIM_MS "EFRPTIM MS"         14262  NULL        INTEGER            15  TIME  
 !
 ! Time of Exchange For Related Position trade in milliseconds
 !
-ASK_TIM_NS "ASK TIME NS"        14263  NULL        INTEGER            15  TIME             8
+ASK_TIM_NS "ASK TIME NS"        14263  ASK_TM2_NS  INTEGER            15  TIME             8
 !
 ! Time of best ask quote update - self describing timestamp supporting up to 
 ! nanosecond granularity
 !
-BID_TIM_NS "BID TIME NS"        14264  NULL        INTEGER            15  TIME             8
+BID_TIM_NS "BID TIME NS"        14264  BID_TM2_NS  INTEGER            15  TIME             8
 !
 ! Time of best bid quote update - self describing timestamp supporting up to 
 ! nanosecond granularity
@@ -35491,8 +35819,14 @@ LEG3_TENOR "LEG3 TENOR"         14381  NULL        ALPHANUMERIC       16  RMTES_
 !
 ! Tenor associated with Nth leg of a strategy
 !
-PRE_16T066 "PRED 16 TXT 066"    14382  NULL        ALPHANUMERIC       16  RMTES_STRING    16
-PRE_16T067 "PRED 16 TXT 067"    14383  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+ISIN_CD_D  "ISIN CODE D"        14382  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Dynamic Reference Field - ISIN Code.
+!
+STRIKE_LVL "STRIKE LEVEL"       14383  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Strike Level.
+!
 PRE_16T068 "PRED 16 TXT 068"    14384  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T069 "PRED 16 TXT 069"    14385  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T070 "PRED 16 TXT 070"    14386  NULL        ALPHANUMERIC       16  RMTES_STRING    16
@@ -35878,20 +36212,44 @@ EFF_E_NS   "EFF END TM NS"      14551  NULL        INTEGER            15  TIME  
 !
 ! Effective end time
 !
-PRE_122_NS "PRED TIME NS 122"   14552  NULL        INTEGER            15  TIME             8
-PRE_123_NS "PRED TIME NS 123"   14553  NULL        INTEGER            15  TIME             8
-PRE_124_NS "PRED TIME NS 124"   14554  NULL        INTEGER            15  TIME             8
-PRE_125_NS "PRED TIME NS 125"   14555  NULL        INTEGER            15  TIME             8
-PRE_126_NS "PRED TIME NS 126"   14556  NULL        INTEGER            15  TIME             8
-PRE_127_NS "PRED TIME NS 127"   14557  NULL        INTEGER            15  TIME             8
-PRE_128_NS "PRED TIME NS 128"   14558  NULL        INTEGER            15  TIME             8
-PRE_129_NS "PRED TIME NS 129"   14559  NULL        INTEGER            15  TIME             8
-PRE_130_NS "PRED TIME NS 130"   14560  NULL        INTEGER            15  TIME             8
-PRE_131_NS "PRED TIME NS 131"   14561  NULL        INTEGER            15  TIME             8
-PRE_132_NS "PRED TIME NS 132"   14562  NULL        INTEGER            15  TIME             8
-PRE_133_NS "PRED TIME NS 133"   14563  NULL        INTEGER            15  TIME             8
-PRE_134_NS "PRED TIME NS 134"   14564  NULL        INTEGER            15  TIME             8
-PRE_135_NS "PRED TIME NS 135"   14565  NULL        INTEGER            15  TIME             8
+RDM_TM_NS  "REDEM PRC TM NS"    14552  NULL        INTEGER            15  TIME             8
+!
+! The time when REDEM_PRC field was last updated
+!
+OFR_TM_NS  "OFFER PRICE TM NS"  14553  NULL        INTEGER            15  TIME             8
+!
+! The time when OFFER field was last updated
+!
+ASK_TM2_NS "ASK TIME NS 2"      14554  ASK_TM3_NS  INTEGER            15  TIME             8
+ASK_TM3_NS "ASK TIME NS 3"      14555  ASK_TM4_NS  INTEGER            15  TIME             8
+ASK_TM4_NS "ASK TIME NS 4"      14556  ASK_TM5_NS  INTEGER            15  TIME             8
+ASK_TM5_NS "ASK TIME NS 5"      14557  NULL        INTEGER            15  TIME             8
+!
+! Time of last ask quote update.
+!
+BID_TM2_NS "BID TIME NS 2"      14558  BID_TM3_NS  INTEGER            15  TIME             8
+BID_TM3_NS "BID TIME NS 3"      14559  BID_TM4_NS  INTEGER            15  TIME             8
+BID_TM4_NS "BID TIME NS 4"      14560  BID_TM5_NS  INTEGER            15  TIME             8
+BID_TM5_NS "BID TIME NS 5"      14561  NULL        INTEGER            15  TIME             8
+!
+! Time of last bid quote update.
+!
+LIQ_FEE_NS "LIQ FEE TM NS"      14562  NULL        INTEGER            15  TIME             8
+!
+! Time when Liquidity Fee went into effect.
+!
+RDM_GT_NS  "RDM GATE TM NS"     14563  NULL        INTEGER            15  TIME             8
+!
+! Time when Redemption Gate went into effect.
+!
+SC_HLT_NS  "SEC HALT TM NS"     14564  NULL        INTEGER            15  TIME             8
+!
+! Secondary field for the time security was originally halted.
+!
+SC_HLTR_NS "SEC HALT RSM TM NS" 14565  NULL        INTEGER            15  TIME             8
+!
+! Secondary field for trade resumption time for a halted/suspended security.
+!
 PRE_136_NS "PRED TIME NS 136"   14566  NULL        INTEGER            15  TIME             8
 PRE_137_NS "PRED TIME NS 137"   14567  NULL        INTEGER            15  TIME             8
 PRE_138_NS "PRED TIME NS 138"   14568  NULL        INTEGER            15  TIME             8
@@ -36107,6 +36465,522 @@ PRE_347_NS "PRED TIME NS 347"   14777  NULL        INTEGER            15  TIME  
 PRE_348_NS "PRED TIME NS 348"   14778  NULL        INTEGER            15  TIME             8
 PRE_349_NS "PRED TIME NS 349"   14779  NULL        INTEGER            15  TIME             8
 PRE_350_NS "PRED TIME NS 350"   14780  NULL        INTEGER            15  TIME             8
+PRE_351_NS "PRED TIME NS 351"   14781  NULL        INTEGER            15  TIME             8
+PRE_352_NS "PRED TIME NS 352"   14782  NULL        INTEGER            15  TIME             8
+PRE_353_NS "PRED TIME NS 353"   14783  NULL        INTEGER            15  TIME             8
+PRE_354_NS "PRED TIME NS 354"   14784  NULL        INTEGER            15  TIME             8
+PRE_355_NS "PRED TIME NS 355"   14785  NULL        INTEGER            15  TIME             8
+PRE_356_NS "PRED TIME NS 356"   14786  NULL        INTEGER            15  TIME             8
+PRE_357_NS "PRED TIME NS 357"   14787  NULL        INTEGER            15  TIME             8
+PRE_358_NS "PRED TIME NS 358"   14788  NULL        INTEGER            15  TIME             8
+PRE_359_NS "PRED TIME NS 359"   14789  NULL        INTEGER            15  TIME             8
+PRE_360_NS "PRED TIME NS 360"   14790  NULL        INTEGER            15  TIME             8
+PRE_361_NS "PRED TIME NS 361"   14791  NULL        INTEGER            15  TIME             8
+PRE_362_NS "PRED TIME NS 362"   14792  NULL        INTEGER            15  TIME             8
+PRE_363_NS "PRED TIME NS 363"   14793  NULL        INTEGER            15  TIME             8
+PRE_364_NS "PRED TIME NS 364"   14794  NULL        INTEGER            15  TIME             8
+PRE_365_NS "PRED TIME NS 365"   14795  NULL        INTEGER            15  TIME             8
+PRE_366_NS "PRED TIME NS 366"   14796  NULL        INTEGER            15  TIME             8
+PRE_367_NS "PRED TIME NS 367"   14797  NULL        INTEGER            15  TIME             8
+PRE_368_NS "PRED TIME NS 368"   14798  NULL        INTEGER            15  TIME             8
+PRE_369_NS "PRED TIME NS 369"   14799  NULL        INTEGER            15  TIME             8
+PRE_370_NS "PRED TIME NS 370"   14800  NULL        INTEGER            15  TIME             8
+PRE_371_NS "PRED TIME NS 371"   14801  NULL        INTEGER            15  TIME             8
+PRE_372_NS "PRED TIME NS 372"   14802  NULL        INTEGER            15  TIME             8
+PRE_373_NS "PRED TIME NS 373"   14803  NULL        INTEGER            15  TIME             8
+PRE_374_NS "PRED TIME NS 374"   14804  NULL        INTEGER            15  TIME             8
+PRE_375_NS "PRED TIME NS 375"   14805  NULL        INTEGER            15  TIME             8
+PRE_376_NS "PRED TIME NS 376"   14806  NULL        INTEGER            15  TIME             8
+PRE_377_NS "PRED TIME NS 377"   14807  NULL        INTEGER            15  TIME             8
+PRE_378_NS "PRED TIME NS 378"   14808  NULL        INTEGER            15  TIME             8
+PRE_379_NS "PRED TIME NS 379"   14809  NULL        INTEGER            15  TIME             8
+PRE_380_NS "PRED TIME NS 380"   14810  NULL        INTEGER            15  TIME             8
+PRE_381_NS "PRED TIME NS 381"   14811  NULL        INTEGER            15  TIME             8
+PRE_382_NS "PRED TIME NS 382"   14812  NULL        INTEGER            15  TIME             8
+PRE_383_NS "PRED TIME NS 383"   14813  NULL        INTEGER            15  TIME             8
+PRE_384_NS "PRED TIME NS 384"   14814  NULL        INTEGER            15  TIME             8
+PRE_385_NS "PRED TIME NS 385"   14815  NULL        INTEGER            15  TIME             8
+PRE_386_NS "PRED TIME NS 386"   14816  NULL        INTEGER            15  TIME             8
+PRE_387_NS "PRED TIME NS 387"   14817  NULL        INTEGER            15  TIME             8
+PRE_388_NS "PRED TIME NS 388"   14818  NULL        INTEGER            15  TIME             8
+PRE_389_NS "PRED TIME NS 389"   14819  NULL        INTEGER            15  TIME             8
+PRE_390_NS "PRED TIME NS 390"   14820  NULL        INTEGER            15  TIME             8
+PRE_391_NS "PRED TIME NS 391"   14821  NULL        INTEGER            15  TIME             8
+PRE_392_NS "PRED TIME NS 392"   14822  NULL        INTEGER            15  TIME             8
+PRE_393_NS "PRED TIME NS 393"   14823  NULL        INTEGER            15  TIME             8
+PRE_394_NS "PRED TIME NS 394"   14824  NULL        INTEGER            15  TIME             8
+PRE_395_NS "PRED TIME NS 395"   14825  NULL        INTEGER            15  TIME             8
+PRE_396_NS "PRED TIME NS 396"   14826  NULL        INTEGER            15  TIME             8
+PRE_397_NS "PRED TIME NS 397"   14827  NULL        INTEGER            15  TIME             8
+PRE_398_NS "PRED TIME NS 398"   14828  NULL        INTEGER            15  TIME             8
+PRE_399_NS "PRED TIME NS 399"   14829  NULL        INTEGER            15  TIME             8
+PRE_400_NS "PRED TIME NS 400"   14830  NULL        INTEGER            15  TIME             8
+PRE_401_NS "PRED TIME NS 401"   14831  NULL        INTEGER            15  TIME             8
+PRE_402_NS "PRED TIME NS 402"   14832  NULL        INTEGER            15  TIME             8
+PRE_403_NS "PRED TIME NS 403"   14833  NULL        INTEGER            15  TIME             8
+PRE_404_NS "PRED TIME NS 404"   14834  NULL        INTEGER            15  TIME             8
+PRE_405_NS "PRED TIME NS 405"   14835  NULL        INTEGER            15  TIME             8
+PRE_406_NS "PRED TIME NS 406"   14836  NULL        INTEGER            15  TIME             8
+PRE_407_NS "PRED TIME NS 407"   14837  NULL        INTEGER            15  TIME             8
+PRE_408_NS "PRED TIME NS 408"   14838  NULL        INTEGER            15  TIME             8
+PRE_409_NS "PRED TIME NS 409"   14839  NULL        INTEGER            15  TIME             8
+PRE_410_NS "PRED TIME NS 410"   14840  NULL        INTEGER            15  TIME             8
+PRE_411_NS "PRED TIME NS 411"   14841  NULL        INTEGER            15  TIME             8
+PRE_412_NS "PRED TIME NS 412"   14842  NULL        INTEGER            15  TIME             8
+PRE_413_NS "PRED TIME NS 413"   14843  NULL        INTEGER            15  TIME             8
+PRE_414_NS "PRED TIME NS 414"   14844  NULL        INTEGER            15  TIME             8
+PRE_415_NS "PRED TIME NS 415"   14845  NULL        INTEGER            15  TIME             8
+PRE_416_NS "PRED TIME NS 416"   14846  NULL        INTEGER            15  TIME             8
+PRE_417_NS "PRED TIME NS 417"   14847  NULL        INTEGER            15  TIME             8
+PRE_418_NS "PRED TIME NS 418"   14848  NULL        INTEGER            15  TIME             8
+PRE_419_NS "PRED TIME NS 419"   14849  NULL        INTEGER            15  TIME             8
+PRE_420_NS "PRED TIME NS 420"   14850  NULL        INTEGER            15  TIME             8
+PRE_421_NS "PRED TIME NS 421"   14851  NULL        INTEGER            15  TIME             8
+PRE_422_NS "PRED TIME NS 422"   14852  NULL        INTEGER            15  TIME             8
+PRE_423_NS "PRED TIME NS 423"   14853  NULL        INTEGER            15  TIME             8
+PRE_424_NS "PRED TIME NS 424"   14854  NULL        INTEGER            15  TIME             8
+PRE_425_NS "PRED TIME NS 425"   14855  NULL        INTEGER            15  TIME             8
+PRE_426_NS "PRED TIME NS 426"   14856  NULL        INTEGER            15  TIME             8
+PRE_427_NS "PRED TIME NS 427"   14857  NULL        INTEGER            15  TIME             8
+PRE_428_NS "PRED TIME NS 428"   14858  NULL        INTEGER            15  TIME             8
+PRE_429_NS "PRED TIME NS 429"   14859  NULL        INTEGER            15  TIME             8
+PRE_430_NS "PRED TIME NS 430"   14860  NULL        INTEGER            15  TIME             8
+PRE_431_NS "PRED TIME NS 431"   14861  NULL        INTEGER            15  TIME             8
+PRE_432_NS "PRED TIME NS 432"   14862  NULL        INTEGER            15  TIME             8
+PRE_433_NS "PRED TIME NS 433"   14863  NULL        INTEGER            15  TIME             8
+PRE_434_NS "PRED TIME NS 434"   14864  NULL        INTEGER            15  TIME             8
+PRE_435_NS "PRED TIME NS 435"   14865  NULL        INTEGER            15  TIME             8
+PRE_436_NS "PRED TIME NS 436"   14866  NULL        INTEGER            15  TIME             8
+PRE_437_NS "PRED TIME NS 437"   14867  NULL        INTEGER            15  TIME             8
+PRE_438_NS "PRED TIME NS 438"   14868  NULL        INTEGER            15  TIME             8
+PRE_439_NS "PRED TIME NS 439"   14869  NULL        INTEGER            15  TIME             8
+PRE_440_NS "PRED TIME NS 440"   14870  NULL        INTEGER            15  TIME             8
+PRE_441_NS "PRED TIME NS 441"   14871  NULL        INTEGER            15  TIME             8
+PRE_442_NS "PRED TIME NS 442"   14872  NULL        INTEGER            15  TIME             8
+PRE_443_NS "PRED TIME NS 443"   14873  NULL        INTEGER            15  TIME             8
+PRE_444_NS "PRED TIME NS 444"   14874  NULL        INTEGER            15  TIME             8
+PRE_445_NS "PRED TIME NS 445"   14875  NULL        INTEGER            15  TIME             8
+PRE_446_NS "PRED TIME NS 446"   14876  NULL        INTEGER            15  TIME             8
+PRE_447_NS "PRED TIME NS 447"   14877  NULL        INTEGER            15  TIME             8
+PRE_448_NS "PRED TIME NS 448"   14878  NULL        INTEGER            15  TIME             8
+PRE_449_NS "PRED TIME NS 449"   14879  NULL        INTEGER            15  TIME             8
+PRE_450_NS "PRED TIME NS 450"   14880  NULL        INTEGER            15  TIME             8
+PRE_451_NS "PRED TIME NS 451"   14881  NULL        INTEGER            15  TIME             8
+PRE_452_NS "PRED TIME NS 452"   14882  NULL        INTEGER            15  TIME             8
+PRE_453_NS "PRED TIME NS 453"   14883  NULL        INTEGER            15  TIME             8
+PRE_454_NS "PRED TIME NS 454"   14884  NULL        INTEGER            15  TIME             8
+PRE_455_NS "PRED TIME NS 455"   14885  NULL        INTEGER            15  TIME             8
+PRE_456_NS "PRED TIME NS 456"   14886  NULL        INTEGER            15  TIME             8
+PRE_457_NS "PRED TIME NS 457"   14887  NULL        INTEGER            15  TIME             8
+PRE_458_NS "PRED TIME NS 458"   14888  NULL        INTEGER            15  TIME             8
+PRE_459_NS "PRED TIME NS 459"   14889  NULL        INTEGER            15  TIME             8
+PRE_460_NS "PRED TIME NS 460"   14890  NULL        INTEGER            15  TIME             8
+PRE_461_NS "PRED TIME NS 461"   14891  NULL        INTEGER            15  TIME             8
+PRE_462_NS "PRED TIME NS 462"   14892  NULL        INTEGER            15  TIME             8
+PRE_463_NS "PRED TIME NS 463"   14893  NULL        INTEGER            15  TIME             8
+PRE_464_NS "PRED TIME NS 464"   14894  NULL        INTEGER            15  TIME             8
+PRE_465_NS "PRED TIME NS 465"   14895  NULL        INTEGER            15  TIME             8
+PRE_466_NS "PRED TIME NS 466"   14896  NULL        INTEGER            15  TIME             8
+PRE_467_NS "PRED TIME NS 467"   14897  NULL        INTEGER            15  TIME             8
+PRE_468_NS "PRED TIME NS 468"   14898  NULL        INTEGER            15  TIME             8
+PRE_469_NS "PRED TIME NS 469"   14899  NULL        INTEGER            15  TIME             8
+PRE_470_NS "PRED TIME NS 470"   14900  NULL        INTEGER            15  TIME             8
+PRE_471_NS "PRED TIME NS 471"   14901  NULL        INTEGER            15  TIME             8
+PRE_472_NS "PRED TIME NS 472"   14902  NULL        INTEGER            15  TIME             8
+PRE_473_NS "PRED TIME NS 473"   14903  NULL        INTEGER            15  TIME             8
+PRE_474_NS "PRED TIME NS 474"   14904  NULL        INTEGER            15  TIME             8
+PRE_475_NS "PRED TIME NS 475"   14905  NULL        INTEGER            15  TIME             8
+PRE_476_NS "PRED TIME NS 476"   14906  NULL        INTEGER            15  TIME             8
+PRE_477_NS "PRED TIME NS 477"   14907  NULL        INTEGER            15  TIME             8
+PRE_478_NS "PRED TIME NS 478"   14908  NULL        INTEGER            15  TIME             8
+PRE_479_NS "PRED TIME NS 479"   14909  NULL        INTEGER            15  TIME             8
+PRE_480_NS "PRED TIME NS 480"   14910  NULL        INTEGER            15  TIME             8
+PRE_481_NS "PRED TIME NS 481"   14911  NULL        INTEGER            15  TIME             8
+PRE_482_NS "PRED TIME NS 482"   14912  NULL        INTEGER            15  TIME             8
+PRE_483_NS "PRED TIME NS 483"   14913  NULL        INTEGER            15  TIME             8
+PRE_484_NS "PRED TIME NS 484"   14914  NULL        INTEGER            15  TIME             8
+PRE_485_NS "PRED TIME NS 485"   14915  NULL        INTEGER            15  TIME             8
+PRE_486_NS "PRED TIME NS 486"   14916  NULL        INTEGER            15  TIME             8
+PRE_487_NS "PRED TIME NS 487"   14917  NULL        INTEGER            15  TIME             8
+PRE_488_NS "PRED TIME NS 488"   14918  NULL        INTEGER            15  TIME             8
+PRE_489_NS "PRED TIME NS 489"   14919  NULL        INTEGER            15  TIME             8
+PRE_490_NS "PRED TIME NS 490"   14920  NULL        INTEGER            15  TIME             8
+PRE_491_NS "PRED TIME NS 491"   14921  NULL        INTEGER            15  TIME             8
+PRE_492_NS "PRED TIME NS 492"   14922  NULL        INTEGER            15  TIME             8
+PRE_493_NS "PRED TIME NS 493"   14923  NULL        INTEGER            15  TIME             8
+PRE_494_NS "PRED TIME NS 494"   14924  NULL        INTEGER            15  TIME             8
+PRE_495_NS "PRED TIME NS 495"   14925  NULL        INTEGER            15  TIME             8
+PRE_496_NS "PRED TIME NS 496"   14926  NULL        INTEGER            15  TIME             8
+PRE_497_NS "PRED TIME NS 497"   14927  NULL        INTEGER            15  TIME             8
+PRE_498_NS "PRED TIME NS 498"   14928  NULL        INTEGER            15  TIME             8
+PRE_499_NS "PRED TIME NS 499"   14929  NULL        INTEGER            15  TIME             8
+PRE_500_NS "PRED TIME NS 500"   14930  NULL        INTEGER            15  TIME             8
+PRE_DT381  "PRED DATE 381"      14940  NULL        DATE               11  DATE             4
+PRE_DT382  "PRED DATE 382"      14941  NULL        DATE               11  DATE             4
+PRE_DT383  "PRED DATE 383"      14942  NULL        DATE               11  DATE             4
+PRE_DT384  "PRED DATE 384"      14943  NULL        DATE               11  DATE             4
+PRE_DT385  "PRED DATE 385"      14944  NULL        DATE               11  DATE             4
+PRE_DT386  "PRED DATE 386"      14945  NULL        DATE               11  DATE             4
+PRE_DT387  "PRED DATE 387"      14946  NULL        DATE               11  DATE             4
+PRE_DT388  "PRED DATE 388"      14947  NULL        DATE               11  DATE             4
+PRE_DT389  "PRED DATE 389"      14948  NULL        DATE               11  DATE             4
+PRE_DT390  "PRED DATE 390"      14949  NULL        DATE               11  DATE             4
+PRE_DT391  "PRED DATE 391"      14950  NULL        DATE               11  DATE             4
+PRE_DT392  "PRED DATE 392"      14951  NULL        DATE               11  DATE             4
+PRE_DT393  "PRED DATE 393"      14952  NULL        DATE               11  DATE             4
+PRE_DT394  "PRED DATE 394"      14953  NULL        DATE               11  DATE             4
+PRE_DT395  "PRED DATE 395"      14954  NULL        DATE               11  DATE             4
+PRE_DT396  "PRED DATE 396"      14955  NULL        DATE               11  DATE             4
+PRE_DT397  "PRED DATE 397"      14956  NULL        DATE               11  DATE             4
+PRE_DT398  "PRED DATE 398"      14957  NULL        DATE               11  DATE             4
+PRE_DT399  "PRED DATE 399"      14958  NULL        DATE               11  DATE             4
+PRE_DT400  "PRED DATE 400"      14959  NULL        DATE               11  DATE             4
+PRE_DT401  "PRED DATE 401"      14960  NULL        DATE               11  DATE             4
+PRE_DT402  "PRED DATE 402"      14961  NULL        DATE               11  DATE             4
+PRE_DT403  "PRED DATE 403"      14962  NULL        DATE               11  DATE             4
+PRE_DT404  "PRED DATE 404"      14963  NULL        DATE               11  DATE             4
+PRE_DT405  "PRED DATE 405"      14964  NULL        DATE               11  DATE             4
+PRE_DT406  "PRED DATE 406"      14965  NULL        DATE               11  DATE             4
+PRE_DT407  "PRED DATE 407"      14966  NULL        DATE               11  DATE             4
+PRE_DT408  "PRED DATE 408"      14967  NULL        DATE               11  DATE             4
+PRE_DT409  "PRED DATE 409"      14968  NULL        DATE               11  DATE             4
+PRE_DT410  "PRED DATE 410"      14969  NULL        DATE               11  DATE             4
+PRE_DT411  "PRED DATE 411"      14970  NULL        DATE               11  DATE             4
+PRE_DT412  "PRED DATE 412"      14971  NULL        DATE               11  DATE             4
+PRE_DT413  "PRED DATE 413"      14972  NULL        DATE               11  DATE             4
+PRE_DT414  "PRED DATE 414"      14973  NULL        DATE               11  DATE             4
+PRE_DT415  "PRED DATE 415"      14974  NULL        DATE               11  DATE             4
+PRE_DT416  "PRED DATE 416"      14975  NULL        DATE               11  DATE             4
+PRE_DT417  "PRED DATE 417"      14976  NULL        DATE               11  DATE             4
+PRE_DT418  "PRED DATE 418"      14977  NULL        DATE               11  DATE             4
+PRE_DT419  "PRED DATE 419"      14978  NULL        DATE               11  DATE             4
+PRE_DT420  "PRED DATE 420"      14979  NULL        DATE               11  DATE             4
+PRE_DT421  "PRED DATE 421"      14980  NULL        DATE               11  DATE             4
+PRE_DT422  "PRED DATE 422"      14981  NULL        DATE               11  DATE             4
+PRE_DT423  "PRED DATE 423"      14982  NULL        DATE               11  DATE             4
+PRE_DT424  "PRED DATE 424"      14983  NULL        DATE               11  DATE             4
+PRE_DT425  "PRED DATE 425"      14984  NULL        DATE               11  DATE             4
+PRE_DT426  "PRED DATE 426"      14985  NULL        DATE               11  DATE             4
+PRE_DT427  "PRED DATE 427"      14986  NULL        DATE               11  DATE             4
+PRE_DT428  "PRED DATE 428"      14987  NULL        DATE               11  DATE             4
+PRE_DT429  "PRED DATE 429"      14988  NULL        DATE               11  DATE             4
+PRE_DT430  "PRED DATE 430"      14989  NULL        DATE               11  DATE             4
+PRE_DT431  "PRED DATE 431"      14990  NULL        DATE               11  DATE             4
+PRE_DT432  "PRED DATE 432"      14991  NULL        DATE               11  DATE             4
+PRE_DT433  "PRED DATE 433"      14992  NULL        DATE               11  DATE             4
+PRE_DT434  "PRED DATE 434"      14993  NULL        DATE               11  DATE             4
+PRE_DT435  "PRED DATE 435"      14994  NULL        DATE               11  DATE             4
+PRE_DT436  "PRED DATE 436"      14995  NULL        DATE               11  DATE             4
+PRE_DT437  "PRED DATE 437"      14996  NULL        DATE               11  DATE             4
+PRE_DT438  "PRED DATE 438"      14997  NULL        DATE               11  DATE             4
+PRE_DT439  "PRED DATE 439"      14998  NULL        DATE               11  DATE             4
+PRE_DT440  "PRED DATE 440"      14999  NULL        DATE               11  DATE             4
+PRE_DT441  "PRED DATE 441"      15000  NULL        DATE               11  DATE             4
+PRE_DT442  "PRED DATE 442"      15001  NULL        DATE               11  DATE             4
+PRE_DT443  "PRED DATE 443"      15002  NULL        DATE               11  DATE             4
+PRE_DT444  "PRED DATE 444"      15003  NULL        DATE               11  DATE             4
+PRE_DT445  "PRED DATE 445"      15004  NULL        DATE               11  DATE             4
+PRE_DT446  "PRED DATE 446"      15005  NULL        DATE               11  DATE             4
+PRE_DT447  "PRED DATE 447"      15006  NULL        DATE               11  DATE             4
+PRE_DT448  "PRED DATE 448"      15007  NULL        DATE               11  DATE             4
+PRE_DT449  "PRED DATE 449"      15008  NULL        DATE               11  DATE             4
+PRE_DT450  "PRED DATE 450"      15009  NULL        DATE               11  DATE             4
+PRE_4TX175 "PRED 4 TXT 175"     15010  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX176 "PRED 4 TXT 176"     15011  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX177 "PRED 4 TXT 177"     15012  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX178 "PRED 4 TXT 178"     15013  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX179 "PRED 4 TXT 179"     15014  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX180 "PRED 4 TXT 180"     15015  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX181 "PRED 4 TXT 181"     15016  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX182 "PRED 4 TXT 182"     15017  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX183 "PRED 4 TXT 183"     15018  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX184 "PRED 4 TXT 184"     15019  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX185 "PRED 4 TXT 185"     15020  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX186 "PRED 4 TXT 186"     15021  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX187 "PRED 4 TXT 187"     15022  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX188 "PRED 4 TXT 188"     15023  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX189 "PRED 4 TXT 189"     15024  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX190 "PRED 4 TXT 190"     15025  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX191 "PRED 4 TXT 191"     15026  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX192 "PRED 4 TXT 192"     15027  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX193 "PRED 4 TXT 193"     15028  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX194 "PRED 4 TXT 194"     15029  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX195 "PRED 4 TXT 195"     15030  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX196 "PRED 4 TXT 196"     15031  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX197 "PRED 4 TXT 197"     15032  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX198 "PRED 4 TXT 198"     15033  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX199 "PRED 4 TXT 199"     15034  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX200 "PRED 4 TXT 200"     15035  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX201 "PRED 4 TXT 201"     15036  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX202 "PRED 4 TXT 202"     15037  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX203 "PRED 4 TXT 203"     15038  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX204 "PRED 4 TXT 204"     15039  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX205 "PRED 4 TXT 205"     15040  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX206 "PRED 4 TXT 206"     15041  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX207 "PRED 4 TXT 207"     15042  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX208 "PRED 4 TXT 208"     15043  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX209 "PRED 4 TXT 209"     15044  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX210 "PRED 4 TXT 210"     15045  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX211 "PRED 4 TXT 211"     15046  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX212 "PRED 4 TXT 212"     15047  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX213 "PRED 4 TXT 213"     15048  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_4TX214 "PRED 4 TXT 214"     15049  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+PRE_10T207 "PRED 10 TXT 207"    15050  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T208 "PRED 10 TXT 208"    15051  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T209 "PRED 10 TXT 209"    15052  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T210 "PRED 10 TXT 210"    15053  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T211 "PRED 10 TXT 211"    15054  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T212 "PRED 10 TXT 212"    15055  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T213 "PRED 10 TXT 213"    15056  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T214 "PRED 10 TXT 214"    15057  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T215 "PRED 10 TXT 215"    15058  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T216 "PRED 10 TXT 216"    15059  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T217 "PRED 10 TXT 217"    15060  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T218 "PRED 10 TXT 218"    15061  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T219 "PRED 10 TXT 219"    15062  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T220 "PRED 10 TXT 220"    15063  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T221 "PRED 10 TXT 221"    15064  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T222 "PRED 10 TXT 222"    15065  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T223 "PRED 10 TXT 223"    15066  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T224 "PRED 10 TXT 224"    15067  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T225 "PRED 10 TXT 225"    15068  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T226 "PRED 10 TXT 226"    15069  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T227 "PRED 10 TXT 227"    15070  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T228 "PRED 10 TXT 228"    15071  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T229 "PRED 10 TXT 229"    15072  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T230 "PRED 10 TXT 230"    15073  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T231 "PRED 10 TXT 231"    15074  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T232 "PRED 10 TXT 232"    15075  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T233 "PRED 10 TXT 233"    15076  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T234 "PRED 10 TXT 234"    15077  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T235 "PRED 10 TXT 235"    15078  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T236 "PRED 10 TXT 236"    15079  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T237 "PRED 10 TXT 237"    15080  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T238 "PRED 10 TXT 238"    15081  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T239 "PRED 10 TXT 239"    15082  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T240 "PRED 10 TXT 240"    15083  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T241 "PRED 10 TXT 241"    15084  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T242 "PRED 10 TXT 242"    15085  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T243 "PRED 10 TXT 243"    15086  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T244 "PRED 10 TXT 244"    15087  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T245 "PRED 10 TXT 245"    15088  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T246 "PRED 10 TXT 246"    15089  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T247 "PRED 10 TXT 247"    15090  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T248 "PRED 10 TXT 248"    15091  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T249 "PRED 10 TXT 249"    15092  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T250 "PRED 10 TXT 250"    15093  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T251 "PRED 10 TXT 251"    15094  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T252 "PRED 10 TXT 252"    15095  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T253 "PRED 10 TXT 253"    15096  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T254 "PRED 10 TXT 254"    15097  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T255 "PRED 10 TXT 255"    15098  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_10T256 "PRED 10 TXT 256"    15099  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+PRE_16T115 "PRED 16 TXT 115"    15100  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T116 "PRED 16 TXT 116"    15101  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T117 "PRED 16 TXT 117"    15102  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T118 "PRED 16 TXT 118"    15103  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+PRE_16T119 "PRED 16 TXT 119"    15104  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Reserved fields for Private Stream Analytics 
+!
+PRE_16T120 "PRED 16 TXT 120"    15105  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T121 "PRED 16 TXT 121"    15106  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T122 "PRED 16 TXT 122"    15107  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T123 "PRED 16 TXT 123"    15108  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T124 "PRED 16 TXT 124"    15109  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T125 "PRED 16 TXT 125"    15110  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T126 "PRED 16 TXT 126"    15111  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T127 "PRED 16 TXT 127"    15112  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T128 "PRED 16 TXT 128"    15113  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T129 "PRED 16 TXT 129"    15114  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T130 "PRED 16 TXT 130"    15115  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T131 "PRED 16 TXT 131"    15116  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T132 "PRED 16 TXT 132"    15117  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T133 "PRED 16 TXT 133"    15118  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T134 "PRED 16 TXT 134"    15119  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T135 "PRED 16 TXT 135"    15120  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T136 "PRED 16 TXT 136"    15121  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T137 "PRED 16 TXT 137"    15122  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T138 "PRED 16 TXT 138"    15123  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T139 "PRED 16 TXT 139"    15124  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T140 "PRED 16 TXT 140"    15125  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T141 "PRED 16 TXT 141"    15126  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T142 "PRED 16 TXT 142"    15127  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T143 "PRED 16 TXT 143"    15128  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T144 "PRED 16 TXT 144"    15129  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T145 "PRED 16 TXT 145"    15130  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T146 "PRED 16 TXT 146"    15131  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T147 "PRED 16 TXT 147"    15132  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T148 "PRED 16 TXT 148"    15133  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T149 "PRED 16 TXT 149"    15134  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T150 "PRED 16 TXT 150"    15135  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T151 "PRED 16 TXT 151"    15136  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T152 "PRED 16 TXT 152"    15137  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T153 "PRED 16 TXT 153"    15138  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T154 "PRED 16 TXT 154"    15139  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T155 "PRED 16 TXT 155"    15140  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T156 "PRED 16 TXT 156"    15141  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T157 "PRED 16 TXT 157"    15142  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T158 "PRED 16 TXT 158"    15143  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T159 "PRED 16 TXT 159"    15144  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T160 "PRED 16 TXT 160"    15145  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T161 "PRED 16 TXT 161"    15146  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T162 "PRED 16 TXT 162"    15147  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T163 "PRED 16 TXT 163"    15148  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_16T164 "PRED 16 TXT 164"    15149  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+PRE_24T125 "PRED 24 TXT 125"    15150  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T126 "PRED 24 TXT 126"    15151  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T127 "PRED 24 TXT 127"    15152  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T128 "PRED 24 TXT 128"    15153  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T129 "PRED 24 TXT 129"    15154  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T130 "PRED 24 TXT 130"    15155  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T131 "PRED 24 TXT 131"    15156  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T132 "PRED 24 TXT 132"    15157  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T133 "PRED 24 TXT 133"    15158  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T134 "PRED 24 TXT 134"    15159  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T135 "PRED 24 TXT 135"    15160  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T136 "PRED 24 TXT 136"    15161  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T137 "PRED 24 TXT 137"    15162  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T138 "PRED 24 TXT 138"    15163  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T139 "PRED 24 TXT 139"    15164  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T140 "PRED 24 TXT 140"    15165  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T141 "PRED 24 TXT 141"    15166  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T142 "PRED 24 TXT 142"    15167  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T143 "PRED 24 TXT 143"    15168  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T144 "PRED 24 TXT 144"    15169  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T145 "PRED 24 TXT 145"    15170  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T146 "PRED 24 TXT 146"    15171  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T147 "PRED 24 TXT 147"    15172  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T148 "PRED 24 TXT 148"    15173  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T149 "PRED 24 TXT 149"    15174  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T150 "PRED 24 TXT 150"    15175  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T151 "PRED 24 TXT 151"    15176  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T152 "PRED 24 TXT 152"    15177  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T153 "PRED 24 TXT 153"    15178  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T154 "PRED 24 TXT 154"    15179  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T155 "PRED 24 TXT 155"    15180  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T156 "PRED 24 TXT 156"    15181  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T157 "PRED 24 TXT 157"    15182  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T158 "PRED 24 TXT 158"    15183  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T159 "PRED 24 TXT 159"    15184  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T160 "PRED 24 TXT 160"    15185  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T161 "PRED 24 TXT 161"    15186  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T162 "PRED 24 TXT 162"    15187  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T163 "PRED 24 TXT 163"    15188  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T164 "PRED 24 TXT 164"    15189  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T165 "PRED 24 TXT 165"    15190  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T166 "PRED 24 TXT 166"    15191  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T167 "PRED 24 TXT 167"    15192  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T168 "PRED 24 TXT 168"    15193  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T169 "PRED 24 TXT 169"    15194  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T170 "PRED 24 TXT 170"    15195  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T171 "PRED 24 TXT 171"    15196  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T172 "PRED 24 TXT 172"    15197  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T173 "PRED 24 TXT 173"    15198  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_24T174 "PRED 24 TXT 174"    15199  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+PRE_LRL131 "PRED LRG REAL 131"  15200  NULL        PRICE              17  REAL64           8
+PRE_LRL132 "PRED LRG REAL 132"  15201  NULL        PRICE              17  REAL64           8
+PRE_LRL133 "PRED LRG REAL 133"  15202  NULL        PRICE              17  REAL64           8
+PRE_LRL134 "PRED LRG REAL 134"  15203  NULL        PRICE              17  REAL64           8
+PRE_LRL135 "PRED LRG REAL 135"  15204  NULL        PRICE              17  REAL64           8
+PRE_LRL136 "PRED LRG REAL 136"  15205  NULL        PRICE              17  REAL64           8
+PRE_LRL137 "PRED LRG REAL 137"  15206  NULL        PRICE              17  REAL64           8
+PRE_LRL138 "PRED LRG REAL 138"  15207  NULL        PRICE              17  REAL64           8
+PRE_LRL139 "PRED LRG REAL 139"  15208  NULL        PRICE              17  REAL64           8
+PRE_LRL140 "PRED LRG REAL 140"  15209  NULL        PRICE              17  REAL64           8
+PRE_LRL141 "PRED LRG REAL 141"  15210  NULL        PRICE              17  REAL64           8
+PRE_LRL142 "PRED LRG REAL 142"  15211  NULL        PRICE              17  REAL64           8
+PRE_LRL143 "PRED LRG REAL 143"  15212  NULL        PRICE              17  REAL64           8
+PRE_LRL144 "PRED LRG REAL 144"  15213  NULL        PRICE              17  REAL64           8
+PRE_LRL145 "PRED LRG REAL 145"  15214  NULL        PRICE              17  REAL64           8
+PRE_LRL146 "PRED LRG REAL 146"  15215  NULL        PRICE              17  REAL64           8
+PRE_LRL147 "PRED LRG REAL 147"  15216  NULL        PRICE              17  REAL64           8
+PRE_LRL148 "PRED LRG REAL 148"  15217  NULL        PRICE              17  REAL64           8
+PRE_LRL149 "PRED LRG REAL 149"  15218  NULL        PRICE              17  REAL64           8
+PRE_LRL150 "PRED LRG REAL 150"  15219  NULL        PRICE              17  REAL64           8
+PRE_LRL151 "PRED LRG REAL 151"  15220  NULL        PRICE              17  REAL64           8
+PRE_LRL152 "PRED LRG REAL 152"  15221  NULL        PRICE              17  REAL64           8
+PRE_LRL153 "PRED LRG REAL 153"  15222  NULL        PRICE              17  REAL64           8
+PRE_LRL154 "PRED LRG REAL 154"  15223  NULL        PRICE              17  REAL64           8
+PRE_LRL155 "PRED LRG REAL 155"  15224  NULL        PRICE              17  REAL64           8
+PRE_LRL156 "PRED LRG REAL 156"  15225  NULL        PRICE              17  REAL64           8
+PRE_LRL157 "PRED LRG REAL 157"  15226  NULL        PRICE              17  REAL64           8
+PRE_LRL158 "PRED LRG REAL 158"  15227  NULL        PRICE              17  REAL64           8
+PRE_LRL159 "PRED LRG REAL 159"  15228  NULL        PRICE              17  REAL64           8
+PRE_LRL160 "PRED LRG REAL 160"  15229  NULL        PRICE              17  REAL64           8
+PRE_LRL161 "PRED LRG REAL 161"  15230  NULL        PRICE              17  REAL64           8
+PRE_LRL162 "PRED LRG REAL 162"  15231  NULL        PRICE              17  REAL64           8
+PRE_LRL163 "PRED LRG REAL 163"  15232  NULL        PRICE              17  REAL64           8
+PRE_LRL164 "PRED LRG REAL 164"  15233  NULL        PRICE              17  REAL64           8
+PRE_LRL165 "PRED LRG REAL 165"  15234  NULL        PRICE              17  REAL64           8
+PRE_LRL166 "PRED LRG REAL 166"  15235  NULL        PRICE              17  REAL64           8
+PRE_LRL167 "PRED LRG REAL 167"  15236  NULL        PRICE              17  REAL64           8
+PRE_LRL168 "PRED LRG REAL 168"  15237  NULL        PRICE              17  REAL64           8
+PRE_LRL169 "PRED LRG REAL 169"  15238  NULL        PRICE              17  REAL64           8
+PRE_LRL170 "PRED LRG REAL 170"  15239  NULL        PRICE              17  REAL64           8
+PRE_LRL171 "PRED LRG REAL 171"  15240  NULL        PRICE              17  REAL64           8
+PRE_LRL172 "PRED LRG REAL 172"  15241  NULL        PRICE              17  REAL64           8
+PRE_LRL173 "PRED LRG REAL 173"  15242  NULL        PRICE              17  REAL64           8
+PRE_LRL174 "PRED LRG REAL 174"  15243  NULL        PRICE              17  REAL64           8
+PRE_LRL175 "PRED LRG REAL 175"  15244  NULL        PRICE              17  REAL64           8
+PRE_LRL176 "PRED LRG REAL 176"  15245  NULL        PRICE              17  REAL64           8
+PRE_LRL177 "PRED LRG REAL 177"  15246  NULL        PRICE              17  REAL64           8
+PRE_LRL178 "PRED LRG REAL 178"  15247  NULL        PRICE              17  REAL64           8
+PRE_LRL179 "PRED LRG REAL 179"  15248  NULL        PRICE              17  REAL64           8
+PRE_LRL180 "PRED LRG REAL 180"  15249  NULL        PRICE              17  REAL64           8
+PR_UINT081 "PRED UNS INT 081"   15250  NULL        INTEGER            15  UINT64           8
+PR_UINT082 "PRED UNS INT 082"   15251  NULL        INTEGER            15  UINT64           8
+PR_UINT083 "PRED UNS INT 083"   15252  NULL        INTEGER            15  UINT64           8
+PR_UINT084 "PRED UNS INT 084"   15253  NULL        INTEGER            15  UINT64           8
+PR_UINT085 "PRED UNS INT 085"   15254  NULL        INTEGER            15  UINT64           8
+PR_UINT086 "PRED UNS INT 086"   15255  NULL        INTEGER            15  UINT64           8
+PR_UINT087 "PRED UNS INT 087"   15256  NULL        INTEGER            15  UINT64           8
+PR_UINT088 "PRED UNS INT 088"   15257  NULL        INTEGER            15  UINT64           8
+PR_UINT089 "PRED UNS INT 089"   15258  NULL        INTEGER            15  UINT64           8
+PR_UINT090 "PRED UNS INT 090"   15259  NULL        INTEGER            15  UINT64           8
+PR_UINT091 "PRED UNS INT 091"   15260  NULL        INTEGER            15  UINT64           8
+PR_UINT092 "PRED UNS INT 092"   15261  NULL        INTEGER            15  UINT64           8
+PR_UINT093 "PRED UNS INT 093"   15262  NULL        INTEGER            15  UINT64           8
+PR_UINT094 "PRED UNS INT 094"   15263  NULL        INTEGER            15  UINT64           8
+PR_UINT095 "PRED UNS INT 095"   15264  NULL        INTEGER            15  UINT64           8
+PR_UINT096 "PRED UNS INT 096"   15265  NULL        INTEGER            15  UINT64           8
+PR_UINT097 "PRED UNS INT 097"   15266  NULL        INTEGER            15  UINT64           8
+PR_UINT098 "PRED UNS INT 098"   15267  NULL        INTEGER            15  UINT64           8
+PR_UINT099 "PRED UNS INT 099"   15268  NULL        INTEGER            15  UINT64           8
+PR_UINT100 "PRED UNS INT 100"   15269  NULL        INTEGER            15  UINT64           8
+PR_UINT101 "PRED UNS INT 101"   15270  NULL        INTEGER            15  UINT64           8
+PR_UINT102 "PRED UNS INT 102"   15271  NULL        INTEGER            15  UINT64           8
+PR_UINT103 "PRED UNS INT 103"   15272  NULL        INTEGER            15  UINT64           8
+PR_UINT104 "PRED UNS INT 104"   15273  NULL        INTEGER            15  UINT64           8
+PR_UINT105 "PRED UNS INT 105"   15274  NULL        INTEGER            15  UINT64           8
+PR_UINT106 "PRED UNS INT 106"   15275  NULL        INTEGER            15  UINT64           8
+PR_UINT107 "PRED UNS INT 107"   15276  NULL        INTEGER            15  UINT64           8
+PR_UINT108 "PRED UNS INT 108"   15277  NULL        INTEGER            15  UINT64           8
+PR_UINT109 "PRED UNS INT 109"   15278  NULL        INTEGER            15  UINT64           8
+PR_UINT110 "PRED UNS INT 110"   15279  NULL        INTEGER            15  UINT64           8
+PR_UINT111 "PRED UNS INT 111"   15280  NULL        INTEGER            15  UINT64           8
+PR_UINT112 "PRED UNS INT 112"   15281  NULL        INTEGER            15  UINT64           8
+PR_UINT113 "PRED UNS INT 113"   15282  NULL        INTEGER            15  UINT64           8
+PR_UINT114 "PRED UNS INT 114"   15283  NULL        INTEGER            15  UINT64           8
+PR_UINT115 "PRED UNS INT 115"   15284  NULL        INTEGER            15  UINT64           8
+PR_UINT116 "PRED UNS INT 116"   15285  NULL        INTEGER            15  UINT64           8
+PR_UINT117 "PRED UNS INT 117"   15286  NULL        INTEGER            15  UINT64           8
+PR_UINT118 "PRED UNS INT 118"   15287  NULL        INTEGER            15  UINT64           8
+PR_UINT119 "PRED UNS INT 119"   15288  NULL        INTEGER            15  UINT64           8
+PR_UINT120 "PRED UNS INT 120"   15289  NULL        INTEGER            15  UINT64           8
+PR_UINT121 "PRED UNS INT 121"   15290  NULL        INTEGER            15  UINT64           8
+PR_UINT122 "PRED UNS INT 122"   15291  NULL        INTEGER            15  UINT64           8
+PR_UINT123 "PRED UNS INT 123"   15292  NULL        INTEGER            15  UINT64           8
+PR_UINT124 "PRED UNS INT 124"   15293  NULL        INTEGER            15  UINT64           8
+PR_UINT125 "PRED UNS INT 125"   15294  NULL        INTEGER            15  UINT64           8
+PR_UINT126 "PRED UNS INT 126"   15295  NULL        INTEGER            15  UINT64           8
+PR_UINT127 "PRED UNS INT 127"   15296  NULL        INTEGER            15  UINT64           8
+PR_UINT128 "PRED UNS INT 128"   15297  NULL        INTEGER            15  UINT64           8
+PR_UINT129 "PRED UNS INT 129"   15298  NULL        INTEGER            15  UINT64           8
+PR_UINT130 "PRED UNS INT 130"   15299  NULL        INTEGER            15  UINT64           8
 !
 ! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
 !
@@ -37559,9 +38433,18 @@ UCCY_ACVOL "USD CCY ACVOL"      32598  NULL        PRICE              17  REAL64
 !
 ! Accumulated trade volume in USD
 !
-PRE_LRL041 "PRED LRG REAL 041"  32599  NULL        PRICE              17  REAL64           8
-PRE_LRL042 "PRED LRG REAL 042"  32600  NULL        PRICE              17  REAL64           8
-PRE_LRL043 "PRED LRG REAL 043"  32601  NULL        PRICE              17  REAL64           8
+RPT_QTY    "RPT QTY"            32599  NULL        PRICE              17  REAL64           8
+!
+! Reported quantity for trade
+!
+PD_RPT_QTY "PRVD TRD RPT QTY"   32600  NULL        PRICE              17  REAL64           8
+!
+! Todays reported quantity for a previous days trade
+!
+PDRPT_NOTL "PRVD TRD RPT NOTL"  32601  NULL        PRICE              17  REAL64           8
+!
+! Todays reported notional amount for a previous days trade
+!
 PRE_LRL044 "PRED LRG REAL 044"  32602  NULL        PRICE              17  REAL64           8
 PRE_LRL045 "PRED LRG REAL 045"  32603  NULL        PRICE              17  REAL64           8
 PRE_LRL046 "PRED LRG REAL 046"  32604  NULL        PRICE              17  REAL64           8
