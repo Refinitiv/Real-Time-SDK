@@ -49,17 +49,8 @@ class OmmStateImpl extends DataImpl implements OmmState
 	private final static String USERUNKNOWNTOPERMSYS_STRING = "UserUnknownToPermSys";
 	private final static String DACSMAXLOGINSREACHED_STRING = "DacsMaxLoginsReached";
 	private final static String DACSUSERACCESSTOAPPDENIED_STRING = "DacsUserAccessToAppDenied";
-	private final static String INVALIDFORMEDMSG_STRING = "InvalidFormedMsg";
-	private final static String CHANNELUNAVAILABLE_STRING = "ChannelUnavailable";
-	private final static String SERVICEUNAVAILABLE_STRING = "ServiceUnavailable";
-	private final static String SERVICEDOWN_STRING = "ServiceDown";
-	private final static String SERVICENOTACCEPTINGREQUESTS_STRING = "ServiceNotAcceptingRequests";
-	private final static String LOGINCLOSED_STRING = "LoginCLOSED";
-	private final static String DIRECTORYCLOSED_STRING = "DirectoryCLOSED";
-	private final static String ITEMNOTFOUND_STRING = "ItemNotFound";
-	private final static String DICTIONARYUNAVAILABLE_STRING = "DictionaryUnavailable";
-	private final static String FIELDIDNOTFOUNDDICTIONARYUNAVAILABLE_STRING = "FieldIdNotFoundDictionaryUnavailable";
-	private final static String ITEMREQUESTTIMEOUT_STRING = "ItemRequestTimeout";
+	private final static String GAPFILL_STRING = "GapFill";
+	private final static String APPAUTHORIZATIONFAILED_STRING = "AppAuthorizationFailed";
 	
 	private final static String DEFAULTSS_STRING = "Unknown StreamState value ";
 	private final static String DEFAULTDS_STRING = "Unknown DataState value ";
@@ -172,28 +163,10 @@ class OmmStateImpl extends DataImpl implements OmmState
 				return DACSMAXLOGINSREACHED_STRING;
 			case StatusCode.DACS_USER_ACCESS_TO_APP_DENIED :
 				return DACSUSERACCESSTOAPPDENIED_STRING;
-			case StatusCode.INVALID_FORMED_MSG :
-				return INVALIDFORMEDMSG_STRING;
-			case StatusCode.CHANNEL_UNAVAILABLE :
-				return CHANNELUNAVAILABLE_STRING;
-			case StatusCode.SERVICE_UNAVAILABLE :
-				return SERVICEUNAVAILABLE_STRING;
-			case StatusCode.SERVICE_DOWN :
-				return SERVICEDOWN_STRING;
-			case StatusCode.SERVICE_NOT_ACCEPTING_REQUESTS :
-				return SERVICENOTACCEPTINGREQUESTS_STRING;
-			case StatusCode.LOGIN_CLOSED :
-				return LOGINCLOSED_STRING;
-			case StatusCode.DIRECTORY_CLOSED :
-				return DIRECTORYCLOSED_STRING;
-			case StatusCode.ITEM_NOT_FOUND :
-				return ITEMNOTFOUND_STRING;
-			case StatusCode.DICTIONARY_UNAVAILABLE :
-				return DICTIONARYUNAVAILABLE_STRING;
-			case StatusCode.FIELD_ID_NOT_FOUND_DICTIONARY_UNAVAILABLE :
-				return FIELDIDNOTFOUNDDICTIONARYUNAVAILABLE_STRING;
-			case StatusCode.ITEM_REQUEST_TIMEOUT :
-				return ITEMREQUESTTIMEOUT_STRING;
+			case StatusCode.GAP_FILL :
+				return GAPFILL_STRING;
+			case StatusCode.APP_AUTHORIZATION_FAILED :
+				return APPAUTHORIZATIONFAILED_STRING;
 			default :
 				return DEFAULTSC_STRING + statusCode();
 		}

@@ -106,7 +106,7 @@ class AppClient implements OmmProviderClient
 	void processInvalidItemRequest(ReqMsg reqMsg, OmmProviderEvent event)
 	{
 		event.provider().submit( EmaFactory.createStatusMsg().name(reqMsg.name()).serviceName(reqMsg.serviceName()).
-				state(OmmState.StreamState.CLOSED, OmmState.DataState.SUSPECT,	OmmState.StatusCode.ITEM_NOT_FOUND, "Item not found"),
+				state(OmmState.StreamState.CLOSED, OmmState.DataState.SUSPECT,	OmmState.StatusCode.NOT_FOUND, "Item not found"),
 				event.handle() );
 	}
 }

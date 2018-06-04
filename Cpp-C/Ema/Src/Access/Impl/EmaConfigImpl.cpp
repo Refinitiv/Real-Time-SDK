@@ -706,6 +706,8 @@ ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent,
 			{ "UserUnknownToPermSys", OmmState::UserUnknownToPermSysEnum },
 			{ "DacsMaxLoginsReached", OmmState::DacsMaxLoginsReachedEnum },
 			{ "DacsUserAccessToAppDenied", OmmState::DacsUserAccessToAppDeniedEnum },
+			{ "GapFill", OmmState::GapFillEnum },
+			{ "AppAuthorizationFailed", OmmState::AppAuthorizationFailedEnum },
 		};
 
 		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)

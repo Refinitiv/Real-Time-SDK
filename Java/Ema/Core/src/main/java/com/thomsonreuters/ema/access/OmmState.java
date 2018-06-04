@@ -168,16 +168,44 @@ public interface OmmState extends Data
 		/** User is not allowed to use application */
 		public final static int DACS_USER_ACCESS_TO_APP_DENIED	= 32;
 		
+	    /** Content is intended to fill a recognized gap */
+	    public static final int GAP_FILL = 34;
+	    
+	    /** Application Authorization Failed */
+	    public static final int APP_AUTHORIZATION_FAILED = 35;
+
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int INVALID_FORMED_MSG				= 256;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int CHANNEL_UNAVAILABLE				= 257;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int SERVICE_UNAVAILABLE				= 258;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int SERVICE_DOWN					= 259;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int SERVICE_NOT_ACCEPTING_REQUESTS  = 260;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int LOGIN_CLOSED					= 261;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int DIRECTORY_CLOSED				= 262;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int ITEM_NOT_FOUND					= 263;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int DICTIONARY_UNAVAILABLE			= 264;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int FIELD_ID_NOT_FOUND_DICTIONARY_UNAVAILABLE = 265;
+	    /** @deprecated Not Used */
+	    @Deprecated
 		public final static int ITEM_REQUEST_TIMEOUT			= 266;
 	}
 	

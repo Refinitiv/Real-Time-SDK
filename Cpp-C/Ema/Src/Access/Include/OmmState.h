@@ -120,17 +120,19 @@ public :
 		UserUnknownToPermSysEnum		= 30,	/*!< User unknown to permissioning system, it could be DACS, AAA or EED */
 		DacsMaxLoginsReachedEnum		= 31,	/*!< Maximum logins reached */
 		DacsUserAccessToAppDeniedEnum	= 32,	/*!< User is not allowed to use application */
-		InvalidFormedMsgEnum			= 256,
-		ChannelUnavailableEnum			= 257,
-		ServiceUnavailableEnum			= 258,
-		ServiceDownEnum					= 259,
-		ServiceNotAcceptingRequestsEnum = 260,
-		LoginClosedEnum					= 261,
-		DirectoryClosedEnum				= 262,
-		ItemNotFoundEnum				= 263,
-		DictionaryUnavailableEnum		= 264,
-		FieldIdNotFoundDictionaryUnavailableEnum = 265,
-		ItemRequestTimeoutEnum			= 266
+		GapFillEnum						= 34,	/*!< Content is intended to fill a recognized gap */
+		AppAuthorizationFailedEnum		= 35,	/*!< Application Authorization Failed */
+		InvalidFormedMsgEnum			= 256,  /*!< DEPRECATED: Not Used */
+		ChannelUnavailableEnum			= 257, /*!< DEPRECATED: Not Used */
+		ServiceUnavailableEnum			= 258, /*!< DEPRECATED: Not Used */
+		ServiceDownEnum					= 259, /*!< DEPRECATED: Not Used */
+		ServiceNotAcceptingRequestsEnum = 260, /*!< DEPRECATED: Not Used */
+		LoginClosedEnum					= 261, /*!< DEPRECATED: Not Used */
+		DirectoryClosedEnum				= 262, /*!< DEPRECATED: Not Used */
+		ItemNotFoundEnum				= 263, /*!< DEPRECATED: Not Used */
+		DictionaryUnavailableEnum		= 264, /*!< DEPRECATED: Not Used */
+		FieldIdNotFoundDictionaryUnavailableEnum = 265, /*!< DEPRECATED: Not Used */
+		ItemRequestTimeoutEnum			= 266 /*!< DEPRECATED: Not Used */
 	};
 
 	///@name Accessors

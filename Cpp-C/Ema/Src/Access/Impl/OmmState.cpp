@@ -55,17 +55,8 @@ const EmaString DacsDownString( "DacsDown" );
 const EmaString UserUnknownToPermSysString( "UserUnknownToPermSys" );
 const EmaString DacsMaxLoginsReachedString( "DacsMaxLoginsReached" );
 const EmaString DacsUserAccessToAppDeniedString( "DacsUserAccessToAppDenied" );
-const EmaString InvalidFormedMsgString( "InvalidFormedMsg" );
-const EmaString ChannelUnavailableString( "ChannelUnavailable" );
-const EmaString ServiceUnavailableString( "ServiceUnavailable" );
-const EmaString ServiceDownString( "ServiceDown" );
-const EmaString ServiceNotAcceptingRequestsString( "ServiceNotAcceptingRequests" );
-const EmaString LoginClosedString( "LoginClosed" );
-const EmaString DirectoryClosedString( "DirectoryClosed" );
-const EmaString ItemNotFoundString( "ItemNotFound" );
-const EmaString DictionaryUnavailableString( "DictionaryUnavailable" );
-const EmaString FieldIdNotFoundDictionaryUnavailableString( "FieldIdNotFoundDictionaryUnavailable" );
-const EmaString ItemRequestTimeoutString( "ItemRequestTimeout" );
+const EmaString GapFillString( "GapFill" );
+const EmaString AppAuthorizationFailedString( "AppAuthorizationFailed" );
 EmaString TempSCString;
 
 OmmState::OmmState() :
@@ -174,28 +165,10 @@ const EmaString& OmmState::getStatusCodeAsString() const
 		return DacsMaxLoginsReachedString;
 	case DacsUserAccessToAppDeniedEnum :
 		return DacsUserAccessToAppDeniedString;
-	case InvalidFormedMsgEnum :
-		return InvalidFormedMsgString;
-	case ChannelUnavailableEnum :
-		return ChannelUnavailableString;
-	case ServiceUnavailableEnum :
-		return ServiceUnavailableString;
-	case ServiceDownEnum :
-		return ServiceDownString;
-	case ServiceNotAcceptingRequestsEnum :
-		return ServiceNotAcceptingRequestsString;
-	case LoginClosedEnum :
-		return LoginClosedString;
-	case DirectoryClosedEnum :
-		return DirectoryClosedString;
-	case ItemNotFoundEnum :
-		return ItemNotFoundString;
-	case DictionaryUnavailableEnum :
-		return DictionaryUnavailableString;
-	case FieldIdNotFoundDictionaryUnavailableEnum :
-		return FieldIdNotFoundDictionaryUnavailableString;
-	case ItemRequestTimeoutEnum :
-		return ItemRequestTimeoutString;
+	case GapFillEnum:
+		return GapFillString;
+	case AppAuthorizationFailedEnum:
+		return AppAuthorizationFailedString;
 	default :
 		return TempSCString.set( "Unknown StatusCode value " ).append( (Int64)getStatusCode() );
 	}

@@ -185,10 +185,13 @@ public class StateCodes
      */
     public static final int DACS_USER_ACCESS_TO_APP_DENIED = 32;
     
+    /* Reserved */
+    static final int RESERVED33 = 33;
+
     /**
      * Content is intended to fill a recognized gap
      */
-    public static final int GAP_FILL = 33;
+    public static final int GAP_FILL = 34;
     
     /**
      * Application Authorization Failed

@@ -560,6 +560,10 @@ class ConfigReader
 					statusCode = OmmState.StatusCode.DACS_MAX_LOGINS_REACHED;
 				else if(enumValue.equals("DacsUserAccessToAppDenied"))
 					statusCode = OmmState.StatusCode.DACS_USER_ACCESS_TO_APP_DENIED;
+				else if(enumValue.equals("GapFill"))
+					statusCode = OmmState.StatusCode.GAP_FILL;
+				else if(enumValue.equals("AppAuthorizationFailed"))
+					statusCode = OmmState.StatusCode.APP_AUTHORIZATION_FAILED;
 				else
 				{
 					errorTracker().append( "no implementation in convertEnum for enumType [" )
