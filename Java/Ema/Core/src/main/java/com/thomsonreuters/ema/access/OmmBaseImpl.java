@@ -877,23 +877,30 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		{
 			if((ce = attributes.getPrimitiveValue(ConfigManager.InterfaceName)) != null)
 				currentChannelConfig.interfaceName = ce.asciiValue();
-	
+
+			boolean setCompressionThresholdFromConfigFile = false;
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
+			{
+				setCompressionThresholdFromConfigFile = true;
+				if ( ce.intLongValue()  > maxInt )
+					currentChannelConfig.compressionThreshold = maxInt;
+				else
+					currentChannelConfig.compressionThreshold = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD : ce.intLongValue();
+			}
+
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionType)) != null)
+			{
 				currentChannelConfig.compressionType = ce.intValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_TYPE : ce.intValue();
+				if (currentChannelConfig.compressionType == com.thomsonreuters.upa.transport.CompressionTypes.LZ4 &&
+						!setCompressionThresholdFromConfigFile)
+					currentChannelConfig.compressionThreshold = ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD_LZ4;
+			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.GuaranteedOutputBuffers)) != null)
 				currentChannelConfig.guaranteedOutputBuffers(ce.intLongValue());
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.NumInputBuffers)) != null)
 				currentChannelConfig.numInputBuffers(ce.intLongValue());
-	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelCompressionThreshold)) != null)
-			{
-				if ( ce.intLongValue()  > maxInt )
-					currentChannelConfig.compressionThreshold = maxInt;
-				else
-					currentChannelConfig.compressionThreshold = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD : ce.intLongValue();
-			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ConnectionPingTimeout)) != null)
 			{

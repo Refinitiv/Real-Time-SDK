@@ -763,13 +763,18 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 	UInt64 tempUInt = 0;
 	if ( channelType != RSSL_CONN_TYPE_RELIABLE_MCAST )
 	{
-		pConfigImpl->get<RsslCompTypes>( channelNodeName + "CompressionType", newChannelConfig->compressionType );
-
+		bool setCompressionThresholdFromConfigFile(false);
 		tempUInt = 0;
 		if ( pConfigImpl->get<UInt64>( channelNodeName + "CompressionThreshold", tempUInt ) )
 		{
 			newChannelConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
+			setCompressionThresholdFromConfigFile = true;
 		}
+
+		pConfigImpl->get<RsslCompTypes>( channelNodeName + "CompressionType", newChannelConfig->compressionType );
+		if ( newChannelConfig->compressionType == RSSL_COMP_LZ4 &&
+			 !setCompressionThresholdFromConfigFile )
+		  newChannelConfig->compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD_LZ4;
 	}
 
 	tempUInt = 0;

@@ -563,21 +563,27 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if((ce = attributes.getPrimitiveValue(ConfigManager.InterfaceName)) != null)
 				currentServerConfig.interfaceName = ce.asciiValue();
 	
-			if( (ce = attributes.getPrimitiveValue(ConfigManager.ServerCompressionType)) != null)
-				currentServerConfig.compressionType = ce.intValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_TYPE : ce.intValue();
-	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.GuaranteedOutputBuffers)) != null)
 				currentServerConfig.guaranteedOutputBuffers(ce.intLongValue());
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.NumInputBuffers)) != null)
 				currentServerConfig.numInputBuffers(ce.intLongValue());
 	
+			boolean setCompressionThresholdFromConfigFile = false;
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ServerCompressionThreshold)) != null)
 			{
+				setCompressionThresholdFromConfigFile = true;
 				if ( ce.intLongValue()  > maxInt )
 					currentServerConfig.compressionThreshold = maxInt;
 				else
 					currentServerConfig.compressionThreshold = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD : ce.intLongValue();
+			}
+
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ServerCompressionType)) != null) {
+				currentServerConfig.compressionType = ce.intValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_TYPE : ce.intValue();
+				if (currentServerConfig.compressionType == com.thomsonreuters.upa.transport.CompressionTypes.LZ4 &&
+						!setCompressionThresholdFromConfigFile)
+					currentServerConfig.compressionThreshold = ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD_LZ4;
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.SysRecvBufSize)) != null)

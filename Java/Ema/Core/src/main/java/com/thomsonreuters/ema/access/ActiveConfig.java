@@ -79,6 +79,7 @@ abstract class BaseConfig
 abstract class ActiveConfig extends BaseConfig
 {
 	final static int DEFAULT_COMPRESSION_THRESHOLD				= 30;
+	final static int DEFAULT_COMPRESSION_THRESHOLD_LZ4          = 300;
 	final static int DEFAULT_COMPRESSION_TYPE					= CompressionTypes.NONE;
 	final static int DEFAULT_CONNECTION_TYPE					= ConnectionTypes.SOCKET;
 	final static int DEFAULT_CONNECTION_PINGTIMEOUT				= 30000;

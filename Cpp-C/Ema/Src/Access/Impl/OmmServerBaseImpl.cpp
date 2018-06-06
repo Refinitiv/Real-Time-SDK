@@ -308,16 +308,19 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 
 	pConfigServerImpl->get<EmaString>(serverNodeName + "InterfaceName", newServerConfig->interfaceName);
 
+	bool setCompressionThresholdFromConfigFile(false);
 	UInt64 tempUInt = 0;
-
-	pConfigServerImpl->get<RsslCompTypes>(serverNodeName + "CompressionType", newServerConfig->compressionType);
-
-	tempUInt = 0;
 	if (pConfigServerImpl->get<UInt64>(serverNodeName + "CompressionThreshold", tempUInt))
 	{
 		newServerConfig->compressionThreshold = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+		setCompressionThresholdFromConfigFile = true;
 	}
-	
+
+	pConfigServerImpl->get<RsslCompTypes>(serverNodeName + "CompressionType", newServerConfig->compressionType);
+	if ( newServerConfig->compressionType == RSSL_COMP_LZ4 &&
+		 !setCompressionThresholdFromConfigFile )
+	  newServerConfig->compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD_LZ4;
+
 	tempUInt = 0;
 	if (pConfigServerImpl->get<UInt64>(serverNodeName + "GuaranteedOutputBuffers", tempUInt))
 		newServerConfig->setGuaranteedOutputBuffers(tempUInt);

@@ -133,8 +133,8 @@ void createProgramaticConfig( Map& configMap )
 	innerMap.addKeyAscii( "Channel_1", MapEntry::AddEnum,
 		ElementList()
 		.addEnum( "ChannelType", 0 )
-		.addAscii( "InterfaceName", "localhost" )
 		.addEnum("CompressionType", 1)
+		.addUInt("CompressionThreshold", 100)
 		.addUInt( "GuaranteedOutputBuffers", 5000 )
 		.addUInt( "ConnectionPingTimeout", 50000 )
 		.addInt("ReconnectAttemptLimit", 10)
@@ -157,7 +157,7 @@ void createProgramaticConfig( Map& configMap )
 		ElementList()
 		.addEnum( "LoggerType", 0 )
 		.addAscii( "FileName", "logFile" )
-		.addEnum( "LoggerSeverity", 1 ).complete() ).complete();
+		.addEnum( "LoggerSeverity", 0 ).complete() ).complete();
 
 	elementList.addMap( "LoggerList", innerMap );
 

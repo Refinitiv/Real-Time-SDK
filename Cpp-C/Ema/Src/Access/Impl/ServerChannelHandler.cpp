@@ -118,7 +118,7 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 				return RSSL_RC_CRET_SUCCESS;
 			}
 
-			if (clientSession->getChannel()->pRsslChannel->connectionType != RSSL_CONN_TYPE_RELIABLE_MCAST && rsslReactorChannelIoctl(pRsslReactorChannel, RSSL_COMPRESSION_THRESHOLD, &ommServerBase->getActiveConfig().pServerConfig->compressionThreshold, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			if (rsslReactorChannelIoctl(pRsslReactorChannel, RSSL_COMPRESSION_THRESHOLD, &ommServerBase->getActiveConfig().pServerConfig->compressionThreshold, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 			{
 				if (OmmLoggerClient::ErrorEnum >= ommServerBase->getActiveConfig().loggerConfig.minLoggerSeverity)
 				{

@@ -888,24 +888,31 @@ class RsslSocketChannel extends UpaNode implements Channel
                     }
                     break;
                 case IoctlCodes.COMPRESSION_THRESHOLD:
-                    if (value >= ZLIB_COMPRESSION_THRESHOLD)
-                    {
-                        _sessionCompLowThreshold = value;
-                        retCode = TransportReturnCodes.SUCCESS;
-                    }
-                    else
-                    {
-                        error.channel(this);
-                        error.errorId(retCode);
-                        error.sysError(0);
-                        error.text("value must be greater than " + ZLIB_COMPRESSION_THRESHOLD);
-                    }
-                    break;
+                	if (_channelInfo._compressionType == Ripc.CompressionTypes.NONE)
+                		retCode = TransportReturnCodes.SUCCESS;
+                	else
+                	{
+                		int compressionThreshold = (_channelInfo._compressionType == Ripc.CompressionTypes.ZLIB ? ZLIB_COMPRESSION_THRESHOLD : LZ4_COMPRESSION_THRESHOLD );
+
+                		if (value >= compressionThreshold)
+                		{
+                			_sessionCompLowThreshold = value;
+                			retCode = TransportReturnCodes.SUCCESS;
+                		}
+                		else
+                		{
+                			error.channel(this);
+                			error.errorId(retCode);
+                			error.sysError(0);
+                			error.text("value must be equal to or greater than " + compressionThreshold);
+                		}
+                	}
+                	break;
                 default:
-                    error.channel(this);
-                    error.errorId(retCode);
-                    error.sysError(0);
-                    error.text("Code is not valid.");
+                	error.channel(this);
+                	error.errorId(retCode);
+                	error.sysError(0);
+                	error.text("Code is not valid.");
             }
         }
         catch (SocketException e)

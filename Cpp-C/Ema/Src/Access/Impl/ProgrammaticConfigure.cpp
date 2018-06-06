@@ -1425,8 +1425,20 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 			if ( flags & 0x1000000 )
 				pCurrentChannelConfig->compressionThreshold = compressionThreshold > maxUInt32 ? maxUInt32 : ( UInt32 )compressionThreshold;
-			else if ( useFileCfg )
+			else if ( useFileCfg ) {
 				pCurrentChannelConfig->compressionThreshold = fileCfg->compressionThreshold;
+
+				/* unfortunately fileCfg->compressionThreshold is set regardless of whether or
+				 * not "compressionThreshold" appears in the configuration file. Thus, if the
+				 * user sets compression to LZ4 programmatically and the compressionThreshold
+				 * equals the ZLib default, we'll set the threshold to the LZ4 default. In
+				 * theory, this may override a user setting in the configuration file, but only
+				 * in the case where the user set it to 30 which is invalid for LZ4 anyway.
+				 */
+				if ( flags & 0x20 && compressionType == RSSL_COMP_LZ4 &&
+					 pCurrentChannelConfig->compressionThreshold == DEFAULT_COMPRESSION_THRESHOLD)
+				  pCurrentChannelConfig->compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD_LZ4;
+			}
 		}
 
 		if ( flags & 0x40 )

@@ -10131,15 +10131,19 @@ printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 		break;
 
 	case RSSL_COMPRESSION_THRESHOLD:
-		/* the threshold at which to compress messages - default is 30 */
-		if(iValue >= (RsslInt32)RSSL_COMP_DFLT_THRESHOLD_ZLIB)
+	    if (rsslSocketChannel->outCompression == RSSL_COMP_NONE)
+		  break;
+
+		RsslInt32 lowerThreshold = (rsslSocketChannel->outCompression == RSSL_COMP_ZLIB ?
+									RSSL_COMP_DFLT_THRESHOLD_ZLIB : RSSL_COMP_DFLT_THRESHOLD_LZ4);
+		if(iValue >= lowerThreshold)
 			rsslSocketChannel->lowerCompressionThreshold = iValue;
 		else
 		{
 			_rsslSetError(error, (RsslChannel*)(&rsslChnlImpl->Channel), RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s,%d> Error: 1004 rsslSocketIoctl() failed, could not set the compression threshold mark to <%d>, must be equal or greater than %d bytes\n",
-					__FILE__, __LINE__, iValue, RSSL_COMP_DFLT_THRESHOLD_ZLIB);
+					__FILE__, __LINE__, iValue, lowerThreshold);
 
 #ifdef MUTEX_DEBUG
 	printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
