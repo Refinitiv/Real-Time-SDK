@@ -6215,7 +6215,7 @@ static ripcSessInit ipcReconnectSocket(RsslSocketChannel *rsslSocketChannel, rip
 	if (rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
 		/* If connecting to a proxy, this needs to stay as a standard TCP connection until the proxy negotiation is complete */
-		if ((rsslSocketChannel->proxyPort) && rsslSocketChannel->proxyPort != '\0')
+		if ((rsslSocketChannel->proxyPort) && *(rsslSocketChannel->proxyPort) != '\0')
 		{
 			/* Socket calls here because we're talking unencrypted TCP to the proxy.  SSL/TLS connection happens later. */
 			rsslSocketChannel->transportFuncs = &(transFuncs[RSSL_CONN_TYPE_SOCKET]);
@@ -6276,7 +6276,7 @@ static ripcSessInit ipcReconnectSocket(RsslSocketChannel *rsslSocketChannel, rip
 	rsslSocketChannel->intState = RIPC_INT_ST_CONNECTING;
 
 	/* reset state for tunneled connections */
-	if ((rsslSocketChannel->proxyPort && rsslSocketChannel->proxyPort != '\0') && (rsslSocketChannel->usingWinInet == 0))
+	if ((rsslSocketChannel->proxyPort && *(rsslSocketChannel->proxyPort) != '\0') && (rsslSocketChannel->usingWinInet == 0))
 	{
 		rsslSocketChannel->intState = RIPC_INT_ST_PROXY_CONNECTING;
 	}
@@ -7711,7 +7711,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 		}
 		
 		/* If connecting to a proxy, this needs to stay as a standard TCP connection until the proxy negotiation is complete */
-		if(!rsslSocketChannel->proxyPort || rsslSocketChannel->proxyPort == '\0')
+		if(!rsslSocketChannel->proxyPort || *(rsslSocketChannel->proxyPort) == '\0')
 		{
 			if(getSSLProtocolTransFuncs(rsslSocketChannel, rsslSocketChannel->sslProtocolBitmap) != 0)
 			{
