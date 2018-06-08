@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.32
 !tag Build_RDMD  4.20.32
-!tag DT_Version  18.41
-!tag Date        7-May-2018
+!tag DT_Version  18.51
+!tag Date        1-Jun-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -420,6 +420,7 @@ CURRENCY_D 13595
     250        "FRF"   French franc
     262        "DJF"   Djibouti franc
     270        "GMD"   Gambian dalasi
+    276        "DEM"   Deutsche Mark
     280        "DEM"   Deutsche mark
     288        "GHC"   Ghanaian cedi
     292        "GIP"   Gibraltar pound
@@ -496,6 +497,7 @@ CURRENCY_D 13595
     626        "TPE"   Timor escudo
     634        "QAR"   Qatari rial
     642        "ROL"   Romanian leu
+    643        "RUB"   Russian Ruble
     646        "RWF"   Rwanda franc
     654        "SHP"   Saint Helena pound
     678        "STD"   Sao Tome and Principe dobra
@@ -589,6 +591,7 @@ CURRENCY_D 13595
     967        "ZMW"   Zambian kwacha
     968        "SRD"   Surinam Dollar
     969        "MGA"   Malagasy Ariary
+    970        "COU"   Colombian Unidad de Valor Real
     971        "AFN"   Afghanistan afghani
     972        "TJS"   Tajikistan Somoni
     973        "AOA"   Angolan kwanza
@@ -602,6 +605,7 @@ CURRENCY_D 13595
     981        "GEL"   Georgian Lari
     984        "BOV"   Bolivian Mvdol
     985        "PLN"   New Polish zloty
+    986        "BRL"   Brazilian Real
     990        "CLF"   Chilean unidad de fomento
     991        "ZAL"   South African financial rand
     994        "XSU"   Sucre
@@ -646,6 +650,7 @@ CURRENCY_D 13595
    2033        "NTK"   Neurotoken
    2034        "LTC"   Litecoin
    2035        "BOF"   Bolivian Unidad de Fomento de Vivienda
+   2036        "VEc"   Venezuelan Centimo
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -2639,6 +2644,7 @@ HIGHTP_1     196
      17          "Y"   Compound Yield
      18          "L"   Large volume trade
      19          "S"   Small volume trade
+     20          "m"   Mid yield
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -2667,6 +2673,7 @@ LOWTP_1      197
      17          "Y"   Compound Yield
      18          "L"   Large volume trade
      19          "S"   Small volume trade
+     20          "m"   Mid yield
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8537,6 +8544,12 @@ LEG4_EXCH  13574
    1496        "XCB"   SIX Corporate Bonds
    1497        "BKE"   BOE SONIA FIXING MP
    1498        "SKI"   Spaceknow Inc
+   1499        "NFR"   NEW YORK FEDERAL RESERVE
+   1500        "GPX"   GOVPX
+   1501        "ATO"   Asia Pacific Exchange (APEX)
+   1502        "AIX"   ASTANA INTERNATIONAL EXCHANGE
+   1503        "IEF"   Integrados FX (Colombia Only)
+   1504        "LRI"   Live Rice Index
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11494,6 +11507,7 @@ P_C_IND1    4737
      16       "C-BE"   Bermuda expiration call option
      17       "P-BE"   Bermuda expiration put option
      18       "P&C "   PUT and Call option
+     19       "BULL"   Bull
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13030,6 +13044,7 @@ REFPRC_TP4 13491
      35   "FIX1    "   Fixing 1
      36   "FIX2    "   Fixing 2
      37   "CLSFIX  "   Close Fixing
+     38   "Block   "   Block Deal Reference Price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16823,6 +16838,12 @@ VESSEL_TYP 12978
      14   "Med Rng "   Medium Range Tankers. 25,000 - 54,999 DWT
      15   "LargeRng"   Large Range Tankers. 55,000 - 79,999 DWT
      16   "Barge   "   A long flat-bottomed boat for carrying freight on canals and rivers, either under its own power or towed by another.
+     17   "MR Shull"   Medium Range Single Hull Tankers. A single hull is a ship hull design where the bottom and sides of the ship have only one layer of watertight hull surface.
+     18   "MR Dhull"   Medium Range Double Hull Tankers. A double hull is a ship hull design where the bottom and sides of the ship have two complete layers of watertight hull surface.
+     19   "SZ SHull"   Suezmax Range Single Hull Tankers. A single hull is a ship hull design where the bottom and sides of the ship have only one layer of watertight hull surface.
+     20   "SZ DHull"   Suezmax Range Double Hull Tankers. A double hull is a ship hull design where the bottom and sides of the ship have two complete layers of watertight hull surface.
+     21   "LR SHull"   Large Range Single Hull Tankers. A single hull is a ship hull design where the bottom and sides of the ship have only one layer of watertight hull surface.
+     22   "LR DHull"   Large Range Double Hull Tankers. A double hull is a ship hull design where the bottom and sides of the ship have two complete layers of watertight hull surface.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20194,6 +20215,96 @@ ORGN_PORT  13579
     364   "GB MLF  "   Milford Haven
     365   "US NSS  "   Sabine Pass
     366   "YE BLH  "   Balhaf
+    367   "DK AAR  "   Aarhus
+    368   "TR BDM  "   Bandirma
+    369   "US BTR  "   Baton Rouge
+    370   "CN BIH  "   Beihai Port
+    371   "CN BLG  "   Beilun Port
+    372   "CN BSD  "   Baoshan Port
+    373   "TR BOT  "   Botas
+    374   "CO BUN  "   Buenaventura
+    375   "AN BUB  "   Bullen Bay
+    376   "CL CLD  "   Caldera
+    377   "CA CBC  "   Come By Chance
+    378   "RO CND  "   Constanta
+    379   "NI CIO  "   Corinto
+    380   "PA CTB  "   Cristobal
+    381   "IN DMQ  "   Dhamra Port
+    382   "AE DXB  "   Dubai
+    383   "US PEF  "   Port Everglades
+    384   "NL VLI  "   Vlissingen / Flushing
+    385   "NO FRK  "   Fredrikstad
+    386   "PL GDN  "   Gdansk
+    387   "GI GIB  "   Gibraltar
+    388   "US HR3  "   Hampton Roads Port
+    389   "GB HUL  "   Hull
+    390   "TR IDM  "   Isdemir
+    391   "TR ISK  "   Iskenderun
+    392   "TR IST  "   Istanbul
+    393   "TR IZM  "   Izmir
+    394   "TR IZT  "   Izmit
+    395   "RU KGD  "   Kaliningrad
+    396   "GN KMR  "   Port Kamsar
+    397   "IR KHK  "   Khark Island
+    398   "FR LPE  "   La Pallice
+    399   "AR LPG  "   La Plata
+    400   "ES LPA  "   Las Palmas
+    401   "LV LPX  "   Liepaja
+    402   "GB LIV  "   Liverpool
+    403   "CN LKU  "   Longkou Port
+    404   "AO LAD  "   Luanda
+    405   " EC MEC "   Manta
+    406   "TR MRA  "   Marmara
+    407   "TR MER  "   Mersin
+    408   "CN NJG  "   Nanjing Port
+    409   "US MSY  "   New Orleans
+    410   "GA OGU  "   Oguandjo Terminal
+    411   "RS PYJ  "   Pancevo
+    412   "SL PEP  "   Pepel
+    413   "US PVD  "   Providence
+    414   "DO POP  "   Puerto Plata
+    415   "TH RYG  "   Rayong
+    416   "LV RIX  "   Riga
+    417   "BR RIG  "   Rio Grande
+    418   "AR SLO  "   San Lorenzo
+    419   "AR SMA  "   San Martin
+    420   "CO SMR  "   Santa Marta
+    421   "DK SKA  "   Skagen/Skaw
+    422   "US LU8  "   South Louisiana
+    423   "US LUA  "   Louisiana
+    424   "SE STE  "   Stenungsund
+    425   "MA PTM  "   Tanger Med
+    426   "RU ULU  "   Ust'-Luga
+    427   "RU VYP  "   Vostochnyy Port
+    428   "CN ZNG  "   Zhanjiang Port
+    429   "CN ZHE  "   Zhenjiang Port
+    430   "GQ CEI  "   Ceiba MarineTerminal
+    431   "NG ABM  "   Agbami
+    432   "NG AKP  "   Akpo
+    433   "NG BRA  "   Brass
+    434   "CM LIT  "   Limboh Terminal
+    435   "AO DAL  "   Dalia
+    436   "CG DJE  "   Djeno Terminal
+    437   "NG FOR  "   Forcados
+    438   "AO GIR  "   Girassol Terminal
+    439   "AO KOT  "   Kuito Terminal
+    440   "NG ODU  "   Odudu Terminal
+    441   "AO PAT  "   Palanca Terminal
+    442   "NG QIB  "   Qua Iboe
+    443   "DE RSK  "   Rostock
+    444   "BR TMT  "   Trombetas
+    445   "NG BOT  "   Bonga
+    446   "NG EBO  "   Ebok Terminal
+    447   "NG ERT  "   Erha Terminal
+    448   "VE JOT  "   Jose Terminal
+    449   "GH JUB  "   Jubilee FPSO
+    450   "CM MSG  "   Massongo Terminal
+    451   "RS NVS  "   Novi Sad
+    452   "NG OKW  "   Okwori
+    453   "NG PEN  "   Pennington
+    454   "VE PTZ  "   Petrozuata
+    455   "GQ SER  "   Serpentina Terminal
+    456   "CA PMO  "   Port Moody/Vancouver
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20505,6 +20616,25 @@ LOAD_ZONE  13578
     948   "PAC CST "   Pacific Coast
     949   "SOU AMR "   South America
     950   "WCSA    "   West Coast South America
+    951   "CHN EA  "   China/East - Asia
+    952   "WCNA    "   North America West Coast
+    953   "ECNA    "   North America East Coast
+    954   "UK CON  "   UK Continent
+    955   "SW AFR  "   South West Africa
+    956   "NW AFR  "   North West Africa
+    957   "Mssp Rvr"   Missisippi River
+    958   "US LghtZ"   US Gulf Lightering Zones
+    959   "Bilbao  "   Bilbao
+    960   "FosSurMr"   Fos sur mer
+    961   "Yanbu   "   Yanbu
+    962   "RiodeJan"   Rio De Jenerio
+    963   "BuenAirs"   Buenos Aries
+    964   "PersGulf"   Persian Gulf
+    965   "Durban  "   Durban
+    966   "IRQ IRN "   Iraq/Iran
+    967   "Chitgong"   Chittagong
+    968   "PanamaCn"   Panama Canal
+    969   "CapeHope"   Cape Hope
    2000   "MUL     "   Multinational
    2001   "SUP     "   Supra-National
    2002   "EUZ     "   Euro Zone
