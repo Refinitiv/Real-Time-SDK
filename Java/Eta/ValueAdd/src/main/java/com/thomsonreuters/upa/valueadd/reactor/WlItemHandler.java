@@ -1126,11 +1126,12 @@ class WlItemHandler implements WlHandler
         
         // determine if a new stream is needed or if existing stream can be used
         _tempItemAggregationKey.clear();
-        _tempItemAggregationKey.msgKey(requestMsg.msgKey());
+        requestMsg.msgKey().copy(_tempItemAggregationKey.msgKey());
         if (submitOptions.serviceName() != null)
         {
             // set service id in item aggregation key if requested by service name
             int serviceId = _watchlist.directoryHandler().serviceId(submitOptions.serviceName());
+            _tempItemAggregationKey.msgKey().applyHasServiceId();
             _tempItemAggregationKey.msgKey().serviceId(serviceId);
         }
         _tempItemAggregationKey.domainType(requestMsg.domainType());
@@ -3089,7 +3090,17 @@ class WlItemHandler implements WlHandler
 			if (!wlRequest.hasBehaviour() || wlRequest.symbolListFlags() == 0 )
 				continue;
 			int ret = ReactorReturnCodes.SUCCESS;
-			int serviceId = wlRequest.requestMsg().msgKey().serviceId();
+			int serviceId = 0;
+			if (wlRequest.requestMsg().msgKey().checkHasServiceId())
+			{
+				// retrieve service id from request
+				serviceId = wlRequest.requestMsg().msgKey().serviceId();
+			}
+			else if (wlRequest.streamInfo().serviceName() != null)
+			{
+				// lookup service id by service name
+				serviceId = _watchlist.directoryHandler().service(wlRequest.streamInfo().serviceName()).rdmService().serviceId();
+			}
 			WlService wlService = _watchlist.directoryHandler().service(serviceId);
 			if (wlService == null)
 			{

@@ -14,6 +14,7 @@ public class ConsumerProviderSessionOptions {
     private int _reconnectMaxDelay = 1000;
 	private boolean _setupDefaultLoginStream;
 	private boolean _setupDefaultDirectoryStream;
+	private boolean _setupSecondDefaultDirectoryStream;
 	private int _numStatusEvents;
 	private int _pingTimeout = 60;
     private int _consumerChannelInitTimeout = 60;
@@ -50,6 +51,20 @@ public class ConsumerProviderSessionOptions {
 	public boolean setupDefaultDirectoryStream()
 	{
 		return _setupDefaultDirectoryStream;
+	}
+
+	/** Sets whether a second default directory stream will be setup.
+	 * If set to true, either the consumer's reactor role must have a preset directory request,
+	 * or its watchlist is enabled (or both). */
+	public void setupSecondDefaultDirectoryStream(boolean setupDefaultDirectoryStream)
+	{
+		_setupSecondDefaultDirectoryStream = setupDefaultDirectoryStream;
+	}
+	
+	/** Returns whether a second default directory stream will be setup. */
+	public boolean setupSecondDefaultDirectoryStream()
+	{
+		return _setupSecondDefaultDirectoryStream;
 	}
 
     /** Returns the reconnectAttemptLimit. */

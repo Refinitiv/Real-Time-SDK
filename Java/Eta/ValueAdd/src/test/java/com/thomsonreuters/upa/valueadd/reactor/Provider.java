@@ -59,6 +59,9 @@ public class Provider extends TestReactorComponent implements ProviderCallback, 
 	/* A default service that can be used when setting up a connection. */
 	private static Service _defaultService;
 	
+	/* A second default service that can be used when setting up a connection. */
+	private static Service _defaultService2;
+	
 	static
 	{
 		_defaultService = DirectoryMsgFactory.createService();
@@ -98,6 +101,41 @@ public class Provider extends TestReactorComponent implements ProviderCallback, 
         _defaultService.state().acceptingRequests(1);
         _defaultService.state().serviceState(1);
 
+		_defaultService2 = DirectoryMsgFactory.createService();
+		_defaultService2.clear();
+		_defaultService2.applyHasInfo();
+		_defaultService2.applyHasState();
+		_defaultService2.serviceId(2);
+
+		_defaultService2.info().serviceName().data("DEFAULT_SERVICE2");
+
+		_defaultService2.info().capabilitiesList(new ArrayList<Long>());
+		_defaultService2.info().capabilitiesList().add((long)DomainTypes.DICTIONARY);
+		_defaultService2.info().capabilitiesList().add((long)DomainTypes.MARKET_PRICE);
+		_defaultService2.info().capabilitiesList().add((long)DomainTypes.MARKET_BY_ORDER);
+		_defaultService2.info().capabilitiesList().add((long)DomainTypes.SYMBOL_LIST);
+		_defaultService2.info().capabilitiesList().add((long)DomainTypes.SYSTEM);
+
+		_defaultService2.info().applyHasQos();
+		_defaultService2.info().qosList(new ArrayList<Qos>());
+        qos.clear();
+        qos.timeliness(QosTimeliness.DELAYED);
+        qos.rate(QosRates.JIT_CONFLATED);
+        qos.dynamic(false);
+        qos.timeInfo(0);
+        qos.rateInfo(0);
+        _defaultService2.info().qosList().add(qos);
+        qos.clear();
+        qos.timeliness(QosTimeliness.REALTIME);
+        qos.rate(QosRates.TICK_BY_TICK);
+        qos.dynamic(false);
+        qos.timeInfo(0);
+        qos.rateInfo(0);
+        _defaultService2.info().qosList().add(qos);
+        
+        _defaultService2.state().applyHasAcceptingRequests();
+        _defaultService2.state().acceptingRequests(1);
+        _defaultService2.state().serviceState(1);
 	}
 	
 	static final Service defaultService()
@@ -105,7 +143,12 @@ public class Provider extends TestReactorComponent implements ProviderCallback, 
 		return _defaultService;
 	}
 
-    @Override
+	static final Service defaultService2()
+	{
+		return _defaultService2;
+	}
+
+	@Override
     public int defaultMsgCallback(TunnelStreamMsgEvent event)
     {
         return _testReactor.handleTunnelStreamMsgEvent(event);

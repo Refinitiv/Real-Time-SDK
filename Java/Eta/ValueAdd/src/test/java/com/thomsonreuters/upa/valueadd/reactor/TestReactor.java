@@ -647,7 +647,9 @@ public class TestReactor {
         directoryRefresh.state().text().data("Source Directory Refresh Complete");
 
         Service service = DirectoryMsgFactory.createService();
+        Service service2 = DirectoryMsgFactory.createService();
         Provider.defaultService().copy(service);
+        Provider.defaultService2().copy(service2);
         
         // Apply OpenWindow to the service if one is specified.
         if (opts.openWindow() >= 0)
@@ -658,6 +660,10 @@ public class TestReactor {
         }
         
         directoryRefresh.serviceList().add(service);
+        if (opts.setupSecondDefaultDirectoryStream())
+        {
+        	directoryRefresh.serviceList().add(service2);
+        }
         submitOptions.clear();
         assertTrue(provider.submitAndDispatch(directoryRefresh, submitOptions) >= ReactorReturnCodes.SUCCESS);
 
