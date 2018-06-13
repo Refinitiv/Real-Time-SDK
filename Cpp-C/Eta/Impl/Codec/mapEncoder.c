@@ -385,9 +385,9 @@ static RsslRet RTR_FASTCALL _rsslEncodeMapEntryInternal(
 		RsslUInt8 prevstate = _levelInfo->_encodingState;
 		_levelInfo->_encodingState = RSSL_EIS_PRIMITIVE_U15;
 		ret = _rsslEncodePrimitive(pIter, pMap->keyPrimitiveType, pKey );
+		_levelInfo->_encodingState = prevstate;
 		if (ret < 0)
 			return ret;
-		_levelInfo->_encodingState = prevstate;
 	}
 	else if (pMapEntry->encKey.data != 0)
 	{

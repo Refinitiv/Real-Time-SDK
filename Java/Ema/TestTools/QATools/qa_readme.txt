@@ -494,12 +494,11 @@ Series100Provider100-ProvFunc-006
 	Alters Interactive Provider to send a STATUS message with empty/null state every 5 
 	seconds after provider is created.
 
-Module:  Series100Provider140 
--------------------------------
-Series100Provider140-ProvFunc-001
-    Alters Interactive Provider to send a MBO item response with the MapEntry key altered to be encoded as a Buffer 
-	MapEntry Key is read from file xmlKeyList 
-	This altered code works in conjunction with Series100Consumer140-ConsFunc-001
+Series100Provider100-ProvFunc-007
+    Alters Interactive Provider to publish a symbol list with a configurable number of items in the list.
+	Command line argument:  -c <count>
+    where <count> represents the number of items to be published in symbolist: A0, A1,... A<count>
+
 
 Module:  Series100Provider161 
 -------------------------------

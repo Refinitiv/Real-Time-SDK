@@ -131,7 +131,6 @@ Series200Consumer200-ConsFunc-001
      Alters consumer to decode Date/Time/DateTime and print using ISO 8601
 
 
-
 Module:  Series300Consumer331
 ---------------------------
 Series300Consumer331-GenM-001
@@ -382,6 +381,10 @@ Series100Provider100-ProvFunc-005
 	Alters Interactive Provider item refersh and updates to include a different 
 	payload consisting of multiple enum type fields.  
 
+Series100Provider100-ProvFunc-007
+    Alters Interactive Provider to publish a symbol list with a configurable number of items in the list.
+	Command line argument:  -c <count>
+    where <count> represents the number of items to be published in symbolist: A0, A1,... A<count>
 
 
 Module:  Series300Provider320
