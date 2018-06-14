@@ -635,3 +635,6 @@ Series300Provider350-Reissue-001:  Alters Series300Provider350 send reissue on b
 handles with no changes in filter after sending 6 updates, send reissue on both dictionary handles
 with change in filter to NORMAL after sending 8 updates, also send update on source directory with 
 delete service after sending 9 updates.
+====
+Series100Consumer102-Mix-001: Alters Series100Example102__MarketPrice__Snapshot. Requests two
+different services with use of one OmmConsumer. Two market data sets hould be returned.
