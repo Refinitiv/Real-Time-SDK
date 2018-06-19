@@ -1,0 +1,4 @@
+#file,location
+NiProvider.cpp,Examples/Training/NiProvider/100_Series/100__MarketPrice__Streaming
+NiProvider.h,Examples/Training/NiProvider/100_Series/100__MarketPrice__Streaming
+makefile.examples.common,Examples/Training

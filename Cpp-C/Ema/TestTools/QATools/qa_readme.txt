@@ -455,6 +455,9 @@ Series100NiProvider100-NiFunc-002
 	Alters NiProvider to add a key with a data type of Ascii in a source 
 	directory request message. This should cause an exception.
 
+Series100NiProvider100-NiFunc-003
+	Alters NIProvider to send only 2 update for item IBM.N and then sleep for 20 seconds.
+
 Series100NiProvider100-TrepAuth-002
 	Alters NiProvider sends a market price item refresh after stream state 
 	changes from up to down (recovery).

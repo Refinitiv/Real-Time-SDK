@@ -131,6 +131,7 @@ provider-Src-002: Alters Provider to respond with a source directory refresh con
                   when source directory is requested.
 
 provider-Item-001: Alters Provider to not send a market price refresh when market price request is received     
+provider-Item-002: Alters Provider to send only 1 refresh and 10 updates when market price request received. 
 
 provider-Dict-001: Alters Provider to not return failure if it receives a source directory request and
 not send dictionary reject if it receives an invalid dictionary request. This is done by commenting out
@@ -151,3 +152,9 @@ wlconsumer-GenM-001
 vaprovider-TsFrag-001:  Alter VAProvider to validate incoming tunnel stream message content to have "1, 2, 3...255".  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-001.
 
 vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream message as a generic message with opaque buffer data body of "1, 2, 3....255" repeated.  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-002.
+
+
+Module:  NIProvider 
+-----------------
+
+niprovider-Item-001: Alters NIProvider to send only 1 refresh and 2 updates for each item specified on command line 

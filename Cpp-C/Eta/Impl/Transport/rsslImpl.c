@@ -462,18 +462,26 @@ void _rsslCleanUp()
 	mutexFuncs.staticMutexUnlock();
 }
 
-RTR_C_ALWAYS_INLINE void _rsslXMLDumpComment(rsslChannelImpl *rsslChnlImpl, FILE *file, const char* comment)
+/* Write an XML comment to stdout and/or to a file, depending on the trace options set for the channel.
+ *   timestamp - Adds a timestamp comment.
+ *   fileFlush - Flushes to the file (used if this is the last part to be written for an event).
+ */
+RTR_C_ALWAYS_INLINE void _rsslXMLDumpComment(rsslChannelImpl *rsslChnlImpl, const char* comment, RsslBool timestamp, RsslBool fileFlush)
 {
-    (void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
 	if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
 	{
 		xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, comment);
+		if (timestamp)
+			xmlDumpTimestamp(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
+		if (fileFlush)
+			fflush(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
 	}
 	if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
 	{
 		xmlDumpComment(stdout, comment);
+		if (timestamp)
+			xmlDumpTimestamp(stdout);
 	}
-	(void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->traceMutex);
 }
 
 /* this routine is called to trace both reads and writes
@@ -534,16 +542,7 @@ void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslBuffer *buffer, RsslR
 	if (*retTrace == RSSL_RET_READ_FD_CHANGE)
 	{
 	    snprintf(message, sizeof(message), "Incoming FD Change (Channel IPC descriptor = "SOCKET_PRINT_TYPE, rsslChnlImpl->Channel.socketId);
-		if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-		{
-			xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-			xmlDumpTimestamp(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
-		}
-		if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-		{
-			xmlDumpComment(stdout, message);
-			xmlDumpTimestamp(stdout);
-		}
+		_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_TRUE);
 	}
 	/* we actually read or wrote something */
 	else if (*retTrace >= RSSL_RET_SUCCESS || *retTrace == RSSL_RET_WRITE_CALL_AGAIN)
@@ -555,16 +554,7 @@ void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslBuffer *buffer, RsslR
 		else if (op == tracePack)
 		  snprintf(message, sizeof(message), "Pack Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
 		
-		if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-		{
-			xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-			xmlDumpTimestamp(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
-		}
-		if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-		{
-			xmlDumpComment(stdout, message);
-			xmlDumpTimestamp(stdout);
-		}
+		_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_TRUE);
 
 		/* XML dump RWF messages */
 		if (rsslChnlImpl->Channel.protocolType == RSSL_RWF_PROTOCOL_TYPE)
@@ -621,66 +611,31 @@ void _rsslTraceEndMsg(rsslChannelImpl *rsslChnlImpl, RsslRet *retTrace, RsslBool
 		{
 			case RSSL_RET_FAILURE:
 				snprintf(message, sizeof(message), "rsslWrite Failed (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-				if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-				{
-					xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-				}
-				if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-				{
-					xmlDumpComment(stdout, message);
-				}
+				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_FALSE, RSSL_FALSE);
 				break;
 
 			case RSSL_RET_WRITE_CALL_AGAIN:
 				snprintf(message, sizeof(message), "rsslWrite returned RSSL_RET_WRITE_CALL_AGAIN (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-				if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-				{
-					xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-				}
-				if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-				{
-					xmlDumpComment(stdout, message);
-				}
+				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_FALSE, RSSL_FALSE);
 				break;
 
 			case RSSL_RET_INIT_NOT_INITIALIZED:
 				snprintf(message, sizeof(message), "rsslWrite returned RSSL_RET_INIT_NOT_INITIALIZED (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-				if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-				{
-					xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-				}
-				if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-				{
-					xmlDumpComment(stdout, message);
-				}
+				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_FALSE, RSSL_FALSE);
 				break;
 
 			default:
 				break;
 		}
 		snprintf(message, sizeof(message), "End Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-		if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-		{
-			xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-		}
-		if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-		{
-			xmlDumpComment(stdout, message);
-		}
+		_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_FALSE, RSSL_TRUE);
 	}
 	else
 	{
 		if ((*retTrace >= RSSL_RET_SUCCESS) || (*retTrace == RSSL_RET_READ_PING))
 		{
 			snprintf(message, sizeof(message), "End Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-			if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-			{
-				xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-			}
-			if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-			{
-				xmlDumpComment(stdout, message);
-			}
+			_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_FALSE, RSSL_TRUE);
 		}
 	}
 	(void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->traceMutex);
@@ -694,14 +649,7 @@ void _rsslTraceClosed(rsslChannelImpl *rsslChnlImpl, RsslRet *retTrace)
 
 		snprintf(message, sizeof(message), "Channel Closed (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
 		(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
-		if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-		{
-			xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-		}
-		if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-		{
-			xmlDumpComment(stdout, message);
-		}
+		_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_TRUE);
 		(void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->traceMutex);
 	}
 }
@@ -1081,16 +1029,6 @@ RsslChannel* rsslAccept(RsslServer *srvr, RsslAcceptOptions *opts, RsslError *er
 		printf("adding chnl "SOCKET_PRINT_TYPE" to activeChannelList\n", rsslChnlImpl->Channel.socketId);
 	mutexFuncs.staticMutexUnlock();
 
-#if 0 /* save this for when we expose trace */
-	rsslChnlImpl->traceOptions = opts->traceOptions;
-	if (rsslChnlImpl->traceOptions.traceEnabled && rsslChnlImpl->Channel.state == RSSL_CH_STATE_ACTIVE)
-	{
-		char message[128];
-		snprintf(message, sizeof(message), "Connection Established (Channel IPC descriptor = %d)", rsslChnlImpl->Channel.socketId);
-		_rsslXMLDumpComment(rsslChnlImpl, stdout, message);
-	}
-#endif
-
 	/* if server has component info set, bridge it through to channel, but indicate channel does not own it */
 	if ((rsslSrvrImpl->componentVer.componentVersion.length) && (rsslSrvrImpl->componentVer.componentVersion.data))
 	{
@@ -1209,15 +1147,6 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 		printf("adding chnl "SOCKET_PRINT_TYPE" to activeChannelList\n", rsslChnlImpl->Channel.socketId);
 	mutexFuncs.staticMutexUnlock();	
 
-#if 0	/* save this for when we expose trace */
-	rsslChnlImpl->traceOptions = opts->traceOptions;
-	if (rsslChnlImpl->traceOptions.traceEnabled && rsslChnlImpl->Channel.state == RSSL_CH_STATE_ACTIVE)
-	{
-		char message[128];
-		snprintf(message, sizeof(message), "Connection Established (Channel IPC descriptor = %d)", rsslChnlImpl->Channel.socketId);
-		_rsslXMLDumpComment(rsslChnlImpl, stdout, message);
-	}
-#endif
 	return (&(rsslChnlImpl->Channel));
 }
 
@@ -1347,15 +1276,9 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 	{
 		char message[128];
 		snprintf(message, sizeof(message), "Connection Established (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-		
-		if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-		{
-			_rsslXMLDumpComment(rsslChnlImpl, rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-		}
-		if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-		{
-			_rsslXMLDumpComment(rsslChnlImpl, stdout, message);
-		}
+		(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
+		_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_TRUE);
+		(void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->traceMutex);
 	}
 
 	return ret;
@@ -1385,14 +1308,9 @@ RsslRet rsslCloseChannel(RsslChannel *chnl, RsslError *error)
 	{
 		char message[128];
 		snprintf(message, sizeof(message), "rsslCloseChannel Connection closed (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-		if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-		{
-			_rsslXMLDumpComment(rsslChnlImpl, rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-		}
-		if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-		{
-			_rsslXMLDumpComment(rsslChnlImpl, stdout, message);
-		}
+		(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
+		_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_TRUE);
+		(void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->traceMutex);
 	}
 
 	/* release active buffers before closing the channel and removing the channels pool */
@@ -1678,17 +1596,12 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 				char message[128];
 
 				snprintf(message, sizeof(message), "Incoming Ping (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-				if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-				{
-					xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-					xmlDumpTimestamp(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
-				}
-				if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-				{
-					xmlDumpComment(stdout, message);
-					xmlDumpTimestamp(stdout);
-				}
-				_rsslTraceEndMsg(rsslChnlImpl, readRet, RSSL_TRUE);
+				(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
+				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_FALSE);
+
+				snprintf(message, sizeof(message), "End Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
+				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_FALSE, RSSL_TRUE);
+				(void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->traceMutex);
 			}
 		}
 		_rsslTraceClosed(rsslChnlImpl, readRet);
@@ -1969,27 +1882,14 @@ RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 			{
 				char message[128];
 
+				(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
 				snprintf(message, sizeof(message), "Outgoing Ping (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-				if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-				{
-					xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-					xmlDumpTimestamp(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
-				}
-				if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-				{
-					xmlDumpComment(stdout, message);
-					xmlDumpTimestamp(stdout);
-				}
+				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_FALSE);
 
 				snprintf(message, sizeof(message), "End Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
-				if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
-				{
-					xmlDumpComment(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr, message);
-				}
-				if(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & RSSL_TRACE_TO_STDOUT)
-				{
-					xmlDumpComment(stdout, message);
-				}
+				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_FALSE, RSSL_TRUE);
+				(void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->traceMutex);
+
 			}
 		}
 	}
