@@ -106,6 +106,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.FIELD_LIST:
 			decode(msg.attrib().fieldList());
 			break;
+		default:
+			break;
 		}
 
 		switch (msg.payload().dataType())
@@ -115,6 +117,8 @@ class AppClient implements OmmConsumerClient
 			break;
 		case DataTypes.FIELD_LIST:
 			decode(msg.payload().fieldList());
+			break;
+		default:
 			break;
 		}
 	}
@@ -138,6 +142,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.FIELD_LIST:
 			decode(genMsg.attrib().fieldList());
 			break;
+		default:
+			break;
 		}
 
 		switch (genMsg.payload().dataType())
@@ -147,6 +153,8 @@ class AppClient implements OmmConsumerClient
 			break;
 		case DataTypes.FIELD_LIST:
 			decode(genMsg.payload().fieldList());
+			break;
+		default:
 			break;
 		}
 	}

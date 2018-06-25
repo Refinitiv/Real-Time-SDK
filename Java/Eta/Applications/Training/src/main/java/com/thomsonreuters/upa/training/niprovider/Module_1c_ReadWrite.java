@@ -685,11 +685,12 @@ public class Module_1c_ReadWrite
                                      */
                                     case TransportReturnCodes.READ_WOULD_BLOCK: /* Nothing to read */
                                         break;
-                                    case TransportReturnCodes.READ_IN_PROGRESS:/* fall through to default. */
+                                    case TransportReturnCodes.READ_IN_PROGRESS:
                                     case TransportReturnCodes.INIT_NOT_INITIALIZED:
                                     case TransportReturnCodes.FAILURE:
                                         System.out.printf("Error (%d) (errno: %d) %s\n", error.errorId(), error.sysError(), error.text());
                                         closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
+                                        break;
 
                                     default: /* Error handling */
                                     {
@@ -1083,6 +1084,7 @@ public class Module_1c_ReadWrite
                          */
                         return TransportReturnCodes.SUCCESS + 1;
                     }
+                    break;
                 }
                 case TransportReturnCodes.NO_BUFFERS:
                 {

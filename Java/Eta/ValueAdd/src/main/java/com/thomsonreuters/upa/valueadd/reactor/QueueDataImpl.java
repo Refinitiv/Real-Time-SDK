@@ -204,17 +204,17 @@ class QueueDataImpl extends QueueMsgImpl implements QueueData
     		_seqNum = (int)genericMsg.seqNum();
 					
 			/* fromQueue length */
-    		msgLength = (int)tmpByteBuf.get() & 0xff;
+    		msgLength = tmpByteBuf.get() & 0xff;
 
 			/* fromQueue */
     		_sourceName.data(tmpByteBuf, tmpByteBuf.position(), msgLength);
     		tmpByteBuf.position(tmpByteBuf.position() + msgLength);
 					
-    		msgLength = (int)tmpByteBuf.get() & 0xff;
+    		msgLength = tmpByteBuf.get() & 0xff;
     		_timeout = TunnelStreamUtil.readLong64ls(msgLength, tmpByteBuf);
     	
     		/* Identifier */
-    		msgLength = (int)tmpByteBuf.get() & 0xff;
+    		msgLength = tmpByteBuf.get() & 0xff;
     		_identifier = TunnelStreamUtil.readLong64ls(msgLength, tmpByteBuf);
 					
             /* QueueDepth */

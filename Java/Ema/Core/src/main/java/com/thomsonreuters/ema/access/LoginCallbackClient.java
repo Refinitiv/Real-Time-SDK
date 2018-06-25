@@ -1020,7 +1020,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 	boolean modify(ReqMsg reqMsg)
 	{
 		int ret;
-		if((ret = _baseImpl._loginCallbackClient.overlayLoginRequest((Msg)((ReqMsgImpl)reqMsg).rsslMsg()))
+		if((ret = _baseImpl._loginCallbackClient.overlayLoginRequest(((ReqMsgImpl)reqMsg).rsslMsg()))
 				!= CodecReturnCodes.SUCCESS)
 		{
 			StringBuilder temp = _baseImpl.strBuilder();

@@ -684,6 +684,7 @@ public class Module_1b_Ping
                                     case TransportReturnCodes.INIT_NOT_INITIALIZED:
                                     case TransportReturnCodes.FAILURE:
                                         System.out.printf("Error (%d) (errno: %d) channelInactive Error Text: %s\n", error.errorId(), error.sysError(), error.text());
+                                        break;
                                     default: /* Error handling */
                                         if (retCode < 0)
                                         {

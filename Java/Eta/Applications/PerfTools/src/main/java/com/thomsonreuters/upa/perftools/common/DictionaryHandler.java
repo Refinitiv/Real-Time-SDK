@@ -8,7 +8,6 @@ import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.Msg;
 import com.thomsonreuters.upa.codec.MsgClasses;
-import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
@@ -207,7 +206,7 @@ public class DictionaryHandler
     			_dictionaryRequest.dictionaryName().data(ENUM_TABLE_DOWNLOAD_NAME);
     			_dictionaryRequest.streamId(ENUM_DICTIONARY_TYPE);
     		}
-    		_dictionaryRequest.serviceId((int)_serviceId);
+    		_dictionaryRequest.serviceId(_serviceId);
 
     		_encIter.clear();
     		_encIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
@@ -270,7 +269,7 @@ public class DictionaryHandler
      */
     private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.thomsonreuters.upa.transport.Error error)
     {
-        int ret = _dictionaryRefresh.decode(dIter, (RefreshMsg)msg);
+        int ret = _dictionaryRefresh.decode(dIter, msg);
         if (ret != CodecReturnCodes.SUCCESS)
         {
             error.text("Error decoding dictionary refresh: <" + CodecReturnCodes.toString(ret) + ">");

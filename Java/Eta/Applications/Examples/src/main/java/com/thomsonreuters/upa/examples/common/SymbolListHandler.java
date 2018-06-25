@@ -200,7 +200,8 @@ public class SymbolListHandler
      * @param dictionary the dictionary
      * @return the int
      */
-    public int processResponse(Msg msg, DecodeIterator dIter, DataDictionary dictionary)
+    @SuppressWarnings("fallthrough")
+	public int processResponse(Msg msg, DecodeIterator dIter, DataDictionary dictionary)
     {
         map.clear();
         mapEntry.clear();

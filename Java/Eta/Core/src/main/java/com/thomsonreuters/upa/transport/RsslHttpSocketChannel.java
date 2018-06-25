@@ -1310,7 +1310,8 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     /* Performs Read IO. Also includes httpReconnectClient logic.
      * (throws IOException if an IO exception occurs)
      */
-    private void performReadIO(ReadArgsImpl readArgs) throws IOException
+    @SuppressWarnings("fallthrough")
+	private void performReadIO(ReadArgsImpl readArgs) throws IOException
     {
         switch (_readBufStateMachine.state())
         {

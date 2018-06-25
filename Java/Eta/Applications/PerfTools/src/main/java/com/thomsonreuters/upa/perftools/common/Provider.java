@@ -252,6 +252,8 @@ public class Provider
                                 processCpuLoad,
                                 memoryUsage);
                         break;
+                    default:
+                        break;
                 }
                 providerThread.getProvThreadInfo().statsFileWriter().flush();
             }
@@ -311,6 +313,8 @@ public class Provider
                     case PROVIDER_NONINTERACTIVE:
                         if (requestCount > 0 || refreshCount > 0)
                             System.out.printf("  - Sent %d images (total: %d)\n", refreshCount, _refreshCount.getTotal());
+                        break;
+                    default:
                         break;
                 }
 
@@ -391,22 +395,22 @@ public class Provider
                         if (ProviderPerfConfig.genMsgsPerSec() > 0)
                         {
                         	fileWriter.printf("  Avg GenMsg send rate: %.0f\n", stats.genMsgSentCount().getTotal()/
-                        			(double)((statsTime - stats.firstGenMsgSentTime())/1000000000.0));
+                        			((statsTime - stats.firstGenMsgSentTime())/1000000000.0));
                         }
                         if (stats.genMsgRecvCount().getTotal() > 0)
                         {
                         	fileWriter.printf("  Avg GenMsg receive rate: %.0f\n", stats.genMsgRecvCount().getTotal()/
-                        			(double)((statsTime - stats.firstGenMsgRecvTime())/1000000000.0));
+                        			((statsTime - stats.firstGenMsgRecvTime())/1000000000.0));
                         }
                         if (ProviderPerfConfig.latencyGenMsgRate() > 0)
                         {
                         	fileWriter.printf("  Avg GenMsg latency send rate: %.0f\n", stats.latencyGenMsgSentCount().getTotal()/
-                        			(double)((statsTime - stats.firstGenMsgSentTime())/1000000000.0));
+                        			((statsTime - stats.firstGenMsgSentTime())/1000000000.0));
                         }
                         if (stats.genMsgLatencyStats().count() > 0)
                         {
                         	fileWriter.printf("  Avg GenMsg latency receive rate: %.0f\n", stats.genMsgLatencyStats().count()/
-                        			(double)((statsTime - stats.firstGenMsgRecvTime())/1000000000.0));
+                        			((statsTime - stats.firstGenMsgRecvTime())/1000000000.0));
                         }
                         fileWriter.printf("  Image requests received: %d\n", providerThread.itemRequestCount().getTotal());
                         if (ProviderPerfConfig.updatesPerSec() > 0)
@@ -423,6 +427,8 @@ public class Provider
                                 "  Updates sent: %d\n",
                                 providerThread.refreshMsgCount().getTotal(),
                                 providerThread.updateMsgCount().getTotal());
+                        break;
+                    default:
                         break;
                 }
             }
@@ -463,22 +469,22 @@ public class Provider
                 if (ProviderPerfConfig.genMsgsPerSec() > 0)
                 {
                 	fileWriter.printf("  Avg GenMsg send rate: %.0f\n", _genMsgSentCount.getTotal()/
-                			(double)((statsTime - _totalStats.firstGenMsgSentTime())/1000000000.0));
+                			((statsTime - _totalStats.firstGenMsgSentTime())/1000000000.0));
                 }
                 if (_genMsgRecvCount.getTotal() > 0)
                 {
                 	fileWriter.printf("  Avg GenMsg receive rate: %.0f\n", _genMsgRecvCount.getTotal()/
-                			(double)((statsTime - _totalStats.firstGenMsgRecvTime())/1000000000.0));
+                			((statsTime - _totalStats.firstGenMsgRecvTime())/1000000000.0));
                 }
                 if (ProviderPerfConfig.latencyGenMsgRate() > 0)
                 {
                 	fileWriter.printf("  Avg GenMsg latency send rate: %.0f\n", _latencyGenMsgSentCount.getTotal()/
-                			(double)((statsTime - _totalStats.firstGenMsgSentTime())/1000000000.0));
+                			((statsTime - _totalStats.firstGenMsgSentTime())/1000000000.0));
                 }
                 if (_totalStats.genMsgLatencyStats().count() > 0)
                 {
                 	fileWriter.printf("  Avg GenMsg latency receive rate: %.0f\n", _totalStats.genMsgLatencyStats().count()/
-                			(double)((statsTime - _totalStats.firstGenMsgRecvTime())/1000000000.0));
+                			((statsTime - _totalStats.firstGenMsgRecvTime())/1000000000.0));
                 }
                 fileWriter.printf("  Image requests received: %d\n", _requestCount.getTotal());
                 if (ProviderPerfConfig.updatesPerSec() > 0)
@@ -494,6 +500,8 @@ public class Provider
                         "  Updates sent: %d\n",
                         _refreshCount.getTotal(),
                         _updateCount.getTotal());
+                break;
+            default:
                 break;
         }
         

@@ -142,7 +142,7 @@ public class DecodersJunit
 					assertEquals(579005069656919567L, bufferReader.readLong()); // i=8, expected 579005069656919567L(0x08090a0b0c0d0e0f)
 					assertEquals(16, bufferReader.position());
 
-					assertEquals(Double.longBitsToDouble(1157726452361532951L), bufferReader.readDouble(), (double)0); // i=16, expected L(0x1011121314151617)
+					assertEquals(Double.longBitsToDouble(1157726452361532951L), bufferReader.readDouble(), 0); // i=16, expected L(0x1011121314151617)
 					assertEquals(24, bufferReader.position());
 
 					assertEquals(Float.intBitsToFloat(404298267), bufferReader.readFloat(), (double)0); // i=24, expected 404298267(0x18191a1b)

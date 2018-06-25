@@ -871,7 +871,7 @@ public class ContainersJunit
 		int hint = RealHints.EXPONENT5;		
 		for (int i=0; i<testInts.length; i++)
 		{
-			testReals[i] = (RealImpl) CodecFactory.createReal();
+			testReals[i] = CodecFactory.createReal();
 			testReals[i].value(testInts[i], hint);
 		}
 		testRealArray(testReals, 9, 0, false);
@@ -1020,7 +1020,7 @@ public class ContainersJunit
 		for (int i=0; i < 10; i++)
 		{
 			testDoubles[i] = CodecFactory.createDouble();
-			testDoubles[i].value((double)4.321 * i);
+			testDoubles[i].value(4.321 * i);
 		}
 		testDoubleArray(testDoubles, 10, 0, false);
 		testDoubleArray(testDoubles, 10, 0, true);
@@ -1264,6 +1264,8 @@ public class ContainersJunit
 				}
 				assertEquals(3, i);
 				break;
+			default:
+				fail();
 			}
 			decEntry.clear();
 			eCount++;
@@ -1405,6 +1407,8 @@ public class ContainersJunit
 						array.encodeComplete(_encIter, true);					
 						entry.encodeComplete(_encIter, true);
 						break;
+					default:
+						break;
 					}
 				}
 				container.encodeComplete(_encIter, true);
@@ -1503,6 +1507,8 @@ public class ContainersJunit
 					decArrayEntry.clear();
 				}
 				assertEquals(3, i);
+				break;
+			default:
 				break;
 			}
 			decEntry.clear();
@@ -1639,6 +1645,8 @@ public class ContainersJunit
 						array.encodeComplete(_encIter, true);					
 						entry.encodeComplete(_encIter, true);
 						break;
+					default:
+						break;
 					}
 				}
 				container.encodeComplete(_encIter, true);
@@ -1697,6 +1705,8 @@ public class ContainersJunit
 				assertEquals(59, decTime.minute());
 				assertEquals(59, decTime.second());
 				assertEquals(999, decTime.millisecond());
+				break;
+			default:
 				break;
 			}
 			decEntry.clear();
@@ -1766,6 +1776,8 @@ public class ContainersJunit
 				break;
 			case DataTypes.TIME:
 				assertEquals(CodecReturnCodes.SUCCESS, entry.encode(_encIter, paylTime));
+				break;
+			default:
 				break;
 			}
 		}
@@ -8359,6 +8371,8 @@ public class ContainersJunit
                             vecEntry.action(VectorEntryActions.CLEAR);
                             assertEquals(CodecReturnCodes.SUCCESS, vecEntry.encode(eIter));
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -8390,6 +8404,8 @@ public class ContainersJunit
                             assertEquals(CodecReturnCodes.SUCCESS, vecEntry.decode(dIter));
                             assertEquals(VectorEntryActions.CLEAR, vecEntry.action());
                             assertEquals(j, vecEntry.index());
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -8439,6 +8455,8 @@ public class ContainersJunit
                             mapEntry.action(MapEntryActions.DELETE);
                             assertEquals(CodecReturnCodes.SUCCESS, mapEntry.encode(eIter, key));
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -8471,6 +8489,8 @@ public class ContainersJunit
                             assertEquals(CodecReturnCodes.SUCCESS, mapEntry.decode(dIter, key));
                             assertEquals(MapEntryActions.DELETE, mapEntry.action());
                             assertEquals(j, key.toLong());
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -8514,6 +8534,8 @@ public class ContainersJunit
                         case DELETE:
                             /* No entry encoded (not applicable). */
                             break;
+                        default:
+                            break;
                     }
 
                 }
@@ -8543,7 +8565,9 @@ public class ContainersJunit
                         case DELETE:
                             /* No entry encoded (not applicable). */
                             break;
-                    }
+                        default:
+                            break;
+                   }
                 }
 
                 assertEquals(CodecReturnCodes.END_OF_CONTAINER, seriesEntry.decode(dIter));
@@ -8589,6 +8613,8 @@ public class ContainersJunit
                             flEntry.action(FilterEntryActions.CLEAR);
                             assertEquals(CodecReturnCodes.SUCCESS, flEntry.encode(eIter));
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -8619,6 +8645,8 @@ public class ContainersJunit
                         case DELETE:
                             assertEquals(CodecReturnCodes.SUCCESS, flEntry.decode(dIter));
                             assertEquals(FilterEntryActions.CLEAR, flEntry.action());
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -8664,6 +8692,8 @@ public class ContainersJunit
                         case DELETE:
                             /* No entry encoded (not applicable). */
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -8694,6 +8724,8 @@ public class ContainersJunit
                             break;
                         case DELETE:
                             /* No entry encoded (not applicable). */
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -8739,6 +8771,8 @@ public class ContainersJunit
                         case DELETE:
                             /* No entry encoded (not applicable). */
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -8768,6 +8802,8 @@ public class ContainersJunit
                             break;
                         case DELETE:
                             /* No entry encoded (not applicable). */
+                            break;
+                        default:
                             break;
                     }
                 }

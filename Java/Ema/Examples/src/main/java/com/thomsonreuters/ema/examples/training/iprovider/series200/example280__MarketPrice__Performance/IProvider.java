@@ -125,7 +125,7 @@ class AppClient implements OmmProviderClient
 		
 			System.out.println("total refresh count = " + numberOfRequestItems +
 					"\ttotal time = " + timeSpent + " sec" +
-					"\tupdate rate = " + (float)numberOfRequestItems / timeSpent + " refresh per sec");
+					"\tupdate rate = " + numberOfRequestItems / timeSpent + " refresh per sec");
 		}
 		
 		ReqInfo reqInfo = new ReqInfo();

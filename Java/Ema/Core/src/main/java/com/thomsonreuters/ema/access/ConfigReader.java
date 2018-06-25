@@ -251,7 +251,7 @@ class ConfigReader
 
 		ConfigAttributes getNodeWithAttributeList(Branch branch,String nodeName,int attributeId)
 		{
-			XMLnode list = (XMLnode) getChildren(branch,0);
+			XMLnode list = getChildren(branch,0);
 			
 			if( list == null )
 			{
@@ -979,7 +979,7 @@ class ConfigReader
 			if ( _defaultConsumerName == null ) 
 				return;
 
-			XMLnode consumerList = (XMLnode) xmlRoot.getChildren(ConfigManager.CONSUMER_LIST,0);
+			XMLnode consumerList = xmlRoot.getChildren(ConfigManager.CONSUMER_LIST,0);
 			if ( consumerList != null )
 			{
 				for( int i = 0; i < consumerList.children().size(); i++)
@@ -1024,7 +1024,7 @@ class ConfigReader
 			if ( _defaultNiProviderName == null ) 
 				return;
 
-			XMLnode niProviderList = (XMLnode) xmlRoot.getChildren(ConfigManager.NIPROVIDER_LIST,0);
+			XMLnode niProviderList = xmlRoot.getChildren(ConfigManager.NIPROVIDER_LIST,0);
 			if ( niProviderList != null )
 			{
 				for( int i = 0; i < niProviderList.children().size(); i++)
@@ -1069,7 +1069,7 @@ class ConfigReader
 			if ( _defaultIProviderName == null ) 
 				return;
 
-			XMLnode iProviderList = (XMLnode) xmlRoot.getChildren(ConfigManager.IPROVIDER_LIST,0);
+			XMLnode iProviderList = xmlRoot.getChildren(ConfigManager.IPROVIDER_LIST,0);
 			if ( iProviderList != null )
 			{
 				for( int i = 0; i < iProviderList.children().size(); i++)
@@ -1118,7 +1118,7 @@ class ConfigReader
 
 		boolean setDefaultConsumer(String consumerName) 
 		{
-			XMLnode theNode = (XMLnode) xmlRoot.getChildren(ConfigManager.CONSUMER_GROUP, 0);
+			XMLnode theNode = xmlRoot.getChildren(ConfigManager.CONSUMER_GROUP, 0);
 			if( theNode == null )
 			{
 				return false;
@@ -1136,7 +1136,7 @@ class ConfigReader
 		
 		boolean setDefaultNiProvider(String niproviderName) 
 		{
-			XMLnode theNode = (XMLnode) xmlRoot.getChildren(ConfigManager.NIPROVIDER_GROUP, 0);
+			XMLnode theNode = xmlRoot.getChildren(ConfigManager.NIPROVIDER_GROUP, 0);
 			if( theNode == null )
 			{
 				return false;
@@ -1154,7 +1154,7 @@ class ConfigReader
 		
 		boolean setDefaultIProvider(String iproviderName) 
 		{
-			XMLnode theNode = (XMLnode) xmlRoot.getChildren(ConfigManager.IPROVIDER_GROUP, 0);
+			XMLnode theNode = xmlRoot.getChildren(ConfigManager.IPROVIDER_GROUP, 0);
 			if( theNode == null )
 			{
 				return false;
@@ -1172,7 +1172,7 @@ class ConfigReader
 
 		boolean isConsumerChildAvailable()
 		{
-			XMLnode consumerList = (XMLnode) xmlRoot.getChildren(ConfigManager.CONSUMER_LIST,0);
+			XMLnode consumerList = xmlRoot.getChildren(ConfigManager.CONSUMER_LIST,0);
 
 			if( consumerList == null )
 				return false;
@@ -1199,7 +1199,7 @@ class ConfigReader
 		
 		boolean isNiProviderChildAvailable()
 		{
-			XMLnode niproviderList = (XMLnode) xmlRoot.getChildren(ConfigManager.NIPROVIDER_LIST,0);
+			XMLnode niproviderList = xmlRoot.getChildren(ConfigManager.NIPROVIDER_LIST,0);
 
 			if( niproviderList == null )
 				return false;
@@ -1249,7 +1249,7 @@ class ConfigReader
 			if( xmlRoot == null )
 				return null;
 			
-			XMLnode list = (XMLnode) xmlRoot.getChildren(searchNode,0);
+			XMLnode list = xmlRoot.getChildren(searchNode,0);
 
 			if( list == null )
 			{
@@ -1283,7 +1283,7 @@ class ConfigReader
 			if( xmlRoot == null )
 				return null;
 			
-			XMLnode list = (XMLnode) xmlRoot.getChildren(searchNode,0);
+			XMLnode list = xmlRoot.getChildren(searchNode,0);
 
 			if( list == null )
 			{
@@ -1369,7 +1369,7 @@ class ConfigReader
 				return null;
 			}
 			
-			XMLnode list = (XMLnode) xmlRoot.getChildren(ConfigManager.CONSUMER_LIST,0);
+			XMLnode list = xmlRoot.getChildren(ConfigManager.CONSUMER_LIST,0);
 
 			if( list == null )
 			{
@@ -1402,7 +1402,7 @@ class ConfigReader
 				return null;
 			}
 			
-			XMLnode list = (XMLnode) xmlRoot.getChildren(ConfigManager.NIPROVIDER_LIST,0);
+			XMLnode list = xmlRoot.getChildren(ConfigManager.NIPROVIDER_LIST,0);
 
 			if( list == null )
 			{
@@ -1434,7 +1434,7 @@ class ConfigReader
 				return null;
 			}
 			
-			XMLnode list = (XMLnode) xmlRoot.getChildren(ConfigManager.IPROVIDER_LIST,0);
+			XMLnode list = xmlRoot.getChildren(ConfigManager.IPROVIDER_LIST,0);
 
 			if( list == null )
 			{
@@ -1466,7 +1466,7 @@ class ConfigReader
 				return null;
 			}
 			
-			XMLnode list = (XMLnode) xmlRoot.getChildren(ConfigManager.DIRECTORY_LIST,0);
+			XMLnode list = xmlRoot.getChildren(ConfigManager.DIRECTORY_LIST,0);
 
 			if( list == null )
 			{
@@ -1498,7 +1498,7 @@ class ConfigReader
 				return null;
 			}
 			
-			XMLnode list = (XMLnode) xmlRoot.getChildren(ConfigManager.DIRECTORY_LIST,0);
+			XMLnode list = xmlRoot.getChildren(ConfigManager.DIRECTORY_LIST,0);
 
 			if( list == null )
 			{

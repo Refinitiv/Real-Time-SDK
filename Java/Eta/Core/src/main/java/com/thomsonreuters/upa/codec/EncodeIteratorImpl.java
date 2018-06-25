@@ -616,7 +616,7 @@ class EncodeIteratorImpl implements EncodeIterator
                 return CodecReturnCodes.BUFFER_TOO_SMALL;
 
             // write over seqNum
-            _buffer.putInt((int)postId);
+            _buffer.putInt(postId);
         }
 
         _buffer.position(position);
@@ -688,7 +688,7 @@ class EncodeIteratorImpl implements EncodeIterator
 
         _buffer.position(startPos + MSG_FLAGS_POS);
         if (newFlags >= 0x80)
-            _writer.writeUShort15rbLong((short)newFlags);
+            _writer.writeUShort15rbLong(newFlags);
         else
             _buffer.put((byte)newFlags);
 
@@ -722,7 +722,7 @@ class EncodeIteratorImpl implements EncodeIterator
 
         _buffer.position(startPos + MSG_FLAGS_POS);
         if (newFlags >= 0x80)
-            _writer.writeUShort15rbLong((short)newFlags);
+            _writer.writeUShort15rbLong(newFlags);
         else
             _buffer.put((byte)newFlags);
 

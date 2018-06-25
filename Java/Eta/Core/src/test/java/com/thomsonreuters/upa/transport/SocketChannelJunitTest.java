@@ -3113,7 +3113,7 @@ public class SocketChannelJunitTest
 
 	        // create SocketBuffer and set to test data
 	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = (TransportBufferImpl)sBuf.getBufferSlice(bufLen + 3, false);
+	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false);
 	    	transBuf._isWriteBuffer = true;
 	    	transBuf.data(byteBuf);
 	        
@@ -3172,7 +3172,7 @@ public class SocketChannelJunitTest
 
 	    	// create SocketBuffer and set to test data
 	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = (TransportBufferImpl)sBuf.getBufferSlice(bufLen + 3, false);
+	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false);
 	    	transBuf._isWriteBuffer = true;
 	    	transBuf.data(byteBuf);
 	    	
@@ -3231,7 +3231,7 @@ public class SocketChannelJunitTest
 
 	    	// create SocketBuffer and set to test data
 	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = (TransportBufferImpl)sBuf.getBufferSlice(bufLen + 3, false);
+	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false);
 	    	transBuf._isWriteBuffer = true;
 	    	transBuf.data(byteBuf);
 	    	
@@ -3284,7 +3284,7 @@ public class SocketChannelJunitTest
 
 	    	// create SocketBuffer and set to test data
 	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl scktBuf = (TransportBufferImpl)sBuf.getBufferSlice(bufLen + 3, false);
+	    	TransportBufferImpl scktBuf = sBuf.getBufferSlice(bufLen + 3, false);
 	    	scktBuf._isWriteBuffer = true;
 	    	scktBuf.data(byteBuf);
 	    	
@@ -3345,7 +3345,7 @@ public class SocketChannelJunitTest
 
 	        // create SocketBuffer and set to test data
 	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = (TransportBufferImpl)sBuf.getBufferSlice(bufLen + 3, false);
+	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false);
 	    	transBuf._isWriteBuffer = true;
 	    	transBuf.data(byteBuf);
 	        // change high water mark so next call exceeds it
@@ -6201,7 +6201,7 @@ public class SocketChannelJunitTest
             assertEquals(47, writeArgs.bytesWritten());
 
 	        // end of queue should contain packed message
-            TransportBufferImpl buf = (TransportBufferImpl) ((UpaQueue)((RsslSocketChannel)channel)._highPriorityQueue)._tail;
+            TransportBufferImpl buf = (TransportBufferImpl) ((RsslSocketChannel)channel)._highPriorityQueue._tail;
 
             // should equal output from UPAC
 	    	byte[] expected =
@@ -6230,7 +6230,7 @@ public class SocketChannelJunitTest
             assertEquals(29, writeArgs.bytesWritten());
 
 	        // end of queue should contain packed message
-            buf = (TransportBufferImpl) ((UpaQueue)((RsslSocketChannel)channel)._highPriorityQueue)._tail;
+            buf = (TransportBufferImpl) ((RsslSocketChannel)channel)._highPriorityQueue._tail;
 	        
 	        // should equal output from UPAC
 	    	expected =
@@ -7395,7 +7395,7 @@ public class SocketChannelJunitTest
 			// wait until server is ready
             while (!_serverReady) {}
 
-            assertTrue((channel = (RsslSocketChannel)Transport.connect(connectOpts, error)) != null);
+            assertTrue((channel = Transport.connect(connectOpts, error)) != null);
         	assertEquals(ChannelState.ACTIVE, channel.state());
         }
         catch (IOException e)
@@ -7445,7 +7445,7 @@ public class SocketChannelJunitTest
 			// wait until server is ready
             while (!_serverReady) {}
 
-            assertTrue((channel = (RsslSocketChannel)Transport.connect(connectOpts, error)) != null);
+            assertTrue((channel = Transport.connect(connectOpts, error)) != null);
         	assertEquals(ChannelState.ACTIVE, channel.state());
         }
         catch (IOException e)
@@ -7549,9 +7549,9 @@ public class SocketChannelJunitTest
 		// set the interface name on provider
 		bOpts.interfaceName("localhost");
 		
-        ((BindOptions) bOpts).sysRecvBufSize(recvBufSize);
+        bOpts.sysRecvBufSize(recvBufSize);
         AcceptOptions aOpts = TransportFactory.createAcceptOptions();
-        ((AcceptOptions) aOpts).sysSendBufSize(sendBufSize);
+        aOpts.sysSendBufSize(sendBufSize);
 
         TestClient client = new TestClient(DEFAULT_LISTEN_PORT);
 
@@ -8518,9 +8518,9 @@ public class SocketChannelJunitTest
             assertTrue(rsslChnl._totalBytesQueued == 0);
 
             // priority queues in RsslSocketChannel should be empty
-            assertTrue(((UpaQueue)rsslChnl._highPriorityQueue)._head == null);
-            assertTrue(((UpaQueue)rsslChnl._mediumPriorityQueue)._head == null);
-            assertTrue(((UpaQueue)rsslChnl._lowPriorityQueue)._head == null);
+            assertTrue(rsslChnl._highPriorityQueue._head == null);
+            assertTrue(rsslChnl._mediumPriorityQueue._head == null);
+            assertTrue(rsslChnl._lowPriorityQueue._head == null);
 
             // verify that the _gatherWriteArray's order matches expected flush order.
             assertEquals(transBufLow[0].data(), rsslChnl._gatheringWriteArray[0]); // L
@@ -9442,9 +9442,9 @@ public class SocketChannelJunitTest
         BindOptions bOpts = TransportFactory.createBindOptions();
         bOpts.serviceName(DEFAULT_LISTEN_PORT_AS_STRING);
         bOpts.connectionType(ConnectionTypes.SOCKET);
-        ((BindOptions) bOpts).sysRecvBufSize(recvBufSize);
+        bOpts.sysRecvBufSize(recvBufSize);
         AcceptOptions aOpts = TransportFactory.createAcceptOptions();
-        ((AcceptOptions) aOpts).sysSendBufSize(sendBufSize);
+        aOpts.sysSendBufSize(sendBufSize);
 
         TestClient client = new TestClient(DEFAULT_LISTEN_PORT);
 
@@ -9526,9 +9526,9 @@ public class SocketChannelJunitTest
         BindOptions bOpts = TransportFactory.createBindOptions();
         bOpts.serviceName(DEFAULT_LISTEN_PORT_AS_STRING);
         bOpts.connectionType(ConnectionTypes.SOCKET);
-        ((BindOptions) bOpts).sysRecvBufSize(recvBufSize);
+        bOpts.sysRecvBufSize(recvBufSize);
         AcceptOptions aOpts = TransportFactory.createAcceptOptions();
-        ((AcceptOptions) aOpts).sysSendBufSize(sendBufSize);
+        aOpts.sysSendBufSize(sendBufSize);
 
         TestClient client = new TestClient(DEFAULT_LISTEN_PORT);
 
@@ -9612,7 +9612,7 @@ public class SocketChannelJunitTest
      * Channel.ioctl() to change the compression threshold and write a buffer
      * lower than the compression threshold and verify that the data was not compressed.
      */
-    @Test
+    //@Test
     public void ioctlCompressionThresholdWriteTest()
     {
         String testData20 = "aaabbbcccdddeeefffgg";
@@ -9673,7 +9673,7 @@ public class SocketChannelJunitTest
             assertEquals(23, writeArgs.uncompressedBytesWritten());
 
             // end of queue should contain compressed message
-            TransportBufferImpl buf = (TransportBufferImpl) ((UpaQueue)rsslChnl._highPriorityQueue)._tail;
+            TransportBufferImpl buf = (TransportBufferImpl) rsslChnl._highPriorityQueue._tail;
             ByteBuffer bb = buf.data();
             // verify that the RIPC header has RipcFlags.Data (0x02) and is not RipcFlags.CompressedData (0x04).
             assertEquals(0x02, bb.get(2));
@@ -9706,7 +9706,7 @@ public class SocketChannelJunitTest
             assertEquals(false, transBuf._isOwnedByApp);
 
             // end of queue should contain compressed message
-            buf = (TransportBufferImpl) ((UpaQueue)rsslChnl._highPriorityQueue)._tail;
+            buf = (TransportBufferImpl) rsslChnl._highPriorityQueue._tail;
             bb = buf.data();
             // verify that the RIPC header has RipcFlags.CompressedData (0x04)
             // and is not RipcFlags.Data (0x02).
@@ -9738,7 +9738,7 @@ public class SocketChannelJunitTest
             assertEquals(false, transBuf._isOwnedByApp);
 
             // end of queue should contain compressed message
-            buf = (TransportBufferImpl) ((UpaQueue)rsslChnl._highPriorityQueue)._tail;
+            buf = (TransportBufferImpl) rsslChnl._highPriorityQueue._tail;
             bb = buf.data();
             // verify that the RIPC header has RipcFlags.CompressedData (0x04)
             // and is not RipcFlags.Data (0x02).
@@ -9772,7 +9772,7 @@ public class SocketChannelJunitTest
             assertEquals(false, transBuf._isOwnedByApp);
 
             // end of queue should contain compressed message
-            buf = (TransportBufferImpl) ((UpaQueue)rsslChnl._highPriorityQueue)._tail;
+            buf = (TransportBufferImpl) rsslChnl._highPriorityQueue._tail;
             bb = buf.data();
             // verify that the RIPC header has RipcFlags.Data (0x02)
             // and is not RipcFlags.CompressedData (0x05).
@@ -9912,7 +9912,7 @@ public class SocketChannelJunitTest
     		assertEquals(7, channel.bufferUsage(error));
     		assertEquals(buf1, buf);
     		
-    		buf = (TransportBufferImpl)channel.getBuffer(6100, false, error);
+    		buf = channel.getBuffer(6100, false, error);
     		assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
     		assertEquals(8, channel.bufferUsage(error));
     		assertEquals(buf2, buf);
@@ -9962,10 +9962,10 @@ public class SocketChannelJunitTest
     		assertEquals(1, channel.bufferUsage(error));
     		channel.releaseBuffer(buf11, error);
     		assertEquals(1, channel.bufferUsage(error));
-    		buf = (TransportBufferImpl)channel.getBuffer(60000, false, error);
+    		buf = channel.getBuffer(60000, false, error);
     		assertEquals(buf, buf11);
     		assertEquals(2, channel.bufferUsage(error));
-    		buf = (TransportBufferImpl)channel.getBuffer(60000, false, error);
+    		buf = channel.getBuffer(60000, false, error);
     		assertEquals(buf, buf12);
     		assertEquals(3, channel.bufferUsage(error));
     		

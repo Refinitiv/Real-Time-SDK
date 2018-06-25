@@ -61,7 +61,7 @@ public class NiProvider {
 			
 			System.out.println("total refresh count = " + itemNumber + 
 					"\ntotal time = " + timeSpent + " sec" +
-					"\nrefresh rate = " + (float)itemNumber / timeSpent + " refresh per sec");
+					"\nrefresh rate = " + itemNumber / timeSpent + " refresh per sec");
 			
 			long midpoint = end = start = System.currentTimeMillis();
 			int updateCount = 0;
@@ -92,7 +92,7 @@ public class NiProvider {
 					timeSpent = (float)(end-midpoint) / (float)1000;
 					
 					System.out.println("update count = " + updateCount +
-							"\nupdate rate = " + (float)updateCount / timeSpent + " update per sec");
+							"\nupdate rate = " + updateCount / timeSpent + " update per sec");
 					
 					updateCount = 0;
 					midpoint = end;

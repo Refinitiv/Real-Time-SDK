@@ -74,7 +74,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /**
@@ -211,7 +210,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * <li>-aid Specifies the Application ID.
  * 
  * </ul>
- * </p>
  */
 public class Consumer implements ConsumerCallback
 {
@@ -375,7 +373,7 @@ public class Consumer implements ConsumerCallback
 
             // connect channel
             int ret;
-            if ((ret = reactor.connect(chnlInfo.connectOptions, (ReactorRole)chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
+            if ((ret = reactor.connect(chnlInfo.connectOptions, chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
             {
                 System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
                 System.exit(ReactorReturnCodes.FAILURE);

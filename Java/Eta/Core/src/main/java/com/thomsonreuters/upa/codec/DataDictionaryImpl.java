@@ -3118,6 +3118,9 @@ class DataDictionaryImpl implements DataDictionary
                     return CodecReturnCodes.FAILURE;
                 }
                 break;
+            default:
+            	setError(error, "Invalid Dictionary Type: " + type);
+            	return CodecReturnCodes.FAILURE;
         }
 
         if ((ret = elemList.encodeComplete(iter, true)) < 0)

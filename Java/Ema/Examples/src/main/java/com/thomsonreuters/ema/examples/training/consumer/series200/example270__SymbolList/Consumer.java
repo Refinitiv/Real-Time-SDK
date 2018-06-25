@@ -149,6 +149,8 @@ class AppClient implements OmmConsumerClient
 				case DataTypes.RMTES :
 					System.out.println(mapEntry.key().rmtes() + "\t" + mapEntry.mapActionAsString());
 					break;
+				default:
+					break;
 			}
 			
 			if (DataTypes.FIELD_LIST == mapEntry.loadType())

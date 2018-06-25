@@ -173,10 +173,9 @@ class RealImpl implements Real
                 return java.lang.Double.POSITIVE_INFINITY;
             case RealHints.NEG_INFINITY:
                 return java.lang.Double.NEGATIVE_INFINITY;
+            default:
+                return _value / powHintsExp[_hint];
         }
-
-        double v = _value / powHintsExp[_hint];
-        return v;
     }
 
     @Override
@@ -252,6 +251,8 @@ class RealImpl implements Real
                     _stringVal = notANumber;
                     return "NaN";
                 }
+                default:
+                    break;
             }
 
             if (_value != 0)
@@ -555,6 +556,8 @@ class RealImpl implements Real
                 break;
             case 256:
                 retval = RealHints.FRACTION_256;
+                break;
+            default:
                 break;
         }
         return retval;

@@ -49,7 +49,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /**
@@ -305,7 +304,7 @@ public class NIProvider implements NIProviderCallback
 
 	    int ret;
 	        	        
-	    if ((ret = reactor.connect(chnlInfo.connectOptions, (ReactorRole)chnlInfo.niproviderRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
+	    if ((ret = reactor.connect(chnlInfo.connectOptions, chnlInfo.niproviderRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
 	    {
 	    	System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
 	      	System.exit(ReactorReturnCodes.FAILURE);
@@ -555,6 +554,8 @@ public class NIProvider implements NIProviderCallback
                 }
                 break;
             }
+            default:
+                break;
 	    }
 
 		return ReactorCallbackReturnCodes.SUCCESS;
@@ -908,7 +909,8 @@ public class NIProvider implements NIProviderCallback
         		case DomainTypes.MARKET_BY_PRICE:
         			System.out.println("Does not support publishing MarketByPrice items.");
         			System.exit(ReactorReturnCodes.FAILURE);        			
-        		default:        			
+        			break;
+        		default:
 	        		break;
         	}
         }

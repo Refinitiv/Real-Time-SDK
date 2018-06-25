@@ -323,7 +323,7 @@ public class SnapshotSession implements ResponseCallback
             case DomainTypes.MARKET_PRICE:
             case DomainTypes.MARKET_BY_ORDER:
             case DomainTypes.MARKET_BY_PRICE:
-                watchlist.processMsg((Msg)responseMsg, dIter, this);
+                watchlist.processMsg(responseMsg, dIter, this);
                 break;
             case DomainTypes.SYMBOL_LIST:
                 processSymbolListResp(responseMsg, dIter);

@@ -246,6 +246,8 @@ public class FilterListCodec
 						return retVal;
 					}
 				break;
+				default:
+					break;
 			}
 			System.out.printf("\tFilter Entry (id: %d) Decoding Complete\n", filterEntry.id());
 

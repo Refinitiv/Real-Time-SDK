@@ -1197,6 +1197,7 @@ public class Module_5_HandleItemRequest
                                 case TransportReturnCodes.FAILURE:
                                     System.out.printf("Error (%d) (errno: %d) %s\n", error.errorId(), error.sysError(), error.text());
                                     closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                    break;
                                 default:
                                     if (retCode < 0)
                                     {
@@ -1681,6 +1682,7 @@ public class Module_5_HandleItemRequest
                          */
                         return TransportReturnCodes.SUCCESS + 1;
                     }
+                    break;
                 }
                 case TransportReturnCodes.NO_BUFFERS:
                 {
@@ -3306,7 +3308,7 @@ public class Module_5_HandleItemRequest
             case MsgClasses.REQUEST:
             {
                 /* get request message key - retrieve the MsgKey structure from the provided decoded message structure */
-                requestKey = (MsgKey)(msg.msgKey());
+                requestKey = (msg.msgKey());
 
                 /* decode dictionary request */
 
@@ -4572,7 +4574,7 @@ public class Module_5_HandleItemRequest
             refreshMsg.qos().rate(QosRates.TICK_BY_TICK);
             /* Timeliness is Realtime, indicates information is updated as soon as new information becomes available */
             refreshMsg.qos().timeliness(QosTimeliness.REALTIME);
-            msg = (Msg)refreshMsg;
+            msg = refreshMsg;
 
             System.out.printf("UPA Interactive Provider application is providing a MarketPrice Item refresh message.\n\n");
 
@@ -4592,7 +4594,7 @@ public class Module_5_HandleItemRequest
             msgBase.msgKey().name().data(marketPriceItemRequestInfo_ItemName);
             msgBase.msgKey().nameType(InstrumentNameTypes.RIC);
 
-            msg = (Msg)updateMsg;
+            msg = updateMsg;
 
             System.out.printf("UPA Interactive Provider application is providing a MarketPrice Item update message.\n\n");
         }

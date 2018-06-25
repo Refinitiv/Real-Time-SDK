@@ -96,6 +96,8 @@ public class MarketPriceDecoder
     	case MsgClasses.POST:
             consumerThread.timeRecordSubmit(consumerThread.postLatencyRecords(), timeTracker, currentTime, unitsPerMicro);
             break;
+        default:
+            break;
         }
     }
     

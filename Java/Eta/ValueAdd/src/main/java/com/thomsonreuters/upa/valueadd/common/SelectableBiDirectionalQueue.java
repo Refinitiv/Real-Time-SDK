@@ -143,7 +143,7 @@ public class SelectableBiDirectionalQueue
      */
     public SelectableChannel readChannel()
     {
-        return (SelectableChannel)_readPipe.source();
+        return _readPipe.source();
     }
 
     /**

@@ -70,13 +70,13 @@ public class ParseHexFile
         catch (Exception e)
         {
             System.out.println("Error parsing data file: " + e.getMessage());
-            return (byte[])null;
+            return null;
         }
         
         if (byteArray.size() == 0)
         {
             System.out.println("Error parsing data file: no hex data found");
-            return (byte[])null;
+            return null;
         }
         
         // determine total number of bytes.

@@ -66,7 +66,7 @@ class RmtesDecoderImpl implements RmtesDecoder
         if (set.get_table1() != null)
             return (char)set.get_table1()[inChar - GLLowest(set)];
         else
-            return (char)inChar;
+            return inChar;
     }
 
     /* Used to get the UCS2 encoded character from the second table.
@@ -87,7 +87,7 @@ class RmtesDecoderImpl implements RmtesDecoder
         if (set.get_table1() != null && (inChar - GRLowest(set) < set.get_table1_length()))
             return (char)set.get_table1()[inChar - GRLowest(set)];
         else
-            return (char)inChar;
+            return inChar;
     }
 
     /* Used to get the UCS2 encoded character from the second table.
@@ -99,7 +99,7 @@ class RmtesDecoderImpl implements RmtesDecoder
         if (set.get_table2() != null)
             return (char)set.get_table2()[inChar - GRLowest(set)];
         else
-            return (char)inChar;
+            return inChar;
     }
 
     char ConvertStride2GL(char inChar1, char inChar2, RmtesCharSet set)
@@ -509,6 +509,8 @@ class RmtesDecoderImpl implements RmtesDecoder
                 case 3:
                     currentSet.GL = currentSet.G3;
                     break;
+                default:
+                    break;
             }
 
             switch (_gR)
@@ -521,6 +523,8 @@ class RmtesDecoderImpl implements RmtesDecoder
                     break;
                 case 3:
                     currentSet.GR = currentSet.G3;
+                    break;
+                default:
                     break;
             }
             return _returnInfo.returnControlParse(ESCReturnCode.ESC_SUCCESS, currentSet, length, currPtr);

@@ -157,7 +157,8 @@ class SymbolListHandler
         return chnl.submit(msgBuf, submitOptions, errorInfo);
     }
 
-    int processResponse(Msg msg, DecodeIterator dIter, DataDictionary dictionary)
+    @SuppressWarnings("fallthrough")
+	int processResponse(Msg msg, DecodeIterator dIter, DataDictionary dictionary)
     {
         map.clear();
         mapEntry.clear();

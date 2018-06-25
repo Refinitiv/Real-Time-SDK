@@ -80,12 +80,11 @@ allprojects {
 	}
 
 	compileJava {
-		// options.compilerArgs += ["-Werror"]
-		// options.compilerArgs += ["-Xlint:cast"]
+	        options.compilerArgs += ["-Xlint:cast"]
 	        options.compilerArgs += ["-Xlint:deprecation"]
 	        options.compilerArgs += ["-Xlint:divzero"]
 	        options.compilerArgs += ["-Xlint:empty"]
-		// options.compilerArgs += ["-Xlint:fallthrough"]
+	        options.compilerArgs += ["-Xlint:fallthrough"]
 	        options.compilerArgs += ["-Xlint:finally"]
 	        options.compilerArgs += ["-Xlint:overrides"]
 	        options.compilerArgs += ["-Xlint:path"]

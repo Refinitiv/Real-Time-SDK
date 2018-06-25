@@ -292,6 +292,8 @@ class CryptoHelper
                     {
                     }
                     break;
+                default:
+                	throw new IOException("Invalid handshake status for CryptoHelper.performHandshake()");
             }
         }
 

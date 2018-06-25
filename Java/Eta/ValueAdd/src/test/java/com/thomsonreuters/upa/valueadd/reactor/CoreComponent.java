@@ -325,7 +325,7 @@ public class CoreComponent
 
         currentTimeUsec = System.nanoTime()/1000;
         
-        stopTimeUsec =  (long)(timeoutMsec);
+        stopTimeUsec = timeoutMsec;
         stopTimeUsec *= 1000;
         stopTimeUsec += currentTimeUsec;
 

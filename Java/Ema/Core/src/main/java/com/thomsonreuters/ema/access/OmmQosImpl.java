@@ -74,6 +74,8 @@ class OmmQosImpl extends DataImpl implements OmmQos
 		case com.thomsonreuters.upa.codec.QosTimeliness.DELAYED:
 			timeliness = _rsslQos.timeInfo();
 			break;
+		default:
+			break;
 		}
 
 		return timeliness;
@@ -94,6 +96,8 @@ class OmmQosImpl extends DataImpl implements OmmQos
 			break;
 		case com.thomsonreuters.upa.codec.QosRates.TIME_CONFLATED:
 			rate = _rsslQos.rateInfo();
+			break;
+		default:
 			break;
 		}
 
@@ -119,6 +123,8 @@ class OmmQosImpl extends DataImpl implements OmmQos
 		case com.thomsonreuters.upa.codec.QosTimeliness.DELAYED:
 			_toString.append("Timeliness: ").append(_rsslQos.timeInfo());
 			break;
+		default:
+			break;
 		}
 
 		_toString.append("/");
@@ -133,6 +139,8 @@ class OmmQosImpl extends DataImpl implements OmmQos
 			break;
 		case com.thomsonreuters.upa.codec.QosRates.TIME_CONFLATED:
 			_toString.append("Rate: ").append(_rsslQos.rateInfo());
+			break;
+		default:
 			break;
 		}
 		

@@ -844,6 +844,7 @@ public class Module_3_Directory
                                     case TransportReturnCodes.FAILURE:
                                         System.out.printf("Error (%d) (errno: %d) %s\n", error.errorId(), error.sysError(), error.text());
                                         closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.FAILURE);
+                                        break;
                                     default:
                                         if (retCode < 0)
                                         {
@@ -1241,6 +1242,7 @@ public class Module_3_Directory
                          */
                         return TransportReturnCodes.SUCCESS + 1;
                     }
+                    break;
                 }
                 case TransportReturnCodes.NO_BUFFERS:
                 {

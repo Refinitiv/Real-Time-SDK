@@ -138,7 +138,7 @@ class SeriesEntryImpl extends EntryImpl implements SeriesEntry
 			throw ommIUExcept().message("Passed in value is null");
 
 		_entryDataType = Utilities.toRsslDataType(value.dataType());	
-		Utilities.copy(((DataImpl) value).encodedData(), _rsslSeriesEntry.encodedData());
+		Utilities.copy(value.encodedData(), _rsslSeriesEntry.encodedData());
 		
 		return this;
 	}

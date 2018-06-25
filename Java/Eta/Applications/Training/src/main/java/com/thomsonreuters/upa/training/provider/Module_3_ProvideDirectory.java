@@ -1367,6 +1367,7 @@ public class Module_3_ProvideDirectory
                          */
                         return TransportReturnCodes.SUCCESS + 1;
                     }
+                    break;
                 }
                 case TransportReturnCodes.NO_BUFFERS:
                 {

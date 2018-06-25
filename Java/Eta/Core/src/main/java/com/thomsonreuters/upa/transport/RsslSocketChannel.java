@@ -1442,7 +1442,8 @@ class RsslSocketChannel extends UpaNode implements Channel
      * 
      * Throws IOException if an IO exception occurs
      */
-    private void performReadIO(ReadArgsImpl readArgs) throws IOException
+    @SuppressWarnings("fallthrough")
+	private void performReadIO(ReadArgsImpl readArgs) throws IOException
     {
         switch (_readBufStateMachine.state())
         {
@@ -1606,7 +1607,7 @@ class RsslSocketChannel extends UpaNode implements Channel
             buffer._firstBuffer = tBuffer;
             buffer._isOwnedByApp = true;
         }
-        return (TransportBufferImpl)buffer;
+        return buffer;
     }
 
     @Override
@@ -2054,20 +2055,20 @@ class RsslSocketChannel extends UpaNode implements Channel
         // get buffers for the rest of the data and copy the data to the buffers
         while (bytesLeft > 0)
         {
-            SocketBuffer sBuffer = (SocketBuffer)getSocketBuffer();
+            SocketBuffer sBuffer = getSocketBuffer();
             if (sBuffer == null)
             {
                 retVal = flushInternal(error);
                 if (retVal < TransportReturnCodes.SUCCESS)
                     return retVal;
 
-                if ((sBuffer = (SocketBuffer)getSocketBuffer()) == null)
+                if ((sBuffer = getSocketBuffer()) == null)
                 {
                     buffer._isWritePaused = true;
                     return TransportReturnCodes.WRITE_CALL_AGAIN;
                 }
             }
-            TransportBufferImpl nextBuffer = (TransportBufferImpl)sBuffer.getBufferSliceForFragment(_internalMaxFragmentSize);
+            TransportBufferImpl nextBuffer = sBuffer.getBufferSliceForFragment(_internalMaxFragmentSize);
 
             if (!doCompression || bytesLeft < _sessionCompLowThreshold)
             {
@@ -3957,6 +3958,8 @@ class RsslSocketChannel extends UpaNode implements Channel
                 break;
             case WritePriorities.LOW:
                 _lowPriorityQueue.add(buffer);
+                break;
+            default:
                 break;
         }
     }

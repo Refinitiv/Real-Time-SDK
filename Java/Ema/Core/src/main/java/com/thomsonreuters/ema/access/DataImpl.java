@@ -116,7 +116,7 @@ class DataImpl extends VaNode implements Data
    		DataImpl  retData = (DataImpl)_objManager._noDataPool.poll();
         if(retData == null)
         {
-        	retData = (DataImpl)new NoDataImpl();
+        	retData = new NoDataImpl();
         	 _objManager._noDataPool .updatePool(retData);
         }
         
@@ -143,7 +143,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommIntPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmIntImpl();
+	        	retData = new OmmIntImpl();
 	        	_objManager._ommIntPool.updatePool(retData);
 	        }
 	        break;
@@ -151,7 +151,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommUIntPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmUIntImpl();
+	        	retData = new OmmUIntImpl();
 	        	_objManager._ommUIntPool.updatePool(retData);
 	        }
 			break;
@@ -159,7 +159,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommFloatPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmFloatImpl();
+	        	retData = new OmmFloatImpl();
 	        	_objManager._ommFloatPool.updatePool(retData);
 	        }
 			break;
@@ -167,7 +167,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommDoublePool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmDoubleImpl();
+	        	retData = new OmmDoubleImpl();
 	        	_objManager._ommDoublePool.updatePool(retData);
 	        }
 			break;
@@ -175,7 +175,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommBufferPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmBufferImpl();
+	        	retData = new OmmBufferImpl();
 	        	_objManager._ommBufferPool.updatePool(retData);
 	        }
 			break;
@@ -183,7 +183,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommAsciiPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmAsciiImpl();
+	        	retData = new OmmAsciiImpl();
 	        	_objManager._ommAsciiPool.updatePool(retData);
 	        }
 			break;
@@ -191,7 +191,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommUtf8Pool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmUtf8Impl();
+	        	retData = new OmmUtf8Impl();
 	        	_objManager._ommUtf8Pool.updatePool(retData);
 	        }
 			break;
@@ -199,7 +199,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommRmtesPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmRmtesImpl();
+	        	retData = new OmmRmtesImpl();
 	        	_objManager._ommRmtesPool.updatePool(retData);
 	        }
 			break;
@@ -207,7 +207,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommRealPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmRealImpl();
+	        	retData = new OmmRealImpl();
 	        	_objManager._ommRealPool.updatePool(retData);
 	        }
 			break;
@@ -215,7 +215,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommDatePool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmDateImpl();
+	        	retData = new OmmDateImpl();
 	        	_objManager._ommDatePool.updatePool(retData);
 	        }
 			break;
@@ -223,7 +223,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommTimePool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmTimeImpl();
+	        	retData = new OmmTimeImpl();
 	        	_objManager._ommTimePool.updatePool(retData);
 	        }
 			break;
@@ -231,7 +231,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommDateTimePool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmDateTimeImpl();
+	        	retData = new OmmDateTimeImpl();
 	        	_objManager._ommDateTimePool.updatePool(retData);
 	        }
 			break;
@@ -239,7 +239,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommQosPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmQosImpl();
+	        	retData = new OmmQosImpl();
 	        	_objManager._ommQosPool.updatePool(retData);
 	        }
 			break;
@@ -247,7 +247,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommStatePool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmStateImpl();
+	        	retData = new OmmStateImpl();
 	        	_objManager._ommStatePool.updatePool(retData);
 	        }
 			break;
@@ -255,7 +255,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommEnumPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmEnumImpl();
+	        	retData = new OmmEnumImpl();
 	        	_objManager._ommEnumPool.updatePool(retData);
 	        }
 			break;
@@ -263,7 +263,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommArrayPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmArrayImpl(_objManager);
+	        	retData = new OmmArrayImpl(_objManager);
 	        	_objManager._ommArrayPool.updatePool(retData);
 	        }
 			break;
@@ -271,7 +271,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._fieldListPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new FieldListImpl(_objManager);
+	        	retData = new FieldListImpl(_objManager);
 	        	_objManager._fieldListPool.updatePool(retData);
 	        }
 			break;
@@ -279,7 +279,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._mapPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new MapImpl(_objManager);
+	        	retData = new MapImpl(_objManager);
 	        	_objManager._mapPool.updatePool(retData);
 	        }
 			break;
@@ -287,7 +287,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._elementListPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new ElementListImpl(_objManager);
+	        	retData = new ElementListImpl(_objManager);
 	        	_objManager._elementListPool.updatePool(retData);
 	        }
 			break;
@@ -295,7 +295,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._filterListPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new FilterListImpl(_objManager);
+	        	retData = new FilterListImpl(_objManager);
 	        	_objManager._filterListPool.updatePool(retData);
 	        }
 			break;
@@ -303,7 +303,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._vectorPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new VectorImpl(_objManager);
+	        	retData = new VectorImpl(_objManager);
 	        	_objManager._vectorPool.updatePool(retData);
 	        }
 			break;
@@ -311,7 +311,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._seriesPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new SeriesImpl(_objManager);
+	        	retData = new SeriesImpl(_objManager);
 	        	_objManager._seriesPool.updatePool(retData);
 	        }
 			break;
@@ -319,7 +319,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._opaquePool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmOpaqueImpl();
+	        	retData = new OmmOpaqueImpl();
 	        	_objManager._opaquePool.updatePool(retData);
 	        }
 			break;
@@ -327,7 +327,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ansiPagePool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmAnsiPageImpl();
+	        	retData = new OmmAnsiPageImpl();
 	        	_objManager._ansiPagePool.updatePool(retData);
 	        }
 			break;
@@ -335,7 +335,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._xmlPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmXmlImpl();
+	        	retData = new OmmXmlImpl();
 	        	_objManager._xmlPool.updatePool(retData);
 	        }
 			break;
@@ -343,7 +343,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._reqMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new ReqMsgImpl(_objManager);
+	        	retData = new ReqMsgImpl(_objManager);
 	        	_objManager._reqMsgPool.updatePool(retData);
 	        }
 			break;
@@ -351,7 +351,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._refreshMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new RefreshMsgImpl(_objManager);
+	        	retData = new RefreshMsgImpl(_objManager);
 	        	_objManager._refreshMsgPool.updatePool(retData);
 	        }
 			break;
@@ -359,7 +359,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._statusMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new StatusMsgImpl(_objManager);
+	        	retData = new StatusMsgImpl(_objManager);
 	        	_objManager._statusMsgPool.updatePool(retData);
 	        }
 			break;
@@ -367,7 +367,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._updateMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new UpdateMsgImpl(_objManager);
+	        	retData = new UpdateMsgImpl(_objManager);
 	        	_objManager._updateMsgPool.updatePool(retData);
 	        }
 			break;
@@ -375,7 +375,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ackMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new AckMsgImpl(_objManager);
+	        	retData = new AckMsgImpl(_objManager);
 	        	_objManager._ackMsgPool.updatePool(retData);
 	        }
 			break;
@@ -383,7 +383,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._postMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new PostMsgImpl(_objManager);
+	        	retData = new PostMsgImpl(_objManager);
 	        	_objManager._postMsgPool.updatePool(retData);
 	        }
 			break;
@@ -391,7 +391,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._genericMsgPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new GenericMsgImpl(_objManager);
+	        	retData = new GenericMsgImpl(_objManager);
 	        	_objManager._genericMsgPool.updatePool(retData);
 	        }
 			break;
@@ -399,7 +399,7 @@ class DataImpl extends VaNode implements Data
 			 retData = (DataImpl)_objManager._noDataPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new NoDataImpl();
+	        	retData = new NoDataImpl();
 	        	 _objManager._noDataPool .updatePool(retData);
 	        }
 	        break;
@@ -408,7 +408,7 @@ class DataImpl extends VaNode implements Data
 			retData = (DataImpl)_objManager._ommErrorPool.poll();
 	        if(retData == null)
 	        {
-	        	retData = (DataImpl)new OmmErrorImpl();
+	        	retData = new OmmErrorImpl();
 	        	 _objManager._ommErrorPool .updatePool(retData);
 	        }
 	        break;

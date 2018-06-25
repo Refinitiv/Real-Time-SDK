@@ -311,7 +311,7 @@ abstract class DirectoryServiceStore
     	}
 				
 		if ( directoryName == null || directoryName.isEmpty() )
-			directoryName = (String)config.xmlConfig().getDefaultDirectoryName();
+			directoryName = config.xmlConfig().getDefaultDirectoryName();
 		
 		if ( directoryName == null || directoryName.isEmpty() )
 			directoryName = (String)config.xmlConfig().getFirstDirectory();
@@ -1084,6 +1084,8 @@ abstract class DirectoryServiceStore
 			case com.thomsonreuters.upa.codec.MapEntryActions.DELETE:
 				text.append("Delete");
 				break;
+			default:
+				break;
 			}
 			
 			if ( _ommCommonImpl.loggerClient().isTraceEnabled() )
@@ -1380,6 +1382,8 @@ abstract class DirectoryServiceStore
 						notifyOnServiceGroupChange(clientSession, submittedService);
 					}
 					break;
+				default:
+					break;
 				}
 			}
 			return true;
@@ -1431,6 +1435,8 @@ abstract class DirectoryServiceStore
 						}
 					}
 				}
+				break;
+				default:
 				break;
 				}
 			}

@@ -98,7 +98,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /** Provides the logic that consumer connections use in upajConsPerf for
@@ -521,7 +520,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
             // connect via Reactor
             int ret;
-            if ((ret = _reactor.connect(_connectOptions, (ReactorRole)_role, _errorInfo)) < ReactorReturnCodes.SUCCESS)
+            if ((ret = _reactor.connect(_connectOptions, _role, _errorInfo)) < ReactorReturnCodes.SUCCESS)
             {
                 System.out.println("Reactor.connect failed with return code: " + ret + " error = " + _errorInfo.error().text());
                 System.exit(ReactorReturnCodes.FAILURE);

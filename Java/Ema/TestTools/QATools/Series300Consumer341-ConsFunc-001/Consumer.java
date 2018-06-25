@@ -129,6 +129,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.FIELD_LIST:
 			decode( ackMsg.attrib().fieldList() );
 			break;
+		default:
+			break;
 		}
 
 		switch ( ackMsg.payload().dataType() )
@@ -138,6 +140,8 @@ class AppClient implements OmmConsumerClient
 			break;
 		case DataTypes.FIELD_LIST:
 			decode( ackMsg.payload().fieldList() );
+			break;
+		default:
 			break;
 		}
 	}
@@ -152,6 +156,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.FIELD_LIST:
 			decode( msg.attrib().fieldList() );
 			break;
+		default:
+			break;
 		}
 
 		switch ( msg.payload().dataType() )
@@ -161,6 +167,8 @@ class AppClient implements OmmConsumerClient
 			break;
 		case DataTypes.FIELD_LIST:
 			decode(msg.payload().fieldList() );
+			break;
+		default:
 			break;
 		}
 	}
@@ -196,6 +204,9 @@ class AppClient implements OmmConsumerClient
 					break;
 				case DataTypes.ENUM :
 					System.out.println(elementEntry.enumValue());
+					break;
+				case DataTypes.RMTES :
+					System.out.println(elementEntry.rmtes());
 					break;
 				case DataTypes.ERROR :
 					System.out.println(elementEntry.error().errorCode() +" (" + elementEntry.error().errorCodeAsString() + ")");
@@ -238,6 +249,9 @@ class AppClient implements OmmConsumerClient
 					break;
 				case DataTypes.ENUM :
 					System.out.println(fieldEntry.hasEnumDisplay() ? fieldEntry.enumDisplay() : fieldEntry.enumValue());
+					break;
+				case DataTypes.RMTES :
+					System.out.println(fieldEntry.rmtes());
 					break;
 				case DataTypes.ERROR :
 					System.out.println(fieldEntry.error().errorCode() +" (" + fieldEntry.error().errorCodeAsString() + ")");

@@ -282,6 +282,8 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 					else
 						timeliness = Timeliness.BEST_DELAYED_TIMELINESS;
 					break;
+				default:
+					break;
 				}
 			}
 			else
@@ -304,6 +306,8 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 					break;
 				case QosTimeliness.DELAYED:
 						timeliness = rsslMsg.qos().timeInfo();
+					break;
+				default:
 					break;
 			}
 		}
@@ -344,6 +348,8 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 					else
 						rate = Rate.BEST_CONFLATED_RATE;
 					break;
+				default:
+					break;
 				}
 			}
 			else
@@ -366,6 +372,9 @@ class ReqMsgImpl extends MsgImpl implements ReqMsg
 				break;
 			case QosRates.TIME_CONFLATED:
 				rate = rsslMsg.qos().rateInfo();
+				break;
+			default:
+				break;
 			}
 		}
 		

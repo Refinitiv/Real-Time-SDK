@@ -353,11 +353,15 @@ public class EDFWatchList
                         }
                         
                     }
+                    break;
                 }
                 case ItemSequenceState.DONE_REORDERING:
                   decodeItemMsgData(foundItem, dIter, msg, outputString);
+                  break;
                 case ItemSequenceState.UNINITIALIZED:
                    return CodecReturnCodes.SUCCESS;
+                default:
+                	break;
             }
             
             return CodecReturnCodes.SUCCESS;
@@ -459,6 +463,8 @@ public class EDFWatchList
                             return ret;
                         }
                         break;
+                    default:
+                    	break;
                 }
                 temp.sequenceState = ItemSequenceState.REQUEST_SENT;
                 iter.set(temp);
@@ -605,6 +611,8 @@ public class EDFWatchList
                         break;
                     case(MsgQueuePopCommand.ALL):
                         return msgQueue.remove(0);
+                    default:
+                    	break;
                 }
             }
 

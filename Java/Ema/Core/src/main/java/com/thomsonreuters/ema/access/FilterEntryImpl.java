@@ -304,7 +304,7 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 		_rsslFilterEntry.applyHasContainerType();
 		_rsslFilterEntry.containerType(Utilities.toRsslDataType(value.dataType()));
 		
-		Utilities.copy(((DataImpl) value).encodedData(), _rsslFilterEntry.encodedData());
+		Utilities.copy(value.encodedData(), _rsslFilterEntry.encodedData());
 
 		if (permissionData != null)
 		{

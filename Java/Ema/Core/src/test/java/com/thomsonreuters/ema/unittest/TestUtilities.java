@@ -2594,6 +2594,8 @@ final class TestUtilities extends TestCase
 					}
 				}
 				break;
+				default:
+				break;
 				}
 			
 				// THIRD Map Entry: encode entry with delete action.  Delete actions have no payload.
@@ -4675,6 +4677,8 @@ final class TestUtilities extends TestCase
             }
 			
 			break;
+		default:
+			break;
 		}
 		
 		if ((retVal = requestMsg.encodeComplete(encodeIter,success)) < CodecReturnCodes.SUCCESS)
@@ -5115,6 +5119,8 @@ final class TestUtilities extends TestCase
             }
 			
 			break;
+		default:
+			break;
 		}
 		
 		if ((retVal = refreshMsg.encodeComplete(encodeIter,success)) < CodecReturnCodes.SUCCESS)
@@ -5546,6 +5552,8 @@ final class TestUtilities extends TestCase
             }
 			
 			break;
+		default:
+			break;
 		}
 		
 		if ((retVal = updateMsg.encodeComplete(encodeIter,success)) < CodecReturnCodes.SUCCESS)
@@ -5971,6 +5979,8 @@ final class TestUtilities extends TestCase
                 return retVal;
             }
 			
+			break;
+		default:
 			break;
 		}
 		
@@ -6419,6 +6429,8 @@ final class TestUtilities extends TestCase
             }
 			
 			break;
+		default:
+			break;
 		}
 		
 		if ((retVal = postMsg.encodeComplete(encodeIter,success)) < CodecReturnCodes.SUCCESS)
@@ -6842,6 +6854,8 @@ final class TestUtilities extends TestCase
                 return retVal;
             }
 			
+			break;
+		default:
 			break;
 		}
 		
@@ -7269,6 +7283,8 @@ final class TestUtilities extends TestCase
                 return retVal;
             }
 			
+			break;
+		default:
 			break;
 		}
 		
@@ -8258,6 +8274,8 @@ final class TestUtilities extends TestCase
                 }
 				
 				break;
+			default:
+				break;
 			}
 			
 			 // Complete encoding of complex series entry.
@@ -8725,6 +8743,8 @@ final class TestUtilities extends TestCase
                             + "Error Text: " + CodecReturnCodes.info(retVal));
                 }
 				
+				break;
+			default:
 				break;
 			}
 			
@@ -10037,6 +10057,8 @@ final class TestUtilities extends TestCase
 			EmaDecode_UPARefreshMsgAll(seriesEntry2.refreshMsg(), com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST);
 		}
 		break;
+		default:
+		break;
 		}
 	}
 	
@@ -10263,6 +10285,8 @@ final class TestUtilities extends TestCase
 			EmaDecode_UPARefreshMsgAll(vectorEntry2.refreshMsg(), com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST);
 		}
 		break;
+		default:
+		break;
 		}
 	}
 	
@@ -10465,6 +10489,8 @@ final class TestUtilities extends TestCase
 			EmaDecode_UPARefreshMsgAll(mapEntry2.refreshMsg(), com.thomsonreuters.upa.codec.DataTypes.ELEMENT_LIST);
 		}	
 		break;
+		default:
+		break;
 		}
 		
 		checkResult(mapIter.hasNext());
@@ -10538,7 +10564,7 @@ final class TestUtilities extends TestCase
 		el.add(EmaFactory.createElementEntry().ascii("Element - AsciiString" , "ABCDEF"));
 
 		//tenth entry
-		ByteBuffer value = (ByteBuffer)ByteBuffer.wrap("ABCDEF".getBytes());
+		ByteBuffer value = ByteBuffer.wrap("ABCDEF".getBytes());
 		el.add(EmaFactory.createElementEntry().rmtes("Element - RmtesString" , value));
 
 		//eleventh entry
@@ -10554,7 +10580,7 @@ final class TestUtilities extends TestCase
 		el.add(EmaFactory.createElementEntry().codeReal("Element - RealBlank"));
 
 		//fifteenth entry
-		value = (ByteBuffer)ByteBuffer.wrap("ABCDEFGH".getBytes());
+		value = ByteBuffer.wrap("ABCDEFGH".getBytes());
 		el.add(EmaFactory.createElementEntry().buffer("Element - Buffer", value));
 
 		//sixteenth entry
@@ -10576,10 +10602,10 @@ final class TestUtilities extends TestCase
 
 		map.summaryData(flEnc);
 
-		ByteBuffer permission = (ByteBuffer)ByteBuffer.wrap("PERMISSION DATA".getBytes());
+		ByteBuffer permission = ByteBuffer.wrap("PERMISSION DATA".getBytes());
 
 		//first entry  //Delete Buffer
-		ByteBuffer orderBuf =(ByteBuffer)ByteBuffer.wrap("ABCD".getBytes());
+		ByteBuffer orderBuf =ByteBuffer.wrap("ABCD".getBytes());
 		
 		flEnc.clear();
 		EmaEncodeFieldListAll(flEnc);
@@ -10590,11 +10616,11 @@ final class TestUtilities extends TestCase
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.ADD, flEnc, permission));
 
 		//third entry  //Add FieldList
-		orderBuf =(ByteBuffer)ByteBuffer.wrap("EFGHI".getBytes());
+		orderBuf =ByteBuffer.wrap("EFGHI".getBytes());
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.ADD, flEnc, permission));
 
 		//fourth entry  //Update FieldList
-		orderBuf =(ByteBuffer)ByteBuffer.wrap("JKLMNOP".getBytes());
+		orderBuf =ByteBuffer.wrap("JKLMNOP".getBytes());
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.UPDATE, flEnc, permission));
 	}
 	
@@ -10609,7 +10635,7 @@ final class TestUtilities extends TestCase
 		FieldList flEnc = EmaFactory.createFieldList();
 		EmaEncodeFieldListAll(flEnc);
 
-		ByteBuffer permission = (ByteBuffer)ByteBuffer.wrap("PERMISSION DATA".getBytes());
+		ByteBuffer permission = ByteBuffer.wrap("PERMISSION DATA".getBytes());
 
 		//first entry  //Clear FieldList
 		filterList.add(EmaFactory.createFilterEntry().fieldList(1, FilterEntry.FilterAction.CLEAR, flEnc, permission));
@@ -10639,7 +10665,7 @@ final class TestUtilities extends TestCase
 
 		vector.summaryData(flEnc);
 
-		ByteBuffer permission = (ByteBuffer)ByteBuffer.wrap("PERMISSION DATA".getBytes());
+		ByteBuffer permission = ByteBuffer.wrap("PERMISSION DATA".getBytes());
 
 		//first entry  //Delete Buffer
 		flEnc.clear();
@@ -10673,10 +10699,10 @@ final class TestUtilities extends TestCase
 
 		map.summaryData(flEnc);
 
-		ByteBuffer permission = (ByteBuffer)ByteBuffer.wrap("PERMISSION DATA".getBytes());
+		ByteBuffer permission = ByteBuffer.wrap("PERMISSION DATA".getBytes());
 
 		//first entry  //Delete Buffer
-		ByteBuffer orderBuf =(ByteBuffer)ByteBuffer.wrap("ABC".getBytes());
+		ByteBuffer orderBuf =ByteBuffer.wrap("ABC".getBytes());
 		
 		flEnc.clear();
 		EmaEncodeFieldListAll(flEnc);
@@ -10687,11 +10713,11 @@ final class TestUtilities extends TestCase
 		map.add(EmaFactory.createMapEntry().keyUtf8(orderBuf, MapEntry.MapAction.ADD, flEnc, permission));
 
 		//third entry  //Add FieldList
-		orderBuf =(ByteBuffer)ByteBuffer.wrap("DEFGH".getBytes());
+		orderBuf =ByteBuffer.wrap("DEFGH".getBytes());
 		map.add(EmaFactory.createMapEntry().keyUtf8(orderBuf, MapEntry.MapAction.ADD, flEnc, permission));
 
 		//fourth entry  //Update FieldList
-		orderBuf =(ByteBuffer)ByteBuffer.wrap("KLMNOPQRS".getBytes());
+		orderBuf =ByteBuffer.wrap("KLMNOPQRS".getBytes());
 		map.add(EmaFactory.createMapEntry().keyUtf8(orderBuf, MapEntry.MapAction.UPDATE, flEnc, permission));
 	}
 
@@ -10711,10 +10737,10 @@ final class TestUtilities extends TestCase
 
 		map.summaryData(elEnc);
 
-		ByteBuffer permission =  (ByteBuffer)ByteBuffer.wrap("PERMISSION DATA".getBytes());;
+		ByteBuffer permission =  ByteBuffer.wrap("PERMISSION DATA".getBytes());;
 
 		//first entry  //Delete Buffer
-		ByteBuffer orderBuf =(ByteBuffer)ByteBuffer.wrap("ABCD".getBytes());
+		ByteBuffer orderBuf =ByteBuffer.wrap("ABCD".getBytes());
 		elEnc.clear();
 		EmaEncodeElementListAll(elEnc);
 		
@@ -10724,11 +10750,11 @@ final class TestUtilities extends TestCase
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.ADD, elEnc, permission));
 
 		//third entry  //Add ElementList
-		orderBuf =(ByteBuffer)ByteBuffer.wrap("EFGHI".getBytes());
+		orderBuf =ByteBuffer.wrap("EFGHI".getBytes());
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.ADD, elEnc, permission));
 
 		//fourth entry  //Update ElementList
-		orderBuf =(ByteBuffer)ByteBuffer.wrap("JKLMNOP".getBytes());
+		orderBuf =ByteBuffer.wrap("JKLMNOP".getBytes());
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.UPDATE, elEnc, permission));
 	}
 	
@@ -10775,10 +10801,10 @@ final class TestUtilities extends TestCase
 		
 		map.summaryData(mapEncS);
 
-		ByteBuffer permission = (ByteBuffer)ByteBuffer.wrap("PERMISSION DATA".getBytes());
+		ByteBuffer permission = ByteBuffer.wrap("PERMISSION DATA".getBytes());
 		
 		//first entry  //Delete Buffer
-		ByteBuffer orderBuf = (ByteBuffer)ByteBuffer.wrap("ABCD".getBytes());
+		ByteBuffer orderBuf = ByteBuffer.wrap("ABCD".getBytes());
 		
 		mapEncS.clear();
 		EmaEncodeMapAllWithFieldList(mapEncS);
@@ -10789,11 +10815,11 @@ final class TestUtilities extends TestCase
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.ADD, mapEncS, permission));
 
 		//third entry  //Add FieldList
-		orderBuf = (ByteBuffer)ByteBuffer.wrap("EFGHI".getBytes());
+		orderBuf = ByteBuffer.wrap("EFGHI".getBytes());
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.ADD, mapEncS, permission));
 
 		//fourth entry  //Update FieldList
-		orderBuf = (ByteBuffer)ByteBuffer.wrap("JKLMNOP".getBytes());
+		orderBuf = ByteBuffer.wrap("JKLMNOP".getBytes());
 		map.add(EmaFactory.createMapEntry().keyBuffer(orderBuf, MapEntry.MapAction.UPDATE, mapEncS, permission));
 	}
 	
@@ -11308,6 +11334,8 @@ final class TestUtilities extends TestCase
 				
 				break;
 			}
+			default:
+				break;
 		}
 		
 		System.out.println("End EMA RequestMsg Decoding");
@@ -11499,6 +11527,8 @@ final class TestUtilities extends TestCase
 				
 				break;
 			}
+			default:
+				break;
 		}
 		
 		TestUtilities.checkResult(refreshMsg.state().code() == OmmState.StatusCode.NONE, "RefreshMsg.state().code()");
@@ -11694,6 +11724,8 @@ final class TestUtilities extends TestCase
 				
 				break;
 			}
+			default:
+				break;
 		}
 		
 		System.out.println("Begin EMA UpdateMsg Decoding");
@@ -11869,6 +11901,8 @@ final class TestUtilities extends TestCase
 				
 				break;
 			}
+			default:
+				break;
 		}
 		
 		TestUtilities.checkResult(statusMsg.hasState(), "StatusMsg.hasState()");
@@ -12059,6 +12093,8 @@ final class TestUtilities extends TestCase
 				
 				break;
 			}
+			default:
+				break;
 		}
 		
 		System.out.println("End EMA GenericMsg Decoding");
@@ -12244,6 +12280,8 @@ final class TestUtilities extends TestCase
 				
 				break;
 			}
+			default:
+				break;
 		}
 		
 		System.out.println("End EMA PostMsg Decoding");
@@ -12418,6 +12456,8 @@ final class TestUtilities extends TestCase
 				
 				break;
 			}
+			default:
+				break;
 		}
 		
 		System.out.println("End EMA AckMsg Decoding");

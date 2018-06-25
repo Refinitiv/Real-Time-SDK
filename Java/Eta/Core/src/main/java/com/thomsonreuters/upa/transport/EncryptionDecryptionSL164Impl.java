@@ -35,7 +35,7 @@ class EncryptionDecryptionSL164Impl implements EncryptDecryptHelpers
 
     protected long randLong()
     {
-        return (_randGen.nextLong() & (long)0x7FFFFFFFFFFFFFFFL);
+        return (_randGen.nextLong() & 0x7FFFFFFFFFFFFFFFL);
     }
 
     protected int randInt()

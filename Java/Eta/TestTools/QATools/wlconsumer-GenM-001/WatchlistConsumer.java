@@ -71,7 +71,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 // APIQA:
 import com.thomsonreuters.upa.codec.GenericMsg;
@@ -95,7 +94,7 @@ import com.thomsonreuters.upa.codec.UInt;
  * the default callback for processing RsslMsgs. The main function
  * Initializes the UPA Reactor, makes the desired connections, and
  * dispatches for events.
- * This application makes use of the RDM package for easier decoding of Login & Source Directory
+ * This application makes use of the RDM package for easier decoding of Login &amp; Source Directory
  * messages.
  * </p>
  * <p>
@@ -204,7 +203,6 @@ import com.thomsonreuters.upa.codec.UInt;
  * <li>-ax Specifies the Authentication Extended information.
  * <li>-aid Specifies the Application ID.
  * </ul>
- * </p>
  */
 public class WatchlistConsumer implements ConsumerCallback
 {
@@ -360,7 +358,7 @@ public class WatchlistConsumer implements ConsumerCallback
 
             // connect channel
             int ret;
-            if ((ret = reactor.connect(chnlInfo.connectOptions, (ReactorRole)chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
+            if ((ret = reactor.connect(chnlInfo.connectOptions, chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
             {
                 System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
                 System.exit(ReactorReturnCodes.FAILURE);

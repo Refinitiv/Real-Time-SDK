@@ -18,7 +18,7 @@ import com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsu
  * </p>
  * <H2>Summary</H2>
  * <p>
- * This is the main file for the WatchlistConsumerWatchlistConsumer application.  It is a multi-threaded
+ * This is the main file for the WatchlistConsumer application.  It is a multi-threaded
  * client application that utilizes the UPA Reactor's watchlist to provide recovery of data.
  * 
  * This application is designed to create per UPA Reactor/per UPA watchlist per thread.

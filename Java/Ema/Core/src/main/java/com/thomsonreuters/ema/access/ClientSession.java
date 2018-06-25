@@ -140,7 +140,7 @@ class ClientSession extends VaNode
         {	
         	_removingInCloseAll = true;
         	
-        	Iterator<ItemInfo> iter = ((Collection<ItemInfo>)_itemInfoByStreamIdMap.values()).iterator();
+        	Iterator<ItemInfo> iter = _itemInfoByStreamIdMap.values().iterator();
         	
         	ItemInfo itemInfo;
         	
@@ -158,6 +158,8 @@ class ClientSession extends VaNode
         			break;
         		case EmaRdm.MMT_LOGIN:
         			_ommServerBaseImpl._loginHandler.getItemInfoList().remove(itemInfo);
+        			break;
+        		default:
         			break;
         		}
         		

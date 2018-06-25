@@ -166,12 +166,12 @@ public class ElementSetDefDbJunit
         
         for(i = 0; i < 8; i++)
         {
-            assertTrue(decDb.definitions()[(int)setArray[i].setId()].setId() == setArray[i].setId());
-            assertTrue(decDb.definitions()[(int)setArray[i].setId()].count() == setArray[i].count());
-            for(j = 0; j < decDb.definitions()[(int)setArray[i].setId()].count(); j++)
+            assertTrue(decDb.definitions()[setArray[i].setId()].setId() == setArray[i].setId());
+            assertTrue(decDb.definitions()[setArray[i].setId()].count() == setArray[i].count());
+            for(j = 0; j < decDb.definitions()[setArray[i].setId()].count(); j++)
             {
-                assertTrue(decDb.definitions()[(int)setArray[i].setId()].entries()[j].name().equals(setArray[i].entries()[j].name()));
-                assertTrue(decDb.definitions()[(int)setArray[i].setId()].entries()[j].dataType() == setArray[i].entries()[j].dataType());
+                assertTrue(decDb.definitions()[setArray[i].setId()].entries()[j].name().equals(setArray[i].entries()[j].name()));
+                assertTrue(decDb.definitions()[setArray[i].setId()].entries()[j].dataType() == setArray[i].entries()[j].dataType());
             }
         }
     }

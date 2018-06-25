@@ -252,7 +252,7 @@ final class CommandLine
             return varValues;
 
         //default values
-        Option option = (Option)Options.get(varName);
+        Option option = Options.get(varName);
         
         if (option == null || option.defaultValue == null || option.defaultValue.length == 0)
             return null;

@@ -40,7 +40,7 @@ class MarketItemHandler implements DefaultMsgCallback
 	
 	protected OmmServerBaseImpl _ommServerBaseImpl;
 	private EncodeIterator _encodeIterator = CodecFactory.createEncodeIterator();
-	private com.thomsonreuters.upa.codec.Msg _rsslMsg = (StatusMsg) CodecFactory.createMsg();
+	private com.thomsonreuters.upa.codec.Msg _rsslMsg = CodecFactory.createMsg();
 	private Buffer _msgBuffer = CodecFactory.createBuffer();
 	private Buffer _textBuffer = CodecFactory.createBuffer();
 	private ReactorErrorInfo _rsslErrorInfo = ReactorFactory.createReactorErrorInfo();

@@ -725,11 +725,13 @@ class GlobalFieldSetDefDbImpl extends FieldSetDefDbImpl implements GlobalFieldSe
         return CodecReturnCodes.SUCCESS;
     }
     
-    private int rollBack(EncodeIterator iter, int state, boolean finishedSet, Int currentSet, long curSet, Error error)
+    @SuppressWarnings("fallthrough")
+	private int rollBack(EncodeIterator iter, int state, boolean finishedSet, Int currentSet, long curSet, Error error)
     {
         int ret;
         switch (state)
         {
+            // fall through here to unroll a stateful encode (go from the primitive Array to top level Vector)
             case encState.ARRAY:
                 if ((ret = encArray.encodeComplete(iter, false)) < CodecReturnCodes.SUCCESS)
                 {
@@ -767,6 +769,8 @@ class GlobalFieldSetDefDbImpl extends FieldSetDefDbImpl implements GlobalFieldSe
                     return CodecReturnCodes.DICT_PART_ENCODED;
                 }
                 return CodecReturnCodes.FAILURE;
+            default:
+                break;
         }
 
         return CodecReturnCodes.FAILURE;

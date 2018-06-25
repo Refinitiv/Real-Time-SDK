@@ -240,6 +240,8 @@ public class LoginHelperTest {
 			    assertEquals(authenticationExtended, elementEntry.buffer().buffer());
 			}
 			    break;
+			default:
+				break;
 			}
 		}
 	}
@@ -797,6 +799,8 @@ public class LoginHelperTest {
                 assertEquals("authenticationErrorText", elementEntry.ascii().ascii());
             }
                 break;                            
+			default:
+				break;
 			}
 		}
 	}
@@ -1219,6 +1223,8 @@ public class LoginHelperTest {
                 assertEquals("authenticationErrorText", elementEntry.ascii().ascii());
             }
                 break;                            
+			default:
+				break;
             }
         }
     }

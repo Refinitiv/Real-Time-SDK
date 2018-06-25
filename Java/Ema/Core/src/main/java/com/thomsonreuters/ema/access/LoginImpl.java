@@ -939,6 +939,8 @@ class LoginReqImpl extends LoginImpl implements LoginReq
     				    name(elementEntry.ascii().ascii());
     				}
     				    break;
+    				default:
+    					break;
     				}
     			}
     		}
@@ -2204,6 +2206,8 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     					}
                     }
                         break;
+                    default:
+                    	break;
     				}
     			}
     		}
@@ -2666,6 +2670,8 @@ class LoginRefreshImpl extends LoginImpl implements LoginRefresh
     					}
                     }
                         break;
+                    default:
+                    	break;
                     }
                 }
             }

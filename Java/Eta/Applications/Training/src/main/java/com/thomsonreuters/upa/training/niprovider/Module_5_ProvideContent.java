@@ -1054,6 +1054,7 @@ public class Module_5_ProvideContent
                                     case TransportReturnCodes.FAILURE:
                                         System.out.printf("Error (%d) (errno: %d) %s\n", error.errorId(), error.sysError(), error.text());
                                         closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
+                                        break;
 
                                     default: /* Error handling */
                                     {
@@ -1464,6 +1465,7 @@ public class Module_5_ProvideContent
                          */
                         return TransportReturnCodes.SUCCESS + 1;
                     }
+                    break;
                 }
                 case TransportReturnCodes.NO_BUFFERS:
                 {
@@ -2796,7 +2798,7 @@ public class Module_5_ProvideContent
             refreshMsg.qos().rate(QosRates.TICK_BY_TICK);
             /* Timeliness is Realtime, indicates information is updated as soon as new information becomes available */
             refreshMsg.qos().timeliness(QosTimeliness.REALTIME);
-            msg = (Msg)refreshMsg;
+            msg = refreshMsg;
 
             System.out.printf("UPA NI Provider application is providing a MarketPrice Item refresh message.\n\n");
         }
@@ -2815,7 +2817,7 @@ public class Module_5_ProvideContent
             msgBase.msgKey().name().data(marketPriceItemInfo_itemName);
             msgBase.msgKey().nameType(InstrumentNameTypes.RIC);
 
-            msg = (Msg)updateMsg;
+            msg = updateMsg;
 
             System.out.printf("UPA NI Provider application is providing a MarketPrice Item update message.\n\n");
         }

@@ -86,6 +86,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.ELEMENT_LIST:
 			decode(msg.attrib().elementList());
 			break;
+		default:
+			break;
 		}
 
 		switch(msg.payload().dataType())
@@ -95,6 +97,8 @@ class AppClient implements OmmConsumerClient
 			break;
 		case DataTypes.FIELD_LIST:
 			decode(msg.payload().fieldList());
+			break;
+		default:
 			break;
 		}
 	}
@@ -150,6 +154,8 @@ class AppClient implements OmmConsumerClient
 								break;
 							case DataTypes.QOS :
 								System.out.print(arrayEntry.qos());
+								break;
+							default:
 								break;
 							}
 						}

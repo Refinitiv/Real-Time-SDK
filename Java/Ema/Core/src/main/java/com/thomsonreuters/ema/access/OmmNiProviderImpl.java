@@ -1189,7 +1189,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	@Override
 	void readCustomConfig(EmaConfigImpl config)
 	{
-		_activeConfig.dictionaryConfig = (DictionaryConfig) new DictionaryConfig(true);
+		_activeConfig.dictionaryConfig = new DictionaryConfig(true);
 		
 		_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = "RDMFieldDictionary";
 		_activeConfig.dictionaryConfig.enumtypeDefFileName = "enumtype.def";

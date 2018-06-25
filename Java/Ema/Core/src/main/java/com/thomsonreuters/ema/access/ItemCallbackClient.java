@@ -532,7 +532,7 @@ class TunnelItem<T> extends Item<T> {
 			}
 
 			if (_baseImpl._itemCallbackClient._rsslRDMLoginMsg == null)
-				_baseImpl._itemCallbackClient._rsslRDMLoginMsg = (LoginRequest) LoginMsgFactory.createMsg();
+				_baseImpl._itemCallbackClient._rsslRDMLoginMsg = LoginMsgFactory.createMsg();
 			else
 				_baseImpl._itemCallbackClient._rsslRDMLoginMsg.clear();
 
@@ -940,7 +940,7 @@ class SubItem<T> extends Item<T>
 		rsslCloseMsg.streamId(_streamId);
 		rsslCloseMsg.streamId(_streamId);
 
-		boolean retCode = ((TunnelItem<T>) (_parent)).submitSubItemMsg((Msg) (rsslCloseMsg));
+		boolean retCode = ((TunnelItem<T>) (_parent)).submitSubItemMsg((rsslCloseMsg));
 
 		remove();
 
@@ -2134,7 +2134,7 @@ TunnelStreamStatusEventCallback
 							_baseImpl.objManager()._singleItemPool.updatePool(item);
 						}
 						else
-							((SingleItem<T>)item).reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
+							item.reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
 					
 						if (!item.open(reqMsg))
 						{
@@ -3545,7 +3545,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 	{
 		cancelReqTimerEvent();
 		
-		_baseImpl.<OmmProviderClient>itemCallbackClient().removeFromMap( (Item<OmmProviderClient>)this );
+		_baseImpl.<OmmProviderClient>itemCallbackClient().removeFromMap( this );
 		
 		_itemWatchList.removeItem(this);
 	}
@@ -3561,7 +3561,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 		{
 			rsslRequestMsg.streamId(getNextStreamId(0));
 			_streamId = rsslRequestMsg.streamId();
-			_baseImpl.<OmmProviderClient>itemCallbackClient().addToMap(_baseImpl.nextLongId(), (Item<OmmProviderClient>) this);
+			_baseImpl.<OmmProviderClient>itemCallbackClient().addToMap(_baseImpl.nextLongId(), this);
 		}
 		else
 			rsslRequestMsg.streamId(_streamId);
@@ -4068,6 +4068,9 @@ class ItemWatchList
 			case ReactorChannelEventTypes.CHANNEL_DOWN:
 			case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
 				notifyClosedRecoverableStatusMessage();
+				break;
+			default:
+				break;
 		}
 	}
 	
@@ -4178,6 +4181,8 @@ class ItemWatchList
 				
 				break;
 			}
+			default:
+				return null;
 		}
 		
 		return eventMsg;

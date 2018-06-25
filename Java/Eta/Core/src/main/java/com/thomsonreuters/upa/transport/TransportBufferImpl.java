@@ -153,14 +153,14 @@ class TransportBufferImpl extends UpaNode implements TransportBuffer
             _data.position(0);
             _data.putShort((short)_data.capacity());
             _data.put((byte)flags); // add flags in the third byte of header
-            _data.put((byte)FRAGMENT_HEADER_RIPC_FLAGS); // add Ext flags (08) in the fourth byte of header
+            _data.put(FRAGMENT_HEADER_RIPC_FLAGS); // add Ext flags (08) in the fourth byte of header
             _data.putInt(limit); // add the length of the payload
 
             // add fragment ID in the ninth byte of header
             if (bigBuffer.ripcVersion() >= Ripc.RipcVersions.VERSION13)
             {
                 // two byte fragId
-                _data.putShort((short)bigBuffer.fragmentId());
+                _data.putShort(bigBuffer.fragmentId());
             }
             else
             {
@@ -195,12 +195,12 @@ class TransportBufferImpl extends UpaNode implements TransportBuffer
             _length = bytesCopied + _nextFragmentHeaderLength;
             _data.putShort((short)(bytesCopied + _nextFragmentHeaderLength));
             _data.put((byte)flags); // add flags in the third byte of header
-            _data.put((byte)FRAGMENT_RIPC_FLAGS); // add Ext flags (04) in the fourth byte of header
+            _data.put(FRAGMENT_RIPC_FLAGS); // add Ext flags (04) in the fourth byte of header
 
             // add fragment ID in the fifth byte of header
             if (bigBuffer.ripcVersion() >= Ripc.RipcVersions.VERSION13)
             {
-                _data.putShort((short)bigBuffer.fragmentId()); // two byte fragId starting version 13
+                _data.putShort(bigBuffer.fragmentId()); // two byte fragId starting version 13
             }
             else
             {

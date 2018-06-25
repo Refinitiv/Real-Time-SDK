@@ -179,6 +179,8 @@ class AppClient implements OmmProviderClient
 			}
 		
 			break;
+		default:
+			break;
 		}
 	}
 }

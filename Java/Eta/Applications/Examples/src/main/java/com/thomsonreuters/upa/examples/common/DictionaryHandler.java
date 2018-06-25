@@ -305,7 +305,7 @@ public class DictionaryHandler
      */
     private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.thomsonreuters.upa.transport.Error error)
     {
-        int ret = dictionaryRefresh.decode(dIter, (RefreshMsg)msg);
+        int ret = dictionaryRefresh.decode(dIter, msg);
         if (ret != CodecReturnCodes.SUCCESS)
         {
             error.text("Error decoding dictionary refresh: <" + CodecReturnCodes.toString(ret) + ">");

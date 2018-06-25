@@ -46,7 +46,7 @@ class PostUserInfoImpl implements PostUserInfo
             char c = userAddrString.charAt(i);
             if (c != '.')
             {
-                int digit = (int)c - (int)'0';
+                int digit = c - '0';
                 assert (digit >= 0) && (digit <= 9) : "userAddr is out of range (0-9)"; // uint32
                 ipPart *= 10;
                 ipPart += digit;

@@ -1891,12 +1891,12 @@ class WlItemHandler implements WlHandler
         // have to flip the pendingViewRefresh after callback
         boolean needtoSetPendingViewRefreshFlagOff = false;
         
-        boolean isRefreshComplete = ((RefreshMsg)msg).checkRefreshComplete();
+        boolean isRefreshComplete = msg.checkRefreshComplete();
         
         WlService wlService = wlStream.wlService();
         
         // notify stream that response received if solicited
-        if (((RefreshMsg)msg).checkSolicited())
+        if (msg.checkSolicited())
         {
             wlStream.responseReceived();
         }
@@ -1911,7 +1911,7 @@ class WlItemHandler implements WlHandler
         }
         
         // set state from refresh message
-        ((RefreshMsg)msg).state().copy(wlStream.state());
+        msg.state().copy(wlStream.state());
         
         // decrement number of outstanding requests on service
         if (isRefreshComplete)
@@ -1934,7 +1934,7 @@ class WlItemHandler implements WlHandler
 
             // only fanout if refresh is desired and refresh is unsolicited or to those whose state is awaiting refresh
             if (!wlRequest.requestMsg().checkNoRefresh() &&
-                    (!((RefreshMsg)msg).checkSolicited() ||
+                    (!msg.checkSolicited() ||
                      wlRequest.state() == WlRequest.State.REFRESH_PENDING ||
                      wlRequest.state() == WlRequest.State.REFRESH_COMPLETE_PENDING ) ||
                     wlStream._pendingViewRefresh)
@@ -1948,13 +1948,13 @@ class WlItemHandler implements WlHandler
                     // Remove item from existing group, if present.
                     removeStreamFromItemGroup(wlStream);
                                                                   
-                    WlItemGroup wlItemGroup = wlService.itemGroupTableGet(((RefreshMsg)msg).groupId());
+                    WlItemGroup wlItemGroup = wlService.itemGroupTableGet(msg.groupId());
                     // Add group Id as new itemGroup in the WlService's itemGroupTable
                     if (wlItemGroup == null)
                     {
                         Buffer groupId = CodecFactory.createBuffer();
-                        groupId.data(ByteBuffer.allocate( ((RefreshMsg)msg).groupId().length()));
-                        ((RefreshMsg)msg).groupId().copy(groupId);
+                        groupId.data(ByteBuffer.allocate( msg.groupId().length()));
+                        msg.groupId().copy(groupId);
                         wlItemGroup = ReactorFactory.createWlItemGroup();
                         wlItemGroup.groupId(groupId);
                         wlItemGroup.wlService(wlService);
@@ -1965,7 +1965,7 @@ class WlItemHandler implements WlHandler
 
 
                     if (wlRequest.requestMsg().checkStreaming() &&
-                            ((RefreshMsg)msg).state().streamState() != StreamStates.NON_STREAMING)
+                            msg.state().streamState() != StreamStates.NON_STREAMING)
                     {
                         // not snapshot or NON_STREAMING
 
@@ -2010,13 +2010,13 @@ class WlItemHandler implements WlHandler
                 msg.streamId(wlRequest.requestMsg().streamId());
 
                 // For snapshot requests, change OPEN state to NON-STREAMING.
-                int tmpStreamState = ((RefreshMsg)msg).state().streamState();
+                int tmpStreamState = msg.state().streamState();
                 if (!wlRequest.requestMsg().checkStreaming() && tmpStreamState == StreamStates.OPEN)
-                    ((RefreshMsg)msg).state().streamState(StreamStates.NON_STREAMING);
+                    msg.state().streamState(StreamStates.NON_STREAMING);
 
                 // if snapshot request or NON_STREAMING, close watchlist request and stream if necessary
                 if (!wlRequest.requestMsg().checkStreaming() ||
-                        ((RefreshMsg)msg).state().streamState() == StreamStates.NON_STREAMING)
+                        msg.state().streamState() == StreamStates.NON_STREAMING)
                 {
                     wlStream.userRequestList().remove(i--);
                     if (wlStream._requestsWithViewCount > 0) 
@@ -2065,7 +2065,7 @@ class WlItemHandler implements WlHandler
                     }
                 }
                 
-                ((RefreshMsg)msg).state().streamState(tmpStreamState);
+                msg.state().streamState(tmpStreamState);
             }
         }
 
@@ -2383,7 +2383,7 @@ class WlItemHandler implements WlHandler
     	     	   	   
    	   for (Map.Entry<String, LinkedList<WlRequest>> entry : _pendingRequestByNameTable.entrySet())
    	   {
-   		   LinkedList<WlRequest> pendingRequestList  = (LinkedList<WlRequest>)entry.getValue();
+   		   LinkedList<WlRequest> pendingRequestList  = entry.getValue();
    	   	   for (WlRequest usrRequest : pendingRequestList)
        	   { 
    	   		   usrRequest.requestMsg().applyPause();
@@ -2392,7 +2392,7 @@ class WlItemHandler implements WlHandler
    
    	   for (Map.Entry<Integer, LinkedList<WlRequest>> entry : _pendingRequestByIdTable.entrySet())
    	   {
-  		   LinkedList<WlRequest> pendingRequestList  = (LinkedList<WlRequest>)entry.getValue();
+  		   LinkedList<WlRequest> pendingRequestList  = entry.getValue();
    	   	   for (WlRequest usrRequest : pendingRequestList)
        	   { 
    	   		   usrRequest.requestMsg().applyPause();
@@ -2420,7 +2420,7 @@ class WlItemHandler implements WlHandler
         	     	   	   
     	for (Map.Entry<String, LinkedList<WlRequest>> entry : _pendingRequestByNameTable.entrySet())
     	{
-    		LinkedList<WlRequest> pendingRequestList  = (LinkedList<WlRequest>)entry.getValue();
+    		LinkedList<WlRequest> pendingRequestList  = entry.getValue();
     		for (WlRequest usrRequest : pendingRequestList)
     		{ 
     			usrRequest.requestMsg().flags(usrRequest.requestMsg().flags() & ~RequestMsgFlags.PAUSE);
@@ -2429,7 +2429,7 @@ class WlItemHandler implements WlHandler
        
     	for (Map.Entry<Integer, LinkedList<WlRequest>> entry : _pendingRequestByIdTable.entrySet())
     	{
-    		LinkedList<WlRequest> pendingRequestList  = (LinkedList<WlRequest>)entry.getValue();
+    		LinkedList<WlRequest> pendingRequestList  = entry.getValue();
     		for (WlRequest usrRequest : pendingRequestList)
     		{ 
     			usrRequest.requestMsg().flags(usrRequest.requestMsg().flags() & ~RequestMsgFlags.PAUSE);
@@ -3206,8 +3206,12 @@ class WlItemHandler implements WlHandler
 						{
 						    repoolWlRequest(newWlRequest);
 						}
+						break;
+					default:
+						break;
 					}// switch mapEntry
 				}// while mapEntry
+				break;
 			default:
 				return CodecReturnCodes.SUCCESS;
 			}// switch msgClass
@@ -3614,6 +3618,8 @@ class WlItemHandler implements WlHandler
                 case ViewTypes.ELEMENT_NAME_LIST:				
                     _wlViewHandler._viewElementNameListPool.add(wlRequest._viewElementNameList);		
                     wlRequest._viewElementNameList = null;
+                    break;
+                default:
                     break;
             }
             wlRequest._view.returnToPool();

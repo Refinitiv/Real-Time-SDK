@@ -124,6 +124,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.FIELD_LIST:
 			decode( ackMsg.attrib().fieldList() );
 			break;
+		default:
+			break;
 		}
 
 		switch ( ackMsg.payload().dataType() )
@@ -133,6 +135,8 @@ class AppClient implements OmmConsumerClient
 			break;
 		case DataTypes.FIELD_LIST:
 			decode( ackMsg.payload().fieldList() );
+			break;
+		default:
 			break;
 		}
 	}
@@ -147,6 +151,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.FIELD_LIST:
 			decode(msg.attrib().fieldList());
 			break;
+		default:
+			break;
 		}
 
 		switch(msg.payload().dataType())
@@ -156,6 +162,8 @@ class AppClient implements OmmConsumerClient
 			break;
 		case DataTypes.FIELD_LIST:
 			decode(msg.payload().fieldList());
+			break;
+		default:
 			break;
 		}
 	}

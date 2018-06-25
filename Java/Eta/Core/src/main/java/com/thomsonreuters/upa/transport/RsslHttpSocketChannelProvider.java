@@ -435,7 +435,7 @@ class RsslHttpSocketChannelProvider
                 StreamingSess sess;
                 if (_wininetStreamingMap.containsKey(rsslSocketChannel._providerSessionId))
                 {
-                    sess = (StreamingSess)_wininetStreamingMap.get(rsslSocketChannel._providerSessionId);
+                    sess = _wininetStreamingMap.get(rsslSocketChannel._providerSessionId);
                 }
                 else
                 {
@@ -468,7 +468,7 @@ class RsslHttpSocketChannelProvider
                 StreamingSess sess = null;
                 if (_wininetStreamingMap.containsKey(_commonSessionId))
                 {
-                    sess = (StreamingSess)_wininetStreamingMap.get(_commonSessionId);
+                    sess = _wininetStreamingMap.get(_commonSessionId);
                     sess._controlId = rsslSocketChannel._providerSessionId;
                 }
                 else
@@ -549,7 +549,7 @@ class RsslHttpSocketChannelProvider
                     return TransportReturnCodes.FAILURE;
                 }
 
-                RsslSocketChannel oldChannel = (RsslSocketChannel)_sessionMap.get(_commonSessionId);
+                RsslSocketChannel oldChannel = _sessionMap.get(_commonSessionId);
 
                 rsslSocketChannel._oldScktChannel = oldChannel._scktChannel;
 
@@ -577,7 +577,7 @@ class RsslHttpSocketChannelProvider
                 StreamingSess sess = null;
                 if (_wininetStreamingMap.containsKey(_commonSessionId))
                 {
-                    sess = (StreamingSess)_wininetStreamingMap.get(_commonSessionId);
+                    sess = _wininetStreamingMap.get(_commonSessionId);
                     sess._currentStreamingId = sess._newStreamingId == null ? _commonSessionId : sess._newStreamingId;
                     sess._newStreamingId = rsslSocketChannel._providerSessionId;
                 }
@@ -623,7 +623,7 @@ class RsslHttpSocketChannelProvider
                 StreamingSess sess = null;
                 if (_wininetStreamingMap.containsKey(_commonSessionId))
                 {
-                    sess = (StreamingSess)_wininetStreamingMap.get(_commonSessionId);
+                    sess = _wininetStreamingMap.get(_commonSessionId);
                     reconnectControlBaseSessionId = sess._controlId;
                     sess._newControlId = rsslSocketChannel._providerSessionId;
                 }
@@ -636,7 +636,7 @@ class RsslHttpSocketChannelProvider
                     return TransportReturnCodes.FAILURE;
                 }
 
-                RsslSocketChannel oldChannel = (RsslSocketChannel)_sessionMap.get(reconnectControlBaseSessionId);
+                RsslSocketChannel oldChannel = _sessionMap.get(reconnectControlBaseSessionId);
                 oldChannel._providerHelper._newControlSessionId = rsslSocketChannel._providerSessionId;
 
                 oldChannel._providerHelper._newStreamingSessionId = sess._newStreamingId;
@@ -1694,7 +1694,7 @@ class RsslHttpSocketChannelProvider
         Integer newControlId = null;
         if (_wininetStreamingMap.containsKey(commonSessionId))
         {
-            StreamingSess sess = (StreamingSess)_wininetStreamingMap.get(commonSessionId);
+            StreamingSess sess = _wininetStreamingMap.get(commonSessionId);
             if (sess._newStreamingId != null && sess._newStreamingId.intValue() != -1)
                 newSocketId = sess._newStreamingId;
             if (sess._newControlId != null && sess._newControlId.intValue() != -1)
@@ -2181,7 +2181,7 @@ class RsslHttpSocketChannelProvider
     {
         if (_wininetStreamingMap.containsKey(_commonSessionId))
         {
-            StreamingSess sess = (StreamingSess)_wininetStreamingMap.get(_commonSessionId);
+            StreamingSess sess = _wininetStreamingMap.get(_commonSessionId);
             if (sess._newStreamingId != null && sess._newStreamingId.intValue() != -1)
                 return _sessionIdSocketMap.get(sess._newStreamingId);
             else

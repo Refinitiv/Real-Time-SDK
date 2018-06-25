@@ -1161,7 +1161,7 @@ class ChannelDictionary<T>
 			
 			if (rsslMsg.checkHasState())
 			{
-				State state =((com.thomsonreuters.upa.codec.StatusMsg)rsslMsg).state();
+				State state =rsslMsg.state();
 
 				if (state.streamState() != StreamStates.OPEN)
 				{

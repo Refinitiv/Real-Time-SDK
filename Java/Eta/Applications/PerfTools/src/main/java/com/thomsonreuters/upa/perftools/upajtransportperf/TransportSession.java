@@ -155,7 +155,8 @@ public class TransportSession
         }
     }
 
-    private int writeMsgBuffer(TransportThread handler, boolean allowPack, Error error)
+    @SuppressWarnings("fallthrough")
+	private int writeMsgBuffer(TransportThread handler, boolean allowPack, Error error)
     {
         int ret;
         Channel chnl = _channelInfo.channel;

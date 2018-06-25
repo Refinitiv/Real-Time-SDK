@@ -242,7 +242,7 @@ public class Transport
                                 transport = new SocketProtocol(opts);
                                 _transports[opts.connectionType()] = transport;
                             }
-                            channel = (Channel)transport.channel(opts, error);
+                            channel = transport.channel(opts, error);
                             break;
                         case ConnectionTypes.HTTP:
                         case ConnectionTypes.ENCRYPTED:
@@ -252,7 +252,7 @@ public class Transport
                                 ((SocketProtocol)transport).setHTTP();
                                 _transports[opts.connectionType()] = transport;
                             }
-                            channel = (Channel)transport.channel(opts, error);
+                            channel = transport.channel(opts, error);
                             break;
                         case ConnectionTypes.RELIABLE_MCAST:
                         case ConnectionTypes.UNIDIR_SHMEM:
@@ -261,7 +261,7 @@ public class Transport
                                 transport = new JNIProtocol();
                                 _transports[opts.connectionType()] = transport;
                             }
-                            channel = (Channel)transport.channel(opts, error);
+                            channel = transport.channel(opts, error);
                             break;
                         case ConnectionTypes.SEQUENCED_MCAST:
                             if (transport == null) // Not initialized yet- first connection for this transport
@@ -269,7 +269,7 @@ public class Transport
                                 transport = new SequencedMulticastProtocol(opts);
                                 _transports[opts.connectionType()] = transport;
                             }
-                            channel = (Channel)transport.channel(opts, error);
+                            channel = transport.channel(opts, error);
                             break;
                         case HIDDEN_TCP_JNI: // back door for TCP JNI (used only for testing)
                             if (_hiddenTcpJni == null)
@@ -277,7 +277,7 @@ public class Transport
                                 _hiddenTcpJni = new JNIProtocol();
                             }
                             opts.connectionType(ConnectionTypes.SOCKET);
-                            channel = (Channel)_hiddenTcpJni.channel(opts, error);
+                            channel = _hiddenTcpJni.channel(opts, error);
                             break;
                         default:
                             error.channel(null);

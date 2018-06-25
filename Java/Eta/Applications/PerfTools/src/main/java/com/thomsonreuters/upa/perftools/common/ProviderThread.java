@@ -183,7 +183,8 @@ public class ProviderThread extends Thread
      * Write current buffer in use by the client channel session.
      * 
      */
-    private int writeCurrentBuffer(ProviderSession session, Error error)
+    @SuppressWarnings("fallthrough")
+	private int writeCurrentBuffer(ProviderSession session, Error error)
     {
         // Reset the session write buffer packed count,
         // so that packing can continue in the next buffer

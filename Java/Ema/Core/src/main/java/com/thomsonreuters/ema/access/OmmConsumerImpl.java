@@ -213,7 +213,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	@Override
 	void readCustomConfig(EmaConfigImpl config)
 	{
-		_activeConfig.dictionaryConfig = (DictionaryConfig) new DictionaryConfig(false);
+		_activeConfig.dictionaryConfig = new DictionaryConfig(false);
 		
 		_activeConfig.dictionaryConfig.dictionaryName = ((OmmConsumerConfigImpl)config).dictionaryName(_activeConfig.configuredName);
 		

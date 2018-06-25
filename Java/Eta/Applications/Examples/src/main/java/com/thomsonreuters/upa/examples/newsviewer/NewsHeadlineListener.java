@@ -28,7 +28,7 @@ public class NewsHeadlineListener extends MouseAdapter
             int index = list.locationToIndex(e.getPoint());
             if (index != -1)
             {
-                Headline hl = (Headline)list.getModel().getElementAt(index);
+                Headline hl = list.getModel().getElementAt(index);
                 _viewer.openStory(hl.get_lang(), hl.get_pnac(), hl.get_text(),
                                   _mpHandler);
             }

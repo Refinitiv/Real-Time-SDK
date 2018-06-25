@@ -294,7 +294,7 @@ class NetworkReplayImpl implements NetworkReplay, Runnable
                     Iterator<SelectionKey> selectedKeys = _selector.selectedKeys().iterator();
                     while (selectedKeys.hasNext())
                     {
-                        SelectionKey key = (SelectionKey)selectedKeys.next();
+                        SelectionKey key = selectedKeys.next();
                         selectedKeys.remove();
 
                         if (!key.isValid())

@@ -282,7 +282,7 @@ class SocketProtocol implements ProtocolInt
             }
             else if (channel._scktChannel != null && !channel.canReuseSessionId(channel._providerSessionId))
             {
-                _busyList.add((RsslSocketChannel)channel);
+                _busyList.add(channel);
                 continue;
             }
             else
@@ -328,7 +328,7 @@ class SocketProtocol implements ProtocolInt
 
         ((TrackingPool)_serverPool)._active.add(server);
 
-        return (Server)server;
+        return server;
     }
 
     @Override
@@ -362,13 +362,13 @@ class SocketProtocol implements ProtocolInt
     @Override
     public Pool getPool(int poolSpec)
     {
-        Pool pool = _writeBufferChannelPools.get((Integer)poolSpec);
+        Pool pool = _writeBufferChannelPools.get(poolSpec);
         if (pool == null)
         {
             pool = new Pool(this);
             pool._isProtocolBuffer = true;
         }
-        _writeBufferChannelPools.put((Integer)poolSpec, pool);
+        _writeBufferChannelPools.put(poolSpec, pool);
         return pool;
     }
 

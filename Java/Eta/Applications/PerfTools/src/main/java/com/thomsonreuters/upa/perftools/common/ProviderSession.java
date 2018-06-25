@@ -139,6 +139,8 @@ public class ProviderSession
                 MarketPriceItem mpItem = (MarketPriceItem)itemInfo.itemData();
                 mpItem.iMsg(0);
                 break;
+            default:
+                break;
         }
         itemAttributesTable().remove(itemInfo.attributes());
         itemStreamIdTable().remove(itemInfo.streamId());
@@ -225,7 +227,7 @@ public class ProviderSession
      */
     public void closeItemStream(int streamId)
     {
-        ItemInfo itemInfo = (ItemInfo)_itemStreamIdTable.get(streamId);
+        ItemInfo itemInfo = _itemStreamIdTable.get(streamId);
         if (itemInfo != null)
         {
             itemInfo.clear();

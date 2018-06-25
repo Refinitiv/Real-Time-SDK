@@ -42,7 +42,7 @@ public class RmtesUnitTest  extends TestCase
 																						// (0x32)
 																						// time.
 
-	private com.thomsonreuters.ema.access.RmtesBuffer inputRmtesBuf = (RmtesBuffer) EmaFactory.createRmtesBuffer();
+	private com.thomsonreuters.ema.access.RmtesBuffer inputRmtesBuf = EmaFactory.createRmtesBuffer();
 	private ByteBuffer inputByteBuf = ByteBuffer.allocate(30);
 
 	private byte[] inputByte = { 0x57, 0x61, 0x69, 0x74, 0x69, 0x6E, 0x67, 0x20, 0x66, 0x6F, 0x72, 0x20, 0x4C, 0x42,
@@ -50,7 +50,7 @@ public class RmtesUnitTest  extends TestCase
 	private String targetString = "Waiting for LBM...";
 	private CharBuffer targetCharBuf = CharBuffer.allocate(30);
 
-	private RmtesBuffer inputRmtesBuf1 = (RmtesBuffer) EmaFactory.createRmtesBuffer();
+	private RmtesBuffer inputRmtesBuf1 = EmaFactory.createRmtesBuffer();
 	private ByteBuffer inputByteBuf1 = ByteBuffer.allocate(30);
 
 	private byte[] inputByte1 = { 0x43, 0x4F, 0x46, 0x2F, 0x4E, 0x4A };

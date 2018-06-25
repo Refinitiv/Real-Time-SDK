@@ -116,6 +116,8 @@ public class TestServer implements Runnable
                 if (_readable)
                     return true;
                 break;
+            default:
+                break;
         }
         return false;
     }
@@ -353,7 +355,7 @@ public class TestServer implements Runnable
                     Iterator<SelectionKey> keyIterator = _selector.selectedKeys().iterator();
                     while (keyIterator.hasNext())
                     {
-                        SelectionKey selectionKey = (SelectionKey)keyIterator.next();
+                        SelectionKey selectionKey = keyIterator.next();
                         keyIterator.remove();
                         if (selectionKey.isValid())
                         {
@@ -412,7 +414,7 @@ public class TestServer implements Runnable
                     Iterator<SelectionKey> keyIterator = _selector.selectedKeys().iterator();
                     while (keyIterator.hasNext())
                     {
-                        SelectionKey selectionKey = (SelectionKey)keyIterator.next();
+                        SelectionKey selectionKey = keyIterator.next();
                         keyIterator.remove();
                         if (selectionKey.isAcceptable())
                         {
@@ -449,7 +451,7 @@ public class TestServer implements Runnable
                     Iterator<SelectionKey> keyIterator = _selector.selectedKeys().iterator();
                     while (keyIterator.hasNext())
                     {
-                        SelectionKey selectionKey = (SelectionKey)keyIterator.next();
+                        SelectionKey selectionKey = keyIterator.next();
                         keyIterator.remove();
                         if (selectionKey.isReadable())
                         {

@@ -961,6 +961,8 @@ class ItemHandler
                     break;
                 case DomainTypes.SYMBOL_LIST:
                     break;
+                default:
+                    break;
             }
 
             if ((itemRequestInfo.itemInfo().itemData() == null) && (itemRequestInfo.domainType() != DomainTypes.SYMBOL_LIST))
@@ -1481,6 +1483,8 @@ class ItemHandler
                         }
                     }
                     break;
+                default:
+                    break;
             }
         }
         else
@@ -1493,8 +1497,8 @@ class ItemHandler
             if (msg.encodedDataBody() != null && msg.encodedDataBody().length() > 0)
                 _updateMsg.encodedDataBody(msg.encodedDataBody());
             _updateMsg.flags(UpdateMsgFlags.HAS_POST_USER_INFO);
-            ((UpdateMsg)_updateMsg).postUserInfo().userAddr(postMsg.postUserInfo().userAddr());
-            ((UpdateMsg)_updateMsg).postUserInfo().userId(postMsg.postUserInfo().userId());
+            _updateMsg.postUserInfo().userAddr(postMsg.postUserInfo().userAddr());
+            _updateMsg.postUserInfo().userId(postMsg.postUserInfo().userId());
             if (postMsg.checkHasMsgKey())
             {
                 _updateMsg.flags(_updateMsg.flags() | UpdateMsgFlags.HAS_MSG_KEY);

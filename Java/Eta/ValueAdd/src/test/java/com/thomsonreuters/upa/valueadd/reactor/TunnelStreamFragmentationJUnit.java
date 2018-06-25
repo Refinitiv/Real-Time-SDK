@@ -615,7 +615,7 @@ public class TunnelStreamFragmentationJUnit
         	{
         		b = 0;
         	}
-        	buffer.data().put((byte)b++);
+        	buffer.data().put(b++);
         }
         assertEquals(ReactorReturnCodes.SUCCESS, consTunnelStream.submit(buffer, _tsSubmitOpts, _errorInfo));
         consumerReactor.dispatch(0);
@@ -758,7 +758,7 @@ public class TunnelStreamFragmentationJUnit
         	{
         		b = 0;
         	}
-        	buffer.data().put((byte)b++);
+        	buffer.data().put(b++);
         }
         genericMsg.encodedDataBody(buffer);
         assertEquals(ReactorReturnCodes.SUCCESS, consTunnelStream.submit(genericMsg, _errorInfo));
@@ -885,7 +885,7 @@ public class TunnelStreamFragmentationJUnit
         	{
         		b = 0;
         	}
-        	buffer.data().put((byte)b++);
+        	buffer.data().put(b++);
         }
         genericMsg.encodedDataBody(buffer);
         assertEquals(ReactorReturnCodes.SUCCESS, consTunnelStream.submit(genericMsg, _errorInfo));
@@ -1383,7 +1383,7 @@ public class TunnelStreamFragmentationJUnit
         	{
         		b = 0;
         	}
-        	buffer3.data().put(i, (byte)b++);
+        	buffer3.data().put(i, b++);
         }
         genericMsg3.encodedDataBody(buffer3);
         assertEquals(ReactorReturnCodes.SUCCESS, provTunnelStream.submit(genericMsg3, _errorInfo));
@@ -1401,7 +1401,7 @@ public class TunnelStreamFragmentationJUnit
         	{
         		b = 0;
         	}
-        	buffer4.data().put(i, (byte)b++);
+        	buffer4.data().put(i, b++);
         }
         genericMsg4.encodedDataBody(buffer4);
         assertEquals(ReactorReturnCodes.SUCCESS, provTunnelStream.submit(genericMsg4, _errorInfo));

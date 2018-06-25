@@ -253,7 +253,7 @@ public class ReactorWatchlistJunit
                             + event.toString());
 
             _lastDefaultMsgEvent = new ReactorMsgEvent();
-            TestUtil.copyMsgEvent((ReactorMsgEvent)event, (ReactorMsgEvent)_lastDefaultMsgEvent);
+            TestUtil.copyMsgEvent(event, _lastDefaultMsgEvent);
 
             return ReactorCallbackReturnCodes.SUCCESS;
         }
@@ -320,7 +320,7 @@ public class ReactorWatchlistJunit
                             + event.toString());
 
             _lastLoginMsgEvent = new RDMLoginMsgEvent();
-            TestUtil.copyMsgEvent((ReactorMsgEvent)event, (ReactorMsgEvent)_lastLoginMsgEvent);
+            TestUtil.copyMsgEvent(event, _lastLoginMsgEvent);
 
             if (event.rdmLoginMsg() != null)
             {
@@ -340,7 +340,7 @@ public class ReactorWatchlistJunit
                             + event.toString());
 
             _lastDirectoryMsgEvent = new RDMDirectoryMsgEvent();
-            TestUtil.copyMsgEvent((ReactorMsgEvent)event, (ReactorMsgEvent)_lastDirectoryMsgEvent);
+            TestUtil.copyMsgEvent(event, _lastDirectoryMsgEvent);
 
             if (event.rdmDirectoryMsg() != null)
             {
@@ -360,7 +360,7 @@ public class ReactorWatchlistJunit
                             + event.toString());
 
             _lastDictionaryMsgEvent = new RDMDictionaryMsgEvent();
-            TestUtil.copyMsgEvent((ReactorMsgEvent)event, (ReactorMsgEvent)_lastDictionaryMsgEvent);
+            TestUtil.copyMsgEvent(event, _lastDictionaryMsgEvent);
 
             if (event.rdmDictionaryMsg() != null)
             {
@@ -446,11 +446,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -477,7 +477,7 @@ public class ReactorWatchlistJunit
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -539,7 +539,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -599,11 +599,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -630,7 +630,7 @@ public class ReactorWatchlistJunit
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -669,12 +669,12 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             assertTrue(loginMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(loginMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("Unit Test"));
@@ -701,7 +701,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -763,11 +763,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -794,7 +794,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
     
@@ -819,10 +819,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // reset the msgReturnCode to SUCCESS.
@@ -847,7 +847,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -910,11 +910,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -940,7 +940,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
     
@@ -990,10 +990,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(3, callbackHandler.loginMsgEventCount()); // 1 for LoginRefresh, 2 for LoginStatus messages for timeouts
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // reset the msgReturnCode to SUCCESS.
@@ -1018,7 +1018,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -1080,11 +1080,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -1110,7 +1110,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
     
@@ -1135,10 +1135,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             verifyLoginStatus(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /* Should receive CHANNEL_DOWN event. */
@@ -1167,7 +1167,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -1231,11 +1231,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -1261,7 +1261,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
     
@@ -1288,10 +1288,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             verifyLoginStatusClosed(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             ReactorJunit.dispatchReactor(selector, reactor, 6000);
@@ -1321,7 +1321,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -1383,11 +1383,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -1413,7 +1413,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
     
@@ -1438,10 +1438,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /* Should receive CHANNEL_DOWN event. */
@@ -1469,7 +1469,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -1542,11 +1542,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -1572,7 +1572,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             Watchlist watchlist = event.reactorChannel().watchlist();
@@ -1608,10 +1608,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -1635,10 +1635,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // attempt to submit post message again here
@@ -1713,7 +1713,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -1784,11 +1784,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -1814,7 +1814,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             Watchlist watchlist = event.reactorChannel().watchlist();
@@ -1840,10 +1840,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -1867,10 +1867,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -1911,7 +1911,7 @@ public class ReactorWatchlistJunit
             
             // make sure NAK was received in default callback
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertNotNull(msgEvent.msg());
             assertEquals(MsgClasses.ACK, msgEvent.msg().msgClass());
@@ -1941,7 +1941,7 @@ public class ReactorWatchlistJunit
             
             // make sure ACK was received in callback
             assertEquals(4, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertNotNull(msgEvent.msg());
             assertEquals(MsgClasses.ACK, msgEvent.msg().msgClass());
@@ -1981,7 +1981,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -2047,11 +2047,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -2074,7 +2074,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             Watchlist watchlist = event.reactorChannel().watchlist();
@@ -2100,10 +2100,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -2128,10 +2128,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // reissue login request with user name change - this should fail
@@ -2167,10 +2167,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(2, callbackHandler.loginMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // reissue different instance id - this should fail
@@ -2218,7 +2218,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -2695,11 +2695,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -2725,7 +2725,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             Watchlist watchlist = event.reactorChannel().watchlist();
@@ -2751,10 +2751,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -2778,10 +2778,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // check service cache for proper entries
@@ -2838,10 +2838,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(2, callbackHandler.directoryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // check that "37397/NI_PUB" has been deleted from the service cache
@@ -2867,10 +2867,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(3, callbackHandler.directoryMsgEventCount());
             assertEquals(4, callbackHandler.defaultMsgEventCount());
-            directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // check that "460/IDN_RDF" has been updated
@@ -2905,7 +2905,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -2968,11 +2968,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -2998,7 +2998,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
@@ -3051,10 +3051,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(4, callbackHandler.defaultMsgEventCount()); // 1 for login plus 3 for submitted item requests
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -3078,10 +3078,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(5, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory plus 3 for submitted item requests
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -3122,7 +3122,7 @@ public class ReactorWatchlistJunit
             // verify that the defaultMsgCallback was called.
             assertEquals(10, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 3 for submitted item requests, 3 for timeout status messages
                                                                      // plus 2 for Item Refresh (2 for Item Refresh due to fanout for 2 TRIs requested)
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // now have the TestServer send another TRI Item Refresh and two TRI updates to the Reactor.
@@ -3141,7 +3141,7 @@ public class ReactorWatchlistJunit
             assertEquals(14, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 3 for submitted item requests, 3 for timeout status messages
                                                                       // plus 2 for Item Refresh (2 for Item Refresh due to fanout for 2 TRIs requested)
                                                                       // 4 for the 2 TRI item updates (second TRI refresh is ignored)
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // verify that update has msgKey in it
@@ -3175,7 +3175,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -3237,11 +3237,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -3267,7 +3267,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
@@ -3313,10 +3313,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(4, callbackHandler.defaultMsgEventCount()); // 1 for login plus 3 for submitted item requests
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -3340,10 +3340,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(5, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory plus 3 for submitted item requests
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -3367,7 +3367,7 @@ public class ReactorWatchlistJunit
             // verify that the defaultMsgCallback was called.
             assertEquals(7, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 3 for submitted item requests
                                                                      // 2 for Item Refresh due to fanout for 2 TRIs requested
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // now have the TestServer send a TRI update to the Reactor.
@@ -3384,7 +3384,7 @@ public class ReactorWatchlistJunit
             assertEquals(9, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 3 for submitted item requests
                                                                      // 2 for Item Refresh due to fanout for 2 TRIs requested
                                                                      // 2 for the TRI item update
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // now reissue second TRI request with STREAMING flag turning off
@@ -3434,7 +3434,7 @@ public class ReactorWatchlistJunit
                                                                       // 2 for first TRI item updates
                                                                       // 2 for second TRI item update
                                                                       // refresh was not callback to the client since that re-issue is an no-op
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // now have the TestServer send a TRI update to the Reactor.
@@ -3453,7 +3453,7 @@ public class ReactorWatchlistJunit
                                                                       // 2 for first TRI item updates
                                                                       // 2 for second TRI item update
                                                                       // 2 for last TRI item update
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
         }
         catch (Exception e)
@@ -3475,7 +3475,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -3537,11 +3537,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -3567,7 +3567,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
@@ -3611,10 +3611,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount()); // 1 for login plus 2 for submitted item requests
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -3638,10 +3638,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(4, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory plus 2 for submitted item requests
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -3665,7 +3665,7 @@ public class ReactorWatchlistJunit
             // verify that the defaultMsgCallback was called.
             assertEquals(6, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 2 for submitted item requests plus 2 for Item Refreshes
                                                                      // 1 refresh for snapshot, one for streaming
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertEquals(6, msgEvent.msg().streamId());
             assertTrue(msgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
@@ -3687,7 +3687,7 @@ public class ReactorWatchlistJunit
                                                                      // 1 for Item Refresh while waiting for snapshot response to be received
                                                                      // 1 for Item Refresh after waiting for snapshot response to be received
                                                                      // 2 for the 2 TRI item updates
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // now try to re-submit snapshot request as streaming, this should be successful
@@ -3714,7 +3714,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -3776,11 +3776,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -3807,7 +3807,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
     
@@ -3832,10 +3832,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -3859,13 +3859,13 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -3905,7 +3905,7 @@ public class ReactorWatchlistJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the defaultMsgCallback was called.
             assertEquals(3, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for first part of multi-part refresh
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // send out the second market by price request
@@ -3939,7 +3939,7 @@ public class ReactorWatchlistJunit
             assertEquals(5, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory,
                                                                      // 1 for first part of multi-part refresh,
                                                                      // 2 for remainder of multi-part refresh
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -3965,7 +3965,7 @@ public class ReactorWatchlistJunit
             assertEquals(8, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory,
                                                                      // 2 for first part of multi-part refreshes,
                                                                      // 4 for remainder of multi-part refreshes
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // now have the TestServer send two market by price updates to the Reactor.
@@ -3984,7 +3984,7 @@ public class ReactorWatchlistJunit
                                                                      // 2 for first part of multi-part refreshes,
                                                                      // 4 for remainder of multi-part refreshes
                                                                      // 4 for updates
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
         }
         catch (Exception e)
@@ -4006,7 +4006,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -4068,11 +4068,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -4098,7 +4098,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
@@ -4123,10 +4123,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -4151,10 +4151,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // now submit field dictionary request to the watchlist
@@ -4195,10 +4195,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDictionaryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.dictionaryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             // verify userSpecObject
-            RDMDictionaryMsgEvent dictionaryMsgEvent = (RDMDictionaryMsgEvent)callbackHandler.lastDictionaryMsgEvent();
+            RDMDictionaryMsgEvent dictionaryMsgEvent = callbackHandler.lastDictionaryMsgEvent();
             assertEquals(dictionaryMsgEvent.streamInfo().userSpecObject(), myUserSpecObject1);
             ReactorJunit.verifyDictionaryMessage(dictionaryMsgEvent.rdmDictionaryMsg());
             
@@ -4231,10 +4231,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDictionaryMsgCallback and defaultMsgCallback was called.
             assertEquals(2, callbackHandler.dictionaryMsgEventCount());
             assertEquals(4, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             // verify userSpecObject
-            dictionaryMsgEvent = (RDMDictionaryMsgEvent)callbackHandler.lastDictionaryMsgEvent();
+            dictionaryMsgEvent = callbackHandler.lastDictionaryMsgEvent();
             assertEquals(dictionaryMsgEvent.streamInfo().userSpecObject(), myUserSpecObject2);
             ReactorJunit.verifyDictionaryMessage(dictionaryMsgEvent.rdmDictionaryMsg());
             
@@ -4284,7 +4284,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -4346,11 +4346,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -4376,7 +4376,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
@@ -4419,10 +4419,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount()); // 1 for login plus 1 for submitted item request
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -4446,10 +4446,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory plus 1 for submitted item request
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -4473,7 +4473,7 @@ public class ReactorWatchlistJunit
             // verify that the defaultMsgCallback was called.
             assertEquals(4, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for submitted item request
                                                                      // 1 for Item Refresh
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // now send a second TRI request with a different stream id and same priority
@@ -4503,7 +4503,7 @@ public class ReactorWatchlistJunit
             // verify that the defaultMsgCallback was called.
             assertEquals(5, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for submitted item request
                                                                      // 2 for Item Refreshes
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // now send a third TRI request with a different stream id and a higher priority class
@@ -4533,7 +4533,7 @@ public class ReactorWatchlistJunit
             // verify that the defaultMsgCallback was called.
             assertEquals(6, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for submitted item request
                                                                      // 3 for Item Refreshes
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // close one of the streams (this should alter the priority count of subsequent requests)
@@ -4592,7 +4592,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -4654,11 +4654,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -4684,7 +4684,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
@@ -4730,10 +4730,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount()); // 1 for login plus 1 for submitted item request
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -4756,10 +4756,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory plus 1 for submitted item request
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -4783,7 +4783,7 @@ public class ReactorWatchlistJunit
             // verify that the defaultMsgCallback was called.
             assertEquals(4, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for submitted item request
                                                                      // 1 for Item Refresh
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // now send a second TRI request with a different stream id and different qos range that's within range
@@ -4815,7 +4815,7 @@ public class ReactorWatchlistJunit
             // verify that the defaultMsgCallback was called.
             assertEquals(5, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for submitted item request
                                                                      // 2 for Item Refreshes
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // now send a third TRI request with a different stream id and different qos range that's out of range
@@ -4853,7 +4853,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -4915,11 +4915,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -4943,7 +4943,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
@@ -4968,10 +4968,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             /*
@@ -4995,10 +4995,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // now submit 3 item requests to the watchlist
@@ -5053,7 +5053,7 @@ public class ReactorWatchlistJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the defaultMsgCallback was called.
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("REQUEST TRI"));
 
@@ -5076,7 +5076,7 @@ public class ReactorWatchlistJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the defaultMsgCallback was called.
             assertEquals(4, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("REQUEST IBM"));
             
@@ -5099,7 +5099,7 @@ public class ReactorWatchlistJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the defaultMsgCallback was called.
             assertEquals(5, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("REQUEST WFM"));
         }
@@ -5122,7 +5122,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -5185,11 +5185,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -5216,7 +5216,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             Watchlist watchlist = event.reactorChannel().watchlist();
@@ -5242,10 +5242,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -5269,10 +5269,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // submit an item request
@@ -5322,7 +5322,7 @@ public class ReactorWatchlistJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the defaultMsgCallback was called.
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // now that item stream is open, submit with same post id twice, should fail on second submit
@@ -5392,7 +5392,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -5452,7 +5452,7 @@ public class ReactorWatchlistJunit
             ConsumerRole consumerRole = createWatchlistConsumerRole(callbackHandler);
             consumerRole.initDefaultRDMLoginRequest();
             consumerRole.initDefaultRDMDirectoryRequest();
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -5478,7 +5478,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             Watchlist watchlist = event.reactorChannel().watchlist();
@@ -5504,10 +5504,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -5531,10 +5531,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // submit an item request
@@ -5570,7 +5570,7 @@ public class ReactorWatchlistJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the defaultMsgCallback was called.
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // submit PostMsg requiring ACK
@@ -5607,7 +5607,7 @@ public class ReactorWatchlistJunit
             
             // make sure NAK was received in callback
             assertEquals(4, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertNotNull(msgEvent.msg());
             assertEquals(MsgClasses.ACK, msgEvent.msg().msgClass());
@@ -5637,7 +5637,7 @@ public class ReactorWatchlistJunit
             
             // make sure ACK was received in callback
             assertEquals(5, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertNotNull(msgEvent.msg());
             assertEquals(MsgClasses.ACK, msgEvent.msg().msgClass());
@@ -5670,7 +5670,7 @@ public class ReactorWatchlistJunit
 
             // make sure ACK was received in callback
             assertEquals(6, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertNotNull(msgEvent.msg());
             assertEquals(MsgClasses.ACK, msgEvent.msg().msgClass());
@@ -5701,7 +5701,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -5761,7 +5761,7 @@ public class ReactorWatchlistJunit
             ConsumerRole consumerRole = createWatchlistConsumerRole(callbackHandler);
             consumerRole.initDefaultRDMLoginRequest();
             consumerRole.initDefaultRDMDirectoryRequest();
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -5787,7 +5787,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             Watchlist watchlist = event.reactorChannel().watchlist();
@@ -5813,10 +5813,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -5840,10 +5840,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // submit an item request
@@ -5879,7 +5879,7 @@ public class ReactorWatchlistJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the defaultMsgCallback was called.
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // submit PostMsg requiring ACK
@@ -5917,7 +5917,7 @@ public class ReactorWatchlistJunit
             
             // make sure NAK was received in callback
             assertEquals(4, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertNotNull(msgEvent.msg());
             assertEquals(MsgClasses.ACK, msgEvent.msg().msgClass());
@@ -5947,7 +5947,7 @@ public class ReactorWatchlistJunit
             
             // make sure ACK was received in callback
             assertEquals(5, callbackHandler.defaultMsgEventCount());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertNotNull(msgEvent.msg());
             assertEquals(MsgClasses.ACK, msgEvent.msg().msgClass());
@@ -5987,7 +5987,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -6049,11 +6049,11 @@ public class ReactorWatchlistJunit
             consumerRole.watchlistOptions().requestTimeout(5000);
 
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
                         
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -6079,7 +6079,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
     
@@ -6120,10 +6120,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount()); 
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
  
             /*
@@ -6147,15 +6147,15 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount());  // extra for itemRequest
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             assertEquals(3, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount()); // watchlist callback
-            event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -6181,7 +6181,7 @@ public class ReactorWatchlistJunit
             assertEquals(5, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for submitted item requests
                                                                      // 1 for Item Refresh due to fanout 
                                                                      // 1 for the TRI item update fanout
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // verify that update has msgKey in it
@@ -6202,7 +6202,7 @@ public class ReactorWatchlistJunit
             /* Should receive CHANNEL_DOWN event. */
             assertEquals(4, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelDownEventCount());
-            ReactorChannelEvent event1 = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event1 = callbackHandler.lastChannelEvent();
             assertNotNull(event1);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event1.eventType());
             
@@ -6210,14 +6210,14 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.directoryMsgEventCount());
             assertEquals(8, callbackHandler.defaultMsgEventCount());   // one more loginStatus, one directory update, one more itemStatus callback 
-            RDMLoginMsgEvent loginMsgEvent1 = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent1 = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent1);
             
-            RDMDirectoryMsgEvent directoryMsgEvent1 = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent1 = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent1);
             assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent1.rdmDirectoryMsg().rdmMsgType());
             
-            ReactorMsgEvent msgEvent1 = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent1 = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent1);
         }
         catch (Exception e)
@@ -6238,7 +6238,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -6300,11 +6300,11 @@ public class ReactorWatchlistJunit
             consumerRole.watchlistOptions().requestTimeout(5000);
             
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -6330,7 +6330,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
         
@@ -6371,10 +6371,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount()); 
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -6398,10 +6398,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount());  // extra for itemRequest
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -6426,7 +6426,7 @@ public class ReactorWatchlistJunit
             assertEquals(5, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for submitted item requests
             // 1 for Item Refresh due to fanout 
             // 1 for the TRI item update fanout
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // verify that update has msgKey in it
@@ -6450,7 +6450,7 @@ public class ReactorWatchlistJunit
             assertEquals(7, callbackHandler.defaultMsgEventCount());   // one more loginStatus, directory update, and itemStatus callback 
             
             // Directory update deleting service.
-            RDMDirectoryMsgEvent directoryMsgEvent1 = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent1 = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent1);                       
             assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent1.rdmDirectoryMsg().rdmMsgType());
             assertEquals(1, ((DirectoryUpdate)directoryMsgEvent1.rdmDirectoryMsg()).serviceList().size());
@@ -6486,7 +6486,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
             
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }                   
@@ -6556,11 +6556,11 @@ public class ReactorWatchlistJunit
             consumerRole.watchlistOptions().requestTimeout(5000);
 
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
                         
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -6586,7 +6586,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
     
@@ -6628,10 +6628,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount()); 
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
  
             /*
@@ -6655,10 +6655,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount());  // extra for itemRequest
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -6683,7 +6683,7 @@ public class ReactorWatchlistJunit
             assertEquals(5, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for submitted item requests
                                                                      // 1 for Item Refresh due to fanout 
                                                                      // 1 for the TRI item update fanout
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // verify that update has msgKey in it
@@ -6703,7 +6703,7 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(6, callbackHandler.defaultMsgEventCount());   // one more loginStatus, one more itemStatus callback 
-            ReactorMsgEvent defaultMsgEvent1 = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent defaultMsgEvent1 = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(defaultMsgEvent1);           
         }
         catch (Exception e)
@@ -6725,7 +6725,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -6790,11 +6790,11 @@ public class ReactorWatchlistJunit
             consumerRole.watchlistOptions().requestTimeout(5000);
 
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
                         
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -6820,7 +6820,7 @@ public class ReactorWatchlistJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
     
@@ -6861,10 +6861,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount()); 
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
  
             /*
@@ -6888,10 +6888,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount());  // extra for itemRequest
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             /*
@@ -6916,7 +6916,7 @@ public class ReactorWatchlistJunit
             assertEquals(5, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 1 for submitted item requests
                                                                      // 1 for Item Refresh due to fanout 
                                                                      // 1 for the TRI item update fanout
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             // verify that update has msgKey in it
@@ -6935,7 +6935,7 @@ public class ReactorWatchlistJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(6, callbackHandler.defaultMsgEventCount());   // one more loginStatus, one more itemStatus callback 
-            ReactorMsgEvent defaultMsgEvent1 = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent defaultMsgEvent1 = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(defaultMsgEvent1);         
             
             // submit a close request on the item 
@@ -6967,7 +6967,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -7027,11 +7027,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -7058,7 +7058,7 @@ public class ReactorWatchlistJunit
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -7097,12 +7097,12 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             assertTrue(loginMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(loginMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("Unit Test"));
@@ -7140,10 +7140,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             assertTrue(directoryMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
@@ -7198,7 +7198,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -7258,11 +7258,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -7289,7 +7289,7 @@ public class ReactorWatchlistJunit
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -7328,12 +7328,12 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             assertTrue(loginMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(loginMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("Unit Test"));
@@ -7359,10 +7359,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // Stream info is not set because there has been no submit on the Directory Handler
@@ -7411,7 +7411,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -7472,11 +7472,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -7503,7 +7503,7 @@ public class ReactorWatchlistJunit
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -7542,12 +7542,12 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             assertTrue(loginMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(loginMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("Unit Test"));
@@ -7585,10 +7585,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             assertTrue(directoryMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
@@ -7633,10 +7633,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(2, callbackHandler.directoryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             assertTrue(directoryMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
@@ -7686,7 +7686,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -7749,11 +7749,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -7780,7 +7780,7 @@ public class ReactorWatchlistJunit
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -7841,12 +7841,12 @@ public class ReactorWatchlistJunit
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
             assertEquals(0, callbackHandler.directoryMsgEventCount()); // DirectoryHandler has not yet sent the request message
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             assertTrue(loginMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(loginMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("Unit Test"));
@@ -7872,10 +7872,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent  directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent  directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             assertTrue(directoryMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
@@ -7931,7 +7931,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -7992,11 +7992,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -8024,7 +8024,7 @@ public class ReactorWatchlistJunit
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -8063,12 +8063,12 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             assertTrue(loginMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(loginMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("Unit Test"));
@@ -8107,10 +8107,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
             assertTrue(directoryMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
@@ -8165,7 +8165,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -8225,11 +8225,11 @@ public class ReactorWatchlistJunit
             
             // if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
             
             // if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole) consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
     
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -8256,7 +8256,7 @@ public class ReactorWatchlistJunit
             assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
@@ -8295,12 +8295,12 @@ public class ReactorWatchlistJunit
             // verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent) callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             assertTrue(loginMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(loginMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             assertTrue(msgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(msgEvent.streamInfo().userSpecObject().equals("Unit Test"));
@@ -8326,10 +8326,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(1, callbackHandler.directoryMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
             // Get Directory Close
@@ -8347,10 +8347,10 @@ public class ReactorWatchlistJunit
             // verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
             assertEquals(2, callbackHandler.directoryMsgEventCount());
             assertEquals(3, callbackHandler.defaultMsgEventCount());
-            directoryMsgEvent = (RDMDirectoryMsgEvent) callbackHandler.lastDirectoryMsgEvent();
+            directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent.rdmDirectoryMsg());	// Null because we get a status message back w/ close
             assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
-            msgEvent = (ReactorMsgEvent) callbackHandler.lastDefaultMsgEvent();
+            msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             for (int i = 0; i < (((DirectoryUpdate)directoryMsgEvent.rdmDirectoryMsg()).serviceList().size()); ++i)
             {
@@ -8380,7 +8380,7 @@ public class ReactorWatchlistJunit
             assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
             assertEquals(true, reactor.isShutdown());
     
-            ReactorChannelEvent event = (ReactorChannelEvent) callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }

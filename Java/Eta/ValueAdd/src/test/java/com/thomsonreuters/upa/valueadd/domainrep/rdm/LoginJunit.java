@@ -1885,6 +1885,8 @@ public class LoginJunit
                                 encRDMMsg.applyHasAuthenticationErrorText();
                                 encRDMMsg.authenticationErrorText().data(authenticationErrorText);
                                 break;
+                            default:
+                                break;
                         }
             }
             

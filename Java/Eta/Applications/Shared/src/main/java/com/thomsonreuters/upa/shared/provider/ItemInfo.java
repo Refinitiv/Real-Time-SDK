@@ -52,6 +52,8 @@ public class ItemInfo
                  break;
             case DomainTypes.SYMBOL_LIST:
                 break;
+            default:
+                break;
         }
         isRefreshRequired = true;
         itemName.clear();

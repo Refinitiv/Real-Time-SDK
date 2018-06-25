@@ -374,43 +374,45 @@ public class RealJunit
 				switch(i)
 				{
 					case(12):
-						testDoubleRealCompare((double)((.000000000001)+(.000000000001)*j), (long) Math.floor(((double)((.000000000001+.000000000001*j)*(1000000000000L))) + 0.5), RealHints.EXPONENT_12);	
+						testDoubleRealCompare((.000000000001)+(.000000000001)*j, (long) Math.floor(((.000000000001+.000000000001*j)*(1000000000000L)) + 0.5), RealHints.EXPONENT_12);	
 						break;
 					case(11):
-						testDoubleRealCompare((double)((.00000000001)+(.00000000001)*j), (long) Math.floor(((double)((.00000000001+.00000000001*j)*(100000000000L))) + 0.5), RealHints.EXPONENT_11);
+						testDoubleRealCompare((.00000000001)+(.00000000001)*j, (long) Math.floor(((.00000000001+.00000000001*j)*(100000000000L)) + 0.5), RealHints.EXPONENT_11);
 						break;
 					case(10):
-						testDoubleRealCompare((double)((.0000000001)+(.0000000001)*j), (long) Math.floor(((double)((.0000000001+.0000000001*j)*(10000000000L))) + 0.5), RealHints.EXPONENT_10);
+						testDoubleRealCompare((.0000000001)+(.0000000001)*j, (long) Math.floor(((.0000000001+.0000000001*j)*(10000000000L)) + 0.5), RealHints.EXPONENT_10);
 						break;
 					case(9):
-						testDoubleRealCompare((double)((.000000001)+(.000000001)*j), (long) Math.floor(((double)((.000000001+.000000001*j)*(1000000000))) + 0.5), RealHints.EXPONENT_9);
+						testDoubleRealCompare((.000000001)+(.000000001)*j, (long) Math.floor(((.000000001+.000000001*j)*(1000000000)) + 0.5), RealHints.EXPONENT_9);
 						break;
 					case(8):
-						testDoubleRealCompare((double)((.00000001)+(.00000001)*j), (long) Math.floor(((double)((.00000001+.00000001*j)*(100000000))) + 0.5), RealHints.EXPONENT_8);
+						testDoubleRealCompare((.00000001)+(.00000001)*j, (long) Math.floor(((.00000001+.00000001*j)*(100000000)) + 0.5), RealHints.EXPONENT_8);
 						break;
 					case(7):
-						testDoubleRealCompare((double)((.0000001)+(.0000001)*j), (long) Math.floor(((double)((.0000001+.0000001*j)*(10000000))) + 0.5), RealHints.EXPONENT_7);
+						testDoubleRealCompare((.0000001)+(.0000001)*j, (long) Math.floor(((.0000001+.0000001*j)*(10000000)) + 0.5), RealHints.EXPONENT_7);
 						break;
 					case(6):
-						testDoubleRealCompare((double)((.000001)+(.000001)*j), (long) Math.floor(((double)((.000001+.000001*j)*(1000000))) + 0.5), RealHints.EXPONENT_6);
+						testDoubleRealCompare((.000001)+(.000001)*j, (long) Math.floor(((.000001+.000001*j)*(1000000)) + 0.5), RealHints.EXPONENT_6);
 						break;
 					case(5):
-						testDoubleRealCompare((double)((.00001)+(.00001)*j), (long) Math.floor(((double)((.00001+.00001*j)*(100000))) + 0.5), RealHints.EXPONENT_5);
+						testDoubleRealCompare((.00001)+(.00001)*j, (long) Math.floor(((.00001+.00001*j)*(100000)) + 0.5), RealHints.EXPONENT_5);
 						break;
 					case(4):
-						testDoubleRealCompare((double)((.0001)+(.0001)*j), (long) Math.floor(((double)((.0001+.0001*j)*(10000)) +0.5)), RealHints.EXPONENT_4);
+						testDoubleRealCompare((.0001)+(.0001)*j, (long) Math.floor(((.0001+.0001*j)*(10000) +0.5)), RealHints.EXPONENT_4);
 						break;
 					case(3):
-						testDoubleRealCompare((double)((.001)+(.001)*j), (long) Math.floor(((double)((.001+.001*j)*(1000))) +0.5), RealHints.EXPONENT_3);
+						testDoubleRealCompare((.001)+(.001)*j, (long) Math.floor(((.001+.001*j)*(1000)) +0.5), RealHints.EXPONENT_3);
 						break;
 					case(2):
-						testDoubleRealCompare((double)((.01)+(.01)*j), (long) Math.floor(((double)((.01+.01*j)*(100))) +0.5), RealHints.EXPONENT_2);
+						testDoubleRealCompare((.01)+(.01)*j, (long) Math.floor(((.01+.01*j)*(100)) +0.5), RealHints.EXPONENT_2);
 						break;
 					case(1):
-						testDoubleRealCompare((double)((.1)+(.1)*j), (long) Math.floor(((double)((.1+.1*j)*(10))) +0.5), RealHints.EXPONENT_1);
+						testDoubleRealCompare((.1)+(.1)*j, (long) Math.floor(((.1+.1*j)*(10)) +0.5), RealHints.EXPONENT_1);
 						break;
 					case(0):
-						testDoubleRealCompare((double)(1+1*j), (long) Math.floor(((double)(1+1*j)) + 0.5), RealHints.EXPONENT0);
+						testDoubleRealCompare(1+1*j, (long) Math.floor((1+1*j) + 0.5), RealHints.EXPONENT0);
+						break;
+					default:
 						break;
 				}
 			}

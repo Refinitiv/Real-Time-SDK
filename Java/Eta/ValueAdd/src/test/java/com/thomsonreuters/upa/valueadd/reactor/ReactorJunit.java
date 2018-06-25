@@ -218,7 +218,7 @@ public class ReactorJunit
                             + ++_defaultMsgEventCount + " event=" + event.toString());
 
             _lastDefaultMsgEvent = new ReactorMsgEvent();
-            TestUtil.copyMsgEvent((ReactorMsgEvent)event, (ReactorMsgEvent)_lastDefaultMsgEvent);
+            TestUtil.copyMsgEvent(event, _lastDefaultMsgEvent);
 
             return ReactorCallbackReturnCodes.SUCCESS;
         }
@@ -282,7 +282,7 @@ public class ReactorJunit
                             + ++_loginMsgEventCount + " event=" + event.toString());
 
             _lastLoginMsgEvent = new RDMLoginMsgEvent();
-            TestUtil.copyMsgEvent((ReactorMsgEvent)event, (ReactorMsgEvent)_lastLoginMsgEvent);
+            TestUtil.copyMsgEvent(event, _lastLoginMsgEvent);
 
             if (event.rdmLoginMsg() != null)
             {
@@ -300,7 +300,7 @@ public class ReactorJunit
                             + ++_directoryMsgEventCount + " event=" + event.toString());
 
             _lastDirectoryMsgEvent = new RDMDirectoryMsgEvent();
-            TestUtil.copyMsgEvent((ReactorMsgEvent)event, (ReactorMsgEvent)_lastDirectoryMsgEvent);
+            TestUtil.copyMsgEvent(event, _lastDirectoryMsgEvent);
 
             if (event.rdmDirectoryMsg() != null)
             {
@@ -318,7 +318,7 @@ public class ReactorJunit
                             + ++_dictionaryMsgEventCount + " event=" + event.toString());
 
             _lastDictionaryMsgEvent = new RDMDictionaryMsgEvent();
-            TestUtil.copyMsgEvent((ReactorMsgEvent)event, (ReactorMsgEvent)_lastDictionaryMsgEvent);
+            TestUtil.copyMsgEvent(event, _lastDictionaryMsgEvent);
 
             if (event.rdmDictionaryMsg() != null)
             {
@@ -543,7 +543,7 @@ public class ReactorJunit
             callbackHandler = new ReactorCallbackHandler(selector);
             assertEquals(null, callbackHandler.lastChannelEvent());
             ConsumerRole consumerRole = createDefaultConsumerRole(callbackHandler);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -569,7 +569,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
 
@@ -594,7 +594,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -637,7 +637,7 @@ public class ReactorJunit
             ReactorCallbackHandler callbackHandler = new ReactorCallbackHandler(selector);
             assertEquals(null, callbackHandler.lastChannelEvent());
             ConsumerRole consumerRole = createDefaultConsumerRole(callbackHandler);
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // dispatch on the reactor's reactorChannel. There should
             // be one "WorkerEvent" to dispatch on. There should
@@ -648,7 +648,7 @@ public class ReactorJunit
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(1, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelDownEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
 
@@ -724,7 +724,7 @@ public class ReactorJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -749,7 +749,7 @@ public class ReactorJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(1, callbackHandler.channelEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 
@@ -776,11 +776,11 @@ public class ReactorJunit
             // called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent)callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             verifyMessage(loginMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
             verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent)callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             verifyMessage(msgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
 
@@ -809,14 +809,14 @@ public class ReactorJunit
             assertEquals(1, callbackHandler.defaultMsgEventCount()); // no
                                                                      // change
                                                                      // expected
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent)callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             verifyMessage(directoryMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.SOURCE);
             verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
             // make sure CHANNEL_READY event received
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
 
@@ -841,7 +841,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -904,7 +904,7 @@ public class ReactorJunit
             // change dictionary download mode to first available
             consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
             assertEquals(DictionaryDownloadModes.FIRST_AVAILABLE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -929,7 +929,7 @@ public class ReactorJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(1, callbackHandler.channelEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 
@@ -956,11 +956,11 @@ public class ReactorJunit
             // called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent)callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             verifyMessage(loginMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
             verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent)callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             verifyMessage(msgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
 
@@ -989,7 +989,7 @@ public class ReactorJunit
             assertEquals(1, callbackHandler.defaultMsgEventCount()); // no
                                                                      // change
                                                                      // expected
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent)callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             verifyMessage(directoryMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.SOURCE);
             verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
@@ -1026,7 +1026,7 @@ public class ReactorJunit
             assertEquals(1, callbackHandler.defaultMsgEventCount()); // no
                                                                      // change
                                                                      // expected
-            RDMDictionaryMsgEvent dictionaryMsgEvent = (RDMDictionaryMsgEvent)callbackHandler.lastDictionaryMsgEvent();
+            RDMDictionaryMsgEvent dictionaryMsgEvent = callbackHandler.lastDictionaryMsgEvent();
             assertNotNull(dictionaryMsgEvent);
             verifyMessage(dictionaryMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.DICTIONARY);
             verifyDictionaryMessage(dictionaryMsgEvent.rdmDictionaryMsg());
@@ -1049,7 +1049,7 @@ public class ReactorJunit
             assertEquals(1, callbackHandler.defaultMsgEventCount()); // no
                                                                      // change
                                                                      // expected
-            dictionaryMsgEvent = (RDMDictionaryMsgEvent)callbackHandler.lastDictionaryMsgEvent();
+            dictionaryMsgEvent = callbackHandler.lastDictionaryMsgEvent();
             assertNotNull(dictionaryMsgEvent);
             verifyMessage(dictionaryMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.DICTIONARY);
             verifyDictionaryMessage(dictionaryMsgEvent.rdmDictionaryMsg());
@@ -1070,7 +1070,7 @@ public class ReactorJunit
             // make sure CHANNEL_READY event received
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
 
@@ -1095,7 +1095,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -1325,7 +1325,7 @@ public class ReactorJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -1350,7 +1350,7 @@ public class ReactorJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(1, callbackHandler.channelEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
             ReactorChannel consumerReactorChannel = channelEvent.reactorChannel();
@@ -1382,7 +1382,7 @@ public class ReactorJunit
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelDownEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -1677,7 +1677,7 @@ public class ReactorJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -1702,7 +1702,7 @@ public class ReactorJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(1, callbackHandler.channelEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
             ReactorChannel consumerReactorChannel = channelEvent.reactorChannel();
@@ -1736,12 +1736,12 @@ public class ReactorJunit
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelFDChangeEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.FD_CHANGE, event.eventType());
             Thread.sleep(1000);
-            assertTrue(((ReadFDChangeChannel)readFDChangeChannel).oldScktChannelCalled);
-            assertTrue(((ReadFDChangeChannel)readFDChangeChannel).scktChannelCalled);
+            assertTrue(readFDChangeChannel.oldScktChannelCalled);
+            assertTrue(readFDChangeChannel.scktChannelCalled);
         }
         catch (Exception e)
         {
@@ -2078,7 +2078,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -2105,7 +2105,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -2207,7 +2207,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -2269,7 +2269,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -2296,7 +2296,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -2405,7 +2405,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -2468,7 +2468,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -2495,7 +2495,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -2587,7 +2587,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -2650,7 +2650,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -2677,7 +2677,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -2753,7 +2753,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -2816,7 +2816,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -2843,7 +2843,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -2900,7 +2900,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -2963,7 +2963,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -2990,7 +2990,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -3066,7 +3066,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -3129,7 +3129,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -3156,7 +3156,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -3214,7 +3214,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -3277,7 +3277,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -3304,7 +3304,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -3431,7 +3431,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -3458,7 +3458,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -3515,7 +3515,7 @@ public class ReactorJunit
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(3, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelDownEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -3595,7 +3595,7 @@ public class ReactorJunit
             assertEquals(1, keys.size());
             Iterator<SelectionKey> iter = keys.iterator();
             assertTrue(iter.hasNext());
-            SelectionKey key = (SelectionKey)iter.next();
+            SelectionKey key = iter.next();
             assertNotNull(key);
             iter.remove();
             Server serverFromKey = (Server)key.attachment();
@@ -3630,7 +3630,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
 
@@ -3717,7 +3717,7 @@ public class ReactorJunit
             NIProviderRole niProviderRole = createDefaultNIProviderRole(callbackHandler);
             niProviderRole.initDefaultRDMLoginRequest();
             niProviderRole.initDefaultRDMDirectoryRefresh("RMDS_PUB", 1);
-            reactor.connect(rcOpts, (ReactorRole)niProviderRole, errorInfo);
+            reactor.connect(rcOpts, niProviderRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -3742,7 +3742,7 @@ public class ReactorJunit
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(1, callbackHandler.channelEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 
@@ -3769,11 +3769,11 @@ public class ReactorJunit
             // called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent)callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             verifyMessage(loginMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
             verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent)callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             verifyMessage(msgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
 
@@ -3796,7 +3796,7 @@ public class ReactorJunit
             // make sure CHANNEL_READY event received
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
         }
@@ -3820,7 +3820,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -3882,7 +3882,7 @@ public class ReactorJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -3919,7 +3919,7 @@ public class ReactorJunit
             assertEquals(0, reactor.dispatchAll(keys, dispatchOptions, errorInfo));
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(1, callbackHandler.channelEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 
@@ -3948,11 +3948,11 @@ public class ReactorJunit
             // called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent)callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             verifyMessage(loginMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
             verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent)callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             verifyMessage(msgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
 
@@ -3983,14 +3983,14 @@ public class ReactorJunit
             assertEquals(1, callbackHandler.defaultMsgEventCount()); // no
                                                                      // change
                                                                      // expected
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent)callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             verifyMessage(directoryMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.SOURCE);
             verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
             // make sure CHANNEL_READY event received
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
 
@@ -4015,7 +4015,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -4085,8 +4085,8 @@ public class ReactorJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts1, (ReactorRole)consumerRole, errorInfo);
-            reactor.connect(rcOpts2, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts1, consumerRole, errorInfo);
+            reactor.connect(rcOpts2, consumerRole, errorInfo);
 
             Thread.sleep(1000);
 
@@ -4126,7 +4126,7 @@ public class ReactorJunit
             ReactorJunit.dispatchReactorAll(selector, reactor);
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(2, callbackHandler.channelEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 
@@ -4162,11 +4162,11 @@ public class ReactorJunit
             // called.
             assertEquals(2, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent)callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             verifyMessage(loginMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
             verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent)callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             verifyMessage(msgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
 
@@ -4204,14 +4204,14 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.defaultMsgEventCount()); // no
                                                                      // change
                                                                      // expected
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent)callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             verifyMessage(directoryMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.SOURCE);
             verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
             // make sure CHANNEL_READY event received
             assertEquals(4, callbackHandler.channelEventCount());
             assertEquals(2, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
 
@@ -4236,7 +4236,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
 
@@ -4290,7 +4290,7 @@ public class ReactorJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -4318,7 +4318,7 @@ public class ReactorJunit
             assertEquals(0, reactor.dispatchAll(null, dispatchOptions, errorInfo));
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(1, callbackHandler.channelEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 
@@ -4348,11 +4348,11 @@ public class ReactorJunit
             // called.
             assertEquals(1, callbackHandler.loginMsgEventCount());
             assertEquals(1, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent)callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             verifyMessage(loginMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
             verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent)callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             verifyMessage(msgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
 
@@ -4384,14 +4384,14 @@ public class ReactorJunit
             assertEquals(1, callbackHandler.defaultMsgEventCount()); // no
                                                                      // change
                                                                      // expected
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent)callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             verifyMessage(directoryMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.SOURCE);
             verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
             // make sure CHANNEL_READY event received
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
 
@@ -4414,7 +4414,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -4473,8 +4473,8 @@ public class ReactorJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts1, (ReactorRole)consumerRole, errorInfo);
-            reactor.connect(rcOpts2, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts1, consumerRole, errorInfo);
+            reactor.connect(rcOpts2, consumerRole, errorInfo);
 
             Thread.sleep(1000);
 
@@ -4521,7 +4521,7 @@ public class ReactorJunit
             assertEquals(0, reactor.dispatchAll(null, dispatchOptions, errorInfo));
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(2, callbackHandler.channelEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, channelEvent.eventType());
 
@@ -4559,11 +4559,11 @@ public class ReactorJunit
             // called.
             assertEquals(2, callbackHandler.loginMsgEventCount());
             assertEquals(2, callbackHandler.defaultMsgEventCount());
-            RDMLoginMsgEvent loginMsgEvent = (RDMLoginMsgEvent)callbackHandler.lastLoginMsgEvent();
+            RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
             assertNotNull(loginMsgEvent);
             verifyMessage(loginMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
             verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
-            ReactorMsgEvent msgEvent = (ReactorMsgEvent)callbackHandler.lastDefaultMsgEvent();
+            ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             verifyMessage(msgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.LOGIN);
 
@@ -4603,14 +4603,14 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.defaultMsgEventCount()); // no
                                                                      // change
                                                                      // expected
-            RDMDirectoryMsgEvent directoryMsgEvent = (RDMDirectoryMsgEvent)callbackHandler.lastDirectoryMsgEvent();
+            RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
             assertNotNull(directoryMsgEvent);
             verifyMessage(directoryMsgEvent.transportBuffer(), MsgClasses.REFRESH, DomainTypes.SOURCE);
             verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
             // make sure CHANNEL_READY event received
             assertEquals(4, callbackHandler.channelEventCount());
             assertEquals(2, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
 
@@ -4634,7 +4634,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
 
@@ -4689,13 +4689,13 @@ public class ReactorJunit
             Mockito.stub(workerQueue.write((VaNode)Mockito.anyObject())).toReturn(false);
             // set reactor worker queue to mock worker queue
             reactor._workerQueue = workerQueue;
-            assertEquals(ReactorReturnCodes.FAILURE, reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.FAILURE, reactor.connect(rcOpts, consumerRole, errorInfo));
             assertTrue("sendWorkerEvent() failed".equals(errorInfo._error.text()));
 
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(1, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelDownEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
 
@@ -4770,7 +4770,7 @@ public class ReactorJunit
             callbackHandler = new ReactorCallbackHandler(selector);
             assertEquals(null, callbackHandler.lastChannelEvent());
             ConsumerRole consumerRole = createDefaultConsumerRole(callbackHandler);
-            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -4796,7 +4796,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             assertTrue(event.reactorChannel().userSpecObj().equals("userSpecObject: " + serverPort));
@@ -4812,7 +4812,7 @@ public class ReactorJunit
             assertEquals(1, keys.size());
             Iterator<SelectionKey> iter = keys.iterator();
             assertTrue(iter.hasNext());
-            SelectionKey key = (SelectionKey)iter.next();
+            SelectionKey key = iter.next();
             assertNotNull(key);
             iter.remove();
 
@@ -4825,7 +4825,7 @@ public class ReactorJunit
             // verify that the ReactorChannelEventCallback was called.
             assertEquals(3, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelDownEventCount());
-            event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, event.eventType());
 
@@ -4853,7 +4853,7 @@ public class ReactorJunit
             assertEquals(5, callbackHandler.channelEventCount());
             assertEquals(2, callbackHandler.channelUpEventCount());
             assertEquals(2, callbackHandler.channelReadyEventCount());
-            event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             assertTrue(event.reactorChannel().userSpecObj().equals("userSpecObject: " + serverPortBackup));
@@ -4878,7 +4878,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
@@ -4942,7 +4942,7 @@ public class ReactorJunit
             assertEquals(null, consumerRole._directoryRequest);
             // make sure dictionary download mode is none
             assertEquals(DictionaryDownloadModes.NONE, consumerRole.dictionaryDownloadMode());
-            reactor.connect(rcOpts, (ReactorRole)consumerRole, errorInfo);
+            reactor.connect(rcOpts, consumerRole, errorInfo);
 
             // wait for the TestServer to accept a connection.
             testServer.waitForAcceptable();
@@ -4969,7 +4969,7 @@ public class ReactorJunit
             assertEquals(2, callbackHandler.channelEventCount());
             assertEquals(1, callbackHandler.channelUpEventCount());
             assertEquals(1, callbackHandler.channelReadyEventCount());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent channelEvent = callbackHandler.lastChannelEvent();
             assertNotNull(channelEvent);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, channelEvent.eventType());
 
@@ -5069,7 +5069,7 @@ public class ReactorJunit
             assertEquals(ReactorReturnCodes.SUCCESS, errorInfo.code());
             assertEquals(true, reactor.isShutdown());
 
-            ReactorChannelEvent event = (ReactorChannelEvent)callbackHandler.lastChannelEvent();
+            ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }

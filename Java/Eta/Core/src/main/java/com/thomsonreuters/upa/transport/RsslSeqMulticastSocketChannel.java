@@ -356,7 +356,7 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
             _datagramChannel.configureBlocking(_blocking);
 
             // Expose Key in future in GetChannelinfo()? Don't forget to drop() key on uninit
-            _key = ((DatagramChannel)_datagramChannel).join(_group, _ni);
+            _key = _datagramChannel.join(_group, _ni);
 
             if ((_sendHost != null && _sendHost.length() > 0) && (_sendPort != null && _sendPort.length() > 0))
             {
@@ -538,7 +538,7 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
                     int protoMinor;
                     int iter = 0;
 
-                    hdrVersion = (int)_byteData.get(iter) & 0xFF;
+                    hdrVersion = _byteData.get(iter) & 0xFF;
                     iter += EDF_VERSION_LEN;
 
                     if (hdrVersion != EDF_MAX_VERSION)
@@ -551,16 +551,16 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
                         return null;
                     }
 
-                    flags = (int)_byteData.get(iter) & 0xFF;
+                    flags = _byteData.get(iter) & 0xFF;
 
-                    if ((int)(flags & SEQ_MCAST_FLAGS_RETRANSMIT) > 0)
+                    if ((flags & SEQ_MCAST_FLAGS_RETRANSMIT) > 0)
                     {
                         ((ReadArgsImpl)readArgs)._flags |= ReadFlags.READ_RETRANSMIT;
                     }
 
                     iter += EDF_FLAGS_LEN;
 
-                    protoType = (int)_byteData.get(iter) & 0xFF;
+                    protoType = _byteData.get(iter) & 0xFF;
                     iter += EDF_PROTOCOL_TYPE_LEN;
                     if (protoType != _protocolType)
                     {
@@ -572,16 +572,16 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
                         return null;
                     }
 
-                    hdrLen = (int)_byteData.get(iter) & 0xFF;
+                    hdrLen = _byteData.get(iter) & 0xFF;
                     iter += EDF_HDR_LENGTH_LEN;
 
-                    _readInstanceId = (int)_byteData.getShort(iter) & 0xFFFF;
+                    _readInstanceId = _byteData.getShort(iter) & 0xFFFF;
                     iter += EDF_INSTANCE_ID_LEN;
 
-                    protoMajor = (int)_byteData.get(iter) & 0xFF;
+                    protoMajor = _byteData.get(iter) & 0xFF;
                     iter += EDF_PROTO_VER_MAJOR_LEN;
 
-                    protoMinor = (int)_byteData.get(iter) & 0xFF;
+                    protoMinor = _byteData.get(iter) & 0xFF;
                     iter += EDF_PROTO_VER_MINOR_LEN;
 
                     _readSeqNum = _byteData.getInt(iter) & 0xFFFFFFFFL;
@@ -779,8 +779,8 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
                 _endWriteMsgPosition = _writeData._packedMsgLengthPosition - EDF_MSG_LEN_LEN;
             }
 
-            if (((int)(writeArgs.flags() & WriteFlags.WRITE_RETRANSMIT) > 0 && (int)(writeArgs.flags() & WriteFlags.WRITE_SEQNUM) == 0)
-                    || ((int)(writeArgs.flags() & WriteFlags.WRITE_RETRANSMIT) == 0 && (int)(writeArgs.flags() & WriteFlags.WRITE_SEQNUM) > 0))
+            if (((writeArgs.flags() & WriteFlags.WRITE_RETRANSMIT) > 0 && (writeArgs.flags() & WriteFlags.WRITE_SEQNUM) == 0)
+                    || ((writeArgs.flags() & WriteFlags.WRITE_RETRANSMIT) == 0 && (writeArgs.flags() & WriteFlags.WRITE_SEQNUM) > 0))
             {
                 error.channel(this);
                 error.errorId(TransportReturnCodes.FAILURE);
@@ -791,7 +791,7 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
             }
 
             long seqNum = 0;
-            if ((int)(writeArgs.flags() & WriteFlags.WRITE_SEQNUM) > 0)
+            if ((writeArgs.flags() & WriteFlags.WRITE_SEQNUM) > 0)
             {
                 seqNum = writeArgs.seqNum();
                 if (seqNum < 0 || seqNum > 4294967295L)
@@ -815,7 +815,7 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
             }
 
             int flags = 0x0;
-            if ((int)(writeArgs.flags() & WriteFlags.WRITE_RETRANSMIT) > 0)
+            if ((writeArgs.flags() & WriteFlags.WRITE_RETRANSMIT) > 0)
                 flags = SEQ_MCAST_FLAGS_RETRANSMIT;
 
             // Put the header onto the buffer
@@ -831,7 +831,7 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
 
             try
             {
-                if (((DatagramChannel)_datagramChannel).send(_writeData.data(), _inetSocketAddress) != 0)
+                if (_datagramChannel.send(_writeData.data(), _inetSocketAddress) != 0)
                 {
                     ((WriteArgsImpl)writeArgs)._bytesWritten = _writeData.data().limit() - hdrOffset;
                     ((WriteArgsImpl)writeArgs)._uncompressedBytesWritten = _writeData.data().limit() - hdrOffset;
@@ -1185,7 +1185,7 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
             ((MCastStatsImpl)_channelInfo._multicastStats).mcastSent(_channelInfo._multicastStats.mcastSent() + 1);
 
             // Write data
-            ((DatagramChannel)_datagramChannel).send(_writePing.data(), _inetSocketAddress);
+            _datagramChannel.send(_writePing.data(), _inetSocketAddress);
 
             ((MCastStatsImpl)_channelInfo._multicastStats).mcastSent(_channelInfo._multicastStats.mcastSent() + 1);
             return TransportReturnCodes.SUCCESS;
@@ -1245,7 +1245,7 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
     @Override
     public SelectableChannel selectableChannel()
     {
-        return (SelectableChannel)_datagramChannel;
+        return _datagramChannel;
     }
 
     @Override

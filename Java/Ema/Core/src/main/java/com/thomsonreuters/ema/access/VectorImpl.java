@@ -75,10 +75,10 @@ class VectorImpl extends CollectionDataImpl implements Vector
 			_summaryData = new PayloadAttribSummaryImpl();
 		
 		if (_summaryDecoded == null)
-			_summaryDecoded = (DataImpl)new NoDataImpl();
+			_summaryDecoded = new NoDataImpl();
 		
 		_summaryData.data(_summaryDecoded);
-		return (SummaryData)_summaryData;
+		return _summaryData;
 	}
 	
 	@Override

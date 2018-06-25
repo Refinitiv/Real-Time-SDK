@@ -157,6 +157,8 @@ public class ByteRoutines
             case 3:
                 out[j] |= (byte) ((b << 2) & 0xFC);
                 break;
+            default:
+                break;
             }
         }
     }

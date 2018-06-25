@@ -581,6 +581,7 @@ public class Module_1b_Ping
                                     case TransportReturnCodes.FAILURE:
                                         System.out.printf("Error (%d) (errno: %d) %s\n", error.errorId(), error.sysError(), error.text());
                                         closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
+                                        break;
 
                                     default: /* Error handling */
                                     {

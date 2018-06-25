@@ -301,7 +301,7 @@ public class TransportChannelHandler
                 currentTime = System.nanoTime();
                 try
                 {
-                    long selTime = atLeastOneChannel ? (long)((stopTimeNsec - currentTime) / 1000000) : 1L;
+                    long selTime = atLeastOneChannel ? ((stopTimeNsec - currentTime) / 1000000) : 1L;
                     if (selTime <= 0)
                         selRet = _selector.selectNow();
                     else

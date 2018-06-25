@@ -469,7 +469,7 @@ class WlStream extends VaNode
 	                    	if (!((RequestMsg)msg).checkNoRefresh() && !_viewSubsetContained)
 	                    		_pendingViewRefresh = true;
 	                                        
-	                        if (_aggregateView != null && 	(int)(msg.flags() & RequestMsgFlags.HAS_VIEW) > 0)
+	                        if (_aggregateView != null && 	(msg.flags() & RequestMsgFlags.HAS_VIEW) > 0)
 	                        	_aggregateView.viewHandler().aggregateViewCommit(_aggregateView);
 	
 	                        if (_aggregateView != null && _requestsWithViewCount == 0 )

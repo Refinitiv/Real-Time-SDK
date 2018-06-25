@@ -42,8 +42,8 @@ class QueueAckImpl extends QueueMsgImpl implements QueueAck
 		_genericMsg.applyMessageComplete();
 		_genericMsg.applyHasExtendedHdr();
 		_genericMsg.applyHasSecondarySeqNum();		
-		_genericMsg.secondarySeqNum((long)_lastOutSeqNum);
-		_genericMsg.secondarySeqNum((long)_seqNum);
+		_genericMsg.secondarySeqNum(_lastOutSeqNum);
+		_genericMsg.secondarySeqNum(_seqNum);
 		_genericMsg.applyHasMsgKey();
 
 		/* toName */
@@ -146,12 +146,12 @@ class QueueAckImpl extends QueueMsgImpl implements QueueAck
 					);
 
 			/* fromQueue */
-			int msgLength = (int)tmpByteBuf.get() & 0xff;
+			int msgLength = tmpByteBuf.get() & 0xff;
 			_sourceName.data(tmpByteBuf, tmpByteBuf.position(), msgLength);
 			tmpByteBuf.position(tmpByteBuf.position() + msgLength);
 
 			/* Identifier */
-			msgLength = (int)tmpByteBuf.get() & 0xff;
+			msgLength = tmpByteBuf.get() & 0xff;
 			_identifier = TunnelStreamUtil.readLong64ls(msgLength, tmpByteBuf);
 
 			tmpByteBuf.limit(tmpLimit);

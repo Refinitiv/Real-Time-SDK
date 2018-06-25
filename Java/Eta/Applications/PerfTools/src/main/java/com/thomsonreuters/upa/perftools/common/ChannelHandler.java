@@ -307,7 +307,7 @@ public class ChannelHandler
         currentTime = currentTime();
         try
         {
-        	long selTime = (long)((stopTime - currentTime) / _divisor);
+        	long selTime = (stopTime - currentTime) / _divisor;
         	if (selTime <= 0)
         		selRet = _selector.selectNow();
         	else

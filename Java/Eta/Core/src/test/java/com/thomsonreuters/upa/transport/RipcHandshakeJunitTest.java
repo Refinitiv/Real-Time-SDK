@@ -375,6 +375,8 @@ public class RipcHandshakeJunitTest
             case 11:
                 expectedHeaderLength = Ripc11Protocol.CONNECT_ACK_HEADER;
                 break;
+            default:
+                fail();
         }
         assertEquals(expectedHeaderLength, buffer.get(idx++));
 
@@ -503,6 +505,8 @@ public class RipcHandshakeJunitTest
             case 11:
                 expectedHeaderLength += Ripc11Protocol.CONNECT_NAK_HEADER;
                 expectedTextBytes = Ripc11Protocol.CONNECTION_REFUSED_BYTES;
+                break;
+            default:
                 break;
         }
 

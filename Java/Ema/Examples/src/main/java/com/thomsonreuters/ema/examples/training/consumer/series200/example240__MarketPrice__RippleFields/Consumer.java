@@ -111,6 +111,8 @@ class AppClient implements OmmConsumerClient
 						+ ") Value: " + ASK_2);
 					}
 					break;
+				default:
+					break;
 			}
 		}
 	}

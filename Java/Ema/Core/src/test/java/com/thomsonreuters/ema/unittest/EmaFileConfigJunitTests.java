@@ -57,39 +57,39 @@ public class EmaFileConfigJunitTests extends TestCase
 		// Check default consumer name (Conusmer_2) and associated values
 		System.out.println("Retrieving DefaultConsumer configuration values: (DefaultConsumer value=Consumer_2) "); 
 	
-		String defaultConsName = ( String ) JUnitTestConnect.configGetConsumerName(testConfig);
+		String defaultConsName = JUnitTestConnect.configGetConsumerName(testConfig);
 		TestUtilities.checkResult("DefaultConsumer value != null", defaultConsName != null);
 		TestUtilities.checkResult("DefaultConsumer value == Consumer_2", defaultConsName.contentEquals("Consumer_2") );
-		String ConsChannelVal = ( String ) JUnitTestConnect.configGetChannelName(testConfig, defaultConsName);
+		String ConsChannelVal = JUnitTestConnect.configGetChannelName(testConfig, defaultConsName);
 		TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
 		TestUtilities.checkResult("Channel value == Channel_2", ConsChannelVal.contentEquals("Channel_2") );
-		String ConsDictionary = ( String ) JUnitTestConnect.configGetDictionaryName(testConfig, defaultConsName);
+		String ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, defaultConsName);
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
-		int intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerItemCountHint);
+		int intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerItemCountHint);
 		TestUtilities.checkResult("ItemCountHint value == 500000", intLongValue == 500000 );
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerServiceCountHint);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerServiceCountHint);
 		TestUtilities.checkResult("ServiceCountHint value == 655", intLongValue == 655 );
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerObeyOpenWindow);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerPostAckTimeout);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerObeyOpenWindow);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerPostAckTimeout);
 		TestUtilities.checkResult("PostAckTimeout value == 7000", intLongValue == 7000 );
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerRequestTimeout);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerRequestTimeout);
 		TestUtilities.checkResult("RequestTimeout value == 8000", intLongValue == 8000 );
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMaxOutstandingPosts);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMaxOutstandingPosts);
 		TestUtilities.checkResult("MaxOutstandingPosts value == 90000", intLongValue == 90000 );
-		int intValue = ( int ) JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDispatchTimeoutApiThread);
+		int intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDispatchTimeoutApiThread);
 		TestUtilities.checkResult("DispatchTimeoutApiThread value == 90", intValue == 90 );
 
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMaxDispatchCountApiThread);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMaxDispatchCountApiThread);
 		TestUtilities.checkResult("MaxDispatchCountApiThread value == 400", intLongValue == 400 );
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMaxDispatchCountUserThread);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMaxDispatchCountUserThread);
 		TestUtilities.checkResult("MaxDispatchCountUserThread value == 5", intLongValue == 5 );
 
-		intValue = ( int ) JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerReconnectAttemptLimit);
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerReconnectAttemptLimit);
 		TestUtilities.checkResult("ReconnectAttemptLimit == 5", intValue == 10);
-		intValue = ( int ) JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerReconnectMinDelay);
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerReconnectMinDelay);
 		TestUtilities.checkResult("ReconnectMinDelay == 330", intValue == 123);
-		intValue = ( int ) JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerReconnectMaxDelay);
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerReconnectMaxDelay);
 		TestUtilities.checkResult("ReconnectMaxDelay == 450", intValue == 456);
 		String strValue = JUnitTestConnect.configGetStringValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerXmlTraceFileName);
 		TestUtilities.checkResult("XmlTraceFileName == EmaMyTrace2", strValue.contentEquals("EmaMyTrace2"));
@@ -116,40 +116,40 @@ public class EmaFileConfigJunitTests extends TestCase
 		// Check values of Consumer_1
 		System.out.println("\nRetrieving Consumer_1 configuration values "); 
 
-		ConsChannelVal = ( String ) JUnitTestConnect.configGetChannelName(testConfig, "Consumer_1");
+		ConsChannelVal = JUnitTestConnect.configGetChannelName(testConfig, "Consumer_1");
 		TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
 		TestUtilities.checkResult("Channel value == Channel_1", ConsChannelVal.contentEquals("Channel_1") );
-		ConsDictionary = ( String ) JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_1");
+		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_1");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
 		
 		// Check values of Consumer_3
 		System.out.println("\nRetrieving Consumer_3 configuration values "); 
 
-		ConsChannelVal = ( String ) JUnitTestConnect.configGetChannelName(testConfig, "Consumer_3");
+		ConsChannelVal = JUnitTestConnect.configGetChannelName(testConfig, "Consumer_3");
 		TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
 		TestUtilities.checkResult("Channel value == Channel_1", ConsChannelVal.contentEquals("Channel_1") );
-		ConsDictionary = ( String ) JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_3");
+		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_3");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
 
 		// Check values of Consumer_4
 		System.out.println("\nRetrieving Consumer_4 configuration values "); 
 
-		ConsChannelVal =  ( String ) JUnitTestConnect.configGetChannelName(testConfig, "Consumer_4");
+		ConsChannelVal =  JUnitTestConnect.configGetChannelName(testConfig, "Consumer_4");
 		TestUtilities.checkResult("ChannelSet value != null", ConsChannelVal != null);
 		TestUtilities.checkResult("ChannelSet value == Channel_4, Channel_5", ConsChannelVal.contentEquals("Channel_4,Channel_5") );
-		ConsDictionary = ( String ) JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_4");
+		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_4");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
 
 		// Check values of Consumer_5
 		System.out.println("\nRetrieving Consumer_5 configuration values "); 
 
-		ConsChannelVal = ( String ) JUnitTestConnect.configGetChannelName(testConfig, "Consumer_5");
+		ConsChannelVal = JUnitTestConnect.configGetChannelName(testConfig, "Consumer_5");
 		TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
 		TestUtilities.checkResult("Channel value == Channel_3", ConsChannelVal.contentEquals("Channel_3") );
-		ConsDictionary = ( String ) JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_5");
+		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_5");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
 	
@@ -160,22 +160,22 @@ public class EmaFileConfigJunitTests extends TestCase
 		int channelConnType = JUnitTestConnect.configGetChannelType(testConfig, ConsChannelVal);
 		TestUtilities.checkResult("channelConnType == ChannelType::RSSL_SOCKET", channelConnType == ChannelTypeSocket);
 	
-		intValue = ( int ) JUnitTestConnect.configGetIntValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionType);
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionType);
 		TestUtilities.checkResult("CompressionType == CompressionType::None", intValue == CompressionTypeNone);
 		
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
 		TestUtilities.checkResult("GuaranteedOutputBuffers == 5000", intLongValue == 5000);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
 		TestUtilities.checkResult("NumInputBuffers == 7000", intLongValue == 7000);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
 		TestUtilities.checkResult("SysRecvBufSize == 125236", intLongValue == 125236);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
 		TestUtilities.checkResult("SysSendBufSize == 569823", intLongValue == 569823);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelHighWaterMark);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelHighWaterMark);
 		TestUtilities.checkResult("HighWaterMark == 3000", intLongValue == 3000);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionThreshold);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionThreshold);
 		TestUtilities.checkResult("CompressionThreshold == 2048", intLongValue == 2048);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
 		TestUtilities.checkResult("ConnectionPingTimeout == 30000", intLongValue == 30000);
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelTcpNodelay);
 		TestUtilities.checkResult("TcpNodelay == 1", boolValue == true);
@@ -195,19 +195,19 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("channelConnType == ChannelType::RSSL_SOCKET", channelConnType == ChannelTypeSocket);
 		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelInterfaceName);
 		TestUtilities.checkResult("InterfaceName == localhost4file", strValue.contentEquals("localhost4file"));
-		intValue = ( int ) JUnitTestConnect.configGetIntValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionType);
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionType);
 		TestUtilities.checkResult("CompressionType == CompressionType::Zlib", intValue == CompressionTypeZLib);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
 		TestUtilities.checkResult("GuaranteedOutputBuffers == 6000", intLongValue == 6000);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
 		TestUtilities.checkResult("NumInputBuffers == 9000", intLongValue == 9000);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
 		TestUtilities.checkResult("SysRecvBufSize == 23656", intLongValue == 23656);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
 		TestUtilities.checkResult("SysSendBufSize == 63656", intLongValue == 63656);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionThreshold);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionThreshold);
 		TestUtilities.checkResult("CompressionThreshold == 4096", intLongValue == 4096);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
 		TestUtilities.checkResult("ConnectionPingTimeout == 55555", intLongValue == 55555);
 		chanHost = JUnitTestConnect.configGetChanHost(testConfig, ConsChannelVal);
 		TestUtilities.checkResult("Host == 0.0.0.2", chanHost.contentEquals("0.0.0.2"));
@@ -255,59 +255,59 @@ public class EmaFileConfigJunitTests extends TestCase
 		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChanneltcpControlPort);
 		TestUtilities.checkResult("TcpControlPort != null", strValue != null);
 		TestUtilities.checkResult("TcpControlPort == 15018", strValue.contentEquals("15018"));
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelPacketTTL);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelPacketTTL);
 		TestUtilities.checkResult("PacketTTL == 10", intLongValue == 10);
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelDisconnectOnGap);
 		TestUtilities.checkResult("DisconnectOnGap == 1", boolValue == true);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channelndata);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channelndata);
 		TestUtilities.checkResult("ndata == 8", intLongValue == 8);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channelnmissing);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channelnmissing);
 		TestUtilities.checkResult("nmissing == 130", intLongValue == 130);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channelnrreq);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channelnrreq);
 		TestUtilities.checkResult("nrreq == 5", intLongValue == 5);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltdata);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltdata);
 		TestUtilities.checkResult("tdata == 0", intLongValue == 0);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltrreq);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltrreq);
 		TestUtilities.checkResult("trreq == 5", intLongValue == 5);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelpktPoolLimitHigh);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelpktPoolLimitHigh);
 		TestUtilities.checkResult("pktPoolLimitHigh == 190500", intLongValue == 190500);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelpktPoolLimitLow);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelpktPoolLimitLow);
 		TestUtilities.checkResult("pktPoolLimitLow == 180500", intLongValue == 180500);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltwait);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltwait);
 		TestUtilities.checkResult("twait == 4", intLongValue == 4);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltbchold);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltbchold);
 		TestUtilities.checkResult("tbchold == 4", intLongValue == 4);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltpphold);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Channeltpphold);
 		TestUtilities.checkResult("tpphold == 4", intLongValue == 4);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChanneluserQLimit);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChanneluserQLimit);
 		TestUtilities.checkResult("userQLimit == 65535", intLongValue == 65535);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelHsmInterval);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelHsmInterval);
 		TestUtilities.checkResult("HsmInterval == 10", intLongValue == 10);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
 		TestUtilities.checkResult("GuaranteedOutputBuffers == 5500", intLongValue == 5500);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
 		TestUtilities.checkResult("NumInputBuffers == 9500", intLongValue == 9500);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
 		TestUtilities.checkResult("SysRecvBufSize == 125000", intLongValue == 125000);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
 		TestUtilities.checkResult("SysSendBufSize == 550000", intLongValue == 550000);
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
 		TestUtilities.checkResult("ConnectionPingTimeout == 3555", intLongValue == 3555);
 	
 		// Check Dictionary_1 configuration.
 		ConsDictionary = "Dictionary_1";
 		System.out.println("\nRetrieving Dictionary_1 configuration values ");
-		intValue = ( int ) JUnitTestConnect.configGetIntValue(testConfig, ConsDictionary, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryType);
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, ConsDictionary, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryType);
 		TestUtilities.checkResult("DictionaryType == DictionaryType::ChannelDictionary (0)", intValue == 0);		
 	
 		// Check Dictionary_2 configuration.
 		ConsDictionary = "Dictionary_2";
 		System.out.println("\nRetrieving Dictionary_2 configuration values ");
-		intValue = ( int ) JUnitTestConnect.configGetIntValue(testConfig, ConsDictionary, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryType);
+		intValue = JUnitTestConnect.configGetIntValue(testConfig, ConsDictionary, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryType);
 		TestUtilities.checkResult("DictionaryType == DictionaryType::FileDictionary (1)", intValue == 1);		
-		strValue =  ( String ) JUnitTestConnect.configGetStringValue(testConfig, ConsDictionary, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryRDMFieldDictFileName);
+		strValue =  JUnitTestConnect.configGetStringValue(testConfig, ConsDictionary, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryRDMFieldDictFileName);
 		TestUtilities.checkResult("RdmFieldDictionaryFileName == ./RDMFieldDictionary_2", strValue.contentEquals("./RDMFieldDictionary_2"));		
-		strValue =   ( String ) JUnitTestConnect.configGetStringValue(testConfig, ConsDictionary, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryEnumTypeDefFileName);
+		strValue =   JUnitTestConnect.configGetStringValue(testConfig, ConsDictionary, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryEnumTypeDefFileName);
 		TestUtilities.checkResult("RdmFieldDictionaryFileName == ./enumtype_2.def", strValue.contentEquals("./enumtype_2.def"));		
 
 		// Check user specified host and port.		
@@ -347,14 +347,14 @@ public class EmaFileConfigJunitTests extends TestCase
 		System.out.println("Retrieving Consumer_3 both ChannelSet & Channel configuration values: (Channel after ChannelSet) "); 
 		
 		consumerName = "Consumer_3";
-		String cons3Channel = ( String ) JUnitTestConnect.configGetChannelName(testConfig, consumerName);
+		String cons3Channel = JUnitTestConnect.configGetChannelName(testConfig, consumerName);
 		TestUtilities.checkResult("Channel value=Channel_1", cons3Channel.contentEquals("Channel_1"));
 	
 		// Consumer_4 ChannelSet values
 		System.out.println("Retrieving Consumer_4 both ChannelSet & Channel configuration values: (ChannelSet after Channel) "); 
 		
 		consumerName = "Consumer_4";
-		String cons4Channel = ( String ) JUnitTestConnect.configGetChannelName(testConfig, consumerName);
+		String cons4Channel = JUnitTestConnect.configGetChannelName(testConfig, consumerName);
 		TestUtilities.checkResult("ChannelSet value=Channel_4, Channel_5", cons4Channel.contentEquals("Channel_4,Channel_5"));
 		
 		// Test Individual Channel attributes and Common attributes.

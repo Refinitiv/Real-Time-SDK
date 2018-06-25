@@ -402,11 +402,11 @@ public class upajTransportPerf implements ShutdownCallback
 
                 System.out.printf("  Sent: MsgRate: %8.0f, DataRate:%8.3fMBps\n",
                         (double)intervalMsgSentCount / (double)timePassedSec,
-                        (double)intervalBytesSent / (double)(1024*1024) / (double)timePassedSec);
+                        (double)intervalBytesSent / (double)(1024*1024) / timePassedSec);
 
                 System.out.printf("  Recv: MsgRate: %8.0f, DataRate:%8.3fMBps\n",
                         (double)intervalMsgReceivedCount / (double)timePassedSec,
-                        (double)intervalBytesReceived / (double)(1024*1024) / (double)timePassedSec);
+                        (double)intervalBytesReceived / (double)(1024*1024) / timePassedSec);
 
                 if (intervalOutOfBuffersCount > 0)
                 {
@@ -576,12 +576,12 @@ public class upajTransportPerf implements ShutdownCallback
                 fileWriter.printf("  Sampling duration(sec): %.2f\n", threadConnectedTime);
                 fileWriter.printf("  Msgs Sent: %d\n", thread.msgsSent().getTotal());
                 fileWriter.printf("  Msgs Received: %d\n", thread.msgsReceived().getTotal());
-                fileWriter.printf("  Data Sent (MB): %.2f\n", (double)thread.bytesSent().getTotal()/1048576.0);
-                fileWriter.printf("  Data Received (MB): %.2f\n", (double)thread.bytesReceived().getTotal()/1048576.0);
-                fileWriter.printf("  Avg. Msg Sent Rate: %.0f\n", threadConnectedTime > 0 ? (double)thread.msgsSent().getTotal()/threadConnectedTime : 0);
-                fileWriter.printf("  Avg. Msg Recv Rate: %.0f\n", threadConnectedTime > 0 ? (double)thread.msgsReceived().getTotal()/threadConnectedTime : 0);
-                fileWriter.printf("  Avg. Data Sent Rate (MB): %.2f\n", threadConnectedTime > 0 ? (double)thread.bytesSent().getTotal()/1048576.0/threadConnectedTime : 0);
-                fileWriter.printf("  Avg. Data Recv Rate (MB): %.2f\n\n", threadConnectedTime > 0 ? (double)thread.bytesReceived().getTotal()/1048576.0/threadConnectedTime : 0);
+                fileWriter.printf("  Data Sent (MB): %.2f\n", thread.bytesSent().getTotal()/1048576.0);
+                fileWriter.printf("  Data Received (MB): %.2f\n", thread.bytesReceived().getTotal()/1048576.0);
+                fileWriter.printf("  Avg. Msg Sent Rate: %.0f\n", threadConnectedTime > 0 ? thread.msgsSent().getTotal()/threadConnectedTime : 0);
+                fileWriter.printf("  Avg. Msg Recv Rate: %.0f\n", threadConnectedTime > 0 ? thread.msgsReceived().getTotal()/threadConnectedTime : 0);
+                fileWriter.printf("  Avg. Data Sent Rate (MB): %.2f\n", threadConnectedTime > 0 ? thread.bytesSent().getTotal()/1048576.0/threadConnectedTime : 0);
+                fileWriter.printf("  Avg. Data Recv Rate (MB): %.2f\n\n", threadConnectedTime > 0 ? thread.bytesReceived().getTotal()/1048576.0/threadConnectedTime : 0);
             }
         }
 
@@ -602,12 +602,12 @@ public class upajTransportPerf implements ShutdownCallback
         fileWriter.printf("  Sampling duration(sec): %.2f\n", connectedTime);
         fileWriter.printf("  Msgs Sent: %d\n", _totalMsgSentCount);
         fileWriter.printf("  Msgs Received: %d\n", _totalMsgReceivedCount);
-        fileWriter.printf("  Data Sent (MB): %.2f\n", (double)_totalBytesSent/1048576.0);
-        fileWriter.printf("  Data Received (MB): %.2f\n", (double)_totalBytesReceived/1048576.0);
-        fileWriter.printf("  Avg. Msg Sent Rate: %.0f\n", connectedTime > 0 ? (double)_totalMsgSentCount/connectedTime : 0);
-        fileWriter.printf("  Avg. Msg Recv Rate: %.0f\n", connectedTime > 0 ? (double)_totalMsgReceivedCount/connectedTime : 0);
-        fileWriter.printf("  Avg. Data Sent Rate (MB): %.2f\n", connectedTime > 0 ? (double)_totalBytesSent/1048576.0/connectedTime : 0);
-        fileWriter.printf("  Avg. Data Recv Rate (MB): %.2f\n", connectedTime > 0 ? (double)_totalBytesReceived/1048576.0/connectedTime : 0);
+        fileWriter.printf("  Data Sent (MB): %.2f\n", _totalBytesSent/1048576.0);
+        fileWriter.printf("  Data Received (MB): %.2f\n", _totalBytesReceived/1048576.0);
+        fileWriter.printf("  Avg. Msg Sent Rate: %.0f\n", connectedTime > 0 ? _totalMsgSentCount/connectedTime : 0);
+        fileWriter.printf("  Avg. Msg Recv Rate: %.0f\n", connectedTime > 0 ? _totalMsgReceivedCount/connectedTime : 0);
+        fileWriter.printf("  Avg. Data Sent Rate (MB): %.2f\n", connectedTime > 0 ? _totalBytesSent/1048576.0/connectedTime : 0);
+        fileWriter.printf("  Avg. Data Recv Rate (MB): %.2f\n", connectedTime > 0 ? _totalBytesReceived/1048576.0/connectedTime : 0);
 
         if (_cpuUsageStats.count() > 0)
         {

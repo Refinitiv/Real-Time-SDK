@@ -107,7 +107,7 @@ class Ripc13Protocol extends IpcProtocol
             buffer.put(Ripc.COMP_BITMAP_SIZE);
 
             /* Compression Type Bitmap */
-            buffer.put((byte)_protocolOptions._compressionBitmap);
+            buffer.put(_protocolOptions._compressionBitmap);
         }
 
         /* Ping Timeout */
@@ -115,7 +115,7 @@ class Ripc13Protocol extends IpcProtocol
 
         /* Session Flags - value set when decoding ConnectAck */
         _protocolOptions._serverSessionFlags = 0;
-        buffer.put((byte)_protocolOptions._serverSessionFlags);
+        buffer.put(_protocolOptions._serverSessionFlags);
 
         /* Protocol Type */
         buffer.put((byte)_protocolOptions._protocolType);
@@ -202,13 +202,13 @@ class Ripc13Protocol extends IpcProtocol
         buffer.put((byte)0);
 
         /* IPC Version */
-        buffer.putInt((int)ripcVersion());
+        buffer.putInt(ripcVersion());
 
         /* Max User Msg Size */
         buffer.putShort((short)_protocolOptions._maxUserMsgSize);
 
         /* Session Flags */
-        buffer.put((byte)_protocolOptions._serverSessionFlags);
+        buffer.put(_protocolOptions._serverSessionFlags);
 
         /* Ping Timeout */
         buffer.put((byte)_protocolOptions._pingTimeout);
@@ -294,13 +294,13 @@ class Ripc13Protocol extends IpcProtocol
         buffer.put((byte)0);
 
         /* IPC Version */
-        buffer.putInt((int)ripcVersion());
+        buffer.putInt(ripcVersion());
 
         /* Max User Msg Size */
         buffer.putShort((short)_protocolOptions._maxUserMsgSize);
 
         /* Session Flags */
-        buffer.put((byte)_protocolOptions._serverSessionFlags);
+        buffer.put(_protocolOptions._serverSessionFlags);
 
         /* Ping Timeout */
         buffer.put((byte)_protocolOptions._pingTimeout);

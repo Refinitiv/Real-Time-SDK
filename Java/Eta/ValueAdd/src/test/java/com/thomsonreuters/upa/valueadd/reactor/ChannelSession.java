@@ -94,6 +94,8 @@ class ChannelSession
 			case MsgClasses.ACK:
 				_loginMsg.rdmMsgType(LoginMsgType.ACK);
 				break;
+			default:
+				break;
 		}
 
 		assertEquals(CodecReturnCodes.SUCCESS, _loginMsg.decode(_dIter, msg));
@@ -125,6 +127,8 @@ class ChannelSession
             case MsgClasses.UPDATE:
                 _directoryMsg.rdmMsgType(DirectoryMsgType.UPDATE);
                 break;
+			default:
+				break;
         }
 
 		assertEquals(CodecReturnCodes.SUCCESS, _directoryMsg.decode(_dIter, msg));

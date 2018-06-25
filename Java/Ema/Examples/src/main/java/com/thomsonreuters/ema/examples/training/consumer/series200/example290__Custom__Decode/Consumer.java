@@ -100,6 +100,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.MAP :
 			decode(attrib.map());
 			break;
+		default:
+			break;
 		}
 	}
 	
@@ -121,6 +123,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.UPDATE_MSG :
 			decode(payload.updateMsg());
 			break;
+		default:
+			break;
 		}
 	}
 	
@@ -140,6 +144,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.UPDATE_MSG :
 			decode(map.summaryData().updateMsg());
 			break;
+		default:
+			break;
 		}
 
 		for (MapEntry mapEntry : map)
@@ -151,6 +157,8 @@ class AppClient implements OmmConsumerClient
 				break;
 			case DataTypes.BUFFER :
 				System.out.println("Action = " + mapEntry.mapActionAsString() + ", key = " + mapEntry.key().buffer());
+				break;
+			default:
 				break;
 			}
 			
@@ -167,6 +175,8 @@ class AppClient implements OmmConsumerClient
 				break;
 			case DataTypes.UPDATE_MSG :
 				decode(mapEntry.updateMsg());
+				break;
+			default:
 				break;
 			}
 		}

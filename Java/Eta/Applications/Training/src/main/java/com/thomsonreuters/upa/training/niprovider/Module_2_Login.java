@@ -786,6 +786,7 @@ public class Module_2_Login
                                     case TransportReturnCodes.FAILURE:
                                         System.out.printf("Error (%d) (errno: %d) %s\n", error.errorId(), error.sysError(), error.text());
                                         closeChannelCleanUpAndExit(channel, selector, error, TransportReturnCodes.FAILURE);
+                                        break;
 
                                     default: /* Error handling */
                                     {
@@ -1194,6 +1195,7 @@ public class Module_2_Login
                          */
                         return TransportReturnCodes.SUCCESS + 1;
                     }
+                    break;
                 }
                 case TransportReturnCodes.NO_BUFFERS:
                 {

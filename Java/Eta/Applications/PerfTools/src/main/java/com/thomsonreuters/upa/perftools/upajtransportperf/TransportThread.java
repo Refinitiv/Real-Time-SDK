@@ -148,7 +148,7 @@ public class TransportThread extends Thread
         }
 
         _currentTicks = 0;
-        _nsecPerTick = 1000000000L/(long)TransportThreadConfig.ticksPerSec();
+        _nsecPerTick = 1000000000L/TransportThreadConfig.ticksPerSec();
         _channelHandler.init(this);
         
         if (TransportThreadConfig.latencyMsgsPerSec() > 0)

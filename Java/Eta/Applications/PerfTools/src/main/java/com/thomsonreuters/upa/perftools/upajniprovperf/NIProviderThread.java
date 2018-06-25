@@ -67,7 +67,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
 
 /** Non-interactive provider implementation of the provider thread.
   * Handles connecting to channel and processing of login response,
@@ -394,7 +393,7 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
     { 
         // connect via Reactor
         int ret;
-        if ((ret = _reactor.connect(_connectOptions, (ReactorRole)_role, _errorInfo)) < ReactorReturnCodes.SUCCESS)
+        if ((ret = _reactor.connect(_connectOptions, _role, _errorInfo)) < ReactorReturnCodes.SUCCESS)
         {
             System.out.println("Reactor.connect failed with return code: " + ret + " error = " + _errorInfo.error().text());
             System.exit(ReactorReturnCodes.FAILURE);

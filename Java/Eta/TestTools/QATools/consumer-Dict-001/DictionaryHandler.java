@@ -124,7 +124,9 @@ public class DictionaryHandler
     }
 
     /**
-     * Returns whether or not field dictionary has been loaded
+     * Returns whether or not field dictionary has been loaded.
+     *
+     * @return true, if is field dictionary loaded
      */
     public boolean isFieldDictionaryLoaded()
     {
@@ -133,6 +135,8 @@ public class DictionaryHandler
 
     /**
      * Returns whether or not field dictionary has been loaded from a file.
+     *
+     * @return true, if is field dictionary loaded from file
      */
     public boolean isFieldDictionaryLoadedFromFile()
     {
@@ -140,7 +144,9 @@ public class DictionaryHandler
     }
 
     /**
-     * Returns whether or not the enumeration types dictionary has been loaded
+     * Returns whether or not the enumeration types dictionary has been loaded.
+     *
+     * @return true, if is enum type dictionary loaded
      */
     public boolean isEnumTypeDictionaryLoaded()
     {
@@ -150,6 +156,8 @@ public class DictionaryHandler
     /**
      * Returns whether or not the enumeration types dictionary has been loaded
      * from a file.
+     *
+     * @return true, if is enum type dictionary loaded from file
      */
     public boolean isEnumTypeDictionaryLoadedFromFile()
     {
@@ -158,6 +166,8 @@ public class DictionaryHandler
 
     /**
      * Returns the data dictionary.
+     *
+     * @return the data dictionary
      */
     public DataDictionary dictionary()
     {
@@ -167,7 +177,7 @@ public class DictionaryHandler
     /**
      * Sets the id of a service to request dictionary from.
      * 
-     * @param serviceId
+     * @param serviceId the service id
      */
     public void serviceId(int serviceId)
     {
@@ -180,6 +190,8 @@ public class DictionaryHandler
      * and sending the dictionary request to the server.
      * 
      * @param chnl - The channel to send a dictionary requests to
+     * @param error the error
+     * @return the int
      */
     public int sendRequests(ChannelSession chnl, Error error)
     {
@@ -257,7 +269,7 @@ public class DictionaryHandler
      * @param chnl - The channel of the response
      * @param msg - The partially decoded message
      * @param dIter - The decode iterator
-     * 
+     * @param error the error
      * @return success if decoding succeeds, failure if it fails.
      */
     public int processResponse(Channel chnl, Msg msg, DecodeIterator dIter, Error error)
@@ -306,7 +318,7 @@ public class DictionaryHandler
      */
     private int handleDictRefresh(Msg msg, DecodeIterator dIter, com.thomsonreuters.upa.transport.Error error)
     {
-        int ret = dictionaryRefresh.decode(dIter, (RefreshMsg)msg);
+        int ret = dictionaryRefresh.decode(dIter, msg);
         if (ret != CodecReturnCodes.SUCCESS)
         {
             error.text("Error decoding dictionary refresh: <" + CodecReturnCodes.toString(ret) + ">");
@@ -482,6 +494,13 @@ public class DictionaryHandler
         return TransportReturnCodes.SUCCESS;
     }
 
+    /**
+     * Close streams.
+     *
+     * @param channel the channel
+     * @param error the error
+     * @return the int
+     */
     public int closeStreams(ChannelSession channel, Error error)
     {
         /* close dictionary stream */

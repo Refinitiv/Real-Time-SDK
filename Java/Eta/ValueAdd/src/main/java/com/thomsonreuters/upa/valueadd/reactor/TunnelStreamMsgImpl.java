@@ -438,7 +438,7 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
         else
         {
         	short v1 = (short) (actionOpCode | 0x8000);
-        	byteBuffer.putShort((short) v1);
+        	byteBuffer.putShort(v1);
         }
 
         /* SeqNum */
@@ -509,7 +509,7 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
         _domainType = genericMsg.domainType();
         try
         {
-            _opCode = (int)byteBuffer.get() & 0xff;
+            _opCode = byteBuffer.get() & 0xff;
 
             switch(_opCode)
             {
@@ -545,7 +545,7 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
                     _seqNum = byteBuffer.getInt();
 
                     /* Nak ranges */
-                    count = (int)byteBuffer.get() & 0xff;
+                    count = byteBuffer.get() & 0xff;
                     nakRangeList.count(count);
 
                     ranges = nakRangeList.rangeArray();
@@ -554,7 +554,7 @@ class TunnelStreamMsgImpl extends TunnelStreamMsg
                         ranges[i] = byteBuffer.getInt();
 
                     /* Selective ack ranges */
-                    count = (int)byteBuffer.get() & 0xff;
+                    count = byteBuffer.get() & 0xff;
                     ackRangeList.count(count);
 
                     ranges = ackRangeList.rangeArray();

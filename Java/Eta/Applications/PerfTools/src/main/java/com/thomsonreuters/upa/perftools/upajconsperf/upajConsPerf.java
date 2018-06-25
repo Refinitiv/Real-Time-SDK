@@ -362,8 +362,8 @@ public class upajConsPerf implements ShutdownCallback
 			fileWriter.printf("  No latency information received during startup time.\n\n");
 
 		fileWriter.printf("  Avg update rate: %.0f\n\n", 
-				(double)_totalStats.startupUpdateCount().getTotal()
-				/(double)( (((_totalStats.imageRetrievalEndTime() > 0) ? _totalStats.imageRetrievalEndTime() : _currentTime)
+				_totalStats.startupUpdateCount().getTotal()
+				/( (((_totalStats.imageRetrievalEndTime() > 0) ? _totalStats.imageRetrievalEndTime() : _currentTime)
 						- firstUpdateTime)/1000000000.0));
 
 		fileWriter.printf("Steady State Statistics:\n");
@@ -399,8 +399,8 @@ public class upajConsPerf implements ShutdownCallback
 			}
 
 			fileWriter.printf("  Avg update rate: %.0f\n", 
-					(double)_totalStats.steadyStateUpdateCount().getTotal()
-					/(double)((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
+					_totalStats.steadyStateUpdateCount().getTotal()
+					/((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
 
 			fileWriter.printf("\n");
 		}
@@ -471,42 +471,42 @@ public class upajConsPerf implements ShutdownCallback
 			long totalRefreshRetrievalTime = (_totalStats.imageRetrievalEndTime() - 
 					_totalStats.imageRetrievalStartTime());
 			
-			fileWriter.printf("  Image retrieval time (sec): %.3f\n", (double)totalRefreshRetrievalTime/1000000000.0);
-			fileWriter.printf("  Avg image Rate: %.0f\n", (double)_consPerfConfig.itemRequestCount()/((double)totalRefreshRetrievalTime/1000000000.0));
+			fileWriter.printf("  Image retrieval time (sec): %.3f\n", totalRefreshRetrievalTime/1000000000.0);
+			fileWriter.printf("  Avg image Rate: %.0f\n", _consPerfConfig.itemRequestCount()/(totalRefreshRetrievalTime/1000000000.0));
 		}
 
 		fileWriter.printf("  Avg update rate: %.0f\n", 
-				(double)totalUpdateCount/(double)((_currentTime - firstUpdateTime)/1000000000.0));
+				totalUpdateCount/((_currentTime - firstUpdateTime)/1000000000.0));
 
 		if (_totalStats.postSentCount().getTotal() > 0)
 		{
 			fileWriter.printf("  Avg posting rate: %.0f\n", 
-					(double)_totalStats.postSentCount().getTotal()/(double)((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
+					_totalStats.postSentCount().getTotal()/((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
 		}
 
 		if (_consPerfConfig.genMsgsPerSec() > 0)
 		{
 			fileWriter.printf("  Avg GenMsg send rate: %.0f\n", 
-					(double)_totalStats.genMsgSentCount().getTotal()/
-					(double)((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
+					_totalStats.genMsgSentCount().getTotal()/
+					((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
 		}
 		if (_totalStats.genMsgRecvCount().getTotal() > 0)
 		{
 			fileWriter.printf("  Avg GenMsg receive rate: %.0f\n", 
-					(double)_totalStats.genMsgRecvCount().getTotal()/
-					(double)((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
+					_totalStats.genMsgRecvCount().getTotal()/
+					((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
 		}
 		if (_consPerfConfig.latencyGenMsgsPerSec() > 0)
 		{
 			fileWriter.printf("  Avg GenMsg latency send rate: %.0f\n", 
-					(double)_totalStats.latencyGenMsgSentCount().getTotal()/
-					(double)((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
+					_totalStats.latencyGenMsgSentCount().getTotal()/
+					((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
 		}
 		if (_totalStats.genMsgLatencyStats().count() > 0)
 		{
 			fileWriter.printf("  Avg GenMsg latency receive rate: %.0f\n", 
-					(double)_totalStats.genMsgLatencyStats().count()/
-					(double)((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
+					_totalStats.genMsgLatencyStats().count()/
+					((_currentTime - _totalStats.imageRetrievalEndTime())/1000000000.0));
 		}
         
 		fileWriter.printf("\n");
@@ -549,8 +549,8 @@ public class upajConsPerf implements ShutdownCallback
 					fileWriter.printf("  No latency information received during startup time.\n\n");
 
 				fileWriter.printf("  Avg update rate: %.0f\n", 
-						(double)_consumerThreadsInfo[i].stats().startupUpdateCount().getTotal()/
-						(double)((
+						_consumerThreadsInfo[i].stats().startupUpdateCount().getTotal()/
+						((
 								((_consumerThreadsInfo[i].stats().imageRetrievalEndTime() > 0) ?
 								_consumerThreadsInfo[i].stats().imageRetrievalEndTime() : _currentTime)
 								- _consumerThreadsInfo[i].stats().firstUpdateTime()
@@ -588,8 +588,8 @@ public class upajConsPerf implements ShutdownCallback
 
 					
 					fileWriter.printf("  Avg update rate: %.0f\n", 
-							(double)_consumerThreadsInfo[i].stats().steadyStateUpdateCount().getTotal()
-							/(double)((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
+							_consumerThreadsInfo[i].stats().steadyStateUpdateCount().getTotal()
+							/((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
 				}
 				else
 					fileWriter.printf("  Steady state was not reached during this test.\n\n");
@@ -647,43 +647,43 @@ public class upajConsPerf implements ShutdownCallback
 				
 				if (imageRetrievalTime > 0)
 				{
-					fileWriter.printf("  Image retrieval time(sec): %.3f\n", (double)imageRetrievalTime/1000000000.0);
-					fileWriter.printf("  Avg image Rate: %.0f\n", _consumerThreadsInfo[i].stats().refreshCount().getTotal()/((double)imageRetrievalTime/1000000000.0)); 
+					fileWriter.printf("  Image retrieval time(sec): %.3f\n", imageRetrievalTime/1000000000.0);
+					fileWriter.printf("  Avg image Rate: %.0f\n", _consumerThreadsInfo[i].stats().refreshCount().getTotal()/(imageRetrievalTime/1000000000.0)); 
 				}
 
 				fileWriter.printf("  Avg update rate: %.0f\n",
-						(double)totalClientUpdateCount
-						/(double)((_currentTime - _consumerThreadsInfo[i].stats().firstUpdateTime())/1000000000.0));
+						totalClientUpdateCount
+						/((_currentTime - _consumerThreadsInfo[i].stats().firstUpdateTime())/1000000000.0));
 
 				if (_consPerfConfig.postsPerSec() > 0)
 				{
 					fileWriter.printf("  Avg posting rate: %.0f\n", 
-							(double)_consumerThreadsInfo[i].stats().postSentCount().getTotal()/(double)((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
+							_consumerThreadsInfo[i].stats().postSentCount().getTotal()/((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
 				}
 
 				if (_consPerfConfig.genMsgsPerSec() > 0)
 				{
 					fileWriter.printf("  Avg GenMsg send rate: %.0f\n", 
-							(double)_consumerThreadsInfo[i].stats().genMsgSentCount().getTotal()/
-							(double)((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
+							_consumerThreadsInfo[i].stats().genMsgSentCount().getTotal()/
+							((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
 				}
 				if (_consumerThreadsInfo[i].stats().genMsgRecvCount().getTotal() > 0)
 				{
 					fileWriter.printf("  Avg GenMsg receive rate: %.0f\n", 
-							(double)_consumerThreadsInfo[i].stats().genMsgRecvCount().getTotal()/
-							(double)((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
+							_consumerThreadsInfo[i].stats().genMsgRecvCount().getTotal()/
+							((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
 				}
 				if (_consPerfConfig.latencyGenMsgsPerSec() > 0)
 				{
 					fileWriter.printf("  Avg GenMsg latency send rate: %.0f\n", 
-							(double)_consumerThreadsInfo[i].stats().latencyGenMsgSentCount().getTotal()/
-							(double)((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
+							_consumerThreadsInfo[i].stats().latencyGenMsgSentCount().getTotal()/
+							((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
 				}
 				if (_consumerThreadsInfo[i].stats().genMsgLatencyStats().count() > 0)
 				{
 					fileWriter.printf("  Avg GenMsg latency receive rate: %.0f\n", 
-							(double)_consumerThreadsInfo[i].stats().genMsgLatencyStats().count()/
-							(double)((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
+							_consumerThreadsInfo[i].stats().genMsgLatencyStats().count()/
+							((_currentTime - _consumerThreadsInfo[i].stats().imageRetrievalEndTime())/1000000000.0));
 				}
 			}
 		}
@@ -856,9 +856,9 @@ public class upajConsPerf implements ShutdownCallback
 
 					System.out.printf("\nOverall image retrieval time for %d images: %.3fs (%.0f Images/s).\n\n", 
 							_consPerfConfig.itemRequestCount(),
-							(double)totalRefreshRetrievalTime/1000000000.0,
-							(double)(_consPerfConfig.itemRequestCount())/
-							((double)totalRefreshRetrievalTime /1000000000.0)
+							totalRefreshRetrievalTime/1000000000.0,
+							(_consPerfConfig.itemRequestCount())/
+							(totalRefreshRetrievalTime /1000000000.0)
 						  );
 				}
 			}
@@ -884,7 +884,7 @@ public class upajConsPerf implements ShutdownCallback
 			/* Make sure this latency is counted towards startup or steady-state as appropriate. */
 			boolean latencyIsSteadyStateForClient = 
 				consumerThread.stats().imageRetrievalEndTime() != 0
-				&& recordEndTimeNsec > (double)consumerThread.stats().imageRetrievalEndTime();
+				&& recordEndTimeNsec > consumerThread.stats().imageRetrievalEndTime();
 
 			consumerThread.stats().intervalLatencyStats().update(latency);
 			consumerThread.stats().overallLatencyStats().update(latency);
@@ -902,7 +902,7 @@ public class upajConsPerf implements ShutdownCallback
 				/* Make sure this latency is counted towards startup or steady-state as appropriate. */
 				boolean latencyIsSteadyStateOverall = 
 					_totalStats.imageRetrievalEndTime() != 0
-					&& recordEndTimeNsec > (double)_totalStats.imageRetrievalEndTime();
+					&& recordEndTimeNsec > _totalStats.imageRetrievalEndTime();
 
 				if (latencyIsSteadyStateOverall)
 				{
@@ -1007,9 +1007,9 @@ public class upajConsPerf implements ShutdownCallback
 
 				System.out.printf("  - Image retrieval time for %d images: %.3fs (%.0f images/s)\n", 
 						consumerThread.itemListCount(),
-						(double)imageRetrievalTime/1000000000.0,
-						(double)(consumerThread.itemListCount())/
-						((double)imageRetrievalTime /1000000000.0));
+						imageRetrievalTime/1000000000.0,
+						(consumerThread.itemListCount())/
+						(imageRetrievalTime /1000000000.0));
 			}
 		}
 		

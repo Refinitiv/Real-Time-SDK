@@ -331,7 +331,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 					Directory existDirectory = null; 
 			        if (_serviceById.size() > 0)
 			        {
-			        	existDirectory = _serviceById.get((Integer)oneService.serviceId());
+			        	existDirectory = _serviceById.get(oneService.serviceId());
 			        	existService = existDirectory.service();
 			        }
 			        
@@ -402,7 +402,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 				{
 					Service existService = null;
 			        if (_serviceById.size() > 0)
-			        	existService = _serviceById.get((Integer)oneService.serviceId()).service();
+			        	existService = _serviceById.get(oneService.serviceId()).service();
 					
 					if (existService == null)
 					{

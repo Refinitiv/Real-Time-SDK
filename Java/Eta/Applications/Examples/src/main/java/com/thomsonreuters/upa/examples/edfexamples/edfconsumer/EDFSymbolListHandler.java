@@ -292,7 +292,8 @@ public class EDFSymbolListHandler extends SymbolListHandler
         return chnl.write(msgBuf, error);
     }
 
-    public int processResponse(Msg msg, DecodeIterator dIter, DataDictionary dictionary)
+    @SuppressWarnings("fallthrough")
+	public int processResponse(Msg msg, DecodeIterator dIter, DataDictionary dictionary)
     {
         map.clear();
         mapEntry.clear();

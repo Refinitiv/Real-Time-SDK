@@ -187,7 +187,7 @@ class GlobalElementSetDefDbImpl extends ElementSetDefDbImpl implements GlobalEle
 
                     newSetDef.count((int)tmpLong);
 
-                    tempSetDefEntry = new ElementSetDefEntry[(int)newSetDef.count()];
+                    tempSetDefEntry = new ElementSetDefEntry[newSetDef.count()];
 
                     for (int i = 0; i < newSetDef.count(); i++)
                     {
@@ -354,12 +354,12 @@ class GlobalElementSetDefDbImpl extends ElementSetDefDbImpl implements GlobalEle
                 }
             }
 
-            _definitions[(int)newSetDef.setId()] = (ElementSetDefImpl)CodecFactory.createElementSetDef();
-            newSetDef.copy(_definitions[(int)newSetDef.setId()]);
+            _definitions[newSetDef.setId()] = (ElementSetDefImpl)CodecFactory.createElementSetDef();
+            newSetDef.copy(_definitions[newSetDef.setId()]);
 
             if (maxSetId < newSetDef.setId())
             {
-                maxSetId = (int)newSetDef.setId();
+                maxSetId = newSetDef.setId();
             }
 
         }
@@ -607,7 +607,7 @@ class GlobalElementSetDefDbImpl extends ElementSetDefDbImpl implements GlobalEle
 
                     state = encState.ARRAY;
 
-                    for (int i = 0; i < (int)_definitions[(int)curSetDef].count(); i++)
+                    for (int i = 0; i < _definitions[(int)curSetDef].count(); i++)
                     {
                         encArrayEntry.clear();
                         if ((ret = encArrayEntry.encode(iter, _definitions[(int)curSetDef]._entries[i].name()))
@@ -657,7 +657,7 @@ class GlobalElementSetDefDbImpl extends ElementSetDefDbImpl implements GlobalEle
 
                     state = encState.ARRAY;
 
-                    for (int i = 0; i < (int)_definitions[(int)curSetDef].count(); i++)
+                    for (int i = 0; i < _definitions[(int)curSetDef].count(); i++)
                     {
                         encArrayEntry.clear();
                         tmpInt.value(_definitions[(int)curSetDef]._entries[i].dataType());
@@ -721,11 +721,13 @@ class GlobalElementSetDefDbImpl extends ElementSetDefDbImpl implements GlobalEle
         return CodecReturnCodes.SUCCESS;
     }
     
-    private int rollBack(EncodeIterator iter, int state, boolean finishedSet, Int currentSet, long curSet, Error error)
+    @SuppressWarnings("fallthrough")
+	private int rollBack(EncodeIterator iter, int state, boolean finishedSet, Int currentSet, long curSet, Error error)
     {
         int ret;
         switch (state)
         {
+        	// fall through here to unroll a stateful encode (go from the primitive Array to top level Vector)
             case encState.ARRAY:
                 if ((ret = encArray.encodeComplete(iter, false)) < CodecReturnCodes.SUCCESS)
                 {
@@ -763,6 +765,8 @@ class GlobalElementSetDefDbImpl extends ElementSetDefDbImpl implements GlobalEle
                     return CodecReturnCodes.DICT_PART_ENCODED;
                 }
                 return CodecReturnCodes.FAILURE;
+            default:
+                break;
         }
 
         return CodecReturnCodes.FAILURE;
@@ -771,7 +775,7 @@ class GlobalElementSetDefDbImpl extends ElementSetDefDbImpl implements GlobalEle
     public int addSetDef(ElementSetDef setDef, Error error)
     {
         ElementSetDefEntry[] tempEntries;
-        if (_definitions[(int)setDef.setId()] != null)
+        if (_definitions[setDef.setId()] != null)
         {
             setError(error, "Set Definition is already present in set def db");
             return CodecReturnCodes.FAILURE;
@@ -782,7 +786,7 @@ class GlobalElementSetDefDbImpl extends ElementSetDefDbImpl implements GlobalEle
         newDef.count(setDef.count());
         newDef.setId(setDef.setId());
 
-        tempEntries = new ElementSetDefEntry[(int)newDef.count()];
+        tempEntries = new ElementSetDefEntry[newDef.count()];
         newDef.entries(tempEntries);
 
         for (int i = 0; i < setDef.count(); i++)
@@ -792,11 +796,11 @@ class GlobalElementSetDefDbImpl extends ElementSetDefDbImpl implements GlobalEle
             newDef.entries()[i].dataType(setDef.entries()[i].dataType());
         }
 
-        _definitions[(int)setDef.setId()] = newDef;
+        _definitions[setDef.setId()] = newDef;
 
         if (maxSetId < setDef.setId())
         {
-            maxSetId = (int)setDef.setId();
+            maxSetId = setDef.setId();
         }
 
         return CodecReturnCodes.SUCCESS;

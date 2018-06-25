@@ -310,7 +310,7 @@ class VectorEntryImpl extends EntryImpl implements VectorEntry
 		_rsslVectorEntry.action(action);
 		_entryDataType = Utilities.toRsslDataType(value.dataType());
 		
-		Utilities.copy(((DataImpl) value).encodedData(), _rsslVectorEntry.encodedData());
+		Utilities.copy(value.encodedData(), _rsslVectorEntry.encodedData());
 		if (permissionData != null)
 		{
 			Utilities.copy(permissionData, _rsslVectorEntry.permData());

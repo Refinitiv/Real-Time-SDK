@@ -43,7 +43,7 @@ class PayloadCursorImpl extends VaNode implements PayloadCursor
 
         _globalCursorLock.unlock();
 
-        return (PayloadCursor)cursor;
+        return cursor;
     }
 
     @Override

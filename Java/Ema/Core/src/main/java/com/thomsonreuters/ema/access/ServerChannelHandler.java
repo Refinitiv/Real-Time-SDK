@@ -483,7 +483,7 @@ class ServerChannelHandler implements ReactorChannelEventCallback
         Iterator<Entry<LongObject, ClientSession>> iter = _clientSessionMap.entrySet().iterator();
         while (iter.hasNext())
         {
-            ClientSession clientSession = (ClientSession)iter.next().getValue();
+            ClientSession clientSession = iter.next().getValue();
             clientSession.closeAllItemInfo();
             clientSession.returnToPool();
         }

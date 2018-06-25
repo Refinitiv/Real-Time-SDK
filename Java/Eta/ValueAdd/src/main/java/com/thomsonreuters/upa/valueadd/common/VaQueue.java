@@ -54,7 +54,7 @@ public class VaQueue
 
         if (_head == null)
         {
-            return (VaNode)null;
+            return null;
         }
         
         VaNode node = _head;

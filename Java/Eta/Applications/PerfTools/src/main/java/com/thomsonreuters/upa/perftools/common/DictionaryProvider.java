@@ -473,7 +473,7 @@ public class DictionaryProvider
         _dictionaryRefresh.applySolicited();
         _dictionaryRefresh.dictionaryType(Dictionary.Types.ENUM_TABLES);
         _dictionaryRefresh.dictionary(_dictionary);
-        _dictionaryRefresh.verbosity((int)_dictionaryRequest.verbosity());
+        _dictionaryRefresh.verbosity(_dictionaryRequest.verbosity());
         _dictionaryRefresh.dictionaryName().data(_dictionaryRequest.dictionaryName().data(), _dictionaryRequest.dictionaryName().position(), _dictionaryRequest.dictionaryName().length());
         _dictionaryRefresh.applyRefreshComplete();
 
@@ -533,7 +533,7 @@ public class DictionaryProvider
         _dictionaryRefresh.applySolicited();
         _dictionaryRefresh.dictionaryType(Dictionary.Types.ENUM_TABLES);
         _dictionaryRefresh.dictionary(_dictionary);
-        _dictionaryRefresh.verbosity((int)_dictionaryRequest.verbosity());
+        _dictionaryRefresh.verbosity(_dictionaryRequest.verbosity());
         _dictionaryRefresh.dictionaryName().data(_dictionaryRequest.dictionaryName().data(), _dictionaryRequest.dictionaryName().position(), _dictionaryRequest.dictionaryName().length());
         _dictionaryRefresh.applyRefreshComplete();
 

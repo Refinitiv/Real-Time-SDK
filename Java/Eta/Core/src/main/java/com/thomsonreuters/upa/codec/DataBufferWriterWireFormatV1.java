@@ -772,7 +772,7 @@ class DataBufferWriterWireFormatV1 extends BufferWriter
             return (short)(((val & 0x7F) << 8) + b);
         }
 
-        return (short)val;
+        return val;
     }
 
 }

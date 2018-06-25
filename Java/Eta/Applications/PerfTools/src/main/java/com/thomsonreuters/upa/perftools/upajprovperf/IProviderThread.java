@@ -448,7 +448,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback
                 try
                 {
                     int selectRetVal;
-                    long selTime = (long)(selectTime(nextTickTime) / _divisor);
+                    long selTime = selectTime(nextTickTime) / _divisor;
                     
                     if (selTime <= 0)
                         selectRetVal = _selector.selectNow();

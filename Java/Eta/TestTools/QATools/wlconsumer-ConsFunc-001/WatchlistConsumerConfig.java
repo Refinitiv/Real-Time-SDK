@@ -349,7 +349,7 @@ public class WatchlistConsumerConfig
             for (int i = 0; i < providedItemList.size(); ++i)
             {
                 if (providedItemList.get(i).streamId() == streamId)
-                    return (ItemInfo)providedItemList.get(i);
+                    return providedItemList.get(i);
             }
             return null;
         }

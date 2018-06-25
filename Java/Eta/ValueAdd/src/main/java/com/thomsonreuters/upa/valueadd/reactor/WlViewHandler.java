@@ -337,8 +337,11 @@ public class WlViewHandler
 							aggView._elemCount++;				    		
 						}
 					}
-					Collections.sort(aggViewElementNameList.subList(0, aggView._elemCount));               						
+					Collections.sort(aggViewElementNameList.subList(0, aggView._elemCount));
+					break;
 				}
+				default:
+					break;
 			}// switch
 			aggView.mergedViews().add(view);
 			view.state(WlView.State.MERGED);
@@ -461,6 +464,8 @@ public class WlViewHandler
 					
 					break;
 				}
+				default:
+					return CodecReturnCodes.FAILURE;
 		
 			}		
 		}

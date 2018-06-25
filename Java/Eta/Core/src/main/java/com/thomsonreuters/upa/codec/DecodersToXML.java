@@ -528,6 +528,9 @@ class DecodersToXML
                     xmlString.append(xmlDumpExtendedHeader(ackMsg.extendedHeader()));
                 }
                 break;
+            default:
+            	xmlString.append("decodeMsgClassToXML() failed to decode unknown message class");
+                break;
         }
 
         return xmlString.toString();
@@ -1270,8 +1273,8 @@ class DecodersToXML
                 xmlString.append(".");
             if (index < buffer.data().limit() - 2)
             {
-                shortBytes[0] = (byte)(buffer.data().get(index++));
-                shortBytes[1] = (byte)(buffer.data().get(index++));
+                shortBytes[0] = (buffer.data().get(index++));
+                shortBytes[1] = (buffer.data().get(index++));
             }
             tempVal = shortBytes[0];
             tempVal <<= 8;
@@ -2521,7 +2524,7 @@ class DecodersToXML
                     FieldSetDefEntry entry = setDef.entries()[j];
                     xmlString.append(encodeindents());
                     xmlString.append("<fieldSetDefEntry fieldId=\"" + entry.fieldId() + "\" dataType=\"");
-                    xmlString.append(xmlDumpDataType((int)entry.dataType()));
+                    xmlString.append(xmlDumpDataType(entry.dataType()));
                     xmlString.append("\" />\n");
                 }
                 --indents;

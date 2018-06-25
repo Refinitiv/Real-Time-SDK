@@ -127,7 +127,7 @@ public class Page implements Cloneable
     _updateList.index = (short)(pageUpdate.size()-1 );
     for (int i = 0; i<pageUpdate.size(); i++)
     {
-      PageUpdate update = (PageUpdate)pageUpdate.elementAt(i) ;
+      PageUpdate update = pageUpdate.elementAt(i) ;
       _updateList.upd_list[i].row = update.getRow();
       _updateList.upd_list[i].upd_beg = update.getBeginningColumn();
       _updateList.upd_list[i].upd_end = update.getEndingColumn();
@@ -399,7 +399,7 @@ public class Page implements Cloneable
     _page.getDecoder().qa_reset(_page, _updateList);
     for (int i = 0; i < pageUpdateList.size(); i++)
     {
-      PageUpdate update = (PageUpdate)pageUpdateList.elementAt(i);
+      PageUpdate update = pageUpdateList.elementAt(i);
       update.setRow((short)0);
       update.setBeginningColumn((short)0);
       update.setEndingColumn((short)0);

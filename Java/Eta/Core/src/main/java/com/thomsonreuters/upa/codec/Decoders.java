@@ -2490,7 +2490,7 @@ class Decoders
                 /* Setup to decode the set if able. Otherwise skip to entries. */
                 if (_levelInfo._fieldListSetDef != null)
                 {
-                    _levelInfo._setCount = (int)_levelInfo._fieldListSetDef._count;
+                    _levelInfo._setCount = _levelInfo._fieldListSetDef._count;
                     _levelInfo._itemCount += _levelInfo._fieldListSetDef._count;
 
                     _levelInfo._nextEntryPos = /* iter._curBufPos = */
@@ -2570,11 +2570,11 @@ class Decoders
 
                     encoding = (FieldSetDefEntryImpl)(_levelInfo._fieldListSetDef._entries[_levelInfo._nextSetPosition]);
 
-                    field._fieldId = (int)encoding._fieldId;
-                    field._dataType = (int)encoding._dataType;
+                    field._fieldId = encoding._fieldId;
+                    field._dataType = encoding._dataType;
 
                     /* Get the set data and reset position */
-                    if ((ret = decodeSet(iter, (int)encoding._dataType, field._encodedData)) != CodecReturnCodes.SUCCESS)
+                    if ((ret = decodeSet(iter, encoding._dataType, field._encodedData)) != CodecReturnCodes.SUCCESS)
                         return (ret);
 
                     iter._levelInfo[iter._decodingLevel + 1]._endBufPos = _levelInfo._nextEntryPos;
@@ -2944,7 +2944,7 @@ class Decoders
                     /* make sure we have space in our entry pool */
                     if (encCount > localSetDb._entries[curEntryCount].length)
                         return CodecReturnCodes.BUFFER_TOO_SMALL;
-                    curEntry = (FieldSetDefEntryImpl)localSetDb._entries[curEntryCount][j];
+                    curEntry = localSetDb._entries[curEntryCount][j];
                     curEntry._fieldId = iter._reader.readUnsignedShort();
                     curEntry._dataType = iter._reader.readUnsignedByte();
                     position = iter._reader.position();
@@ -3559,7 +3559,7 @@ class Decoders
     static int decodeFieldSetDefDb(DecodeIterator iterInt, FieldSetDefDbImpl fieldSetDefDbImpl)
     {
         DecodeIteratorImpl iter = (DecodeIteratorImpl)iterInt;
-        FieldSetDefDbImpl localSetDb = (FieldSetDefDbImpl)fieldSetDefDbImpl;
+        FieldSetDefDbImpl localSetDb = fieldSetDefDbImpl;
         int position;
         int _endBufPos;
         int _setCount;
@@ -3689,7 +3689,7 @@ class Decoders
         int flags;
         int _setCount;
         int curEntryCount = 0;
-        ElementSetDefDbImpl localSetDb = (ElementSetDefDbImpl)elementSetDefDbImpl;
+        ElementSetDefDbImpl localSetDb = elementSetDefDbImpl;
 
         assert null != iter && null != localSetDb : "Invalid parameters or parameters passed in as NULL";
 

@@ -170,7 +170,7 @@ public class TestReactorEvent
                 
             msgEvent.tunnelStream(otherMsgEvent.tunnelStream());
             msgEvent.containerType(otherMsgEvent.containerType());
-            TestUtil.copyMsgEvent(otherMsgEvent, (ReactorMsgEvent)msgEvent);
+            TestUtil.copyMsgEvent(otherMsgEvent, msgEvent);
             break;
         }
         
@@ -182,7 +182,7 @@ public class TestReactorEvent
             TunnelStreamQueueMsgEvent otherQueueMsgEvent = (TunnelStreamQueueMsgEvent)event;
             
             queueMsgEvent.tunnelStream(otherQueueMsgEvent.tunnelStream());
-            TestUtil.copyMsgEvent(otherQueueMsgEvent, (ReactorMsgEvent)queueMsgEvent);
+            TestUtil.copyMsgEvent(otherQueueMsgEvent, queueMsgEvent);
 
             /* Copy QueueMsg elements according to message type. */
             switch(otherQueueMsgEvent.queueMsg().rdmMsgType())

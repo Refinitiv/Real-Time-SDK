@@ -122,6 +122,8 @@ class AppClient implements OmmConsumerClient
             case DataTypes.FIELD_LIST:
                 decode(msg.payload().fieldList());
                 break;
+            default:
+                break;
         }
     }
 

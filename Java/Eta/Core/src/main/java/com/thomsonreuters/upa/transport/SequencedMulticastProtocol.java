@@ -110,10 +110,10 @@ public class SequencedMulticastProtocol implements ProtocolInt
     @Override
     public Pool getPool(int poolSpec)
     {
-        Pool pool = _writeBufferChannelPools.get((Integer)poolSpec);
+        Pool pool = _writeBufferChannelPools.get(poolSpec);
         if (pool == null)
             pool = new Pool(this);
-        _writeBufferChannelPools.put((Integer)poolSpec, pool);
+        _writeBufferChannelPools.put(poolSpec, pool);
         return pool;
     }
 

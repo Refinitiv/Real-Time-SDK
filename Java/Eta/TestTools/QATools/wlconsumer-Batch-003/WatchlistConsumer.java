@@ -35,9 +35,11 @@ import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.codec.UpdateMsg;
+import com.thomsonreuters.upa.shared.CommandLine;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ConnectOptions;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.Error;
@@ -52,6 +54,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
 import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
@@ -71,7 +74,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /**
@@ -87,7 +89,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * the default callback for processing RsslMsgs. The main function
  * Initializes the UPA Reactor, makes the desired connections, and
  * dispatches for events.
- * This application makes use of the RDM package for easier decoding of Login & Source Directory
+ * This application makes use of the RDM package for easier decoding of Login &amp; Source Directory
  * messages.
  * </p>
  * <p>
@@ -146,27 +148,15 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * specify multiple -mp instances, where each occurrence is associated with a
  * single item. For example, specifying -mp TRI -mp GOOG will provide content
  * for two MarketPrice items.
- * <li>-mpps Market Price domain item name on private stream. No default. The
- * user can specify multiple -mpps instances, where each occurrence is
- * associated with a single item.
  * <li>-mbo Market By Order domain item name. No default. The user can specify
  * multiple -mbo instances, where each occurrence is associated with a single
  * item.
- * <li>-mbops Market By Order domain item name on private stream. No default.
- * The user can specify multiple -mbops instances, where each occurrence is
- * associated with a single item.
  * <li>-mbp market By Price domain item name. No default. The user can specify
  * multiple -mbp instances, where each occurrence is associated with a single
  * item.
- * <li>-mbpps market By Price domain item name on private stream. No default.
- * The user can specify multiple -mbpps instances, where each occurrence is
- * associated with a single item.
  * <li>-yc Yield Curve domain item name. No default. The user can specify
  * multiple -yc instances, where each occurrence is associated with a
  * single item.
- * <li>-ycps Yield Curve domain item name on private stream. No default. The
- * user can specify multiple -ycps instances, where each occurrence is
- * associated with a single item.
  * <li>-view viewFlag. Default is false. If true, each request will use a basic
  * dynamic view.
  * <li>-post postFlag. Default is false. If true, the application will attempt
@@ -204,8 +194,10 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * <li>-tsServiceName (optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used)"
  * <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
  * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
+ * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
+ * <li>-ax Specifies the Authentication Extended information.
+ * <li>-aid Specifies the Application ID.
  * </ul>
- * </p>
  */
 public class WatchlistConsumer implements ConsumerCallback
 {
@@ -313,7 +305,7 @@ public class WatchlistConsumer implements ConsumerCallback
     	if (!watchlistConsumerConfig.init(args))
         {
             System.err.println("\nError loading command line arguments:\n");
-           // System.err.println(CommandLine.optionHelpString());
+            System.err.println(CommandLine.optionHelpString());
             System.exit(CodecReturnCodes.FAILURE);
         }
     	
@@ -366,7 +358,7 @@ public class WatchlistConsumer implements ConsumerCallback
 	
 	        // connect channel
 	        int ret;
-	        if ((ret = reactor.connect(chnlInfo.connectOptions, (ReactorRole)chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
+	        if ((ret = reactor.connect(chnlInfo.connectOptions, chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
 	        {
 	        	System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
 	        	System.exit(ReactorReturnCodes.FAILURE);
@@ -453,6 +445,26 @@ public class WatchlistConsumer implements ConsumerCallback
 	        	handlePosting();
 	        	handleQueueMessaging();
 	        	handleTunnelStream();
+	        	
+		        // send login reissue if login reissue time has passed
+	        	for (ChannelInfo chnlInfo : chnlInfoList)
+	        	{
+	        		if (chnlInfo.canSendLoginReissue &&
+	        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
+	        		{
+						LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+						submitOptions.clear();
+						if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) !=  CodecReturnCodes.SUCCESS)
+						{
+							System.out.println("Login reissue failed. Error: " + errorInfo.error().text());
+						}
+						else
+						{
+							System.out.println("Login reissue sent");
+						}
+						chnlInfo.canSendLoginReissue = false;
+	        		}
+	        	}
 	        }	        
 	        
 	        if(closeHandled && queueMsgHandler != null && queueMsgHandler._chnlInfo != null &&
@@ -1093,6 +1105,12 @@ public class WatchlistConsumer implements ConsumerCallback
 				if ( chnlInfo.loginRefresh.checkHasUserName()) 
 					System.out.println(" UserName: " + chnlInfo.loginRefresh.userName().toString());
 				
+				// get login reissue time from authenticationTTReissue
+				if (chnlInfo.loginRefresh.checkHasAuthenticationTTReissue())
+				{
+					chnlInfo.loginReissueTime = chnlInfo.loginRefresh.authenticationTTReissue() * 1000;
+					chnlInfo.canSendLoginReissue = true;
+				}
 				
 				break;
 				
@@ -1634,6 +1652,25 @@ public class WatchlistConsumer implements ConsumerCallback
             chnlInfo.consumerRole.rdmLoginRequest().userName().data(watchlistConsumerConfig.userName());
         }        
         
+        // use command line authentication token and extended authentication information if specified
+        if (watchlistConsumerConfig.authenticationToken() != null && !watchlistConsumerConfig.authenticationToken().equals(""))
+        {
+            chnlInfo.consumerRole.rdmLoginRequest().userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+            chnlInfo.consumerRole.rdmLoginRequest().userName().data(watchlistConsumerConfig.authenticationToken());
+
+            if (watchlistConsumerConfig.authenticationExtended() != null && !watchlistConsumerConfig.authenticationExtended().equals(""))
+            {
+            	chnlInfo.consumerRole.rdmLoginRequest().applyHasAuthenticationExtended();
+                chnlInfo.consumerRole.rdmLoginRequest().authenticationExtended().data(watchlistConsumerConfig.authenticationExtended());
+            }
+        }
+        
+        // use command line application id if specified
+        if (watchlistConsumerConfig.applicationId() != null && !watchlistConsumerConfig.applicationId().equals(""))
+        {
+            chnlInfo.consumerRole.rdmLoginRequest().attrib().applicationId().data(watchlistConsumerConfig.applicationId());
+        }
+        
         chnlInfo.consumerRole.rdmLoginRequest().attrib().applyHasSingleOpen();
         chnlInfo.consumerRole.rdmLoginRequest().attrib().singleOpen(1);
         chnlInfo.consumerRole.rdmLoginRequest().attrib().applyHasAllowSuspectData();
@@ -1727,8 +1764,10 @@ public class WatchlistConsumer implements ConsumerCallback
                                                       chnlInfo.connectionArg.qDestList(),
                                                       fixdictionary, chnlInfo.connectionArg.tunnelAuth(), chnlInfo.connectionArg.tunnelDomain() );                               
             }
+            else // exit if too many queue destinations entered
             {
                 System.err.println("\nError: Example only supports " + MAX_QUEUE_DESTINATIONS + " queue destination names.\n");
+                System.err.println(CommandLine.optionHelpString());
                 System.exit(CodecReturnCodes.FAILURE);
             }
         }

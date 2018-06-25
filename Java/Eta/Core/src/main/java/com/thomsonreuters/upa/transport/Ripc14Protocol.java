@@ -113,7 +113,7 @@ class Ripc14Protocol extends IpcProtocol
             buffer.put(Ripc.COMP_BITMAP_SIZE);
 
             /* Compression Type Bitmap */
-            buffer.put((byte)_protocolOptions._compressionBitmap);
+            buffer.put(_protocolOptions._compressionBitmap);
         }
 
         /* Ping Timeout */
@@ -121,7 +121,7 @@ class Ripc14Protocol extends IpcProtocol
 
         /* Session Flags - value set when decoding ConnectAck */
         _protocolOptions._serverSessionFlags = 0;
-        buffer.put((byte)_protocolOptions._serverSessionFlags);
+        buffer.put(_protocolOptions._serverSessionFlags);
 
         /* Protocol Type */
         buffer.put((byte)_protocolOptions._protocolType);
@@ -211,13 +211,13 @@ class Ripc14Protocol extends IpcProtocol
         buffer.put((byte)0);
 
         /* IPC Version */
-        buffer.putInt((int)ripcVersion());
+        buffer.putInt(ripcVersion());
 
         /* Max User Msg Size */
         buffer.putShort((short)_protocolOptions._maxUserMsgSize);
 
         /* Session Flags */
-        buffer.put((byte)_protocolOptions._serverSessionFlags);
+        buffer.put(_protocolOptions._serverSessionFlags);
 
         /* Ping Timeout */
         buffer.put((byte)_protocolOptions._pingTimeout);
@@ -242,7 +242,7 @@ class Ripc14Protocol extends IpcProtocol
             buffer.put((byte)KEY_EXCHANGE);
             /* This version only has one type (TR_SL_1),
              * if we add others this needs to change to write the correct type */
-            buffer.put((byte)_protocolOptions._encryptionType);
+            buffer.put(_protocolOptions._encryptionType);
             buffer.put((byte)24); // length of the key exchange stuff
             buffer.putLong(_protocolOptions._P);
             buffer.putLong(_protocolOptions._G);
@@ -328,13 +328,13 @@ class Ripc14Protocol extends IpcProtocol
         buffer.put((byte)0);
 
         /* IPC Version */
-        buffer.putInt((int)ripcVersion());
+        buffer.putInt(ripcVersion());
 
         /* Max User Msg Size */
         buffer.putShort((short)_protocolOptions._maxUserMsgSize);
 
         /* Session Flags */
-        buffer.put((byte)_protocolOptions._serverSessionFlags);
+        buffer.put(_protocolOptions._serverSessionFlags);
 
         /* Ping Timeout */
         buffer.put((byte)_protocolOptions._pingTimeout);
@@ -359,7 +359,7 @@ class Ripc14Protocol extends IpcProtocol
             buffer.put((byte)KEY_EXCHANGE);
             /* This version only has one type (TR_SL_1),
              * if we add others this needs to change to write the correct type */
-            buffer.put((byte)_protocolOptions._encryptionType);
+            buffer.put(_protocolOptions._encryptionType);
             buffer.put((byte)24); // length of the key exchange stuff
             buffer.putLong(_protocolOptions._P);
             buffer.putLong(_protocolOptions._G);

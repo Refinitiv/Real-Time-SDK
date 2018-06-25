@@ -378,7 +378,7 @@ public class Consumer extends TestReactorComponent implements ConsumerCallback, 
         TestReactorEvent event;
         ReadEvent readEvent;
         Msg msg;
-        TunnelStreamAck tunnelStreamAck = (TunnelStreamAck)new TunnelStreamMsgImpl();
+        TunnelStreamAck tunnelStreamAck = new TunnelStreamMsgImpl();
         
         /* Close tunnel stream from consumer. */
         assertEquals(ReactorReturnCodes.SUCCESS, consTunnelStream.close(finalStatusEvent, _errorInfo));

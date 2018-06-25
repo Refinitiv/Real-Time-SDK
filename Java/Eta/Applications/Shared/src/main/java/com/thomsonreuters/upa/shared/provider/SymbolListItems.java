@@ -336,6 +336,9 @@ public class SymbolListItems
                 _tempBuffer.data(itemInfo.itemName.data(), itemInfo.itemName.position(), itemInfo.itemName.length());
                 _tempMapEntry.action(MapEntryActions.DELETE);
                 break;
+            default:
+            	error.text("Invalid SymbolListItems responseType: " + responseType);
+            	return CodecReturnCodes.FAILURE;
         }
 
         ret = _tempMapEntry.encodeInit(_encodeIter, _tempBuffer, 0);

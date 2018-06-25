@@ -241,20 +241,20 @@ class MsgImpl extends DataImpl implements Msg
 	public Attrib attrib()
 	{
 		if (_attribDecoded == null)
-			_attribDecoded = (DataImpl)new NoDataImpl();
+			_attribDecoded = new NoDataImpl();
 		
 		_payloadAttrib.data(_attribDecoded);
-		return (Attrib) _payloadAttrib;
+		return _payloadAttrib;
 	}
 
 	@Override
 	public Payload payload()
 	{
 		if (_payloadDecoded == null)
-			_payloadDecoded = (DataImpl)new NoDataImpl();
+			_payloadDecoded = new NoDataImpl();
 		
 		_payloadAttrib.data(_payloadDecoded);
-		return (Payload) _payloadAttrib;
+		return _payloadAttrib;
 	}
 	
 	@Override

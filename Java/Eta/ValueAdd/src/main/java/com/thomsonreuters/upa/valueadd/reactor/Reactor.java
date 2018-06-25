@@ -1089,6 +1089,8 @@ public class Reactor
             case ReactorRoleTypes.NIPROVIDER:
                 callback = ((NIProviderRole)reactorChannel.role()).loginMsgCallback();
                 break;
+            default:
+                break;
         }
 
         if (callback != null)
@@ -1184,6 +1186,8 @@ public class Reactor
             case ReactorRoleTypes.NIPROVIDER:
                 // no directory callback for NIProvider.
                 break;
+            default:
+                break;
         }
 
         if (callback != null)
@@ -1278,6 +1282,8 @@ public class Reactor
                 break;
             case ReactorRoleTypes.NIPROVIDER:
                 // no dictionary callback for NIProvider.
+            default:
+                break;
         }
 
         if (callback != null)
@@ -1963,7 +1969,8 @@ public class Reactor
     }
 
     // returns the errorInfo.code().
-    private int processWorkerEvent(ReactorErrorInfo errorInfo)
+    @SuppressWarnings("fallthrough")
+	private int processWorkerEvent(ReactorErrorInfo errorInfo)
     {
         WorkerEvent event = (WorkerEvent)_workerQueue.read();
         if (event == null)
@@ -2113,7 +2120,7 @@ public class Reactor
 
     private void processChannelDown(WorkerEvent event, ReactorErrorInfo errorInfo)
     {
-        ReactorChannel reactorChannel = (ReactorChannel)event.reactorChannel();
+        ReactorChannel reactorChannel = event.reactorChannel();
         
         if (reactorChannel.state() != State.CLOSED)
         {
@@ -2142,7 +2149,7 @@ public class Reactor
 
     private void processChannelUp(WorkerEvent event, ReactorErrorInfo errorInfo)
     {
-        ReactorChannel reactorChannel = (ReactorChannel)event.reactorChannel();
+        ReactorChannel reactorChannel = event.reactorChannel();
         ReactorRole reactorRole = reactorChannel.role();
         
         if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN)
@@ -2729,6 +2736,8 @@ public class Reactor
                 _loginMsg.rdmMsgType(LoginMsgType.UNKNOWN);
                 loginMsg = null;
                 break;
+            default:
+                break;
         }
 
         retval = sendAndHandleLoginMsgCallback("Reactor.processLoginMessage", reactorChannel, transportBuffer, msg, loginMsg, errorInfo);
@@ -2842,6 +2851,8 @@ public class Reactor
                 DirectoryUpdate directoryUpdate = (DirectoryUpdate)_directoryMsg;
                 directoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
                 directoryUpdate.decode(dIter, msg);
+                break;
+            default:
                 break;
         }
 
@@ -2961,6 +2972,8 @@ public class Reactor
 	            dictionaryClose.rdmMsgType(DictionaryMsgType.CLOSE);
 	            dictionaryClose.decode(dIter, msg);
 	            break;
+            default:
+                break;
         }
 
         retval = sendAndHandleDictionaryMsgCallback("Reactor.processDictionaryMessage", reactorChannel, transportBuffer, msg, _dictionaryMsg, errorInfo);

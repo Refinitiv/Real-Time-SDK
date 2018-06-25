@@ -1211,10 +1211,10 @@ public class MapTests extends TestCase
 
 			mapEnc.summaryData(flEnc);
 
-			ByteBuffer permission = (ByteBuffer)ByteBuffer.wrap("PERMISSION DATA".getBytes());
+			ByteBuffer permission = ByteBuffer.wrap("PERMISSION DATA".getBytes());
 
 			//first entry  //Delete Buffer
-			ByteBuffer orderBuf =(ByteBuffer)ByteBuffer.wrap("ABCD".getBytes());
+			ByteBuffer orderBuf =ByteBuffer.wrap("ABCD".getBytes());
 			
 			flEnc.clear();
 			flEnc.info(1, 1);

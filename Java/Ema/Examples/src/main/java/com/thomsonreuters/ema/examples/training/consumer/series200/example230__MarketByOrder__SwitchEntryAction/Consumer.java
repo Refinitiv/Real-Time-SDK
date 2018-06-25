@@ -109,6 +109,8 @@ class AppClient implements OmmConsumerClient
 					decode(mapEntry.fieldList());
 				}
 				break;
+				default:
+				break;
 			}
 		}
 	}

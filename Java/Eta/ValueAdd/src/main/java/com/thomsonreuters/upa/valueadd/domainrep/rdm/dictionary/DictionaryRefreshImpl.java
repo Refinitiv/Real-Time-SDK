@@ -265,10 +265,10 @@ class DictionaryRefreshImpl extends MsgBaseImpl
                 startEnumTableCount = (int)tmpInt.toLong();
                 return dictEncodeRet;
             }
+            default:
+            	error.text("Invalid Dictionary Type: " + dictionaryType);
+            	return CodecReturnCodes.FAILURE;
         }
-        
-        return CodecReturnCodes.SUCCESS;
-       
     }
 
     public boolean checkSolicited()

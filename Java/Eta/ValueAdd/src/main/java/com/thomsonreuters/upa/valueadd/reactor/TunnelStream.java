@@ -369,10 +369,10 @@ public class TunnelStream
 		 
 		_queueRequest = (QueueRequestImpl)QueueMsgFactory.createQueueRequest();
 		_queueRefresh = (QueueRefreshImpl)QueueMsgFactory.createQueueRefresh();
-		_queueData = (QueueDataImpl)QueueMsgFactory.createQueueData();
+		_queueData = QueueMsgFactory.createQueueData();
 		 		 
-		_queueDataExpired = (QueueDataExpiredImpl)QueueMsgFactory.createQueueDataExpired();
-		_queueAck = (QueueAckImpl)QueueMsgFactory.createQueueAck();
+		_queueDataExpired = QueueMsgFactory.createQueueDataExpired();
+		_queueAck = QueueMsgFactory.createQueueAck();
 		_queueClose = (QueueCloseImpl)QueueMsgFactory.createQueueClose();
 		_queueStatus = (QueueStatusImpl)QueueMsgFactory.createQueueStatus(); 
 		 	        
@@ -605,7 +605,7 @@ public class TunnelStream
                 }
                 
                 if ((ret = handleBufferSubmit(_reactorChannel,
-                                              (TunnelStreamBuffer)buffer,
+                                              buffer,
                                               DataTypes.MSG,
                                               errorInfo)) < ReactorReturnCodes.SUCCESS)
                 {
@@ -706,7 +706,7 @@ public class TunnelStream
                         }
                         
                         if ((ret = handleBufferSubmit(_reactorChannel,
-                                                      (TunnelStreamBuffer)buffer,
+                                                      buffer,
                                                       DataTypes.MSG,
                                                       errorInfo)) < ReactorReturnCodes.SUCCESS)
                         {
@@ -837,7 +837,7 @@ public class TunnelStream
                 }
                 
                 if ((ret = handleBufferSubmit(_reactorChannel,
-                                              (TunnelStreamBuffer)buffer,
+                                              buffer,
                                               DataTypes.MSG,
                                               errorInfo)) < ReactorReturnCodes.SUCCESS)
                 {
@@ -1887,7 +1887,7 @@ public class TunnelStream
             }
             
             // reject submit if buffer is larger than negotiated max message size
-            if (((TunnelStreamBuffer)tunnelBuffer).length() > _classOfService.common().maxMsgSize())
+            if (tunnelBuffer.length() > _classOfService.common().maxMsgSize())
             {
                 error.errorId(ReactorReturnCodes.PARAMETER_INVALID);
                 error.text("Submitted buffer cannot be larger than maxMsgSize of " + _classOfService.common().maxMsgSize());
@@ -2242,6 +2242,7 @@ public class TunnelStream
 	 * @param error the error
 	 * @return the int
 	 */
+	@SuppressWarnings("fallthrough")
 	int dispatch(Error error)
 	{
 		int ret = ReactorReturnCodes.SUCCESS;
@@ -3360,6 +3361,7 @@ public class TunnelStream
                                         }
                                         else if (_decSubMsg.msgClass() == MsgClasses.STATUS)
                                         {
+                                        	ret = ReactorReturnCodes.SUCCESS;
                                             com.thomsonreuters.upa.codec.State state = null;
                                             if (((StatusMsg)_decSubMsg).checkHasState())
                                             {
@@ -3377,8 +3379,10 @@ public class TunnelStream
                                                 (state.streamState() == StreamStates.CLOSED ||
                                                 state.streamState() == StreamStates.CLOSED_RECOVER))
                                             {
-                                                sendCloseMsg(error);
+                                            	ret = sendCloseMsg(error);
                                             }
+                                            
+                                            return ret;
                                         }
                                     }
                                     else // not a login
@@ -3389,7 +3393,7 @@ public class TunnelStream
                                             deliveredMsg.encodedDataBody().copy(buffer.data());
                                     		
                                     		ret = ReactorReturnCodes.SUCCESS;
-                                    		if ((int)(((TunnelStreamMsgImpl)_tunnelStreamMsg).dataMsgFlag() & TunnelStreamMsg.TunnelStreamData.Flags.FRAGMENTED) == 0) // non-fragmented message
+                                    		if ((((TunnelStreamMsgImpl)_tunnelStreamMsg).dataMsgFlag() & TunnelStreamMsg.TunnelStreamData.Flags.FRAGMENTED) == 0) // non-fragmented message
                                     		{                                    	             
                                     			ret = msgReceived(buffer, (deliveredMsg.containerType() == DataTypes.MSG) ? _decSubMsg : null, deliveredMsg.containerType());
                                     		}
@@ -3397,7 +3401,7 @@ public class TunnelStream
                                     		{ 
                                     			ret = handleTunnelStreamFragmentedMsg(dataHeader, buffer.data(), dataHeader.containerType(), _errorInfo);
                                     		}
-                                            releaseBuffer((TunnelStreamBuffer)buffer, error);
+                                            releaseBuffer(buffer, error);
                                 			return ret; 
                                         }
                                         else
@@ -3414,7 +3418,7 @@ public class TunnelStream
                                         deliveredMsg.encodedDataBody().copy(buffer.data());
                               			
                               			ret = ReactorReturnCodes.SUCCESS;
-                              			if ((int)(((TunnelStreamMsgImpl)_tunnelStreamMsg).dataMsgFlag() & TunnelStreamMsg.TunnelStreamData.Flags.FRAGMENTED) == 0) // non-fragmented message
+                              			if ((((TunnelStreamMsgImpl)_tunnelStreamMsg).dataMsgFlag() & TunnelStreamMsg.TunnelStreamData.Flags.FRAGMENTED) == 0) // non-fragmented message
                               			{                                	
                               				ret = msgReceived(buffer,  (deliveredMsg.containerType() == DataTypes.MSG) ? _decSubMsg : null, deliveredMsg.containerType());
                               			}
@@ -3422,7 +3426,7 @@ public class TunnelStream
                               			{
                               				ret = handleTunnelStreamFragmentedMsg(dataHeader, buffer.data(), dataHeader.containerType(), _errorInfo);                              				
                               			}
-                                        releaseBuffer((TunnelStreamBuffer)buffer, error);
+                                        releaseBuffer(buffer, error);
                           				return ret;
                                     }
                                     else
@@ -3431,6 +3435,7 @@ public class TunnelStream
                                     }
                                 }
                             }
+                            break;
     					case TunnelStreamMsg.OpCodes.ACK:
     						if ((ret = processAck((TunnelStreamMsg.TunnelStreamAck)_tunnelStreamMsg, _recvAckRangeList, _recvNakRangeList, error)) != ReactorReturnCodes.SUCCESS)
     							return ret;
@@ -3447,6 +3452,7 @@ public class TunnelStream
     								+ " while establishing substream.");
     						return ReactorReturnCodes.FAILURE;
     				}
+    				return ReactorReturnCodes.SUCCESS;
                 case CLOSING:
                    	if (deliveredMsg.msgClass() == MsgClasses.CLOSE)
                     {                    	

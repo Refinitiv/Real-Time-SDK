@@ -126,6 +126,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.FIELD_LIST:
 			decode(payload.fieldList());
 			break;
+		default:
+			break;
 		}
 	}
 	
@@ -138,6 +140,8 @@ class AppClient implements OmmConsumerClient
 			break;
 		case DataTypes.FIELD_LIST:
 			decode(attrib.fieldList());
+			break;
+		default:
 			break;
 		}		
 	}
@@ -161,6 +165,8 @@ class AppClient implements OmmConsumerClient
 		case DataTypes.FIELD_LIST:
 			decode(genMsg.attrib().fieldList());
 			break;
+		default:
+			break;
 		}
 
 		switch (genMsg.payload().dataType())
@@ -179,6 +185,8 @@ class AppClient implements OmmConsumerClient
 			break;
 		case DataTypes.STATUS_MSG:
 			decode(genMsg.payload().statusMsg());
+			break;
+		default:
 			break;
 		}
 	}
@@ -294,7 +302,7 @@ public class Consumer
 			
 			consumer.registerClient(EmaFactory.createReqMsg().domainType(200).serviceName("DIRECT_FEED")
 																			.name("IBM.XYZ")
-																			.privateStream(true), appClient, (Integer)1);
+																			.privateStream(true), appClient, 1);
 
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}

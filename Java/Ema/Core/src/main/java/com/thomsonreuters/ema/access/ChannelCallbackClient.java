@@ -803,7 +803,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		if( supportedConnectionTypeChannelCount > 0 )
 		{
 			ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
-			if (ReactorReturnCodes.SUCCESS > _rsslReactor.connect(_rsslReactorConnOptions, (ReactorRole)_rsslReactorRole, rsslErrorInfo))
+			if (ReactorReturnCodes.SUCCESS > _rsslReactor.connect(_rsslReactorConnOptions, _rsslReactorRole, rsslErrorInfo))
 			{
 				com.thomsonreuters.upa.transport.Error error = rsslErrorInfo.error();
 				StringBuilder tempErr = _baseImpl.strBuilder();

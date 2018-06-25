@@ -382,7 +382,7 @@ public class JUnitTestConnect
 	public static int configVerifyChannelCommonAttribs(ChannelConfig chanCfg, String position,  OmmConsumerConfig consConfig, String channelName, ChannelConfig lastChanCfg)
 	{
 		int result = 0;
-		int intValue = ( int ) JUnitTestConnect.configGetIntValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionType);
+		int intValue = JUnitTestConnect.configGetIntValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionType);
 		if(intValue != chanCfg.compressionType)
 		{
 			_lastErrorText = "CompressionType mismatch in '";
@@ -397,7 +397,7 @@ public class JUnitTestConnect
 			return 9;
 		}
 		
-		int intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
+		int intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
 		if(intLongValue != chanCfg.guaranteedOutputBuffers)
 		{
 			_lastErrorText = "GuaranteedOutputBuffers mismatch in '";
@@ -412,7 +412,7 @@ public class JUnitTestConnect
 			return 10;
 		}
 		
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
 		if(intLongValue != chanCfg.numInputBuffers)
 		{
 			_lastErrorText = "NumInputBuffers mismatch in '";
@@ -427,7 +427,7 @@ public class JUnitTestConnect
 			return 11;
 		}
 
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
 		if(intLongValue != chanCfg.sysRecvBufSize)
 		{
 			_lastErrorText = "SysRecvBufSize mismatch in '";
@@ -442,7 +442,7 @@ public class JUnitTestConnect
 			return 12;
 		}
 
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
 		if(intLongValue != chanCfg.sysSendBufSize)
 		{
 			_lastErrorText = "SysSendBufSize mismatch in '";
@@ -457,7 +457,7 @@ public class JUnitTestConnect
 			return 13;
 		}
 		
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionThreshold);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionThreshold);
 		if(intLongValue != chanCfg.compressionThreshold)
 		{
 			_lastErrorText = "CompressionThreshold mismatch in '";
@@ -472,7 +472,7 @@ public class JUnitTestConnect
 			return 14;
 		}
 
-		intLongValue = ( int ) JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
 		if(intLongValue != chanCfg.connectionPingTimeout)
 		{
 			_lastErrorText = "ConnectionPingTimeout mismatch in '";
@@ -561,6 +561,8 @@ public class JUnitTestConnect
 					result = configVerifyChannelEncrypTypeAttribs(chanCfg, position, consConfig, channName);
 					break;
 				}			
+			default:
+				break;
 			}
 			if(result != 0)
 			{

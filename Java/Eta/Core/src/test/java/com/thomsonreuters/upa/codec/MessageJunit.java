@@ -3496,7 +3496,7 @@ public class MessageJunit
                     assertEquals(CodecReturnCodes.SUCCESS, updateMsg.encodeComplete(encIter, true));
 
                     /* Decode the message. */
-                    Msg decMsg = (UpdateMsg)CodecFactory.createMsg();
+                    Msg decMsg = CodecFactory.createMsg();
                     setupDecodeIterator();
                     assertEquals(CodecReturnCodes.SUCCESS, decMsg.decode(decIter));
                     assertEquals(MsgClasses.UPDATE, decMsg.msgClass());

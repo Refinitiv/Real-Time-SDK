@@ -169,7 +169,7 @@ public class WatchlistConsumerConfig
 			for(int i = 0; i < providedItemList.size(); ++i)
 			{
 				if (providedItemList.get(i).streamId() == streamId)
-					return (ItemInfo)providedItemList.get(i);
+					return providedItemList.get(i);
 			}
 			return null;
 		}
@@ -508,6 +508,21 @@ public class WatchlistConsumerConfig
 		return cacheInterval;
 	}
 	
+	String authenticationToken()
+    {
+		return CommandLine.value("at");
+    }
+
+	String authenticationExtended()
+    {
+		return CommandLine.value("ax");
+    }
+
+	String applicationId()
+    {
+		return CommandLine.value("aid");
+    }
+	
 	int itemCount()
 	{
 		return itemList.size();
@@ -578,6 +593,10 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("tsServiceName", "", "(optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used");
         CommandLine.addOption("tsAuth", "", "(optional) causes consumer to request authentication when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging");
         CommandLine.addOption("tsDomain", "", "(optional) specifes the domain a consumer uses when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging");
+        
+        CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
+        CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
+        CommandLine.addOption("aid", "", "Specifies the Application ID.");
     }	
 }
 

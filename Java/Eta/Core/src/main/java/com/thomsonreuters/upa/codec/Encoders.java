@@ -285,7 +285,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((Int)data).toLong();
+            long val = data.toLong();
 
             int ret = iter._writer.writeLong64ls(val);
             if (ret != CodecReturnCodes.SUCCESS) // checks for buffer too small
@@ -300,7 +300,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((Int)data).toLong();
+            long val = data.toLong();
 
             int ret = iter._writer.writeLong64lsWithLength(val);
             if (ret != CodecReturnCodes.SUCCESS) // checks for buffer too small
@@ -315,7 +315,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((Int)data).toLong();
+            long val = data.toLong();
 
             if ((val < -0x80) || (val >= 0x80))
                 return CodecReturnCodes.VALUE_OUT_OF_RANGE;
@@ -334,7 +334,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((Int)data).toLong();
+            long val = data.toLong();
 
             if ((val < -0x8000) || (val >= 0x8000))
                 return CodecReturnCodes.VALUE_OUT_OF_RANGE;
@@ -353,7 +353,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((Int)data).toLong();
+            long val = data.toLong();
 
             if ((val < -0x80000000L) || (val >= 0x80000000L))
                 return CodecReturnCodes.VALUE_OUT_OF_RANGE;
@@ -372,7 +372,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((Int)data).toLong();
+            long val = data.toLong();
 
             if (iter.isIteratorOverrun(8))
                 return CodecReturnCodes.BUFFER_TOO_SMALL;
@@ -388,7 +388,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((UInt)data).toLong();
+            long val = data.toLong();
 
             int ret = iter._writer.writeULong64ls(val);
             if (ret != CodecReturnCodes.SUCCESS) // checks for buffer too small
@@ -403,7 +403,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((UInt)data).toLong();
+            long val = data.toLong();
 
             int ret = iter._writer.writeULong64lsWithLength(val);
             if (ret != CodecReturnCodes.SUCCESS) // checks for buffer too small
@@ -418,7 +418,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((UInt)data).toLong();
+            long val = data.toLong();
 
             if ((val < 0) || (val > 0xFFL))
                 return CodecReturnCodes.VALUE_OUT_OF_RANGE;
@@ -437,7 +437,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((UInt)data).toLong();
+            long val = data.toLong();
 
             if ((val < 0) || (val > 0xFFFFL))
                 return CodecReturnCodes.VALUE_OUT_OF_RANGE;
@@ -456,7 +456,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((UInt)data).toLong();
+            long val = data.toLong();
 
             if ((val < 0) || (val > 0xFFFFFFFFL))
                 return CodecReturnCodes.VALUE_OUT_OF_RANGE;
@@ -475,7 +475,7 @@ class Encoders
             assert (iter != null);
             assert (data != null);
 
-            long val = ((UInt)data).toLong();
+            long val = data.toLong();
 
             if (iter.isIteratorOverrun(8))
                 return CodecReturnCodes.BUFFER_TOO_SMALL;
@@ -1494,7 +1494,7 @@ class Encoders
         _levelInfo._initElemStartPos = iter._curBufPos;
 
         /* Set the message onto the current _levelInfo */
-        _levelInfo._listType = (Object)msg;
+        _levelInfo._listType = msg;
         _levelInfo._containerType = DataTypes.MSG;
 
         /* header length */
@@ -1804,7 +1804,7 @@ class Encoders
             iter._curBufPos = iter._writer.position();
         }
 
-        if ((retVal = PrimitiveEncoder.encodeState(iter, (StateImpl)msg.state())) < 0)
+        if ((retVal = PrimitiveEncoder.encodeState(iter, msg.state())) < 0)
             return retVal;
 
         /* Store groupId as small buffer */
@@ -1856,7 +1856,7 @@ class Encoders
         /* Store QoS */
         if ((flags & RefreshMsgFlags.HAS_QOS) > 0)
         {
-            if ((retVal = PrimitiveEncoder.encodeQos(iter, (QosImpl)msg.qos())) < 0)
+            if ((retVal = PrimitiveEncoder.encodeQos(iter, msg.qos())) < 0)
                 return retVal;
         }
 
@@ -2013,14 +2013,14 @@ class Encoders
         /* Store Qos */
         if (msg.checkHasQos())
         {
-            if ((retVal = PrimitiveEncoder.encodeQos(iter, (QosImpl)msg.qos())) < 0)
+            if ((retVal = PrimitiveEncoder.encodeQos(iter, msg.qos())) < 0)
                 return retVal;
         }
 
         /* Store WorstQos */
         if (msg.checkHasWorstQos())
         {
-            if ((retVal = PrimitiveEncoder.encodeQos(iter, (QosImpl)msg.worstQos())) < 0)
+            if ((retVal = PrimitiveEncoder.encodeQos(iter, msg.worstQos())) < 0)
                 return retVal;
         }
 
@@ -2127,7 +2127,7 @@ class Encoders
         /* Store state */
         if ((flags & StatusMsgFlags.HAS_STATE) > 0)
         {
-            if ((retVal = PrimitiveEncoder.encodeState(iter, (StateImpl)msg.state())) < 0)
+            if ((retVal = PrimitiveEncoder.encodeState(iter, msg.state())) < 0)
                 return retVal;
         }
 
@@ -2492,7 +2492,7 @@ class Encoders
             return CodecReturnCodes.BUFFER_TOO_SMALL;
 
         /* Store flags as UInt15-rb */
-        flags = ((MsgKeyImpl)key).flags();
+        flags = key.flags();
 
         if (key.checkHasName() && key.name().length() == 0)
             flags &= ~MsgKeyFlags.HAS_NAME;
@@ -3041,6 +3041,8 @@ class Encoders
             case MsgClasses.CLOSE:
             case MsgClasses.ACK:
                 break;
+            default:
+                break;
         }
 
         return CodecReturnCodes.SUCCESS;
@@ -3448,14 +3450,14 @@ class Encoders
                 if (iter.isIteratorOverrun(2 + len)) // 1 byte len + 1 byte datatype + len
                     return CodecReturnCodes.BUFFER_TOO_SMALL;
                 iter._writer.writeByte(len);
-                iter._writer.write((BufferImpl)(BufferImpl)element._name);
+                iter._writer.write((BufferImpl)element._name);
             }
             else
             {
                 if (iter.isIteratorOverrun(3 + len)) // 2 bytes len + 1 byte datatype + len
                     return CodecReturnCodes.BUFFER_TOO_SMALL;
                 iter._writer.writeUShort15rbLong((short)len);
-                iter._writer.write((BufferImpl)(BufferImpl)element._name);
+                iter._writer.write((BufferImpl)element._name);
             }
 
             /* store data type */
@@ -3495,7 +3497,7 @@ class Encoders
                     return CodecReturnCodes.BUFFER_TOO_SMALL;
                 }
                 iter._writer.writeByte(len);
-                iter._writer.write((BufferImpl)(BufferImpl)element._name);
+                iter._writer.write((BufferImpl)element._name);
             }
             else
             {
@@ -3507,7 +3509,7 @@ class Encoders
                     return CodecReturnCodes.BUFFER_TOO_SMALL;
                 }
                 iter._writer.writeUShort15rbLong((short)len);
-                iter._writer.write((BufferImpl)(BufferImpl)element._name);
+                iter._writer.write((BufferImpl)element._name);
             }
 
             /* store datatype */
@@ -3562,14 +3564,14 @@ class Encoders
                 if (iter.isIteratorOverrun(2 + len))
                     return CodecReturnCodes.BUFFER_TOO_SMALL;
                 iter._writer.writeByte(len);
-                iter._writer.write((BufferImpl)(BufferImpl)element._name);
+                iter._writer.write((BufferImpl)element._name);
             }
             else
             {
                 if (iter.isIteratorOverrun(3 + len))
                     return CodecReturnCodes.BUFFER_TOO_SMALL;
                 iter._writer.writeUShort15rbLong((short)len);
-                iter._writer.write((BufferImpl)(BufferImpl)element._name);
+                iter._writer.write((BufferImpl)element._name);
             }
 
             /* store datatype */
@@ -3675,7 +3677,7 @@ class Encoders
                 return CodecReturnCodes.BUFFER_TOO_SMALL;
             }
             iter._writer.writeByte(len);
-            iter._writer.write((BufferImpl)(BufferImpl)element._name);
+            iter._writer.write((BufferImpl)element._name);
         }
         else
         {
@@ -3685,7 +3687,7 @@ class Encoders
                 return CodecReturnCodes.BUFFER_TOO_SMALL;
             }
             iter._writer.writeUShort15rbLong((short)len);
-            iter._writer.write((BufferImpl)(BufferImpl)element._name);
+            iter._writer.write((BufferImpl)element._name);
         }
 
         iter._curBufPos = iter._writer.position();
@@ -4263,13 +4265,13 @@ class Encoders
                 return CodecReturnCodes.INVALID_DATA;
 
             /* Validate type */
-            if (field._dataType != Decoders.convertToPrimitiveType((int)encoding._dataType))
+            if (field._dataType != Decoders.convertToPrimitiveType(encoding._dataType))
                 return CodecReturnCodes.INVALID_DATA;
 
             /* Encode item according to set type */
             if (data != null)
             {
-                if ((ret = PrimitiveEncoder.encodeSetData(iter, data, (int)encoding._dataType)) < 0)
+                if ((ret = PrimitiveEncoder.encodeSetData(iter, data, encoding._dataType)) < 0)
                 {
                     /* rollback */
                     iter._curBufPos = _levelInfo._initElemStartPos;
@@ -4322,7 +4324,7 @@ class Encoders
             else
             /* blank */
             {
-                if ((ret = encodeBlank(iter, (int)encoding._dataType)) != CodecReturnCodes.SUCCESS)
+                if ((ret = encodeBlank(iter, encoding._dataType)) != CodecReturnCodes.SUCCESS)
                     return ret;
             }
 
@@ -4472,7 +4474,7 @@ class Encoders
             }
 
             /* Validate type */
-            if (field.dataType() != Decoders.convertToPrimitiveType((int)encoding.dataType()))
+            if (field.dataType() != Decoders.convertToPrimitiveType(encoding.dataType()))
             {
                 _levelInfo._encodingState = EncodeIteratorStates.SET_ENTRY_WAIT_COMPLETE;
                 return CodecReturnCodes.INVALID_DATA;
@@ -4872,7 +4874,7 @@ class Encoders
             }
             else
             {
-                int len = ((Buffer)encodedData).length();
+                int len = encodedData.length();
 
                 // len value is written on wire as uShort16ob
                 // If the value is smaller than 0xFE, it is written on the wire as one byte,
@@ -4884,7 +4886,7 @@ class Encoders
                         return CodecReturnCodes.BUFFER_TOO_SMALL;
 
                     iter._writer.writeByte(len);
-                    iter._writer.write((BufferImpl)(BufferImpl)encodedData);
+                    iter._writer.write((BufferImpl)encodedData);
                 }
                 else if (len <= 0xFFFF)
                 {
@@ -4892,7 +4894,7 @@ class Encoders
                         return CodecReturnCodes.BUFFER_TOO_SMALL;
 
                     iter._writer.writeUShort16obLong(len);
-                    iter._writer.write((BufferImpl)(BufferImpl)encodedData);
+                    iter._writer.write((BufferImpl)encodedData);
 
                 }
                 else
@@ -5165,7 +5167,7 @@ class Encoders
         EncodeIteratorImpl iter = (EncodeIteratorImpl)iterInt;
         FilterListImpl filterList = (FilterListImpl)filterListInt;
         EncodingLevel _levelInfo = iter._levelInfo[iter._encodingLevel];
-        int count = (int)_levelInfo._currentCount;
+        int count = _levelInfo._currentCount;
         int flags;
 
         /* Validations */
@@ -7469,8 +7471,8 @@ class Encoders
                         return CodecReturnCodes.BUFFER_TOO_SMALL;
                     }
 
-                    iter._writer.writeShort((int)fieldEnc.fieldId());
-                    iter._writer.writeByte((int)fieldEnc.dataType());
+                    iter._writer.writeShort(fieldEnc.fieldId());
+                    iter._writer.writeByte(fieldEnc.dataType());
                     iter._curBufPos = iter._writer.position();
                 }
                 ++defCount;
@@ -7546,8 +7548,8 @@ class Encoders
                     if (iter.isIteratorOverrun(3))
                         return CodecReturnCodes.BUFFER_TOO_SMALL;
 
-                    iter._writer.writeShort((int)fieldEnc.fieldId());
-                    iter._writer.writeByte((int)fieldEnc.dataType());
+                    iter._writer.writeShort(fieldEnc.fieldId());
+                    iter._writer.writeByte(fieldEnc.dataType());
                     iter._curBufPos = iter._writer.position();
                 }
                 ++defCount;

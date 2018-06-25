@@ -627,7 +627,7 @@ public class TunnelStreamJunit
             
             
         }
-        while (++runCount < minRunCount || System.nanoTime() < startTime + (long)1000000000 * runTimeSec);
+        while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
         
         /*** Test for proper cleanup after a disconnection. ***/
 
@@ -697,7 +697,7 @@ public class TunnelStreamJunit
             assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
             assertEquals(0, provider.reactorChannel().streamIdtoTunnelStreamTable().size());
         }
-        while (++runCount < minRunCount || System.nanoTime() < startTime + (long)1000000000 * runTimeSec);
+        while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
 
         /*** Test for proper cleanup after a disconnection, even if consumer does not properly close. ***/
 
@@ -768,7 +768,7 @@ public class TunnelStreamJunit
             
             
         }
-        while (++runCount < minRunCount || System.nanoTime() < startTime + (long)1000000000 * runTimeSec);
+        while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
 
         TestReactorComponent.closeSession(consumer, provider);
         
@@ -889,7 +889,7 @@ public class TunnelStreamJunit
             assertEquals(0, consumer.reactorChannel().streamIdtoTunnelStreamTable().size());
             
         }
-        while (++runCount < minRunCount || System.nanoTime() < startTime + (long)1000000000 * runTimeSec);
+        while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);
         
         TestReactorComponent.closeSession(consumer, rejectProvider);
         

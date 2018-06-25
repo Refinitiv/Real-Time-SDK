@@ -962,6 +962,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
             	_dictionaryStatus.state().text().data(text.toString());
             }
                 break;
+            default:
+            	return CodecReturnCodes.FAILURE;
         }
 
         if (traceMessage && _ommServerBaseImpl.loggerClient().isTraceEnabled())

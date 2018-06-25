@@ -14,6 +14,7 @@ public class ProcessMsgReflect implements ProcessMsg
 {
 	private WriteArgs _writeArgs = TransportFactory.createWriteArgs();
 	
+	@SuppressWarnings("fallthrough")
 	@Override
 	public int processMsg(TransportChannelHandler channelHandler, ClientChannelInfo channelInfo, TransportBuffer msgBuffer,	Error error)
 	{

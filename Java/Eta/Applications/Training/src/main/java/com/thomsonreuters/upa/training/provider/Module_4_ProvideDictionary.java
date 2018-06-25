@@ -1068,6 +1068,7 @@ public class Module_4_ProvideDictionary
                                 case TransportReturnCodes.FAILURE:
                                     System.out.printf("Error (%d) (errno: %d) %s\n", error.errorId(), error.sysError(), error.text());
                                     closeChannelServerCleanUpAndExit(channel, upaSrvr, selector, TransportReturnCodes.FAILURE, _dictionary);
+                                    break;
                                 default:
                                 {
                                     if (retCode < 0)
@@ -1559,6 +1560,7 @@ public class Module_4_ProvideDictionary
                          */
                         return TransportReturnCodes.SUCCESS + 1;
                     }
+                    break;
                 }
                 case TransportReturnCodes.NO_BUFFERS:
                 {
@@ -3177,7 +3179,7 @@ public class Module_4_ProvideDictionary
             case MsgClasses.REQUEST:
             {
                 /* get request message key - retrieve the MsgKey structure from the provided decoded message structure */
-                requestKey = (MsgKey)(msg.msgKey());
+                requestKey = (msg.msgKey());
 
                 /* decode dictionary request */
 

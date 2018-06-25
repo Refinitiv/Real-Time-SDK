@@ -88,6 +88,8 @@ public class TestClient implements Runnable
                 if (_readable)
                     return true;
                 break;
+            default:
+                break;
         }
         return false;
     }
@@ -269,7 +271,7 @@ public class TestClient implements Runnable
                     Iterator<SelectionKey> keyIterator = _selector.selectedKeys().iterator();
                     while (keyIterator.hasNext())
                     {
-                        SelectionKey selectionKey = (SelectionKey)keyIterator.next();
+                        SelectionKey selectionKey = keyIterator.next();
                         keyIterator.remove();
                         if (selectionKey.isReadable())
                         {
@@ -317,7 +319,7 @@ public class TestClient implements Runnable
                     Iterator<SelectionKey> keyIterator = _selector.selectedKeys().iterator();
                     while (keyIterator.hasNext())
                     {
-                        SelectionKey selectionKey = (SelectionKey)keyIterator.next();
+                        SelectionKey selectionKey = keyIterator.next();
                         keyIterator.remove();
                         if (selectionKey.isReadable())
                         {

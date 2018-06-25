@@ -150,9 +150,9 @@ public class Consumer
 
 			appClient.setOmmConsumer(consumer, loginHandle);
 			
-			consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient, (Integer)1);
+			consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient, 1);
 			
-			consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("TRI.N"), appClient, (Integer)2);
+			consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("TRI.N"), appClient, 2);
 
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}

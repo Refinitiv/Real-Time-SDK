@@ -91,7 +91,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		
 		_storeUserSubmitted = _activeConfig.directoryAdminControl == OmmIProviderConfig.AdminControl.API_CONTROL ? true : false;
 		
-		_fanoutDirectoryMsg = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
+		_fanoutDirectoryMsg = DirectoryMsgFactory.createMsg();
 	}
 
 	@Override
@@ -1080,6 +1080,8 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 				break;
 			case MsgClasses.STATUS:
 				handleItemInfo(msgImpl._rsslMsg.domainType(),  itemInfo.handle().value(),((com.thomsonreuters.upa.codec.StatusMsg)msgImpl._rsslMsg).state(), false);
+				break;
+			default:
 				break;
 			}
 		}

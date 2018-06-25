@@ -1140,6 +1140,7 @@ public class Module_5_ItemRequest
                                     case TransportReturnCodes.FAILURE:
                                         System.out.printf("Error (%d) (errno: %d) %s\n", error.errorId(), error.sysError(), error.text());
                                         closeChannelCleanUpAndExit(channel, selector, TransportReturnCodes.FAILURE, dictionary);
+                                        break;
                                     default:
                                         if (retCode < 0)
                                         {
@@ -1511,6 +1512,7 @@ public class Module_5_ItemRequest
                          */
                         return TransportReturnCodes.SUCCESS + 1;
                     }
+                    break;
                 }
                 case TransportReturnCodes.NO_BUFFERS:
                 {
@@ -3128,6 +3130,7 @@ public class Module_5_ItemRequest
                 marketPriceItemInfo_itemState.streamState(refreshMsg.state().streamState());
                 /* refresh continued - process just like update */
 
+                break;
             }
 
             case MsgClasses.UPDATE: /* (4) Update Message */
@@ -3151,7 +3154,7 @@ public class Module_5_ItemRequest
                 }
 
                 /* get key */
-                key = (MsgKey)msg.msgKey();
+                key = msg.msgKey();
 
                 /* print out item name from key if it has it */
 
@@ -3200,7 +3203,7 @@ public class Module_5_ItemRequest
                 System.out.println("Received AckMsg for stream " + msg.streamId());
 
                 /* get key */
-                key = (MsgKey)msg.msgKey();
+                key = msg.msgKey();
 
                 /* print out item name from key if it has it */
 

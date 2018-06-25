@@ -185,7 +185,7 @@ class QueueDataExpiredImpl extends QueueMsgImpl implements QueueDataExpired
 			/* SeqNum */
 			_seqNum = (int)genericMsg.seqNum();
 			
-			int msgLength = (int)tmpByteBuf.get() & 0xff;
+			int msgLength = tmpByteBuf.get() & 0xff;
 
 			_sourceName.data(tmpByteBuf, tmpByteBuf.position(), msgLength);
 			tmpByteBuf.position(tmpByteBuf.position() + msgLength);
@@ -193,10 +193,10 @@ class QueueDataExpiredImpl extends QueueMsgImpl implements QueueDataExpired
 			msgLength = 0;
 
 			/* Identifier */
-			msgLength = (int)tmpByteBuf.get() & 0xff;
+			msgLength = tmpByteBuf.get() & 0xff;
             _identifier = TunnelStreamUtil.readLong64ls(msgLength, tmpByteBuf);
 			
-			_undeliverableCode = (int)tmpByteBuf.get() & 0xff;
+			_undeliverableCode = tmpByteBuf.get() & 0xff;
 			
             /* QueueDepth */
 			_queueDepth = tmpByteBuf.getShort();

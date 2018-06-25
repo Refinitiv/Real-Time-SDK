@@ -153,7 +153,7 @@ public class DictionaryJunit
                                          Codec.majorVersion(), Codec.minorVersion());
             decDictionary.clear();
             ret = decDictionary.decodeEnumTypeDictionary(dIter,
-                                                         (int)decRDMMsg.verbosity(), error);
+                                                         decRDMMsg.verbosity(), error);
             assertEquals(CodecReturnCodes.SUCCESS, ret);
         }
 

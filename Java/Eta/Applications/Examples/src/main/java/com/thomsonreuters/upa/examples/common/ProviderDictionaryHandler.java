@@ -359,7 +359,7 @@ public class ProviderDictionaryHandler
 
 	int processRefresh(Msg msg, DecodeIterator dIter, com.thomsonreuters.upa.transport.Error error)
 	{
-		int ret = _dictionaryRefresh.decode(dIter, (RefreshMsg)msg);
+		int ret = _dictionaryRefresh.decode(dIter, msg);
 		if (ret != CodecReturnCodes.SUCCESS)
 		{
 			error.text("Error decoding dictionary refresh: <" + CodecReturnCodes.toString(ret) + ">");

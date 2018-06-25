@@ -227,7 +227,7 @@ class DataBufferReaderWireFormatV1 extends BufferReader
             return (short)(((val & 0x7F) << 8) + b);
         }
 
-        return (short)val;
+        return val;
     }
 
     @Override

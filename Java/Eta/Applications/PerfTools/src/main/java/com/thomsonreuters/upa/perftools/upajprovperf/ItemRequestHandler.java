@@ -434,6 +434,8 @@ public class ItemRequestHandler
 		case DomainTypes.MARKET_PRICE:
 			_marketPriceDecoder.decodeUpdate(decodeIter, genMsg, providerThread.getProvThreadInfo());
 			break;
+		default:
+			break;
 		}
 		return PerfToolsReturnCodes.SUCCESS;
     }

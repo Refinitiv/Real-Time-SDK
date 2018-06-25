@@ -57,13 +57,13 @@ public class TransportBufferJunit
         // perform relative gets.
         for (int i = POSITION; i < LENGTH; i++)
         {
-            assertEquals((byte)(i % 256), (byte)transportBuffer.data().get());
+            assertEquals((byte)(i % 256), transportBuffer.data().get());
         }
 
         // perform absolute gets.
         for (int i = POSITION; i < LENGTH; i++)
         {
-            assertEquals((byte)(i % 256), (byte)transportBuffer.data().get(i));
+            assertEquals((byte)(i % 256), transportBuffer.data().get(i));
         }
 
         // the backing ByteBuffer should be read-only.
@@ -145,7 +145,7 @@ public class TransportBufferJunit
         {
             if (i >= POSITION && i < (POSITION + LENGTH))
             {
-                assertEquals((byte)((i % 255) + 1), (byte)backingByteBuffer.get(i));
+                assertEquals((byte)((i % 255) + 1), backingByteBuffer.get(i));
             }
             else
             {
@@ -218,7 +218,7 @@ public class TransportBufferJunit
         {
             if (i >= POSITION && i < (POSITION + LENGTH))
             {
-                assertEquals((byte)((i % 255) + 1), (byte)backingByteBuffer.get(i));
+                assertEquals((byte)((i % 255) + 1), backingByteBuffer.get(i));
             }
             else
             {

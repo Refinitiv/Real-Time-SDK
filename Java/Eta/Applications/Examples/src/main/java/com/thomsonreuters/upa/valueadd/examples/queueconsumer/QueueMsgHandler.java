@@ -177,6 +177,7 @@ class QueueMsgHandler implements TunnelStreamStatusEventCallback, TunnelStreamDe
                         System.out.println("  Queue Depth: " + queueData.queueDepth());
                         
                         System.out.println("\n   Message is: " + queueData.encodedDataBody().toString() + "\n");
+                        break;
                     }
                     default:
                         break;
@@ -203,6 +204,7 @@ class QueueMsgHandler implements TunnelStreamStatusEventCallback, TunnelStreamDe
                         System.out.println("  Queue Depth: " + queueDataExpired.queueDepth());
                         
                         System.out.println("\n   Message is: " + queueDataExpired.encodedDataBody().toString() + "\n");
+                        break;
                     }
                     default:
                         break;

@@ -143,7 +143,7 @@ public class SelectableBiDirectionalQueueJunit
                         Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
                         while (iter.hasNext())
                         {
-                            SelectionKey key = (SelectionKey)iter.next();
+                            SelectionKey key = iter.next();
                             iter.remove();
                             if (key.isValid() == false)
                                 continue;

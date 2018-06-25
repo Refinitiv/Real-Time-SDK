@@ -130,7 +130,7 @@ public class JNIServer extends UpaNode implements Server
     @Override
     public Channel accept(AcceptOptions opts, Error error)
     {
-        JNIChannel channel = (JNIChannel)_transport.channel(opts, this, (ErrorImpl)error);
+        JNIChannel channel = (JNIChannel)_transport.channel(opts, this, error);
 
         /* Give our Component Info to the Channel.
          * No need for deep copies here since the channel will never re-connect.
