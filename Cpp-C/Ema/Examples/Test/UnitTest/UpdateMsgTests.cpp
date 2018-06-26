@@ -316,10 +316,12 @@ TEST(UpdateMsgTests, testUpdateMsgEncodeDecode)
 		update.extendedHeader( extendedHeader );
 		update.attrib( flEnc );
 		update.payload( flEnc );
+		EXPECT_EQ( update.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "UpdateMsg.toString() == Decoding of just encoded object in the same application is not supported";
 
 
 		//Now do EMA decoding of RespMsg
 		StaticDecoder::setData( &update, &dictionary );
+		EXPECT_NE( update.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "UpdateMsg.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 		EXPECT_TRUE( update.hasMsgKey() ) << "UpdateMsg::hasMsgKey() == true" ;

@@ -70,6 +70,9 @@ const EmaString& Map::toString() const
 
 const EmaString& Map::toString( UInt64 indent ) const
 {
+	if ( !_pDecoder )
+		return _toString.clear().append( "\nDecoding of just encoded object in the same application is not supported\n" );	
+	
 	MapDecoder tempDecoder;
 	tempDecoder.clone( *_pDecoder );
 

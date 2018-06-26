@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -82,6 +82,9 @@ const EmaString& OmmArray::toString() const
 
 const EmaString& OmmArray::toString( UInt64 indent ) const
 {
+	if ( !_pDecoder )
+		return _toString.clear().append( "\nDecoding of just encoded object in the same application is not supported\n" );
+
 	if ( _pDecoder->getCode() == Data::BlankEnum )
 	{
 		addIndent( _toString.clear(), indent )

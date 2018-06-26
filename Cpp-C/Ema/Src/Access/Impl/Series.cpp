@@ -70,6 +70,9 @@ const EmaString& Series::toString() const
 
 const EmaString& Series::toString( UInt64 indent ) const
 {
+	if ( !_pDecoder )
+		return _toString.clear().append( "\nDecoding of just encoded object in the same application is not supported\n" );
+
 	SeriesDecoder tempDecoder;
 	tempDecoder.clone( *_pDecoder );
 

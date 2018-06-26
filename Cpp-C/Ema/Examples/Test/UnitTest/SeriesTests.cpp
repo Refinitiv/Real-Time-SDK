@@ -1135,7 +1135,11 @@ TEST(SeriesTests, testSeriesContainsFieldListsEncodeDecodeAll)
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
 	Series seriesEnc;
+	EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+
 	seriesEnc.totalCountHint( 5 );
+	EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+
 
 	try
 	{
@@ -1146,25 +1150,32 @@ TEST(SeriesTests, testSeriesContainsFieldListsEncodeDecodeAll)
 		EmaEncodeFieldListAll( flEnc );
 
 		seriesEnc.summaryData( flEnc );
+		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
+
 
 		//first entry  //FieldList
 		FieldList flEnc1;
 		EmaEncodeFieldListAll( flEnc1 );
 		seriesEnc.add( flEnc1 );
+		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//second entry  //FieldList
 		FieldList flEnc2;
 		EmaEncodeFieldListAll( flEnc2 );
 		seriesEnc.add( flEnc2 );
+		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//third entry  //FieldList
 		seriesEnc.add( flEnc1 );
+		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
 
 		seriesEnc.complete();
+		EXPECT_EQ( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() == Decoding of just encoded object in the same application is not supported";
 
 
 		//Now do EMA decoding of Series
 		StaticDecoder::setData( &seriesEnc, &dictionary );
+		EXPECT_NE( seriesEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Series.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 		EXPECT_TRUE( seriesEnc.hasTotalCountHint() ) << "Series contains FieldList - hasTotalCountHint()" ;

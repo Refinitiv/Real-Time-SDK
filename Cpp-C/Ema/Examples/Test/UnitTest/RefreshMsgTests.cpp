@@ -346,11 +346,13 @@ TEST(RefreshMsgTests, testRefreshMsgEncodeDecode)
 		refresh.extendedHeader( extendedHeader );
 		refresh.attrib( flEnc );
 		refresh.payload( flEnc );
+		EXPECT_EQ( refresh.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "RefreshMsg.toString() == Decoding of just encoded object in the same application is not supported";
 
 
 		//1st time
 		//Now do EMA decoding of RespMsg
 		StaticDecoder::setData( &refresh, &dictionary );
+		EXPECT_NE( refresh.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "RefreshMsg.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 		EXPECT_TRUE( refresh.hasMsgKey() ) << "RefreshMsg::hasMsgKey() == true" ;

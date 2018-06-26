@@ -685,6 +685,8 @@ TEST(FilterListTests, testFilterListEncodeDecodeAll)
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
 	FilterList flEnc;
+	EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FilterList.toString() == Decoding of just encoded object in the same application is not supported";
+
 	char* s1 = const_cast<char*>("PERMISSION DATA");
 	EmaBuffer permission( s1, 15 );
 
@@ -721,8 +723,12 @@ TEST(FilterListTests, testFilterListEncodeDecodeAll)
 		.add( 3, FilterEntry::UpdateEnum, ELEnc3, permission )
 		.complete();
 
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FilterList.toString() == Decoding of just encoded object in the same application is not supported";
+
+
 		//Decoding
 		StaticDecoder::setData( &flEnc, &dictionary );
+		EXPECT_NE( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FilterList.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 

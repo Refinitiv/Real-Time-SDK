@@ -30,8 +30,10 @@ TEST(AckMsgTests, testAckMsgwithElementList)
 		AckMsg ackMsg;
 		ackMsg.attrib( eList );
 		ackMsg.payload( eList );
+		EXPECT_EQ( ackMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "AckMsg.toString() == Decoding of just encoded object in the same application is not supported";
 
 		StaticDecoder::setData( &ackMsg, &dictionary );
+		EXPECT_NE( ackMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "AckMsg.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 		EXPECT_TRUE( true ) << "ElementList as Payload of AckMsg - exception NOT expected" ;

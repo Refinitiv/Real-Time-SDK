@@ -315,10 +315,12 @@ TEST(RequestMsgTests, testRequestMsgEncodeDecode)
 		reqMsg.extendedHeader( extendedHeader );
 		reqMsg.attrib( flEnc );
 		reqMsg.payload( flEnc );
+		EXPECT_EQ( reqMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ReqMsg.toString() == Decoding of just encoded object in the same application is not supported";
 
 
 		//Now do EMA decoding of ReqMsg
 		StaticDecoder::setData( &reqMsg, &dictionary );
+		EXPECT_NE( reqMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ReqMsg.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 		EXPECT_TRUE( reqMsg.hasMsgKey() ) << "ReqMsg::hasMsgKey() == true" ;
