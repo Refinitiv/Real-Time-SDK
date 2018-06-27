@@ -1,5 +1,7 @@
 package com.thomsonreuters.upa.valueadd.examples.watchlistconsumer;
 
+//APIQA
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
@@ -842,7 +844,7 @@ class PostHandler
     		marketPriceRefresh.state().dataState(DataStates.OK);
     		marketPriceRefresh.state().code(StateCodes.NONE);
     		marketPriceRefresh.state().text().data("Item Refresh Completed");
-    		marketPriceRefresh.serviceId((int)serviceId);
+    		marketPriceRefresh.serviceId(serviceId);
     		marketPriceRefresh.applyHasServiceId();
     		marketPriceRefresh.marketPriceItem(mpItemInfo);
     		marketPriceRefresh.applyHasQos();

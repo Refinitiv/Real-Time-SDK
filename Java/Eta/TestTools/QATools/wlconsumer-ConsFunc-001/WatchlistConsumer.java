@@ -1550,7 +1550,7 @@ public class WatchlistConsumer implements ConsumerCallback
                 if(watchlistConsumerConfig.reissueDirEvery5Updates()) {
                 	updatesReceived++;
                 	 if ((( updatesReceived % 5 ) == 0 ) && ( updatesReceived <= 60 )) {
-                		 DirectoryRequest directoryRequest = (DirectoryRequest)chnlInfo.consumerRole.rdmDirectoryRequest();
+                		 DirectoryRequest directoryRequest = chnlInfo.consumerRole.rdmDirectoryRequest();
                 		 chnlInfo.consumerRole.rdmDirectoryRequest().filter(Directory.ServiceFilterFlags.INFO |
                 			                     Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.LINK);
                          submitOptions.clear();
