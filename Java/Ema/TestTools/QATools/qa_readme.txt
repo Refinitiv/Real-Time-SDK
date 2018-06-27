@@ -499,6 +499,12 @@ Series100Provider100-ProvFunc-007
 	Command line argument:  -c <count>
     where <count> represents the number of items to be published in symbolist: A0, A1,... A<count>
 
+Module:  Series100Provider140
+-------------------------------
+Series100Provider140-ProvFunc-001
+    Alters Interactive Provider to send a MBO item response with the MapEntry key altered to 
+	be encoded as a Buffer MapEntry Key is read from file xmlKeyList
+    This altered code works in conjunction with Series100Consumer140-ConsFunc-001
 
 Module:  Series100Provider161 
 -------------------------------
