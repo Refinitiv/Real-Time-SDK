@@ -10131,10 +10131,13 @@ printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 		break;
 
 	case RSSL_COMPRESSION_THRESHOLD:
+	{
+		RsslInt32 lowerThreshold;
+
 	    if (rsslSocketChannel->outCompression == RSSL_COMP_NONE)
 		  break;
 
-		RsslInt32 lowerThreshold = (rsslSocketChannel->outCompression == RSSL_COMP_ZLIB ?
+		lowerThreshold = (rsslSocketChannel->outCompression == RSSL_COMP_ZLIB ?
 									RSSL_COMP_DFLT_THRESHOLD_ZLIB : RSSL_COMP_DFLT_THRESHOLD_LZ4);
 		if(iValue >= lowerThreshold)
 			rsslSocketChannel->lowerCompressionThreshold = iValue;
@@ -10151,6 +10154,7 @@ printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 			IPC_MUTEX_UNLOCK(rsslSocketChannel);
 			return RSSL_RET_FAILURE;
 		}
+	}
 		break;
 
 	case RSSL_PRIORITY_FLUSH_ORDER:
