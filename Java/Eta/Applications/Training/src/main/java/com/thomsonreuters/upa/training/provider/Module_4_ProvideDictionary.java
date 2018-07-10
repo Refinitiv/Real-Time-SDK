@@ -1541,6 +1541,11 @@ public class Module_4_ProvideDictionary
                     /* Continue with next operations. UPA will release buffer.*/
                 }
                     break;
+                case TransportReturnCodes.NO_BUFFERS:
+                {
+                    channel.releaseBuffer(msgBuf, error);
+                }
+                    break;
                 case TransportReturnCodes.WRITE_FLUSH_FAILED:
                 {
                     if (channel.state() == ChannelState.CLOSED)
@@ -1562,11 +1567,6 @@ public class Module_4_ProvideDictionary
                     }
                     break;
                 }
-                case TransportReturnCodes.NO_BUFFERS:
-                {
-                    channel.releaseBuffer(msgBuf, error);
-                }
-                    break;
                 case TransportReturnCodes.FAILURE:
                 default:
                 {

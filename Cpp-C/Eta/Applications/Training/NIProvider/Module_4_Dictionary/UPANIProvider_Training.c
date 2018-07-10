@@ -1408,6 +1408,27 @@ RsslRet sendMessage(RsslChannel* upaChannel, RsslBuffer* msgBuf)
 				/* Continue with next operations. UPA will release buffer.*/
 			}
 			break;
+			/*!< (-21) Codec Failure: The buffer provided does not have sufficient space to perform the operation. */
+			case RSSL_RET_BUFFER_TOO_SMALL:  /* Nothing to read */
+			{
+				/* Indicates that either the buffer has been corrupted, possibly by exceeding the allowable length, or it is not a valid pool buffer. */
+				/* Buffer somehow got corrupted, if it was from rsslGetBuffer, release it */
+
+				/**
+				 * @brief Releases a RsslBuffer after use
+				 *
+				 * Typical use: <BR>
+				 * This is called when a buffer is done being used. The rsslWrite function will release the buffer if it
+				 * successfully writes. The user should only need to use this function when they get a buffer that they do not need
+				 * or when rsslWrite fails.
+				 *
+				 * @param buffer RSSL buffer to be released
+				 * @param error RSSL Error, to be populated in event of an error
+				 * @return RsslRet RSSL return value
+				 */
+				rsslReleaseBuffer(msgBuf, &error);
+			}
+			break;
 			/*!< (-9)  Transport Success: rsslWrite internally attempted to flush data to the connection but was blocked. This is not a failure and the user should not release their buffer */
 			case RSSL_RET_WRITE_FLUSH_FAILED:
 			{
@@ -1431,27 +1452,6 @@ RsslRet sendMessage(RsslChannel* upaChannel, RsslBuffer* msgBuf)
 					return RSSL_RET_SUCCESS + 1;
 				}
 			}
-			/*!< (-21) Codec Failure: The buffer provided does not have sufficient space to perform the operation. */
-			case RSSL_RET_BUFFER_TOO_SMALL:  /* Nothing to read */
-			{
-				/* Indicates that either the buffer has been corrupted, possibly by exceeding the allowable length, or it is not a valid pool buffer. */
-				/* Buffer somehow got corrupted, if it was from rsslGetBuffer, release it */
-
-				/**
-				 * @brief Releases a RsslBuffer after use
-				 *
-				 * Typical use: <BR>
-				 * This is called when a buffer is done being used. The rsslWrite function will release the buffer if it
-				 * successfully writes. The user should only need to use this function when they get a buffer that they do not need
-				 * or when rsslWrite fails.
-				 *
-				 * @param buffer RSSL buffer to be released
-				 * @param error RSSL Error, to be populated in event of an error
-				 * @return RsslRet RSSL return value
-				 */
-				rsslReleaseBuffer(msgBuf, &error);
-			}
-			break;
 			case RSSL_RET_FAILURE: /* fall through to default. */
 			default: /* Error handling */
 			{

@@ -1223,6 +1223,11 @@ public class Module_3_Directory
                     /* Continue with next operations. UPA will release buffer.*/
                 }
                     break;
+                case TransportReturnCodes.NO_BUFFERS:
+                {
+                    channel.releaseBuffer(msgBuf, error);
+                }
+                    break;
                 case TransportReturnCodes.WRITE_FLUSH_FAILED:
                 {
                     if (channel.state() == ChannelState.CLOSED)
@@ -1244,11 +1249,6 @@ public class Module_3_Directory
                     }
                     break;
                 }
-                case TransportReturnCodes.NO_BUFFERS:
-                {
-                    channel.releaseBuffer(msgBuf, error);
-                }
-                    break;
                 case TransportReturnCodes.FAILURE:
                 default:
                 {
