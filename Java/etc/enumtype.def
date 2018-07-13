@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.32
 !tag Build_RDMD  4.20.32
-!tag DT_Version  18.51
-!tag Date        1-Jun-2018
+!tag DT_Version  18.61
+!tag Date        10-Jul-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -186,7 +186,7 @@ RDN_EXCHID     4
     153        "MNL"   Manila Stock Exchange
     154        "FTM"   Financiele Termijn Markt, Amsterdam
     155        "SES"   Singapore Exchange Securities Trading Ltd
-    156        "KSC"   Korea Exchange - KSE
+    156        "KSC"   Korea Exchange - KOSPI
     157        "MAU"   Mauritius Stock Exchange
     158        "SET"   The Stock Exchange of Thailand
     159        "BAH"   BAHRAIN BOURSE
@@ -4089,6 +4089,9 @@ CAN_COND    6585
   21343        "BMR"   Benchmark Trade. Out of Sequence Retransmission. (OPRA).
   21345        "TTE"   Trade Trough Exempt. Out of Sequence. Not LAST (OPRA).
   21346        "TTR"   Trade Through Exempt. Out of sequence Retransmission. (OPRA).
+  32678        "OPN"   Market open trade (trade resulting from matching of orders at market open)
+  32679        "IMP"   Implied trade
+  32680        "REG"   Regular order book trade
   32681        "AOS"   OTC Standard APA Disclosed
   32682        "ASS"   SI Standard APA Disclosed
   32683        "AON"   OTC Non-Standard APA Disclosed
@@ -7201,7 +7204,7 @@ LEG4_EXCH  13574
     153        "MNL"   Manila Stock Exchange
     154        "FTM"   Financiele Termijn Markt, Amsterdam
     155        "SES"   Singapore Exchange Securities Trading Ltd
-    156        "KSC"   Korea Exchange - KSE
+    156        "KSC"   Korea Exchange - KOSPI
     157        "MAU"   Mauritius Stock Exchange
     158        "SET"   The Stock Exchange of Thailand
     159        "BAH"   BAHRAIN BOURSE
@@ -7474,7 +7477,7 @@ LEG4_EXCH  13574
     426        "CMM"   Commodity & Monetary Exchange of Malaysia
     427        "APX"   Amsterdam Power Exchange
     428        "MDE"   Mexican Derivatives Exchange Futures Service
-    429        "KFE"   Korea Exchange - KOFEX
+    429        "KFE"   Korea Exchange - Derivatives
     430        "BEL"   Belgrade Stock Exchange
     431        "RMS"   RM System (Czech Republic)
     432        "BXS"   Brussels Exchanges
@@ -8550,6 +8553,11 @@ LEG4_EXCH  13574
    1502        "AIX"   ASTANA INTERNATIONAL EXCHANGE
    1503        "IEF"   Integrados FX (Colombia Only)
    1504        "LRI"   Live Rice Index
+   1505        "ATK"   Antaike-The Leading Metal Information Provider
+   1506        "KYS"   KYOS
+   1507        "BLC"   Bolsa de Cereales
+   1508        "SYP"   Euronext Synapse
+   1509        "OAP"   Oslo Stock Exchange APA
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11507,7 +11515,7 @@ P_C_IND1    4737
      16       "C-BE"   Bermuda expiration call option
      17       "P-BE"   Bermuda expiration put option
      18       "P&C "   PUT and Call option
-     19       "BULL"   Bull
+     19       "BULL"   Deprecated. Do not use.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12661,6 +12669,10 @@ UNDLY_TYPE  8925
      40     "Enviro"   Environmental
      41     "PolPro"   Polypropylene products
      42     "GenRes"   Generated recourses
+     43     "Single"   Single Underlying Security / Reference Asset
+     44     "Multi "   Multiple Underlying Securities / Reference Assets
+     45     "CusIdx"   Customized Index
+     46     "Versus"   Underlying / Reference asset price derived from more than one securities
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13336,6 +13348,7 @@ LIST_STAT   8975
       6   "PEND    "   Pending
       7   "ISSUED  "   Issued, not yet available for trading
       8   "ACT-OFF "   Active, for off book trading only.
+      9   "ACT-NSTG"   Active, but no longer used in spreads and other trading strategies
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13393,6 +13406,7 @@ WRNT_TYPE   8987
       3   "Perp-Ins"   Perpetual and Institutional Warrant
       4   "Plain   "   Plain Warrant
       5   "Certif  "   Certificate
+      6   "Exotic  "   Exotic Warrant
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18596,6 +18610,7 @@ MET_UNIT   13564
     402      "ARS  "   Argentine Peso
     403      " BON "   Bonds (equivalent to $100.00 MXN)
     404      " MXN "   Mexican peso
+    405      "KVAH "   Kilo Volt Ampere Hours
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20305,6 +20320,8 @@ ORGN_PORT  13579
     454   "VE PTZ  "   Petrozuata
     455   "GQ SER  "   Serpentina Terminal
     456   "CA PMO  "   Port Moody/Vancouver
+    457   "AU ADL  "   Adelaide
+    458   "AU PKL  "   Kembla
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20635,6 +20652,34 @@ LOAD_ZONE  13578
     967   "Chitgong"   Chittagong
     968   "PanamaCn"   Panama Canal
     969   "CapeHope"   Cape Hope
+    970   "Adelaide"   Adelaide
+    971   "Alaska  "   Alaska
+    972   "Belem   "   Belem
+    973   "BerngSea"   Bering Sea
+    974   "Canton  "   Canton
+    975   "CapeHorn"   Cape Horn
+    976   "CapeYork"   Cape York
+    977   "Colombo "   Colombo
+    978   "Dampier "   Dampier
+    979   "Darwin  "   Darwin
+    980   "ECCA    "   East Coast Central America
+    981   "Esmerald"   Esmeraldas
+    982   "GrtLakes"   Great Lakes
+    983   "Hawaii  "   Hawaii
+    984   "IndOcean"   Indian Ocean
+    985   "Kumul MT"   Kumul Marine Terminal
+    986   "Kwinana "   Kwinana
+    987   "Lawi Trm"   Lawi-Lawi Terminal
+    988   "Madras  "   Madras
+    989   "NCSA    "   North Coast South America
+    990   "Quebec  "   Quebec
+    991   "Recife  "   Recife
+    992   "StLawrnc"   Saint Lawrence
+    993   "ESAC    "   Spain Atlantic
+    994   "Sydney  "   Sydney
+    995   "Tenerife"   Tenerife
+    996   "Townsvil"   Townsville
+    997   "UK IRE  "   United Kingdom Ireland
    2000   "MUL     "   Multinational
    2001   "SUP     "   Supra-National
    2002   "EUZ     "   Euro Zone
