@@ -1999,57 +1999,6 @@ TEST(unsignedRightShiftTest,unsignedRightShiftTest)
 	//printf("");
 }
 
-
-// Simple float range tests
-TEST(floatingPointTests,floatingPointTests)
-{	
-#define maxFloatConstant 340282346638528860000000000000000000000.0f
-#define minFloatConstant 0.0000000000000000000000000000000000000000000014012984643248171f
-	RsslFloat maxFloat = 340282346638528860000000000000000000000.0f;
-	RsslFloat minFloat = 0.0000000000000000000000000000000000000000000014012984643248171f;
-	RsslFloat testFloat32 = 160141100000000000000000000000000000000.0f;
-	RsslFloat testFloat32min = 0.0000000000000000000000000000000000000000000024012984643248171f;
-	RsslDouble testFloat64 = 440282346638528860000000000000000000000.0;
-	RsslDouble testFloat64min = 0.00000000000000000000000000000000000000000000040129846432481707;
-	RsslDouble testCast64a = 160141100000000000000000000000000000000.0f;
-    RsslDouble testCast64b = 440282346638528860000000000000000000000.0;
-	RsslFloat testFloat = (RsslFloat)testCast64b; //This is from a float that is too big
-	RsslFloat testFloat2 = (RsslFloat)testCast64a; //This is from a valid 32 bit float
-
-
-	//printf("Display float value to make sure this sets properly:");
-	//printf("%f", maxFloat);
-	//printf("%e", maxFloat);
-	//printf("%2.64f", minFloat);
-	//printf("%e", minFloat);
-	
-
-
-	/* Compare maximum float values now: */
-	ASSERT_TRUE( maxFloat  > testFloat32 );
-	ASSERT_TRUE( maxFloatConstant > testFloat32);
-	ASSERT_TRUE( testFloat32 < maxFloat);
-
-	/* Compare minimum float values now */
-	ASSERT_TRUE(minFloat < testFloat32min);
-	ASSERT_TRUE(minFloat < testFloat32);
-	ASSERT_TRUE(minFloatConstant < testFloat32min);
-	ASSERT_TRUE(minFloat > testFloat64min);
-
-	
-	/* Compare 64 and 32 bit values now:\n */
-	ASSERT_TRUE( testFloat64 > maxFloat);
-	ASSERT_TRUE( minFloat < testFloat64);
-
-	//printf("\nDisplay Float Cast Tests");
-	//printf("%f", testCast64a);
-	//printf("%f", ((RsslFloat)testCast64a));
-	
-	/* Compare cast float values now" */
-	ASSERT_TRUE(testCast64a == testFloat2);
-	ASSERT_TRUE(((testCast64b == testFloat) ? 0 : 1));
-}
-
 void _int64EncDecTest(RsslInt64 putVal)
 {
 	RsslInt64 getVal = putVal + 1;

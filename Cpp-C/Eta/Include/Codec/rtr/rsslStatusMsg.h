@@ -213,6 +213,18 @@ RTR_C_ALWAYS_INLINE RsslBool rsslStatusMsgCheckHasPostUserInfo(RsslStatusMsg *pS
 }
 
 /**
+ * @brief Checks the presence of the ::RSSL_STMF_HAS_REQ_MSG_KEY flag on the given RsslStatusMsg.
+ *
+ * @param pStatusMsg Pointer to the status message.
+ * @return RSSL_TRUE - if exists; RSSL_FALSE if does not exist.
+ */
+RTR_C_ALWAYS_INLINE RsslBool rsslStatusMsgCheckHasReqMsgKey(RsslStatusMsg *pStatusMsg)
+{
+	return ((pStatusMsg->flags & RSSL_STMF_HAS_REQ_MSG_KEY) ? 
+						RSSL_TRUE : RSSL_FALSE );
+}
+
+/**
  * @brief Checks the presence of the ::RSSL_STMF_QUALIFIED_STREAM flag on the given RsslStatusMsg.
  *
  *  @param pStatusMsg Pointer to the status message.
@@ -303,6 +315,16 @@ RTR_C_ALWAYS_INLINE void rsslStatusMsgApplyPrivateStream(RsslStatusMsg *pStatusM
 RTR_C_ALWAYS_INLINE void rsslStatusMsgApplyHasPostUserInfo(RsslStatusMsg *pStatusMsg)
 {
 	pStatusMsg->flags |= RSSL_STMF_HAS_POST_USER_INFO;
+}
+
+/**
+ * @brief Applies the ::RSSL_STMF_HAS_REQ_MSG_KEY flag on the given RsslStatusMsg.
+ *
+ * @param pStatusMsg Pointer to the status message.
+ */
+RTR_C_ALWAYS_INLINE void rsslStatusMsgApplyHasReqMsgKey(RsslStatusMsg *pStatusMsg)
+{
+	pStatusMsg->flags |= RSSL_STMF_HAS_REQ_MSG_KEY;
 }
 
 /**

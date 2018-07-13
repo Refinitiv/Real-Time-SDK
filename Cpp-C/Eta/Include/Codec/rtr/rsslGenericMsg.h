@@ -198,7 +198,19 @@ RTR_C_ALWAYS_INLINE RsslBool rsslGenericMsgCheckHasSecondarySeqNum(RsslGenericMs
 #define rsslGenericMsgCheckHasSecSeqNum rsslGenericMsgCheckHasSecondarySeqNum
 
 /**
- * @brief Applies the ::RSSL_GNMF_HAS_EXTENDED_HEADER flag on the given RsslCloseMsg.
+ * @brief Checks the presence of the ::RSSL_GNMF_HAS_REQ_MSG_KEY flag on the given RsslGenericMsg.
+ *
+ * @param pGenericMsg Pointer to the generic message.
+ * @return RSSL_TRUE - if exists; RSSL_FALSE if does not exist.
+ */
+RTR_C_ALWAYS_INLINE RsslBool rsslGenericMsgCheckHasReqMsgKey(RsslGenericMsg *pGenericMsg)
+{
+	return ((pGenericMsg->flags & RSSL_GNMF_HAS_REQ_MSG_KEY) ? 
+						RSSL_TRUE : RSSL_FALSE );
+}
+
+/**
+ * @brief Applies the ::RSSL_GNMF_HAS_EXTENDED_HEADER flag on the given RsslGenericMsg.
  * 
  * @param pGenericMsg Pointer to the generic message.
  */
@@ -208,7 +220,7 @@ RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasExtendedHdr(RsslGenericMsg *pGene
 }
 
 /**
- * @brief Applies the ::RSSL_GNMF_HAS_PERM_DATA flag on the given RsslCloseMsg.
+ * @brief Applies the ::RSSL_GNMF_HAS_PERM_DATA flag on the given RsslGenericMsg.
  * 
  * @param pGenericMsg Pointer to the generic message.
  */
@@ -218,7 +230,7 @@ RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasPermData(RsslGenericMsg *pGeneric
 }
 
 /**
- * @brief Applies the ::RSSL_GNMF_HAS_MSG_KEY flag on the given RsslCloseMsg.
+ * @brief Applies the ::RSSL_GNMF_HAS_MSG_KEY flag on the given RsslGenericMsg.
  * 
  * @param pGenericMsg Pointer to the generic message.
  */
@@ -228,7 +240,7 @@ RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasMsgKey(RsslGenericMsg *pGenericMs
 }
 
 /**
- * @brief Applies the ::RSSL_GNMF_HAS_SEQ_NUM flag on the given RsslCloseMsg.
+ * @brief Applies the ::RSSL_GNMF_HAS_SEQ_NUM flag on the given RsslGenericMsg.
  * 
  * @param pGenericMsg Pointer to the generic message.
  */
@@ -238,7 +250,7 @@ RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasSeqNum(RsslGenericMsg *pGenericMs
 }
 
 /**
- * @brief Applies the ::RSSL_GNMF_HAS_PART_NUM flag on the given RsslCloseMsg.
+ * @brief Applies the ::RSSL_GNMF_HAS_PART_NUM flag on the given RsslGenericMsg.
  * 
  * @param pGenericMsg Pointer to the generic message.
  */
@@ -249,7 +261,7 @@ RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasPartNum(RsslGenericMsg *pGenericM
 
 
 /**
- * @brief Applies the ::RSSL_GNMF_MESSAGE_COMPLETE flag on the given RsslCloseMsg.
+ * @brief Applies the ::RSSL_GNMF_MESSAGE_COMPLETE flag on the given RsslGenericMsg.
  * 
  * @param pGenericMsg Pointer to the generic message.
  */
@@ -259,13 +271,23 @@ RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyMessageComplete(RsslGenericMsg *pGen
 }
 
 /**
- * @brief Applies the ::RSSL_GNMF_HAS_SECONDARY_SEQ_NUM flag on the given RsslCloseMsg.
+ * @brief Applies the ::RSSL_GNMF_HAS_SECONDARY_SEQ_NUM flag on the given RsslGenericMsg.
  * 
  * @param pGenericMsg Pointer to the generic message.
  */
 RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasSecondarySeqNum(RsslGenericMsg *pGenericMsg)
 {
 	pGenericMsg->flags |= RSSL_GNMF_HAS_SECONDARY_SEQ_NUM;
+}
+
+/**
+ * @brief Applies the ::RSSL_GNMF_HAS_REQ_MSG_KEY flag on the given RsslGenericMsg.
+ * 
+ * @param pGenericMsg Pointer to the generic message.
+ */
+RTR_C_ALWAYS_INLINE void rsslGenericMsgApplyHasReqMsgKey(RsslGenericMsg *pGenericMsg)
+{
+	pGenericMsg->flags |= RSSL_GNMF_HAS_REQ_MSG_KEY;
 }
 
 /**

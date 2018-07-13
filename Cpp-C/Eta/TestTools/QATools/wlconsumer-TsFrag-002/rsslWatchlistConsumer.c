@@ -38,6 +38,16 @@
 #endif
 #include <stdlib.h>
 
+#ifdef _WIN32
+#ifdef _WIN64
+#define SOCKET_PRINT_TYPE "%llu"    /* WIN64 */
+#else
+#define SOCKET_PRINT_TYPE "%u"  /* WIN32 */
+#endif
+#else
+#define SOCKET_PRINT_TYPE "%d"  /* Linux */
+#endif
+
 static RsslReactorChannel *pConsumerChannel = NULL;
 static RsslBool itemsRequested = RSSL_FALSE;
 
@@ -1089,7 +1099,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* Save the channel on our info structure. */
 			pConsumerChannel = pReactorChannel;
-			printf("Channel %d is up!\n\n", pReactorChannel->socketId);
+			printf("Channel "SOCKET_PRINT_TYPE" is up!\n\n", pReactorChannel->socketId);
 			if (isXmlTracingEnabled() == RSSL_TRUE) 
 			{
 				RsslTraceOptions traceOptions;
@@ -1115,7 +1125,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			RsslErrorInfo rsslErrorInfo;
 
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
-				printf("Channel %d down.\n", pReactorChannel->socketId);
+				printf("Channel "SOCKET_PRINT_TYPE" down.\n", pReactorChannel->socketId);
 			else
 				printf("Channel down.\n");
 
@@ -1130,7 +1140,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 		{
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
-				printf("Channel %d down. Reconnecting\n", pReactorChannel->socketId);
+				printf("Channel "SOCKET_PRINT_TYPE" down. Reconnecting\n", pReactorChannel->socketId);
 			else
 				printf("Channel down. Reconnecting\n");
 
@@ -1143,7 +1153,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		case RSSL_RC_CET_WARNING:
 		{
 			/* We have received a warning event for this channel. Print the information and continue. */
-			printf("Received warning for Channel fd=%d.\n", pReactorChannel->socketId);
+			printf("Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 			return RSSL_RC_CRET_SUCCESS;
 		}

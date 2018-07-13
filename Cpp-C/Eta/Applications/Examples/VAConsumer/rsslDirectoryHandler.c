@@ -184,7 +184,7 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 
 				if (pService->flags & RDM_SVCF_HAS_INFO)
 				{
-				    int limit;
+				    RsslUInt32 limit;
 					if (pService->info.qosCount)
 						pCommand->qos = pService->info.qosList[0];
 					else

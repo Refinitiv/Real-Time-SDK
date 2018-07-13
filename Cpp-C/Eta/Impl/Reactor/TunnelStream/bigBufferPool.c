@@ -110,7 +110,7 @@ static TunnelBufferImpl* createBigBuffer(RsslUInt bufferSize, RsslUInt userSize,
 	{
 		tunnelBufferImplClear(pTSBuffer);
 		pTSBuffer->_isBigBuffer = RSSL_TRUE;
-		pTSBuffer->_poolBuffer.buffer.data = (char *)malloc(bufferSize);
+		pTSBuffer->_poolBuffer.buffer.data = (char *)malloc((RsslUInt32)bufferSize);
 		pTSBuffer->_poolBuffer.buffer.length = (RsslUInt32)userSize;
 		pTSBuffer->_startPos = pTSBuffer->_poolBuffer.buffer.data;
 		pTSBuffer->_bigBufferPoolIndex = poolIndex;

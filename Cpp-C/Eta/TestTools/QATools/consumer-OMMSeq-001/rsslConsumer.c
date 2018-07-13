@@ -687,7 +687,7 @@ int main(int argc, char **argv)
 						FD_CLR(rsslConsumerChannel->socketId,&wrtfds);
 						if ((retval = rsslInitChannel(rsslConsumerChannel, &inProg, &error)) < RSSL_RET_SUCCESS)
 						{
-							printf("\nchannelInactive fd=%d <%s>\n",
+							printf("\nchannelInactive fd="SOCKET_PRINT_TYPE" <%s>\n",	
 								rsslConsumerChannel->socketId,error.text);
 							recoverConnection();
 							break; 
@@ -699,7 +699,7 @@ int main(int argc, char **argv)
 							case RSSL_RET_CHAN_INIT_IN_PROGRESS:
 								if (inProg.flags & RSSL_IP_FD_CHANGE)
 								{
-									printf("\nChannel In Progress - New FD: %d  Old FD: %d\n",rsslConsumerChannel->socketId, inProg.oldSocket );
+									printf("\nChannel In Progress - New FD: "SOCKET_PRINT_TYPE"  Old FD: "SOCKET_PRINT_TYPE"\n",rsslConsumerChannel->socketId, inProg.oldSocket );	
 
 									FD_CLR(inProg.oldSocket,&readfds);
 									FD_CLR(inProg.oldSocket,&exceptfds);
@@ -709,7 +709,7 @@ int main(int argc, char **argv)
 								}
 								else
 								{
-									printf("\nChannel %d In Progress...\n", rsslConsumerChannel->socketId);
+									printf("\nChannel "SOCKET_PRINT_TYPE" In Progress...\n", rsslConsumerChannel->socketId);	
 									//Sleep(1000);
 								}
 								break;
@@ -717,7 +717,7 @@ int main(int argc, char **argv)
 								{
 									RsslChannelInfo chanInfo;
 									
-									printf("\nChannel %d Is Active\n" ,rsslConsumerChannel->socketId);
+									printf("\nChannel "SOCKET_PRINT_TYPE" Is Active\n" ,rsslConsumerChannel->socketId);	
 									/* reset should recover connection flag */
 									shouldRecoverConnection = RSSL_FALSE;
 									/* if device we connect to supports connected component versioning, 
@@ -734,7 +734,7 @@ int main(int argc, char **argv)
 								}
 								break;
 							default:
-								printf("\nBad return value fd=%d <%s>\n",
+									printf("\nBad return value fd="SOCKET_PRINT_TYPE" <%s>\n",	
 									   rsslConsumerChannel->socketId,error.text);
 								cleanUpAndExit();
 								break;
@@ -979,14 +979,14 @@ static RsslRet readFromChannel(RsslChannel* chnl)
 					}
 					case RSSL_RET_FAILURE:
 					{
-						printf("\nchannelInactive fd=%d <%s>\n",
+						printf("\nchannelInactive fd="SOCKET_PRINT_TYPE" <%s>\n",	
 					    chnl->socketId,error.text);
 						recoverConnection();
 					}
 					break;
 					case RSSL_RET_READ_FD_CHANGE:
 					{
-						printf("\nrsslRead() FD Change - Old FD: %d New FD: %d\n", chnl->oldSocketId, chnl->socketId);
+						printf("\nrsslRead() FD Change - Old FD: "SOCKET_PRINT_TYPE" New FD: "SOCKET_PRINT_TYPE"\n", chnl->oldSocketId, chnl->socketId);	
 						FD_CLR(chnl->oldSocketId, &readfds);
 						FD_CLR(chnl->oldSocketId, &exceptfds);
 						FD_SET(chnl->socketId, &readfds);
@@ -1012,7 +1012,7 @@ static RsslRet readFromChannel(RsslChannel* chnl)
 	}
 	else if (chnl->state == RSSL_CH_STATE_CLOSED)
 	{
-		printf("Channel fd=%d Closed.\n", chnl->socketId);
+		printf("Channel fd="SOCKET_PRINT_TYPE" Closed.\n", chnl->socketId);	
 		recoverConnection();
 	}
 
@@ -1061,7 +1061,7 @@ static RsslChannel* connectToRsslServer(RsslConnectionTypes connType, RsslError*
 			rsslIoctl(chnl, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, error);
 		}
 
-		printf("\nChannel IPC descriptor = %d\n", chnl->socketId);
+		printf("\nChannel IPC descriptor = "SOCKET_PRINT_TYPE"\n", chnl->socketId);
 		if (!copts.blocking)
 		{	
 			if (!FD_ISSET(chnl->socketId,&wrtfds))
@@ -1257,7 +1257,7 @@ static RsslRet processResponse(RsslChannel* chnl, RsslBuffer* buffer)
 	ret = rsslDecodeMsg(&dIter, &msg);				
 	if (ret != RSSL_RET_SUCCESS)
 	{
-		printf("\nrsslDecodeMsg(): Error %d on SessionData fd=%d  Size %d \n", ret, chnl->socketId, buffer->length);
+		printf("\nrsslDecodeMsg(): Error %d on SessionData fd="SOCKET_PRINT_TYPE" Size %d \n", ret, chnl->socketId, buffer->length);	
 		return RSSL_RET_FAILURE;
 	}
 

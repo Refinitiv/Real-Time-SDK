@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #ifdef _WIN32
 #include <winsock2.h>
+#include <WS2tcpip.h>
 #include <process.h>
 #else
 #include <sys/socket.h>
@@ -2580,7 +2581,11 @@ static void notifyJavaServer(int jSrvrPort)
 	memset(&scktAddr, 0, sizeof(scktAddr));
 	scktAddr.sin_family = AF_INET;
 	scktAddr.sin_port = htons(jSrvrPort);
+#ifdef _WIN32
+	InetPton(AF_INET, "127.0.0.1", &scktAddr.sin_addr.s_addr);
+#else
 	scktAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+#endif
 
 	if(connect(scktFD, (struct sockaddr *)&scktAddr, sizeof(scktAddr)) == -1)
 	{

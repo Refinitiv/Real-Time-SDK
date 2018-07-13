@@ -3080,9 +3080,10 @@ void copyKeyTest()
 void copyAckMsgTest()
 {
 	int copyFlags;
+	int inlineCopy;
 	RsslUInt32 serviceId = 9876, filter = 123, identifier = 456, ackId = 255;
 	RsslUInt8 nameType = 255, nakCode = RSSL_NAKC_INVALID_CONTENT;
-	RsslAckMsg ackMsg = RSSL_INIT_ACK_MSG, ackMsgCopy;
+	RsslAckMsg ackMsg = RSSL_INIT_ACK_MSG;
 	RsslBuffer encDataBuf, encMsgBuf, keyNameBuf, keyAttribBuf, textBuf, extendedHdrBuf;
 	char encData[] = "encData", keyName[] = "keyName", keyAttrib[] = "keyAttrib";
 
@@ -3137,96 +3138,116 @@ void copyAckMsgTest()
 	ackMsg.extendedHeader.data = extendedHdrBuf.data;
 	ackMsg.extendedHeader.length = extendedHdrBuf.length;
 
-	for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+	
+	for (inlineCopy = 0; inlineCopy < 2; ++inlineCopy)
 	{
-		rsslClearAckMsg(&ackMsgCopy);
-		memset(copyMsgBuf.data, 0, copyMsgBuf.length);
-		ASSERT_TRUE(rsslCopyMsg((RsslMsg *)&ackMsg, copyFlags, 0, &copyMsgBuf) != NULL); //rsslCopyMsg /* Put temp copy in buffer */
-		ackMsgCopy = *(RsslAckMsg *)copyMsgBuf.data; /* Put buffer back into original data */
-		copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+		for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+		{
+			RsslAckMsg *pCopiedMsg;
 
-		/* RsslMsgBase */
-		ASSERT_TRUE(ackMsgCopy.msgBase.msgClass == RSSL_MC_ACK);
-		ASSERT_TRUE(ackMsgCopy.msgBase.domainType == RSSL_DMT_TRANSACTION);
-		ASSERT_TRUE(ackMsgCopy.msgBase.containerType == RSSL_DT_OPAQUE);
-		ASSERT_TRUE(ackMsgCopy.msgBase.streamId == streamId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&ackMsg.msgBase.msgKey));
-		ASSERT_TRUE(ackMsg.msgBase.msgKey.serviceId == serviceId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&ackMsg.msgBase.msgKey));
-		ASSERT_TRUE(ackMsg.msgBase.msgKey.nameType == nameType);
-		if (copyFlags & RSSL_CMF_KEY_NAME)
-		{
-			ASSERT_TRUE(rsslAckMsgCheckHasMsgKey(&ackMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasName(&ackMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!ackMsgCopy.msgBase.msgKey.name.data || ackMsgCopy.msgBase.msgKey.name.data != ackMsg.msgBase.msgKey.name.data);
-			ASSERT_TRUE(!strcmp(ackMsgCopy.msgBase.msgKey.name.data, keyName));
-		}
-		else
-		{
-			ASSERT_TRUE(rsslAckMsgCheckHasMsgKey(&ackMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasName(&ackMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(ackMsgCopy.msgBase.msgKey.name.data == 0);
-		}
-		ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&ackMsg.msgBase.msgKey));
-		ASSERT_TRUE(ackMsg.msgBase.msgKey.filter == filter);
-		ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&ackMsg.msgBase.msgKey));
-		ASSERT_TRUE(ackMsg.msgBase.msgKey.identifier == identifier);
-		ASSERT_TRUE(ackMsg.msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
-		if (copyFlags & RSSL_CMF_KEY_ATTRIB)
-		{
-			ASSERT_TRUE(rsslAckMsgCheckHasMsgKey(&ackMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&ackMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!ackMsgCopy.msgBase.msgKey.encAttrib.data || ackMsgCopy.msgBase.msgKey.encAttrib.data != ackMsg.msgBase.msgKey.encAttrib.data);
-			ASSERT_TRUE(!strcmp(ackMsgCopy.msgBase.msgKey.encAttrib.data, keyAttrib));
-		}
-		else
-		{
-			ASSERT_TRUE(rsslAckMsgCheckHasMsgKey(&ackMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&ackMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(ackMsgCopy.msgBase.msgKey.encAttrib.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_DATA_BODY)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!ackMsgCopy.msgBase.encDataBody.data || ackMsgCopy.msgBase.encDataBody.data != ackMsg.msgBase.encDataBody.data);
-			ASSERT_TRUE(!strcmp(ackMsgCopy.msgBase.encDataBody.data, encData));
-		}
-		else
-		{
-			ASSERT_TRUE(ackMsgCopy.msgBase.encDataBody.data == 0);
-		}
-		ASSERT_TRUE(ackMsgCopy.msgBase.encMsgBuffer.data == 0);
-		/* RsslAckMsg */
-		ASSERT_TRUE(ackMsgCopy.ackId == ackId);
-		ASSERT_TRUE(rsslAckMsgCheckHasNakCode(&ackMsgCopy));
-		ASSERT_TRUE(ackMsgCopy.nakCode == nakCode);
-		ASSERT_TRUE(rsslAckMsgCheckHasSeqNum(&ackMsgCopy));
-		ASSERT_TRUE(ackMsgCopy.seqNum == seqNum);
-		if (copyFlags & RSSL_CMF_NAK_TEXT)
-		{
-			ASSERT_TRUE(rsslAckMsgCheckHasText(&ackMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!ackMsgCopy.text.data || ackMsgCopy.text.data != ackMsg.text.data);
-			ASSERT_TRUE(!strcmp(ackMsgCopy.text.data, text));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslAckMsgCheckHasText(&ackMsgCopy));
-			ASSERT_TRUE(ackMsgCopy.text.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
-		{
-			ASSERT_TRUE(rsslAckMsgCheckHasExtendedHdr(&ackMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!ackMsgCopy.extendedHeader.data || ackMsgCopy.extendedHeader.data != ackMsg.extendedHeader.data);
-			ASSERT_TRUE(!strcmp(ackMsgCopy.extendedHeader.data, extendedHeader));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslAckMsgCheckHasExtendedHdr(&ackMsgCopy));
-			ASSERT_TRUE(ackMsgCopy.extendedHeader.data == 0);
+			if (inlineCopy)
+			{
+				/* Inline copy into existing buffer.*/
+				copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+				memset(copyMsgBuf.data, 0, copyMsgBuf.length);
+				ASSERT_TRUE((pCopiedMsg = (RsslAckMsg*)rsslCopyMsg((RsslMsg *)&ackMsg, copyFlags, 0, &copyMsgBuf)) != NULL);
+			}
+			else
+			{
+				/* Copy allocated by API. */
+				ASSERT_TRUE((pCopiedMsg = (RsslAckMsg*)rsslCopyMsg((RsslMsg *)&ackMsg, copyFlags, 0, NULL)) != NULL);
+			}
+
+
+			/* RsslMsgBase */
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgClass == RSSL_MC_ACK);
+			ASSERT_TRUE(pCopiedMsg->msgBase.domainType == RSSL_DMT_TRANSACTION);
+			ASSERT_TRUE(pCopiedMsg->msgBase.containerType == RSSL_DT_OPAQUE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.streamId == streamId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.serviceId == serviceId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.nameType == nameType);
+			if (copyFlags & RSSL_CMF_KEY_NAME)
+			{
+				ASSERT_TRUE(rsslAckMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data && pCopiedMsg->msgBase.msgKey.name.data != ackMsg.msgBase.msgKey.name.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.name, &keyNameBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(rsslAckMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(!rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data == 0);
+			}
+			ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.filter == filter);
+			ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.identifier == identifier);
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
+			if (copyFlags & RSSL_CMF_KEY_ATTRIB)
+			{
+				ASSERT_TRUE(rsslAckMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data && pCopiedMsg->msgBase.msgKey.encAttrib.data != ackMsg.msgBase.msgKey.encAttrib.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.encAttrib, &keyAttribBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(rsslAckMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_DATA_BODY)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data && pCopiedMsg->msgBase.encDataBody.data != ackMsg.msgBase.encDataBody.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.encDataBody, &encDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data == 0);
+			}
+			ASSERT_TRUE(pCopiedMsg->msgBase.encMsgBuffer.data == 0);
+			/* RsslAckMsg */
+			ASSERT_TRUE(pCopiedMsg->ackId == ackId);
+			ASSERT_TRUE(rsslAckMsgCheckHasNakCode(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->nakCode == nakCode);
+			ASSERT_TRUE(rsslAckMsgCheckHasSeqNum(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->seqNum == seqNum);
+			if (copyFlags & RSSL_CMF_NAK_TEXT)
+			{
+				ASSERT_TRUE(rsslAckMsgCheckHasText(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->text.data && pCopiedMsg->text.data != ackMsg.text.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->text, &textBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslAckMsgCheckHasText(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->text.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
+			{
+				ASSERT_TRUE(rsslAckMsgCheckHasExtendedHdr(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data && pCopiedMsg->extendedHeader.data != ackMsg.extendedHeader.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->extendedHeader, &extendedHdrBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslAckMsgCheckHasExtendedHdr(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data == 0);
+			}
+
+			if (!inlineCopy)
+			{
+				/* Copy allocated by API. Free it. */
+				rsslReleaseCopiedMsg((RsslMsg*)pCopiedMsg);
+			}
 		}
 	}
 }
@@ -3234,7 +3255,8 @@ void copyAckMsgTest()
 void copyCloseMsgTest()
 {
 	int copyFlags;
-	RsslCloseMsg closeMsg = RSSL_INIT_CLOSE_MSG, closeMsgCopy;
+	int inlineCopy;
+	RsslCloseMsg closeMsg = RSSL_INIT_CLOSE_MSG;
 	RsslBuffer encDataBuf, encMsgBuf, extendedHdrBuf;
 	char encData[] = "encData";
 
@@ -3260,55 +3282,76 @@ void copyCloseMsgTest()
 	closeMsg.extendedHeader.length = extendedHdrBuf.length;
 	rsslCloseMsgSetAck(&closeMsg);
 
-	for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+	
+	for (inlineCopy = 0; inlineCopy < 2; ++inlineCopy)
 	{
-		rsslClearCloseMsg(&closeMsgCopy);
-		memset(copyMsgBuf.data, 0, copyMsgBuf.length);
-		ASSERT_TRUE(rsslCopyMsg((RsslMsg *)&closeMsg, copyFlags, 0, &copyMsgBuf) != NULL); //rsslCopyMsg /* Put temp copy in buffer */
-		closeMsgCopy = *(RsslCloseMsg *)copyMsgBuf.data; /* Put buffer back into original data */
-		copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+		for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+		{
+			RsslCloseMsg *pCopiedMsg;
 
-		/* RsslMsgBase */
-		ASSERT_TRUE(closeMsgCopy.msgBase.msgClass == RSSL_MC_CLOSE);
-		ASSERT_TRUE(closeMsgCopy.msgBase.domainType == RSSL_DMT_TRANSACTION);
-		ASSERT_TRUE(closeMsgCopy.msgBase.containerType == RSSL_DT_OPAQUE);
-		ASSERT_TRUE(closeMsgCopy.msgBase.streamId == streamId);
-		if (copyFlags & RSSL_CMF_DATA_BODY)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!closeMsgCopy.msgBase.encDataBody.data || closeMsgCopy.msgBase.encDataBody.data != closeMsg.msgBase.encDataBody.data);
-			ASSERT_TRUE(!strcmp(closeMsgCopy.msgBase.encDataBody.data, encData));
+			if (inlineCopy)
+			{
+				/* Inline copy into existing buffer.*/
+				copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+				memset(copyMsgBuf.data, 0, copyMsgBuf.length);
+				ASSERT_TRUE((pCopiedMsg = (RsslCloseMsg*)rsslCopyMsg((RsslMsg *)&closeMsg, copyFlags, 0, &copyMsgBuf)) != NULL);
+			}
+			else
+			{
+				/* Copy allocated by API. */
+				ASSERT_TRUE((pCopiedMsg = (RsslCloseMsg*)rsslCopyMsg((RsslMsg *)&closeMsg, copyFlags, 0, NULL)) != NULL);
+			}
+
+
+			/* RsslMsgBase */
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgClass == RSSL_MC_CLOSE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.domainType == RSSL_DMT_TRANSACTION);
+			ASSERT_TRUE(pCopiedMsg->msgBase.containerType == RSSL_DT_OPAQUE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.streamId == streamId);
+			if (copyFlags & RSSL_CMF_DATA_BODY)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data && pCopiedMsg->msgBase.encDataBody.data != closeMsg.msgBase.encDataBody.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.encDataBody, &encDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data == 0);
+			}
+			ASSERT_TRUE(pCopiedMsg->msgBase.encMsgBuffer.data == 0);
+			/* RsslCloseMsg */
+			if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
+			{
+				ASSERT_TRUE(rsslCloseMsgCheckHasExtendedHdr(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data && pCopiedMsg->extendedHeader.data != closeMsg.extendedHeader.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->extendedHeader, &extendedHdrBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslCloseMsgCheckHasExtendedHdr(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data == 0);
+			}
+			ASSERT_TRUE(rsslCloseMsgCheckAck(pCopiedMsg));
+
+			if (!inlineCopy)
+			{
+				/* Copy allocated by API. Free it. */
+				rsslReleaseCopiedMsg((RsslMsg*)pCopiedMsg);
+			}
 		}
-		else
-		{
-			ASSERT_TRUE(closeMsgCopy.msgBase.encDataBody.data == 0);
-		}
-		ASSERT_TRUE(closeMsgCopy.msgBase.encMsgBuffer.data == 0);
-		/* RsslCloseMsg */
-		if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
-		{
-			ASSERT_TRUE(rsslCloseMsgCheckHasExtendedHdr(&closeMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!closeMsgCopy.extendedHeader.data || closeMsgCopy.extendedHeader.data != closeMsg.extendedHeader.data);
-			ASSERT_TRUE(!strcmp(closeMsgCopy.extendedHeader.data, extendedHeader));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslCloseMsgCheckHasExtendedHdr(&closeMsgCopy));
-			ASSERT_TRUE(closeMsgCopy.extendedHeader.data == 0);
-		}
-		ASSERT_TRUE(rsslCloseMsgCheckAck(&closeMsgCopy));
 	}
 }
 
 void copyPostMsgTest()
 {
 	int copyFlags;
+	int inlineCopy;
 	RsslUInt16 partNum = 33333;
 	RsslUInt16 postUserRights = 0x0001;
 	RsslUInt32 serviceId = 9876, filter = 123, identifier = 456, postUserAddr = 1234, postUserId = 5678;
 	RsslUInt8 nameType = 255;
-	RsslPostMsg postMsg = RSSL_INIT_POST_MSG, postMsgCopy;
+	RsslPostMsg postMsg = RSSL_INIT_POST_MSG;
 	RsslBuffer encDataBuf, encMsgBuf, keyNameBuf, keyAttribBuf, permDataBuf, extendedHdrBuf;
 	char encData[] = "encData", keyName[] = "keyName", keyAttrib[] = "keyAttrib";
 
@@ -3370,114 +3413,135 @@ void copyPostMsgTest()
 	rsslPostMsgApplyPostComplete(&postMsg);
 	rsslPostMsgApplyAck(&postMsg);
 
-	for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+	
+	for (inlineCopy = 0; inlineCopy < 2; ++inlineCopy)
 	{
-		rsslClearPostMsg(&postMsgCopy);
-		memset(copyMsgBuf.data, 0, copyMsgBuf.length);
-		ASSERT_TRUE(rsslCopyMsg((RsslMsg *)&postMsg, copyFlags, 0, &copyMsgBuf) != NULL); //rsslCopyMsg /* Put temp copy in buffer */
-		postMsgCopy = *(RsslPostMsg *)copyMsgBuf.data; /* Put buffer back into original data */
-		copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+		for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+		{
+			RsslPostMsg *pCopiedMsg;
 
-		/* RsslMsgBase */
-		ASSERT_TRUE(postMsgCopy.msgBase.msgClass == RSSL_MC_POST);
-		ASSERT_TRUE(postMsgCopy.msgBase.domainType == RSSL_DMT_TRANSACTION);
-		ASSERT_TRUE(postMsgCopy.msgBase.containerType == RSSL_DT_OPAQUE);
-		ASSERT_TRUE(postMsgCopy.msgBase.streamId == streamId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&postMsg.msgBase.msgKey));
-		ASSERT_TRUE(postMsg.msgBase.msgKey.serviceId == serviceId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&postMsg.msgBase.msgKey));
-		ASSERT_TRUE(postMsg.msgBase.msgKey.nameType == nameType);
-		if (copyFlags & RSSL_CMF_KEY_NAME)
-		{
-			ASSERT_TRUE(rsslPostMsgCheckHasMsgKey(&postMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasName(&postMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!postMsgCopy.msgBase.msgKey.name.data || postMsgCopy.msgBase.msgKey.name.data != postMsg.msgBase.msgKey.name.data);
-			ASSERT_TRUE(!strcmp(postMsgCopy.msgBase.msgKey.name.data, keyName));
+			if (inlineCopy)
+			{
+				/* Inline copy into existing buffer.*/
+				copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+				memset(copyMsgBuf.data, 0, copyMsgBuf.length);
+				ASSERT_TRUE((pCopiedMsg = (RsslPostMsg*)rsslCopyMsg((RsslMsg *)&postMsg, copyFlags, 0, &copyMsgBuf)) != NULL);
+			}
+			else
+			{
+				/* Copy allocated by API. */
+				ASSERT_TRUE((pCopiedMsg = (RsslPostMsg*)rsslCopyMsg((RsslMsg *)&postMsg, copyFlags, 0, NULL)) != NULL);
+			}
+
+
+			/* RsslMsgBase */
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgClass == RSSL_MC_POST);
+			ASSERT_TRUE(pCopiedMsg->msgBase.domainType == RSSL_DMT_TRANSACTION);
+			ASSERT_TRUE(pCopiedMsg->msgBase.containerType == RSSL_DT_OPAQUE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.streamId == streamId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.serviceId == serviceId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.nameType == nameType);
+			if (copyFlags & RSSL_CMF_KEY_NAME)
+			{
+				ASSERT_TRUE(rsslPostMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data && pCopiedMsg->msgBase.msgKey.name.data != postMsg.msgBase.msgKey.name.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.name, &keyNameBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(rsslPostMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(!rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data == 0);
+			}
+			ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.filter == filter);
+			ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.identifier == identifier);
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
+			if (copyFlags & RSSL_CMF_KEY_ATTRIB)
+			{
+				ASSERT_TRUE(rsslPostMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data && pCopiedMsg->msgBase.msgKey.encAttrib.data != postMsg.msgBase.msgKey.encAttrib.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.encAttrib, &keyAttribBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(rsslPostMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_DATA_BODY)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data && pCopiedMsg->msgBase.encDataBody.data != postMsg.msgBase.encDataBody.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.encDataBody, &encDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data == 0);
+			}
+			ASSERT_TRUE(pCopiedMsg->msgBase.encMsgBuffer.data == 0);
+			/* RsslPostMsg */
+			ASSERT_TRUE(rsslPostMsgCheckHasPostUserRights(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->postUserRights == postUserRights);
+			ASSERT_TRUE(rsslPostMsgCheckHasPartNum(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->partNum == partNum);
+			ASSERT_TRUE(rsslPostMsgCheckHasSeqNum(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->seqNum == seqNum);
+			ASSERT_TRUE(rsslPostMsgCheckHasPostId(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->postId == postId);
+			ASSERT_TRUE(pCopiedMsg->postUserInfo.postUserAddr == postUserAddr);
+			ASSERT_TRUE(pCopiedMsg->postUserInfo.postUserId == postUserId);
+			if (copyFlags & RSSL_CMF_PERM_DATA)
+			{
+				ASSERT_TRUE(rsslPostMsgCheckHasPermData(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->permData.data && pCopiedMsg->permData.data != postMsg.permData.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->permData, &permDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslPostMsgCheckHasPermData(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->permData.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
+			{
+				ASSERT_TRUE(rsslPostMsgCheckHasExtendedHdr(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data && pCopiedMsg->extendedHeader.data != postMsg.extendedHeader.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->extendedHeader, &extendedHdrBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslPostMsgCheckHasExtendedHdr(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data == 0);
+			}
+			ASSERT_TRUE(rsslPostMsgCheckPostComplete(pCopiedMsg));
+			ASSERT_TRUE(rsslPostMsgCheckAck(pCopiedMsg));
+
+			if (!inlineCopy)
+			{
+				/* Copy allocated by API. Free it. */
+				rsslReleaseCopiedMsg((RsslMsg*)pCopiedMsg);
+			}
 		}
-		else
-		{
-			ASSERT_TRUE(rsslPostMsgCheckHasMsgKey(&postMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasName(&postMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(postMsgCopy.msgBase.msgKey.name.data == 0);
-		}
-		ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&postMsg.msgBase.msgKey));
-		ASSERT_TRUE(postMsg.msgBase.msgKey.filter == filter);
-		ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&postMsg.msgBase.msgKey));
-		ASSERT_TRUE(postMsg.msgBase.msgKey.identifier == identifier);
-		ASSERT_TRUE(postMsg.msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
-		if (copyFlags & RSSL_CMF_KEY_ATTRIB)
-		{
-			ASSERT_TRUE(rsslPostMsgCheckHasMsgKey(&postMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&postMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!postMsgCopy.msgBase.msgKey.encAttrib.data || postMsgCopy.msgBase.msgKey.encAttrib.data != postMsg.msgBase.msgKey.encAttrib.data);
-			ASSERT_TRUE(!strcmp(postMsgCopy.msgBase.msgKey.encAttrib.data, keyAttrib));
-		}
-		else
-		{
-			ASSERT_TRUE(rsslPostMsgCheckHasMsgKey(&postMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&postMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(postMsgCopy.msgBase.msgKey.encAttrib.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_DATA_BODY)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!postMsgCopy.msgBase.encDataBody.data || postMsgCopy.msgBase.encDataBody.data != postMsg.msgBase.encDataBody.data);
-			ASSERT_TRUE(!strcmp(postMsgCopy.msgBase.encDataBody.data, encData));
-		}
-		else
-		{
-			ASSERT_TRUE(postMsgCopy.msgBase.encDataBody.data == 0);
-		}
-		ASSERT_TRUE(postMsgCopy.msgBase.encMsgBuffer.data == 0);
-		/* RsslPostMsg */
-		ASSERT_TRUE(rsslPostMsgCheckHasPostUserRights(&postMsgCopy));
-		ASSERT_TRUE(postMsgCopy.postUserRights == postUserRights);
-		ASSERT_TRUE(rsslPostMsgCheckHasPartNum(&postMsgCopy));
-		ASSERT_TRUE(postMsgCopy.partNum == partNum);
-		ASSERT_TRUE(rsslPostMsgCheckHasSeqNum(&postMsgCopy));
-		ASSERT_TRUE(postMsgCopy.seqNum == seqNum);
-		ASSERT_TRUE(rsslPostMsgCheckHasPostId(&postMsgCopy));
-		ASSERT_TRUE(postMsgCopy.postId == postId);
-		ASSERT_TRUE(postMsg.postUserInfo.postUserAddr == postUserAddr);
-		ASSERT_TRUE(postMsg.postUserInfo.postUserId == postUserId);
-		if (copyFlags & RSSL_CMF_PERM_DATA)
-		{
-			ASSERT_TRUE(rsslPostMsgCheckHasPermData(&postMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!postMsgCopy.permData.data || postMsgCopy.permData.data != postMsg.permData.data);
-			ASSERT_TRUE(!strcmp(postMsgCopy.permData.data, permissionData));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslPostMsgCheckHasPermData(&postMsgCopy));
-			ASSERT_TRUE(postMsgCopy.permData.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
-		{
-			ASSERT_TRUE(rsslPostMsgCheckHasExtendedHdr(&postMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!postMsgCopy.extendedHeader.data || postMsgCopy.extendedHeader.data != postMsg.extendedHeader.data);
-			ASSERT_TRUE(!strcmp(postMsgCopy.extendedHeader.data, extendedHeader));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslPostMsgCheckHasExtendedHdr(&postMsgCopy));
-			ASSERT_TRUE(postMsgCopy.extendedHeader.data == 0);
-		}
-		ASSERT_TRUE(rsslPostMsgCheckPostComplete(&postMsg));
-		ASSERT_TRUE(rsslPostMsgCheckAck(&postMsg));
 	}
 }
 
 void copyGenericMsgTest()
 {
 	int copyFlags;
+	int inlineCopy;
 	RsslUInt16 partNum = 33333;
 	RsslUInt32 serviceId = 9876, filter = 123, identifier = 456, secondarySeqNum = 56789;
 	RsslUInt8 nameType = 255;
-	RsslGenericMsg genericMsg = RSSL_INIT_GENERIC_MSG, genericMsgCopy;
+	RsslGenericMsg genericMsg = RSSL_INIT_GENERIC_MSG;
 	RsslBuffer encDataBuf, encMsgBuf, keyNameBuf, keyAttribBuf, permDataBuf, extendedHdrBuf;
 	char encData[] = "encData", keyName[] = "keyName", keyAttrib[] = "keyAttrib";
 
@@ -3534,108 +3598,182 @@ void copyGenericMsgTest()
 	genericMsg.extendedHeader.length = extendedHdrBuf.length;
 	rsslGenericMsgApplyMessageComplete(&genericMsg);
 
-	for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
-	{
-		rsslClearGenericMsg(&genericMsgCopy);
-		memset(copyMsgBuf.data, 0, copyMsgBuf.length);
-		ASSERT_TRUE(rsslCopyMsg((RsslMsg *)&genericMsg, copyFlags, 0, &copyMsgBuf) != NULL); //rsslCopyMsg /* Put temp copy in buffer */
-		genericMsgCopy = *(RsslGenericMsg *)copyMsgBuf.data; /* Put buffer back into original data */
-		copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+	/* ReqMsgKey */
+	rsslGenericMsgApplyHasReqMsgKey(&genericMsg);
+	rsslMsgKeyApplyHasServiceId(&genericMsg.reqMsgKey);
+	genericMsg.reqMsgKey.serviceId = serviceId + 1;
+	rsslMsgKeyApplyHasNameType(&genericMsg.reqMsgKey);
+	genericMsg.reqMsgKey.nameType = nameType - 1;
+	rsslMsgKeyApplyHasName(&genericMsg.reqMsgKey);
+	genericMsg.reqMsgKey.name.data = keyNameBuf.data;
+	genericMsg.reqMsgKey.name.length = keyNameBuf.length;
+	rsslMsgKeyApplyHasFilter(&genericMsg.reqMsgKey);
+	genericMsg.reqMsgKey.filter = filter + 1;
+	rsslMsgKeyApplyHasIdentifier(&genericMsg.reqMsgKey);
+	genericMsg.reqMsgKey.identifier = identifier + 1;
+	genericMsg.reqMsgKey.attribContainerType = RSSL_DT_OPAQUE;
+	rsslMsgKeyApplyHasAttrib(&genericMsg.reqMsgKey);
+	genericMsg.reqMsgKey.encAttrib.data = keyAttribBuf.data;
+	genericMsg.reqMsgKey.encAttrib.length = keyAttribBuf.length;
 
-		/* RsslMsgBase */
-		ASSERT_TRUE(genericMsgCopy.msgBase.msgClass == RSSL_MC_GENERIC);
-		ASSERT_TRUE(genericMsgCopy.msgBase.domainType == RSSL_DMT_TRANSACTION);
-		ASSERT_TRUE(genericMsgCopy.msgBase.containerType == RSSL_DT_OPAQUE);
-		ASSERT_TRUE(genericMsgCopy.msgBase.streamId == streamId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&genericMsg.msgBase.msgKey));
-		ASSERT_TRUE(genericMsg.msgBase.msgKey.serviceId == serviceId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&genericMsg.msgBase.msgKey));
-		ASSERT_TRUE(genericMsg.msgBase.msgKey.nameType == nameType);
-		if (copyFlags & RSSL_CMF_KEY_NAME)
+	
+	for (inlineCopy = 0; inlineCopy < 2; ++inlineCopy)
+	{
+		for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
 		{
-			ASSERT_TRUE(rsslGenericMsgCheckHasMsgKey(&genericMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasName(&genericMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!genericMsgCopy.msgBase.msgKey.name.data || genericMsgCopy.msgBase.msgKey.name.data != genericMsg.msgBase.msgKey.name.data);
-			ASSERT_TRUE(!strcmp(genericMsgCopy.msgBase.msgKey.name.data, keyName));
+			RsslGenericMsg *pCopiedMsg;
+
+			if (inlineCopy)
+			{
+				/* Inline copy into existing buffer.*/
+				copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+				memset(copyMsgBuf.data, 0, copyMsgBuf.length);
+				ASSERT_TRUE((pCopiedMsg = (RsslGenericMsg*)rsslCopyMsg((RsslMsg *)&genericMsg, copyFlags, 0, &copyMsgBuf)) != NULL);
+			}
+			else
+			{
+				/* Copy allocated by API. */
+				ASSERT_TRUE((pCopiedMsg = (RsslGenericMsg*)rsslCopyMsg((RsslMsg *)&genericMsg, copyFlags, 0, NULL)) != NULL);
+			}
+
+
+			/* RsslMsgBase */
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgClass == RSSL_MC_GENERIC);
+			ASSERT_TRUE(pCopiedMsg->msgBase.domainType == RSSL_DMT_TRANSACTION);
+			ASSERT_TRUE(pCopiedMsg->msgBase.containerType == RSSL_DT_OPAQUE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.streamId == streamId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.serviceId == serviceId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.nameType == nameType);
+			if (copyFlags & RSSL_CMF_KEY_NAME)
+			{
+				ASSERT_TRUE(rsslGenericMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data && pCopiedMsg->msgBase.msgKey.name.data != genericMsg.msgBase.msgKey.name.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.name, &keyNameBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(rsslGenericMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(!rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data == 0);
+			}
+			ASSERT_TRUE(rsslGenericMsgCheckHasMsgKey(pCopiedMsg));
+			ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.filter == filter);
+			ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.identifier == identifier);
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
+			if (copyFlags & RSSL_CMF_KEY_ATTRIB)
+			{
+				ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data && pCopiedMsg->msgBase.msgKey.encAttrib.data != genericMsg.msgBase.msgKey.encAttrib.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.encAttrib, &keyAttribBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_DATA_BODY)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data && pCopiedMsg->msgBase.encDataBody.data != genericMsg.msgBase.encDataBody.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.encDataBody, &encDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data == 0);
+			}
+			ASSERT_TRUE(pCopiedMsg->msgBase.encMsgBuffer.data == 0);
+			/* RsslGenericMsg */
+			ASSERT_TRUE(rsslGenericMsgCheckHasPartNum(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->partNum == partNum);
+			ASSERT_TRUE(rsslGenericMsgCheckHasSeqNum(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->seqNum == seqNum);
+			ASSERT_TRUE(rsslGenericMsgCheckHasSecondarySeqNum(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->secondarySeqNum == secondarySeqNum);
+			if (copyFlags & RSSL_CMF_PERM_DATA)
+			{
+				ASSERT_TRUE(rsslGenericMsgCheckHasPermData(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->permData.data && pCopiedMsg->permData.data != genericMsg.permData.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->permData, &permDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslGenericMsgCheckHasPermData(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->permData.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
+			{
+				ASSERT_TRUE(rsslGenericMsgCheckHasExtendedHdr(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data && pCopiedMsg->extendedHeader.data != genericMsg.extendedHeader.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->extendedHeader, &extendedHdrBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslGenericMsgCheckHasExtendedHdr(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data == 0);
+			}
+			ASSERT_TRUE(rsslGenericMsgCheckMessageComplete(pCopiedMsg));
+
+			/* ReqMsgKey */
+			ASSERT_TRUE(rsslGenericMsgCheckHasReqMsgKey(pCopiedMsg));
+			ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.serviceId == serviceId + 1);
+			ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.nameType == nameType - 1);
+			if (copyFlags & RSSL_CMF_REQ_KEY_NAME)
+			{
+				ASSERT_TRUE(rsslMsgKeyCheckHasName(&pCopiedMsg->reqMsgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.name.data && pCopiedMsg->reqMsgKey.name.data != genericMsg.reqMsgKey.name.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->reqMsgKey.name, &keyNameBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslMsgKeyCheckHasName(&pCopiedMsg->reqMsgKey));
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.name.data == 0);
+			}
+			ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.filter == filter + 1);
+			ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.identifier == identifier + 1);
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.attribContainerType == RSSL_DT_OPAQUE);
+			if (copyFlags & RSSL_CMF_REQ_KEY_ATTRIB)
+			{
+				ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&pCopiedMsg->reqMsgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.encAttrib.data && pCopiedMsg->reqMsgKey.encAttrib.data != genericMsg.reqMsgKey.encAttrib.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->reqMsgKey.encAttrib, &keyAttribBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&pCopiedMsg->reqMsgKey));
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.encAttrib.data == 0);
+			}
+
+			if (!inlineCopy)
+			{
+				/* Copy allocated by API. Free it. */
+				rsslReleaseCopiedMsg((RsslMsg*)pCopiedMsg);
+			}
 		}
-		else
-		{
-			ASSERT_TRUE(rsslGenericMsgCheckHasMsgKey(&genericMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasName(&genericMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(genericMsgCopy.msgBase.msgKey.name.data == 0);
-		}
-		ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&genericMsg.msgBase.msgKey));
-		ASSERT_TRUE(genericMsg.msgBase.msgKey.filter == filter);
-		ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&genericMsg.msgBase.msgKey));
-		ASSERT_TRUE(genericMsg.msgBase.msgKey.identifier == identifier);
-		ASSERT_TRUE(genericMsg.msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
-		if (copyFlags & RSSL_CMF_KEY_ATTRIB)
-		{
-			ASSERT_TRUE(rsslGenericMsgCheckHasMsgKey(&genericMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&genericMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!genericMsgCopy.msgBase.msgKey.encAttrib.data || genericMsgCopy.msgBase.msgKey.encAttrib.data != genericMsg.msgBase.msgKey.encAttrib.data);
-			ASSERT_TRUE(!strcmp(genericMsgCopy.msgBase.msgKey.encAttrib.data, keyAttrib));
-		}
-		else
-		{
-			ASSERT_TRUE(rsslGenericMsgCheckHasMsgKey(&genericMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&genericMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(genericMsgCopy.msgBase.msgKey.encAttrib.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_DATA_BODY)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!genericMsgCopy.msgBase.encDataBody.data || genericMsgCopy.msgBase.encDataBody.data != genericMsg.msgBase.encDataBody.data);
-			ASSERT_TRUE(!strcmp(genericMsgCopy.msgBase.encDataBody.data, encData));
-		}
-		else
-		{
-			ASSERT_TRUE(genericMsgCopy.msgBase.encDataBody.data == 0);
-		}
-		ASSERT_TRUE(genericMsgCopy.msgBase.encMsgBuffer.data == 0);
-		/* RsslGenericMsg */
-		ASSERT_TRUE(rsslGenericMsgCheckHasPartNum(&genericMsgCopy));
-		ASSERT_TRUE(genericMsgCopy.partNum == partNum);
-		ASSERT_TRUE(rsslGenericMsgCheckHasSeqNum(&genericMsgCopy));
-		ASSERT_TRUE(genericMsgCopy.seqNum == seqNum);
-		ASSERT_TRUE(rsslGenericMsgCheckHasSecondarySeqNum(&genericMsgCopy));
-		ASSERT_TRUE(genericMsgCopy.secondarySeqNum == secondarySeqNum);
-		if (copyFlags & RSSL_CMF_PERM_DATA)
-		{
-			ASSERT_TRUE(rsslGenericMsgCheckHasPermData(&genericMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!genericMsgCopy.permData.data || genericMsgCopy.permData.data != genericMsg.permData.data);
-			ASSERT_TRUE(!strcmp(genericMsgCopy.permData.data, permissionData));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslGenericMsgCheckHasPermData(&genericMsgCopy));
-			ASSERT_TRUE(genericMsgCopy.permData.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
-		{
-			ASSERT_TRUE(rsslGenericMsgCheckHasExtendedHdr(&genericMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!genericMsgCopy.extendedHeader.data || genericMsgCopy.extendedHeader.data != genericMsg.extendedHeader.data);
-			ASSERT_TRUE(!strcmp(genericMsgCopy.extendedHeader.data, extendedHeader));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslGenericMsgCheckHasExtendedHdr(&genericMsgCopy));
-			ASSERT_TRUE(genericMsgCopy.extendedHeader.data == 0);
-		}
-		ASSERT_TRUE(rsslGenericMsgCheckMessageComplete(&genericMsg));
 	}
 }
 
 void copyStatusMsgTest()
 {
 	int copyFlags;
+	int inlineCopy;
 	RsslUInt32 serviceId = 9876, filter = 123, identifier = 456, postUserAddr = 1234, postUserId = 5678;
 	RsslUInt8 nameType = 255;
-	RsslStatusMsg statusMsg = RSSL_INIT_STATUS_MSG, statusMsgCopy;
+	RsslStatusMsg statusMsg = RSSL_INIT_STATUS_MSG;
 	RsslBuffer encDataBuf, encMsgBuf, keyNameBuf, keyAttribBuf, stateTextBuf, groupIdBuf, permDataBuf, extendedHdrBuf;
 	char encData[] = "encData", keyName[] = "keyName", keyAttrib[] = "keyAttrib";
 
@@ -3702,132 +3840,205 @@ void copyStatusMsgTest()
 	statusMsg.extendedHeader.length = extendedHdrBuf.length;
 	rsslStatusMsgApplyClearCache(&statusMsg);
 
-	for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+	/* ReqMsgKey */
+	rsslStatusMsgApplyHasReqMsgKey(&statusMsg);
+	rsslMsgKeyApplyHasServiceId(&statusMsg.reqMsgKey);
+	statusMsg.reqMsgKey.serviceId = serviceId + 1;
+	rsslMsgKeyApplyHasNameType(&statusMsg.reqMsgKey);
+	statusMsg.reqMsgKey.nameType = nameType - 1;
+	rsslMsgKeyApplyHasName(&statusMsg.reqMsgKey);
+	statusMsg.reqMsgKey.name.data = keyNameBuf.data;
+	statusMsg.reqMsgKey.name.length = keyNameBuf.length;
+	rsslMsgKeyApplyHasFilter(&statusMsg.reqMsgKey);
+	statusMsg.reqMsgKey.filter = filter + 1;
+	rsslMsgKeyApplyHasIdentifier(&statusMsg.reqMsgKey);
+	statusMsg.reqMsgKey.identifier = identifier + 1;
+	statusMsg.reqMsgKey.attribContainerType = RSSL_DT_OPAQUE;
+	rsslMsgKeyApplyHasAttrib(&statusMsg.reqMsgKey);
+	statusMsg.reqMsgKey.encAttrib.data = keyAttribBuf.data;
+	statusMsg.reqMsgKey.encAttrib.length = keyAttribBuf.length;
+	
+	for (inlineCopy = 0; inlineCopy < 2; ++inlineCopy)
 	{
-		rsslClearStatusMsg(&statusMsgCopy);
-		memset(copyMsgBuf.data, 0, copyMsgBuf.length);
-		ASSERT_TRUE(rsslCopyMsg((RsslMsg *)&statusMsg, copyFlags, 0, &copyMsgBuf) != NULL); //rsslCopyMsg /* Put temp copy in buffer */
-		statusMsgCopy = *(RsslStatusMsg *)copyMsgBuf.data; /* Put buffer back into original data */
-		copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+		for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+		{
+			RsslStatusMsg *pCopiedMsg;
 
-		/* RsslMsgBase */
-		ASSERT_TRUE(statusMsgCopy.msgBase.msgClass == RSSL_MC_STATUS);
-		ASSERT_TRUE(statusMsgCopy.msgBase.domainType == RSSL_DMT_TRANSACTION);
-		ASSERT_TRUE(statusMsgCopy.msgBase.containerType == RSSL_DT_OPAQUE);
-		ASSERT_TRUE(statusMsgCopy.msgBase.streamId == streamId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&statusMsg.msgBase.msgKey));
-		ASSERT_TRUE(statusMsg.msgBase.msgKey.serviceId == serviceId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&statusMsg.msgBase.msgKey));
-		ASSERT_TRUE(statusMsg.msgBase.msgKey.nameType == nameType);
-		if (copyFlags & RSSL_CMF_KEY_NAME)
-		{
-			ASSERT_TRUE(rsslStatusMsgCheckHasMsgKey(&statusMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasName(&statusMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!statusMsgCopy.msgBase.msgKey.name.data || statusMsgCopy.msgBase.msgKey.name.data != statusMsg.msgBase.msgKey.name.data);
-			ASSERT_TRUE(!strcmp(statusMsgCopy.msgBase.msgKey.name.data, keyName));
+			if (inlineCopy)
+			{
+				/* Inline copy into existing buffer.*/
+				copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+				memset(copyMsgBuf.data, 0, copyMsgBuf.length);
+				ASSERT_TRUE((pCopiedMsg = (RsslStatusMsg*)rsslCopyMsg((RsslMsg *)&statusMsg, copyFlags, 0, &copyMsgBuf)) != NULL);
+			}
+			else
+			{
+				/* Copy allocated by API. */
+				ASSERT_TRUE((pCopiedMsg = (RsslStatusMsg*)rsslCopyMsg((RsslMsg *)&statusMsg, copyFlags, 0, NULL)) != NULL);
+			}
+
+
+			/* RsslMsgBase */
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgClass == RSSL_MC_STATUS);
+			ASSERT_TRUE(pCopiedMsg->msgBase.domainType == RSSL_DMT_TRANSACTION);
+			ASSERT_TRUE(pCopiedMsg->msgBase.containerType == RSSL_DT_OPAQUE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.streamId == streamId);
+			ASSERT_TRUE(rsslStatusMsgCheckHasMsgKey(pCopiedMsg));
+			ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.serviceId == serviceId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.nameType == nameType);
+			if (copyFlags & RSSL_CMF_KEY_NAME)
+			{
+				ASSERT_TRUE(rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data && pCopiedMsg->msgBase.msgKey.name.data != statusMsg.msgBase.msgKey.name.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.name, &keyNameBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data == 0);
+			}
+			ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.filter == filter);
+			ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.identifier == identifier);
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
+			if (copyFlags & RSSL_CMF_KEY_ATTRIB)
+			{
+				ASSERT_TRUE(rsslStatusMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data && pCopiedMsg->msgBase.msgKey.encAttrib.data != statusMsg.msgBase.msgKey.encAttrib.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.encAttrib, &keyAttribBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(rsslStatusMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_DATA_BODY)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data && pCopiedMsg->msgBase.encDataBody.data != statusMsg.msgBase.encDataBody.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.encDataBody, &encDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data == 0);
+			}
+			ASSERT_TRUE(pCopiedMsg->msgBase.encMsgBuffer.data == 0);
+			/* RsslStatusMsg */
+			ASSERT_TRUE(rsslStatusMsgCheckHasState(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->state.streamState == RSSL_STREAM_OPEN);
+			ASSERT_TRUE(pCopiedMsg->state.dataState == RSSL_DATA_SUSPECT);
+			ASSERT_TRUE(pCopiedMsg->state.code == RSSL_SC_NO_RESOURCES);
+			if (copyFlags & RSSL_CMF_STATE_TEXT)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->state.text.data && pCopiedMsg->state.text.data != statusMsg.state.text.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->state.text, &stateTextBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->state.text.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_GROUP_ID)
+			{
+				ASSERT_TRUE(rsslStatusMsgCheckHasGroupId(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->groupId.data && pCopiedMsg->groupId.data != statusMsg.groupId.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->groupId, &groupIdBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslStatusMsgCheckHasGroupId(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->groupId.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_PERM_DATA)
+			{
+				ASSERT_TRUE(rsslStatusMsgCheckHasPermData(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->permData.data && pCopiedMsg->permData.data != statusMsg.permData.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->permData, &permDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslStatusMsgCheckHasPermData(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->permData.data == 0);
+			}
+			ASSERT_TRUE(rsslStatusMsgCheckHasPostUserInfo(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->postUserInfo.postUserAddr == postUserAddr);
+			ASSERT_TRUE(pCopiedMsg->postUserInfo.postUserId == postUserId);
+			if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
+			{
+				ASSERT_TRUE(rsslStatusMsgCheckHasExtendedHdr(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data && pCopiedMsg->extendedHeader.data != statusMsg.extendedHeader.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->extendedHeader, &extendedHdrBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslStatusMsgCheckHasExtendedHdr(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data == 0);
+			}
+			ASSERT_TRUE(rsslStatusMsgCheckClearCache(pCopiedMsg));
+
+			/* ReqMsgKey */
+			ASSERT_TRUE(rsslStatusMsgCheckHasReqMsgKey(pCopiedMsg));
+			ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.serviceId == serviceId + 1);
+			ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.nameType == nameType - 1);
+			if (copyFlags & RSSL_CMF_REQ_KEY_NAME)
+			{
+				ASSERT_TRUE(rsslMsgKeyCheckHasName(&pCopiedMsg->reqMsgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.name.data && pCopiedMsg->reqMsgKey.name.data != statusMsg.reqMsgKey.name.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->reqMsgKey.name, &keyNameBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslMsgKeyCheckHasName(&pCopiedMsg->reqMsgKey));
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.name.data == 0);
+			}
+			ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.filter == filter + 1);
+			ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.identifier == identifier + 1);
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.attribContainerType == RSSL_DT_OPAQUE);
+			if (copyFlags & RSSL_CMF_REQ_KEY_ATTRIB)
+			{
+				ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&pCopiedMsg->reqMsgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.encAttrib.data && pCopiedMsg->reqMsgKey.encAttrib.data != statusMsg.reqMsgKey.encAttrib.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->reqMsgKey.encAttrib, &keyAttribBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&pCopiedMsg->reqMsgKey));
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.encAttrib.data == 0);
+			}
+
+			if (!inlineCopy)
+			{
+				/* Copy allocated by API. Free it. */
+				rsslReleaseCopiedMsg((RsslMsg*)pCopiedMsg);
+			}
 		}
-		else
-		{
-			ASSERT_TRUE(rsslStatusMsgCheckHasMsgKey(&statusMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasName(&statusMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(statusMsgCopy.msgBase.msgKey.name.data == 0);
-		}
-		ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&statusMsg.msgBase.msgKey));
-		ASSERT_TRUE(statusMsg.msgBase.msgKey.filter == filter);
-		ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&statusMsg.msgBase.msgKey));
-		ASSERT_TRUE(statusMsg.msgBase.msgKey.identifier == identifier);
-		ASSERT_TRUE(statusMsg.msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
-		if (copyFlags & RSSL_CMF_KEY_ATTRIB)
-		{
-			ASSERT_TRUE(rsslStatusMsgCheckHasMsgKey(&statusMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&statusMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!statusMsgCopy.msgBase.msgKey.encAttrib.data || statusMsgCopy.msgBase.msgKey.encAttrib.data != statusMsg.msgBase.msgKey.encAttrib.data);
-			ASSERT_TRUE(!strcmp(statusMsgCopy.msgBase.msgKey.encAttrib.data, keyAttrib));
-		}
-		else
-		{
-			ASSERT_TRUE(rsslStatusMsgCheckHasMsgKey(&statusMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&statusMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(statusMsgCopy.msgBase.msgKey.encAttrib.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_DATA_BODY)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!statusMsgCopy.msgBase.encDataBody.data || statusMsgCopy.msgBase.encDataBody.data != statusMsg.msgBase.encDataBody.data);
-			ASSERT_TRUE(!strcmp(statusMsgCopy.msgBase.encDataBody.data, encData));
-		}
-		else
-		{
-			ASSERT_TRUE(statusMsgCopy.msgBase.encDataBody.data == 0);
-		}
-		ASSERT_TRUE(statusMsgCopy.msgBase.encMsgBuffer.data == 0);
-		/* RsslStatusMsg */
-		ASSERT_TRUE(rsslStatusMsgCheckHasState(&statusMsgCopy));
-		ASSERT_TRUE(statusMsgCopy.state.streamState == RSSL_STREAM_OPEN);
-		ASSERT_TRUE(statusMsg.state.dataState == RSSL_DATA_SUSPECT);
-		ASSERT_TRUE(statusMsg.state.code == RSSL_SC_NO_RESOURCES);
-		if (copyFlags & RSSL_CMF_STATE_TEXT)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!statusMsgCopy.state.text.data || statusMsgCopy.state.text.data != statusMsg.state.text.data);
-			ASSERT_TRUE(!strcmp(statusMsgCopy.state.text.data, stateText));
-		}
-		else
-		{
-			ASSERT_TRUE(statusMsgCopy.state.text.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_GROUP_ID)
-		{
-			ASSERT_TRUE(rsslStatusMsgCheckHasGroupId(&statusMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!statusMsgCopy.groupId.data || statusMsgCopy.groupId.data != statusMsg.groupId.data);
-			ASSERT_TRUE(!strcmp(statusMsgCopy.groupId.data, groupId));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslStatusMsgCheckHasGroupId(&statusMsgCopy));
-			ASSERT_TRUE(statusMsgCopy.groupId.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_PERM_DATA)
-		{
-			ASSERT_TRUE(rsslStatusMsgCheckHasPermData(&statusMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!statusMsgCopy.permData.data || statusMsgCopy.permData.data != statusMsg.permData.data);
-			ASSERT_TRUE(!strcmp(statusMsgCopy.permData.data, permissionData));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslStatusMsgCheckHasPermData(&statusMsgCopy));
-			ASSERT_TRUE(statusMsgCopy.permData.data == 0);
-		}
-		ASSERT_TRUE(rsslStatusMsgCheckHasPostUserInfo(&statusMsgCopy));
-		ASSERT_TRUE(statusMsg.postUserInfo.postUserAddr == postUserAddr);
-		ASSERT_TRUE(statusMsg.postUserInfo.postUserId == postUserId);
-		if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
-		{
-			ASSERT_TRUE(rsslStatusMsgCheckHasExtendedHdr(&statusMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!statusMsgCopy.extendedHeader.data || statusMsgCopy.extendedHeader.data != statusMsg.extendedHeader.data);
-			ASSERT_TRUE(!strcmp(statusMsgCopy.extendedHeader.data, extendedHeader));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslStatusMsgCheckHasExtendedHdr(&statusMsgCopy));
-			ASSERT_TRUE(statusMsgCopy.extendedHeader.data == 0);
-		}
-		ASSERT_TRUE(rsslStatusMsgCheckClearCache(&statusMsg));
 	}
 }
 
 void copyRefreshMsgTest()
 {
 	int copyFlags;
+	int inlineCopy;
 	RsslUInt16 partNum = 33333;
 	RsslUInt32 serviceId = 9876, filter = 123, identifier = 456, postUserAddr = 1234, postUserId = 5678;
 	RsslUInt8 nameType = 255;
-	RsslRefreshMsg refreshMsg = RSSL_INIT_REFRESH_MSG, refreshMsgCopy;
+	RsslRefreshMsg refreshMsg = RSSL_INIT_REFRESH_MSG;
 	RsslBuffer encDataBuf, encMsgBuf, keyNameBuf, keyAttribBuf, stateTextBuf, groupIdBuf, permDataBuf, extendedHdrBuf;
 	char encData[] = "encData", keyName[] = "keyName", keyAttrib[] = "keyAttrib";
 
@@ -3905,139 +4116,212 @@ void copyRefreshMsgTest()
 	rsslRefreshMsgApplyClearCache(&refreshMsg);
 	rsslRefreshMsgApplyDoNotCache(&refreshMsg);
 
-	for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+	/* ReqMsgKey */
+	rsslRefreshMsgApplyHasReqMsgKey(&refreshMsg);
+	rsslMsgKeyApplyHasServiceId(&refreshMsg.reqMsgKey);
+	refreshMsg.reqMsgKey.serviceId = serviceId + 1;
+	rsslMsgKeyApplyHasNameType(&refreshMsg.reqMsgKey);
+	refreshMsg.reqMsgKey.nameType = nameType - 1;
+	rsslMsgKeyApplyHasName(&refreshMsg.reqMsgKey);
+	refreshMsg.reqMsgKey.name.data = keyNameBuf.data;
+	refreshMsg.reqMsgKey.name.length = keyNameBuf.length;
+	rsslMsgKeyApplyHasFilter(&refreshMsg.reqMsgKey);
+	refreshMsg.reqMsgKey.filter = filter + 1;
+	rsslMsgKeyApplyHasIdentifier(&refreshMsg.reqMsgKey);
+	refreshMsg.reqMsgKey.identifier = identifier + 1;
+	refreshMsg.reqMsgKey.attribContainerType = RSSL_DT_OPAQUE;
+	rsslMsgKeyApplyHasAttrib(&refreshMsg.reqMsgKey);
+	refreshMsg.reqMsgKey.encAttrib.data = keyAttribBuf.data;
+	refreshMsg.reqMsgKey.encAttrib.length = keyAttribBuf.length;
+	
+	for (inlineCopy = 0; inlineCopy < 2; ++inlineCopy)
 	{
-		rsslClearRefreshMsg(&refreshMsgCopy);
-		memset(copyMsgBuf.data, 0, copyMsgBuf.length);
-		ASSERT_TRUE(rsslCopyMsg((RsslMsg *)&refreshMsg, copyFlags, 0, &copyMsgBuf) != NULL); //rsslCopyMsg /* Put temp copy in buffer */
-		refreshMsgCopy = *(RsslRefreshMsg *)copyMsgBuf.data; /* Put buffer back into original data */
-		copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+		for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+		{
+			RsslRefreshMsg *pCopiedMsg;
 
-		/* RsslMsgBase */
-		ASSERT_TRUE(refreshMsgCopy.msgBase.msgClass == RSSL_MC_REFRESH);
-		ASSERT_TRUE(refreshMsgCopy.msgBase.domainType == RSSL_DMT_TRANSACTION);
-		ASSERT_TRUE(refreshMsgCopy.msgBase.containerType == RSSL_DT_OPAQUE);
-		ASSERT_TRUE(refreshMsgCopy.msgBase.streamId == streamId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&refreshMsg.msgBase.msgKey));
-		ASSERT_TRUE(refreshMsg.msgBase.msgKey.serviceId == serviceId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&refreshMsg.msgBase.msgKey));
-		ASSERT_TRUE(refreshMsg.msgBase.msgKey.nameType == nameType);
-		if (copyFlags & RSSL_CMF_KEY_NAME)
-		{
-			ASSERT_TRUE(rsslRefreshMsgCheckHasMsgKey(&refreshMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasName(&refreshMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!refreshMsgCopy.msgBase.msgKey.name.data || refreshMsgCopy.msgBase.msgKey.name.data != refreshMsg.msgBase.msgKey.name.data);
-			ASSERT_TRUE(!strcmp(refreshMsgCopy.msgBase.msgKey.name.data, keyName));
+			if (inlineCopy)
+			{
+				/* Inline copy into existing buffer.*/
+				copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+				memset(copyMsgBuf.data, 0, copyMsgBuf.length);
+				ASSERT_TRUE((pCopiedMsg = (RsslRefreshMsg*)rsslCopyMsg((RsslMsg *)&refreshMsg, copyFlags, 0, &copyMsgBuf)) != NULL);
+			}
+			else
+			{
+				/* Copy allocated by API. */
+				ASSERT_TRUE((pCopiedMsg = (RsslRefreshMsg*)rsslCopyMsg((RsslMsg *)&refreshMsg, copyFlags, 0, NULL)) != NULL);
+			}
+
+
+			/* RsslMsgBase */
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgClass == RSSL_MC_REFRESH);
+			ASSERT_TRUE(pCopiedMsg->msgBase.domainType == RSSL_DMT_TRANSACTION);
+			ASSERT_TRUE(pCopiedMsg->msgBase.containerType == RSSL_DT_OPAQUE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.streamId == streamId);
+			ASSERT_TRUE(rsslRefreshMsgCheckHasMsgKey(pCopiedMsg));
+			ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.serviceId == serviceId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.nameType == nameType);
+			if (copyFlags & RSSL_CMF_KEY_NAME)
+			{
+				ASSERT_TRUE(rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data && pCopiedMsg->msgBase.msgKey.name.data != refreshMsg.msgBase.msgKey.name.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.name, &keyNameBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data == 0);
+			}
+			ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.filter == filter);
+			ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.identifier == identifier);
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
+			if (copyFlags & RSSL_CMF_KEY_ATTRIB)
+			{
+				ASSERT_TRUE(rsslRefreshMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data && pCopiedMsg->msgBase.msgKey.encAttrib.data != refreshMsg.msgBase.msgKey.encAttrib.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.encAttrib, &keyAttribBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(rsslRefreshMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_DATA_BODY)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data && pCopiedMsg->msgBase.encDataBody.data != refreshMsg.msgBase.encDataBody.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.encDataBody, &encDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data == 0);
+			}
+			ASSERT_TRUE(pCopiedMsg->msgBase.encMsgBuffer.data == 0);
+			/* RsslRefreshMsg */
+			ASSERT_TRUE(rsslRefreshMsgCheckHasPartNum(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->partNum == partNum);
+			ASSERT_TRUE(rsslRefreshMsgCheckHasSeqNum(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->seqNum == seqNum);
+			ASSERT_TRUE(pCopiedMsg->state.streamState == RSSL_STREAM_OPEN);
+			ASSERT_TRUE(pCopiedMsg->state.dataState == RSSL_DATA_SUSPECT);
+			ASSERT_TRUE(pCopiedMsg->state.code == RSSL_SC_NO_RESOURCES);
+			if (copyFlags & RSSL_CMF_STATE_TEXT)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->state.text.data && pCopiedMsg->state.text.data != refreshMsg.state.text.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->state.text, &stateTextBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->state.text.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_GROUP_ID)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->groupId.data && pCopiedMsg->groupId.data != refreshMsg.groupId.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->groupId, &groupIdBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->groupId.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_PERM_DATA)
+			{
+				ASSERT_TRUE(rsslRefreshMsgCheckHasPermData(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->permData.data && pCopiedMsg->permData.data != refreshMsg.permData.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->permData, &permDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslRefreshMsgCheckHasPermData(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->permData.data == 0);
+			}
+			ASSERT_TRUE(rsslRefreshMsgCheckHasPostUserInfo(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->postUserInfo.postUserAddr == postUserAddr);
+			ASSERT_TRUE(pCopiedMsg->postUserInfo.postUserId == postUserId);
+			ASSERT_TRUE(rsslRefreshMsgCheckHasQoS(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->qos.dynamic == RSSL_TRUE);
+			ASSERT_TRUE(pCopiedMsg->qos.rate == RSSL_QOS_RATE_TIME_CONFLATED);
+			ASSERT_TRUE(pCopiedMsg->qos.rateInfo == 65535);
+			ASSERT_TRUE(pCopiedMsg->qos.timeliness == RSSL_QOS_TIME_DELAYED);
+			ASSERT_TRUE(pCopiedMsg->qos.timeInfo == 65534);
+			if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
+			{
+				ASSERT_TRUE(rsslRefreshMsgCheckHasExtendedHdr(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data && pCopiedMsg->extendedHeader.data != refreshMsg.extendedHeader.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->extendedHeader, &extendedHdrBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslRefreshMsgCheckHasExtendedHdr(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data == 0);
+			}
+			ASSERT_TRUE(rsslRefreshMsgCheckSolicited(pCopiedMsg));
+			ASSERT_TRUE(rsslRefreshMsgCheckRefreshComplete(pCopiedMsg));
+			ASSERT_TRUE(rsslRefreshMsgCheckClearCache(pCopiedMsg));
+			ASSERT_TRUE(rsslRefreshMsgCheckDoNotCache(pCopiedMsg));
+
+			/* ReqMsgKey */
+			ASSERT_TRUE(rsslRefreshMsgCheckHasReqMsgKey(pCopiedMsg));
+			ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.serviceId == serviceId + 1);
+			ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.nameType == nameType - 1);
+			if (copyFlags & RSSL_CMF_REQ_KEY_NAME)
+			{
+				ASSERT_TRUE(rsslMsgKeyCheckHasName(&pCopiedMsg->reqMsgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.name.data && pCopiedMsg->reqMsgKey.name.data != refreshMsg.reqMsgKey.name.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->reqMsgKey.name, &keyNameBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslMsgKeyCheckHasName(&pCopiedMsg->reqMsgKey));
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.name.data == 0);
+			}
+			ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.filter == filter + 1);
+			ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&pCopiedMsg->reqMsgKey));
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.identifier == identifier + 1);
+			ASSERT_TRUE(pCopiedMsg->reqMsgKey.attribContainerType == RSSL_DT_OPAQUE);
+			if (copyFlags & RSSL_CMF_REQ_KEY_ATTRIB)
+			{
+				ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&pCopiedMsg->reqMsgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.encAttrib.data && pCopiedMsg->reqMsgKey.encAttrib.data != refreshMsg.reqMsgKey.encAttrib.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->reqMsgKey.encAttrib, &keyAttribBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&pCopiedMsg->reqMsgKey));
+				ASSERT_TRUE(pCopiedMsg->reqMsgKey.encAttrib.data == 0);
+			}
+
+			if (!inlineCopy)
+			{
+				/* Copy allocated by API. Free it. */
+				rsslReleaseCopiedMsg((RsslMsg*)pCopiedMsg);
+			}
 		}
-		else
-		{
-			ASSERT_TRUE(rsslRefreshMsgCheckHasMsgKey(&refreshMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasName(&refreshMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(refreshMsgCopy.msgBase.msgKey.name.data == 0);
-		}
-		ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&refreshMsg.msgBase.msgKey));
-		ASSERT_TRUE(refreshMsg.msgBase.msgKey.filter == filter);
-		ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&refreshMsg.msgBase.msgKey));
-		ASSERT_TRUE(refreshMsg.msgBase.msgKey.identifier == identifier);
-		ASSERT_TRUE(refreshMsg.msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
-		if (copyFlags & RSSL_CMF_KEY_ATTRIB)
-		{
-			ASSERT_TRUE(rsslRefreshMsgCheckHasMsgKey(&refreshMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&refreshMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!refreshMsgCopy.msgBase.msgKey.encAttrib.data || refreshMsgCopy.msgBase.msgKey.encAttrib.data != refreshMsg.msgBase.msgKey.encAttrib.data);
-			ASSERT_TRUE(!strcmp(refreshMsgCopy.msgBase.msgKey.encAttrib.data, keyAttrib));
-		}
-		else
-		{
-			ASSERT_TRUE(rsslRefreshMsgCheckHasMsgKey(&refreshMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&refreshMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(refreshMsgCopy.msgBase.msgKey.encAttrib.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_DATA_BODY)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!refreshMsgCopy.msgBase.encDataBody.data || refreshMsgCopy.msgBase.encDataBody.data != refreshMsg.msgBase.encDataBody.data);
-			ASSERT_TRUE(!strcmp(refreshMsgCopy.msgBase.encDataBody.data, encData));
-		}
-		else
-		{
-			ASSERT_TRUE(refreshMsgCopy.msgBase.encDataBody.data == 0);
-		}
-		ASSERT_TRUE(refreshMsgCopy.msgBase.encMsgBuffer.data == 0);
-		/* RsslRefreshMsg */
-		ASSERT_TRUE(rsslRefreshMsgCheckHasPartNum(&refreshMsgCopy));
-		ASSERT_TRUE(refreshMsgCopy.partNum == partNum);
-		ASSERT_TRUE(rsslRefreshMsgCheckHasSeqNum(&refreshMsgCopy));
-		ASSERT_TRUE(refreshMsgCopy.seqNum == seqNum);
-		ASSERT_TRUE(refreshMsgCopy.state.streamState == RSSL_STREAM_OPEN);
-		ASSERT_TRUE(refreshMsg.state.dataState == RSSL_DATA_SUSPECT);
-		ASSERT_TRUE(refreshMsg.state.code == RSSL_SC_NO_RESOURCES);
-		if (copyFlags & RSSL_CMF_STATE_TEXT)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!refreshMsgCopy.state.text.data || refreshMsgCopy.state.text.data != refreshMsg.state.text.data);
-			ASSERT_TRUE(!strcmp(refreshMsgCopy.state.text.data, stateText));
-		}
-		else
-		{
-			ASSERT_TRUE(refreshMsgCopy.state.text.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_GROUP_ID)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!refreshMsgCopy.groupId.data || refreshMsgCopy.groupId.data != refreshMsg.groupId.data);
-			ASSERT_TRUE(!strcmp(refreshMsgCopy.groupId.data, groupId));
-		}
-		else
-		{
-			ASSERT_TRUE(refreshMsgCopy.groupId.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_PERM_DATA)
-		{
-			ASSERT_TRUE(rsslRefreshMsgCheckHasPermData(&refreshMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!refreshMsgCopy.permData.data || refreshMsgCopy.permData.data != refreshMsg.permData.data);
-			ASSERT_TRUE(!strcmp(refreshMsgCopy.permData.data, permissionData));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslRefreshMsgCheckHasPermData(&refreshMsgCopy));
-			ASSERT_TRUE(refreshMsgCopy.permData.data == 0);
-		}
-		ASSERT_TRUE(rsslRefreshMsgCheckHasPostUserInfo(&refreshMsgCopy));
-		ASSERT_TRUE(refreshMsg.postUserInfo.postUserAddr == postUserAddr);
-		ASSERT_TRUE(refreshMsg.postUserInfo.postUserId == postUserId);
-		ASSERT_TRUE(rsslRefreshMsgCheckHasQoS(&refreshMsg));
-		ASSERT_TRUE(refreshMsg.qos.dynamic == RSSL_TRUE);
-		ASSERT_TRUE(refreshMsg.qos.rate == RSSL_QOS_RATE_TIME_CONFLATED);
-		ASSERT_TRUE(refreshMsg.qos.rateInfo == 65535);
-		ASSERT_TRUE(refreshMsg.qos.timeliness == RSSL_QOS_TIME_DELAYED);
-		ASSERT_TRUE(refreshMsg.qos.timeInfo == 65534);
-		if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
-		{
-			ASSERT_TRUE(rsslRefreshMsgCheckHasExtendedHdr(&refreshMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!refreshMsgCopy.extendedHeader.data || refreshMsgCopy.extendedHeader.data != refreshMsg.extendedHeader.data);
-			ASSERT_TRUE(!strcmp(refreshMsgCopy.extendedHeader.data, extendedHeader));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslRefreshMsgCheckHasExtendedHdr(&refreshMsgCopy));
-			ASSERT_TRUE(refreshMsgCopy.extendedHeader.data == 0);
-		}
-		ASSERT_TRUE(rsslRefreshMsgCheckSolicited(&refreshMsg));
-		ASSERT_TRUE(rsslRefreshMsgCheckRefreshComplete(&refreshMsg));
-		ASSERT_TRUE(rsslRefreshMsgCheckClearCache(&refreshMsg));
-		ASSERT_TRUE(rsslRefreshMsgCheckDoNotCache(&refreshMsg));
 	}
 }
 
 void copyRequestMsgTest()
 {
 	int copyFlags;
-	RsslRequestMsg requestMsg = RSSL_INIT_REQUEST_MSG, requestMsgCopy;
+	int inlineCopy;
+	RsslRequestMsg requestMsg = RSSL_INIT_REQUEST_MSG;
 	RsslBuffer encDataBuf, encMsgBuf, extendedHdrBuf;
 	char encData[] = "encData";
 
@@ -4084,75 +4368,96 @@ void copyRequestMsgTest()
 	rsslRequestMsgApplyHasView(&requestMsg);
 	rsslRequestMsgApplyHasBatch(&requestMsg);
 
-	for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+	
+	for (inlineCopy = 0; inlineCopy < 2; ++inlineCopy)
 	{
-		rsslClearRequestMsg(&requestMsgCopy);
-		memset(copyMsgBuf.data, 0, copyMsgBuf.length);
-		ASSERT_TRUE(rsslCopyMsg((RsslMsg *)&requestMsg, copyFlags, 0, &copyMsgBuf) != NULL); //rsslCopyMsg /* Put temp copy in buffer */
-		requestMsgCopy = *(RsslRequestMsg *)copyMsgBuf.data; /* Put buffer back into original data */
-		copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+		for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+		{
+			RsslRequestMsg *pCopiedMsg;
 
-		/* RsslMsgBase */
-		ASSERT_TRUE(requestMsgCopy.msgBase.msgClass == RSSL_MC_REQUEST);
-		ASSERT_TRUE(requestMsgCopy.msgBase.domainType == RSSL_DMT_TRANSACTION);
-		ASSERT_TRUE(requestMsgCopy.msgBase.containerType == RSSL_DT_OPAQUE);
-		ASSERT_TRUE(requestMsgCopy.msgBase.streamId == streamId);
-		if (copyFlags & RSSL_CMF_DATA_BODY)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!requestMsgCopy.msgBase.encDataBody.data || requestMsgCopy.msgBase.encDataBody.data != requestMsg.msgBase.encDataBody.data);
-			ASSERT_TRUE(!strcmp(requestMsgCopy.msgBase.encDataBody.data, encData));
+			if (inlineCopy)
+			{
+				/* Inline copy into existing buffer.*/
+				copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+				memset(copyMsgBuf.data, 0, copyMsgBuf.length);
+				ASSERT_TRUE((pCopiedMsg = (RsslRequestMsg*)rsslCopyMsg((RsslMsg *)&requestMsg, copyFlags, 0, &copyMsgBuf)) != NULL);
+			}
+			else
+			{
+				/* Copy allocated by API. */
+				ASSERT_TRUE((pCopiedMsg = (RsslRequestMsg*)rsslCopyMsg((RsslMsg *)&requestMsg, copyFlags, 0, NULL)) != NULL);
+			}
+
+
+			/* RsslMsgBase */
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgClass == RSSL_MC_REQUEST);
+			ASSERT_TRUE(pCopiedMsg->msgBase.domainType == RSSL_DMT_TRANSACTION);
+			ASSERT_TRUE(pCopiedMsg->msgBase.containerType == RSSL_DT_OPAQUE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.streamId == streamId);
+			if (copyFlags & RSSL_CMF_DATA_BODY)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data && pCopiedMsg->msgBase.encDataBody.data != requestMsg.msgBase.encDataBody.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.encDataBody, &encDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data == 0);
+			}
+			ASSERT_TRUE(pCopiedMsg->msgBase.encMsgBuffer.data == 0);
+			/* RsslRequestMsg */
+			ASSERT_TRUE(rsslRequestMsgCheckHasPriority(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->priorityClass == 3);
+			ASSERT_TRUE(pCopiedMsg->priorityCount == 4);
+			ASSERT_TRUE(rsslRequestMsgCheckHasQoS(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->qos.dynamic == RSSL_TRUE);
+			ASSERT_TRUE(pCopiedMsg->qos.rate == RSSL_QOS_RATE_JIT_CONFLATED);
+			ASSERT_TRUE(pCopiedMsg->qos.rateInfo == 65535);
+			ASSERT_TRUE(pCopiedMsg->qos.timeliness == RSSL_QOS_TIME_DELAYED_UNKNOWN);
+			ASSERT_TRUE(pCopiedMsg->qos.timeInfo == 65534);
+			ASSERT_TRUE(rsslRequestMsgCheckHasWorstQoS(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->worstQos.dynamic == RSSL_TRUE);
+			ASSERT_TRUE(pCopiedMsg->worstQos.rate == RSSL_QOS_RATE_TIME_CONFLATED);
+			ASSERT_TRUE(pCopiedMsg->worstQos.rateInfo == 65534);
+			ASSERT_TRUE(pCopiedMsg->worstQos.timeliness == RSSL_QOS_TIME_DELAYED);
+			ASSERT_TRUE(pCopiedMsg->worstQos.timeInfo == 65533);
+			if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
+			{
+				ASSERT_TRUE(rsslRequestMsgCheckHasExtendedHdr(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data && pCopiedMsg->extendedHeader.data != requestMsg.extendedHeader.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->extendedHeader, &extendedHdrBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslRequestMsgCheckHasExtendedHdr(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data == 0);
+			}
+			ASSERT_TRUE(rsslRequestMsgCheckStreaming(pCopiedMsg));
+			ASSERT_TRUE(rsslRequestMsgCheckMsgKeyInUpdates(pCopiedMsg));
+			ASSERT_TRUE(rsslRequestMsgCheckConfInfoInUpdates(pCopiedMsg));
+			ASSERT_TRUE(rsslRequestMsgCheckNoRefresh(pCopiedMsg));
+			ASSERT_TRUE(rsslRequestMsgCheckPause(pCopiedMsg));
+			ASSERT_TRUE(rsslRequestMsgCheckHasView(pCopiedMsg));
+			ASSERT_TRUE(rsslRequestMsgCheckHasBatch(pCopiedMsg));
+
+			if (!inlineCopy)
+			{
+				/* Copy allocated by API. Free it. */
+				rsslReleaseCopiedMsg((RsslMsg*)pCopiedMsg);
+			}
 		}
-		else
-		{
-			ASSERT_TRUE(requestMsgCopy.msgBase.encDataBody.data == 0);
-		}
-		ASSERT_TRUE(requestMsgCopy.msgBase.encMsgBuffer.data == 0);
-		/* RsslRequestMsg */
-		ASSERT_TRUE(rsslRequestMsgCheckHasPriority(&requestMsg));
-		ASSERT_TRUE(requestMsg.priorityClass == 3);
-		ASSERT_TRUE(requestMsg.priorityCount == 4);
-		ASSERT_TRUE(rsslRequestMsgCheckHasQoS(&requestMsg));
-		ASSERT_TRUE(requestMsg.qos.dynamic == RSSL_TRUE);
-		ASSERT_TRUE(requestMsg.qos.rate == RSSL_QOS_RATE_JIT_CONFLATED);
-		ASSERT_TRUE(requestMsg.qos.rateInfo == 65535);
-		ASSERT_TRUE(requestMsg.qos.timeliness == RSSL_QOS_TIME_DELAYED_UNKNOWN);
-		ASSERT_TRUE(requestMsg.qos.timeInfo == 65534);
-		ASSERT_TRUE(rsslRequestMsgCheckHasWorstQoS(&requestMsg));
-		ASSERT_TRUE(requestMsg.worstQos.dynamic == RSSL_TRUE);
-		ASSERT_TRUE(requestMsg.worstQos.rate == RSSL_QOS_RATE_TIME_CONFLATED);
-		ASSERT_TRUE(requestMsg.worstQos.rateInfo == 65534);
-		ASSERT_TRUE(requestMsg.worstQos.timeliness == RSSL_QOS_TIME_DELAYED);
-		ASSERT_TRUE(requestMsg.worstQos.timeInfo == 65533);
-		if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
-		{
-			ASSERT_TRUE(rsslRequestMsgCheckHasExtendedHdr(&requestMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!requestMsgCopy.extendedHeader.data || requestMsgCopy.extendedHeader.data != requestMsg.extendedHeader.data);
-			ASSERT_TRUE(!strcmp(requestMsgCopy.extendedHeader.data, extendedHeader));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslRequestMsgCheckHasExtendedHdr(&requestMsgCopy));
-			ASSERT_TRUE(requestMsgCopy.extendedHeader.data == 0);
-		}
-		ASSERT_TRUE(rsslRequestMsgCheckStreaming(&requestMsg));
-		ASSERT_TRUE(rsslRequestMsgCheckMsgKeyInUpdates(&requestMsg));
-		ASSERT_TRUE(rsslRequestMsgCheckConfInfoInUpdates(&requestMsg));
-		ASSERT_TRUE(rsslRequestMsgCheckNoRefresh(&requestMsg));
-		ASSERT_TRUE(rsslRequestMsgCheckPause(&requestMsg));
-		ASSERT_TRUE(rsslRequestMsgCheckHasView(&requestMsg));
-		ASSERT_TRUE(rsslRequestMsgCheckHasBatch(&requestMsg));
 	}
 }
 
 void copyUpdateMsgTest()
 {
 	int copyFlags;
+	int inlineCopy;
 	RsslUInt8 nameType = 255, updateType = 2;
 	RsslUInt16 conflationCount = 3, conflationTime = 4;
 	RsslUInt32 serviceId = 9876, filter = 123, identifier = 456, postUserAddr = 1234, postUserId = 5678;
-	RsslUpdateMsg updateMsg = RSSL_INIT_UPDATE_MSG, updateMsgCopy;
+	RsslUpdateMsg updateMsg = RSSL_INIT_UPDATE_MSG;
 	RsslBuffer encDataBuf, encMsgBuf, keyNameBuf, keyAttribBuf, permDataBuf, extendedHdrBuf;
 	char encData[] = "encData", keyName[] = "keyName", keyAttrib[] = "keyAttrib";
 
@@ -4214,104 +4519,123 @@ void copyUpdateMsgTest()
 	rsslUpdateMsgApplyDoNotConflate(&updateMsg);
 	rsslUpdateMsgApplyDoNotRipple(&updateMsg);
 
-	for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+	
+	for (inlineCopy = 0; inlineCopy < 2; ++inlineCopy)
 	{
-		rsslClearUpdateMsg(&updateMsgCopy);
-		memset(copyMsgBuf.data, 0, copyMsgBuf.length);
-		ASSERT_TRUE(rsslCopyMsg((RsslMsg *)&updateMsg, copyFlags, 0, &copyMsgBuf) != NULL); //rsslCopyMsg /* Put temp copy in buffer */
-		updateMsgCopy = *(RsslUpdateMsg *)copyMsgBuf.data; /* Put buffer back into original data */
-		copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+		for (copyFlags = 0; copyFlags < 0x1000; copyFlags++)
+		{
+			RsslUpdateMsg *pCopiedMsg;
 
-		/* RsslMsgBase */
-		ASSERT_TRUE(updateMsgCopy.msgBase.msgClass == RSSL_MC_UPDATE);
-		ASSERT_TRUE(updateMsgCopy.msgBase.domainType == RSSL_DMT_TRANSACTION);
-		ASSERT_TRUE(updateMsgCopy.msgBase.containerType == RSSL_DT_OPAQUE);
-		ASSERT_TRUE(updateMsgCopy.msgBase.streamId == streamId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&updateMsg.msgBase.msgKey));
-		ASSERT_TRUE(updateMsg.msgBase.msgKey.serviceId == serviceId);
-		ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&updateMsg.msgBase.msgKey));
-		ASSERT_TRUE(updateMsg.msgBase.msgKey.nameType == nameType);
-		if (copyFlags & RSSL_CMF_KEY_NAME)
-		{
-			ASSERT_TRUE(rsslUpdateMsgCheckHasMsgKey(&updateMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasName(&updateMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!updateMsgCopy.msgBase.msgKey.name.data || updateMsgCopy.msgBase.msgKey.name.data != updateMsg.msgBase.msgKey.name.data);
-			ASSERT_TRUE(!strcmp(updateMsgCopy.msgBase.msgKey.name.data, keyName));
+			if (inlineCopy)
+			{
+				/* Inline copy into existing buffer.*/
+				copyMsgBuf.length = c_TestMsgCopyBufferSize; /* reset buffer size */
+				memset(copyMsgBuf.data, 0, copyMsgBuf.length);
+				ASSERT_TRUE((pCopiedMsg = (RsslUpdateMsg*)rsslCopyMsg((RsslMsg *)&updateMsg, copyFlags, 0, &copyMsgBuf)) != NULL);
+			}
+			else
+			{
+				/* Copy allocated by API. */
+				ASSERT_TRUE((pCopiedMsg = (RsslUpdateMsg*)rsslCopyMsg((RsslMsg *)&updateMsg, copyFlags, 0, NULL)) != NULL);
+			}
+
+			/* RsslMsgBase */
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgClass == RSSL_MC_UPDATE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.domainType == RSSL_DMT_TRANSACTION);
+			ASSERT_TRUE(pCopiedMsg->msgBase.containerType == RSSL_DT_OPAQUE);
+			ASSERT_TRUE(pCopiedMsg->msgBase.streamId == streamId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasServiceId(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.serviceId == serviceId);
+			ASSERT_TRUE(rsslMsgKeyCheckHasNameType(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.nameType == nameType);
+			if (copyFlags & RSSL_CMF_KEY_NAME)
+			{
+				ASSERT_TRUE(rsslUpdateMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data && pCopiedMsg->msgBase.msgKey.name.data != updateMsg.msgBase.msgKey.name.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.name, &keyNameBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(rsslUpdateMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(!rsslMsgKeyCheckHasName(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.name.data == 0);
+			}
+			ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.filter == filter);
+			ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&pCopiedMsg->msgBase.msgKey));
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.identifier == identifier);
+			ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
+			if (copyFlags & RSSL_CMF_KEY_ATTRIB)
+			{
+				ASSERT_TRUE(rsslUpdateMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data && pCopiedMsg->msgBase.msgKey.encAttrib.data != updateMsg.msgBase.msgKey.encAttrib.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.msgKey.encAttrib, &keyAttribBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(rsslUpdateMsgCheckHasMsgKey(pCopiedMsg));
+				ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&pCopiedMsg->msgBase.msgKey));
+				ASSERT_TRUE(pCopiedMsg->msgBase.msgKey.encAttrib.data == 0);
+			}
+			if (copyFlags & RSSL_CMF_DATA_BODY)
+			{
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data && pCopiedMsg->msgBase.encDataBody.data != updateMsg.msgBase.encDataBody.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->msgBase.encDataBody, &encDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(pCopiedMsg->msgBase.encDataBody.data == 0);
+			}
+			ASSERT_TRUE(pCopiedMsg->msgBase.encMsgBuffer.data == 0);
+			/* RsslUpdateMsg */
+			ASSERT_TRUE(pCopiedMsg->updateType == updateType);
+			ASSERT_TRUE(rsslUpdateMsgCheckHasSeqNum(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->seqNum == seqNum);
+			ASSERT_TRUE(rsslUpdateMsgCheckHasConfInfo(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->conflationCount == conflationCount);
+			ASSERT_TRUE(pCopiedMsg->conflationTime == conflationTime);
+			if (copyFlags & RSSL_CMF_PERM_DATA)
+			{
+				ASSERT_TRUE(rsslUpdateMsgCheckHasPermData(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->permData.data && pCopiedMsg->permData.data != updateMsg.permData.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->permData, &permDataBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslUpdateMsgCheckHasPermData(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->permData.data == 0);
+			}
+			ASSERT_TRUE(rsslUpdateMsgCheckHasPostUserInfo(pCopiedMsg));
+			ASSERT_TRUE(pCopiedMsg->postUserInfo.postUserAddr == postUserAddr);
+			ASSERT_TRUE(pCopiedMsg->postUserInfo.postUserId == postUserId);
+			if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
+			{
+				ASSERT_TRUE(rsslUpdateMsgCheckHasExtendedHdr(pCopiedMsg));
+				/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data && pCopiedMsg->extendedHeader.data != updateMsg.extendedHeader.data);
+				ASSERT_TRUE(rsslBufferIsEqual(&pCopiedMsg->extendedHeader, &extendedHdrBuf));
+			}
+			else
+			{
+				ASSERT_TRUE(!rsslUpdateMsgCheckHasExtendedHdr(pCopiedMsg));
+				ASSERT_TRUE(pCopiedMsg->extendedHeader.data == 0);
+			}
+			ASSERT_TRUE(rsslUpdateMsgCheckDoNotCache(pCopiedMsg));
+			ASSERT_TRUE(rsslUpdateMsgCheckDoNotConflate(pCopiedMsg));
+			ASSERT_TRUE(rsslUpdateMsgCheckDoNotRipple(pCopiedMsg));
+
+			if (!inlineCopy)
+			{
+				/* Copy allocated by API. Free it. */
+				rsslReleaseCopiedMsg((RsslMsg*)pCopiedMsg);
+			}
 		}
-		else
-		{
-			ASSERT_TRUE(rsslUpdateMsgCheckHasMsgKey(&updateMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasName(&updateMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(updateMsgCopy.msgBase.msgKey.name.data == 0);
-		}
-		ASSERT_TRUE(rsslMsgKeyCheckHasFilter(&updateMsg.msgBase.msgKey));
-		ASSERT_TRUE(updateMsg.msgBase.msgKey.filter == filter);
-		ASSERT_TRUE(rsslMsgKeyCheckHasIdentifier(&updateMsg.msgBase.msgKey));
-		ASSERT_TRUE(updateMsg.msgBase.msgKey.identifier == identifier);
-		ASSERT_TRUE(updateMsg.msgBase.msgKey.attribContainerType == RSSL_DT_OPAQUE);
-		if (copyFlags & RSSL_CMF_KEY_ATTRIB)
-		{
-			ASSERT_TRUE(rsslUpdateMsgCheckHasMsgKey(&updateMsgCopy));
-			ASSERT_TRUE(rsslMsgKeyCheckHasAttrib(&updateMsgCopy.msgBase.msgKey));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!updateMsgCopy.msgBase.msgKey.encAttrib.data || updateMsgCopy.msgBase.msgKey.encAttrib.data != updateMsg.msgBase.msgKey.encAttrib.data);
-			ASSERT_TRUE(!strcmp(updateMsgCopy.msgBase.msgKey.encAttrib.data, keyAttrib));
-		}
-		else
-		{
-			ASSERT_TRUE(rsslUpdateMsgCheckHasMsgKey(&updateMsgCopy));
-			ASSERT_TRUE(!rsslMsgKeyCheckHasAttrib(&updateMsgCopy.msgBase.msgKey));
-			ASSERT_TRUE(updateMsgCopy.msgBase.msgKey.encAttrib.data == 0);
-		}
-		if (copyFlags & RSSL_CMF_DATA_BODY)
-		{
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!updateMsgCopy.msgBase.encDataBody.data || updateMsgCopy.msgBase.encDataBody.data != updateMsg.msgBase.encDataBody.data);
-			ASSERT_TRUE(!strcmp(updateMsgCopy.msgBase.encDataBody.data, encData));
-		}
-		else
-		{
-			ASSERT_TRUE(updateMsgCopy.msgBase.encDataBody.data == 0);
-		}
-		ASSERT_TRUE(updateMsgCopy.msgBase.encMsgBuffer.data == 0);
-		/* RsslUpdateMsg */
-		ASSERT_TRUE(updateMsgCopy.updateType == updateType);
-		ASSERT_TRUE(rsslUpdateMsgCheckHasSeqNum(&updateMsgCopy));
-		ASSERT_TRUE(updateMsgCopy.seqNum == seqNum);
-		ASSERT_TRUE(rsslUpdateMsgCheckHasConfInfo(&updateMsg));
-		ASSERT_TRUE(updateMsg.conflationCount == conflationCount);
-		ASSERT_TRUE(updateMsg.conflationTime == conflationTime);
-		if (copyFlags & RSSL_CMF_PERM_DATA)
-		{
-			ASSERT_TRUE(rsslUpdateMsgCheckHasPermData(&updateMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!updateMsgCopy.permData.data || updateMsgCopy.permData.data != updateMsg.permData.data);
-			ASSERT_TRUE(!strcmp(updateMsgCopy.permData.data, permissionData));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslUpdateMsgCheckHasPermData(&updateMsgCopy));
-			ASSERT_TRUE(updateMsgCopy.permData.data == 0);
-		}
-		ASSERT_TRUE(rsslUpdateMsgCheckHasPostUserInfo(&updateMsgCopy));
-		ASSERT_TRUE(updateMsg.postUserInfo.postUserAddr == postUserAddr);
-		ASSERT_TRUE(updateMsg.postUserInfo.postUserId == postUserId);
-		if (copyFlags & RSSL_CMF_EXTENDED_HEADER)
-		{
-			ASSERT_TRUE(rsslUpdateMsgCheckHasExtendedHdr(&updateMsgCopy));
-			/* Make sure all buffer copies are deep copies -- pointers should not match our given buffers */
-			ASSERT_TRUE(!updateMsgCopy.extendedHeader.data || updateMsgCopy.extendedHeader.data != updateMsg.extendedHeader.data);
-			ASSERT_TRUE(!strcmp(updateMsgCopy.extendedHeader.data, extendedHeader));
-		}
-		else
-		{
-			ASSERT_TRUE(!rsslUpdateMsgCheckHasExtendedHdr(&updateMsgCopy));
-			ASSERT_TRUE(updateMsgCopy.extendedHeader.data == 0);
-		}
-		ASSERT_TRUE(rsslUpdateMsgCheckDoNotCache(&updateMsg));
-		ASSERT_TRUE(rsslUpdateMsgCheckDoNotConflate(&updateMsg));
-		ASSERT_TRUE(rsslUpdateMsgCheckDoNotRipple(&updateMsg));
 	}
 }
 
@@ -7622,25 +7946,6 @@ TEST(ommStringTest,ommStringTest)
 	ommStringTest();
 }
 
-TEST(initGlobalMembers, initGlobalMembers)
-{
-	/* Initialize global members */
-	rsslClearMsg(&msg);
-
-	encBuf.data = (char*)malloc(c_TestMsgBufferSize*sizeof(char));
-	encBuf.length = c_TestMsgBufferSize;
-
-	encDataBuf.data = (char*)malloc(c_TestDataBufferSize*sizeof(char));
-	encDataBuf.length = c_TestDataBufferSize;
-
-	copyMsgBuf.data = (char*)malloc(c_TestMsgCopyBufferSize*sizeof(char));
-	copyMsgBuf.length = c_TestMsgCopyBufferSize;
-
-	/* Encode Payload Data for pre-encoded data tests( a nested msg or fieldList, depending on cmdline )*/
-	_setupEncodeDataIterator();
-	_encodePayload(&encDataIter);
-}
-
 TEST(initCommonTests, initCommonTests)
 {
 	actionsSize = _allocateFlagCombinations(&actions, actionsCommon, sizeof(actionsCommon)/sizeof(RsslUInt32), RSSL_FALSE);
@@ -7790,19 +8095,13 @@ TEST(clearMemSetTest, clearMemSetTest)
 {
 	clearMemSetTest();
 }
-TEST(closeTest, closeTest)
-{
-	endReport();
-
-	free(encDataBuf.data);
-	free(encBuf.data);
-}
 
 int main(int argc, char* argv[])
 {
 	/* repeat count for Common tests -- helps lessen the impact of any kind of cache miss on the results */
 	RsslUInt8 iArgs;
 	RsslLibraryVersionInfo libVer = RSSL_INIT_LIBRARY_VERSION_INFO;
+	int ret;
 
 	/* Parse arguments */
 	g_reportMode = TEST_REPORT_FAIL;
@@ -7847,7 +8146,28 @@ int main(int argc, char* argv[])
 	rsslQueryMessagesLibraryVersion(&libVer);
 	//printf("Messages Library Version:\n \t%s\n \t%s\n \t%s\n", libVer.productVersion, libVer.internalVersion, libVer.productDate);
 
+	/* Initialize global members */
+	rsslClearMsg(&msg);
+
+	encBuf.data = (char*)malloc(c_TestMsgBufferSize*sizeof(char));
+	encBuf.length = c_TestMsgBufferSize;
+
+	encDataBuf.data = (char*)malloc(c_TestDataBufferSize*sizeof(char));
+	encDataBuf.length = c_TestDataBufferSize;
+
+	copyMsgBuf.data = (char*)malloc(c_TestMsgCopyBufferSize*sizeof(char));
+	copyMsgBuf.length = c_TestMsgCopyBufferSize;
+
+	/* Encode Payload Data for pre-encoded data tests( a nested msg or fieldList, depending on cmdline )*/
+	_setupEncodeDataIterator();
+	_encodePayload(&encDataIter);
 	
 	::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
+	ret = RUN_ALL_TESTS();
+
+	free(encBuf.data);
+	free(encDataBuf.data);
+	free(copyMsgBuf.data);
+
+	return ret;
 }

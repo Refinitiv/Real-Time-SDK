@@ -11,8 +11,6 @@
 
 int main(int argc, char* argv[])
 {
-	RsslError rsslError;
-
 	wtfClearGlobalConfig();
 	
 	::testing::InitGoogleTest(&argc, argv);

@@ -2052,7 +2052,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
         if( copyMsgFlags & RSSL_CMF_KEY_NAME )
         {
             ( ( RsslBuffer *)( ( char* )mallocBuffer + ( ( char* )pKeyNameBuffer - ( char* )pSrcMsg ) ) )->data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + keyNameLength)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + keyNameLength) > pCopyBuffer->length))
 				return NULL;
             MemCopyByInt( mallocBufferPos, pKeyNameBuffer->data, keyNameLength );
             mallocBufferPos += keyNameLength;
@@ -2070,7 +2070,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
         if( copyMsgFlags & RSSL_CMF_REQ_KEY_NAME )
         {
             ( ( RsslBuffer *)( ( char* )mallocBuffer + ( ( char* )pReqKeyNameBuffer - ( char* )pSrcMsg ) ) )->data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + reqKeyNameLength)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + reqKeyNameLength) > pCopyBuffer->length))
 				return NULL;
             MemCopyByInt( mallocBufferPos, pReqKeyNameBuffer->data, reqKeyNameLength );
             mallocBufferPos += reqKeyNameLength;
@@ -2088,7 +2088,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
         if( copyMsgFlags & RSSL_CMF_KEY_ATTRIB ) 
         {
             ( ( RsslBuffer *)( ( char* )mallocBuffer + ( ( char* )pKeyOpaqueBuffer - ( char* )pSrcMsg ) ) )->data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + pKeyOpaqueBuffer->length)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + pKeyOpaqueBuffer->length) > pCopyBuffer->length))
 				return NULL;
             MemCopyByInt( mallocBufferPos, pKeyOpaqueBuffer->data, pKeyOpaqueBuffer->length );
             mallocBufferPos += pKeyOpaqueBuffer->length;
@@ -2106,7 +2106,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
         if( copyMsgFlags & RSSL_CMF_REQ_KEY_ATTRIB ) 
         {
             ( ( RsslBuffer *)( ( char* )mallocBuffer + ( ( char* )pReqKeyAttribBuffer - ( char* )pSrcMsg ) ) )->data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + pReqKeyAttribBuffer->length)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + pReqKeyAttribBuffer->length) > pCopyBuffer->length))
 				return NULL;
             MemCopyByInt( mallocBufferPos, pReqKeyAttribBuffer->data, pReqKeyAttribBuffer->length );
             mallocBufferPos += pReqKeyAttribBuffer->length;
@@ -2124,7 +2124,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
         if( copyMsgFlags & RSSL_CMF_EXTENDED_HEADER ) 
         {
             ( ( RsslBuffer *)( ( char* )mallocBuffer + ( ( char* )pExtendedHeaderBuffer - ( char* )pSrcMsg ) ) )->data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + pExtendedHeaderBuffer->length)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + pExtendedHeaderBuffer->length) > pCopyBuffer->length))
 				return NULL;
             MemCopyByInt( mallocBufferPos, pExtendedHeaderBuffer->data, pExtendedHeaderBuffer->length );
             mallocBufferPos += pExtendedHeaderBuffer->length;
@@ -2145,7 +2145,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
             if( filteredDataBody.length )
             {
                 ( ( RsslMsg *)mallocBuffer )->msgBase.encDataBody.length = filteredDataBody.length;
-				if (pCopyBuffer && (((mallocBufferPos + filteredDataBody.length)-mallocBufferStartPos) > pCopyBuffer->length))
+				if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + filteredDataBody.length) > pCopyBuffer->length))
 					return NULL;
                 MemCopyByInt( mallocBufferPos, filteredDataBody.data, filteredDataBody.length);
                 mallocBufferPos += filteredDataBody.length;
@@ -2170,7 +2170,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
         if( copyMsgFlags & RSSL_CMF_MSG_BUFFER ) 
         {
             ( ( RsslMsg *)mallocBuffer )->msgBase.encMsgBuffer.data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + pSrcMsg->msgBase.encMsgBuffer.length)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + pSrcMsg->msgBase.encMsgBuffer.length) > pCopyBuffer->length))
 				return NULL;
             MemCopyByInt( mallocBufferPos, pSrcMsg->msgBase.encMsgBuffer.data, pSrcMsg->msgBase.encMsgBuffer.length);
             /* Uncomment if anything needs to be copied afterwards
@@ -2199,7 +2199,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
         if( copyMsgFlags & RSSL_CMF_STATE_TEXT )
         {
             ( ( RsslBuffer *)( ( char* )mallocBuffer + ( ( char* )pStateTextBuffer - ( char* )pSrcMsg ) ) )->data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + stateTextLength)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + stateTextLength) > pCopyBuffer->length))
 				return NULL;
             MemCopyByInt( mallocBufferPos, pStateTextBuffer->data, stateTextLength );
             mallocBufferPos += stateTextLength;
@@ -2217,7 +2217,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
         if( copyMsgFlags & RSSL_CMF_PERM_DATA )
         {
             ( ( RsslBuffer *)( ( char* )mallocBuffer + ( ( char* )pPermDataBuffer - ( char* )pSrcMsg ) ) )->data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + pPermDataBuffer->length)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + pPermDataBuffer->length) > pCopyBuffer->length))
 				return NULL;
             MemCopyByInt( mallocBufferPos, pPermDataBuffer->data, pPermDataBuffer->length );
             mallocBufferPos += pPermDataBuffer->length;
@@ -2235,7 +2235,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
         if( copyMsgFlags & RSSL_CMF_GROUP_ID )
         {
             ( ( RsslBuffer *)( ( char* )mallocBuffer + ( ( char* )pGroupIdBuffer - ( char* )pSrcMsg ) ) )->data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + pGroupIdBuffer->length)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + pGroupIdBuffer->length) > pCopyBuffer->length))
 				return NULL;
             MemCopyByInt( mallocBufferPos, pGroupIdBuffer->data, pGroupIdBuffer->length );
             mallocBufferPos += pGroupIdBuffer->length;
@@ -2253,7 +2253,7 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 		if (copyMsgFlags & RSSL_CMF_NAK_TEXT)
 		{
 			((RsslBuffer*)((char*)mallocBuffer + ((char*)pNakTextBuffer - (char*)pSrcMsg)))->data = mallocBufferPos;
-			if (pCopyBuffer && (((mallocBufferPos + pNakTextBuffer->length)-mallocBufferStartPos) > pCopyBuffer->length))
+			if (pCopyBuffer && (((mallocBufferPos - mallocBufferStartPos) + pNakTextBuffer->length) > pCopyBuffer->length))
 				return NULL;
 			MemCopyByInt(mallocBufferPos, pNakTextBuffer->data, pNakTextBuffer->length);
 			mallocBufferPos += pNakTextBuffer->length;
@@ -2307,10 +2307,10 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 
 			if(  ((RsslMsg*)mallocBuffer)->genericMsg.flags & RSSL_GNMF_HAS_REQ_MSG_KEY ) 
             {
-				if (!(copyMsgFlags & RSSL_CMF_KEY_ATTRIB))
+				if (!(copyMsgFlags & RSSL_CMF_REQ_KEY_ATTRIB))
 					((RsslMsg*)mallocBuffer)->genericMsg.reqMsgKey.flags &= ~RSSL_MKF_HAS_ATTRIB;
 
-				if (!(copyMsgFlags & RSSL_CMF_KEY_NAME))
+				if (!(copyMsgFlags & RSSL_CMF_REQ_KEY_NAME))
 					((RsslMsg*)mallocBuffer)->genericMsg.reqMsgKey.flags &= ~RSSL_MKF_HAS_NAME;
 			}
 
@@ -2324,10 +2324,10 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
                
             if(((RsslMsg*)mallocBuffer)->refreshMsg.flags & RSSL_RFMF_HAS_REQ_MSG_KEY )
 			{
-				if (!(copyMsgFlags & RSSL_CMF_KEY_ATTRIB))
+				if (!(copyMsgFlags & RSSL_CMF_REQ_KEY_ATTRIB))
 					((RsslMsg*)mallocBuffer)->refreshMsg.reqMsgKey.flags &= ~RSSL_MKF_HAS_ATTRIB;
 
-				if (!(copyMsgFlags & RSSL_CMF_KEY_NAME))
+				if (!(copyMsgFlags & RSSL_CMF_REQ_KEY_NAME))
 					((RsslMsg*)mallocBuffer)->refreshMsg.reqMsgKey.flags &= ~RSSL_MKF_HAS_NAME;
 			}
 
@@ -2390,10 +2390,10 @@ RSSL_API RsslMsg* rsslCopyMsg(const RsslMsg         *pSrcMsg,
 
             if(  ((RsslMsg*)mallocBuffer)->statusMsg.flags & RSSL_STMF_HAS_REQ_MSG_KEY )
             {
-				if (!(copyMsgFlags & RSSL_CMF_KEY_ATTRIB))
+				if (!(copyMsgFlags & RSSL_CMF_REQ_KEY_ATTRIB))
 					((RsslMsg*)mallocBuffer)->statusMsg.reqMsgKey.flags &= ~RSSL_MKF_HAS_ATTRIB;
 
-				if (!(copyMsgFlags & RSSL_CMF_KEY_NAME))
+				if (!(copyMsgFlags & RSSL_CMF_REQ_KEY_NAME))
 					((RsslMsg*)mallocBuffer)->statusMsg.reqMsgKey.flags &= ~RSSL_MKF_HAS_NAME;
 			}
 
@@ -2462,7 +2462,7 @@ RSSL_API void     rsslReleaseCopiedMsg(RsslMsg * pMsg)
 				free( pGroupId->data );
 		}
 
-		if ( !(*pBufferStart & RSSL_CMF_NAK_TEXT) && pMsg->ackMsg.text.data)
+		if ( !(*pBufferStart & RSSL_CMF_NAK_TEXT) && pMsg->msgBase.msgClass == RSSL_MC_ACK && pMsg->ackMsg.text.data)
 			free(pMsg->ackMsg.text.data);
 			
 
@@ -2485,11 +2485,11 @@ RSSL_API void     rsslReleaseCopiedMsg(RsslMsg * pMsg)
             RsslMsgKey *pKey = (RsslMsgKey *)rsslGetReqMsgKey( pMsg );
             if( pKey )
             {
-                if( !( *pBufferStart & RSSL_CMF_KEY_NAME )  && pKey->name.data )
+                if( !( *pBufferStart & RSSL_CMF_REQ_KEY_NAME )  && pKey->name.data )
                     free( pKey->name.data );
 
 
-                if( !( *pBufferStart & RSSL_CMF_KEY_ATTRIB ) && pKey->encAttrib.data )
+                if( !( *pBufferStart & RSSL_CMF_REQ_KEY_ATTRIB ) && pKey->encAttrib.data )
                       free( pKey->encAttrib.data );
             }
         }

@@ -272,6 +272,18 @@ RTR_C_ALWAYS_INLINE RsslBool rsslRefreshMsgCheckHasPostUserInfo(RsslRefreshMsg *
 }
 
 /**
+ * @brief Checks the presence of the ::RSSL_RFMF_HAS_REQ_MSG_KEY flag on the given RsslRefreshMsg.
+ *
+ * @param pRefreshMsg Pointer to the refresh message.
+ * @return RSSL_TRUE - if exists; RSSL_FALSE if does not exist.
+ */
+RTR_C_ALWAYS_INLINE RsslBool rsslRefreshMsgCheckHasReqMsgKey(RsslRefreshMsg *pRefreshMsg)
+{
+	return ((pRefreshMsg->flags & RSSL_RFMF_HAS_REQ_MSG_KEY) ? 
+						RSSL_TRUE : RSSL_FALSE );
+}
+
+/**
  * @brief Checks the presence of the ::RSSL_RFMF_QUALIFIED_STREAM flag on the given RsslRefreshMsg.
  *
  * @param pRefreshMsg Pointer to the refresh message.
@@ -403,6 +415,16 @@ RTR_C_ALWAYS_INLINE void rsslRefreshMsgApplyPrivateStream(RsslRefreshMsg *pRefre
 RTR_C_ALWAYS_INLINE void rsslRefreshMsgApplyHasPostUserInfo(RsslRefreshMsg *pRefreshMsg)
 {
 	pRefreshMsg->flags |= RSSL_RFMF_HAS_POST_USER_INFO;
+}
+
+/**
+ * @brief Applies the ::RSSL_RFMF_HAS_REQ_MSG_KEY flag on the given RsslRefreshMsg.
+ * 
+ * @param pRefreshMsg Pointer to the refresh message.
+ */
+RTR_C_ALWAYS_INLINE void rsslRefreshMsgApplyHasReqMsgKey(RsslRefreshMsg *pRefreshMsg)
+{
+	pRefreshMsg->flags |= RSSL_RFMF_HAS_REQ_MSG_KEY;
 }
 
 /**

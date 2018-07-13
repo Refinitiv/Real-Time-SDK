@@ -429,7 +429,7 @@ int main(int argc, char **argv)
 					FD_CLR(rsslNIProviderChannel->socketId,&wrtfds);
 					if ((retval = rsslInitChannel(rsslNIProviderChannel, &inProg, &error)) < RSSL_RET_SUCCESS)
 					{
-						printf("\nchannelInactive fd="SOCKET_PRINT_TYPE" <%s>\n",
+						printf("\nchannelInactive fd="SOCKET_PRINT_TYPE" <%s>\n",	
 							rsslNIProviderChannel->socketId,error.text);
 						recoverConnection();
 						break;
@@ -441,7 +441,7 @@ int main(int argc, char **argv)
 						case RSSL_RET_CHAN_INIT_IN_PROGRESS:
 							if (inProg.flags & RSSL_IP_FD_CHANGE)
 							{
-								printf("\nChannel In Progress - New FD: "SOCKET_PRINT_TYPE"  Old FD: "SOCKET_PRINT_TYPE"\n",rsslNIProviderChannel->socketId, inProg.oldSocket );
+								printf("\nChannel In Progress - New FD: "SOCKET_PRINT_TYPE"  Old FD: "SOCKET_PRINT_TYPE"\n",rsslNIProviderChannel->socketId, inProg.oldSocket );	
 
 								FD_CLR(inProg.oldSocket,&readfds);
 								FD_CLR(inProg.oldSocket,&exceptfds);
