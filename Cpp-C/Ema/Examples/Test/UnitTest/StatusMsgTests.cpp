@@ -448,10 +448,12 @@ TEST(StatusMsgTests, testStatusMsgEncodeDecode)
 		status.extendedHeader( extendedHeader );
 		status.attrib( flEnc );
 		status.payload( flEnc );  //there is no payload for status
+		EXPECT_EQ( status.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "StatusMsg.toString() == Decoding of just encoded object in the same application is not supported";
 
 
 		//Now do EMA decoding of RespMsg
 		StaticDecoder::setData( &status, &dictionary );
+		EXPECT_NE( status.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "StatusMsg.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 		EXPECT_TRUE( status.hasMsgKey() ) << "StatusMsg::hasMsgKey() == true" ;

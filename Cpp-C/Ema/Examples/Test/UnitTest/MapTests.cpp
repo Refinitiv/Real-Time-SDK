@@ -3063,8 +3063,12 @@ TEST(MapTests, testMapContainsFieldListsEncodeDecodeAll)
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
 	Map mapEnc;
+	EXPECT_EQ( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() == Decoding of just encoded object in the same application is not supported";
+
 	mapEnc.totalCountHint( 5 );
+	EXPECT_EQ( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() == Decoding of just encoded object in the same application is not supported";
 	mapEnc.keyFieldId( 3426 );
+	EXPECT_EQ( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() == Decoding of just encoded object in the same application is not supported";
 
 	try
 	{
@@ -3075,6 +3079,8 @@ TEST(MapTests, testMapContainsFieldListsEncodeDecodeAll)
 		EmaEncodeFieldListAll( flEnc );
 
 		mapEnc.summaryData( flEnc );
+		EXPECT_EQ( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() == Decoding of just encoded object in the same application is not supported";
+
 
 		char* s1 = const_cast<char*>("PERMISSION DATA");
 		EmaBuffer permission( s1, 15 );
@@ -3085,25 +3091,31 @@ TEST(MapTests, testMapContainsFieldListsEncodeDecodeAll)
 		FieldList flEnc1;
 		EmaEncodeFieldListAll( flEnc1 );
 		mapEnc.addKeyBuffer( orderBuf1, MapEntry::DeleteEnum, flEnc1, permission );
+		EXPECT_EQ( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//second entry  //Add FieldList
 		mapEnc.addKeyBuffer( orderBuf1, MapEntry::AddEnum, flEnc1, permission );
+		EXPECT_EQ( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//third entry  //Add FieldList
 		char* orderBufData2 = const_cast<char*>("EFGHI");
 		EmaBuffer orderBuf2( orderBufData2, 5 );
 		mapEnc.addKeyBuffer( orderBuf2, MapEntry::AddEnum, flEnc1, permission );
+		EXPECT_EQ( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//fourth entry  //Update FieldList
 		char* orderBufData3 = const_cast<char*>("JKLMNOP");
 		EmaBuffer orderBuf3( orderBufData3, 7 );
 		mapEnc.addKeyBuffer( orderBuf3, MapEntry::UpdateEnum, flEnc1, permission );
+		EXPECT_EQ( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() == Decoding of just encoded object in the same application is not supported";
 
 		mapEnc.complete();
+		EXPECT_EQ( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() == Decoding of just encoded object in the same application is not supported";
 
 
 		//Now do EMA decoding of Map
 		StaticDecoder::setData( &mapEnc, &dictionary );
+		EXPECT_NE( mapEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Map.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 		EXPECT_TRUE( mapEnc.hasKeyFieldId() ) << "Map contains FieldList - hasKeyFieldId()" ;

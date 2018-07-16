@@ -2255,14 +2255,18 @@ TEST(VectorTests, testVectorClear_Encode_Decode)
 		fieldList.addUInt(1, 3056).complete();
 
 		Vector vector;
+		EXPECT_EQ( vector.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Vector.toString() == Decoding of just encoded object in the same application is not supported";
+
 		vector.totalCountHint(1).sortable(false)
 			.add(1, VectorEntry::InsertEnum, fieldList)
 			.clear().sortable(true)
 			.add(2, VectorEntry::DeleteEnum)
 			.add(3, VectorEntry::ClearEnum)
 			.complete();
+		EXPECT_EQ( vector.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Vector.toString() == Decoding of just encoded object in the same application is not supported";
 
 		StaticDecoder::setData(&vector, NULL);
+		EXPECT_NE( vector.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "Vector.toString() != Decoding of just encoded object in the same application is not supported";
 
 		EXPECT_FALSE(vector.hasTotalCountHint()) << "Check has total count hint attribute";
 		EXPECT_TRUE(vector.getSortable()) << "Check the sortable attribute";

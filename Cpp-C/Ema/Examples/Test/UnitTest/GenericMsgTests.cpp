@@ -37,9 +37,10 @@ TEST(GenericMsgTests, testGenericMsgwithRefreshMsg)
 
 		GenericMsg genMsg;
 		genMsg.payload( refreshMsg );
+		EXPECT_EQ( genMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "GenericMsg.toString() == Decoding of just encoded object in the same application is not supported";
 
 		StaticDecoder::setData( &genMsg, &dictionary );
-
+		EXPECT_NE( genMsg.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "GenericMsg.toString() != Decoding of just encoded object in the same application is not supported";
 
 		EXPECT_TRUE( true ) << "RefreshMsg as Payload of GenericMsg - exception NOT expected" ;
 	}

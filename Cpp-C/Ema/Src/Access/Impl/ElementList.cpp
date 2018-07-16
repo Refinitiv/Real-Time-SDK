@@ -91,6 +91,9 @@ const EmaString& ElementList::toString() const
 
 const EmaString& ElementList::toString( UInt64 indent ) const
 {
+	if ( !_pDecoder )
+		return _toString.clear().append( "\nDecoding of just encoded object in the same application is not supported\n" );
+
 	ElementListDecoder tempDecoder;
 	tempDecoder.clone( *_pDecoder );
 

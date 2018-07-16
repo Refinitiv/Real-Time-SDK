@@ -2880,12 +2880,17 @@ void testArrayInt_EncodeDecode( bool fixedSize )
 			encArray.fixedWidth( 8 );
 
 		encArray.addInt( -11 );
+		EXPECT_EQ( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() == Decoding of just encoded object in the same application is not supported";
 		encArray.addInt( 22 );
+		EXPECT_EQ( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() == Decoding of just encoded object in the same application is not supported";
 		encArray.addInt( -33 );
+		EXPECT_EQ( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() == Decoding of just encoded object in the same application is not supported";
 
 		encArray.complete();
+		EXPECT_EQ( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() == Decoding of just encoded object in the same application is not supported";
 
 		StaticDecoder::setData( &encArray, 0 );
+		EXPECT_NE( encArray.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "OmmArray.toString() != Decoding of just encoded object in the same application is not supported";
 
 		EXPECT_EQ(  encArray.hasFixedWidth(), fixedSize ) << "OmmArray with three Int - hasFixedWidth()" ;
 		EXPECT_EQ(  encArray.getFixedWidth(),  fixedSize ? 8 : 0  ) << "OmmArray with three Int - getFixedWidth()" ;

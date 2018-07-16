@@ -185,8 +185,10 @@ TEST(PostMsgTests, testPostMsgFieldListEncodeDecode)
 		post.extendedHeader( extendedHeader );
 		post.attrib( flEnc );
 		post.payload( flEnc );
+		EXPECT_EQ( post.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "PostMsg.toString() == Decoding of just encoded object in the same application is not supported";
 
 		StaticDecoder::setData( &post, &dictionary );
+		EXPECT_NE( post.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "PostMsg.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 		EXPECT_TRUE( post.hasMsgKey() ) << "PostMsg::hasMsgKey() == true" ;

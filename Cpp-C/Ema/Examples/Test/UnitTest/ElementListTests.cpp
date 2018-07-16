@@ -2567,7 +2567,10 @@ TEST(ElementListTests, testElementListContainsMapEncodeDecodeAll)
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
 	ElementList elEnc;
+	EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
+
 	elEnc.info( 5 );
+	EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 	try
 	{
@@ -2576,35 +2579,45 @@ TEST(ElementListTests, testElementListContainsMapEncodeDecodeAll)
 
 		//first entry
 		elEnc.addUInt( EmaString( "Element - UInt" ), 64 );
+		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//second entry
 		elEnc.addReal( EmaString( "Element - Real" ), 11, OmmReal::ExponentNeg2Enum );
+		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//third entry
 		elEnc.addInt( EmaString( "Element - Int" ), 32 );
+		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//fourth entry
 		elEnc.addDate( EmaString( "Element - Date" ), 1999, 11, 7 );
+		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//fifth entry
 		elEnc.addTime( EmaString( "Element - Time" ), 02, 03, 04, 005 );
+		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//sixth entry
 		elEnc.addDateTime( EmaString( "Element - DateTime" ), 1999, 11, 7, 01, 02, 03, 000 );
+		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//seventh entry (nested Map)
 		Map mapEnc1;
 		EmaEncodeMapAll( mapEnc1 );
 		elEnc.addMap( EmaString( "Element - Map" ), mapEnc1 );
+		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//eightth entry
 		elEnc.addQos( EmaString( "Element - Qos" ), OmmQos::RealTimeEnum, OmmQos::TickByTickEnum );
+		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		elEnc.complete();
+		EXPECT_EQ( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() == Decoding of just encoded object in the same application is not supported";
 
 
 		//Now do EMA decoding of ElementList
 		StaticDecoder::setData( &elEnc, &dictionary );
+		EXPECT_NE( elEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "ElementList.toString() != Decoding of just encoded object in the same application is not supported";
 
 
 		EXPECT_TRUE( elEnc.hasInfo() ) << "ElementList with primitives and ElementList - hasInfo()" ;

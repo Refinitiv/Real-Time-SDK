@@ -1478,7 +1478,10 @@ TEST(FieldListTests, testFieldListEncodeDecodeAll)
 	ASSERT_TRUE(loadDictionaryFromFile( &dictionary )) << "Failed to load dictionary";
 
 	FieldList flEnc;
+	EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
+
 	flEnc.info( dictionary.info_DictionaryId, 65 );
+	EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 	try
 	{
@@ -1486,62 +1489,80 @@ TEST(FieldListTests, testFieldListEncodeDecodeAll)
 
 		//first entry (fid not found case)
 		flEnc.addUInt( -100, 64 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//second entry
 		flEnc.addUInt( 1, 64 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//third entry
 		flEnc.addReal( 6, 11, OmmReal::ExponentNeg2Enum );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//fourth entry
 		flEnc.addInt( -2, 32 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//fifth entry
 		flEnc.addDate( 16, 1999, 11, 7 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//sixth entry
 		flEnc.addTime( 18, 02, 03, 04, 005 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//seventh entry
 		flEnc.addDateTime( -3, 1999, 11, 7, 01, 02, 03, 000 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//eightth entry
 		flEnc.addQos( FID_QOS, 5656, 2345 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//ninth entry
 		flEnc.addState( FID_STATE, OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "Succeeded" );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//tenth entry
 		flEnc.addAscii( 715, EmaString( "ABCDEF" ) );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//eleventh entry
 		char* s1 = const_cast<char*>("ABCDEF");
 		flEnc.addRmtes( 28, EmaBuffer( s1, 6 ) );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//twelfth entry
 		flEnc.addEnum( 4, 29 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//thirteenth entry
 		flEnc.addFloat( -9, 11.11f );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//fourteenth entry
 		flEnc.addDouble( -10, 22.22f );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//fifteenth entry (blank real)
 		flEnc.addCodeReal( 7 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//sixteenth entry
 		char* s2 = const_cast<char*>("ABCDEFGH");
 		flEnc.addBuffer( -11, EmaBuffer( s2, 8 ) );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//seventeenth entry
 		char* s3 = const_cast<char*>("KLMNOPQR");
 		flEnc.addUtf8( -12, EmaBuffer( s3, 8 ) );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//eighteenth entry
 		OmmArray ar1;
 		ar1.addInt( 123 ).addInt( 234 ).addInt( 345 ).complete();
 		flEnc.addArray( -16, ar1 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//nineteenth entry
 		char* s4 = const_cast<char*>("OPQRST");
@@ -1549,14 +1570,18 @@ TEST(FieldListTests, testFieldListEncodeDecodeAll)
 		OmmOpaque opaque;
 		opaque.set( buf4 );
 		flEnc.addOpaque( -17 , opaque );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//twentyth entry
 		flEnc.addQos( FID_QOS, 756565, 1232365 );
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		flEnc.complete();
+		EXPECT_EQ( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() == Decoding of just encoded object in the same application is not supported";
 
 		//Decoding
 		StaticDecoder::setData( &flEnc, &dictionary );
+		EXPECT_NE( flEnc.toString(), "\nDecoding of just encoded object in the same application is not supported\n") << "FieldList.toString() != Decoding of just encoded object in the same application is not supported";
 
 		EXPECT_TRUE( flEnc.hasInfo() ) << "FieldList with all data types - hasInfo()" ;
 		EXPECT_EQ( flEnc.getInfoDictionaryId(), dictionary.info_DictionaryId) << "FieldList with all data types - getInfoDictionaryId()";
