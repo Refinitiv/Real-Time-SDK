@@ -27,6 +27,9 @@ class SeriesEntryImpl extends EntryImpl implements SeriesEntry
 	@Override
 	public String toString()
 	{
+		if ( _load == null )
+			return "\nDecoding of just encoded object in the same application is not supported\n";
+		
 		_toString.setLength(0);
 		
 		_toString.append("SeriesEntry dataType=\"").append(DataType.asString(_load.dataType())).append("\"\n");

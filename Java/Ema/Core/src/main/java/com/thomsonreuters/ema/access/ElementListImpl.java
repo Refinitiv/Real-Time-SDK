@@ -205,6 +205,9 @@ class ElementListImpl extends CollectionDataImpl implements ElementList
 		for (ElementEntry elementEntry : _elementListCollection)
 		{
 			load = (DataImpl) elementEntry.load();
+			if ( load == null )
+				return "\nDecoding of just encoded object in the same application is not supported\n";
+			
 			loadDataType = load.dataType();
 
 			Utilities.addIndent(_toString.append("\n"), indent).append("ElementEntry name=\"")

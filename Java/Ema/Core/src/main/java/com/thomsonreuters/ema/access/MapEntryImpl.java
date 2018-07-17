@@ -89,6 +89,9 @@ class MapEntryImpl extends EntryImpl implements MapEntry
 	@Override
 	public String toString()
 	{
+		if ( _load == null )
+			return "\nDecoding of just encoded object in the same application is not supported\n";
+		
 		_toString.setLength(0);
 		_toString.append("MapEntry ")
 				.append(" action=\"").append(mapActionAsString()).append("\"")

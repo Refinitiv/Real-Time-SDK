@@ -377,7 +377,10 @@ class MapImpl extends CollectionDataImpl implements Map
 		DataImpl key;
 		for (MapEntry mapEntry : _mapCollection)
 		{
-			load = (DataImpl)mapEntry.load();
+			load = (DataImpl) mapEntry.load();
+			if ( load == null )
+				return "\nDecoding of just encoded object in the same application is not supported\n";
+			
 			key = ((MapEntryImpl)mapEntry).decodedKey();
 			Utilities.addIndent(_toString.append("\n"), indent).append("MapEntry action=\"")
 				  .append(mapEntry.mapActionAsString()).append("\" key dataType=\"")

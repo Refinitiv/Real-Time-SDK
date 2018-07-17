@@ -228,7 +228,10 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 		int loadDataType;
 		for (FieldEntry fieldEntry : _fieldListCollection)
 		{
-			load = (DataImpl)fieldEntry.load();
+			load = (DataImpl) fieldEntry.load();
+			if ( load == null )
+				return "\nDecoding of just encoded object in the same application is not supported\n";
+			
 			loadDataType = load.dataType();
 			Utilities.addIndent(_toString.append("\n"), indent).append("FieldEntry fid=\"")
 																  .append(fieldEntry.fieldId())

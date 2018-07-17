@@ -2133,15 +2133,25 @@ public class ArrayTests
 			if ( fixedSize )
 				encArray.fixedWidth( 8 );
 
-			encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("ABC".getBytes())));
+			OmmArrayEntry ae = EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("ABC".getBytes()));
+			TestUtilities.checkResult("OmmArrayEntry.toString() == toString() not supported", ae.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			
+			encArray.add(ae);
+			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			
 			encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("DEFGH".getBytes())));
+			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			
 			encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("KLMNOPQRS".getBytes())));
+			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
 
 			TestUtilities.checkResult( true, "Encode OmmArray Int - exception not expected" );
 
 			OmmArray decArray = JUnitTestConnect.createOmmArray();
 			JUnitTestConnect.setRsslData(decArray, encArray, Codec.majorVersion(), Codec.minorVersion(), null, null);
-		
+			// check that we can still get the toString on encoded/decoded container.
+			TestUtilities.checkResult("OmmArray.toString() != toString() not supported", !(decArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
+			
 	        TestUtilities.checkResult( decArray.hasFixedWidth() == fixedSize, "OmmArray with three Buffer - hasFixedWidth()" );
 			TestUtilities.checkResult( decArray.fixedWidth() == (fixedSize ? 8 : 0 ), "OmmArray with three Buffer - getFixedWidth()" );
 
@@ -2184,6 +2194,10 @@ public class ArrayTests
 
 				TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer - first next()" );
 				ae1 = iter.next();
+
+				// check that we can still get the toString on encoded/decoded entry.
+				TestUtilities.checkResult("OmmArrayEntry.toString() != toString() not supported", !(ae1.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+				
 				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
 				try {
 					ae1.uintValue();

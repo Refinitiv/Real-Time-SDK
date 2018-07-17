@@ -25,6 +25,7 @@ import com.thomsonreuters.ema.access.MapEntry;
 import com.thomsonreuters.ema.access.Vector;
 import com.thomsonreuters.ema.access.VectorEntry;
 import com.thomsonreuters.ema.access.OmmException;
+import com.thomsonreuters.ema.access.SeriesEntry;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import junit.framework.TestCase;
 
@@ -255,10 +256,21 @@ public class VectorTests extends TestCase
 
 			Vector vectorEnc = EmaFactory.createVector() ;
 			TestUtilities.EmaEncodeVectorAllWithFieldList( vectorEnc);
+			TestUtilities.checkResult("Vector.toString() == toString() not supported", vectorEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
 
+			FieldList flEnc = EmaFactory.createFieldList(); 
+			TestUtilities.EmaEncodeFieldListAll(flEnc);			
+			VectorEntry ve = EmaFactory.createVectorEntry().fieldList(4, VectorEntry.VectorAction.UPDATE, flEnc);
+			TestUtilities.checkResult("VectorEntry.toString() == toString() not supported", ve.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+
+			vectorEnc.add(ve);
+			
+			
 			//Now do EMA decoding of Vector
 			Vector vectorDec = JUnitTestConnect.createVector() ;
 			JUnitTestConnect.setRsslData(vectorDec, vectorEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			// check that we can still get the toString on encoded/decoded container.
+			TestUtilities.checkResult("Vector.toString() != toString() not supported", !(vectorDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
 
 			System.out.println(vectorDec);
 
@@ -327,6 +339,16 @@ public class VectorTests extends TestCase
 			TestUtilities.checkResult( ve4.action() == VectorEntry.VectorAction.UPDATE, "VectorEntry.action() == VectorEntry.vectorAction.UPDATE" );
 			TestUtilities.checkResult( ve4.load().dataType() == DataType.DataTypes.FIELD_LIST, "VectorEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
 
+			VectorEntry ve5 = vectorIter.next();
+
+			TestUtilities.checkResult(  ve5.position() == 4, "VectorEntry::getPostion()" );
+			TestUtilities.checkResult( ve5.action() == VectorEntry.VectorAction.UPDATE, "VectorEntry.action() == VectorEntry.vectorAction.UPDATE" );
+			TestUtilities.checkResult( ve5.load().dataType() == DataType.DataTypes.FIELD_LIST, "VectorEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
+
+			// check that we can still get the toString on encoded/decoded entry.
+			TestUtilities.checkResult("VectorEntry.toString() != toString() not supported", !(ve5.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+			
+			
 			TestUtilities.checkResult( !vectorIter.hasNext(), "Vector contains FieldList - final vectorhasNext()" );
 
 			TestUtilities.checkResult( true, "Vector contains FieldList - exception not expected" );

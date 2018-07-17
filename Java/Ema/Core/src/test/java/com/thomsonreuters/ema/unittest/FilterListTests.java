@@ -41,7 +41,7 @@ public class FilterListTests extends TestCase
 		TestUtilities.printTestHead("testFilterListEmpty_Encode","Encode FilterList of no entry with EMA");
 		
 		try {
-			FilterList filterList =EmaFactory.createFilterList() ;
+			FilterList filterList = EmaFactory.createFilterList() ;
 			FieldEntry fieldEntry = EmaFactory.createFieldEntry();
 			
 			fieldEntry.filterList(3, filterList);
@@ -68,16 +68,30 @@ public class FilterListTests extends TestCase
 		fieldListEnc.add(EmaFactory.createFieldEntry().uintValue(1, 3056));
 		
 		FilterList filterList = EmaFactory.createFilterList();
-		filterList.add(EmaFactory.createFilterEntry().noData(1, FilterEntry.FilterAction.SET));
+		
+		FilterEntry fe = EmaFactory.createFilterEntry().noData(1, FilterEntry.FilterAction.SET);
+		TestUtilities.checkResult("FilterEntry.toString() == toString() not supported", fe.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		
+		filterList.add(fe);
+		TestUtilities.checkResult("FilterList.toString() == toString() not supported", filterList.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+		
 		filterList.add(EmaFactory.createFilterEntry().noData(2, FilterEntry.FilterAction.UPDATE, permissionData));
+		TestUtilities.checkResult("FilterList.toString() == toString() not supported", filterList.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+
 		filterList.add(EmaFactory.createFilterEntry().fieldList(3, FilterEntry.FilterAction.SET, fieldListEnc));
+		TestUtilities.checkResult("FilterList.toString() == toString() not supported", filterList.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
 		
 		FilterList filterListDec = JUnitTestConnect.createFilterList();
 		JUnitTestConnect.setRsslData(filterListDec, filterList, Codec.majorVersion(), Codec.minorVersion(), dataDictionary, null);
-		
+		// check that we can still get the toString on encoded/decoded container.
+		TestUtilities.checkResult("FilterList.toString() != toString() not supported", !(filterListDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
+
 		Iterator<FilterEntry> filerListIt = filterListDec.iterator();
 		
 		FilterEntry filterEntry = filerListIt.next();
+		// check that we can still get the toString on encoded/decoded entry.
+		TestUtilities.checkResult("FilterEntry.toString() != toString() not supported", !(filterEntry.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+		
 		TestUtilities.checkResult( filterEntry.filterId() == 1, "Check the filter ID of the first entry");
 		TestUtilities.checkResult( filterEntry.action() == FilterEntry.FilterAction.SET, "Check the action of the first entry");
 		TestUtilities.checkResult( filterEntry.hasPermissionData() == false , "Check has permission data for first entry");

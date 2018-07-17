@@ -92,7 +92,9 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			DataImpl load;
 			for (OmmArrayEntry arrayEntry : _ommArrayCollection)
 			{
-				load = (DataImpl)arrayEntry.load();
+				load = (DataImpl) arrayEntry.load();
+				if ( load == null )
+					return "\nDecoding of just encoded object in the same application is not supported\n";				
 			
 				Utilities.addIndent(_toString.append("\n"), indent).append("value=\"");
 	

@@ -271,6 +271,8 @@ public class GenericMsgTests extends TestCase
 		JUnitTestConnect.setRsslData(emaGenericMsg, msgBuf, majorVersion, minorVersion, dictionary, null);
 
 		System.out.println(emaGenericMsg);
+		// check that we can still get the toString on encoded/decoded msg.
+		TestUtilities.checkResult("GenericMsg.toString() != toString() not supported", !(emaGenericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
 		
 		System.out.println("End EMA GenericMsg toString");
 		System.out.println();
@@ -325,30 +327,43 @@ public class GenericMsgTests extends TestCase
 	    System.out.println("Begin EMA GenericMsg Set");
 	    
     	genericMsg.domainType( com.thomsonreuters.ema.rdm.EmaRdm.MMT_MARKET_PRICE );
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		genericMsg.streamId( 15 );
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		genericMsg.partNum( 10 );
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		genericMsg.seqNum( 22 );
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		genericMsg.secondarySeqNum(123);
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		genericMsg.complete(true);
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		genericMsg.name("ABCDEF");
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		genericMsg.nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		genericMsg.serviceId(5);
-		
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+
 		genericMsg.filter( 12 );
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	
 		genericMsg.id(21);
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		genericMsg.attrib(fl);
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	
 		genericMsg.payload(fl);
+		TestUtilities.checkResult("GenericMsg.toString() == toString() not supported", genericMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		System.out.println("End EMA GenericMsg Set");
 		System.out.println();

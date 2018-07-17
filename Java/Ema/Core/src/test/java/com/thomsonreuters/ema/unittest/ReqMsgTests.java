@@ -25,6 +25,39 @@ public class ReqMsgTests extends TestCase
 		super(name);
 	}
 	
+	public void testReqMsg_ServiceName_and_ServiceId()
+	{
+		TestUtilities.printTestHead("testReqMsg_ServiceName_and_ServiceId", "setting both serviceName and serviceId");
+		
+		com.thomsonreuters.ema.access.ReqMsg emaReqMsg = EmaFactory.createReqMsg();
+		
+		emaReqMsg.serviceName("TEST");
+		
+		try {
+			emaReqMsg.serviceId(5);
+			TestUtilities.checkResult( false, "ReqMsg can't set serviceId when serviceName is set - exception expected" );				
+		}
+		catch(Exception e)
+		{
+			TestUtilities.checkResult( true, "ReqMsg can't set serviceId when serviceName is set - exception expected" );
+		}		
+
+		TestUtilities.checkResult(emaReqMsg.hasServiceName(), "ReqMsg.hasServiceName()");			
+		TestUtilities.checkResult(emaReqMsg.serviceName().equals("TEST"), "ReqMsg.serviceName()");		
+		
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();		
+		com.thomsonreuters.ema.access.ReqMsg emaReqMsgDec = JUnitTestConnect.createReqMsg();
+		
+		JUnitTestConnect.setRsslData(emaReqMsgDec, emaReqMsg, majorVersion, minorVersion, TestUtilities.getDataDictionary(), null);
+		
+		// check that we can still get the toString on encoded/decoded msg.
+		TestUtilities.checkResult("ReqMsg.toString() != toString() not supported", !(emaReqMsgDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+
+		System.out.println("End EMA ServiceName and ServiceId");
+		System.out.println();
+	}		
+	
 	public void testReqMsg_EncodeDecode()
 	{
 		TestUtilities.printTestHead("testRequestMsg_EncodeDecode", "ema encoding ema decoding");
@@ -71,34 +104,58 @@ public class ReqMsgTests extends TestCase
 	    System.out.println("Begin EMA ReqMsg Set");
 	    
 	    reqMsg.domainType( com.thomsonreuters.ema.rdm.EmaRdm.MMT_MARKET_PRICE );
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	    
 	    reqMsg.initialImage(true);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	    
 	    reqMsg.interestAfterRefresh(true);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 	    reqMsg.streamId( 15 );
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 	    reqMsg.qos(OmmQos.Timeliness.REALTIME, OmmQos.Rate.TICK_BY_TICK);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 	    reqMsg.name("ABCDEF");
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 	    reqMsg.nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 	    reqMsg.serviceId(5);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+
+		try {
+			reqMsg.serviceName("TEST");
+			TestUtilities.checkResult( false, "ReqMsg can't set serviceName when serviceId is set - exception expected" );				
+		}
+		catch(Exception e)
+		{
+			TestUtilities.checkResult( true, "ReqMsg can't set serviceName when serviceId is set - exception expected" );			
+		}		
 		
 	    reqMsg.filter( 12 );
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	
 	    reqMsg.id(21);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	    
 	    reqMsg.priority(5, 7);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	    
 	    reqMsg.qos(com.thomsonreuters.ema.access.ReqMsg.Timeliness.REALTIME, com.thomsonreuters.ema.access.ReqMsg.Rate.TICK_BY_TICK);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	    
 	    reqMsg.conflatedInUpdates(true);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 	    reqMsg.attrib(fl);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 	    reqMsg.payload(fl);
+		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		System.out.println("End EMA ReqMsg Set");
 		System.out.println();
@@ -109,6 +166,9 @@ public class ReqMsgTests extends TestCase
 
 		JUnitTestConnect.setRsslData(emaReqMsg, reqMsg, Codec.majorVersion(), Codec.minorVersion(), TestUtilities.getDataDictionary(), null);
 
+		// check that we can still get the toString on encoded/decoded msg.
+		TestUtilities.checkResult("ReqMsg.toString() != toString() not supported", !(emaReqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+	
 		TestUtilities.checkResult(emaReqMsg.domainType() == com.thomsonreuters.ema.rdm.EmaRdm.MMT_MARKET_PRICE, "ReqMsg.domainType()");
 		
 		TestUtilities.checkResult(emaReqMsg.initialImage() == true, "ReqMsg.initialImage()");

@@ -41,6 +41,9 @@ class ElementEntryImpl extends EntryImpl implements ElementEntry
 	@Override
 	public String toString()
 	{
+		if ( _load == null )
+			return "\nDecoding of just encoded object in the same application is not supported\n";
+		
 		_toString.setLength(0);
 		_toString.append("ElementEntry ")
 				.append(" name=\"").append(name()).append("\"")

@@ -202,7 +202,10 @@ class FilterListImpl extends CollectionDataImpl implements FilterList
 		DataImpl load;
 		for (FilterEntry filterEntry : _filterListCollection)
 		{
-			load = (DataImpl)filterEntry.load();
+			load = (DataImpl) filterEntry.load();
+			if ( load == null )
+				return "\nDecoding of just encoded object in the same application is not supported\n";
+			
 			Utilities.addIndent(_toString.append("\n"), indent).append("FilterEntry action=\"")
 																  .append(filterEntry.filterActionAsString())
 																  .append("\" filterId=\"")

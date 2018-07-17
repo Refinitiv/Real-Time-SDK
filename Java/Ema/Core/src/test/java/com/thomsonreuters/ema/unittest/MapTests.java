@@ -82,6 +82,7 @@ public class MapTests extends TestCase
 			
 			ElementList elementListDec = JUnitTestConnect.createElementList();
 			JUnitTestConnect.setRsslData(elementListDec, elementList, Codec.majorVersion(), Codec.minorVersion(), dataDictionary, null);
+
 			
 			Iterator<ElementEntry> elementListIt = elementListDec.iterator();
 			
@@ -177,6 +178,7 @@ public class MapTests extends TestCase
 			Map map = EmaFactory.createMap();
 			map.keyFieldId(11).totalCountHint(3).keyType(DataType.DataTypes.ASCII);
 			map.add(EmaFactory.createMapEntry().keyAscii("Key1", MapEntry.MapAction.ADD));
+			TestUtilities.checkResult("Map.toString() == toString() not supported", map.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
 			
 			ElementList elementList = EmaFactory.createElementList();
 			elementList.add(EmaFactory.createElementEntry().map("1", map));
@@ -279,16 +281,24 @@ public class MapTests extends TestCase
 			ByteBuffer permissionData = ByteBuffer.allocate(4);
 			permissionData.putInt(1234).flip();
 			
-			mapEnc.add(EmaFactory.createMapEntry().keyAscii("ITEM1", MapEntry.MapAction.ADD));
+			MapEntry me = EmaFactory.createMapEntry().keyAscii("ITEM1", MapEntry.MapAction.ADD);
+			TestUtilities.checkResult("MapEntry.toString() == toString() not supported", me.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			
+			mapEnc.add(me);
 			mapEnc.add(EmaFactory.createMapEntry().keyAscii("ITEM2", MapEntry.MapAction.UPDATE, permissionData));
 			mapEnc.add(EmaFactory.createMapEntry().keyAscii("ITEM3", MapEntry.MapAction.DELETE));
 			
 			Map mapDec = JUnitTestConnect.createMap();
 			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			// check that we can still get the toString on encoded/decoded container.
+			TestUtilities.checkResult("Map.toString() != toString() not supported", !(mapDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
 			
 			Iterator<MapEntry> mapIt = mapDec.iterator();
 			
 			MapEntry mapEntryA = mapIt.next();
+			// check that we can still get the toString on encoded/decoded entry.
+			TestUtilities.checkResult("MapEntry.toString() != toString() not supported", !(mapEntryA.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+
 			TestUtilities.checkResult( mapEntryA.key().ascii().ascii().equals("ITEM1"), "Check the key value of the first map entry");
 			TestUtilities.checkResult( mapEntryA.action() == MapEntry.MapAction.ADD, "Check the action of the first map entry");
 			TestUtilities.checkResult( mapEntryA.loadType() == DataTypes.NO_DATA, "Check the load type of the first map entry");	

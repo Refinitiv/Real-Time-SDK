@@ -268,7 +268,10 @@ class VectorImpl extends CollectionDataImpl implements Vector
 		DataImpl load;
 		for (VectorEntry vectorEntry : _vectorCollection)
 		{
-			load = (DataImpl)vectorEntry.load();
+			load = (DataImpl) vectorEntry.load();
+			if ( load == null )
+				return "\nDecoding of just encoded object in the same application is not supported\n";
+			
 			Utilities.addIndent(_toString.append("\n"), indent).append("VectorEntry action=\"")
 					.append(vectorEntry.vectorActionAsString()).append("\" index=\"").append(vectorEntry.position());
 			

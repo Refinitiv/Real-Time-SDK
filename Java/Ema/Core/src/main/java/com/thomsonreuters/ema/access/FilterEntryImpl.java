@@ -80,6 +80,9 @@ class FilterEntryImpl extends EntryImpl implements FilterEntry
 	@Override
 	public String toString()
 	{
+		if ( _load == null )
+			return "\nDecoding of just encoded object in the same application is not supported\n";
+		
 		_toString.setLength(0);
 		_toString.append("FilterEntry ")
 				.append(" action=\"").append(filterActionAsString()).append("\"")

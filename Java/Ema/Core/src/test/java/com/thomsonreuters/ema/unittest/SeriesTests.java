@@ -247,10 +247,20 @@ public class SeriesTests extends TestCase
 			// encoding order:  SummaryData(with elementList), Delete, elementList-Add, elementList-Add, elementList-Update
 			Series seriesEnc = EmaFactory.createSeries();
 			TestUtilities.EmaEncodeSeriesAllWithElementList( seriesEnc);
+			TestUtilities.checkResult("Series.toString() == toString() not supported", seriesEnc.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
 
+			ElementList elEnc = EmaFactory.createElementList(); 
+			TestUtilities.EmaEncodeElementListAll(elEnc);			
+			SeriesEntry se = EmaFactory.createSeriesEntry().elementList(elEnc);
+			TestUtilities.checkResult("SeriesEntry.toString() == toString() not supported", se.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));			
+
+			seriesEnc.add(se);
+			
 			//Now do EMA decoding of Map
 			Series seriesDec = JUnitTestConnect.createSeries();
 			JUnitTestConnect.setRsslData(seriesDec, seriesEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+			// check that we can still get the toString on encoded/decoded container.
+			TestUtilities.checkResult("Series.toString() != toString() not supported", !(seriesDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
 
 			System.out.println(seriesDec);
 
@@ -292,6 +302,15 @@ public class SeriesTests extends TestCase
 			TestUtilities.checkResult( se3.load().dataType() == DataType.DataTypes.ELEMENT_LIST, "SeriesEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
 			TestUtilities.EmaDecodeElementListAll(se3.elementList() );
 		
+			SeriesEntry se4 = seriesIter.next();
+			
+			TestUtilities.checkResult( se4.load().dataType() == DataType.DataTypes.ELEMENT_LIST, "SeriesEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
+			TestUtilities.EmaDecodeElementListAll(se4.elementList() );
+			
+			// check that we can still get the toString on encoded/decoded entry.
+			TestUtilities.checkResult("SeriesEntry.toString() != toString() not supported", !(se4.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+			
+			
 			TestUtilities.checkResult( !seriesIter.hasNext(), "Series contains elementList - final maphasNext()" );
 
 			TestUtilities.checkResult( true, "Series contains elementList - exception not expected" );

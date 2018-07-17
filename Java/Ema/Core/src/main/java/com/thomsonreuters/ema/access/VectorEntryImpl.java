@@ -87,6 +87,9 @@ class VectorEntryImpl extends EntryImpl implements VectorEntry
 	@Override
 	public String toString()
 	{
+		if ( _load == null )
+			return "\nDecoding of just encoded object in the same application is not supported\n";
+		
 		_toString.setLength(0);
 		_toString.append("VectorEntry ")
 				.append(" action=\"").append(vectorActionAsString()).append("\"")

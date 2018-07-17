@@ -26,6 +26,39 @@ public class UpdateMsgTests extends TestCase
 		super(name);
 	}
 
+	public void testUpdateMsg_ServiceName_and_ServiceId()
+	{
+		TestUtilities.printTestHead("testUpdateMsg_ServiceName_and_ServiceId", "setting both serviceName and serviceId");
+		
+		com.thomsonreuters.ema.access.UpdateMsg emaUpdateMsg = EmaFactory.createUpdateMsg();
+		
+		emaUpdateMsg.serviceName("TEST");
+		
+		try {
+			emaUpdateMsg.serviceId(5);
+			TestUtilities.checkResult( false, "UpdateMsg can't set serviceId when serviceName is set - exception expected" );				
+		}
+		catch(Exception e)
+		{
+			TestUtilities.checkResult( true, "UpdateMsg can't set serviceId when serviceName is set - exception expected" );
+		}		
+
+		TestUtilities.checkResult(emaUpdateMsg.hasServiceName(), "UpdateMsg.hasServiceName()");			
+		TestUtilities.checkResult(emaUpdateMsg.serviceName().equals("TEST"), "UpdateMsg.serviceName()");		
+		
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();		
+		com.thomsonreuters.ema.access.UpdateMsg emaUpdateMsgDec = JUnitTestConnect.createUpdateMsg();
+		
+		JUnitTestConnect.setRsslData(emaUpdateMsgDec, emaUpdateMsg, majorVersion, minorVersion, TestUtilities.getDataDictionary(), null);
+		
+		// check that we can still get the toString on encoded/decoded msg.
+		TestUtilities.checkResult("UpdateMsg.toString() != toString() not supported", !(emaUpdateMsgDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+
+		System.out.println("End EMA ServiceName and ServiceId");
+		System.out.println();
+	}		
+		
 	public void testUpdateMsg_Decode()
 	{
 		TestUtilities.printTestHead("testUpdateMsg_Decode", "upa encoding ema decoding");
@@ -286,6 +319,9 @@ public class UpdateMsgTests extends TestCase
 
 		System.out.println(emaUpdateMsg);
 
+		// check that we can still get the toString on encoded/decoded msg.
+		TestUtilities.checkResult("UpdateMsg.toString() != toString() not supported", !(emaUpdateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+
 		System.out.println("End EMA UpdateMsg toString");
 		System.out.println();
 	}
@@ -341,30 +377,53 @@ public class UpdateMsgTests extends TestCase
 	    System.out.println("End EMA UpdateMsg Set");
 	    
     	updateMsg.domainType( com.thomsonreuters.ema.rdm.EmaRdm.MMT_MARKET_PRICE );
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		updateMsg.streamId( 15 );
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		updateMsg.seqNum( 22 );
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		updateMsg.name("ABCDEF");
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		updateMsg.nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		updateMsg.serviceId(5);
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+		
+		try {
+			updateMsg.serviceName("TEST");
+			TestUtilities.checkResult( false, "UpdateMsg can't set serviceName when serviceId is set - exception expected" );				
+		}
+		catch(Exception e)
+		{
+			TestUtilities.checkResult( true, "UpdateMsg can't set serviceName when serviceId is set - exception expected" );			
+		}			
 		
 		updateMsg.filter( 12 );
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	
 		updateMsg.id(21);
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		updateMsg.attrib(fl);
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	
 	    updateMsg.doNotCache(true);
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		updateMsg.doNotConflate(true);
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		updateMsg.doNotRipple(true);
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		updateMsg.publisherId(30,  15);
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		updateMsg.payload(fl);
+		TestUtilities.checkResult("UpdateMsg.toString() == toString() not supported", updateMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		System.out.println("End EMA UpdateMsg Set");
 		System.out.println();

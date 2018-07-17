@@ -26,6 +26,39 @@ public class PostMsgTests extends TestCase
 		super(name);
 	}
 	
+	public void testPostMsg_ServiceName_and_ServiceId()
+	{
+		TestUtilities.printTestHead("testPostMsg_ServiceName_and_ServiceId", "setting both serviceName and serviceId");
+		
+		com.thomsonreuters.ema.access.PostMsg emaPostMsg = EmaFactory.createPostMsg();
+		
+		emaPostMsg.serviceName("TEST");
+		
+		try {
+			emaPostMsg.serviceId(5);
+			TestUtilities.checkResult( false, "PostMsg can't set serviceId when serviceName is set - exception expected" );				
+		}
+		catch(Exception e)
+		{
+			TestUtilities.checkResult( true, "PostMsg can't set serviceId when serviceName is set - exception expected" );
+		}		
+
+		TestUtilities.checkResult(emaPostMsg.hasServiceName(), "PostMsg.hasServiceName()");			
+		TestUtilities.checkResult(emaPostMsg.serviceName().equals("TEST"), "PostMsg.serviceName()");		
+		
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();		
+		com.thomsonreuters.ema.access.PostMsg emaPostMsgDec = JUnitTestConnect.createPostMsg();
+		
+		JUnitTestConnect.setRsslData(emaPostMsgDec, emaPostMsg, majorVersion, minorVersion, TestUtilities.getDataDictionary(), null);
+		
+		// check that we can still get the toString on encoded/decoded msg.
+		TestUtilities.checkResult("PostMsg.toString() != toString() not supported", !(emaPostMsgDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+
+		System.out.println("End EMA ServiceName and ServiceId");
+		System.out.println();
+	}		
+	
 	public void testPostMsg_Decode()
 	{
 		TestUtilities.printTestHead("testPostMsg_Decode", "upa encoding ema decoding");
@@ -291,6 +324,9 @@ public class PostMsgTests extends TestCase
 		JUnitTestConnect.setRsslData(emaPostMsg, msgBuf, majorVersion, minorVersion, dictionary, null);
 
 		System.out.println(emaPostMsg);
+		// check that we can still get the toString on encoded/decoded msg.
+		TestUtilities.checkResult("PostMsg.toString() != toString() not supported", !(emaPostMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
+		
 
 		System.out.println("End EMA PostMsg toString");
 		System.out.println();
@@ -341,28 +377,49 @@ public class PostMsgTests extends TestCase
 	    System.out.println("Begin EMA PostMsg Set");
 	    
     	postMsg.domainType( com.thomsonreuters.ema.rdm.EmaRdm.MMT_MARKET_PRICE );
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		postMsg.streamId( 15 );
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		postMsg.partNum( 10 );
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		postMsg.seqNum( 22 );
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		postMsg.name("ABCDEF");
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		postMsg.nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		postMsg.serviceId(5);
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
+
+		try {
+			postMsg.serviceName("TEST");
+			TestUtilities.checkResult( false, "PostMsg can't set serviceName when serviceId is set - exception expected" );				
+		}
+		catch(Exception e)
+		{
+			TestUtilities.checkResult( true, "PostMsg can't set serviceName when serviceId is set - exception expected" );			
+		}			
 		
 		postMsg.filter( 12 );
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	
 		postMsg.id(21);
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		postMsg.attrib(fl);
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	
 		postMsg.publisherId(30,  15);
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 		
 		postMsg.payload(fl);
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		System.out.println("End EMA PostMsg Set");
 		System.out.println();

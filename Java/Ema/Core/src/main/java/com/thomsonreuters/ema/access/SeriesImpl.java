@@ -250,7 +250,10 @@ class SeriesImpl extends CollectionDataImpl implements Series
 		DataImpl load;
 		for (SeriesEntry seriesEntry : _seriesCollection)
 		{
-			load = (DataImpl)seriesEntry.load();
+			load = (DataImpl) seriesEntry.load();
+			if ( load == null )
+				return "\nDecoding of just encoded object in the same application is not supported\n";
+			
 			Utilities.addIndent(_toString.append("\n"), indent)
 					 .append("SeriesEntry dataType=\"").append(DataType.asString(load.dataType())).append("\"\n");
 			
