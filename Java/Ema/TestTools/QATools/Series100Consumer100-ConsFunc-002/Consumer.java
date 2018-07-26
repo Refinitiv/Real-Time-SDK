@@ -57,7 +57,6 @@ public class Consumer
 				
 				OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
 			
-		//		consumer  = EmaFactory.createOmmConsumer(config.host("localhost:14002").username("user"));
 				consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().consumerName("Consumer_1"));
 
 				ReqMsg reqMsg = EmaFactory.createReqMsg();
