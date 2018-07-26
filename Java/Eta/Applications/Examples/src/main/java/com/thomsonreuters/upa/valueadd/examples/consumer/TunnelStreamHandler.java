@@ -53,7 +53,7 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
     {
         int ret;
 
-        _serviceId = chnlInfo.qServiceInfo.serviceId();
+        _serviceId = chnlInfo.tsServiceInfo.serviceId();
         
         _tunnelStreamOpenOptions.clear();
         _tunnelStreamOpenOptions.name("BasicTunnelStream");

@@ -47,7 +47,6 @@
 #include "rsslSymbolListHandler.h"
 #include "rsslVASendMessage.h"
 #include "rsslPostHandler.h"
-#include "queueMsgHandler.h"
 
 #include "rtr/rsslPayloadEntry.h"
 
@@ -60,7 +59,6 @@ static time_t cacheTime = 0;
 static time_t cacheInterval = 0;
 static RsslBool onPostEnabled = RSSL_FALSE, offPostEnabled = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
-static RsslBool needFdmDictionary = RSSL_FALSE;
 // APIQA:
 static int eventCounter = 0;
 // END APIQA:
@@ -116,11 +114,9 @@ void printUsageAndExit(char *appName)
 			"\n -snapshot specifies each request using non-streaming.\n" 
 			"\n -cache will store all open items in cache and periodically dump contents.\n"
 			"\n -cacheInterval number of seconds between displaying cache contents; 0 = on exit only (default)\n"
-			"\n -tunnel causes the consumer to open a tunnel stream that exchanges basic messages(see -qSourceName for queue messaging streams).\n"
-			"\n -tsAuth causes the consumer to enable authentication when opening tunnel streams (also applies to queue messaging treams).\n"
-			"\n -qSourceName specifies the source name for queue messages (if specified, configures consumer to receive queue messages)\n"
-			"\n -qDestName specifies the destination name for queue messages (if specified, configures consumer to send queue messages to this name, multiple instances may be specified)\n"
-			"\n -tsServiceName specifies the name of the service to use for queue messages (if not specified, the service name specified in -c/-tcp is used)\n"
+			"\n -tunnel causes the consumer to open a tunnel stream that exchanges basic messages.\n"
+			"\n -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
+			"\n -tsServiceName specifies the name of the service to use for tunnel streams (if not specified, the service name specified in -c/-tcp is used)\n"
 			"\n -x provides an XML trace of messages\n"
 			"\n -runtime adjusts the running time of the application.\n"
 			, appName, appName);
@@ -145,7 +141,7 @@ void parseCommandLine(int argc, char **argv)
 	/* Check usage and retrieve operating parameters */
 	{
 		ChannelCommand *pCommand = NULL;
-		RsslBool hasQueueServiceName = RSSL_FALSE;
+		RsslBool hasTunnelStreamServiceName = RSSL_FALSE;
 		RsslBool useTunnelStreamAuthentication = RSSL_FALSE;
 		RsslUInt8 tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
@@ -224,11 +220,10 @@ void parseCommandLine(int argc, char **argv)
 				}
 
 				pCommand = &chanCommands[channelCommandCount];
-				hasQueueServiceName = RSSL_FALSE;
+				hasTunnelStreamServiceName = RSSL_FALSE;
 				useTunnelStreamAuthentication = RSSL_FALSE;
 				tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
-				queueMsgHandlerInit(&pCommand->queueMsgHandler, (char*)"VAConsumer", RSSL_DMT_SYSTEM, RSSL_FALSE);
 				simpleTunnelMsgHandlerInit(&pCommand->simpleTunnelMsgHandler, (char*)"VAConsumer", RSSL_DMT_SYSTEM, RSSL_FALSE, RSSL_FALSE);
 
 
@@ -457,7 +452,7 @@ void parseCommandLine(int argc, char **argv)
 				}
 
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
-				hasQueueServiceName = RSSL_TRUE;
+				hasTunnelStreamServiceName = RSSL_TRUE;
 				snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), argv[i-1]);
 			}
 			else if (strcmp("-tunnel", argv[i]) == 0)
@@ -482,22 +477,6 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tunnelStreamDomainType = atoi(argv[i-1]);
 			}
-			else if (strcmp("-qSourceName", argv[i]) == 0)
-			{
-				if (pCommand == NULL)
-				{
-					printf("-qSourceName specified before a connection.\n");
-					printUsageAndExit(argv[0]);
-				}
-
-				i += 2; if (i > argc) printUsageAndExit(argv[0]);
-
-				pCommand->queueMessagingEnabled = RSSL_TRUE;
-				needFdmDictionary = RSSL_TRUE;
-
-				pCommand->queueMsgHandler.sourceName.data = argv[i-1];
-				pCommand->queueMsgHandler.sourceName.length = (RsslUInt32)strlen(argv[i-1]);
-			}
 			else if (strcmp("-tsAuth", argv[i]) == 0)
 			{
 				if (pCommand == NULL)
@@ -508,28 +487,6 @@ void parseCommandLine(int argc, char **argv)
 
 				useTunnelStreamAuthentication = RSSL_TRUE;
 				i += 1;
-			}
-			else if (strcmp("-qDestName", argv[i]) == 0)
-			{
-				int destNameCount = pCommand->queueMsgHandler.destNameCount;
-
-				if (pCommand == NULL)
-				{
-					printf("-qDestName specified before a connection.\n");
-					printUsageAndExit(argv[0]);
-				}
-
-				if (destNameCount == MAX_DEST_NAMES)
-				{
-					printf("Error: Example only supports %d queue destination names.\n", MAX_DEST_NAMES);
-					printUsageAndExit(argv[0]);
-				}
-
-				i += 2; if (i > argc) printUsageAndExit(argv[0]);
-				pCommand->queueMsgHandler.destNames[destNameCount].data = argv[i-1];
-				pCommand->queueMsgHandler.destNames[destNameCount].length = (RsslUInt32)strlen(argv[i-1]);
-
-				++pCommand->queueMsgHandler.destNameCount;
 			}
 			else if (strcmp("-?", argv[i]) == 0)
 			{
@@ -544,30 +501,14 @@ void parseCommandLine(int argc, char **argv)
 			/* Check channel-specific options. */
 			if (pCommand != NULL && (i >= argc || strcmp("-c", argv[i]) == 0 || strcmp("-tcp", argv[i]) == 0))
 			{
-				/* Only allow one of tunnel messaging or queue messaging to be enabled. */
-				if (pCommand->tunnelMessagingEnabled && pCommand->queueMessagingEnabled)
-				{
-					printf("Error: Both tunnel stream messaging and queue messaging enabled.\n");
-					printUsageAndExit(argv[0]);
-				}
-
-				/* Ensure queue source is specified if queue destinations are specified. */
-				if (!pCommand->queueMessagingEnabled && pCommand->queueMsgHandler.destNameCount > 0)
-				{
-					printf("Error: Destination queue specified without source queue.\n");
-					printUsageAndExit(argv[0]);
-				}
-
-				/* If service not specified for queue messaging, use the service given for other items instead. */
-				if ((pCommand->tunnelMessagingEnabled || pCommand->queueMessagingEnabled) && hasQueueServiceName == RSSL_FALSE)
+				/* If service not specified for tunnel stream, use the service given for other items instead. */
+				if (pCommand->tunnelMessagingEnabled && hasTunnelStreamServiceName == RSSL_FALSE)
 				{
 					snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), pCommand->serviceName);
 				}
 
 				pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.useAuthentication = useTunnelStreamAuthentication;
-				pCommand->queueMsgHandler.tunnelStreamHandler.useAuthentication = useTunnelStreamAuthentication;
 				pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.domainType = tunnelStreamDomainType;
-				pCommand->queueMsgHandler.tunnelStreamHandler.domainType = tunnelStreamDomainType;
 			}
 		}
 
@@ -691,7 +632,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			RsslErrorInfo rsslErrorInfo;
 #endif
 
-			printf("Connection up! Channel fd="SOCKET_PRINT_TYPE"\n\n", pReactorChannel->socketId);	
+			printf("Connection up! Channel fd="SOCKET_PRINT_TYPE"\n\n", pReactorChannel->socketId);
 
 			/* Set file descriptor. */
 			FD_SET(pReactorChannel->socketId, &readFds);
@@ -741,7 +682,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The file descriptor representing the RsslReactorChannel has been changed.
 			 * Update our file descriptor sets. */
-			printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);	
+			printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
 			FD_CLR(pReactorChannel->oldSocketId, &readFds);
 			FD_CLR(pReactorChannel->oldSocketId, &exceptFds);
 			FD_SET(pReactorChannel->socketId, &readFds);
@@ -752,8 +693,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* The channel has failed and has gone down.  Print the error, close the channel, and reconnect later. */
 
-			printf("Connection down: Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);	
-			
+			printf("Connection down: Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -785,7 +725,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		case RSSL_RC_CET_WARNING:
 		{
 			/* We have received a warning event for this channel. Print the information and continue. */
-			printf("Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);	
+			printf("Received warning for Channel fd="SOCKET_PRINT_TYPE".\n", pReactorChannel->socketId);
 			printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 			return RSSL_RC_CRET_SUCCESS;
 		}
@@ -915,11 +855,6 @@ int main(int argc, char **argv)
 
 	/* Initialize parameters from config. */
 	parseCommandLine(argc, argv);
-
-	/* If queue messaging is in use, load FDM Dictionary */
-	if (needFdmDictionary && loadFdmDictionary() == RSSL_FALSE)
-		cleanUpAndExit(-1);
-		
 
 	/* Initialize run-time */
 	initRuntime();
@@ -1137,8 +1072,6 @@ int main(int argc, char **argv)
 				sendItemRequests(pReactor, chanCommands[i].reactorChannel);
 				if (chanCommands[i].tunnelMessagingEnabled)
 					handleSimpleTunnelMsgHandler(pReactor, chanCommands[i].reactorChannel, &chanCommands[i].simpleTunnelMsgHandler);
-				if (chanCommands[i].queueMessagingEnabled)
-					handleQueueMsgHandler(pReactor, chanCommands[i].reactorChannel, &chanCommands[i].queueMsgHandler);
 			}
 
 			if (onPostEnabled ||offPostEnabled)
@@ -1167,7 +1100,7 @@ int main(int argc, char **argv)
 				}
 
 				if (chanCommands[i].canSendLoginReissue == RSSL_TRUE &&
-					currentTime >= chanCommands[i].loginReissueTime)
+					currentTime >= (RsslInt)(chanCommands[i].loginReissueTime))
 				{
 					RsslReactorSubmitMsgOptions submitMsgOpts;
 					RsslErrorInfo rsslErrorInfo;
@@ -1288,8 +1221,7 @@ static void handleRuntime()
 				closeMarketByPriceItemStreams(pReactor, &chanCommands[i]);
 				closeYieldCurveItemStreams(pReactor, &chanCommands[i]);
 
-				if (chanCommands[i].simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL
-						|| chanCommands[i].queueMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+				if (chanCommands[i].simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
 				{
 					if (waitingTunnelStreamFree == RSSL_FALSE)
 					{
@@ -1298,7 +1230,6 @@ static void handleRuntime()
 					}
 
 					simpleTunnelMsgHandlerCloseStreams(&chanCommands[i].simpleTunnelMsgHandler);
-					queueMsgHandlerCloseStreams(&chanCommands[i].queueMsgHandler);
 				}
 
 				setItemStates(&chanCommands[i], -1, &state);
@@ -1308,8 +1239,7 @@ static void handleRuntime()
 		/* If any tunnel streams are open, wait for them to close before quitting. */
 		for(i = 0; i < channelCommandCount; ++i)
 		{
-			if (chanCommands[i].simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL
-					|| chanCommands[i].queueMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+			if (chanCommands[i].simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
 			{
 				tunnelStreamsOpen = RSSL_TRUE;
 				break;
@@ -1432,7 +1362,7 @@ static RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReac
 			}
 			break;
 		default:
-			printf("Unhandled Domain Type %d received on channel "SOCKET_PRINT_TYPE"\n", pMsg->msgBase.domainType, pChannel->socketId);	
+			printf("Unhandled Domain Type %d received on channel "SOCKET_PRINT_TYPE"\n", pMsg->msgBase.domainType, pChannel->socketId);
 			break;
 	}
 
@@ -1473,7 +1403,8 @@ void cleanUpAndExit(int code)
 		}
 	}
 
-	cleanupFdmDictionary();
+	for(i = 0; i < MAX_CHAN_COMMANDS; ++i)
+		cleanupChannelCommand(&chanCommands[i]);
 
 	rsslPayloadCacheUninitialize();
 	rsslUninitialize();
@@ -1518,7 +1449,7 @@ static void displayCache(ChannelCommand *pCommand)
 	printf("\nStarting Cache Display ");
 
 	if (pCommand->reactorChannel)
-		printf("(Channel "SOCKET_PRINT_TYPE"):\n", pCommand->reactorChannel->socketId);	
+		printf("(Channel "SOCKET_PRINT_TYPE"):\n", pCommand->reactorChannel->socketId);
 	else
 		printf(":\n");
 
@@ -1637,7 +1568,7 @@ static RsslRet decodeEntryFromCache(ChannelCommand *pCommand, RsslPayloadEntryHa
 			break;
 
 		case RSSL_DMT_YIELD_CURVE:
-			ret = decodeYieldCurveFieldList(&pCommand->dictionary, &dIter, &localFieldSetDefDb);
+			ret = decodeYieldCurvePayload(&pCommand->dictionary, &dIter, &localFieldSetDefDb);
 			break;
 
 		default:

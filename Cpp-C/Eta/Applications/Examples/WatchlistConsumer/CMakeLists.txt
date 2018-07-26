@@ -3,7 +3,6 @@ set( SOURCE_FILES
   watchlistConsumerConfig.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/simpleTunnelMsgHandler.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/tunnelStreamHandler.c
-  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/queueMsgHandler.c
   )
 
 add_executable( WatchlistConsumer_shared ${SOURCE_FILES} )

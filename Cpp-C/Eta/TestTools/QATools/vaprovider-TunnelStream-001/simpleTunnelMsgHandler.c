@@ -293,7 +293,6 @@ void simpleTunnelMsgHandlerInit(SimpleTunnelMsgHandler *pMsgHandler,
 	initTunnelStream();
 
 	tunnelStreamHandlerInit(&pMsgHandler->tunnelStreamHandler, consumerName, domainType, useAuthentication,
-			RSSL_FALSE /* Not queue messaging */,
 			simpleTunnelMsgHandlerProcessTunnelOpened,
 			simpleTunnelMsgHandlerProcessTunnelClosed,
 			simpleTunnelMsgHandlerConsumerMsgCallback,

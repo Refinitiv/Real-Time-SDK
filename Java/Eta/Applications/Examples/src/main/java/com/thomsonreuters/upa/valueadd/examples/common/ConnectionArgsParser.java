@@ -112,7 +112,7 @@ public class ConnectionArgsParser
 			retCode = itemArgsParser.parse(args, retCode);
 			connectionArg.itemList = itemArgsParser.itemList();
 		}
-        else if (!args[retCode].equals("-qSourceName") && !args[retCode].equals("-qDestName") && !args[retCode].equals("-qServiceName") && !args[retCode].equals("-tsServiceName") && !args[retCode].equals("-tunnel") && !args[retCode].equals("-tsAuth") && !args[retCode].equals("-tsDomain"))
+        else if (!args[retCode].equals("-tsServiceName") && !args[retCode].equals("-tunnel") && !args[retCode].equals("-tsAuth") && !args[retCode].equals("-tsDomain"))
         {
             retCode = ERROR_RETURN_CODE;
         }
@@ -120,25 +120,10 @@ public class ConnectionArgsParser
 		int argsCount = retCode;
 		while (argsCount < args.length && !args[argsCount].equals("-c"))
 		{
-			if (args[argsCount].equals("-qServiceName"))
-			{
-			    connectionArg.qService = args[argsCount + 1];
-			    retCode += 2;
-			}
             if (args[argsCount].equals("-tsServiceName"))
             {
-                connectionArg.qService = args[argsCount + 1];
+                connectionArg.tsService = args[argsCount + 1];
                 retCode += 2;
-            }
-            if (args[argsCount].equals("-qSourceName"))
-            {
-                connectionArg.qSource = args[argsCount + 1];
-                retCode += 2;
-            }
-            if (args[argsCount].equals("-qDestName"))
-            {
-                connectionArg.qDestList.add(args[argsCount + 1]);
-                retCode += 2;           
             }
             if (args[argsCount].equals("-tunnel"))
             {
@@ -165,9 +150,9 @@ public class ConnectionArgsParser
             }
 		}
 		
-		if (connectionArg.qService == null)
+		if (connectionArg.tsService == null)
 		{
-		    connectionArg.qService = connectionArg.service;
+		    connectionArg.tsService = connectionArg.service;
 		}
 		
 		return retCode;

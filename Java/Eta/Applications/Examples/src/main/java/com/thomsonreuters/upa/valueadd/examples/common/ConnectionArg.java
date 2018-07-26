@@ -25,9 +25,7 @@ public class ConnectionArg
 	
 	List<ItemArg> itemList; /* item list for this connection */
 	
-    String qService; /* service name for queue messages (if not specified, the service name specified in -c/-tcp is used) */
-    String qSource; /* source name for queue messages (if specified, configures consumer to receive queue messages) */
-    List<String> qDestList = new ArrayList<String>(); /* destination name for queue messages (if specified, configures consumer to send queue messages to this name, multiple instances may be specified) */
+    String tsService; /* service name for tunnel stream messages (if not specified, the service name specified in -c/-tcp is used) */
     boolean tunnel; /* enables consumer to open tunnel stream and send basic text messages */
 	boolean tunnelAuth; /* When consumer opens a tunnel stream, indicate that authentication is expected. */
 	int tunnelDomain; /* Domain type to use for tunnel streams. */
@@ -233,65 +231,24 @@ public class ConnectionArg
 	}
 	
     /**
-     * Q service.
+     * Tunnel Stream service.
      *
      * @return the string
      */
-    public String qService()
+    public String tsService()
     {
-        return qService;        
+        return tsService;        
     }
 
     /**
-     * Q service.
+     * Tunnel Stream service.
      *
-     * @param qService the q service
+     * @param tsService the tunnel stream service
      */
-    public void qService(String qService)
+    public void tsService(String tsService)
     {
-        this.qService = qService;        
+        this.tsService = tsService;        
     }
-    
-    /**
-     * Q source.
-     *
-     * @return the string
-     */
-    public String qSource()
-    {
-        return qSource;        
-    }
-    
-    /**
-     * Q source.
-     *
-     * @param qSource the q source
-     */
-    public void qSource(String qSource)
-    {
-        this.qSource = qSource;        
-    }
-
-
-    /**
-     * Q dest list.
-     *
-     * @return the list
-     */
-    public List<String> qDestList()
-	{
-	    return qDestList;
-	}
-    
-    /**
-     * Q dest list.
-     *
-     * @param qDestlist the q destlist
-     */
-    public void qDestList(List<String> qDestlist)
-	{
-	    this.qDestList = qDestlist;
-	}    
  
     /**
      * Tunnel.

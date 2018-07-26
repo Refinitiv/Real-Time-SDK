@@ -36,8 +36,7 @@ simplicity, the off-stream post item name is not configurable, but users can mod
 the code if desired.
 
 This application can open tunnel streams to a provider that supports them (via the -tunnel option),
-such as the included provider example, or to a queue provider service for queue messaging (see
-options such as -qSourceName).
+such as the included provider example.
 
 This application is intended as a basic usage example.  Some of the design 
 choices were made to favor simplicity and readability over performance.  
@@ -85,8 +84,8 @@ WatchlistConsumer or WatchlistConsumer [ -c <Connection Type> ]
   Options for publishing Host Stat Message options on reliable multicast connections; -hsmAddr and -hsmPort must be specified to enable:
     [ -hsmAddr <Address> ] [ -hsmPort <Port> ] [ -hsmInterface <Interface Name> ] [ -hsmInterval <seconds> ]
 
-  Options for tunnel stream messaging/queue messaging:
-    [-tunnel] [-tsAuth] [ -qSourceName <name> ] [ -qDestName <name> ] [-tsServiceName <name> ]
+  Options for tunnel streams:
+    [-tunnel] [-tsAuth] [-tsServiceName <name> ]
 
 The -c option specifies the connection type. Valid arguments are socket, http, encrypted, and 
 reliableMCast.  When using a socket, http, or encrypted connection, use the -h and -p options
@@ -111,21 +110,15 @@ requested, on-stream posting will be disabled. While on-stream posting, the appl
 will alternate between a Post message that contains another message and a Post message
 that contains only data payload. 
 
-The -qSourceName option enables queue messaging and specifies a name of a queue to open. 
-
-The -qDestName option specifies the name of a queue to which the consumer will send messages. 
-This option requires -qSourceName to be specified.  This option may be specified multiple times 
-to send to multiple destinations.
-
 The -tsServiceName option may be used to specify the name of the service used for tunnel stream
-messaging or queue messaging. If not specified, the service name used will be the same as the 
-service name specified by the -s option.
+messaging. If not specified, the service name used will be the same as the service name specified
+by the -s option.
 
 The -tsAuth option causes the consumer to use authentication when performing tunnel stream
-messaging or queue messaging (it is applied to either).  
+messaging.
 
 The -tsDomain option specifies the domainType to use when opening the tunnel stream,
-for the simple tunnel messaging or queue messaging.
+for the simple tunnel stream messaging.
 
 Specifying the -at option configures the token used for TREP Authentication.  This should be used 
 in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
@@ -189,7 +182,5 @@ rsslWatchlistConsumer.c - The main file for the rsslWatchlistConsumer applicatio
 itemDecoder.c - Contains decoding logic for the different item domains.
 
 postHandler.c - Handles encoding and sending of on-stream and off-stream post messages.
-
-queueMsgHandler.c - Provides functionality for sending and receiving queue messages via a tunnel stream.
 
 watchlistConsumerConfig.c - Handles configuration options for the consumer application.

@@ -26,11 +26,9 @@ void simpleTunnelMsgHandlerInit(SimpleTunnelMsgHandler *pMsgHandler,
 		char *consumerName, RsslUInt8 domainType, RsslBool useAuthentication, RsslBool isProvider)
 {
 	tunnelStreamHandlerInit(&pMsgHandler->tunnelStreamHandler, consumerName, domainType, useAuthentication,
-			RSSL_FALSE /* Not queue messaging */,
 			simpleTunnelMsgHandlerProcessTunnelOpened,
 			simpleTunnelMsgHandlerProcessTunnelClosed,
-			simpleTunnelMsgHandlerConsumerMsgCallback,
-			NULL);
+			simpleTunnelMsgHandlerConsumerMsgCallback);
 
 	pMsgHandler->isProvider = isProvider;
 }

@@ -389,7 +389,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	public void printUsage()
 	{
 		System.out.println("Usage: Consumer or\nConsumer [-c <hostname>:<port> <service name> <domain>:<item name>,...] [-bc <hostname>:<port>] [-uname <LoginUsername>] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>]" +
-				"\n -c specifies a connection to open and a list of items to request or use for queue messaging:\n" +
+				"\n -c specifies a connection to open and a list of items to request:\n" +
 				"\n     hostname:        Hostname of provider to connect to" +
 				"\n     port:            Port of provider to connect to" +
 				"\n     service:         Name of service to request items from on this connection" +
@@ -399,12 +399,10 @@ class ConsumerCmdLineParser implements CommandLineParser
 				"\n         The domain may also be any of the private stream domains: mpps(MarketPrice PS), mbops(MarketByOrder PS), mbpps(MarketByPrice PS), ycps(YieldCurve PS)" +
 				"\n         Example Usage: -c localhost:14002 DIRECT_FEED mp:TRI,mp:GOOG,mpps:FB,mbo:MSFT,mbpps:IBM,sl" +
 				"\n           (for SymbolList requests, a name can be optionally specified)\n" +
-				"\n     -qSourceName (optional) specifies the source name for queue messages (if specified, configures consumer to receive queue messages)\n" +
-                "\n     -qDestName (optional) specifies the destination name for queue messages (if specified, configures consumer to send queue messages to this name, multiple instances may be specified)\n" +
 				"\n     -tunnel (optional) enables consumer to open tunnel stream and send basic text messages" +
-                "\n     -tsServiceName (optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used)\n" +
-				"\n     -tsAuth (optional) causes consumer to request authentication when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging.\n" +
-				"\n     -tsDomain (optional) specifes the domain a consumer uses when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging.\n" +
+                "\n     -tsServiceName (optional) specifies the service name for tunnel stream messages (if not specified, the service name specified in -c/-tcp is used)\n" +
+				"\n     -tsAuth (optional) causes consumer to request authentication when opening a tunnel stream. This applies to basic tunnel streams.\n" +
+				"\n     -tsDomain (optional) specifes the domain a consumer uses when opening a tunnel stream. This applies to basic tunnel streams.\n" +
 				"\n -bc specifies a backup connection that is attempted if the primary connection fails\n" +
 				"\n -uname changes the username used when logging into the provider\n" +
 				"\n -view specifies each request using a basic dynamic view\n" +

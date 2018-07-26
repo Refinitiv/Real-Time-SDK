@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 /* Maintains information about a tunnel stream.
- * The SimpleTunnelMsgHandler and QueueMsgHandler have this structure
+ * The SimpleTunnelMsgHandler has this structure
  * as a member, and use it to maintain the tunnel stream 
  * on which they operate. Code associated with opening a tunnel
  * stream and maintaining our knowledge of its state is provided
@@ -28,9 +28,6 @@ typedef struct
 
 	/* Whether to use authentication when opening the tunnel stream. */
 	RsslBool							useAuthentication;				
-
-	/* Whether this tunnel is for queue messaging. */
-	RsslBool							useQueueMessaging;
 
 	/* Open tunnel stream associated with this handler. */
 	RsslTunnelStream					*pTunnelStream;					
@@ -65,9 +62,6 @@ typedef struct
 	/* A default message callback to provide to rsslReactorOpenTunnelStream. */
 	RsslTunnelStreamDefaultMsgCallback	*defaultMsgCallback;
 
-	/* A queue message callback to provide to rsslReactorOpenTunnelStream. */
-	RsslTunnelStreamQueueMsgCallback	*queueMsgCallback;
-	
 	/* Remember whether we are waiting on the final status event. */
 	RsslBool							waitFinalStatusEvent;
 
@@ -98,19 +92,16 @@ RsslReactorCallbackRet tunnelStreamStatusEventCallback(RsslTunnelStream *pTunnel
 /* Initializes the tunnel stream handler, clearing all members. */
 RTR_C_ALWAYS_INLINE void tunnelStreamHandlerInit(TunnelStreamHandler *pTunnelHandler,
        						 char *consumerName, RsslUInt8 domainType, 
-							 RsslBool useAuthentication, RsslBool useQueueMessaging,
+							 RsslBool useAuthentication,
 		        		 	 void processTunnelStreamOpened(RsslTunnelStream*),
 				        	 void processTunnelStreamClosed(RsslTunnelStream*),
-						     RsslTunnelStreamDefaultMsgCallback *defaultMsgCallback,
-							 RsslTunnelStreamQueueMsgCallback *queueMsgCallback)
+						     RsslTunnelStreamDefaultMsgCallback *defaultMsgCallback)
 {
 	pTunnelHandler->consumerName = consumerName;
-    pTunnelHandler->useQueueMessaging = useQueueMessaging;
     pTunnelHandler->useAuthentication = useAuthentication;
     pTunnelHandler->processTunnelStreamOpened = processTunnelStreamOpened;
     pTunnelHandler->processTunnelStreamClosed = processTunnelStreamClosed;
     pTunnelHandler->defaultMsgCallback = defaultMsgCallback;
-    pTunnelHandler->queueMsgCallback = queueMsgCallback;
 
     pTunnelHandler->pTunnelStream = NULL;
     pTunnelHandler->serviceId = 0;

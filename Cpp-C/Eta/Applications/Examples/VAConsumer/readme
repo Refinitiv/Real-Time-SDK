@@ -52,8 +52,7 @@ end of the application runtime. Optionally, the contents of cache can also be di
 periodically during application runtime.
 
 This application can open tunnel streams to a provider that supports them (via the -tunnel option),
-such as the included provider example, or to a queue provider service for queue messaging (see
-options such as -qSourceName).
+such as the included provider example.
 
 This application is intended as a basic usage example.  Some of the design choices
 were made to favor simplicity and readability over performance.  This application 
@@ -123,32 +122,21 @@ Specifying the -cacheInterval will set the number of seconds between the display
 cache contents. The default value is 0: cache contents are not displayed at regular intervals,
 but only displayed on exit when runtime completes.
 
-The -tunnel option opens a tunnel stream to the provider for exchanging simple messages (see
-  -qSourceName for performing queue messaging). This option may be specified once per channel.
-
-The -qSourceName option enables queue messaging and specifies a name of a queue to open. 
-Like the other queue messaging options, this is associated with a channel (specified 
-by the -tcp option). This option may be specified once per channel.
-
-The -qDestName option specifies the name of a queue to which the consumer will send messages. 
-This option requires -qSourceName to be specified. Like the other queue messaging 
-options, this is associated with a channel (specified by the -tcp option). This option may
-be specified multiple times to send to multiple destinations.
+The -tunnel option opens a tunnel stream to the provider for exchanging simple messages.
+This option may be specified once per channel.
 
 The -tsServiceName option may be used to specify the name of the service used for tunnel stream
-messaging or queue messaging. This option is associated with a channel (specified by the -tcp option).  If not 
+messaging. This option is associated with a channel (specified by the -tcp option).  If not 
 specified, the service name used will be the same as the service name specified for the channel 
 via the -tcp option. 
 
 The -tsAuth option causes the consumer to use authentication when performing tunnel stream
-messaging or queue messaging (it is applied to either).  Like the other queue messaging options, 
-this is associated with a channel (specified by the -tcp option). This option may be specified 
-once per channel.
+messaging.  Like the other tunnel stream messaging options, this is associated with a channel
+(specified by the -tcp option). This option may be specified once per channel.
 
-The -tsDomain option specifies the domainType to use when opening the tunnel stream,
-for the simple tunnel messaging or queue messaging. Like the other queue messaging options, 
-this is associated with a channel (specified by the -tcp option). This option may be specified 
-once per channel.
+The -tsDomain option specifies the domainType to use when opening the tunnel stream, for the
+simple tunnel messaging. Like the other tunnel stream messaging options, this is associated
+with a channel (specified by the -tcp option). This option may be specified once per channel.
 
 Specifying the -at option configures the token used for TREP Authentication.  This should be used 
 in place of a userName.  This token is retrieved from a token generator, and passed to TREP, which
@@ -233,9 +221,7 @@ rsslVASendMessage.c - Utility functions for sending messages.
 
 rsslVACacheHandler.c - Utility functions for applying and retrieving cache payload data.
 
-tunnelStreamHandler.c - Provides tunnel stream management, used by the SimpleTunnelStreamMsgHandler and QueueMsgHandler.
+tunnelStreamHandler.c - Provides tunnel stream management, used by the SimpleTunnelStreamMsgHandler.
 
 simpleTunnelMsgHandler.c - Provides functionality for sending and receiving basic messages via a tunnel stream.
-
-queueMsgHandler.c - Provides functionality for sending and receiving queue messages via a tunnel stream.
 

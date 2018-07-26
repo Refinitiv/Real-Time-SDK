@@ -118,15 +118,6 @@ task runWatchlistConsumer(type: JavaExec) {
 	classpath = sourceSets.main.runtimeClasspath
 }
 
-task runQueueConsumer(type: JavaExec) {
-	dependsOn 'copyDictionary'
-    group 'Run ETA Application Examples'
-    description 'Run ETA Queue Consumer Application Example'
-
-	main = 'com.thomsonreuters.upa.valueadd.examples.queueconsumer.QueueConsumer'
-	classpath = sourceSets.main.runtimeClasspath
-}
-
 task runGenericProv(type: JavaExec) {
 	dependsOn 'copyDictionary'
     group 'Run ETA Application Examples'
@@ -169,15 +160,6 @@ task runCodecExample(type: JavaExec) {
     description 'Run ETA Codec Application Example'
 
 	main = 'com.thomsonreuters.upa.examples.codec.CodecExample'
-	classpath = sourceSets.main.runtimeClasspath
-}
-
-task runEDFConsumer(type: JavaExec) {
-	dependsOn 'copyDictionary'
-    group 'Run ETA Application Examples'
-    description 'Run ETA EDF Consumer Application Example'
-
-	main = 'com.thomsonreuters.upa.examples.edfexamples.edfconsumer.EDFConsumer'
 	classpath = sourceSets.main.runtimeClasspath
 }
 

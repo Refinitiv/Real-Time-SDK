@@ -13,7 +13,6 @@
 
 #include "rsslVACacheHandler.h"
 #include "simpleTunnelMsgHandler.h"
-#include "queueMsgHandler.h"
 
 #include <stdlib.h>
 
@@ -146,11 +145,9 @@ typedef struct
 	RsslBool isServiceReady;
 	RsslQos qos;
 
-	/* Service information for queue messaging. */
+	/* Service information for tunnel stream. */
 	RsslBool tunnelMessagingEnabled;
-	RsslBool queueMessagingEnabled;
 	char tunnelStreamServiceName[MAX_BUFFER_LENGTH];
-	QueueMsgHandler queueMsgHandler;
 	SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 
 	RsslDataDictionary dictionary;
@@ -245,7 +242,6 @@ RTR_C_INLINE void initChannelCommand(ChannelCommand *pCommand)
 	pCommand->capabilitiesCount = 0;
 
 	pCommand->tunnelMessagingEnabled = RSSL_FALSE;
-	pCommand->queueMessagingEnabled = RSSL_FALSE;
 	snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "");
 }
 
@@ -448,7 +444,6 @@ RTR_C_INLINE void clearChannelCommand(ChannelCommand *pCommand)
 	pCommand->capabilitiesCount = 0;
 
 	tunnelStreamHandlerClearServiceInfo(&pCommand->simpleTunnelMsgHandler.tunnelStreamHandler);
-	tunnelStreamHandlerClearServiceInfo(&pCommand->queueMsgHandler.tunnelStreamHandler);
 
 }
 

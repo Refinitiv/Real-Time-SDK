@@ -12,7 +12,7 @@
 #include "rtr/rsslTypes.h"
 #include "rtr/rsslRDM.h"
 #include "rtr/rsslMsgKey.h"
-#include "queueMsgHandler.h"
+#include "tunnelStreamHandler.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,10 +61,6 @@ typedef struct
 	char				sendPort[255];					/* Send Port. */
 	char				recvPort[255];					/* Receive port. */
 	char				unicastPort[255];				/* Unicast port. */
-#ifdef TR_INTERNAL_SRC
-	RsslUInt16			portRoamRange;					/* Unicast port roaming range. */
-	char				tcpControlPort[255];			/* TCP control port. */
-#endif
 
 	/* Host-Stat message settings, when using a multicast connection. */
 	RsslBool			enableHostStatMessages;			/* Whether to configure transport to publish
@@ -76,6 +72,9 @@ typedef struct
 
 	RsslBuffer			userName;						/* Username to use when logging in. */
 	RsslBuffer			serviceName;					/* Service name to use when requesting items. */
+	RsslBuffer			authenticationToken;			/* Authentication token used for logging in */
+	RsslBuffer			authenticationExtended;			/* Extended Authentication information used for logging in */
+	RsslBuffer			appId;					/* Application ID */
 	ItemInfo			itemList[MAX_ITEMS];			/* The list of items to request. */
 	ItemInfo			providedItemList[MAX_ITEMS];	/* Stores any items opened by the provider.
 														 * May occur when requesting symbol list with
@@ -91,24 +90,17 @@ typedef struct
 	// END APIQA:
 	RsslBool			isTunnelStreamMessagingEnabled;	/* Whether to open a tunnel stream for
 														 * exchanging some basic messages. */
-	RsslBool			isQueueMessagingEnabled;		/* Whether to open a tunnel stream for
-														 * exchanging queue messages. */
-	RsslBuffer			queueSourceName;				/* Queue source name, if performing
-														 * queue messaging. */
 	RsslBuffer			tunnelStreamServiceName;		/* Service name to use for opening a tunnel stream. */
 	RsslUInt8			tunnelStreamDomainType;			/* Domain type to use for opening a tunnel stream. */
-	RsslBuffer			
-		queueDestNameList[MAX_DEST_NAMES];				/* Queue message destination names, if
-														 * performing queue messaging. */
-	RsslUInt32			queueDestNameCount;				/* Number of names in queueDestNameList. */
 	RsslBool			useAuthentication;				/* Whether to use authentication when
 														 * opening a tunnel stream. */
 
 	char			_userNameMem[255];
 	char			_serviceNameMem[255];
-	char			_queueSourceNameMem[255];
-	char			_queueDestNameMem[MAX_DEST_NAMES][255];
 	char			_tunnelStreamServiceNameMem[255];
+	char 			_authenticationTokenMem[1024];
+	char			_authenticationExtendedMem[1024];
+	char 			_appIdMem[255];
 } WatchlistConsumerConfig;
 extern WatchlistConsumerConfig watchlistConsumerConfig;
 

@@ -19,7 +19,6 @@ import com.thomsonreuters.upa.codec.CloseMsg;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
-import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.EncodeIterator;
@@ -188,12 +187,10 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * <li>-krbfile Proxy KRB file. 
  * <li>-keyfile keystore file for encryption.
  * <li>-keypasswd keystore password for encryption.
- * <li>-qSourceName (optional) specifies the source name for queue messages (if specified, configures consumer to receive queue messages)"
- * <li>-qDestName (optional) specifies the destination name for queue messages (if specified, configures consumer to send queue messages to this name, multiple instances may be specified)"
  * <li>-tunnel (optional) enables consumer to open tunnel stream and send basic text messages
- * <li>-tsServiceName (optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used)"
- * <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
- * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
+ * <li>-tsServiceName (optional) specifies the service name for tunnel stream messages (if not specified, the service name specified in -c/-tcp is used)"
+ * <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams.
+ * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams.
  * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
  * <li>-ax Specifies the Authentication Extended information.
  * <li>-aid Specifies the Application ID.
@@ -203,10 +200,6 @@ public class WatchlistConsumer implements ConsumerCallback
 {
     private final String FIELD_DICTIONARY_DOWNLOAD_NAME = "RWFFld";
     private final String ENUM_TABLE_DOWNLOAD_NAME = "RWFEnum";
-    private final String FIX_FIELD_DICTIONARY_FILE_NAME = "FDMFixFieldDictionary";
-    private final String FIX_ENUM_TABLE_FILE_NAME = "FDMenumtypes.def";
-
-    private final int MAX_QUEUE_DESTINATIONS = 10;
 
     private Reactor reactor;
     private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
@@ -218,15 +211,12 @@ public class WatchlistConsumer implements ConsumerCallback
     private long runtime;
     private Error error; // error information
 
-    private DataDictionary fixdictionary;
-
     private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
 
     ArrayList<ChannelInfo> chnlInfoList = new ArrayList<ChannelInfo>();
 
-    private QueueMsgHandler queueMsgHandler;
     private TunnelStreamHandler tunnelStreamHandler;
-    private String qServiceName;
+    private String tsServiceName;
 
     long cacheTime;
     long cacheInterval;
@@ -266,8 +256,6 @@ public class WatchlistConsumer implements ConsumerCallback
 
     public WatchlistConsumer()
     {
-        fixdictionary = CodecFactory.createDataDictionary();
-
         error = TransportFactory.createError();
 
         dispatchOptions.maxMessages(1);
@@ -333,7 +321,9 @@ public class WatchlistConsumer implements ConsumerCallback
         // register selector with reactor's reactorChannel.
         try
         {
-            reactor.reactorChannel().selectableChannel().register(selector, SelectionKey.OP_READ, reactor.reactorChannel());
+			reactor.reactorChannel().selectableChannel().register(selector,
+																SelectionKey.OP_READ,
+																reactor.reactorChannel());
         }
         catch (ClosedChannelException e)
         {
@@ -404,17 +394,15 @@ public class WatchlistConsumer implements ConsumerCallback
                     {
                         if (key.isReadable())
                         {
-                            // retrieve associated reactor channel and dispatch
-                            // on that channel
+							// retrieve associated reactor channel and dispatch on that channel 
                             ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
 
                             // dispatch until no more messages
-                            while ((ret = reactorChnl.dispatch(dispatchOptions, errorInfo)) > 0)
-                            {
-                            }
+							while ((ret = reactorChnl.dispatch(dispatchOptions, errorInfo)) > 0) {}
                             if (ret == ReactorReturnCodes.FAILURE)
                             {
-                                if (reactorChnl.state() != ReactorChannel.State.CLOSED && reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
+								if (reactorChnl.state() != ReactorChannel.State.CLOSED &&
+										reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
                                 {
                                     System.out.println("ReactorChannel dispatch failed: " + ret + "(" + errorInfo.error().text() + ")");
                                 }
@@ -441,13 +429,13 @@ public class WatchlistConsumer implements ConsumerCallback
             if (!closeHandled)
             {
                 handlePosting();
-                handleQueueMessaging();
                 handleTunnelStream();
 
                 // send login reissue if login reissue time has passed
                 for (ChannelInfo chnlInfo : chnlInfoList)
                 {
-                    if (chnlInfo.canSendLoginReissue && System.currentTimeMillis() >= chnlInfo.loginReissueTime)
+	        		if (chnlInfo.canSendLoginReissue &&
+	        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
                     {
                         LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
                         submitOptions.clear();
@@ -464,15 +452,9 @@ public class WatchlistConsumer implements ConsumerCallback
                 }
             }
 
-            if (closeHandled && queueMsgHandler != null && queueMsgHandler._chnlInfo != null && !queueMsgHandler._chnlInfo.isQueueStreamUp)
+	        if(closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null &&
+	           !tunnelStreamHandler._chnlInfo.isTunnelStreamUp) 
                 break;
-
-            if (closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null && !tunnelStreamHandler._chnlInfo.isTunnelStreamUp)
-                break;
-
-            if (closeHandled && queueMsgHandler == null && tunnelStreamHandler == null)
-                break;
-
         }
     }
 
@@ -517,6 +499,7 @@ public class WatchlistConsumer implements ConsumerCallback
                 encIter.clear();
                 encIter.setBufferAndRWFVersion(payload, channel.majorVersion(), channel.minorVersion());
 
+				
                 ret = itemRequest.encode(encIter);
 
                 if (ret < CodecReturnCodes.SUCCESS)
@@ -530,8 +513,7 @@ public class WatchlistConsumer implements ConsumerCallback
             }
             else if (domainType == DomainTypes.MARKET_PRICE && watchlistConsumerConfig.enableView())
             {
-                payload = CodecFactory.createBuffer(); // move it to the top to
-                                                       // share
+			    payload = CodecFactory.createBuffer(); // move it to the top to share 
                 payload.data(ByteBuffer.allocate(1024));
 
                 if (payload == null)
@@ -581,6 +563,7 @@ public class WatchlistConsumer implements ConsumerCallback
         return CodecReturnCodes.SUCCESS;
     }
 
+	
     private void requestDictionaries(ReactorChannel channel, ChannelInfo chnlInfo)
     {
         RequestMsg msg = (RequestMsg)CodecFactory.createMsg();
@@ -629,7 +612,9 @@ public class WatchlistConsumer implements ConsumerCallback
                 // register selector with channel event's reactorChannel
                 try
                 {
-                    event.reactorChannel().selectableChannel().register(selector, SelectionKey.OP_READ, event.reactorChannel());
+    				event.reactorChannel().selectableChannel().register(selector,
+    																	SelectionKey.OP_READ,
+    																	event.reactorChannel());
                 }
                 catch (ClosedChannelException e)
                 {
@@ -641,7 +626,9 @@ public class WatchlistConsumer implements ConsumerCallback
             }
             case ReactorChannelEventTypes.FD_CHANGE:
             {
-                System.out.println("Channel Change - Old Channel: " + event.reactorChannel().oldSelectableChannel() + " New Channel: " + event.reactorChannel().selectableChannel());
+    	        System.out.println("Channel Change - Old Channel: "
+    	                + event.reactorChannel().oldSelectableChannel() + " New Channel: "
+    	                + event.reactorChannel().selectableChannel());
 
                 // cancel old reactorChannel select
                 SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(selector);
@@ -651,7 +638,9 @@ public class WatchlistConsumer implements ConsumerCallback
                 // register selector with channel event's new reactorChannel
                 try
                 {
-                    event.reactorChannel().selectableChannel().register(selector, SelectionKey.OP_READ, event.reactorChannel());
+    	        	event.reactorChannel().selectableChannel().register(selector,
+    	        													SelectionKey.OP_READ,
+    	        													event.reactorChannel());
                 }
                 catch (Exception e)
                 {
@@ -679,7 +668,8 @@ public class WatchlistConsumer implements ConsumerCallback
                 // set ReactorChannel on ChannelInfo, again need this?
                 chnlInfo.reactorChannel = event.reactorChannel();
 
-                if (fieldDictionaryLoaded && enumDictionaryLoaded || itemDecoder.fieldDictionaryLoadedFromFile && itemDecoder.enumTypeDictionaryLoadedFromFile)
+				if (fieldDictionaryLoaded && enumDictionaryLoaded
+						 || itemDecoder.fieldDictionaryLoadedFromFile && itemDecoder.enumTypeDictionaryLoadedFromFile)
                     requestItems(reactor, event.reactorChannel());
                 else
                     requestDictionaries(event.reactorChannel(), chnlInfo);
@@ -705,7 +695,8 @@ public class WatchlistConsumer implements ConsumerCallback
                 }
 
                 // reset dictionary if not loaded from file
-                if (itemDecoder.fieldDictionaryLoadedFromFile == false && itemDecoder.enumTypeDictionaryLoadedFromFile == false)
+    	        if (itemDecoder.fieldDictionaryLoadedFromFile == false &&
+    	            itemDecoder.enumTypeDictionaryLoadedFromFile == false)
                 {
                     if (chnlInfo.dictionary != null)
                     {
@@ -715,7 +706,7 @@ public class WatchlistConsumer implements ConsumerCallback
 
                 itemsRequested = false;
                 chnlInfo.hasServiceInfo = false;
-                chnlInfo.hasQServiceInfo = false;
+    	        chnlInfo.hasTunnelStreamServiceInfo = false;
                 break;
             }
             case ReactorChannelEventTypes.CHANNEL_DOWN:
@@ -802,7 +793,8 @@ public class WatchlistConsumer implements ConsumerCallback
                         itemName = refreshMsg.msgKey().name().toString(); // Buffer
                         if (item == null && refreshMsg.streamId() < 0)
                         {
-                            watchlistConsumerConfig.addProvidedItemInfo(refreshMsg.streamId(), refreshMsg.msgKey(), refreshMsg.domainType());
+                	    	watchlistConsumerConfig.addProvidedItemInfo(refreshMsg.streamId(), refreshMsg.msgKey(), 
+                	    			refreshMsg.domainType());
                         }
                     }
                 }
@@ -868,7 +860,8 @@ public class WatchlistConsumer implements ConsumerCallback
                         itemName = statusMsg.msgKey().name().toString();
                         if (item != null && statusMsg.streamId() < 0)
                         {
-                            watchlistConsumerConfig.addProvidedItemInfo(statusMsg.streamId(), statusMsg.msgKey(), statusMsg.domainType());
+                	    	watchlistConsumerConfig.addProvidedItemInfo(statusMsg.streamId(), statusMsg.msgKey(), 
+                	    			statusMsg.domainType());
                         }
                     }
                 }
@@ -935,6 +928,7 @@ public class WatchlistConsumer implements ConsumerCallback
                 itemState.copy(item.state());
         }
 
+    
         return ReactorCallbackReturnCodes.SUCCESS;
     }
 
@@ -1014,8 +1008,7 @@ public class WatchlistConsumer implements ConsumerCallback
                     {
                         if (service.info().serviceName().toString().equals(serviceName))
                         {
-                            // save serviceInfo associated with requested
-                            // service name
+							// save serviceInfo associated with requested service name
                             if (service.copy(chnlInfo.serviceInfo) < CodecReturnCodes.SUCCESS)
                             {
                                 System.out.println("Service.copy() failure");
@@ -1024,18 +1017,17 @@ public class WatchlistConsumer implements ConsumerCallback
                             }
                             chnlInfo.hasServiceInfo = true;
                         }
-                        if (service.info().serviceName().toString().equals(qServiceName))
+		                if (service.info().serviceName().toString().equals(tsServiceName))
                         {
-                            // save serviceInfo associated with requested
-                            // service name
-                            if (service.copy(chnlInfo.qServiceInfo) < CodecReturnCodes.SUCCESS)
+		                    // save serviceInfo associated with requested service name
+		                    if (service.copy(chnlInfo.tsServiceInfo) < CodecReturnCodes.SUCCESS)
                             {
                                 System.out.println("Service.copy() failure");
                                 uninitialize();
                                 System.exit(ReactorReturnCodes.FAILURE);
                             }
 
-                            chnlInfo.hasQServiceInfo = true;
+		                    chnlInfo.hasTunnelStreamServiceInfo = true;
                         }
                     }
                 }
@@ -1044,7 +1036,7 @@ public class WatchlistConsumer implements ConsumerCallback
                 DirectoryUpdate directoryUpdate = (DirectoryUpdate)event.rdmDirectoryMsg();
 
                 serviceName = chnlInfo.connectionArg.service();
-                String qServiceName = chnlInfo.connectionArg.qService();
+			    String tsServiceName = chnlInfo.connectionArg.tsService();
                 System.out.println("Received Source Directory Update");
                 System.out.println(directoryUpdate.toString());
 
@@ -1060,24 +1052,25 @@ public class WatchlistConsumer implements ConsumerCallback
                         chnlInfo.serviceInfo.action(MapEntryActions.DELETE);
                     }
 
-                    if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+			    	if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.tsServiceInfo.serviceId() ) 
                     {
-                        chnlInfo.qServiceInfo.action(MapEntryActions.DELETE);
+			    		chnlInfo.tsServiceInfo.action(MapEntryActions.DELETE);
                     }
 
-                    boolean updateServiceInfo = false, updateQServiceInfo = false;
+			    	boolean updateServiceInfo = false, updateTSServiceInfo = false;
                     if (service.info().serviceName().toString() != null)
                     {
                         System.out.println("Received serviceName: " + service.info().serviceName() + "\n");
-                        // update service cache - assume cache is built with
-                        // previous refresh message
-                        if (service.info().serviceName().toString().equals(serviceName) || service.serviceId() == chnlInfo.serviceInfo.serviceId())
+			    		// update service cache - assume cache is built with previous refresh message
+			    		if (service.info().serviceName().toString().equals(serviceName) ||
+			    				service.serviceId() == chnlInfo.serviceInfo.serviceId())
                         {
                             updateServiceInfo = true;
                         }
-                        if (service.info().serviceName().toString().equals(qServiceName) || service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+			    		if (service.info().serviceName().toString().equals(tsServiceName) ||
+			    				service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
                         {
-                            updateQServiceInfo = true;
+			    			updateTSServiceInfo = true;
                         }
                     }
                     else
@@ -1086,16 +1079,15 @@ public class WatchlistConsumer implements ConsumerCallback
                         {
                             updateServiceInfo = true;
                         }
-                        if (service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+			    		if (service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
                         {
-                            updateQServiceInfo = true;
+			    			updateTSServiceInfo = true;
                         }
                     }
 
                     if (updateServiceInfo)
                     {
-                        // update serviceInfo associated with requested service
-                        // name
+			    		// update serviceInfo associated with requested service name
                         if (service.copy(chnlInfo.serviceInfo) < CodecReturnCodes.SUCCESS)
                         {
                             System.out.println("Service.copy() failure");
@@ -1104,18 +1096,17 @@ public class WatchlistConsumer implements ConsumerCallback
                         }
                         chnlInfo.hasServiceInfo = true;
                     }
-                    if (updateQServiceInfo)
+			    	if (updateTSServiceInfo)
                     {
-                        // update serviceInfo associated with requested service
-                        // name
-                        if (service.copy(chnlInfo.qServiceInfo) < CodecReturnCodes.SUCCESS)
+			    		// update serviceInfo associated with requested service name
+			    		if (service.copy(chnlInfo.tsServiceInfo) < CodecReturnCodes.SUCCESS)
                         {
                             System.out.println("Service.copy() failure");
                             uninitialize();
                             System.exit(ReactorReturnCodes.FAILURE);
                         }
 
-                        chnlInfo.hasQServiceInfo = true;
+			    		chnlInfo.hasTunnelStreamServiceInfo = true;                
                     }
                 }
                 // APIQA:
@@ -1166,12 +1157,7 @@ public class WatchlistConsumer implements ConsumerCallback
 
                 if (chnlInfo.connectionArg.tunnel())
                 {
-                    tunnelStreamHandler.processServiceUpdate(chnlInfo.connectionArg.qService(), service);
-                }
-
-                if (queueMsgHandler != null)
-                {
-                    queueMsgHandler.processServiceUpdate(chnlInfo.connectionArg.qService(), service);
+					tunnelStreamHandler.processServiceUpdate(chnlInfo.connectionArg.tsService(), service);        	
                 }
             }
         }
@@ -1180,40 +1166,20 @@ public class WatchlistConsumer implements ConsumerCallback
         {
             if (!tunnelStreamHandler.isServiceFound())
             {
-                System.out.println(" Directory response does not contain service name for tunnel streams: \n " + chnlInfo.connectionArg.qService());
+				System.out.println(" Directory response does not contain service name for tunnel streams: \n " 
+						+ chnlInfo.connectionArg.tsService());
             }
             else if (!tunnelStreamHandler.isServiceSupported())
             {
-                System.out.println(" Service in use for tunnel streams does not support them: \n" + chnlInfo.connectionArg.qService());
+				System.out.println(" Service in use for tunnel streams does not support them: \n"						 
+						+ chnlInfo.connectionArg.tsService());
             }
-            else if (isRequestedQServiceUp(chnlInfo))
+            else if (isRequestedTunnelStreamServiceUp(chnlInfo))
             {
                 if (tunnelStreamHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                 {
-                    if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
-                    {
-                        uninitialize();
-                        System.exit(ReactorReturnCodes.FAILURE);
-                    }
-                }
-            }
-        }
-
-        if (queueMsgHandler != null)
-        {
-            if (!queueMsgHandler.isServiceFound())
-            {
-                System.out.println(" Directory response does not contain service name for queue messaging: \n " + chnlInfo.connectionArg.qService());
-            }
-            else if (!queueMsgHandler.isServiceSupported())
-            {
-                System.out.println(" Service in use for queue messaging does not support them: \n" + chnlInfo.connectionArg.qService());
-            }
-            else if (isRequestedQServiceUp(chnlInfo))
-            {
-                if (queueMsgHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
-                {
-                    if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                    if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                            chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                     {
                         uninitialize();
                         System.exit(ReactorReturnCodes.FAILURE);
@@ -1271,7 +1237,9 @@ public class WatchlistConsumer implements ConsumerCallback
                 chnlInfo.dIter.clear();
 
                 // set buffer and version info
-                chnlInfo.dIter.setBufferAndRWFVersion(dictionaryRefresh.dataBody(), event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion());
+				chnlInfo.dIter.setBufferAndRWFVersion(dictionaryRefresh.dataBody(),
+													event.reactorChannel().majorVersion(),
+													event.reactorChannel().minorVersion());
 
                 System.out.println("Received Dictionary Response: " + dictionaryRefresh.dictionaryName());
 
@@ -1346,16 +1314,19 @@ public class WatchlistConsumer implements ConsumerCallback
         return ReactorCallbackReturnCodes.SUCCESS;
     }
 
+
     public boolean isRequestedServiceUp(ChannelInfo chnlInfo)
     {
-        return chnlInfo.hasServiceInfo && chnlInfo.serviceInfo.checkHasState() && (!chnlInfo.serviceInfo.state().checkHasAcceptingRequests() || chnlInfo.serviceInfo.state().acceptingRequests() == 1)
-                && chnlInfo.serviceInfo.state().serviceState() == 1;
+        return  chnlInfo.hasServiceInfo &&
+			chnlInfo.serviceInfo.checkHasState() && (!chnlInfo.serviceInfo.state().checkHasAcceptingRequests() ||
+                chnlInfo.serviceInfo.state().acceptingRequests() == 1) && chnlInfo.serviceInfo.state().serviceState() == 1;
     }
 
-    public boolean isRequestedQServiceUp(ChannelInfo chnlInfo)
+    public boolean isRequestedTunnelStreamServiceUp(ChannelInfo chnlInfo)
     {
-        return chnlInfo.hasQServiceInfo && chnlInfo.qServiceInfo.checkHasState()
-                && (!chnlInfo.qServiceInfo.state().checkHasAcceptingRequests() || chnlInfo.qServiceInfo.state().acceptingRequests() == 1) && chnlInfo.qServiceInfo.state().serviceState() == 1;
+        return  chnlInfo.hasTunnelStreamServiceInfo &&
+            chnlInfo.tsServiceInfo.checkHasState() && (!chnlInfo.tsServiceInfo.state().checkHasAcceptingRequests() ||
+                chnlInfo.tsServiceInfo.state().acceptingRequests() == 1) && chnlInfo.tsServiceInfo.state().serviceState() == 1;
     }
 
     private void checkAndInitPostingSupport(ChannelInfo chnlInfo)
@@ -1366,7 +1337,9 @@ public class WatchlistConsumer implements ConsumerCallback
         // set up posting if its enabled
 
         // ensure that provider supports posting - if not, disable posting
-        if (!chnlInfo.loginRefresh.checkHasFeatures() || !chnlInfo.loginRefresh.features().checkHasSupportPost() || chnlInfo.loginRefresh.features().supportOMMPost() == 0)
+        if (!chnlInfo.loginRefresh.checkHasFeatures() ||
+                !chnlInfo.loginRefresh.features().checkHasSupportPost() ||
+                chnlInfo.loginRefresh.features().supportOMMPost() == 0)
         {
             // provider does not support posting, disable it
             chnlInfo.shouldOffStreamPost = false;
@@ -1386,7 +1359,10 @@ public class WatchlistConsumer implements ConsumerCallback
     {
         for (ChannelInfo chnlInfo : chnlInfoList)
         {
-            if (chnlInfo.loginRefresh == null || chnlInfo.serviceInfo == null || chnlInfo.reactorChannel == null || chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
+	    	if (chnlInfo.loginRefresh == null ||
+	    		chnlInfo.serviceInfo == null ||
+	    		chnlInfo.reactorChannel == null ||
+	    		chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
             {
                 continue;
             }
@@ -1404,7 +1380,8 @@ public class WatchlistConsumer implements ConsumerCallback
                     if (watchlistConsumerConfig.itemList().get(i).domain() == DomainTypes.MARKET_PRICE)
                     {
                         postingItem = watchlistConsumerConfig.itemList().get(i);
-                        if (watchlistConsumerConfig.itemList().get(i).state().streamState() != StreamStates.OPEN || watchlistConsumerConfig.itemList().get(i).state().dataState() != DataStates.OK)
+                        if(watchlistConsumerConfig.itemList().get(i).state().streamState() != StreamStates.OPEN  ||
+                        		watchlistConsumerConfig.itemList().get(i).state().dataState() != DataStates.OK)
                         {
                             System.out.println("No currently available Market Price streams to on-stream post to.  Will retry shortly.");
                             return;
@@ -1425,6 +1402,7 @@ public class WatchlistConsumer implements ConsumerCallback
                 chnlInfo.postHandler.serviceId(chnlInfo.serviceInfo.serviceId());
                 chnlInfo.postHandler.dictionary(chnlInfo.dictionary);
 
+	
                 int ret = chnlInfo.postHandler.handlePosts(chnlInfo.reactorChannel, errorInfo);
                 if (ret < CodecReturnCodes.SUCCESS)
                     System.out.println("Error posting onstream: " + errorInfo.error().text());
@@ -1442,27 +1420,14 @@ public class WatchlistConsumer implements ConsumerCallback
         }
     }
 
-    private void handleQueueMessaging()
-    {
-        for (ChannelInfo chnlInfo : chnlInfoList)
-        {
-            if (chnlInfo.loginRefresh == null || chnlInfo.serviceInfo == null || chnlInfo.reactorChannel == null || chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
-            {
-                continue;
-            }
-
-            if (queueMsgHandler != null)
-            {
-                queueMsgHandler.sendQueueMsg(chnlInfo.reactorChannel);
-            }
-        }
-    }
-
     private void handleTunnelStream()
     {
         for (ChannelInfo chnlInfo : chnlInfoList)
         {
-            if (chnlInfo.loginRefresh == null || chnlInfo.serviceInfo == null || chnlInfo.reactorChannel == null || chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
+            if (chnlInfo.loginRefresh == null ||
+                chnlInfo.serviceInfo == null ||
+                chnlInfo.reactorChannel == null ||
+                chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
             {
                 continue;
             }
@@ -1487,7 +1452,8 @@ public class WatchlistConsumer implements ConsumerCallback
         chnlInfo.consumerRole.watchlistOptions().obeyOpenWindow(true);
         chnlInfo.consumerRole.watchlistOptions().channelOpenCallback(this);
 
-        if (itemDecoder.fieldDictionaryLoadedFromFile == false && itemDecoder.enumTypeDictionaryLoadedFromFile == false)
+        if (itemDecoder.fieldDictionaryLoadedFromFile == false &&
+        	itemDecoder.enumTypeDictionaryLoadedFromFile == false)
         {
             chnlInfo.consumerRole.dictionaryMsgCallback(this);
         }
@@ -1502,8 +1468,7 @@ public class WatchlistConsumer implements ConsumerCallback
             chnlInfo.consumerRole.rdmLoginRequest().userName().data(watchlistConsumerConfig.userName());
         }
 
-        // use command line authentication token and extended authentication
-        // information if specified
+        // use command line authentication token and extended authentication information if specified
         if (watchlistConsumerConfig.authenticationToken() != null && !watchlistConsumerConfig.authenticationToken().equals(""))
         {
             chnlInfo.consumerRole.rdmLoginRequest().userNameType(Login.UserIdTypes.AUTHN_TOKEN);
@@ -1527,7 +1492,8 @@ public class WatchlistConsumer implements ConsumerCallback
         chnlInfo.consumerRole.rdmLoginRequest().attrib().applyHasAllowSuspectData();
         chnlInfo.consumerRole.rdmLoginRequest().attrib().allowSuspectData(1);
 
-        if (itemDecoder.fieldDictionaryLoadedFromFile == true && itemDecoder.enumTypeDictionaryLoadedFromFile == true)
+        if (itemDecoder.fieldDictionaryLoadedFromFile == true &&
+        	itemDecoder.enumTypeDictionaryLoadedFromFile == true)
         {
             chnlInfo.dictionary = itemDecoder.getDictionary();
         }
@@ -1562,9 +1528,9 @@ public class WatchlistConsumer implements ConsumerCallback
         // periodically
         chnlInfo.postHandler.initPostHandler();
 
+        
         // set up reactor connect options
-        chnlInfo.connectOptions.reconnectAttemptLimit(-1); // attempt to recover
-                                                           // forever
+        chnlInfo.connectOptions.reconnectAttemptLimit(-1); // attempt to recover forever
         chnlInfo.connectOptions.reconnectMinDelay(500); // 0.5 second minimum
         chnlInfo.connectOptions.reconnectMaxDelay(3000); // 3 second maximum
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
@@ -1595,57 +1561,11 @@ public class WatchlistConsumer implements ConsumerCallback
             setHTTPConfiguration(cOpt);
         }
 
-        // exit program if both queue messaging and tunnel stream are configured
-        if (chnlInfo.connectionArg.tunnel() && chnlInfo.connectionArg.qSource() != null && !chnlInfo.connectionArg.qSource().equals(""))
-        {
-            System.out.println("\nError: Cannot run with both tunnel stream messaging and queue messaging enabled." + "\n");
-            uninitialize();
-            System.exit(ReactorReturnCodes.FAILURE);
-        }
-
-        // handle queue messaging configuration
-        if (chnlInfo.connectionArg.qSource() != null && !chnlInfo.connectionArg.qSource().equals("") && queueMsgHandler == null)
-        {
-            if (chnlInfo.connectionArg.qDestList().size() <= MAX_QUEUE_DESTINATIONS)
-            {
-                loadFixDictionary();
-                qServiceName = chnlInfo.connectionArg.qService();
-                queueMsgHandler = new QueueMsgHandler(chnlInfo.connectionArg.qSource(), chnlInfo.connectionArg.qDestList(), fixdictionary, chnlInfo.connectionArg.tunnelAuth(),
-                        chnlInfo.connectionArg.tunnelDomain());
-            }
-            else
-            // exit if too many queue destinations entered
-            {
-                System.err.println("\nError: Example only supports " + MAX_QUEUE_DESTINATIONS + " queue destination names.\n");
-                System.err.println(CommandLine.optionHelpString());
-                System.exit(CodecReturnCodes.FAILURE);
-            }
-        }
-
         // handle basic tunnel stream configuration
         if (chnlInfo.connectionArg.tunnel() && tunnelStreamHandler == null)
         {
-            qServiceName = chnlInfo.connectionArg.qService();
+            tsServiceName = chnlInfo.connectionArg.tsService();
             tunnelStreamHandler = new TunnelStreamHandler(chnlInfo.connectionArg.tunnelAuth(), chnlInfo.connectionArg.tunnelDomain());
-        }
-    }
-
-    // load FIX dictionary to support FIX Protocol
-    public void loadFixDictionary()
-    {
-        fixdictionary.clear();
-        if (fixdictionary.loadFieldDictionary(FIX_FIELD_DICTIONARY_FILE_NAME, error) < 0)
-        {
-            System.out.println("\nUnable to load FIX field dictionary. \n\tText: " + error.text() + "\n");
-            uninitialize();
-            System.exit(ReactorReturnCodes.FAILURE);
-        }
-
-        if (fixdictionary.loadEnumTypeDictionary(FIX_ENUM_TABLE_FILE_NAME, error) < 0)
-        {
-            System.out.println("\nUnable to load FIX enum dictionary. \n\tText: " + error.text() + "\n");
-            uninitialize();
-            System.exit(ReactorReturnCodes.FAILURE);
         }
     }
 
@@ -1691,17 +1611,9 @@ public class WatchlistConsumer implements ConsumerCallback
             // close items streams
             closeItemStreams(chnlInfo);
 
-            // close queue messaging streams
-            if (queueMsgHandler != null && chnlInfo.reactorChannel != null)
-            {
-                if (queueMsgHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
-                {
-                    System.out.println("queueMsgHandler.closeStream() failed with errorText: " + errorInfo.error().text());
-                }
-            }
-
             // close tunnel streams
-            if (tunnelStreamHandler != null && chnlInfo.reactorChannel != null)
+            if (tunnelStreamHandler != null &&
+                chnlInfo.reactorChannel != null)
             {
                 if (tunnelStreamHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
                 {
@@ -1730,15 +1642,6 @@ public class WatchlistConsumer implements ConsumerCallback
         for (ChannelInfo chnlInfo : chnlInfoList)
         {
             closeItemStreams(chnlInfo);
-
-            // close queue messaging streams
-            if (queueMsgHandler != null && chnlInfo.reactorChannel != null)
-            {
-                if (queueMsgHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
-                {
-                    System.out.println("queueMsgHandler.closeStream() failed with errorText: " + errorInfo.error().text());
-                }
-            }
 
             // close tunnel streams
             if (tunnelStreamHandler != null && chnlInfo.reactorChannel != null)
@@ -1772,6 +1675,7 @@ public class WatchlistConsumer implements ConsumerCallback
         options.tunnelingInfo().KeystorePasswd(keyPasswd);
     }
 
+    
     private void setHTTPConfiguration(ConnectOptions options)
     {
         options.tunnelingInfo().objectName("");
@@ -1796,6 +1700,7 @@ public class WatchlistConsumer implements ConsumerCallback
                 System.exit(CodecReturnCodes.FAILURE);
             }
 
+  
             options.tunnelingInfo().HTTPproxy(true);
             options.tunnelingInfo().HTTPproxyHostName(proxyHostName);
             try
@@ -1875,15 +1780,13 @@ public class WatchlistConsumer implements ConsumerCallback
 
     String mapServiceActionString(int action)
     {
-        if (action == MapEntryActions.DELETE)
-            return "DELETE";
-        else if (action == MapEntryActions.ADD)
-            return "ADD";
-        else if (action == MapEntryActions.UPDATE)
-            return "UPDATE";
+    	if (action == MapEntryActions.DELETE) return "DELETE";
+    	else if ( action == MapEntryActions.ADD) return "ADD";
+    	else if (action == MapEntryActions.UPDATE) return "UPDATE";
         else
             return null;
     }
+
 
     public static void main(String[] args) throws Exception
     {

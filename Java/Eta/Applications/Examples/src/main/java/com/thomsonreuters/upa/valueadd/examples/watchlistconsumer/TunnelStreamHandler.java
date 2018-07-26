@@ -62,12 +62,12 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
         
         if (!_tunnelServiceSupported)
         {
-            System.out.println("ReactorChannel.openTunnelStream() failed: service " + chnlInfo.qServiceInfo.serviceId() 
+            System.out.println("ReactorChannel.openTunnelStream() failed: service " + chnlInfo.tsServiceInfo.serviceId() 
             		+ " not supported");
             return -1;
         }
 
-        _serviceId = chnlInfo.qServiceInfo.serviceId();
+        _serviceId = chnlInfo.tsServiceInfo.serviceId();
         
         _tunnelStreamOpenOptions.clear();
         _tunnelStreamOpenOptions.name("BasicTunnelStream");
@@ -227,7 +227,7 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
     
     public void processServiceUpdate(String matchServiceName, Service service)
     {
-    	/* Save service information for queue messaging. */
+    	/* Save service information for tunnel stream. */
     	if (!_isTunnelServiceFound)
     	{
     		/* Check if the name matches the service we're looking for. */
@@ -240,12 +240,12 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
 
     	if (service.serviceId() == _serviceId)
     	{
-    		/* Process the state of the queue messaging service. */
+    		/* Process the state of the tunnel stream service. */
     		if (service.action() != MapEntryActions.DELETE)
     		{
     			_serviceId = service.serviceId();
 
-    			/* If info is present, check if queue message support is indicated. */
+    			/* If info is present, check if tunnel stream support is indicated. */
     			if (service.checkHasInfo())
     			{
     				_tunnelServiceSupported = false;

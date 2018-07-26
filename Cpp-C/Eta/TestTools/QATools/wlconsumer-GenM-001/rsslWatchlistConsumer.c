@@ -26,7 +26,6 @@
 #include "itemDecoder.h"
 #include "postHandler.h"
 #include "simpleTunnelMsgHandler.h"
-#include "queueMsgHandler.h"
 #include "rtr/rsslReactor.h"
 #include "rtr/rsslMessagePackage.h"
 #include <time.h>
@@ -48,11 +47,9 @@
 #define SOCKET_PRINT_TYPE "%d"  /* Linux */
 #endif
 
-
 static RsslReactorChannel *pConsumerChannel = NULL;
 static RsslBool itemsRequested = RSSL_FALSE;
 
-static QueueMsgHandler queueMsgHandler;
 static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
@@ -61,6 +58,7 @@ RsslBool runTimeExpired = RSSL_FALSE;
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
 
+//APIQA
 static RsslBool canSendDirConsumerStatus = RSSL_FALSE;
 static RsslBool canSendLoginConsumerConnStatus = RSSL_FALSE;
 
@@ -152,6 +150,7 @@ int main(int argc, char **argv)
 	consumerRole.watchlistOptions.channelOpenCallback = channelOpenCallback;
 
 	consumerRole.loginMsgCallback = loginMsgCallback;
+   	//APIQA
 	dirRequest.serviceId = 1;
 	/* Prepare a default directory request. */
 	if (rsslInitDefaultRDMDirectoryRequest(&dirRequest, DIRECTORY_STREAM_ID) != RSSL_RET_SUCCESS)
@@ -208,6 +207,7 @@ int main(int argc, char **argv)
 			if (strlen(watchlistConsumerConfig.hsmInterface))
 				reactorConnectInfo.rsslConnectOptions.multicastOpts.hsmInterface = watchlistConsumerConfig.hsmInterface;
 		}
+
 	}
 
 	reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
@@ -292,8 +292,6 @@ int main(int argc, char **argv)
 		{
 			if (watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
 				handleSimpleTunnelMsgHandler(pReactor, pConsumerChannel, &simpleTunnelMsgHandler);
-			if (watchlistConsumerConfig.isQueueMessagingEnabled)
-				handleQueueMsgHandler(pReactor, pConsumerChannel, &queueMsgHandler);
 
 			/* Handle posting, if configured. */
 			if (currentTime >= nextPostTime)
@@ -319,18 +317,15 @@ int main(int argc, char **argv)
 			{
 				runTimeExpired = RSSL_TRUE;
 				printf("Run time expired.\n");
-				if (simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL
-						|| queueMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
+				if (simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream != NULL)
 					printf("Waiting for tunnel stream to close...\n\n");
 
 				/* Close tunnel streams if any are open. */
 				simpleTunnelMsgHandlerCloseStreams(&simpleTunnelMsgHandler);
-				queueMsgHandlerCloseStreams(&queueMsgHandler);
 			}
 
 			/* Wait for tunnel streams to close before closing channel. */
-			if (simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream == NULL
-					&& queueMsgHandler.tunnelStreamHandler.pTunnelStream == NULL)
+			if (simpleTunnelMsgHandler.tunnelStreamHandler.pTunnelStream == NULL)
 				break;
 			else if (currentTime >= stopTime + 10)
 			{
@@ -377,8 +372,6 @@ int main(int argc, char **argv)
 		printf("rsslReactorCloseChannel() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
 		exit(-1);
 	}
-
-	cleanupFdmDictionary();
 
 	rsslUninitialize();
 
@@ -559,12 +552,12 @@ RsslRet requestItems(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel)
 	RsslErrorInfo rsslErrorInfo;
 	RsslUInt32 itemListIndex;
 
-
 	if (itemsRequested)
 		return RSSL_RET_SUCCESS;
 
 	itemsRequested = RSSL_TRUE;
 	
+
 	for(itemListIndex = 0; itemListIndex < watchlistConsumerConfig.itemCount; ++itemListIndex)
 	{
 		char dataBodyBuf[512];
@@ -628,7 +621,6 @@ RsslRet requestItems(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel)
 			return ret;
 		}
 	}
-
 
 	return RSSL_RET_SUCCESS;
 }
@@ -806,6 +798,7 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReacto
 	{
 		case RDM_LG_MT_REFRESH:
 		{
+			//APIQA
 			canSendLoginConsumerConnStatus = RSSL_TRUE;
 			//canSendLoginConsumerConnStatus = RSSL_FALSE;
 			RsslRDMLoginRefresh *pLoginRefresh = &pLoginMsg->refresh;
@@ -866,6 +859,7 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReacto
 
 	printf("\n");
 
+	//APIQA
 	sendLoginConsumerConnStatus(pReactor, pChannel);
 
 	return RSSL_RC_CRET_SUCCESS;
@@ -904,6 +898,7 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslRe
 	{
 		case RDM_DR_MT_REFRESH:
 		{
+			//APIQA
 			canSendDirConsumerStatus = RSSL_TRUE;
 			RsslRDMDirectoryRefresh *pDirectoryRefresh = &pDirectoryMsg->refresh;
 
@@ -912,6 +907,7 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslRe
 
 			serviceList = pDirectoryRefresh->serviceList;
 			serviceCount = pDirectoryRefresh->serviceCount;
+
 			break;
 		}
 		case RDM_DR_MT_UPDATE:
@@ -969,10 +965,6 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslRe
 			if (watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
 				tunnelStreamHandlerProcessServiceUpdate(&simpleTunnelMsgHandler.tunnelStreamHandler,
 				&watchlistConsumerConfig.tunnelStreamServiceName, pService);
-
-			if (watchlistConsumerConfig.isQueueMessagingEnabled)
-				tunnelStreamHandlerProcessServiceUpdate(&queueMsgHandler.tunnelStreamHandler,
-				&watchlistConsumerConfig.tunnelStreamServiceName, pService);
 		}
 	}
 
@@ -985,16 +977,6 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslRe
 				watchlistConsumerConfig.tunnelStreamServiceName.data);
 		else if (!simpleTunnelMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
 			printf("  Service in use for tunnel streams does not support them: %s\n\n",
-				watchlistConsumerConfig.tunnelStreamServiceName.data);
-	}
-
-	if (watchlistConsumerConfig.isQueueMessagingEnabled)
-	{
-		if (!queueMsgHandler.tunnelStreamHandler.isTunnelServiceFound)
-			printf("  Directory response does not contain service name for queue messaging: %s\n\n",
-				watchlistConsumerConfig.tunnelStreamServiceName.data);
-		else if (!queueMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
-			printf("  Service in use for queue messaging does not support it: %s\n\n",
 				watchlistConsumerConfig.tunnelStreamServiceName.data);
 	}
 
@@ -1312,7 +1294,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 		{
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
-				printf("Channel "SOCKET_PRINT_TYPE" down.\n", pReactorChannel->socketId);
+				printf("Channel "SOCKET_PRINT_TYPE" down. Reconnecting\n", pReactorChannel->socketId);
 			else
 				printf("Channel down. Reconnecting\n");
 
@@ -1346,19 +1328,4 @@ static void initTunnelStreamMessaging()
 	simpleTunnelMsgHandlerInit(&simpleTunnelMsgHandler, (char*)"WatchlistConsumer", 
 			watchlistConsumerConfig.tunnelStreamDomainType,
 			watchlistConsumerConfig.useAuthentication, RSSL_FALSE);
-
-	if (watchlistConsumerConfig.isQueueMessagingEnabled)
-	{
-		RsslUInt32 i;
-
-		if (loadFdmDictionary() == RSSL_FALSE)
-			exit(-1);
-
-		queueMsgHandlerInit(&queueMsgHandler, (char*)"WatchlistConsumer", watchlistConsumerConfig.tunnelStreamDomainType,
-				watchlistConsumerConfig.useAuthentication);
-		queueMsgHandler.sourceName = watchlistConsumerConfig.queueSourceName;
-		queueMsgHandler.destNameCount = watchlistConsumerConfig.queueDestNameCount;
-		for (i = 0; i < watchlistConsumerConfig.queueDestNameCount; ++i)
-			queueMsgHandler.destNames[i] = watchlistConsumerConfig.queueDestNameList[i];
-	}
 }

@@ -121,12 +121,10 @@ import com.thomsonreuters.upa.valueadd.examples.watchlistconsumer.WatchlistConsu
  * <li>-krbfile Proxy KRB file. 
  * <li>-keyfile keystore file for encryption.
  * <li>-keypasswd keystore password for encryption.
- * <li>-qSourceName (optional) specifies the source name for queue messages (if specified, configures consumer to receive queue messages)"
- * <li>-qDestName (optional) specifies the destination name for queue messages (if specified, configures consumer to send queue messages to this name, multiple instances may be specified)"
  * <li>-tunnel (optional) enables consumer to open tunnel stream and send basic text messages
- * <li>-tsServiceName (optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used)"
- * <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
- * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
+ * <li>-tsServiceName (optional) specifies the service name for tunnel stream messages (if not specified, the service name specified in -c/-tcp is used)"
+ * <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams.
+ * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams.
  * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
  * <li>-ax Specifies the Authentication Extended information.
  * <li>-aid Specifies the Application ID.

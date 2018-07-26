@@ -128,10 +128,6 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 			if (pCommand->tunnelMessagingEnabled)
 				tunnelStreamHandlerProcessServiceUpdate(&pCommand->simpleTunnelMsgHandler.tunnelStreamHandler,
 					&tmpServiceNameBuffer, pService);
-
-			if (pCommand->queueMessagingEnabled)
-				tunnelStreamHandlerProcessServiceUpdate(&pCommand->queueMsgHandler.tunnelStreamHandler,
-					&tmpServiceNameBuffer, pService);
 		}
 
 		/* recover if service name entered by user cannot be found */
@@ -145,14 +141,6 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			if (!pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.isTunnelServiceFound)
 				printf("\nSource directory response does not contain service name for tunnel stream: %s\n", pCommand->tunnelStreamServiceName);
-			else if (!pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
-				printf("\nService in use for tunnel streams does not support them: %s\n", pCommand->tunnelStreamServiceName);
-		}
-
-		if (pCommand->queueMessagingEnabled)
-		{
-			if (!pCommand->queueMsgHandler.tunnelStreamHandler.isTunnelServiceFound)
-				printf("\nSource directory response does not contain service name for queue messaging: %s\n", pCommand->tunnelStreamServiceName);
 			else if (!pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
 				printf("\nService in use for tunnel streams does not support them: %s\n", pCommand->tunnelStreamServiceName);
 		}
@@ -266,11 +254,6 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 			if (pCommand->tunnelMessagingEnabled)
 				tunnelStreamHandlerProcessServiceUpdate(&pCommand->simpleTunnelMsgHandler.tunnelStreamHandler,
 					&tmpServiceNameBuffer, pService);
-
-			if (pCommand->queueMessagingEnabled)
-				tunnelStreamHandlerProcessServiceUpdate(&pCommand->queueMsgHandler.tunnelStreamHandler,
-					&tmpServiceNameBuffer, pService);
-			
 		}
 
 		if (!pCommand->serviceNameFound)
@@ -286,14 +269,6 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 				printf("\nSource directory response does not contain service name for tunnel stream: %s\n", pCommand->tunnelStreamServiceName);
 			else if (!pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
 				printf("\nService in use for tunnel streams does not support them: %s\n", pCommand->tunnelStreamServiceName);
-		}
-
-		if (pCommand->queueMessagingEnabled)
-		{
-			if (!pCommand->queueMsgHandler.tunnelStreamHandler.isTunnelServiceFound)
-				printf("\nSource directory response does not contain service name for queue messaging: %s\n", pCommand->tunnelStreamServiceName);
-			else if (!pCommand->queueMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
-				printf("\nService in use for queue messaging does not support it: %s\n", pCommand->tunnelStreamServiceName);
 		}
 
 		break;

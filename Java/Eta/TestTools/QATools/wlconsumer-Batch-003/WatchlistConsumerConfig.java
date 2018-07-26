@@ -285,24 +285,14 @@ public class WatchlistConsumerConfig
 
     		if (CommandLine.hasArg("tsServiceName"))
     		{
-    			connectionArg.qService(CommandLine.value("tsServiceName"));
+    			connectionArg.tsService(CommandLine.value("tsServiceName"));
     		}
     		            
-    		if (CommandLine.hasArg("qSourceName"))
-    		{
-    			connectionArg.qSource(CommandLine.value("qSourceName"));
-    		}
-    		if (CommandLine.hasArg("qDestName"))
-    			connectionArg.qDestList(CommandLine.values("qDestName"));
     		if (CommandLine.hasArg("tunnel"))
     		{
     			connectionArg.tunnel(CommandLine.booleanValue("tunnel"));
     		}
     		
-    		if (CommandLine.hasArg("tunnelAuth"))
-    			connectionArg.tunnelAuth(CommandLine.booleanValue("tunnelAuth"));
-    		if (CommandLine.hasArg("tunnelDomain"))
-    			connectionArg.tunnelDomain(CommandLine.intValue("tunnelDomain"));
     		if (CommandLine.hasArg("tsAuth"))
     			connectionArg.tunnelAuth(CommandLine.booleanValue("tsAuth"));
     		if (CommandLine.hasArg("tsDomain"))
@@ -334,14 +324,14 @@ public class WatchlistConsumerConfig
        		if ( itemNames != null && itemNames.size() > 0 )
        			parseItems(itemNames, DomainTypes.SYMBOL_LIST, false, true, itemList);   
 
-            if (itemList.size() == 0 && !CommandLine.hasArg("qSourceName") && !CommandLine.hasArg("tunnel"))
+            if (itemList.size() == 0 && !CommandLine.hasArg("tunnel"))
             {
             	ItemArg itemArg = new ItemArg(DomainTypes.MARKET_PRICE, defaultItemName, false);
             	itemList.add(itemArg);            	
             }
             
             if ( tsServiceName() == null || tsServiceName().equals(""))
-                connectionArg.qService(connectionArg.service());
+                connectionArg.tsService(connectionArg.service());
        		
             connectionArg.itemList(itemList);
        		connectionList.add(connectionArg);           
@@ -587,12 +577,10 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
         CommandLine.addOption("keypasswd", "", "Keystore password");        
         
-        CommandLine.addOption("qSourceName", "",  "(optional) specifies the source name for queue messages (if specified, configures consumer to receive queue messages");
-        CommandLine.addOption("qDestName", "", "(optional) specifies the destination name for queue messages (if specified, configures consumer to send queue messages to this name, multiple instances may be specified");
         CommandLine.addOption("tunnel", "", "(optional) enables consumer to open tunnel stream and send basic text messages");
-        CommandLine.addOption("tsServiceName", "", "(optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used");
-        CommandLine.addOption("tsAuth", "", "(optional) causes consumer to request authentication when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging");
-        CommandLine.addOption("tsDomain", "", "(optional) specifes the domain a consumer uses when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging");
+        CommandLine.addOption("tsServiceName", "", "(optional) specifies the service name for tunnel stream messages (if not specified, the service name specified in -c/-tcp is used");
+        CommandLine.addOption("tsAuth", "", "(optional) causes consumer to request authentication when opening a tunnel stream. This applies to basic tunnel streams");
+        CommandLine.addOption("tsDomain", "", "(optional) specifes the domain a consumer uses when opening a tunnel stream. This applies to basic tunnel streams");
         
         CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
         CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");

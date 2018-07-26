@@ -151,12 +151,10 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  *       <br>The domain may also be any of the private stream domains: mpps(MarketPrice PS), mbops(MarketByOrder PS), mbpps(MarketByPrice PS), ycps(YieldCurve PS)
  *       <br>Example Usage: -c localhost:14002 DIRECT_FEED mp:TRI,mp:GOOG,mpps:FB,mbo:MSFT,mbpps:IBM,sl
  *       <br>&nbsp;&nbsp;(for SymbolList requests, a name can be optionally specified)
- *  <li>-qSourceName (optional) specifies the source name for queue messages (if specified, configures consumer to receive queue messages)"
- *  <li>-qDestName (optional) specifies the destination name for queue messages (if specified, configures consumer to send queue messages to this name, multiple instances may be specified)"
  *  <li>-tunnel (optional) enables consumer to open tunnel stream and send basic text messages
- *  <li>-tsServiceName (optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used)"
- *  <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
- *  <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
+ *  <li>-tsServiceName (optional) specifies the service name for tunnel stream messages (if not specified, the service name specified in -c/-tcp is used)"
+ *  <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams.
+ *  <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams.
  *  </li>
  * </ul>
  * </li>
@@ -212,10 +210,6 @@ public class Consumer implements ConsumerCallback
 {
     private final String FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
     private final String ENUM_TABLE_FILE_NAME = "enumtype.def";
-    private final String FIX_FIELD_DICTIONARY_FILE_NAME = "FDMFixFieldDictionary";
-    private final String FIX_ENUM_TABLE_FILE_NAME = "FDMenumtypes.def";
-
-    private final int MAX_QUEUE_DESTINATIONS = 10;
 
     private Reactor reactor;
     private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
@@ -244,16 +238,14 @@ public class Consumer implements ConsumerCallback
     private Error error; // error information
 
     private DataDictionary dictionary;
-    private DataDictionary fixdictionary;
 
     private boolean fieldDictionaryLoadedFromFile;
     private boolean enumTypeDictionaryLoadedFromFile;
 
     ArrayList<ChannelInfo> chnlInfoList = new ArrayList<ChannelInfo>();
 
-    private QueueMsgHandler queueMsgHandler;
     private TunnelStreamHandler tunnelStreamHandler;
-    private String qServiceName;
+    private String tsServiceName;
 
     long cacheTime;
     long cacheInterval;
@@ -270,7 +262,6 @@ public class Consumer implements ConsumerCallback
     public Consumer()
     {
         dictionary = CodecFactory.createDataDictionary();
-        fixdictionary = CodecFactory.createDataDictionary();
 
         error = TransportFactory.createError();
         dispatchOptions.maxMessages(1);
@@ -305,7 +296,11 @@ public class Consumer implements ConsumerCallback
             List<ItemArg> itemList = new ArrayList<ItemArg>();
             ItemArg itemArg = new ItemArg(DomainTypes.MARKET_PRICE, defaultItemName, false);
             itemList.add(itemArg);
-            ConnectionArg connectionArg = new ConnectionArg(ConnectionTypes.SOCKET, defaultServiceName, defaultSrvrHostname, defaultSrvrPortNo, itemList);
+        	ConnectionArg connectionArg = new ConnectionArg(ConnectionTypes.SOCKET,
+        													defaultServiceName,
+        													defaultSrvrHostname,
+        													defaultSrvrPortNo,
+        													itemList);
             consumerCmdLineParser.connectionList().add(connectionArg);
 
             // second connection - localhost:14002 DIRECT_FEED mp:TRI.N mp:.DJI
@@ -313,7 +308,11 @@ public class Consumer implements ConsumerCallback
             ItemArg itemArg2 = new ItemArg(DomainTypes.MARKET_PRICE, defaultItemName2, false);
             itemList2.add(itemArg);
             itemList2.add(itemArg2);
-            ConnectionArg connectionArg2 = new ConnectionArg(ConnectionTypes.SOCKET, defaultServiceName, defaultSrvrHostname, defaultSrvrPortNo, itemList2);
+        	ConnectionArg connectionArg2 = new ConnectionArg(ConnectionTypes.SOCKET,
+        													defaultServiceName,
+        													defaultSrvrHostname,
+        													defaultSrvrPortNo,
+        													itemList2);
             consumerCmdLineParser.connectionList().add(connectionArg2);
         }
 
@@ -344,7 +343,9 @@ public class Consumer implements ConsumerCallback
         // register selector with reactor's reactorChannel.
         try
         {
-            reactor.reactorChannel().selectableChannel().register(selector, SelectionKey.OP_READ, reactor.reactorChannel());
+			reactor.reactorChannel().selectableChannel().register(selector,
+																SelectionKey.OP_READ,
+																reactor.reactorChannel());
         }
         catch (ClosedChannelException e)
         {
@@ -374,12 +375,6 @@ public class Consumer implements ConsumerCallback
 
             // add to ChannelInfo list
             chnlInfoList.add(chnlInfo);
-        }
-
-        // load FIX dictionary if queue messaging enabled
-        if (queueMsgHandler != null)
-        {
-            loadFixDictionary();
         }
 
         cacheInterval = consumerCmdLineParser.cacheInterval();
@@ -421,6 +416,7 @@ public class Consumer implements ConsumerCallback
                 cacheTime = currentTime + cacheInterval * 1000;
             }
 
+
             // nothing to read
             if (keySet != null)
             {
@@ -434,17 +430,16 @@ public class Consumer implements ConsumerCallback
                     {
                         if (key.isReadable())
                         {
-                            // retrieve associated reactor channel and dispatch
-                            // on that channel
+							// retrieve associated reactor channel and dispatch on that channel 
                             ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
 
+
                             // dispatch until no more messages
-                            while ((ret = reactorChnl.dispatch(dispatchOptions, errorInfo)) > 0)
-                            {
-                            }
+							while ((ret = reactorChnl.dispatch(dispatchOptions, errorInfo)) > 0) {}
                             if (ret == ReactorReturnCodes.FAILURE)
                             {
-                                if (reactorChnl.state() != ReactorChannel.State.CLOSED && reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
+								if (reactorChnl.state() != ReactorChannel.State.CLOSED &&
+										reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
                                 {
                                     System.out.println("ReactorChannel dispatch failed: " + ret + "(" + errorInfo.error().text() + ")");
                                     uninitialize();
@@ -474,18 +469,20 @@ public class Consumer implements ConsumerCallback
             if (!closeHandled)
             {
                 handlePosting();
-                handleQueueMessaging();
                 handleTunnelStream();
 
                 // send login reissue if login reissue time has passed
                 for (ChannelInfo chnlInfo : chnlInfoList)
                 {
-                    if (chnlInfo.reactorChannel == null || (chnlInfo.reactorChannel.state() != ReactorChannel.State.UP && chnlInfo.reactorChannel.state() != ReactorChannel.State.READY))
+	        		if (chnlInfo.reactorChannel == null ||
+	        	    	(chnlInfo.reactorChannel.state() != ReactorChannel.State.UP && 
+	        	    	chnlInfo.reactorChannel.state() != ReactorChannel.State.READY))
                     {
                         continue;
                     }
 
-                    if (chnlInfo.canSendLoginReissue && System.currentTimeMillis() >= chnlInfo.loginReissueTime)
+	        		if (chnlInfo.canSendLoginReissue &&
+	        			System.currentTimeMillis() >= chnlInfo.loginReissueTime)
                     {
                         LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
                         submitOptions.clear();
@@ -502,10 +499,8 @@ public class Consumer implements ConsumerCallback
                 }
             }
 
-            if (closeHandled && queueMsgHandler != null && queueMsgHandler._chnlInfo != null && !queueMsgHandler._chnlInfo.isQueueStreamUp)
-                break;
-
-            if (closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null && !tunnelStreamHandler._chnlInfo.isTunnelStreamUp)
+	        if(closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null &&
+	           !tunnelStreamHandler._chnlInfo.isTunnelStreamUp) 
                 break;
         }
     }
@@ -526,7 +521,9 @@ public class Consumer implements ConsumerCallback
                 // register selector with channel event's reactorChannel
                 try
                 {
-                    event.reactorChannel().selectableChannel().register(selector, SelectionKey.OP_READ, event.reactorChannel());
+    				event.reactorChannel().selectableChannel().register(selector,
+    																	SelectionKey.OP_READ,
+    																	event.reactorChannel());
                 }
                 catch (ClosedChannelException e)
                 {
@@ -537,7 +534,9 @@ public class Consumer implements ConsumerCallback
             }
             case ReactorChannelEventTypes.FD_CHANGE:
             {
-                System.out.println("Channel Change - Old Channel: " + event.reactorChannel().oldSelectableChannel() + " New Channel: " + event.reactorChannel().selectableChannel());
+    	        System.out.println("Channel Change - Old Channel: "
+    	                + event.reactorChannel().oldSelectableChannel() + " New Channel: "
+    	                + event.reactorChannel().selectableChannel());
 
                 // cancel old reactorChannel select
                 SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(selector);
@@ -547,7 +546,9 @@ public class Consumer implements ConsumerCallback
                 // register selector with channel event's new reactorChannel
                 try
                 {
-                    event.reactorChannel().selectableChannel().register(selector, SelectionKey.OP_READ, event.reactorChannel());
+    	        	event.reactorChannel().selectableChannel().register(selector,
+    	        													SelectionKey.OP_READ,
+    	        													event.reactorChannel());
                 }
                 catch (Exception e)
                 {
@@ -584,25 +585,14 @@ public class Consumer implements ConsumerCallback
                     chnlInfo.requestsSent = true;
                 }
 
-                if (isRequestedQServiceUp(chnlInfo))
+    			if (isRequestedTunnelStreamServiceUp(chnlInfo))
                 {
-                    if (queueMsgHandler != null)
-                    {
-                        if (queueMsgHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
-                        {
-                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
-                            {
-                                uninitialize();
-                                System.exit(ReactorReturnCodes.FAILURE);
-                            }
-                        }
-                    }
-
                     if (tunnelStreamHandler != null)
                     {
                         if (tunnelStreamHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                         {
-                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                             {
                                 uninitialize();
                                 System.exit(ReactorReturnCodes.FAILURE);
@@ -633,7 +623,8 @@ public class Consumer implements ConsumerCallback
                 }
 
                 // reset dictionary if not loaded from file
-                if (fieldDictionaryLoadedFromFile == false && enumTypeDictionaryLoadedFromFile == false)
+    	        if (fieldDictionaryLoadedFromFile == false &&
+    	            enumTypeDictionaryLoadedFromFile == false)
                 {
                     if (chnlInfo.dictionary != null)
                     {
@@ -646,7 +637,7 @@ public class Consumer implements ConsumerCallback
 
                 // reset hasServiceInfo flag
                 chnlInfo.hasServiceInfo = false;
-                chnlInfo.hasQServiceInfo = false;
+    	        chnlInfo.hasTunnelStreamServiceInfo = false;
 
                 // reset canSendLoginReissue flag
                 chnlInfo.canSendLoginReissue = false;
@@ -731,7 +722,9 @@ public class Consumer implements ConsumerCallback
             chnlInfo.dIter.clear();
 
             // set buffer and version info
-            chnlInfo.dIter.setBufferAndRWFVersion(msg.encodedDataBody(), event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion());
+    		chnlInfo.dIter.setBufferAndRWFVersion(msg.encodedDataBody(),
+    											event.reactorChannel().majorVersion(),
+    											event.reactorChannel().minorVersion());
         }
 
         processResponse(chnlInfo);
@@ -754,8 +747,7 @@ public class Consumer implements ConsumerCallback
                 // save loginRefresh
                 ((LoginRefresh)event.rdmLoginMsg()).copy(chnlInfo.loginRefresh);
 
-                // set login stream id in MarketPriceHandler and
-                // YieldCurveHandler
+				// set login stream id in MarketPriceHandler and YieldCurveHandler
                 chnlInfo.marketPriceHandler.loginStreamId(event.rdmLoginMsg().streamId());
                 chnlInfo.yieldCurveHandler.loginStreamId(event.rdmLoginMsg().streamId());
 
@@ -825,27 +817,15 @@ public class Consumer implements ConsumerCallback
                     sendYieldCurveRequests(chnlInfo);
                     chnlInfo.requestsSent = true;
                 }
-                if (isRequestedQServiceUp(chnlInfo))
-                {
-                    if (queueMsgHandler != null)
-                    {
-                        if (queueMsgHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
+                if (isRequestedTunnelStreamServiceUp(chnlInfo))
                         {
-                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
-                            {
-                                System.out.println(errorInfo.error().text());
-                                uninitialize();
-                                System.exit(ReactorReturnCodes.FAILURE);
-                            }
-                        }
-                    }
-
-                    if ((tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null && !tunnelStreamHandler._chnlInfo.isTunnelStreamUp)
-                            || (tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo == null))
+                    if ((tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null && !tunnelStreamHandler._chnlInfo.isTunnelStreamUp) ||
+                    	(tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo == null))
                     {
                         if (tunnelStreamHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                         {
-                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                             {
                                 System.out.println(errorInfo.error().text());
                                 uninitialize();
@@ -917,7 +897,9 @@ public class Consumer implements ConsumerCallback
                 chnlInfo.dIter.clear();
 
                 // set buffer and version info
-                chnlInfo.dIter.setBufferAndRWFVersion(dictionaryRefresh.dataBody(), event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion());
+				chnlInfo.dIter.setBufferAndRWFVersion(dictionaryRefresh.dataBody(),
+													event.reactorChannel().majorVersion(),
+													event.reactorChannel().minorVersion());
 
                 System.out.println("Received Dictionary Response: " + dictionaryRefresh.dictionaryName());
 
@@ -982,9 +964,9 @@ public class Consumer implements ConsumerCallback
                 chnlInfo.serviceInfo.action(MapEntryActions.DELETE);
             }
 
-            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.tsServiceInfo.serviceId() ) 
             {
-                chnlInfo.qServiceInfo.action(MapEntryActions.DELETE);
+                chnlInfo.tsServiceInfo.action(MapEntryActions.DELETE);
             }
 
             if (service.info().serviceName().toString() != null)
@@ -1001,19 +983,20 @@ public class Consumer implements ConsumerCallback
                         System.exit(ReactorReturnCodes.FAILURE);
                     }
                     chnlInfo.hasServiceInfo = true;
-                    setItemState(chnlInfo, service.state().status().streamState(), service.state().status().dataState(), service.state().status().code());
+					setItemState(chnlInfo, service.state().status().streamState(), service.state().status().dataState(),
+	                		service.state().status().code() );
                 }
-                if (service.info().serviceName().toString().equals(qServiceName))
+                if (service.info().serviceName().toString().equals(tsServiceName))
                 {
                     // save serviceInfo associated with requested service name
-                    if (service.copy(chnlInfo.qServiceInfo) < CodecReturnCodes.SUCCESS)
+                    if (service.copy(chnlInfo.tsServiceInfo) < CodecReturnCodes.SUCCESS)
                     {
                         System.out.println("Service.copy() failure");
                         uninitialize();
                         System.exit(ReactorReturnCodes.FAILURE);
                     }
 
-                    chnlInfo.hasQServiceInfo = true;
+                    chnlInfo.hasTunnelStreamServiceInfo = true;
                 }
             }
         }
@@ -1022,7 +1005,7 @@ public class Consumer implements ConsumerCallback
     private void processServiceUpdate(DirectoryUpdate directoryUpdate, ChannelInfo chnlInfo)
     {
         String serviceName = chnlInfo.connectionArg.service();
-        String qServiceName = chnlInfo.connectionArg.qService();
+        String tsServiceName = chnlInfo.connectionArg.tsService();
         System.out.println("Received Source Directory Update");
         System.out.println(directoryUpdate.toString());
         for (Service service : directoryUpdate.serviceList())
@@ -1032,24 +1015,25 @@ public class Consumer implements ConsumerCallback
                 chnlInfo.serviceInfo.action(MapEntryActions.DELETE);
             }
 
-            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+            if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.tsServiceInfo.serviceId() ) 
             {
-                chnlInfo.qServiceInfo.action(MapEntryActions.DELETE);
+                chnlInfo.tsServiceInfo.action(MapEntryActions.DELETE);
             }
 
-            boolean updateServiceInfo = false, updateQServiceInfo = false;
+            boolean updateServiceInfo = false, updateTSServiceInfo = false;
             if (service.info().serviceName().toString() != null)
             {
                 System.out.println("Received serviceName: " + service.info().serviceName() + "\n");
-                // update service cache - assume cache is built with previous
-                // refresh message
-                if (service.info().serviceName().toString().equals(serviceName) || service.serviceId() == chnlInfo.serviceInfo.serviceId())
+                // update service cache - assume cache is built with previous refresh message
+                if (service.info().serviceName().toString().equals(serviceName) ||
+                    service.serviceId() == chnlInfo.serviceInfo.serviceId())
                 {
                     updateServiceInfo = true;
                 }
-                if (service.info().serviceName().toString().equals(qServiceName) || service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+                if (service.info().serviceName().toString().equals(tsServiceName) ||
+                    service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
                 {
-                    updateQServiceInfo = true;
+                	updateTSServiceInfo = true;
                 }
             }
             else
@@ -1058,9 +1042,9 @@ public class Consumer implements ConsumerCallback
                 {
                     updateServiceInfo = true;
                 }
-                if (service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+                if (service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
                 {
-                    updateQServiceInfo = true;
+                	updateTSServiceInfo = true;
                 }
             }
 
@@ -1074,33 +1058,36 @@ public class Consumer implements ConsumerCallback
                     System.exit(ReactorReturnCodes.FAILURE);
                 }
                 chnlInfo.hasServiceInfo = true;
-                setItemState(chnlInfo, service.state().status().streamState(), service.state().status().dataState(), service.state().status().code());
+                setItemState(chnlInfo, service.state().status().streamState(), service.state().status().dataState(),
+                		service.state().status().code() );
             }
-            if (updateQServiceInfo)
+            if (updateTSServiceInfo)
             {
                 // update serviceInfo associated with requested service name
-                if (service.copy(chnlInfo.qServiceInfo) < CodecReturnCodes.SUCCESS)
+                if (service.copy(chnlInfo.tsServiceInfo) < CodecReturnCodes.SUCCESS)
                 {
                     System.out.println("Service.copy() failure");
                     uninitialize();
                     System.exit(ReactorReturnCodes.FAILURE);
                 }
 
-                chnlInfo.hasQServiceInfo = true;
+                chnlInfo.hasTunnelStreamServiceInfo = true;                
             }
         }
     }
 
     public boolean isRequestedServiceUp(ChannelInfo chnlInfo)
     {
-        return chnlInfo.hasServiceInfo && chnlInfo.serviceInfo.checkHasState() && (!chnlInfo.serviceInfo.state().checkHasAcceptingRequests() || chnlInfo.serviceInfo.state().acceptingRequests() == 1)
-                && chnlInfo.serviceInfo.state().serviceState() == 1;
+        return  chnlInfo.hasServiceInfo &&
+			chnlInfo.serviceInfo.checkHasState() && (!chnlInfo.serviceInfo.state().checkHasAcceptingRequests() ||
+                chnlInfo.serviceInfo.state().acceptingRequests() == 1) && chnlInfo.serviceInfo.state().serviceState() == 1;
     }
 
-    public boolean isRequestedQServiceUp(ChannelInfo chnlInfo)
+    public boolean isRequestedTunnelStreamServiceUp(ChannelInfo chnlInfo)
     {
-        return chnlInfo.hasQServiceInfo && chnlInfo.qServiceInfo.checkHasState()
-                && (!chnlInfo.qServiceInfo.state().checkHasAcceptingRequests() || chnlInfo.qServiceInfo.state().acceptingRequests() == 1) && chnlInfo.qServiceInfo.state().serviceState() == 1;
+        return  chnlInfo.hasTunnelStreamServiceInfo &&
+            chnlInfo.tsServiceInfo.checkHasState() && (!chnlInfo.tsServiceInfo.state().checkHasAcceptingRequests() ||
+                chnlInfo.tsServiceInfo.state().acceptingRequests() == 1) && chnlInfo.tsServiceInfo.state().serviceState() == 1;
     }
 
     private void checkAndInitPostingSupport(ChannelInfo chnlInfo)
@@ -1111,7 +1098,9 @@ public class Consumer implements ConsumerCallback
         // set up posting if its enabled
 
         // ensure that provider supports posting - if not, disable posting
-        if (!chnlInfo.loginRefresh.checkHasFeatures() || !chnlInfo.loginRefresh.features().checkHasSupportPost() || chnlInfo.loginRefresh.features().supportOMMPost() == 0)
+        if (!chnlInfo.loginRefresh.checkHasFeatures() ||
+                !chnlInfo.loginRefresh.features().checkHasSupportPost() ||
+                chnlInfo.loginRefresh.features().supportOMMPost() == 0)
         {
             // provider does not support posting, disable it
             chnlInfo.shouldOffStreamPost = false;
@@ -1135,7 +1124,10 @@ public class Consumer implements ConsumerCallback
     {
         for (ChannelInfo chnlInfo : chnlInfoList)
         {
-            if (chnlInfo.loginRefresh == null || chnlInfo.serviceInfo == null || chnlInfo.reactorChannel == null || chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
+	    	if (chnlInfo.loginRefresh == null ||
+	    		chnlInfo.serviceInfo == null ||
+	    		chnlInfo.reactorChannel == null ||
+	    		chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
             {
                 continue;
             }
@@ -1170,27 +1162,14 @@ public class Consumer implements ConsumerCallback
         }
     }
 
-    private void handleQueueMessaging()
-    {
-        for (ChannelInfo chnlInfo : chnlInfoList)
-        {
-            if (chnlInfo.loginRefresh == null || chnlInfo.serviceInfo == null || chnlInfo.reactorChannel == null || chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
-            {
-                continue;
-            }
-
-            if (queueMsgHandler != null)
-            {
-                queueMsgHandler.sendQueueMsg(chnlInfo.reactorChannel);
-            }
-        }
-    }
-
     private void handleTunnelStream()
     {
         for (ChannelInfo chnlInfo : chnlInfoList)
         {
-            if (chnlInfo.loginRefresh == null || chnlInfo.serviceInfo == null || chnlInfo.reactorChannel == null || chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
+            if (chnlInfo.loginRefresh == null ||
+                chnlInfo.serviceInfo == null ||
+                chnlInfo.reactorChannel == null ||
+                chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
             {
                 continue;
             }
@@ -1234,7 +1213,9 @@ public class Consumer implements ConsumerCallback
 
     private void processSymbolListResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.symbolListHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.symbolListHandler.processResponse(chnlInfo.responseMsg,
+        											chnlInfo.dIter,
+        											chnlInfo.dictionary) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
@@ -1244,7 +1225,11 @@ public class Consumer implements ConsumerCallback
 
     private void processMarketByPriceResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.marketByPriceHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary, chnlInfo.cacheInfo, errorInfo) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.marketByPriceHandler.processResponse(chnlInfo.responseMsg,
+        												chnlInfo.dIter,
+        												chnlInfo.dictionary,
+        												chnlInfo.cacheInfo,
+        												errorInfo) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
@@ -1254,7 +1239,11 @@ public class Consumer implements ConsumerCallback
 
     private void processMarketByOrderResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.marketByOrderHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary, chnlInfo.cacheInfo, errorInfo) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.marketByOrderHandler.processResponse(chnlInfo.responseMsg,
+														chnlInfo.dIter,
+														chnlInfo.dictionary,
+														chnlInfo.cacheInfo,
+														errorInfo) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
@@ -1264,7 +1253,11 @@ public class Consumer implements ConsumerCallback
 
     private void processMarketPriceResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.marketPriceHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary, chnlInfo.cacheInfo, errorInfo) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.marketPriceHandler.processResponse(chnlInfo.responseMsg,
+														chnlInfo.dIter,
+														chnlInfo.dictionary,
+														chnlInfo.cacheInfo,
+														errorInfo) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
@@ -1274,7 +1267,11 @@ public class Consumer implements ConsumerCallback
 
     private void processYieldCurveResp(ChannelInfo chnlInfo)
     {
-        if (chnlInfo.yieldCurveHandler.processResponse(chnlInfo.responseMsg, chnlInfo.dIter, chnlInfo.dictionary, chnlInfo.cacheInfo, errorInfo) != CodecReturnCodes.SUCCESS)
+        if (chnlInfo.yieldCurveHandler.processResponse(chnlInfo.responseMsg,
+													chnlInfo.dIter,
+													chnlInfo.dictionary,
+													chnlInfo.cacheInfo,
+													errorInfo) != CodecReturnCodes.SUCCESS)
         {
             System.out.println(errorInfo.error().text());
             uninitialize();
@@ -1288,7 +1285,8 @@ public class Consumer implements ConsumerCallback
         dictionary.clear();
         if (dictionary.loadFieldDictionary(FIELD_DICTIONARY_FILE_NAME, error) < 0)
         {
-            System.out.println("Unable to load field dictionary.  Will attempt to download from provider.\n\tText: " + error.text());
+            System.out.println("Unable to load field dictionary.  Will attempt to download from provider.\n\tText: "
+                    + error.text());
         }
         else
         {
@@ -1297,30 +1295,12 @@ public class Consumer implements ConsumerCallback
 
         if (dictionary.loadEnumTypeDictionary(ENUM_TABLE_FILE_NAME, error) < 0)
         {
-            System.out.println("Unable to load enum dictionary.  Will attempt to download from provider.\n\tText: " + error.text());
+            System.out.println("Unable to load enum dictionary.  Will attempt to download from provider.\n\tText: "
+                        + error.text());
         }
         else
         {
             enumTypeDictionaryLoadedFromFile = true;
-        }
-    }
-
-    // load FIX dictionary to support FIX Protocol
-    void loadFixDictionary()
-    {
-        fixdictionary.clear();
-        if (fixdictionary.loadFieldDictionary(FIX_FIELD_DICTIONARY_FILE_NAME, error) < 0)
-        {
-            System.out.println("\nUnable to load FIX field dictionary. \n\tText: " + error.text() + "\n");
-            uninitialize();
-            System.exit(ReactorReturnCodes.FAILURE);
-        }
-
-        if (fixdictionary.loadEnumTypeDictionary(FIX_ENUM_TABLE_FILE_NAME, error) < 0)
-        {
-            System.out.println("\nUnable to load FIX enum dictionary. \n\tText: " + error.text() + "\n");
-            uninitialize();
-            System.exit(ReactorReturnCodes.FAILURE);
         }
     }
 
@@ -1331,7 +1311,8 @@ public class Consumer implements ConsumerCallback
         chnlInfo.consumerRole.channelEventCallback(this);
         chnlInfo.consumerRole.loginMsgCallback(this);
         chnlInfo.consumerRole.directoryMsgCallback(this);
-        if (fieldDictionaryLoadedFromFile == false || enumTypeDictionaryLoadedFromFile == false)
+        if (fieldDictionaryLoadedFromFile == false ||
+        	enumTypeDictionaryLoadedFromFile == false)
         {
             chnlInfo.consumerRole.dictionaryMsgCallback(this);
         }
@@ -1347,8 +1328,7 @@ public class Consumer implements ConsumerCallback
             loginRequest.userName().data(consumerCmdLineParser.userName());
         }
 
-        // use command line authentication token and extended authentication
-        // information if specified
+        // use command line authentication token and extended authentication information if specified
         if (consumerCmdLineParser.authenticationToken() != null && !consumerCmdLineParser.authenticationToken().equals(""))
         {
             LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
@@ -1369,14 +1349,15 @@ public class Consumer implements ConsumerCallback
             loginRequest.attrib().applicationId().data(consumerCmdLineParser.applicationId());
         }
 
-        // if unable to load from file and no queue messaging, enable consumer
-        // to download dictionary
-        if ((fieldDictionaryLoadedFromFile == false || enumTypeDictionaryLoadedFromFile == false) && chnlInfo.connectionArg.qSource() == null)
+        // if unable to load from file, enable consumer to download dictionary
+        if (fieldDictionaryLoadedFromFile == false ||
+            enumTypeDictionaryLoadedFromFile == false)
         {
             chnlInfo.consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
         }
 
-        if (fieldDictionaryLoadedFromFile == true && enumTypeDictionaryLoadedFromFile == true)
+        if (fieldDictionaryLoadedFromFile == true &&
+        	enumTypeDictionaryLoadedFromFile == true)
         {
             chnlInfo.dictionary = dictionary;
         }
@@ -1405,6 +1386,7 @@ public class Consumer implements ConsumerCallback
             }
         }
 
+                 
         chnlInfo.postHandler.enableOnstreamPost(chnlInfo.shouldOnStreamPost);
         chnlInfo.postHandler.enableOffstreamPost(chnlInfo.shouldOffStreamPost);
         chnlInfo.marketPriceHandler.snapshotRequest(consumerCmdLineParser.enableSnapshot());
@@ -1417,8 +1399,7 @@ public class Consumer implements ConsumerCallback
         createItemLists(chnlInfo);
 
         // set up reactor connect options
-        chnlInfo.connectOptions.reconnectAttemptLimit(-1); // attempt to recover
-                                                           // forever
+        chnlInfo.connectOptions.reconnectAttemptLimit(-1); // attempt to recover forever
         chnlInfo.connectOptions.reconnectMinDelay(1000); // 1 second minimum
         chnlInfo.connectOptions.reconnectMaxDelay(60000); // 60 second maximum
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
@@ -1442,6 +1423,7 @@ public class Consumer implements ConsumerCallback
             chnlInfo.connectOptions.connectionList().get(1).connectOptions().guaranteedOutputBuffers(1000);
         }
 
+
         // handler encrypted or http connection
         chnlInfo.shouldEnableEncrypted = consumerCmdLineParser.enableEncrypted();
         chnlInfo.shouldEnableHttp = consumerCmdLineParser.enableHttp();
@@ -1461,38 +1443,10 @@ public class Consumer implements ConsumerCallback
             setHTTPConfiguration(cOpt);
         }
 
-        // handle queue messaging and tunnel stream configuration
-
-        // exit program if both queue messaging and tunnel stream are configured
-        if (chnlInfo.connectionArg.tunnel() && chnlInfo.connectionArg.qSource() != null && !chnlInfo.connectionArg.qSource().equals(""))
-        {
-            System.out.println("\nError: Cannot run with both tunnel stream messaging and queue messaging enabled." + "\n");
-            uninitialize();
-            System.exit(ReactorReturnCodes.FAILURE);
-        }
-
-        // handle queue messaging configuration
-        if (chnlInfo.connectionArg.qSource() != null && !chnlInfo.connectionArg.qSource().equals("") && queueMsgHandler == null)
-        {
-            if (chnlInfo.connectionArg.qDestList().size() <= MAX_QUEUE_DESTINATIONS)
-            {
-                qServiceName = chnlInfo.connectionArg.qService();
-                queueMsgHandler = new QueueMsgHandler(chnlInfo.connectionArg.qSource(), chnlInfo.connectionArg.qDestList(), fixdictionary, chnlInfo.connectionArg.tunnelAuth(),
-                        chnlInfo.connectionArg.tunnelDomain());
-            }
-            else
-            // exit if too many queue destinations entered
-            {
-                System.err.println("\nError: Example only supports " + MAX_QUEUE_DESTINATIONS + " queue destination names.\n");
-                consumerCmdLineParser.printUsage();
-                System.exit(CodecReturnCodes.FAILURE);
-            }
-        }
-
         // handle basic tunnel stream configuration
         if (chnlInfo.connectionArg.tunnel() && tunnelStreamHandler == null)
         {
-            qServiceName = chnlInfo.connectionArg.qService();
+            tsServiceName = chnlInfo.connectionArg.tsService();
             tunnelStreamHandler = new TunnelStreamHandler(chnlInfo.connectionArg.tunnelAuth(), chnlInfo.connectionArg.tunnelDomain());
         }
 
@@ -1528,7 +1482,8 @@ public class Consumer implements ConsumerCallback
         cacheInfo.cache = CacheFactory.createPayloadCache(cacheInfo.cacheOptions, cacheInfo.cacheError);
         if (cacheInfo.cache == null)
         {
-            System.out.println("Error: Failed to create cache. Error (" + cacheInfo.cacheError.errorId() + ") : " + cacheInfo.cacheError.text());
+			System.out.println("Error: Failed to create cache. Error (" + cacheInfo.cacheError.errorId() + 
+						") : " + cacheInfo.cacheError.text());
             cacheInfo.useCache = false;
         }
 
@@ -1561,9 +1516,11 @@ public class Consumer implements ConsumerCallback
     {
         if (dictionary != null)
         {
-            if (cacheInfo.cache.setDictionary(dictionary, cacheInfo.cacheDictionaryKey.toString(), cacheInfo.cacheError) != CodecReturnCodes.SUCCESS)
+    		if ( cacheInfo.cache.setDictionary(dictionary,	cacheInfo.cacheDictionaryKey.toString(),
+    										cacheInfo.cacheError) != CodecReturnCodes.SUCCESS )
             {
-                System.out.println("Error: Failed to bind RDM Field dictionary to cache. Error (" + cacheInfo.cacheError.errorId() + ") : " + cacheInfo.cacheError.text());
+    			System.out.println("Error: Failed to bind RDM Field dictionary to cache. Error (" + cacheInfo.cacheError.errorId() + 
+						") : " + cacheInfo.cacheError.text());
                 cacheInfo.useCache = false;
             }
         }
@@ -1704,19 +1661,19 @@ public class Consumer implements ConsumerCallback
             switch (domainType)
             {
                 case DomainTypes.MARKET_PRICE:
-                    ret = chnlInfo.marketPriceHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
+    			ret = chnlInfo.marketPriceHandler.decodePayload(dIter, chnlInfo.dictionary, cacheDisplayStr);
                     break;
 
                 case DomainTypes.MARKET_BY_ORDER:
-                    ret = chnlInfo.marketByOrderHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
+    			ret = chnlInfo.marketByOrderHandler.decodePayload(dIter, chnlInfo.dictionary, cacheDisplayStr);
                     break;
 
                 case DomainTypes.MARKET_BY_PRICE:
-                    ret = chnlInfo.marketByPriceHandler.decodePayload(dIter, dictionary, cacheDisplayStr);
+    			ret = chnlInfo.marketByPriceHandler.decodePayload(dIter, chnlInfo.dictionary, cacheDisplayStr);
                     break;
 
                 case DomainTypes.YIELD_CURVE:
-                    ret = chnlInfo.yieldCurveHandler.decodePayload(dIter, dictionary);
+    			ret = chnlInfo.yieldCurveHandler.decodePayload(dIter, chnlInfo.dictionary);
                     break;
 
                 default:
@@ -1762,6 +1719,7 @@ public class Consumer implements ConsumerCallback
         options.tunnelingInfo().KeystorePasswd(keyPasswd);
     }
 
+    
     private void setHTTPConfiguration(ConnectOptions options)
     {
         options.tunnelingInfo().objectName("");
@@ -1786,6 +1744,7 @@ public class Consumer implements ConsumerCallback
                 System.exit(CodecReturnCodes.FAILURE);
             }
 
+  
             options.tunnelingInfo().HTTPproxy(true);
             options.tunnelingInfo().HTTPproxyHostName(proxyHostName);
             try
@@ -1863,6 +1822,7 @@ public class Consumer implements ConsumerCallback
 
     }
 
+   
     private void createItemLists(ChannelInfo chnlInfo)
     {
         // add specified items to item watch list
@@ -1960,7 +1920,8 @@ public class Consumer implements ConsumerCallback
         }
         if (chnlInfo.symbolListHandler.sendRequest(chnlInfo.reactorChannel, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -1973,7 +1934,8 @@ public class Consumer implements ConsumerCallback
     {
         if (chnlInfo.marketByPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mbpItemList, false, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -1985,7 +1947,8 @@ public class Consumer implements ConsumerCallback
         {
             if (chnlInfo.marketByPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mbppsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
             {
-                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                    chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                 {
                     System.out.println(errorInfo.error().text());
                     uninitialize();
@@ -2000,7 +1963,8 @@ public class Consumer implements ConsumerCallback
     {
         if (chnlInfo.marketByOrderHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mboItemList, false, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -2012,7 +1976,8 @@ public class Consumer implements ConsumerCallback
         {
             if (chnlInfo.marketByOrderHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mbopsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
             {
-                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                    chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                 {
                     System.out.println(errorInfo.error().text());
                     uninitialize();
@@ -2027,7 +1992,8 @@ public class Consumer implements ConsumerCallback
     {
         if (chnlInfo.marketPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mpItemList, false, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -2039,7 +2005,8 @@ public class Consumer implements ConsumerCallback
         {
             if (chnlInfo.marketPriceHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.mppsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
             {
-                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                    chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                 {
                     System.out.println(errorInfo.error().text());
                     uninitialize();
@@ -2054,7 +2021,8 @@ public class Consumer implements ConsumerCallback
     {
         if (chnlInfo.yieldCurveHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.ycItemList, false, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
         {
-            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+            if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
             {
                 System.out.println(errorInfo.error().text());
                 uninitialize();
@@ -2066,7 +2034,8 @@ public class Consumer implements ConsumerCallback
         {
             if (chnlInfo.yieldCurveHandler.sendItemRequests(chnlInfo.reactorChannel, chnlInfo.ycpsItemList, true, chnlInfo.loginRefresh, chnlInfo.serviceInfo, errorInfo) != CodecReturnCodes.SUCCESS)
             {
-                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED && chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
+                if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
+                    chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
                 {
                     System.out.println(errorInfo.error().text());
                     uninitialize();
@@ -2107,17 +2076,9 @@ public class Consumer implements ConsumerCallback
             // close items streams
             closeItemStreams(chnlInfo);
 
-            // close queue messaging streams
-            if (queueMsgHandler != null && chnlInfo.reactorChannel != null)
-            {
-                if (queueMsgHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
-                {
-                    System.out.println("queueMsgHandler.closeStream() failed with errorText: " + errorInfo.error().text());
-                }
-            }
-
             // close tunnel streams
-            if (tunnelStreamHandler != null && chnlInfo.reactorChannel != null)
+            if (tunnelStreamHandler != null &&
+                chnlInfo.reactorChannel != null)
             {
                 if (tunnelStreamHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
                 {
@@ -2141,6 +2102,7 @@ public class Consumer implements ConsumerCallback
         }
     }
 
+	
     private void handleClose()
     {
         System.out.println("Consumer closes streams...");
@@ -2148,15 +2110,6 @@ public class Consumer implements ConsumerCallback
         for (ChannelInfo chnlInfo : chnlInfoList)
         {
             closeItemStreams(chnlInfo);
-
-            // close queue messaging streams
-            if (queueMsgHandler != null && chnlInfo.reactorChannel != null)
-            {
-                if (queueMsgHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
-                {
-                    System.out.println("queueMsgHandler.closeStream() failed with errorText: " + errorInfo.error().text());
-                }
-            }
 
             // close tunnel streams
             if (tunnelStreamHandler != null && chnlInfo.reactorChannel != null)
@@ -2169,6 +2122,7 @@ public class Consumer implements ConsumerCallback
         }
     }
 
+	
     public static void main(String[] args) throws Exception
     {
         Consumer consumer = new Consumer();

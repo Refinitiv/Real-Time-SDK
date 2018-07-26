@@ -170,15 +170,13 @@ void printUsageAndExit(int argc, char **argv)
 			" Options for publishing Host Stat Message options on reliable multicast connections; -hsmAddr and -hsmPort must be specified to enable:\n"
 			"   [ -hsmAddr <Address> ] [ -hsmPort <Port> ] [ -hsmInterface <Interface Name> ] [ -hsmInterval <Seconds> ] \n"
 			"\n"
-			" Options for tunnel stream messaging/queue messaging:\n"
-			"   [-tunnel] [-tsDomain <domain> ] [-tsAuth] [ -qSourceName <name> ] [ -qDestName <name> ] [-tsServiceName]\n"
+			" Options for tunnel stream messaging:\n"
+			"   [-tunnel] [-tsDomain <domain> ] [-tsAuth] [-tsServiceName]\n"
 			"\n"
 			"   -tunnel Opens a tunnel stream to the provider and begins exchanging messages.\n"
 			"   -tsDomain Specifies the domain type to use when opening the tunnel stream.\n"
-			"   -tsAuth causes the consumer to enable authentication when opening tunnel streams (also applies to queue messaging treams).\n"
-			"   -qSourceName  Opens a tunnel stream to the provider, and opens a queue with the provided name.\n"
-			"   -qDestName  Specifies destination names for sending queue messages. May specify this multiple times.\n"
-			"   -tsServiceName specifies the name of the service to use for queue messages (if not specified, the service specified by -s is used).\n"
+			"   -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
+			"   -tsServiceName specifies the name of the service to use for tunnel stream messages (if not specified, the service specified by -s is used).\n"
 			"   -tsAuth  Causes the consumer to use authentication when opening tunnel streams.\n"
 			, argv[0], argv[0]);
 	exit(-1);
@@ -470,33 +468,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			if (++i == argc) printUsageAndExit(argc, argv);
 			watchlistConsumerConfig.tunnelStreamDomainType = (RsslUInt8)atoi(argv[i]);
 		}
-		else if (0 == strcmp(argv[i], "-qSourceName"))
-		{
-			if (++i == argc) printUsageAndExit(argc, argv);
-			watchlistConsumerConfig.isQueueMessagingEnabled = RSSL_TRUE;
-			watchlistConsumerConfig.queueSourceName.length = 
-				(RsslUInt32)snprintf(watchlistConsumerConfig._queueSourceNameMem, 255, "%s", argv[i]);
-			watchlistConsumerConfig.queueSourceName.data = watchlistConsumerConfig._queueSourceNameMem;
-		}
-		else if (0 == strcmp(argv[i], "-qDestName"))
-		{
-			if (++i == argc) printUsageAndExit(argc, argv);
-
-			if (watchlistConsumerConfig.queueDestNameCount == MAX_DEST_NAMES)
-			{
-				printf("Config error: Example only supports %d queue destination names.\n",
-						MAX_DEST_NAMES);
-				printUsageAndExit(argc, argv);
-			}
-
-			watchlistConsumerConfig.queueDestNameList[watchlistConsumerConfig.queueDestNameCount].length 
-				= (RsslUInt32)snprintf(
-						watchlistConsumerConfig._queueDestNameMem[watchlistConsumerConfig.queueDestNameCount]
-						, 255, "%s", argv[i]);
-			watchlistConsumerConfig.queueDestNameList[watchlistConsumerConfig.queueDestNameCount].data = 
-				watchlistConsumerConfig._queueDestNameMem[watchlistConsumerConfig.queueDestNameCount];
-			++watchlistConsumerConfig.queueDestNameCount;
-		}
 		else if (0 == strcmp(argv[i], "-tsServiceName"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -516,11 +487,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		else if (strcmp("-x", argv[i]) == 0)
 		{
 			xmlTrace = RSSL_TRUE;
-		}
-		else if (0 == strcmp(argv[i], "-mpps"))
-		{
-			if (++i == argc) printUsageAndExit(argc, argv);
-			addItem(argv[i], RSSL_DMT_MARKET_PRICE, RSSL_FALSE, RSSL_TRUE, RSSL_FALSE, 0, RSSL_FALSE);
 		}
 		else
 		{
@@ -605,23 +571,9 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 				watchlistConsumerConfig.port);
 	}
 
-	if (watchlistConsumerConfig.isTunnelStreamMessagingEnabled
-			&& watchlistConsumerConfig.isQueueMessagingEnabled)
+	if (watchlistConsumerConfig.itemCount == 0 && !watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
 	{
-			printf("Config Error: Both tunnel stream messaging and queue messaging are enabled.\n");
-			printUsageAndExit(argc, argv);
-	}
-
-	if (watchlistConsumerConfig.queueSourceName.data == NULL 
-			&& watchlistConsumerConfig.queueDestNameCount > 0)
-	{
-			printf("Config Error: Queue Messaging destinations specified but no source name.\n");
-			printUsageAndExit(argc, argv);
-	}
-
-	if (watchlistConsumerConfig.itemCount == 0 && !watchlistConsumerConfig.isTunnelStreamMessagingEnabled
-			&& !watchlistConsumerConfig.isQueueMessagingEnabled)
-	{
+		//APIQA: interface of addItem changed
 		addItem((char*)"TRI.N", RSSL_DMT_MARKET_PRICE, RSSL_FALSE, RSSL_FALSE, RSSL_FALSE, 0, RSSL_FALSE);
 	}
 
@@ -641,9 +593,9 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			watchlistConsumerConfig.serviceName.data,
 			watchlistConsumerConfig.runTime);
 
-	if (watchlistConsumerConfig.isQueueMessagingEnabled || watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
+	if (watchlistConsumerConfig.isTunnelStreamMessagingEnabled)
 	{
-		/* If no service specific to queue messaging was provided, use the same service used 
+		/* If no service specific to tunnel stream messaging was provided, use the same service used 
 		 * elsewhere. */
 		if (watchlistConsumerConfig.tunnelStreamServiceName.data == NULL)
 			watchlistConsumerConfig.tunnelStreamServiceName = watchlistConsumerConfig.serviceName;
@@ -652,17 +604,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		printf("  TunnelStream Service Name: %s\n", watchlistConsumerConfig.tunnelStreamServiceName.data);
 	}
 
-	if (watchlistConsumerConfig.isQueueMessagingEnabled)
-	{
-		RsslUInt32 i;
-
-		printf("  Queue Messaging: SourceName: %s Destination Names:", 
-				watchlistConsumerConfig.queueSourceName.data);
-
-		for (i = 0; i < watchlistConsumerConfig.queueDestNameCount; ++i)
-			printf(" %s", watchlistConsumerConfig.queueDestNameList[i].data);
-
-	}
 	//APIQA:determine breakpoint aka which items to request initially and which not to 
 	determineBreakpoint();
 	//APIQA:if no eventCounter arguments, all mp items are requested initially

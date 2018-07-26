@@ -4,7 +4,6 @@ set( SOURCE_FILES
   rsslLoginConsumer.c       rsslMarketByOrderHandler.c     rsslMarketByPriceHandler.c
   rsslMarketPriceHandler.c  rsslPostHandler.c              rsslSymbolListHandler.c
   rsslYieldCurveHandler.c
-  ${EtaExamples_SOURCE_DIR}/Examples/VACommon/queueMsgHandler.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVACacheHandler.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/rsslVAMarketPriceItems.c
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/simpleTunnelMsgHandler.c

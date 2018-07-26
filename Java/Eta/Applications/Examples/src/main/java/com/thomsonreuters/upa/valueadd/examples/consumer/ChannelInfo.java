@@ -80,14 +80,11 @@ class ChannelInfo
     
     boolean tunnelStreamOpenSent = false; // flag to track if we already made a tunnel stream open request
     
-    // assume one tunnel stream/substream per ReactorChannel
+    // assume one tunnel stream per ReactorChannel
     TunnelStream tunnelStream;
+    boolean hasTunnelStreamServiceInfo = false;
+    Service tsServiceInfo = DirectoryMsgFactory.createService();
     boolean isTunnelStreamUp;
-    boolean isQueueStreamUp;
-    
-    // service for queue messaging
-    boolean hasQServiceInfo = false;
-    Service qServiceInfo = DirectoryMsgFactory.createService();
     
 	long loginReissueTime; // represented by epoch time in milliseconds
 	boolean canSendLoginReissue;

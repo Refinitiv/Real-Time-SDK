@@ -8,7 +8,7 @@
 /*
  * This is the tunnel stream handler for the UPA Value Add consumer and provider applications.
  * It handles operations related to opening a tunnel stream and receiving status events for it.
- * This handler is used by both the SimpleTunnelMsgHandler and the QueueMsgHandler.
+ * This handler is used by the SimpleTunnelMsgHandler.
  */
 
 #include "tunnelStreamHandler.h"
@@ -138,13 +138,6 @@ void handleTunnelStreamHandler(RsslReactor *pReactor, RsslReactorChannel *pReact
 	if (pTunnelHandler->useAuthentication)
 		tunnelStreamOpenOptions.classOfService.authentication.type = RDM_COS_AU_OMM_LOGIN;
 
-	if (pTunnelHandler->useQueueMessaging)
-	{
-		/* Queue messaging requires a reliable stream, bidirectional flow control, and queue persistence. */
-		tunnelStreamOpenOptions.classOfService.guarantee.type = RDM_COS_GU_PERSISTENT_QUEUE;
-		tunnelStreamOpenOptions.queueMsgCallback = pTunnelHandler->queueMsgCallback;
-	}
-
 	if ((ret = rsslReactorOpenTunnelStream(pReactorChannel, &tunnelStreamOpenOptions, &errorInfo)) != RSSL_RET_SUCCESS)
 	{
 		printf("rsslReactorOpenTunnelStream failed: %s(%s)\n", rsslRetCodeToString(ret), &errorInfo.rsslError.text);
@@ -180,7 +173,7 @@ void tunnelStreamHandlerCloseStreams(TunnelStreamHandler *pTunnelHandler)
 void tunnelStreamHandlerProcessServiceUpdate(TunnelStreamHandler *pTunnelHandler, 
 											 RsslBuffer *pMatchServiceName, RsslRDMService* pService)
 {
-	/* Save service information for queue messaging. */
+	/* Save service information for tunnel stream. */
 	if (!pTunnelHandler->isTunnelServiceFound)
 	{
 		/* Check if the name matches the service we're looking for. */
@@ -194,13 +187,13 @@ void tunnelStreamHandlerProcessServiceUpdate(TunnelStreamHandler *pTunnelHandler
 
 	if (pService->serviceId == pTunnelHandler->serviceId)
 	{
-		/* Process the state of the queue messaging service. */
+		/* Process the state of the tunnel stream service. */
 		if (pService->action != RSSL_MPEA_DELETE_ENTRY)
 		{
 			RsslUInt32 i;
 			pTunnelHandler->serviceId = (RsslUInt16)pService->serviceId;
 
-			/* If info is present, check if queue message support is indicated. */
+			/* If info is present, check if tunnel stream support is indicated. */
 			if (pService->flags & RDM_SVCF_HAS_INFO)
 			{
 				pTunnelHandler->tunnelServiceSupported = RSSL_FALSE;
