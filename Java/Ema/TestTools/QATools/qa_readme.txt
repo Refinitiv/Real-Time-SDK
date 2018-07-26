@@ -12,6 +12,8 @@ Series100Consumer100-ConsFunc-001
     Alters consumer that sleep for 1 second before requesting item, 
 	calls uninitialize() right after requesting item
 
+Series100Consumer100-ConsFunc-002
+    Alters consumer to repeat multiple iterations of the following: initialize consumer, request item, sleep 1 sec, uninitializing consumer
 -----------------
 Series100Consumer100-ConsFunc-001
 Module:  Series100Consumer110 
