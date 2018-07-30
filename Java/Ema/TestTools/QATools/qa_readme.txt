@@ -12,7 +12,7 @@ Series100Consumer100-ConsFunc-001
     Alters consumer that sleep for 1 second before requesting item, 
 	calls uninitialize() right after requesting item
 
-Series100Consumer100-ConsFunc-002
+Series100Consumer100-ConsFunc-008
     Alters consumer to repeat multiple iterations of the following: initialize consumer, request item, sleep 1 sec, uninitializing consumer
 -----------------
 Series100Consumer100-ConsFunc-001
@@ -500,6 +500,9 @@ Series100Provider100-ProvFunc-007
     Alters Interactive Provider to publish a symbol list with a configurable number of items in the list.
 	Command line argument:  -c <count>
     where <count> represents the number of items to be published in symbolist: A0, A1,... A<count>
+
+Series100Provider100-ProvFunc-008
+    Alters Interactive Provider to to repeat multiple iterations of the following: initialize provider, publish item, sleep 1 sec, uninitializing provider
 
 Module:  Series100Provider140
 -------------------------------
