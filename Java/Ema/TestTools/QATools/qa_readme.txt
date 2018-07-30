@@ -567,6 +567,9 @@ Series100NiProvider100-TrepAuth-002
 	Alters NiProvider to send a market price item refresh after stream state 
 	changes from up to down (recovery).
 
+Series100NiProvider100-ProvFunc-001
+    Alters NiProvider to repeat multiple iterations of the following: initialize niprovider, request item, sleep 1 sec, uninitializing niprovider
+
 Module:  Series300NiProvider360
 ----------------------------------
 Series300NiProvider360-ProvFunc-001:  Alters Series300NiProvider360 to provide the following optional
