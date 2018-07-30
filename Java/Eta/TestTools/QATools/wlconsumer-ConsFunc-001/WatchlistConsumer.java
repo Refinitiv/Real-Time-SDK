@@ -905,8 +905,10 @@ public class WatchlistConsumer implements ConsumerCallback
 		    
 			itemRequest.clear();	
 			
-			if (!watchlistConsumerConfig.enableSnapshot())
-				itemRequest.applyStreaming();
+			// APIQA
+			//if (!watchlistConsumerConfig.enableSnapshot())
+				//itemRequest.applyStreaming();
+			// END APIQA
 
 			itemRequest.addItem(watchlistConsumerConfig.itemList().get(itemListIndex).name);
 			
