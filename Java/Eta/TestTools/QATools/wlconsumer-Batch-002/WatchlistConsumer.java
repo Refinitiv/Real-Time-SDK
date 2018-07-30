@@ -985,7 +985,7 @@ public class WatchlistConsumer implements ConsumerCallback
                 // APIQA
     	        postingItemState = null;
     	        chnlInfo.hasServiceInfo = false;
-    	        chnlInfo.hasQServiceInfo = false;
+    	        chnlInfo.hasTunnelStreamServiceInfo = false;
                 break;
     		}
     		case ReactorChannelEventTypes.CHANNEL_DOWN:

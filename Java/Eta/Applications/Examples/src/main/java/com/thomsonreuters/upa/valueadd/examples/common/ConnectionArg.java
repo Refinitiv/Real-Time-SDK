@@ -1,6 +1,5 @@
 package com.thomsonreuters.upa.valueadd.examples.common;
 
-import java.util.ArrayList;
 import java.util.List;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 

@@ -25,7 +25,6 @@ import com.thomsonreuters.ema.access.MapEntry;
 import com.thomsonreuters.ema.access.Vector;
 import com.thomsonreuters.ema.access.VectorEntry;
 import com.thomsonreuters.ema.access.OmmException;
-import com.thomsonreuters.ema.access.SeriesEntry;
 import com.thomsonreuters.ema.access.DataType.DataTypes;
 import junit.framework.TestCase;
 

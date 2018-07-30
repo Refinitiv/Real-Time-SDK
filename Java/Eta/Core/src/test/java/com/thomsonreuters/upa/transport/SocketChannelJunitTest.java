@@ -9612,7 +9612,7 @@ public class SocketChannelJunitTest
      * Channel.ioctl() to change the compression threshold and write a buffer
      * lower than the compression threshold and verify that the data was not compressed.
      */
-    //@Test
+    @Test
     public void ioctlCompressionThresholdWriteTest()
     {
         String testData20 = "aaabbbcccdddeeefffgg";
@@ -9658,6 +9658,7 @@ public class SocketChannelJunitTest
             rsslChnl._compressor = rsslChnl._ZlibCompressor;
             rsslChnl._compressor.compressionLevel(rsslChnl._sessionCompLevel);
             rsslChnl._sessionCompLowThreshold = rsslChnl.ZLIB_COMPRESSION_THRESHOLD;
+            rsslChnl._channelInfo._compressionType = CompressionTypes.ZLIB;
             
             // set _totalBytesQueued to 0 for no buffers queued
             rsslChnl._totalBytesQueued = 0;
