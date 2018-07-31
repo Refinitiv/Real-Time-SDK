@@ -74,10 +74,18 @@ if ( CMAKE_HOST_WIN32 )
 									${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared 
 								RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD 
 									${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared 
+								LIBRARY_OUTPUT_DIRECTORY_RELEASE_MD
+                                    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE_MD}/Shared
+                                LIBRARY_OUTPUT_DIRECTORY_DEBUG_MDD
+                                    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared
 								PDB_OUTPUT_DIRECTORY_RELEASE_MD 
 									${CMAKE_PDB_OUTPUT_DIRECTORY_RELEASE_MD}/Shared 
 								PDB_OUTPUT_DIRECTORY_DEBUG_MDD 
 									${CMAKE_PDB_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared 
+								ARCHIVE_OUTPUT_DIRECTORY_RELEASE_MD
+                                    ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE_MD}/Shared
+                                ARCHIVE_OUTPUT_DIRECTORY_DEBUG_MDD
+                                    ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared
                         )
 else()
 	set_target_properties( EmaCppConsPerf_shared 
