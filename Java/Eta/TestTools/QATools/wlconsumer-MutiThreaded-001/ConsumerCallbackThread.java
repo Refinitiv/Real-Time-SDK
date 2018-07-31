@@ -34,7 +34,6 @@ import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.rdm.Dictionary;
 import com.thomsonreuters.upa.rdm.DomainTypes;
 import com.thomsonreuters.upa.rdm.Login;
-import com.thomsonreuters.upa.shared.CommandLine;
 import com.thomsonreuters.upa.rdm.Dictionary.VerbosityValues;
 import com.thomsonreuters.upa.transport.ConnectOptions;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
@@ -70,7 +69,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
-import com.thomsonreuters.upa.valueadd.reactor.ReactorRole;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 /**
@@ -90,8 +88,6 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
     private final String FIX_FIELD_DICTIONARY_FILE_NAME = "FDMFixFieldDictionary";
     private final String FIX_ENUM_TABLE_FILE_NAME = "FDMenumtypes.def";
     
-    private final int MAX_QUEUE_DESTINATIONS = 10; 
-    
     private Reactor reactor;
     private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
     private ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
@@ -105,9 +101,8 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
     
 	ArrayList<ChannelInfo> chnlInfoList = new ArrayList<ChannelInfo>();
 
-    QueueMsgHandler queueMsgHandler;
     TunnelStreamHandler tunnelStreamHandler;
-    private String qServiceName;
+    private String tsServiceName;
    
 	StringBuilder cacheDisplayStr;
 	Buffer cacheEntryBuffer;
@@ -205,7 +200,7 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
     	
         // connect channel
         int ret;
-        if ((ret = reactor.connect(chnlInfo.connectOptions, (ReactorRole)chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
+        if ((ret = reactor.connect(chnlInfo.connectOptions, chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
         {
         	System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
         	System.exit(ReactorReturnCodes.FAILURE);
@@ -287,7 +282,6 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 	        if (!closeHandled)
 	        {
 	        	handlePosting();
-	        	handleQueueMessaging();
 	        	handleTunnelStream();
 	        	
 		        // send login reissue if login reissue time has passed
@@ -314,17 +308,10 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 					chnlInfo.canSendLoginReissue = false;
         		}
 	        }	        
-	        
-	        if(closeHandled && queueMsgHandler != null && queueMsgHandler._chnlInfo != null &&
-		 	           !queueMsgHandler._chnlInfo.isQueueStreamUp) 
-		        	break;
-		 
+	        		 
 	        if(closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null &&
 	           !tunnelStreamHandler._chnlInfo.isTunnelStreamUp) 
 	        	break;
-	        
-	        if (closeHandled && queueMsgHandler == null && tunnelStreamHandler == null ) 
-	        	break; 
 		}	
 		
 		try
@@ -483,7 +470,7 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
     	            	        
     	        itemsRequested = false;
     	        chnlInfo.hasServiceInfo = false;
-    	        chnlInfo.hasQServiceInfo = false;
+    	        chnlInfo.hasTunnelStreamServiceInfo = false;
                 break;
     		}
     		case ReactorChannelEventTypes.CHANNEL_DOWN:
@@ -773,17 +760,17 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 			                	}
 								chnlInfo.hasServiceInfo = true;
 						}
-		                if (service.info().serviceName().toString().equals(qServiceName))
+		                if (service.info().serviceName().toString().equals(tsServiceName))
 		                {
 		                    // save serviceInfo associated with requested service name
-		                    if (service.copy(chnlInfo.qServiceInfo) < CodecReturnCodes.SUCCESS)
+		                    if (service.copy(chnlInfo.tsServiceInfo) < CodecReturnCodes.SUCCESS)
 		                    {
 		                        System.out.println("Service.copy() failure");
 		                        uninitialize();
 		                        System.exit(ReactorReturnCodes.FAILURE);                    
 		                    }
 		                    
-		                    chnlInfo.hasQServiceInfo = true;
+		                    chnlInfo.hasTunnelStreamServiceInfo = true;
 		                }
 			        }
 				}
@@ -792,7 +779,7 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 				DirectoryUpdate directoryUpdate = (DirectoryUpdate)event.rdmDirectoryMsg();
 
 			    serviceName = chnlInfo.connectionArg.service();
-			    String qServiceName = chnlInfo.connectionArg.qService();
+			    String tsServiceName = chnlInfo.connectionArg.tsService();
 			    System.out.println("Received Source Directory Update");
 			    System.out.println(directoryUpdate.toString());
 			    
@@ -808,9 +795,9 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 			    		chnlInfo.serviceInfo.action(MapEntryActions.DELETE);
 			    	}
 			            
-			    	if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId() ) 
+			    	if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.tsServiceInfo.serviceId() ) 
 			    	{
-			    		chnlInfo.qServiceInfo.action(MapEntryActions.DELETE);
+			    		chnlInfo.tsServiceInfo.action(MapEntryActions.DELETE);
 			    	}
 			            
 			    	boolean updateServiceInfo = false, updateQServiceInfo = false;
@@ -823,8 +810,8 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 			    		{
 			    			updateServiceInfo = true;
 			    		}
-			    		if (service.info().serviceName().toString().equals(qServiceName) ||
-			    				service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+			    		if (service.info().serviceName().toString().equals(tsServiceName) ||
+			    				service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
 			    		{
 			    			updateQServiceInfo = true;
 			    		}
@@ -835,7 +822,7 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 			    		{
 			    			updateServiceInfo = true;
 			    		}
-			    		if (service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+			    		if (service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
 			    		{
 			    			updateQServiceInfo = true;
 			    		}
@@ -855,14 +842,14 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 			    	if (updateQServiceInfo)
 			    	{
 			    		// update serviceInfo associated with requested service name
-			    		if (service.copy(chnlInfo.qServiceInfo) < CodecReturnCodes.SUCCESS)
+			    		if (service.copy(chnlInfo.tsServiceInfo) < CodecReturnCodes.SUCCESS)
 			    		{
 			    			System.out.println("Service.copy() failure");
 			    			uninitialize();
 			    			System.exit(ReactorReturnCodes.FAILURE);                    
 			    		}
 
-			    		chnlInfo.hasQServiceInfo = true;                
+			    		chnlInfo.hasTunnelStreamServiceInfo = true;                
 			    	}
 			    }
 				
@@ -895,12 +882,7 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 				
 				if (chnlInfo.connectionArg.tunnel()) 
 				{
-					tunnelStreamHandler.processServiceUpdate(chnlInfo.connectionArg.qService(), service);        	
-				}
-        
-				if (queueMsgHandler != null ) 
-				{
-					queueMsgHandler.processServiceUpdate(chnlInfo.connectionArg.qService(), service);        	
+					tunnelStreamHandler.processServiceUpdate(chnlInfo.connectionArg.tsService(), service);        	
 				}
 			}
 		}
@@ -910,42 +892,16 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 			if (!tunnelStreamHandler.isServiceFound())
 			{
 				System.out.println(" Directory response does not contain service name for tunnel streams: \n " 
-						+ chnlInfo.connectionArg.qService());
+						+ chnlInfo.connectionArg.tsService());
 			}
 			else if (!tunnelStreamHandler.isServiceSupported())
 			{
 				System.out.println(" Service in use for tunnel streams does not support them: \n"						 
-						+ chnlInfo.connectionArg.qService());
+						+ chnlInfo.connectionArg.tsService());
 			}
-            else if (isRequestedQServiceUp(chnlInfo))
+            else if (isRequestedTunnelStreamServiceUp(chnlInfo))
             {
                 if (tunnelStreamHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
-                {
-                    if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-                            chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
-                    {
-                        uninitialize();
-                        System.exit(ReactorReturnCodes.FAILURE);
-                    }
-                }
-            }
-		}
-		
-		if (queueMsgHandler != null) 
-		{
-			if (!queueMsgHandler.isServiceFound())
-			{
-				System.out.println(" Directory response does not contain service name for queue messaging: \n " 
-						+ chnlInfo.connectionArg.qService());
-			}
-			else if (!queueMsgHandler.isServiceSupported())
-			{
-				System.out.println(" Service in use for queue messaging does not support them: \n"						 
-						+ chnlInfo.connectionArg.qService());
-			}
-            else if (isRequestedQServiceUp(chnlInfo))
-            {
-                if (queueMsgHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                 {
                     if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
                             chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
@@ -1091,11 +1047,11 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
                 chnlInfo.serviceInfo.state().acceptingRequests() == 1) && chnlInfo.serviceInfo.state().serviceState() == 1;
     }
 
-    public boolean isRequestedQServiceUp(ChannelInfo chnlInfo)
+    public boolean isRequestedTunnelStreamServiceUp(ChannelInfo chnlInfo)
     {
-        return  chnlInfo.hasQServiceInfo &&
-            chnlInfo.qServiceInfo.checkHasState() && (!chnlInfo.qServiceInfo.state().checkHasAcceptingRequests() ||
-                chnlInfo.qServiceInfo.state().acceptingRequests() == 1) && chnlInfo.qServiceInfo.state().serviceState() == 1;
+        return  chnlInfo.hasTunnelStreamServiceInfo &&
+            chnlInfo.tsServiceInfo.checkHasState() && (!chnlInfo.tsServiceInfo.state().checkHasAcceptingRequests() ||
+                chnlInfo.tsServiceInfo.state().acceptingRequests() == 1) && chnlInfo.tsServiceInfo.state().serviceState() == 1;
     }
 
     private void checkAndInitPostingSupport(ChannelInfo chnlInfo)
@@ -1187,25 +1143,6 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 	                System.out.println("Error posting offstream: " + errorInfo.error().text());
 	        }
     	}
-    }
-
-    private void handleQueueMessaging()
-    {
-        for (ChannelInfo chnlInfo : chnlInfoList)
-        {
-            if (chnlInfo.loginRefresh == null ||
-                chnlInfo.serviceInfo == null ||
-                chnlInfo.reactorChannel == null ||
-                chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
-            {
-                continue;
-            }
-            
-            if (queueMsgHandler != null)
-            {
-                queueMsgHandler.sendQueueMsg(chnlInfo.reactorChannel);                 
-            }
-        }
     }
 
     private void handleTunnelStream()
@@ -1350,37 +1287,10 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
             setHTTPConfiguration(cOpt);
         } 
         
-        // exit program if both queue messaging and tunnel stream are configured
-        if (chnlInfo.connectionArg.tunnel() && chnlInfo.connectionArg.qSource() != null && !chnlInfo.connectionArg.qSource().equals(""))
-        {
-            System.out.println("\nError: Cannot run with both tunnel stream messaging and queue messaging enabled." + "\n");
-            uninitialize();
-            System.exit(ReactorReturnCodes.FAILURE);
-        }
-        
-        // handle queue messaging configuration
-        if (chnlInfo.connectionArg.qSource() != null && !chnlInfo.connectionArg.qSource().equals("") && queueMsgHandler == null)
-        {
-            if (chnlInfo.connectionArg.qDestList().size() <= MAX_QUEUE_DESTINATIONS)
-            {
-            	loadFixDictionary();
-                qServiceName = chnlInfo.connectionArg.qService();
-                queueMsgHandler = new QueueMsgHandler(chnlInfo.connectionArg.qSource(),
-                                                      chnlInfo.connectionArg.qDestList(),
-                                                      fixdictionary, chnlInfo.connectionArg.tunnelAuth(), chnlInfo.connectionArg.tunnelDomain() );                               
-            }
-            else // exit if too many queue destinations entered
-            {
-                System.err.println("\nError: Example only supports " + MAX_QUEUE_DESTINATIONS + " queue destination names.\n");
-                System.err.println(CommandLine.optionHelpString());
-                System.exit(CodecReturnCodes.FAILURE);
-            }
-        }
-
         // handle basic tunnel stream configuration
         if (chnlInfo.connectionArg.tunnel() && tunnelStreamHandler == null)
         {
-            qServiceName = chnlInfo.connectionArg.qService();
+            tsServiceName = chnlInfo.connectionArg.tsService();
             tunnelStreamHandler = new TunnelStreamHandler(chnlInfo.connectionArg.tunnelAuth(), chnlInfo.connectionArg.tunnelDomain());
         }
 	}
@@ -1448,16 +1358,6 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 	        // close items streams
 	        closeItemStreams(chnlInfo);
 	
-	        // close queue messaging streams
-            if (queueMsgHandler != null &&
-                chnlInfo.reactorChannel != null)
-            {
-                if (queueMsgHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
-                {
-                    System.out.println("queueMsgHandler.closeStream() failed with errorText: " + errorInfo.error().text());
-                }
-            }
-	
             // close tunnel streams
             if (tunnelStreamHandler != null &&
                 chnlInfo.reactorChannel != null)
@@ -1489,15 +1389,6 @@ public class ConsumerCallbackThread implements Runnable, ConsumerCallback
 		for (ChannelInfo chnlInfo : chnlInfoList)
 		{
 			closeItemStreams(chnlInfo);
-		
-			// close queue messaging streams
-			if (queueMsgHandler != null && chnlInfo.reactorChannel != null)
-			{
-				if (queueMsgHandler.closeStreams(chnlInfo, _finalStatusEvent, errorInfo) != ReactorReturnCodes.SUCCESS)
-				{
-					System.out.println("queueMsgHandler.closeStream() failed with errorText: " + errorInfo.error().text());
-				}
-			}
 		
 			// close tunnel streams
 			if (tunnelStreamHandler != null && chnlInfo.reactorChannel != null)

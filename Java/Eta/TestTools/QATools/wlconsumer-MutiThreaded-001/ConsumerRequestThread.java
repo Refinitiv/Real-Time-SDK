@@ -71,21 +71,21 @@ public class ConsumerRequestThread implements Runnable
     			consumerCallbackThread.itemsRequested = true;
     		}
     			
-			if (consumerCallbackThread.isRequestedQServiceUp(chnlInfo)  && !consumerCallbackThread.itemsRequested)
+			if (consumerCallbackThread.isRequestedTunnelStreamServiceUp(chnlInfo)  && !consumerCallbackThread.itemsRequested)
 			{	
 					if (chnlInfo.connectionArg.tunnel()) 
 					{
 						if (!consumerCallbackThread.tunnelStreamHandler.isServiceFound())
 						{
 							System.out.println(" Directory response does not contain service name for tunnel streams: \n " 
-									+ chnlInfo.connectionArg.qService());
+									+ chnlInfo.connectionArg.tsService());
 						}
 						else if (!consumerCallbackThread.tunnelStreamHandler.isServiceSupported())
 						{
 							System.out.println(" Service in use for tunnel streams does not support them: \n"						 
-									+ chnlInfo.connectionArg.qService());
+									+ chnlInfo.connectionArg.tsService());
 						}
-			            else if (consumerCallbackThread.isRequestedQServiceUp(chnlInfo))
+			            else if (consumerCallbackThread.isRequestedTunnelStreamServiceUp(chnlInfo))
 			            {
 			                if (consumerCallbackThread.tunnelStreamHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
 			                {
@@ -97,33 +97,7 @@ public class ConsumerRequestThread implements Runnable
 			                    }
 			                }
 			            }
-					}
-				
-					if (consumerCallbackThread.queueMsgHandler != null) 
-					{
-						if (!consumerCallbackThread.queueMsgHandler.isServiceFound())
-						{
-							System.out.println(" Directory response does not contain service name for queue messaging: \n " 
-									+ chnlInfo.connectionArg.qService());
-						}
-						else if (!consumerCallbackThread.queueMsgHandler.isServiceSupported())
-						{
-							System.out.println(" Service in use for queue messaging does not support them: \n"						 
-									+ chnlInfo.connectionArg.qService());
-						}
-			            else if (consumerCallbackThread.isRequestedQServiceUp(chnlInfo))
-			            {
-			                if (consumerCallbackThread.queueMsgHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
-			                {
-			                    if (chnlInfo.reactorChannel.state() != ReactorChannel.State.CLOSED &&
-			                            chnlInfo.reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING)
-			                    {
-			                    	consumerCallbackThread.shutDown(true);
-			                        System.exit(ReactorReturnCodes.FAILURE);
-			                    }
-			                }
-			            }
-					}
+					}			
 			}
 			
 	        try

@@ -8,7 +8,7 @@ import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.MsgKey;
 import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.State;
-//APIQA
+// APIQA
 import com.thomsonreuters.upa.perftools.common.XmlItemInfoList;
 import com.thomsonreuters.upa.shared.CommandLine;
 import com.thomsonreuters.upa.rdm.DomainTypes;
@@ -623,9 +623,6 @@ public class WatchlistConsumerConfig
 		for (int index = 1; index < connectionList.size(); index++)
 		{
 			connectionList.get(index).connectionType(connectionList.get(0).connectionType());
-			connectionList.get(index).qDestList(connectionList.get(0).qDestList());
-			connectionList.get(index).qSource(connectionList.get(0).qSource());
-			connectionList.get(index).qService(connectionList.get(0).qService());
 			connectionList.get(index).tunnel(connectionList.get(0).tunnel());
 			connectionList.get(index).tunnelAuth(connectionList.get(0).tunnelAuth());
 			connectionList.get(index).tunnelDomain(connectionList.get(0).tunnelDomain());
