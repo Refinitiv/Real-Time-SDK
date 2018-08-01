@@ -7,12 +7,6 @@ Disclaimer:  Please note that this is not a comprehensive list of all test varia
 List of altered code directories:
 --------------------------------------------------------------------------------
 
-Module:  Series100Consumer100
------------------
-
-Series100Consumer100-ConsFunc-002
-    Alters consumer to repeat multiple iterations of the following: initialize consumer, request item, sleep 1 sec, delete consumer
-
 Module:  Series100Consumer110 
 -----------------
 
@@ -392,8 +386,6 @@ Series100Provider100-ProvFunc-007
 	Command line argument:  -c <count>
     where <count> represents the number of items to be published in symbolist: A0, A1,... A<count>
 
-Series100Provider100-ProvFunc-008
-    Alters Interactive Provider to to repeat multiple iterations of the following: initialize provider, publish item, sleep 1 sec, uninitializing provider
 
 Module:  Series300Provider320
 ---------------------------
@@ -470,8 +462,6 @@ Series100NiProvider100-TrepAuth-002
 	Alters NiProvider sends a market price item refresh after stream state 
 	changes from up to down (recovery).
 
-Series100NiProvider100-ProvFunc-001
-    Alters NiProvider to repeat multiple iterations of the following: initialize niprovider, request item, sleep 1 sec, uninitializing niprovider
 
 Module:  Series300NiProvider350
 ----------------------------------

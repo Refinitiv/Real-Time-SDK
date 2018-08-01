@@ -12,6 +12,8 @@ Series100Consumer100-ConsFunc-001
     Alters consumer that sleep for 1 second before requesting item, 
 	calls uninitialize() right after requesting item
 
+Series100Consumer100-ConsFunc-008
+    Alters consumer to repeat multiple iterations of the following: initialize consumer, request item, sleep 1 sec, uninitializing consumer
 -----------------
 Series100Consumer100-ConsFunc-001
 Module:  Series100Consumer110 
@@ -509,6 +511,7 @@ Series100Provider140-ProvFunc-001
 	be encoded as a Buffer MapEntry Key is read from file xmlKeyList
     This altered code works in conjunction with Series100Consumer140-ConsFunc-001
 
+Module:  Series100Provider161 
 -------------------------------
 Series100Provider161-ProvFunc-001
 	Alters Interactive Provider for the following:
