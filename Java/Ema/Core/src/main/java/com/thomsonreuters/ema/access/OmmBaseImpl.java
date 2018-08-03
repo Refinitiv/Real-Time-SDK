@@ -327,6 +327,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				}
 			}
 
+			_pipe.sink().close();
+			_pipe.source().close();
 			_selector.close();
 				
 		} catch (InterruptedException | IOException e)

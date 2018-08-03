@@ -422,6 +422,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				_serverChannelHandler = null;
 			}
 
+			_pipe.sink().close();
+			_pipe.source().close();
 			_selector.close();
 			
 		} catch (InterruptedException | IOException e)

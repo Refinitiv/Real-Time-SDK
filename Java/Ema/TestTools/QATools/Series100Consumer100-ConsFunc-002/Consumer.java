@@ -50,7 +50,7 @@ public class Consumer
 		OmmConsumer consumer = null;
 		try
 		{
-                        //APIQA
+            //APIQA
 			for (int i = 0; i < 100000; i++)
 			{
 				AppClient appClient = new AppClient();
@@ -67,6 +67,7 @@ public class Consumer
 				
 				consumer.uninitialize();
 			} 
+			//END APIQA
 		}
 		catch (InterruptedException | OmmException excp)
 		{

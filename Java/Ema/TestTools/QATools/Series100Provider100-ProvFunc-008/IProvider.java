@@ -97,6 +97,7 @@ public class IProvider
 		OmmProvider provider = null;
 		try
 		{
+		    //APIQA
 			// Provider only publishes for 2 seconds
             for (int i = 0; i < 1000000; i++)
             {
@@ -123,6 +124,7 @@ public class IProvider
 				System.out.println("!!! provider.uninitialize() " + i + " !!!");
 				provider.uninitialize();
             }
+			//END APIQA 
 		} 
 		catch (InterruptedException | OmmException excp)
 		{
