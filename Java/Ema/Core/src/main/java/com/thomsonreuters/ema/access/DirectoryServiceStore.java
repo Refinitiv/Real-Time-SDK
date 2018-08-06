@@ -299,17 +299,8 @@ abstract class DirectoryServiceStore
     {
     	String directoryName;
     	
-    	if ( _providerRole == OmmProviderConfig.ProviderRole.INTERACTIVE )
-    	{
-    		directoryName =  (String)config.xmlConfig().getIProviderAttributeValue(
-    				_activeConfig.configuredName, ConfigManager.IProviderDirectoryName);
-    	}
-    	else
-    	{
-    		directoryName =  (String)config.xmlConfig().getNiProviderAttributeValue(
-    				_activeConfig.configuredName, ConfigManager.NiProviderDirectoryName);
-    	}
-				
+    	directoryName = config.directoryName(_activeConfig.configuredName);
+    	
 		if ( directoryName == null || directoryName.isEmpty() )
 			directoryName = config.xmlConfig().getDefaultDirectoryName();
 		
@@ -437,6 +428,10 @@ abstract class DirectoryServiceStore
 				useDefaultService(config, directoryCache);
 			}
 		}
+		
+		ProgrammaticConfigure ppc = null;
+		if ((ppc = config.programmaticConfigure()) != null && directoryCache != null )
+			ppc.retrieveDirectoryConfig(directoryName, this, directoryCache, serviceDictionaryConfigList);
     }
     
     boolean readServiceInfoFilter(EmaConfigBaseImpl config, Set<Integer> serviceIdSet, List<Service> unspecifiedIdList, Service service, XMLnode infoFilterNode,
@@ -587,7 +582,7 @@ abstract class DirectoryServiceStore
 		    	{
 		    		config.errorTracker().append("no configuration QoSEntry exists for service QoS [")
 					.append(service.info().serviceName().toString())
-					.append("|InfoFilter|QoS]. Will use default QoS.").create(Severity.WARNING);
+					.append("|InfoFilter|QoS]. Will use default QoS if not config programmatically.").create(Severity.WARNING);
 		    		
 		    		Qos qos = CodecFactory.createQos();
 					Utilities.toRsslQos(OmmQos.Rate.TICK_BY_TICK, OmmQos.Timeliness.REALTIME, qos);
@@ -615,7 +610,7 @@ abstract class DirectoryServiceStore
 							{
 								config.errorTracker().append("failed to read or convert a QoS Timeliness from the specified service [")
 								.append(service.info().serviceName().toString())
-								.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Timeliness.")
+								.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Timeliness if not config programmatically.")
 								.append(" Suspect Timeliness value is ").append(element.asciiValue()).create(Severity.WARNING);
 								
 								timeliness = new Long(OmmQos.Timeliness.REALTIME);
@@ -634,7 +629,7 @@ abstract class DirectoryServiceStore
 						{
 							config.errorTracker().append("no configuration exists for service QoS Timeliness [")
 							.append(service.info().serviceName().toString())
-							.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Timeliness.").create(Severity.WARNING);
+							.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Timeliness if not config programmatically.").create(Severity.WARNING);
 						}
 						
 						element = (ConfigElement) qosAttributes.getElement(ConfigManager.ServiceInfoFilterQoSEntryRate);
@@ -647,7 +642,7 @@ abstract class DirectoryServiceStore
 							{
 								config.errorTracker().append("failed to read or convert a QoS Rate from the specified service [")
 								.append(service.info().serviceName().toString())
-								.append("|InfoFilter|QoS|QoSEntry|Rate]. Will use default Rate.")
+								.append("|InfoFilter|QoS|QoSEntry|Rate]. Will use default Rate if not config programmatically.")
 								.append(" Suspect Rate value is ").append(element.asciiValue()).create(Severity.WARNING);
 								
 								rate = new Long(OmmQos.Rate.TICK_BY_TICK);
@@ -666,7 +661,7 @@ abstract class DirectoryServiceStore
 						{
 							config.errorTracker().append("no configuration exists for service QoS Rate [")
 							.append(service.info().serviceName().toString())
-							.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Rate").create(Severity.WARNING);
+							.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Rate if not config programmatically").create(Severity.WARNING);
 						}
 						
 						Qos qos = CodecFactory.createQos();
@@ -695,17 +690,17 @@ abstract class DirectoryServiceStore
 		String dictionaryName = null;
 		List<ConfigElement> configElementList;
 		ConfigElement element;
-		String rdmEnumTypeItemName;
-		String rdmFieldDictItemName;
-		String rdmEnumTypeDefFileName = null;
-		String rdmFieldDictionaryFileName = null;
-		
+		ProgrammaticConfigure pc = config.programmaticConfigure();
+			
 		if ( node.tagId() == nodeId )
 		{
+			DictionaryConfig tempDictConfig = new DictionaryConfig(true);
+			
 			configElementList =  node.attributeList().getConfigElementList(entryId);
 			
 			for(int index = 0 ; index < configElementList.size(); ++index )
 			{
+				tempDictConfig.clear();
 				dictionaryName = configElementList.get(index).asciiValue();
 				
 				ConfigAttributes dictionaryAttributes = config.xmlConfig().getDictionaryAttributes(dictionaryName);
@@ -714,94 +709,104 @@ abstract class DirectoryServiceStore
 				{
 					element = (ConfigElement) dictionaryAttributes.getElement(ConfigManager.DictionaryEnumTypeDefItemName);
 					
-					if ( element == null || ( rdmEnumTypeItemName = element.asciiValue()).isEmpty() )
+					if ( element == null || ( tempDictConfig.enumTypeDefItemName = element.asciiValue()).isEmpty() )
 					{
-						rdmEnumTypeItemName = DictionaryCallbackClient.DICTIONARY_RWFENUM;
+						tempDictConfig.enumTypeDefItemName = DictionaryCallbackClient.DICTIONARY_RWFENUM;
 						
 						config.errorTracker().append("no configuration exists or unspecified name for EnumTypeDefItemName in dictionary [")
-						.append(dictionaryName).append("]. Will use default value of ").append(rdmEnumTypeItemName)
+						.append(dictionaryName).append("]. Will use default value of ").append(tempDictConfig.enumTypeDefItemName)
+						.append(" if not config programmatically")
 						.create(Severity.WARNING);
 					}
 		
 					element = (ConfigElement) dictionaryAttributes.getElement(ConfigManager.DictionaryRdmFieldDictionaryItemName);
 					
-					if ( element == null || ( rdmFieldDictItemName = element.asciiValue()).isEmpty() )
+					if ( element == null || ( tempDictConfig.rdmFieldDictionaryItemName = element.asciiValue()).isEmpty() )
 					{
-						rdmFieldDictItemName = DictionaryCallbackClient.DICTIONARY_RWFFID;
+						tempDictConfig.rdmFieldDictionaryItemName = DictionaryCallbackClient.DICTIONARY_RWFFID;
 						
 						config.errorTracker().append("no configuration exists or unspecified name for RdmFieldDictionaryItemName in dictionary [")
-						.append(dictionaryName).append("]. Will use default value of ").append(rdmFieldDictItemName)
+						.append(dictionaryName).append("]. Will use default value of ").append(tempDictConfig.rdmFieldDictionaryItemName)
+						.append(" if not config programmatically")
 						.create(Severity.WARNING);
 					}
 					
 					element = (ConfigElement) dictionaryAttributes.getElement(ConfigManager.DictionaryEnumTypeDefFileName);
 					
-					if ( element == null || ( rdmEnumTypeDefFileName = element.asciiValue()).isEmpty() )
+					if ( element == null || ( tempDictConfig.enumtypeDefFileName = element.asciiValue()).isEmpty() )
 					{
-						rdmEnumTypeDefFileName = "./enumtype.def";
+						tempDictConfig.enumtypeDefFileName = "./enumtype.def";
 						
 						config.errorTracker().append("no configuration exists or unspecified name for EnumTypeDefFileName in dictionary [")
-						.append(dictionaryName).append("]. Will use default value of ").append(rdmEnumTypeDefFileName)
+						.append(dictionaryName).append("]. Will use default value of ").append(tempDictConfig.enumtypeDefFileName)
+						.append(" if not config programmatically")
 						.create(Severity.WARNING);
 					}
 					
 					element = (ConfigElement) dictionaryAttributes.getElement(ConfigManager.DictionaryRDMFieldDictFileName);
 					
-					if ( element == null || ( rdmFieldDictionaryFileName = element.asciiValue()).isEmpty() )
+					if ( element == null || ( tempDictConfig.rdmfieldDictionaryFileName = element.asciiValue()).isEmpty() )
 					{
-						rdmFieldDictionaryFileName = "./RDMFieldDictionary";
+						tempDictConfig.rdmfieldDictionaryFileName = "./RDMFieldDictionary";
 						
 						config.errorTracker().append("no configuration exists or unspecified name for RdmFieldDictionaryFileName in dictionary [")
-						.append(dictionaryName).append("]. Will use default value of ").append(rdmFieldDictionaryFileName)
+						.append(dictionaryName).append("]. Will use default value of ").append(tempDictConfig.rdmfieldDictionaryFileName)
+						.append(" if not config programmatically")
 						.create(Severity.WARNING);
 					}
 				}
 				else
 				{
 					config.errorTracker().append("no configuration exists for dictionary [")
-					.append(dictionaryName).append("]. Will use dictionary defaults").create(Severity.WARNING);
+					.append(dictionaryName).append("]. Will use dictionary defaults if not config programmatically").create(Severity.WARNING);
 					
-					rdmEnumTypeItemName = DictionaryCallbackClient.DICTIONARY_RWFENUM;
-					rdmFieldDictItemName = DictionaryCallbackClient.DICTIONARY_RWFFID;
-					rdmEnumTypeDefFileName = "./enumtype.def";
-					rdmFieldDictionaryFileName = "./RDMFieldDictionary";
+					tempDictConfig.enumTypeDefItemName = DictionaryCallbackClient.DICTIONARY_RWFENUM;
+					tempDictConfig.rdmFieldDictionaryItemName = DictionaryCallbackClient.DICTIONARY_RWFFID;
+					tempDictConfig.enumtypeDefFileName = "./enumtype.def";
+					tempDictConfig.rdmfieldDictionaryFileName = "./RDMFieldDictionary";
 				}
+				
+				//retreive dict info from programmatically config if there is any
+				if (pc != null)
+					pc.retrieveDictionaryConfig(dictionaryName, tempDictConfig);
 				
 				if ( nodeId == ConfigManager.ServiceInfoFilterDictionariesProvided )
 				{
 					service.info().applyHasDictionariesProvided();
-					service.info().dictionariesProvidedList().add(rdmEnumTypeItemName);
-					service.info().dictionariesProvidedList().add(rdmFieldDictItemName);
+					service.info().dictionariesProvidedList().add(tempDictConfig.rdmFieldDictionaryItemName);
+					service.info().dictionariesProvidedList().add(tempDictConfig.enumTypeDefItemName);
 					
 					if( serviceDictionaryConfig != null )
 					{
 						DictionaryConfig dictionaryConfig = new DictionaryConfig(true);
 						dictionaryConfig.dictionaryName = dictionaryName;
-						dictionaryConfig.enumTypeDefItemName = rdmEnumTypeItemName;
-						dictionaryConfig.rdmFieldDictionaryItemName = rdmFieldDictItemName;
-						dictionaryConfig.enumtypeDefFileName = rdmEnumTypeDefFileName;
-						dictionaryConfig.rdmfieldDictionaryFileName = rdmFieldDictionaryFileName;
+						dictionaryConfig.enumTypeDefItemName = tempDictConfig.enumTypeDefItemName;
+						dictionaryConfig.rdmFieldDictionaryItemName = tempDictConfig.rdmFieldDictionaryItemName;
+						dictionaryConfig.enumtypeDefFileName = tempDictConfig.enumtypeDefFileName;
+						dictionaryConfig.rdmfieldDictionaryFileName = tempDictConfig.rdmfieldDictionaryFileName;
 						serviceDictionaryConfig.dictionaryProvidedList.add(dictionaryConfig);
 					}
 				}
 				else if ( nodeId == ConfigManager.ServiceInfoFilterDictionariesUsed )
 				{
 					service.info().applyHasDictionariesUsed();
-					service.info().dictionariesUsedList().add(rdmEnumTypeItemName);
-					service.info().dictionariesUsedList().add(rdmFieldDictItemName);
+					service.info().dictionariesUsedList().add(tempDictConfig.rdmFieldDictionaryItemName);
+					service.info().dictionariesUsedList().add(tempDictConfig.enumTypeDefItemName);
 					
 					if( serviceDictionaryConfig != null )
 					{
 						DictionaryConfig dictionaryConfig = new DictionaryConfig(true);
 						dictionaryConfig.dictionaryName = dictionaryName;
-						dictionaryConfig.enumTypeDefItemName = rdmEnumTypeItemName;
-						dictionaryConfig.rdmFieldDictionaryItemName = rdmFieldDictItemName;
-						dictionaryConfig.enumtypeDefFileName = rdmEnumTypeDefFileName;
-						dictionaryConfig.rdmfieldDictionaryFileName = rdmFieldDictionaryFileName;
+						dictionaryConfig.enumTypeDefItemName = tempDictConfig.enumTypeDefItemName;
+						dictionaryConfig.rdmFieldDictionaryItemName = tempDictConfig.rdmFieldDictionaryItemName;
+						dictionaryConfig.enumtypeDefFileName = tempDictConfig.enumtypeDefFileName;
+						dictionaryConfig.rdmfieldDictionaryFileName = tempDictConfig.rdmfieldDictionaryFileName;
 						serviceDictionaryConfig.dictionaryUsedList.add(dictionaryConfig);
 					}
 				}
 			}
+			
+			tempDictConfig = null;
 		}
 	}
 	
@@ -872,13 +877,13 @@ abstract class DirectoryServiceStore
 	{
     	if ( _providerRole == OmmProviderConfig.ProviderRole.NON_INTERACTIVE)
 		{
-			config.errorTracker().append("no configuration exists for ni provider directory [")
-			.append(_activeConfig.instanceName).append("]. Will use directory defaults.").create(Severity.WARNING);
+			config.errorTracker().append("no configuration exists from config file for ni provider directory [")
+			.append(_activeConfig.instanceName).append("]. Will use directory defaults if not config programmatically.").create(Severity.WARNING);
 		}
 		else
 		{
-			config.errorTracker().append("no configuration exists for interactive provider directory [")
-			.append(_activeConfig.instanceName).append("]. Will use directory defaults.").create(Severity.WARNING);
+			config.errorTracker().append("no configuration exists from config file for interactive provider directory [")
+			.append(_activeConfig.instanceName).append("]. Will use directory defaults if not config programmatically.").create(Severity.WARNING);
 		}
     	
 		Service service = DirectoryMsgFactory.createService();
@@ -2083,7 +2088,7 @@ class OmmIProviderDirectoryStore extends DirectoryServiceStore
 		
 		if (serviceDictionaryConfigList != null)
 		{
-			if(_bUsingDefaultService )
+			if(_bUsingDefaultService && serviceDictionaryConfigList.size() == 0 )
 			{
 				ServiceDictionaryConfig serviceDictionaryConfig = new ServiceDictionaryConfig();
 				serviceDictionaryConfig.serviceId = 1;

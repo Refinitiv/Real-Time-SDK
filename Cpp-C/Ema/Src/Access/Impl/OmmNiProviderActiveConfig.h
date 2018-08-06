@@ -31,6 +31,15 @@ public:
 	void clear();
 
 	OmmNiProviderConfig::AdminControl getDirectoryAdminControl();
+	bool getMergeSourceDirectoryStreams();
+	bool getRecoverUserSubmitSourceDirectory();
+	bool getRemoveItemsOnDisconnect();
+	bool getRefreshFirstRequired();
+	void setMergeSourceDirectoryStreams(UInt64);
+	void setRecoverUserSubmitSourceDirectory(UInt64);
+	void setRemoveItemsOnDisconnect(UInt64);
+	void setRefreshFirstRequired(UInt64);
+	EmaString configTrace();
 
 private:
 

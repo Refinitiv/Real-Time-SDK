@@ -198,11 +198,13 @@ public:
 
 	void clear();
 
-	void addService(const Service&);
+	Service* addService(const Service&);
 
 	void removeService(UInt64);
 
 	Service* getService(UInt64) const;
+
+	Service* getService(EmaString serviceName) const;
 
 	const EmaList< Service* >& getServiceList() const;
 
@@ -292,6 +294,8 @@ public:
 
 	const EmaString** getServiceNameById(RsslUInt64 serviceId);
 
+	void removeServiceNamePair(UInt64 serviceId);
+
 	void clearServiceNamePair();
 
 	bool submitSourceDirectory(ClientSession* clientSession, RsslMsg*, RsslRDMDirectoryMsg&, RsslBuffer&, bool);
@@ -300,11 +304,13 @@ public:
 
 	virtual bool checkExistingServiceId(RsslUInt64 serviceId, EmaString& errorText) = 0;
 
-	virtual bool addServiceIdAndNamePair(RsslUInt64 serviceId, const EmaString* serviceName, EmaString* pErrorText) = 0;
+	virtual bool addServiceIdAndNamePair(RsslUInt64 serviceId, const EmaString* serviceName, EmaString* pErrorText);
 
 	static void freeMemory(RsslRDMDirectoryRefresh&, RsslBuffer* );
 
 	void setClient(DirectoryServiceStoreClient*);
+
+	const DirectoryCache& getDirectoryCache();
 
 protected:
 
@@ -343,11 +349,11 @@ public:
 
 	virtual ~OmmIProviderDirectoryStore();
 
+	OmmIProviderActiveConfig& getOmmIProviderActiveConfig() const;
+
 private:
 
 	bool checkExistingServiceId(RsslUInt64 serviceId, EmaString& errorText);
-
-	bool addServiceIdAndNamePair(RsslUInt64 serviceId, const EmaString* serviceName, EmaString* pErrorText);
 
 	OmmIProviderImpl&			_ommIProviderImpl;
 	OmmIProviderActiveConfig&	_ommIProviderActiveConfig;
@@ -368,8 +374,6 @@ public:
 private:
 
 	bool checkExistingServiceId(RsslUInt64 serviceId, EmaString& errorText);
-
-	bool addServiceIdAndNamePair(RsslUInt64 serviceId, const EmaString* serviceName, EmaString* pErrorText);
 
 	DirectoryCache*				_pDirectoryCacheApiControl;
 	OmmNiProviderImpl&			_ommNiProviderImpl;

@@ -28,7 +28,9 @@ Reuters Oak Brook, IL USA
 - Optimized Pause and Resume: Application may request server to pause and resume item stream
 
 - Single Open: EMA supports application selected single open functionality
-	  
+
+- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
+ 
 
 
 ##Non-Interactive Provider Features:
@@ -37,12 +39,15 @@ Reuters Oak Brook, IL USA
 
 - Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 		
 
+- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
 
 ##Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
  
 - Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 
+
+- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
   		
 
 ##Common Features:
@@ -63,7 +68,9 @@ Reuters Oak Brook, IL USA
 
 - High Water Mark setting on socket channel
 		
-
+- Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceEnable,MsgKeyInUpdates only can be configured
+  on Consumer/IProvider/NiProvider instance level.
+	
 
 # Product Content
 
@@ -160,7 +167,6 @@ See the top level Elektron-SDK README.md for details.
  
 - ESDK-475 When using DirectoryMsg.decode(), Source Directory FilterActions of Update may be overwritten with Set
 - ESDK-312 Watchlist fans out Dictionary state of Open/Suspect state instead of Closed/Recover
-- ESDK-705 Programmatic configuration is not supported in EMA Java (Case Number: 05690066)
 
 # Obtaining the Thomson Reuters Field Dictionaries
 

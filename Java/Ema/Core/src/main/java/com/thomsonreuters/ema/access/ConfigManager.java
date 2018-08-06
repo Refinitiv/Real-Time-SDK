@@ -110,16 +110,6 @@ class ConfigManager
 	public static final int ChannelName = 103;
 	public static final int ChannelType = 104;
 	
-	@Deprecated
-	public static final int ChannelMsgKeyInUpdates = 105;
-	@Deprecated
-	public static final int ChannelReconnectAttemptLimit = 106;
-	@Deprecated
-	public static final int ChannelReconnectMaxDelay = 107;
-	@Deprecated
-	public static final int ChannelReconnectMinDelay = 108;
-
-	
 	// Channel: Socket, HTTP, Encrypted
 	public static final int ChannelCompressionThreshold = 200;
 	public static final int ChannelCompressionType = 201;
@@ -315,25 +305,10 @@ class ConfigManager
 		ChannelTagDict.add( "ConnectionPingTimeout",ConnectionPingTimeout );
 		ChannelTagDict.add( "GuaranteedOutputBuffers",GuaranteedOutputBuffers );
 		ChannelTagDict.add( "InterfaceName",InterfaceName );
-		ChannelTagDict.add( "MsgKeyInUpdates",ChannelMsgKeyInUpdates );
 		ChannelTagDict.add( "NumInputBuffers",NumInputBuffers );		
-		ChannelTagDict.add( "ReconnectAttemptLimit",ChannelReconnectAttemptLimit );		
-		ChannelTagDict.add( "ReconnectMaxDelay",ChannelReconnectMaxDelay );
-		ChannelTagDict.add( "ReconnectMinDelay",ChannelReconnectMinDelay );
 		ChannelTagDict.add( "SysRecvBufSize",SysRecvBufSize );
 		ChannelTagDict.add( "SysSendBufSize",SysSendBufSize );
 		ChannelTagDict.add( "HighWaterMark",HighWaterMark );
-		
-		/* @deprecated The following code will be removed once all deprecated parameters are removed. */
-		ChannelTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
-		ChannelTagDict.add( "XmlTraceHex", XmlTraceHex );
-		ChannelTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
-		ChannelTagDict.add( "XmlTracePing", XmlTracePing );
-		ChannelTagDict.add( "XmlTraceRead",XmlTraceRead );
-		ChannelTagDict.add( "XmlTraceToFile",XmlTraceToFile );
-		ChannelTagDict.add( "XmlTraceToMultipleFiles",XmlTraceToMultipleFiles );
-		ChannelTagDict.add( "XmlTraceToStdout",XmlTraceToStdout );
-		ChannelTagDict.add( "XmlTraceWrite",XmlTraceWrite );
 		
 		// ConnectionTypes.SOCKET, ConnectionTypes.HTTP, ConnectionTypes.ENCRYPTED 
 		ChannelTagDict.add( "CompressionThreshold",ChannelCompressionThreshold );
@@ -501,17 +476,6 @@ class ConfigManager
 		ServerTagDict.add( "SysRecvBufSize",SysRecvBufSize );
 		ServerTagDict.add( "SysSendBufSize",SysSendBufSize );
 		ServerTagDict.add( "HighWaterMark",HighWaterMark );
-		
-		/* @deprecated The following code will be removed once all deprecated parameters are removed. */
-		ServerTagDict.add( "XmlTraceFileName",XmlTraceFileName );		
-		ServerTagDict.add( "XmlTraceHex", XmlTraceHex );
-		ServerTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
-		ServerTagDict.add( "XmlTracePing", XmlTracePing );
-		ServerTagDict.add( "XmlTraceRead", XmlTraceRead );
-		ServerTagDict.add( "XmlTraceToFile", XmlTraceToFile );
-		ServerTagDict.add( "XmlTraceToMultipleFiles", XmlTraceToMultipleFiles );
-		ServerTagDict.add( "XmlTraceToStdout", XmlTraceToStdout );
-		
 		ServerTagDict.add( "CompressionThreshold",ServerCompressionThreshold );
 		ServerTagDict.add( "Port", ServerPort );
 		ServerTagDict.add( "TcpNodelay",ServerTcpNodelay );

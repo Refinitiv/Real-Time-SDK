@@ -42,10 +42,6 @@
 			<ReconnectAttemptLimit value="10"/>
 			<ReconnectMinDelay value="123" />
 			<ReconnectMaxDelay value="456" />
-			<Host value="122.1.1.100"/>
-			<Port value="15008"/>
-			<TcpNodelay value="0"/>
-			<ObjectName value="HttpObjectName"/>
 			<XmlTraceFileName value="EmaMyTrace2"/>
 			<XmlTraceMaxFileSize value="66666666" />
 			<XmlTraceToFile value="1" />
@@ -107,6 +103,17 @@
 			<Dictionary value="Dictionary_2"/>
 		</Consumer>
 		<Consumer>
+			<Name value="Consumer_6"/>
+
+			<!-- channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<ChannelSet	value="Channel_4,Channel_5"/>
+			<!-- logger is optional: defaulted to "Stdout + Success" -->
+			<Logger value="Logger_1"/>
+
+			<!-- dictionary is optional: defaulted to "ChannelDictionary" -->
+			<Dictionary value="Dictionary_3"/>
+		</Consumer>
+		<Consumer>
 			<Name value="Check_Multiple_Occurrences"/>
 			<Logger value="Logger_1"/>
 			<Logger value="Logger_2"/>
@@ -120,11 +127,107 @@
 		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
+
+<NiProviderGroup>
+	<!-- DefaultNiProvider parameter defines which provider configuration is used by OmmProvider		-->
+	<!-- if application does not specify it through OmmNiProviderConfig::providerName()					-->
+	<!-- first provider on the NiProviderList is a DefaultNiProvider if this parameter is not specified	-->
+	<DefaultNiProvider value="Provider_2"/>
+	<NiProviderList>
+		<NiProvider>
+			<!-- Name is mandatory																		-->
+			<Name value="Provider_1"/>
+			
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14003"					-->
+			<Channel value="Channel_10"/>
+			
+			<!-- Directory is optional.																	-->
+			<!-- the EMA provides hardcoded directory containing a single service named "NI_PUB".		-->
+			<!-- the EMA defaults the OmmNiProviderConfig::adminControlDirectory() to ApiControlEnum.	-->
+			<!-- the applications may just use the hardcoded "NI_PUB" service to publish all the items.	-->
+			<!-- if desired, a custom directory may be configured, named and used instead of the		-->
+			<!-- hardcoded one.	Please see examples in the DirectoryGroup.								-->
+			<!-- the directory may also be specified using OmmNiProviderConfig::addAdminMsg().			-->
+			<!-- if desired the OmmNiProviderConfig::adminControlDirectory() to UserControlEnum			-->
+			<!-- which allows applications to specify and control the directory.						-->
+			<Directory value="Directory_1"/>
+			
+			<Logger value="Logger_1"/>
+
+			<XmlTraceToStdout value="0"/>
+		</NiProvider>
+		
+		<NiProvider>
+			<Name value="Provider_2"/>
+		
+			<Channel value="Channel_2"/>
+			
+			<Directory value="Directory_2"/>
+			
+			<Logger value="Logger_2"/>
+
+			<ItemCountHint value="500000"/>
+			<ServiceCountHint value="655"/>
+			<ObeyOpenWindow value="0"/>
+			<RequestTimeout value="8000"/>
+			<MaxOutstandingPosts value="90000"/>
+			<DispatchTimeoutApiThread value="90"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="400"/>
+			<MaxDispatchCountUserThread value="5"/>
+			<!--ReactorEventFdPort value="75000" -->
+			<PipePort value="7001"/>
+			<ReconnectAttemptLimit value="10"/>
+			<ReconnectMinDelay value="123" />
+			<ReconnectMaxDelay value="456" />
+			<XmlTraceFileName value="EmaMyTrace2"/>
+			<XmlTraceMaxFileSize value="66666666" />
+			<XmlTraceToFile value="1" />
+			<XmlTraceToStdout value="0" />
+			<XmlTraceToMultipleFiles value="1" />
+			<XmlTraceWrite value="1"/>
+			<XmlTraceRead value="1"/>
+			<XmlTracePing value="1"/>
+			<XmlTraceHex value="1"/>
+			<MsgKeyInUpdates value="1"/>
+			<MergeSourceDirectoryStreams value="1"/>
+			<RecoverUserSubmitSourceDirectory value="1"/>
+			<RecoverUserSubmitSourceDirectory value="1"/>
+			<RemoveItemsOnDisconnect value="1"/>
+			<LoginRequestTimeOut value="10000"/>
+		</NiProvider>
+		<NiProvider>
+			<Name value="Provider_3"/>
+
+			<!-- channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002" -->
+			<ChannelSet value="Channel_2, Channel_3"/>
+			<Channel	value="Channel_1"/>
+			<!-- logger is optional: defaulted to "Stdout + Success" -->
+			<Logger value="Logger_1"/>
+
+			<Directory value="Directory_3"/>
+			
+			<ReconnectAttemptLimit value="5"/>
+			<ReconnectMinDelay value="330" />
+			<ReconnectMaxDelay value="450" />
+			<XmlTraceFileName value="EmaMyTrace3"/>
+			<XmlTraceMaxFileSize value="66666666" />
+			<XmlTraceToFile value="1" />
+			<XmlTraceToStdout value="0" />
+			<XmlTraceToMultipleFiles value="1" />
+			<XmlTraceWrite value="1"/>
+			<XmlTraceRead value="1"/>
+			<XmlTracePing value="1"/>
+			<XmlTraceHex value="1"/>
+		</NiProvider>
+	</NiProviderList>
+</NiProviderGroup>
+
 <IProviderGroup>
     <!-- DefaultIProvider parameter defines which provider configuration is used by OmmProvider          -->
     <!-- if application does not specify it through OmmIProviderConfig::providerName()                   -->
     <!-- first provider on the IProviderList is a default provider if this parameter is not specified    -->
-    <DefaultIProvider value="Provider_1"/>
+    <DefaultIProvider value="Provider_2"/>
     <IProviderList>
         <IProvider>
             <!-- Name is mandatory                                                                       -->
@@ -156,8 +259,42 @@
 			<RefreshFirstRequired value="1" />
 		
         </IProvider>
+		<IProvider>
+            <!-- Name is mandatory                                                                       -->
+            <Name value="Provider_2"/>
+            <Server value="Server_2"/>
+            <Directory value="Directory_2"/>
+			<AcceptDirMessageWithoutMinFilters value="0"/>
+			<AcceptMessageSameKeyButDiffStream value="0"/>
+			<AcceptMessageThatChangesService value="0"/>
+			<AcceptMessageWithoutAcceptingRequests value="0"/>
+			<AcceptMessageWithoutBeingLogin value="0"/>
+			<AcceptMessageWithoutQosInRange value="0"/>
+			<RefreshFirstRequired value="1"/>
+			<ItemCountHint value="500000"/>
+			<EnumTypeFragmentSize value="2500"/>
+			<FieldDictionaryFragmentSize value="1500"/>
+			<ServiceCountHint value="655"/>
+			<RequestTimeout value="8000"/>
+			<DispatchTimeoutApiThread value="90"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="400"/>
+			<MaxDispatchCountUserThread value="5"/>
+			<PipePort value="7001"/>
+			<XmlTraceFileName value="EmaMyTrace2"/>
+			<XmlTraceMaxFileSize value="66666666" />
+			<XmlTraceToFile value="1" />
+			<XmlTraceToStdout value="0" />
+			<XmlTraceToMultipleFiles value="1" />
+			<XmlTraceWrite value="1"/>
+			<XmlTraceRead value="1"/>
+			<XmlTracePing value="0"/>
+			<XmlTraceHex value="0"/>
+		
+        </IProvider>
     </IProviderList>
 </IProviderGroup>
+
 <ChannelGroup>
 	<ChannelList>
 		<Channel>
@@ -177,7 +314,8 @@
 			<NumInputBuffers value = "7000" />
 			<SysRecvBufSize value= "125236" />
 			<SysSendBufSize value= "569823" />
-			
+			<HighWaterMark value= "3000" />
+
 			<CompressionThreshold value= "2048" />
 			
 			<!-- connectionPingTimeout is optional: defaulted to 30000 -->
@@ -186,7 +324,7 @@
 			<!-- tcpNodelay is optional: defaulted to 1 -->
 			<!-- possible values: 1 (tcp_nodelay option set on the channel), 0 (tcp_nodelay not set on the channel) -->
 			<TcpNodelay value="1"/>
-			<Host value="132.56.23.123"/>
+			<Host value="0.0.0.1"/>
 			<Port value="19001"/>
 		</Channel>
 		<Channel>
@@ -200,7 +338,7 @@
 			<SysSendBufSize value= "63656" />
 			<CompressionThreshold value= "4096" />
 			<ConnectionPingTimeout value="55555"/>
-			<Host value="122.1.1.100"/>
+			<Host value="0.0.0.2"/>
 			<Port value="15008"/>
 			<TcpNodelay value="0"/>
 			<ObjectName value="HttpObjectName"/>
@@ -210,12 +348,12 @@
 			<ChannelType value="ChannelType::RSSL_RELIABLE_MCAST"/>
 			<InterfaceName value="localhost" />
 			<UnicastPort value = "40102" />
-			<RecvAddress value="235.5.2.6"/>
+			<RecvAddress value="0.0.0.3"/>
 			<RecvPort value = "15008" />
-			<SendAddress value="235.5.2.2"/>
+			<SendAddress value="0.0.0.4"/>
 			<SendPort value = "15007" />			
-			<HsmInterface value="235.5.2.9"/>
-			<HsmMultAddress value = "235.5.2.8" />
+			<HsmInterface value="0.0.0.5"/>
+			<HsmMultAddress value = "0.0.0.6" />
 			<HsmPort value="15005"/>
 			<tcpControlPort value = "15018" />	
 			<PacketTTL value="10" />
@@ -238,6 +376,45 @@
 			<SysSendBufSize value= "550000" />
 			<ConnectionPingTimeout value="3555"/>
 		</Channel>
+		<Channel>
+			<Name value="Channel_4"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<NumInputBuffers value = "7000" />
+			<SysRecvBufSize value= "125236" />
+			<SysSendBufSize value= "569823" />	
+			<CompressionThreshold value= "2048" />
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="0"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_5"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<!--<ChannelType value="ChannelType::RSSL_ENCRYPTED"/> -->
+			<CompressionType value="CompressionType::LZ4"/>
+			<GuaranteedOutputBuffers value="6000"/>
+			<NumInputBuffers value = "9000" />
+			<SysRecvBufSize value= "23656" />
+			<SysSendBufSize value= "63656" />
+			<CompressionThreshold value= "4096" />
+			<ConnectionPingTimeout value="55555"/>
+			<Host value="122.1.1.100"/>
+			<Port value="14009"/>
+			<TcpNodelay value="1"/>
+			<ObjectName value="EncrpyptedObjectName"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_10"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14003"/>
+		</Channel>
 	</ChannelList>
 </ChannelGroup>
 
@@ -257,32 +434,25 @@
             <TcpNodelay value="1"/>
             <Port value="14002"/>
         </Server>
+		<Server>
+            <Name value="Server_2"/>
+            <ServerType value="ServerType::RSSL_SOCKET"/>
+            <!-- CompressionType is optional: defaulted to None -->
+            <!-- possible values: None, ZLib, LZ4 -->
+            <CompressionType value="CompressionType::LZ4"/>
+            <GuaranteedOutputBuffers value="5000"/>
+            <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+            <ConnectionPingTimeout value="5000"/>
+			<CompressionThreshold value="5000"/>
+			<SysRecvBufSize value="5000"/>
+			<SysSendBufSize value="5000"/>
+            <!-- TcpNodelay is optional: defaulted to 1 -->
+            <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+            <TcpNodelay value="1"/>
+            <Port value="14005"/>
+        </Server>
     </ServerList>
 </ServerGroup>
-
-<LoggerGroup>
-	<LoggerList>
-		<Logger>
-			<Name value="Logger_1"/>
-
-			<!-- loggerType is optional: defaulted to "Stdout" -->
-			<!-- possible values: Stdout, File -->
-			<LoggerType value="LoggerType::File"/>
-			<!-- fileName is optional: defaulted to "emaLog_<process id>.xml" -->
-			<FileName value="emaLog"/>
-
-			<!-- loggerSeverity is optional: defaulted to "Success" -->
-			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg -->
-			<LoggerSeverity dataType="Enum" value="LoggerSeverity::Verbose"/>
-		</Logger>
-		<Logger>
-			<Name value="Logger_2"/>
-			<LoggerType value="LoggerType::Stdout"/>
-			<LoggerSeverity value="LoggerSeverity::Error"/>
-		</Logger>
-	</LoggerList>
-</LoggerGroup>
-
 
 <!-- source directory refresh configuration used by provider											-->
 <DirectoryGroup>
@@ -472,6 +642,16 @@
 				<StateFilter>
 					<ServiceState value="1"/>
 					<AcceptingRequests value="1"/>
+					<Status>
+						<!-- possible values are: Open, Close, CloseRecover								-->
+						<StreamState value="StreamState::Open"/> 
+						<!-- possibe values are: NoChange, Ok, Suspect									-->
+						<DataState value="DataState::NoChange"/>
+						<!-- possible values are: None, DacsDown, etc									-->
+						<StatusCode value="StatusCode::None"/>
+						<!-- a text field																-->
+						<StatusText value="connection down"/>
+					</Status>
 				</StateFilter>
 			</Service>
 			
@@ -481,6 +661,28 @@
 	
 </DirectoryGroup>
 
+<LoggerGroup>
+	<LoggerList>
+		<Logger>
+			<Name value="Logger_1"/>
+
+			<!-- loggerType is optional: defaulted to "Stdout" -->
+			<!-- possible values: Stdout, File -->
+			<LoggerType value="LoggerType::File"/>
+			<!-- fileName is optional: defaulted to "emaLog_<process id>.xml" -->
+			<FileName value="emaLog"/>
+
+			<!-- loggerSeverity is optional: defaulted to "Success" -->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg -->
+			<LoggerSeverity dataType="Enum" value="LoggerSeverity::Verbose"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2"/>
+			<LoggerType value="LoggerType::Stdout"/>
+			<LoggerSeverity value="LoggerSeverity::Error"/>
+		</Logger>
+	</LoggerList>
+</LoggerGroup>
 
 <DictionaryGroup>
 	<DictionaryList>

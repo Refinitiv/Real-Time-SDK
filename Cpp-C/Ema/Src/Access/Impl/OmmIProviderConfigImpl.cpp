@@ -37,6 +37,8 @@ void OmmIProviderConfigImpl::clear()
 
 void OmmIProviderConfigImpl::providerName( const EmaString& providerName )
 {
+	_configSessionName.append(providerName);
+
 	if (_pProgrammaticConfigure && _pProgrammaticConfigure->specifyIProviderName(providerName))
 		return;
 
@@ -66,7 +68,7 @@ void OmmIProviderConfigImpl::providerName( const EmaString& providerName )
 	}
 	else
 	{
-		if (providerName == "EmaIProvider")
+		if (providerName == DEFAULT_IPROV_NAME)
 		{
 			XMLnode* niProviderList(_pEmaConfig->find< XMLnode >("IProviderGroup|IProviderList"));
 			if (niProviderList)
@@ -80,6 +82,7 @@ void OmmIProviderConfigImpl::providerName( const EmaString& providerName )
 				return;
 		}
 
+		_configSessionName.clear();
 		EmaString errorMsg("OmmIProviderConfigImpl::providerName parameter [");
 		errorMsg.append(providerName).append("] is a non-existent provider name");
 		throwIceException(errorMsg);
@@ -88,7 +91,13 @@ void OmmIProviderConfigImpl::providerName( const EmaString& providerName )
 
 EmaString OmmIProviderConfigImpl::getConfiguredName()
 {
+	if (!_configSessionName.empty())
+		return _configSessionName;
+
 	EmaString retVal;
+
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->getDefaultIProvider(retVal))
+		return retVal;
 
 	if (_pEmaConfig->get< EmaString >("IProviderGroup|DefaultIProvider", retVal))
 	{
@@ -108,34 +117,7 @@ EmaString OmmIProviderConfigImpl::getConfiguredName()
 	if (_pEmaConfig->get< EmaString >("IProviderGroup|IProviderList|IProvider|Name", retVal))
 		return retVal;
 
-	return "EmaIProvider";
-}
-
-bool OmmIProviderConfigImpl::getDictionaryName(const EmaString& instanceName, EmaString& retVal) const
-{
-	if (!_pProgrammaticConfigure || !_pProgrammaticConfigure->getActiveDictionaryName(instanceName, retVal))
-	{
-		EmaString nodeName(_instanceNodeName);
-		nodeName.append(instanceName);
-		nodeName.append("|Dictionary");
-		get<EmaString>(nodeName, retVal);
-	}
-
-	return true;
-}
-
-bool OmmIProviderConfigImpl::getDirectoryName( const EmaString& instanceName, EmaString& retVal ) const
-{
-	if (!_pProgrammaticConfigure || !_pProgrammaticConfigure->getActiveDirectoryName(instanceName, retVal))
-	{
-		EmaString nodeName(_instanceNodeName);
-		nodeName.append(instanceName);
-		nodeName.append("|Directory");
-
-		get<EmaString>(nodeName, retVal);
-	}
-
-	return true;
+	return DEFAULT_IPROV_NAME;
 }
 
 void OmmIProviderConfigImpl::operationModel( OmmIProviderConfig::OperationModel operationModel )

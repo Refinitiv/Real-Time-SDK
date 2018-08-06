@@ -34,7 +34,6 @@ class OmmIProviderActiveConfig extends ActiveServerConfig
 	boolean						refreshFirstRequired;
 	int							maxFieldDictFragmentSize;
 	int							maxEnumTypeFragmentSize;
-	int							requestTimeout;
 
 	OmmIProviderActiveConfig()
 	{
@@ -45,7 +44,19 @@ class OmmIProviderActiveConfig extends ActiveServerConfig
 		refreshFirstRequired = DEFAULT_REFRESH_FIRST_REQUIRED;
 		maxFieldDictFragmentSize = DEFAULT_FIELD_DICT_FRAGMENT_SIZE;
 		maxEnumTypeFragmentSize = DEFAULT_ENUM_TYPE_FRAGMENT_SIZE;
-		requestTimeout = DEFAULT_REQUEST_TIMEOUT;
+	}
+	
+	StringBuilder configTrace()
+	{
+		super.configTrace();
+		traceStr.append("\n\t operationModel: ").append(operationModel) 
+		.append("\n\t directoryAdminControl: ").append(directoryAdminControl) 
+		.append("\n\t dictionaryAdminControl: ").append(dictionaryAdminControl) 
+		.append("\n\t refreshFirstRequired: ").append(refreshFirstRequired) 
+		.append("\n\t maxFieldDictFragmentSize: ").append(maxFieldDictFragmentSize)
+		.append("\n\t maxEnumTypeFragmentSize: ").append(maxEnumTypeFragmentSize);
+		
+		return traceStr;
 	}
 
 	@Override

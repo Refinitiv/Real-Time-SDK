@@ -37,7 +37,8 @@ extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 EmaConfigBaseImpl::EmaConfigBaseImpl( const EmaString & path ) :
 	_pEmaConfig(new XMLnode("EmaConfig", 0, 0)),
 	_pProgrammaticConfigure(0),
-	_instanceNodeName()
+	_instanceNodeName(),
+	_configSessionName()
 {
 	createNameToValueHashTable();
 
@@ -55,11 +56,15 @@ EmaConfigBaseImpl::~EmaConfigBaseImpl()
 	delete _pEmaConfig;
 
 	xmlCleanupParser();
+
+	if (_pProgrammaticConfigure)
+		delete _pProgrammaticConfigure;
 }
 
 void EmaConfigBaseImpl::clear()
 {
 	_instanceNodeName.clear();
+	_configSessionName.clear();
 }
 
 const XMLnode* EmaConfigBaseImpl::getNode(const EmaString& itemToRetrieve) const
@@ -635,84 +640,21 @@ ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent,
 	}
 	else if (!strcmp(enumType, "StreamState"))
 	{
-		static struct
-		{
-			const char* configInput;
-			OmmState::StreamState convertedValue;
-		} converter[] =
-		{
-			{ "Open", OmmState::OpenEnum },
-			{ "NonStreaming", OmmState::NonStreamingEnum },
-			{ "ClosedRecover", OmmState::ClosedRecoverEnum },
-			{ "Closed", OmmState::ClosedEnum },
-			{ "ClosedRedirected", OmmState::ClosedRedirectedEnum },
-		};
-
-		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
-			if (!strcmp(converter[i].configInput, enumValue))
-				return new XMLConfigElement<OmmState::StreamState>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+		for (int i = 0; i < sizeof streamStateConverter / sizeof streamStateConverter[0]; i++)
+			if (!strcmp(streamStateConverter[i].configInput, enumValue))
+				return new XMLConfigElement<OmmState::StreamState>(name, parent, ConfigElement::ConfigElementTypeEnum, streamStateConverter[i].convertedValue);
 	}
 	else if (!strcmp(enumType, "DataState"))
 	{
-		static struct
-		{
-			const char* configInput;
-			OmmState::DataState convertedValue;
-		} converter[] =
-		{
-			{ "NoChange", OmmState::NoChangeEnum },
-			{ "Ok", OmmState::OkEnum },
-			{ "Suspect", OmmState::SuspectEnum },
-		};
-
-		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
-			if (!strcmp(converter[i].configInput, enumValue))
-				return new XMLConfigElement<OmmState::DataState>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+		for (int i = 0; i < sizeof dataStateConverter / sizeof dataStateConverter[0]; i++)
+			if (!strcmp(dataStateConverter[i].configInput, enumValue))
+				return new XMLConfigElement<OmmState::DataState>(name, parent, ConfigElement::ConfigElementTypeEnum, dataStateConverter[i].convertedValue);
 	}
 	else if (!strcmp(enumType, "StatusCode"))
 	{
-		static struct
-		{
-			const char* configInput;
-			OmmState::StatusCode convertedValue;
-		} converter[] =
-		{
-			{ "None", OmmState::NoneEnum },
-			{ "NotFound", OmmState::NotFoundEnum },
-			{ "Timeout", OmmState::TimeoutEnum },
-			{ "NotAuthorized", OmmState::NotAuthorizedEnum },
-			{ "InvalidArgument", OmmState::InvalidArgumentEnum },
-			{ "UsageError", OmmState::UsageErrorEnum },
-			{ "Preempted", OmmState::PreemptedEnum },
-			{ "JustInTimeConflationStarted", OmmState::JustInTimeConflationStartedEnum },
-			{ "TickByTickResumed", OmmState::TickByTickResumedEnum },
-			{ "FailoverStarted", OmmState::FailoverStartedEnum },
-			{ "FailoverCompleted", OmmState::FailoverCompletedEnum },
-			{ "GapDetected", OmmState::GapDetectedEnum },
-			{ "NoResources", OmmState::NoResourcesEnum },
-			{ "TooManyItems", OmmState::TooManyItemsEnum },
-			{ "AlreadyOpen", OmmState::AlreadyOpenEnum },
-			{ "SourceUnknown", OmmState::SourceUnknownEnum },
-			{ "NotOpen", OmmState::NotOpenEnum },
-			{ "NonUpdatingItem", OmmState::NonUpdatingItemEnum },
-			{ "UnsupportedViewType", OmmState::UnsupportedViewTypeEnum },
-			{ "InvalidView", OmmState::InvalidViewEnum },
-			{ "FullViewProvided", OmmState::FullViewProvidedEnum },
-			{ "UnableToRequestAsBatch", OmmState::UnableToRequestAsBatchEnum },
-			{ "NoBatchViewSupportInReq", OmmState::NoBatchViewSupportInReqEnum },
-			{ "ExceededMaxMountsPerUser", OmmState::ExceededMaxMountsPerUserEnum },
-			{ "Error", OmmState::ErrorEnum },
-			{ "DacsDown", OmmState::DacsDownEnum },
-			{ "UserUnknownToPermSys", OmmState::UserUnknownToPermSysEnum },
-			{ "DacsMaxLoginsReached", OmmState::DacsMaxLoginsReachedEnum },
-			{ "DacsUserAccessToAppDenied", OmmState::DacsUserAccessToAppDeniedEnum },
-			{ "GapFill", OmmState::GapFillEnum },
-			{ "AppAuthorizationFailed", OmmState::AppAuthorizationFailedEnum },
-		};
-
-		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
-			if (!strcmp(converter[i].configInput, enumValue))
-				return new XMLConfigElement<OmmState::StatusCode>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+		for (int i = 0; i < sizeof statusCodeConverter / sizeof statusCodeConverter[0]; i++)
+			if (!strcmp(statusCodeConverter[i].configInput, enumValue))
+				return new XMLConfigElement<OmmState::StatusCode>(name, parent, ConfigElement::ConfigElementTypeEnum, statusCodeConverter[i].convertedValue);
 	}
 	else
 	{
@@ -805,9 +747,6 @@ EmaConfigImpl::~EmaConfigImpl()
 
 	if ( _pEnumDefRsslRequestMsg )
 		delete _pEnumDefRsslRequestMsg;
-
-	if ( _pProgrammaticConfigure )
-		delete _pProgrammaticConfigure;
 }
 
 void EmaConfigImpl::clear()
@@ -986,6 +925,19 @@ void EmaConfigImpl::getChannelName( const EmaString& instanceName, EmaString& re
 	}
 }
 
+bool EmaConfigImpl::getDictionaryName(const EmaString& instanceName, EmaString& retVal) const
+{
+	if (!_pProgrammaticConfigure || !_pProgrammaticConfigure->getActiveDictionaryName(instanceName, retVal))
+	{
+		EmaString nodeName(_instanceNodeName);
+		nodeName.append(instanceName);
+		nodeName.append("|Dictionary");
+		get<EmaString>(nodeName, retVal);
+	}
+
+	return true;
+}
+
 void EmaConfigImpl::addLoginReqMsg( RsslRequestMsg* pRsslRequestMsg )
 {
 	_loginRdmReqMsg.set( pRsslRequestMsg );
@@ -1149,6 +1101,14 @@ EmaConfigServerImpl::~EmaConfigServerImpl()
 void EmaConfigServerImpl::clear()
 {
 	EmaConfigBaseImpl::clear();
+	_portSetViaFunctionCall.userSet = false;
+	_portSetViaFunctionCall.userSpecifiedValue.clear();
+
+	if (_pDirectoryRsslRefreshMsg)
+		_pDirectoryRsslRefreshMsg->clear();
+
+	if (_pProgrammaticConfigure)
+		_pProgrammaticConfigure->clear();
 }
 
 void EmaConfigServerImpl::addAdminMsg( const RefreshMsg& refreshMsg )
@@ -1211,8 +1171,9 @@ const PortSetViaFunctionCall& EmaConfigServerImpl::getUserSpecifiedPort() const
 
 void EmaConfigServerImpl::getServerName( const EmaString& instanceName, EmaString& retVal) const
 {
-	// Todo: add implementation to query from programmatic configuration
-
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->getActiveServerName(instanceName, retVal))
+		return;
+	
 	EmaString nodeName(_instanceNodeName);
 	nodeName.append(instanceName);
 	nodeName.append("|Server");
@@ -1220,13 +1181,14 @@ void EmaConfigServerImpl::getServerName( const EmaString& instanceName, EmaStrin
 	get<EmaString>(nodeName, retVal);
 }
 
-bool EmaConfigServerImpl::getDictionaryName(const EmaString& instanceName, EmaString& retVal) const
+bool EmaConfigServerImpl::getDirectoryName(const EmaString& instanceName, EmaString& retVal) const
 {
-	if (!_pProgrammaticConfigure || !_pProgrammaticConfigure->getActiveDictionaryName(instanceName, retVal))
+	if (!_pProgrammaticConfigure || !_pProgrammaticConfigure->getActiveDirectoryName(instanceName, retVal))
 	{
 		EmaString nodeName(_instanceNodeName);
 		nodeName.append(instanceName);
-		nodeName.append("|Dictionary");
+		nodeName.append("|Directory");
+
 		get<EmaString>(nodeName, retVal);
 	}
 

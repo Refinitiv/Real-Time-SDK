@@ -26,6 +26,7 @@ abstract class BaseConfig
 {
 	final static int DEFAULT_ITEM_COUNT_HINT					= 100000;
 	final static int DEFAULT_SERVICE_COUNT_HINT				    = 513;
+	final static int DEFAULT_REQUEST_TIMEOUT					= 15000;
 	final static int DEFAULT_MAX_DISPATCH_COUNT_API_THREAD		= 100;
 	final static int DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD	    = 100;
 	final static int DEFAULT_DISPATCH_TIMEOUT_API_THREAD		= 0;
@@ -35,18 +36,20 @@ abstract class BaseConfig
 	{
 		itemCountHint = DEFAULT_ITEM_COUNT_HINT;
 		serviceCountHint = DEFAULT_SERVICE_COUNT_HINT;
+		requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 		dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
 		maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
 		maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
 		userDispatch = DEFAULT_USER_DISPATCH;
 		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
-		isSetCorrectConfigGroup = ActiveConfig.DEFAULT_SET_CORRECT_CONFIG_GROUP;
+		traceStr = new StringBuilder(500);
 	}
 	
 	void clear()
 	{
 		itemCountHint = DEFAULT_ITEM_COUNT_HINT;
 		serviceCountHint = DEFAULT_SERVICE_COUNT_HINT;
+		requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 		dispatchTimeoutApiThread = DEFAULT_DISPATCH_TIMEOUT_API_THREAD;
 		maxDispatchCountApiThread = DEFAULT_MAX_DISPATCH_COUNT_API_THREAD;
 		maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
@@ -54,26 +57,36 @@ abstract class BaseConfig
 		configuredName = null;
 		instanceName = null;
 		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
-		isSetCorrectConfigGroup = ActiveConfig.DEFAULT_SET_CORRECT_CONFIG_GROUP;
+		traceStr.setLength(0);
+	}
+	
+	StringBuilder configTrace()
+	{
+		traceStr.append("\n\t itemCountHint: ").append(itemCountHint) 
+		.append("\n\t serviceCountHint: ").append(serviceCountHint) 
+		.append("\n\t requestTimeout: ").append(requestTimeout) 
+		.append("\n\t dispatchTimeoutApiThread: ").append(dispatchTimeoutApiThread) 
+		.append("\n\t maxDispatchCountApiThread: ").append(maxDispatchCountApiThread) 
+		.append("\n\t maxDispatchCountUserThread: ").append(maxDispatchCountUserThread) 
+		.append("\n\t userDispatch: ").append(userDispatch) 
+		.append("\n\t configuredName: ").append(configuredName) 
+		.append("\n\t instanceName: ").append(instanceName) 
+		.append("\n\t xmlTraceEnable: ").append(xmlTraceEnable);
+		
+		return traceStr;
 	}
 	
 	String					configuredName;
 	String      			instanceName;
 	int						itemCountHint;
 	int		    			serviceCountHint;
+	int						requestTimeout;
 	int						dispatchTimeoutApiThread;
 	int						maxDispatchCountApiThread;
 	int						maxDispatchCountUserThread;
 	int		    			userDispatch;
-	boolean 			xmlTraceEnable;
-	
-	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
-	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
-	 *used for handling deprecation cases.
-	 *True   -- mean there are one or more of  these parameters set in per Consumer, per NIProvider, or per IProvider instance.
-	 *False  -- mean there is none of them set in per Consumer, per NIProvider, or per IProvider instance.
-	 */
-	boolean            	isSetCorrectConfigGroup; 
+	boolean 				xmlTraceEnable;
+	StringBuilder			traceStr;
 }
 
 abstract class ActiveConfig extends BaseConfig
@@ -105,7 +118,6 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_RECONNECT_ATTEMPT_LIMIT			= -1;
 	final static int DEFAULT_RECONNECT_MAX_DELAY				= 5000;
 	final static int DEFAULT_RECONNECT_MIN_DELAY				= 1000;
-	final static int DEFAULT_REQUEST_TIMEOUT					= 15000;
 	final static String DEFAULT_OBJECT_NAME						= "";
 	final static boolean DEFAULT_TCP_NODELAY					= true;
 	final static String DEFAULT_CONS_MCAST_CFGSTRING			= "";
@@ -123,11 +135,19 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_USER_QLIMIT						= 65535;
 	final static boolean DEFAULT_XML_TRACE_ENABLE				= false;
 	final static boolean DEFAULT_DIRECT_SOCKET_WRITE			= false;
-	final static boolean DEFAULT_SET_CORRECT_CONFIG_GROUP 			= false;
 	final static boolean DEFAULT_HTTP_PROXY					    = false;
+	final static String DEFAULT_CONS_NAME						= "EmaConsumer";
+	final static String DEFAULT_IPROV_NAME						= "EmaIProvider";
+	final static String DEFAULT_NIPROV_NAME						= "EmaNiProvider";
+	
+	final static int SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL   = 0x01;  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
+	final static int SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL = 0x02;  /*!< Indicates that server listen port set though EMA interface function call from server client*/
+	final static int TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL = 0x04;  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+	final static int TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL = 0x08;  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+	final static int TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL = 0x10;  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+
 	
 	int						obeyOpenWindow;
-	int						requestTimeout;
 	int						postAckTimeout;
 	int						maxOutstandingPosts;
 	int						loginRequestTimeOut;
@@ -153,7 +173,6 @@ abstract class ActiveConfig extends BaseConfig
 		super();
 		
 		 obeyOpenWindow = DEFAULT_OBEY_OPEN_WINDOW;
-		 requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 		 postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
 		 maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
 		 loginRequestTimeOut = DEFAULT_LOGIN_REQUEST_TIMEOUT;
@@ -173,9 +192,11 @@ abstract class ActiveConfig extends BaseConfig
 		super.clear();
 		
 		obeyOpenWindow = DEFAULT_OBEY_OPEN_WINDOW;
-		requestTimeout = DEFAULT_REQUEST_TIMEOUT;
 		postAckTimeout = DEFAULT_POST_ACK_TIMEOUT;
 		maxOutstandingPosts = DEFAULT_MAX_OUTSTANDING_POSTS;
+		loginRequestTimeOut = DEFAULT_LOGIN_REQUEST_TIMEOUT;
+		directoryRequestTimeOut = DEFAULT_DIRECTORY_REQUEST_TIMEOUT;
+		dictionaryRequestTimeOut = DEFAULT_DICTIONARY_REQUEST_TIMEOUT;
 		userDispatch = DEFAULT_USER_DISPATCH;
 		reconnectAttemptLimit = ActiveConfig.DEFAULT_RECONNECT_ATTEMPT_LIMIT;
 		reconnectMinDelay = ActiveConfig.DEFAULT_RECONNECT_MIN_DELAY;
@@ -187,6 +208,24 @@ abstract class ActiveConfig extends BaseConfig
 		rsslDirectoryRequest = null;
 		rsslFldDictRequest = null;
 		rsslEnumDictRequest = null;
+	}
+	
+	StringBuilder configTrace()
+	{
+		super.configTrace();
+		traceStr.append("\n\t obeyOpenWindow: ").append(obeyOpenWindow) 
+		.append("\n\t postAckTimeout: ").append(postAckTimeout) 
+		.append("\n\t maxOutstandingPosts: ").append(maxOutstandingPosts) 
+		.append("\n\t userDispatch: ").append(userDispatch) 
+		.append("\n\t reconnectAttemptLimit: ").append(reconnectAttemptLimit) 
+		.append("\n\t reconnectMinDelay: ").append(reconnectMinDelay) 
+		.append("\n\t reconnectMaxDelay: ").append(reconnectMaxDelay) 
+		.append("\n\t msgKeyInUpdates: ").append(msgKeyInUpdates)
+		.append("\n\t directoryRequestTimeOut: ").append(directoryRequestTimeOut)
+		.append("\n\t dictionaryRequestTimeOut: ").append(dictionaryRequestTimeOut)
+		.append("\n\t loginRequestTimeOut: ").append(loginRequestTimeOut);
+		
+		return traceStr;
 	}
 	
 	void reconnectAttemptLimit(long value) 
@@ -249,7 +288,27 @@ abstract class ActiveServerConfig extends BaseConfig
 	void clear()
 	{
 		super.clear();
+		acceptMessageWithoutAcceptingRequests = DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS;
+		acceptDirMessageWithoutMinFilters = DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS;
+		acceptMessageWithoutBeingLogin = DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN;
+		acceptMessageSameKeyButDiffStream = DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM;
+		acceptMessageThatChangesService = DEFAULT_ACCEPT_MSG_THAT_CHANGES_SERVICE;
+		acceptMessageWithoutQosInRange = DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE;
 		serviceDictionaryConfigMap.clear();
+	}
+	
+	StringBuilder configTrace()
+	{
+		super.configTrace();
+		traceStr.append("\n\t defaultServiceName: ").append(defaultServiceName) 
+		.append("\n\t acceptMessageWithoutAcceptingRequests: ").append(acceptMessageWithoutAcceptingRequests) 
+		.append("\n\t acceptDirMessageWithoutMinFilters: ").append(acceptDirMessageWithoutMinFilters) 
+		.append("\n\t acceptMessageWithoutBeingLogin: ").append(acceptMessageWithoutBeingLogin) 
+		.append("\n\t acceptMessageSameKeyButDiffStream: ").append(acceptMessageSameKeyButDiffStream) 
+		.append("\n\t acceptMessageThatChangesService: ").append(acceptMessageThatChangesService) 
+		.append("\n\t acceptMessageWithoutQosInRange: ").append(acceptMessageWithoutQosInRange); 
+		
+		return traceStr;
 	}
 	
 	abstract int dictionaryAdminControl();
@@ -576,6 +635,8 @@ class DictionaryConfig
 		dictionaryName = null;
 		rdmfieldDictionaryFileName = null;
 		enumtypeDefFileName = null;
+		rdmFieldDictionaryItemName = null;
+		enumTypeDefItemName = null;
 	}
 }
 
@@ -595,5 +656,27 @@ class ServiceDictionaryConfig
 	{
 		dictionaryUsedList.clear();
 		dictionaryProvidedList.clear();
+	}
+	
+	DictionaryConfig findDictionary(String dictionaryName, boolean isDictProvided)
+	{
+		if (isDictProvided)
+		{
+			for (DictionaryConfig config : dictionaryProvidedList)
+			{
+				if (config.dictionaryName.equals(dictionaryName))
+					return config;
+			}
+			return null;
+		}
+		else
+		{
+			for (DictionaryConfig config : dictionaryUsedList)
+			{
+				if (config.dictionaryName.equals(dictionaryName))
+					return config;
+			}
+			return null;
+		}
 	}
 }

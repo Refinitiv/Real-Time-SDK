@@ -44,10 +44,6 @@ public:
 
 	OmmIProviderConfig::AdminControl getAdminControlDictionary() const;
 
-	bool getDictionaryName( const EmaString& , EmaString& ) const;
-
-	bool getDirectoryName( const EmaString& , EmaString& ) const;
-
 private:
 
 	OmmIProviderConfig::OperationModel		_operationModel;

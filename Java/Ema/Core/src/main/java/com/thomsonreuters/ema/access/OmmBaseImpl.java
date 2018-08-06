@@ -30,6 +30,7 @@ import com.thomsonreuters.ema.access.OmmConsumer.DispatchReturn;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchTimeout;
 import com.thomsonreuters.ema.access.OmmConsumerConfig.OperationModel;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.EncodeIterator;
@@ -180,6 +181,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 
 			config.errorTracker().log(this, _loggerClient);
 
+			if (_loggerClient.isTraceEnabled())
+			{
+				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
+					"Print out active configuration detail." + activeConfig.configTrace().toString(), Severity.TRACE));
+			}
+			
 			try
 			{
 				_pipe = Pipe.open();
@@ -263,6 +270,45 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			if (hasErrorClient())
 				notifyErrorClient(exception);
 			else
+				throw exception;
+		} finally
+		{
+			if (_userLock.isLocked())
+				_userLock.unlock();
+		}
+	}
+	
+	//only for unit test, internal use 
+	void initializeForTest(ActiveConfig activeConfig,EmaConfigImpl config)
+	{
+		_activeConfig = activeConfig;
+		
+		try
+		{
+			_objManager.initialize();
+			
+			GlobalPool.lock();
+			GlobalPool.initialize();
+			GlobalPool.unlock();
+			
+			_userLock.lock();
+			
+			_loggerClient = createLoggerClient();
+
+			readConfiguration(config);
+			
+			readCustomConfig( config );
+
+			config.errorTracker().log(this, _loggerClient);
+			
+			if (_loggerClient.isTraceEnabled())
+			{
+				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
+					"Print out active configuration detail." + activeConfig.configTrace().toString(), Severity.TRACE));
+			}
+			
+		} catch (OmmException exception)
+		{
 				throw exception;
 		} finally
 		{
@@ -632,57 +678,88 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 
 		ConfigElement ce = null;
 		int maxInt = Integer.MAX_VALUE;
-
+		int value = 0;
+		
 		if (attributes != null)
 		{
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ItemCountHint)) != null)
-				_activeConfig.itemCountHint = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.itemCountHint = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ServiceCountHint)) != null)
-				_activeConfig.serviceCountHint = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.serviceCountHint = value > maxInt ? maxInt : value;
+			}
+				
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.RequestTimeout)) != null)
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.requestTimeout = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.LoginRequestTimeOut)) != null)
-				_activeConfig.loginRequestTimeOut = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.loginRequestTimeOut = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryRequestTimeOut)) != null)
-				_activeConfig.dictionaryRequestTimeOut = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.dictionaryRequestTimeOut = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.DispatchTimeoutApiThread)) != null)
-				_activeConfig.dispatchTimeoutApiThread = ce.intValue();
-
+			{
+				value = ce.intValue();
+				if (value >= 0)
+					_activeConfig.dispatchTimeoutApiThread = value > maxInt ? maxInt : value;
+			}
+			
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxDispatchCountApiThread)) != null)
-				_activeConfig.maxDispatchCountApiThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.maxDispatchCountApiThread = value > maxInt ? maxInt : value;
+			}
+			
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxDispatchCountUserThread)) != null)
-				_activeConfig.maxDispatchCountUserThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.maxDispatchCountUserThread = value > maxInt ? maxInt : value;
+			}
 				
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectAttemptLimit)) != null)
 			{
-				_activeConfig.isSetCorrectConfigGroup = true;
 				_activeConfig.reconnectAttemptLimit(ce.intValue());
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMinDelay)) != null)
 			{
-				_activeConfig.isSetCorrectConfigGroup = true;
 				_activeConfig.reconnectMinDelay(ce.intValue());
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReconnectMaxDelay)) != null)
 			{
-				_activeConfig.isSetCorrectConfigGroup = true;
 				_activeConfig.reconnectMaxDelay(ce.intValue());
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.MsgKeyInUpdates)) != null)
 			{
-				_activeConfig.isSetCorrectConfigGroup = true;
 				_activeConfig.msgKeyInUpdates = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_MSGKEYINUPDATES;
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 			{
-				_activeConfig.isSetCorrectConfigGroup = true;
 				_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 			}
 		}
@@ -695,10 +772,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 		if (channelName != null  && channelName.trim().length() > 0)
 		{
 			String[] pieces = channelName.split(",");
-			int lastChannelIndex = pieces.length - 1;
 			for (int i = 0; i < pieces.length; i++)
 			{
-				readChannelConfig(config,  pieces[i], ( i == lastChannelIndex ? true : false) );
+				_activeConfig.channelConfigSet.add( readChannelConfig(config,  pieces[i].trim()));
 			}
 		}
 		else
@@ -727,40 +803,75 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			socketChannelConfig.name = "Channel";
 			_activeConfig.channelConfigSet.add( socketChannelConfig);
 		}
+		
+		ProgrammaticConfigure pc = config.programmaticConfigure();
+		if ( pc != null)
+		{
+			pc .retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
+			String channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNEL_FLAG );
+			if (channelOrChannelSet == null)
+				channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNELSET_FLAG );
 
-		//
-		// Channel
-		// .........................................................................
+			if ( channelOrChannelSet != null && !channelOrChannelSet.isEmpty() )
+			{
+				_activeConfig.channelConfigSet.clear();
+				String[] pieces = channelOrChannelSet.split(",");
+				for (int i = 0; i < pieces.length; i++)
+				{
+					ChannelConfig fileChannelConfig = readChannelConfig( config,  pieces[i].trim());
 
-		// TODO: Handle programmatic configuration
+					int chanConfigByFuncCall = 0;
+					if (config.getUserSpecifiedHostname() != null && config.getUserSpecifiedHostname().length() > 0)
+						chanConfigByFuncCall = ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
+					else
+					{
+						HttpChannelConfig tunnelingConfig = config.tunnelingChannelCfg();
+						if ( tunnelingConfig.httpProxyHostName != null && tunnelingConfig.httpProxyHostName.length() > 0 )
+							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+						if (tunnelingConfig.httpProxyPort != null && tunnelingConfig.httpProxyPort.length() > 0 )
+							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+						if (tunnelingConfig.objectName != null && tunnelingConfig.objectName.length() > 0)
+							chanConfigByFuncCall |= ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
+					}
+					
+					pc .retrieveChannelConfig( pieces[i].trim(), _activeConfig, chanConfigByFuncCall, fileChannelConfig );
+					if ( _activeConfig.channelConfigSet.size() == i )
+						_activeConfig.channelConfigSet.add( fileChannelConfig );
+					else
+						fileChannelConfig = null;
+				}
+			}
+		}
 
 		_activeConfig.userDispatch = config.operationModel();
 		_activeConfig.rsslRDMLoginRequest = config.loginReq();
 	}
 	
-	@SuppressWarnings("deprecation")
-	void readChannelConfig(EmaConfigImpl configImpl, String channelName, boolean lastChannel)
+	ChannelConfig readChannelConfig(EmaConfigImpl configImpl, String channelName)
 	{
 		int maxInt = Integer.MAX_VALUE;		
 		ChannelConfig currentChannelConfig = null;
 
 		ConfigAttributes attributes = null;
 		ConfigElement ce = null;
-		int connectionType = ConnectionTypes.SOCKET;
+		int connectionType = -1;
 
 		attributes = configImpl.xmlConfig().getChannelAttributes(channelName);
 		if (attributes != null) 
 			ce = attributes.getPrimitiveValue(ConfigManager.ChannelType);
 
-		if (ce == null || configImpl.getUserSpecifiedHostname() != null)
-		{
-				connectionType = ConnectionTypes.SOCKET;
-		} 
+		if (configImpl.getUserSpecifiedHostname() != null)
+			connectionType = ConnectionTypes.SOCKET;
 		else
 		{
-			connectionType = ce.intValue();
+			ProgrammaticConfigure pc = configImpl.programmaticConfigure();
+			if (pc != null)
+				connectionType = pc.retrieveChannelTypeConfig(channelName);
+		
+			if (connectionType < 0)
+				connectionType = (ce == null) ? ConnectionTypes.SOCKET : ce.intValue();
 		}
-
+		
 		switch (connectionType)
 		{
 		case ConnectionTypes.SOCKET:
@@ -935,48 +1046,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				else
 					currentChannelConfig.highWaterMark = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_HIGH_WATER_MARK : ce.intLongValue();
 			}
-	
-			/* The following code will be removed once deprecated definitions from ConfigManager are removed. */
-			if (!_activeConfig.isSetCorrectConfigGroup && lastChannel)
-			{
-				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectAttemptLimit)) != null)
-				{
-						_activeConfig.reconnectAttemptLimit(ce.intValue());
-						configImpl.errorTracker().append( "ChannelReconnectAttemptLimit is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
-						.create(Severity.WARNING);
-				}
-		
-				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMinDelay)) != null)
-				{
-						_activeConfig.reconnectMinDelay(ce.intValue());
-						configImpl.errorTracker().append( "ChannelReconnectMinDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
-						.create(Severity.WARNING);
-				}
-		
-				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelReconnectMaxDelay)) != null)
-				{
-						_activeConfig.reconnectMaxDelay(ce.intValue());
-						configImpl.errorTracker().append( "ChannelReconnectMaxDelay is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance." )
-						.create(Severity.WARNING);
-				}
-		
-				if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelMsgKeyInUpdates)) != null)
-				{
-						_activeConfig.msgKeyInUpdates = ce.intLongValue() == 0 ? false : ActiveConfig.DEFAULT_MSGKEYINUPDATES;
-						configImpl.errorTracker().append( "ChannelMsgKeyInUpdates is no longer configured on a per-channel basis; configure it instead in the Consumer instance." )
-						.create(Severity.WARNING);
-				}
-		
-				if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
-				{
-						_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
-						configImpl.errorTracker().append(  "XmlTraceToStdout is no longer configured on a per-channel basis; configure it instead in the Consumer/NIProvider instance.")
-						.create(Severity.WARNING);
-				}
-			}
 		}
 		
-		_activeConfig.channelConfigSet.add( currentChannelConfig );
+		return currentChannelConfig;
 	}
 	
 	@Override

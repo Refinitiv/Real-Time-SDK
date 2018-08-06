@@ -104,7 +104,7 @@ void createProgramaticConfig( Map& configMap )
 		.addUInt( "PostAckTimeout", 5000 )
 		.addUInt( "RequestTimeout", 5000 )
 		.addUInt( "MaxOutstandingPosts", 5000 )
-		.addInt( "DispatchTimeoutApiThread", 1 )
+		.addInt( "DispatchTimeoutApiThread", 100 )
 		.addUInt( "HandleException", 0 )
 		.addUInt( "MaxDispatchCountApiThread", 500 )
 		.addUInt( "MaxDispatchCountUserThread", 500 )
@@ -181,7 +181,7 @@ void createProgramaticConfig( Map& configMap )
 	configMap.complete();
 }
 
-int main( int argc, char* argv[] )
+int main()
 { 
 	try { 
 		AppClient client;

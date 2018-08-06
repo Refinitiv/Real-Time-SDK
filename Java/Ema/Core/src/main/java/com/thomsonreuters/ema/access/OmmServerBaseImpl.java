@@ -31,6 +31,7 @@ import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
 import com.thomsonreuters.ema.access.OmmProvider.DispatchReturn;
 import com.thomsonreuters.ema.access.OmmProvider.DispatchTimeout;
+import com.thomsonreuters.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
 import com.thomsonreuters.ema.access.OmmIProviderConfig.OperationModel;
 import com.thomsonreuters.ema.access.OmmException.ExceptionType;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
@@ -189,6 +190,12 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			readCustomConfig(config);
 			
 			config.errorTracker().log(this, _loggerClient);
+			
+			if (_loggerClient.isTraceEnabled())
+			{
+				_loggerClient.trace(formatLogMessage(_activeServerConfig.instanceName, 
+					"Print out active configuration detail." + _activeServerConfig.configTrace().toString(), Severity.TRACE));
+			}
 			
 			try
 			{
@@ -366,6 +373,45 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	    }
 	}
 	
+	//intenal use, only for junit test
+	void initializeForTest(ActiveServerConfig activeConfig,EmaConfigServerImpl config)
+	{
+		_activeServerConfig = activeConfig;
+		
+		try
+		{
+			_objManager.initialize();
+			
+			GlobalPool.lock();
+			GlobalPool.initialize();
+			GlobalPool.unlock();
+			
+			_userLock.lock();
+			
+			_loggerClient = createLoggerClient();
+
+			readConfiguration(config);
+			
+			readCustomConfig(config);
+			
+			config.errorTracker().log(this, _loggerClient);
+			
+			if (_loggerClient.isTraceEnabled())
+			{
+				_loggerClient.trace(formatLogMessage(_activeServerConfig.instanceName, 
+					"Print out active configuration detail." + _activeServerConfig.configTrace().toString(), Severity.TRACE));
+			}
+	    } 
+		catch (OmmException exception)
+		{
+				throw exception;
+		} finally
+		{
+			if (_userLock.isLocked())
+				_userLock.unlock();
+		}
+	}
+	
 	void uninitialize()
 	{
 		try
@@ -455,40 +501,62 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 
 		ConfigElement ce = null;
 		int maxInt = Integer.MAX_VALUE;
-
+		int value = 0;
+		
 		if (attributes != null)
 		{
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ItemCountHint)) != null)
-				_activeServerConfig.itemCountHint = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeServerConfig.itemCountHint = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ServiceCountHint)) != null)
-				_activeServerConfig.serviceCountHint = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeServerConfig.serviceCountHint = value > maxInt ? maxInt : value;
+			}
 
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.RequestTimeout)) != null)
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeServerConfig.requestTimeout = value > maxInt ? maxInt : value;
+			}
+	            
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.DispatchTimeoutApiThread)) != null)
-				_activeServerConfig.dispatchTimeoutApiThread = ce.intValue();
+			{
+				value = ce.intValue();
+				if (value >= 0)
+					_activeServerConfig.dispatchTimeoutApiThread = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxDispatchCountApiThread)) != null)
-				_activeServerConfig.maxDispatchCountApiThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeServerConfig.maxDispatchCountApiThread = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxDispatchCountUserThread)) != null)
-				_activeServerConfig.maxDispatchCountUserThread = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeServerConfig.maxDispatchCountUserThread = value > maxInt ? maxInt : value;
+			}
 				
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
-			{
-				_activeServerConfig.isSetCorrectConfigGroup = true;
 				_activeServerConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
-			}
 		}
 
 		// .........................................................................
-		// Channel
+		// Server
 		//
-
-		String serverName =  (String)config.xmlConfig().getIProviderAttributeValue(
-				_activeServerConfig.configuredName, ConfigManager.IProviderServerName);
-		
+		String serverName =  config.serverName(_activeServerConfig.configuredName);
 		if ( serverName != null)
-			readServerConfig(config, serverName);
+			_activeServerConfig.serverConfig = readServerConfig(config, serverName);
 		else
 		{
 			SocketServerConfig socketServerConfig = new SocketServerConfig();
@@ -501,17 +569,43 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_activeServerConfig.serverConfig = socketServerConfig;
 		}
 		
+		ProgrammaticConfigure pc = config.programmaticConfigure();
+		if (pc != null)
+		{
+			pc.retrieveCommonConfig(_activeServerConfig.configuredName, _activeServerConfig);
+			serverName = pc.activeEntryNames(_activeServerConfig.configuredName, InstanceEntryFlag.SERVER_FLAG);
+
+			if ( serverName != null && !serverName.isEmpty() )
+			{
+				_activeServerConfig.serverConfig = null;
+				ServerConfig fileServerConfig = readServerConfig(config, serverName);
+
+				int serverConfigByFuncCall = 0;
+				if (config.getUserSpecifiedPort() != null)
+					serverConfigByFuncCall = ActiveConfig.SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL;
+
+				pc.retrieveServerConfig(serverName, _activeServerConfig, serverConfigByFuncCall, fileServerConfig);
+				if (_activeServerConfig.serverConfig == null)
+					_activeServerConfig.serverConfig = fileServerConfig;
+				else
+				{
+					fileServerConfig = null;
+				}
+			}
+		}
+
 		_activeServerConfig.userDispatch = config.operationModel();
 	}
 	
-	void readServerConfig(EmaConfigServerImpl configImpl, String serverName)
+	ServerConfig readServerConfig(EmaConfigServerImpl configImpl, String serverName)
 	{
 		int maxInt = Integer.MAX_VALUE;
 
 		ConfigAttributes attributes = null;
 		ConfigElement ce = null;
 		int serverType = ConnectionTypes.SOCKET;
-
+		ServerConfig newServerConfig = null;
+		
 		attributes = configImpl.xmlConfig().getServerAttributes(serverName);
 		if (attributes != null) 
 			ce = attributes.getPrimitiveValue(ConfigManager.ServerType);
@@ -530,7 +624,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		case ConnectionTypes.SOCKET:
 		{
 			SocketServerConfig socketServerConfig = new SocketServerConfig();
-			_activeServerConfig.serverConfig = socketServerConfig;
+			newServerConfig = socketServerConfig;
 
 			String tempService = configImpl.getUserSpecifiedPort();
 			if (tempService == null)
@@ -557,85 +651,78 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		}
 		}
 
-		ServerConfig currentServerConfig = _activeServerConfig.serverConfig;
-		currentServerConfig.name = serverName;
+		newServerConfig.name = serverName;
 
 		if (attributes != null)
 		{
 			if((ce = attributes.getPrimitiveValue(ConfigManager.InterfaceName)) != null)
-				currentServerConfig.interfaceName = ce.asciiValue();
+				newServerConfig.interfaceName = ce.asciiValue();
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.GuaranteedOutputBuffers)) != null)
-				currentServerConfig.guaranteedOutputBuffers(ce.intLongValue());
+				newServerConfig.guaranteedOutputBuffers(ce.intLongValue());
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.NumInputBuffers)) != null)
-				currentServerConfig.numInputBuffers(ce.intLongValue());
+				newServerConfig.numInputBuffers(ce.intLongValue());
 	
 			boolean setCompressionThresholdFromConfigFile = false;
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ServerCompressionThreshold)) != null)
 			{
 				setCompressionThresholdFromConfigFile = true;
 				if ( ce.intLongValue()  > maxInt )
-					currentServerConfig.compressionThreshold = maxInt;
+					newServerConfig.compressionThreshold = maxInt;
 				else
-					currentServerConfig.compressionThreshold = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD : ce.intLongValue();
+					newServerConfig.compressionThreshold = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD : ce.intLongValue();
 			}
 
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ServerCompressionType)) != null) {
-				currentServerConfig.compressionType = ce.intValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_TYPE : ce.intValue();
-				if (currentServerConfig.compressionType == com.thomsonreuters.upa.transport.CompressionTypes.LZ4 &&
+				newServerConfig.compressionType = ce.intValue() < 0 ? ActiveConfig.DEFAULT_COMPRESSION_TYPE : ce.intValue();
+				if (newServerConfig.compressionType == com.thomsonreuters.upa.transport.CompressionTypes.LZ4 &&
 						!setCompressionThresholdFromConfigFile)
-					currentServerConfig.compressionThreshold = ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD_LZ4;
+					newServerConfig.compressionThreshold = ActiveConfig.DEFAULT_COMPRESSION_THRESHOLD_LZ4;
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.SysRecvBufSize)) != null)
 			{
 				if ( ce.intLongValue()  > maxInt )
-					currentServerConfig.sysRecvBufSize = maxInt;
+					newServerConfig.sysRecvBufSize = maxInt;
 				else
-					currentServerConfig.sysRecvBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE : ce.intLongValue();
+					newServerConfig.sysRecvBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE : ce.intLongValue();
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.SysSendBufSize)) != null)
 			{
 				if ( ce.intLongValue()  > maxInt )
-					currentServerConfig.sysSendBufSize = maxInt;
+					newServerConfig.sysSendBufSize = maxInt;
 				else
-					currentServerConfig.sysSendBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE : ce.intLongValue();
+					newServerConfig.sysSendBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE : ce.intLongValue();
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.HighWaterMark)) != null)
 			{
 				if ( ce.intLongValue()  > maxInt )
-					currentServerConfig.highWaterMark = maxInt;
+					newServerConfig.highWaterMark = maxInt;
 				else
-					currentServerConfig.highWaterMark = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_HIGH_WATER_MARK : ce.intLongValue();
+					newServerConfig.highWaterMark = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_HIGH_WATER_MARK : ce.intLongValue();
 			}
 	
-			/* The following code will be removed once the deprecated XmlTraceToStdout is removed. */
-			if( (!_activeServerConfig.isSetCorrectConfigGroup && (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null))
-			{
-					configImpl.errorTracker().append("XmlTraceToStdout is no longer configured on a per-server basis; configure it instead in the IProvider instance.")
-					.create(Severity.WARNING);
-					_activeServerConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
-			}
-			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ConnectionPingTimeout)) != null)
 			{
 				if ( ce.intLongValue()  > maxInt )
-					currentServerConfig.connectionPingTimeout = maxInt;
+					newServerConfig.connectionPingTimeout = maxInt;
 				else
-					currentServerConfig.connectionPingTimeout = ce.intLongValue() < 0 ? ActiveServerConfig.DEFAULT_CONNECTION_PINGTIMEOUT : ce.intLongValue();
+					newServerConfig.connectionPingTimeout = ce.intLongValue() < 0 ? ActiveServerConfig.DEFAULT_CONNECTION_PINGTIMEOUT : ce.intLongValue();
 			}
             
             if( (ce = attributes.getPrimitiveValue(ConfigManager.ConnectionMinPingTimeout)) != null)
             {
                 if ( ce.intLongValue()  > maxInt )
-                    currentServerConfig.connectionMinPingTimeout = maxInt;
+                	newServerConfig.connectionMinPingTimeout = maxInt;
                 else
-                    currentServerConfig.connectionMinPingTimeout = ce.intLongValue() < 0 ? ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT : ce.intLongValue();
+                	newServerConfig.connectionMinPingTimeout = ce.intLongValue() < 0 ? ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT : ce.intLongValue();
             }
 		}
+		
+		return newServerConfig;
 	}
 	
 	OmmProviderClient ommProviderClient()

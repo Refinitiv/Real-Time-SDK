@@ -32,6 +32,9 @@ using namespace thomsonreuters::ema::rdm;
 #define DEFAULT_LINK_TYPE										1
 #define DEFAULT_LINK_CODE										0
 
+#define MAX_UNSIGNED_INT16		0xFFFF
+#define MAX_UNSIGNED_INT32		0xFFFFFFFF
+
 InfoFilter::InfoFilter() :
 	serviceName(),
 	vendorName(),
@@ -617,7 +620,7 @@ const EmaList< Service* >& DirectoryCache::getServiceList() const
 	return _serviceList;
 }
 
-void DirectoryCache::addService(const Service& service)
+Service* DirectoryCache::addService(const Service& service)
 {
 	try
 	{
@@ -625,11 +628,14 @@ void DirectoryCache::addService(const Service& service)
 
 		_serviceList.push_back(pService);
 		_serviceHash.insert(service.serviceId, pService);
+		return pService;
 	}
 	catch (std::bad_alloc)
 	{
 		throwMeeException("Failed to allocate memory in DirectoryCache::addService()");
 	}
+
+	return 0;
 }
 
 void DirectoryCache::removeService(UInt64 serviceId)
@@ -652,6 +658,22 @@ Service* DirectoryCache::getService(UInt64 serviceId) const
 	if (servicePtr)
 	{
 		return *servicePtr;
+	}
+
+	return 0;
+}
+
+Service* DirectoryCache::getService(EmaString serviceName) const
+{
+	Service* service = _serviceList.front();
+	int size = _serviceList.size();
+
+	while (service && size-- > 0)
+	{
+		if (service->infoFilter.serviceName == serviceName)
+			return service;
+		else
+			service = service->next();
 	}
 
 	return 0;
@@ -764,7 +786,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 {
 	EmaString directoryName;
 
-	pConfigImpl->getDirectoryName(_baseConfig.configuredName, directoryName);
+	(static_cast<EmaConfigServerImpl*>(pConfigImpl))->getDirectoryName(_baseConfig.configuredName, directoryName);
 
 	if (directoryName.empty())
 		pConfigImpl->get<EmaString>("DirectoryGroup|DefaultDirectory", directoryName);
@@ -786,14 +808,15 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 		EmaString name;
 		if (pDirectoryCache && !pConfigImpl->get< EmaString >(directoryNodeName + "Name", name))
 		{
-			EmaString errorMsg("no configuration exists for ni provider directory [");
-			errorMsg.append(directoryNodeName).append("]. Will use directory defaults");
+			EmaString errorMsg("no configuration exists from config file for ni provider directory [");
+			errorMsg.append(directoryNodeName).append("]. Will use directory defaults if there is no programmatically config");
 			pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 
 			Service service;
 			populateDefaultService(service);
 			addServiceIdAndNamePair(service.serviceId, new EmaString(service.infoFilter.serviceName), 0);
 			pDirectoryCache->addService(service);
+			pDirectoryCache->directoryName = directoryName;
 		}
 		else
 		{
@@ -810,7 +833,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 			if (pDirectoryCache && serviceNames.empty())
 			{
 				EmaString errorMsg("specified directory [");
-				errorMsg.append(directoryNodeName).append("] contains no services. Will use directory defaults");
+				errorMsg.append(directoryNodeName).append("] contains no services. Will use directory defaults if not config programmatically");
 				pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 
 				Service service;
@@ -820,9 +843,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 			}
 			else
 			{
-				const UInt16 maxUInt16 = 0xFFFF;
-
-				if (serviceNames.size() > maxUInt16)
+				if (serviceNames.size() > MAX_UNSIGNED_INT16)
 				{
 					EmaString errorMsg("Number of configured services is greater than allowed maximum. Some services will be dropped.");
 					pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
@@ -830,7 +851,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 
 				EmaVector< UInt64 > usedServiceIds;
 				UInt32 emaAssignedServiceId = 0;
-				for (UInt32 idx = 0; idx < serviceNames.size() && idx < maxUInt16; ++idx)
+				for (UInt32 idx = 0; idx < serviceNames.size() && idx < MAX_UNSIGNED_INT16; ++idx)
 				{
 					Service service;
 
@@ -884,14 +905,14 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					{
 						service.stateFilter.status.text.data = (char*)service.stateFilter.statusText.c_str();
 						service.stateFilter.status.text.length = service.stateFilter.statusText.length();
-						service.stateFilter.flags |= RDM_SVC_STF_HAS_STATUS;
+						service.stateFilter.flags |= RDM_SVC_STF_HAS_STATUS; 
 					}
 					else
 						rsslClearBuffer(&service.stateFilter.status.text);
 
 					if (pConfigImpl->get< UInt64 >(serviceNodeName + "InfoFilter|ServiceId", tempUInt64))
 					{
-						if (tempUInt64 > maxUInt16)
+						if (tempUInt64 > MAX_UNSIGNED_INT16)
 						{
 							EmaString errorMsg("service [");
 							errorMsg.append(serviceNodeName).append("] specifies out of range ServiceId (value of ").append(tempUInt64).append("). Will drop this service.");
@@ -912,11 +933,11 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					}
 					else
 					{
-						while (emaAssignedServiceId <= maxUInt16 &&
+						while (emaAssignedServiceId <= MAX_UNSIGNED_INT16 &&
 							usedServiceIds.getPositionOf(emaAssignedServiceId) > -1)
 							++emaAssignedServiceId;
 
-						if (emaAssignedServiceId > maxUInt16)
+						if (emaAssignedServiceId > MAX_UNSIGNED_INT16)
 						{
 							EmaString errorMsg("EMA ran out of assignable service ids. Will drop rest of the services");
 							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
@@ -980,6 +1001,9 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					EmaVector< EmaString > valueList;
 					pConfigImpl->getAsciiAttributeValueList(serviceNodeName + "InfoFilter|DictionariesProvided", "DictionariesProvidedEntry", valueList);
 
+					ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure();
+					DictionaryConfig tempDictConfig;
+
 					for (UInt32 idx = 0; idx < valueList.size(); ++idx)
 					{
 						EmaString dictionaryNodeName("DictionaryGroup|DictionaryList|Dictionary.");
@@ -989,29 +1013,38 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 						if (!pConfigImpl->get< EmaString >(dictionaryNodeName + "Name", name))
 						{
 							EmaString errorMsg("no configuration exists for dictionary [");
-							errorMsg.append(dictionaryNodeName).append("]. Will use dictionary defaults");
+							errorMsg.append(dictionaryNodeName).append("]. Will use dictionary defaults if not config programmatically");
 							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 						}
 
+						//retrieve dict info from programmatically config first if there is any.
+						tempDictConfig.clear();
+						if (ppc && !valueList[idx].empty())
+							ppc->retrieveDictionaryConfig(valueList[idx], tempDictConfig);
+
 						EmaString rdmFieldDictionaryItemName;
-						if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "RdmFieldDictionaryItemName", rdmFieldDictionaryItemName))
+						if (!tempDictConfig.rdmFieldDictionaryItemName.empty())
+							rdmFieldDictionaryItemName = tempDictConfig.rdmFieldDictionaryItemName;
+						else if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "RdmFieldDictionaryItemName", rdmFieldDictionaryItemName))
 						{
 							rdmFieldDictionaryItemName.set("RWFFld");
 
 							EmaString errorMsg("no configuration exists for RdmFieldDictionaryItemName in dictionary [");
-							errorMsg.append(dictionaryNodeName).append("]. Will use default value of RWFFld");
+							errorMsg.append(dictionaryNodeName).append("]. Will use default value of RWFFld if not config programmatically");
 							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 						}
 
 						service.infoFilter.dictionariesProvided.push_back(rdmFieldDictionaryItemName);
 
 						EmaString enumTypeItemName;
-						if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "EnumTypeDefItemName", enumTypeItemName))
+						if (!tempDictConfig.enumTypeDefItemName.empty())
+							enumTypeItemName = tempDictConfig.enumTypeDefItemName;
+						else if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "EnumTypeDefItemName", enumTypeItemName))
 						{
 							enumTypeItemName.set("RWFEnum");
 
 							EmaString errorMsg("no configuration exists for EnumTypeDefItemName in dictionary [");
-							errorMsg.append(dictionaryNodeName).append("]. Will use default value of RWFEnum");
+							errorMsg.append(dictionaryNodeName).append("]. Will use default value of RWFEnum if not config programmatically");
 							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 						}
 
@@ -1024,30 +1057,33 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 
 							serviceDictionaryConfig->serviceId = service.serviceId;
 							DictionaryConfig* dictionaryConfig = new DictionaryConfig();
-
 							dictionaryConfig->dictionaryName = name;
 							dictionaryConfig->rdmFieldDictionaryItemName = rdmFieldDictionaryItemName;
 							dictionaryConfig->enumTypeDefItemName = enumTypeItemName;
 
 							EmaString rdmFieldDictionaryFileName;
-							if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "RdmFieldDictionaryFileName", rdmFieldDictionaryFileName))
+							if (!tempDictConfig.rdmfieldDictionaryFileName.empty())
+								rdmFieldDictionaryFileName = tempDictConfig.rdmfieldDictionaryFileName;
+							else if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "RdmFieldDictionaryFileName", rdmFieldDictionaryFileName))
 							{
 								rdmFieldDictionaryFileName.set("./RDMFieldDictionary");
 
 								EmaString errorMsg("no configuration exists for RdmFieldDictionaryFileName in dictionary [");
-								errorMsg.append(dictionaryNodeName).append("]. Will use default value of ./RDMFieldDictionary");
+								errorMsg.append(dictionaryNodeName).append("]. Will use default value of ./RDMFieldDictionary if not config programmatically");
 								pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 							}
 
 							dictionaryConfig->rdmfieldDictionaryFileName = rdmFieldDictionaryFileName;
 
 							EmaString enumTypeDefFileName;
-							if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "EnumTypeDefFileName", enumTypeDefFileName))
+							if (!tempDictConfig.enumtypeDefFileName.empty())
+								enumTypeDefFileName = tempDictConfig.enumtypeDefFileName;
+							else if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "EnumTypeDefFileName", enumTypeDefFileName))
 							{
 								enumTypeDefFileName.set("./enumtype.def");
 
 								EmaString errorMsg("no configuration exists for EnumTypeDefFileName in dictionary [");
-								errorMsg.append(dictionaryNodeName).append("]. Will use default value of ./enumtype.def");
+								errorMsg.append(dictionaryNodeName).append("]. Will use default value of ./enumtype.def if not config programmatically");
 								pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 							}
 
@@ -1070,29 +1106,38 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 						if (!pConfigImpl->get< EmaString >(dictionaryNodeName + "Name", name))
 						{
 							EmaString errorMsg("no configuration exists for consumer dictionary [");
-							errorMsg.append(dictionaryNodeName).append("]. Will use dictionary defaults");
+							errorMsg.append(dictionaryNodeName).append("]. Will use dictionary defaults if not config programmatically");
 							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 						}
 
+						//retrieve dict info from programmatically config first if there is any.
+						tempDictConfig.clear();
+						if (ppc && !valueList[idx].empty())
+							ppc->retrieveDictionaryConfig(valueList[idx], tempDictConfig);
+
 						EmaString rdmFieldDictionaryItemName;
-						if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "RdmFieldDictionaryItemName", rdmFieldDictionaryItemName))
+						if (!tempDictConfig.rdmFieldDictionaryItemName.empty())
+							rdmFieldDictionaryItemName = tempDictConfig.rdmFieldDictionaryItemName;
+						else if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "RdmFieldDictionaryItemName", rdmFieldDictionaryItemName))
 						{
 							rdmFieldDictionaryItemName.set("RWFFld");
 
 							EmaString errorMsg("no configuration exists for RdmFieldDictionaryItemName in dictionary [");
-							errorMsg.append(dictionaryNodeName).append("]. Will use default value of RWFFld");
+							errorMsg.append(dictionaryNodeName).append("]. Will use default value of RWFFld if not config programmatically");
 							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 						}
 
 						service.infoFilter.dictionariesUsed.push_back(rdmFieldDictionaryItemName);
 
 						EmaString enumTypeItemName;
-						if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "EnumTypeDefItemName", enumTypeItemName))
+						if (!tempDictConfig.enumTypeDefItemName.empty())
+							enumTypeItemName = tempDictConfig.enumTypeDefItemName;
+						else if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "EnumTypeDefItemName", enumTypeItemName))
 						{
 							enumTypeItemName.set("RWFEnum");
 
 							EmaString errorMsg("no configuration exists for EnumTypeDefItemName in dictionary [");
-							errorMsg.append(dictionaryNodeName).append("]. Will use default value of RWFEnum");
+							errorMsg.append(dictionaryNodeName).append("]. Will use default value of RWFEnum if not config programmatically");
 							pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 						}
 
@@ -1111,24 +1156,28 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 							dictionaryConfig->enumTypeDefItemName = enumTypeItemName;
 
 							EmaString rdmFieldDictionaryFileName;
-							if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "RdmFieldDictionaryFileName", rdmFieldDictionaryFileName))
+							if (!tempDictConfig.rdmfieldDictionaryFileName.empty())
+								rdmFieldDictionaryFileName = tempDictConfig.rdmfieldDictionaryFileName;
+							else if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "RdmFieldDictionaryFileName", rdmFieldDictionaryFileName))
 							{
 								rdmFieldDictionaryFileName.set("./RDMFieldDictionary");
 
 								EmaString errorMsg("no configuration exists for RdmFieldDictionaryFileName in dictionary [");
-								errorMsg.append(dictionaryNodeName).append("]. Will use default value of ./RDMFieldDictionary");
+								errorMsg.append(dictionaryNodeName).append("]. Will use default value of ./RDMFieldDictionary if not config programmatically");
 								pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 							}
 
 							dictionaryConfig->rdmfieldDictionaryFileName = rdmFieldDictionaryFileName;
 
 							EmaString enumTypeDefFileName;
-							if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "EnumTypeDefFileName", enumTypeDefFileName))
+							if (!tempDictConfig.enumtypeDefFileName.empty())
+								enumTypeDefFileName = tempDictConfig.enumtypeDefFileName;
+							else if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "EnumTypeDefFileName", enumTypeDefFileName))
 							{
 								enumTypeDefFileName.set("./enumtype.def");
 
 								EmaString errorMsg("no configuration exists for EnumTypeDefFileName in dictionary [");
-								errorMsg.append(dictionaryNodeName).append("]. Will use default value of ./enumtype.def");
+								errorMsg.append(dictionaryNodeName).append("]. Will use default value of ./enumtype.def if not config programmatically");
 								pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 							}
 
@@ -1155,7 +1204,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 							UInt64 domainType;
 							if (sscanf(valueList[idx].c_str(), "%llu", &domainType) == 1)
 							{
-								if (domainType > maxUInt16)
+								if (domainType > MAX_UNSIGNED_INT16)
 								{
 									EmaString errorMsg("specified service [");
 									errorMsg.append(serviceNodeName).append("] contains out of range capability = ").append(domainType).append(". Will drop this capability.");
@@ -1178,43 +1227,14 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 						}
 						else
 						{
-							static struct
-							{
-								const char* configInput;
-								UInt16 convertedValue;
-							} converter[] =
-							{
-								{ "MMT_LOGIN", MMT_LOGIN },
-								{ "MMT_DIRECTORY", MMT_DIRECTORY },
-								{ "MMT_DICTIONARY", MMT_DICTIONARY },
-								{ "MMT_MARKET_PRICE", MMT_MARKET_PRICE },
-								{ "MMT_MARKET_BY_ORDER", MMT_MARKET_BY_ORDER },
-								{ "MMT_MARKET_BY_PRICE", MMT_MARKET_BY_PRICE },
-								{ "MMT_MARKET_MAKER", MMT_MARKET_MAKER },
-								{ "MMT_SYMBOL_LIST", MMT_SYMBOL_LIST },
-								{ "MMT_SERVICE_PROVIDER_STATUS", MMT_SERVICE_PROVIDER_STATUS },
-								{ "MMT_HISTORY", MMT_HISTORY },
-								{ "MMT_HEADLINE", MMT_HEADLINE },
-								{ "MMT_REPLAYHEADLINE", MMT_REPLAYHEADLINE },
-								{ "MMT_REPLAYSTORY", MMT_REPLAYSTORY },
-								{ "MMT_TRANSACTION", MMT_TRANSACTION },
-								{ "MMT_YIELD_CURVE", MMT_YIELD_CURVE },
-								{ "MMT_CONTRIBUTION", MMT_CONTRIBUTION },
-								{ "MMT_PROVIDER_ADMIN", MMT_PROVIDER_ADMIN },
-								{ "MMT_ANALYTICS", MMT_ANALYTICS },
-								{ "MMT_REFERENCE", MMT_REFERENCE },
-								{ "MMT_NEWS_TEXT_ANALYTICS", MMT_NEWS_TEXT_ANALYTICS },
-								{ "MMT_SYSTEM", MMT_SYSTEM },
-							};
-
 							bool found = false;
-							for (int i = 0; i < sizeof converter / sizeof converter[0]; ++i)
+							for (int i = 0; i < sizeof msgTypeConverter / sizeof msgTypeConverter[0]; ++i)
 							{
-								if (!strcmp(converter[i].configInput, valueList[idx]))
+								if (!strcmp(msgTypeConverter[i].configInput, valueList[idx]))
 								{
 									found = true;
-									if (service.infoFilter.capabilities.getPositionOf(converter[i].convertedValue) == -1)
-										service.infoFilter.capabilities.push_back(converter[i].convertedValue);
+									if (service.infoFilter.capabilities.getPositionOf(msgTypeConverter[i].convertedValue) == -1)
+										service.infoFilter.capabilities.push_back(msgTypeConverter[i].convertedValue);
 									break;
 								}
 							}
@@ -1237,14 +1257,17 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 						continue;
 					}
 
-					for (UInt32 idx = 0; idx < service.infoFilter.capabilities.size() - 1; ++idx)
+					int capSize = service.infoFilter.capabilities.size();
+					for (int i = 0; i <= capSize; i++)
 					{
-						if (service.infoFilter.capabilities[idx] > service.infoFilter.capabilities[idx + 1])
+						for (int j = 0; j < (capSize - 1); j++)
 						{
-							UInt64 temp = service.infoFilter.capabilities[idx];
-							service.infoFilter.capabilities[idx] = service.infoFilter.capabilities[idx + 1];
-							service.infoFilter.capabilities[idx + 1] = temp;
-							idx = 0;
+							if (service.infoFilter.capabilities[j] > service.infoFilter.capabilities[j + 1])
+							{
+								UInt64 temp = service.infoFilter.capabilities[j];
+								service.infoFilter.capabilities[j] = service.infoFilter.capabilities[j + 1];
+								service.infoFilter.capabilities[j + 1] = temp;
+							}
 						}
 					}
 
@@ -1255,7 +1278,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					if (entryNodeList.empty())
 					{
 						EmaString errorMsg("no configuration exists for service QoS [");
-						errorMsg.append(serviceNodeName + "InfoFilter|QoS").append("]. Will use default QoS");
+						errorMsg.append(serviceNodeName + "InfoFilter|QoS").append("]. Will use default QoS if not config programmatically");
 						pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 
 						rsslClearQos(&rsslQos);
@@ -1265,15 +1288,13 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 					}
 					else
 					{
-						const UInt32 maxUInt32 = 0xFFFFFFFF;
-
 						for (UInt32 idx = 0; idx < entryNodeList.size(); ++idx)
 						{
 							EmaString rateString;
 							if (!entryNodeList[idx]->get< EmaString >("Rate", rateString))
 							{
 								EmaString errorMsg("no configuration exists for service QoS Rate [");
-								errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate").append("]. Will use default Rate");
+								errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate").append("]. Will use default Rate if not config programmatically");
 								pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 
 								rateString.set("Rate:TickByTick");
@@ -1285,14 +1306,14 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 								UInt64 temp;
 								if (sscanf(rateString.c_str(), "%llu", &temp) == 1)
 								{
-									if (temp > maxUInt32)
+									if (temp > MAX_UNSIGNED_INT32)
 									{
 										EmaString errorMsg("specified service QoS::Rate [");
 										errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate").append("] is greater than allowed maximum. Will use maximum Rate.");
 										errorMsg.append(" Suspect Rate value is ").append(rateString);
 										pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 
-										rate = maxUInt32;
+										rate = MAX_UNSIGNED_INT32;
 									}
 									else
 										rate = (UInt32)temp;
@@ -1300,7 +1321,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 								else
 								{
 									EmaString errorMsg("failed to read or convert a QoS Rate from the specified service [");
-									errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate").append("]. Will use default Rate.");
+									errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate").append("]. Will use default Rate if not config programmatically.");
 									errorMsg.append(" Suspect Rate value is ").append(rateString);
 									pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
 
@@ -1309,23 +1330,13 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 							}
 							else
 							{
-								static struct
-								{
-									const char* configInput;
-									UInt32 convertedValue;
-								} converter[] =
-								{
-									{ "Rate::TickByTick", 0 },
-									{ "Rate::JustInTimeConflated", 0xFFFFFF00 },
-								};
-
 								bool found = false;
-								for (int i = 0; i < sizeof converter / sizeof converter[0]; ++i)
+								for (int i = 0; i < sizeof qosRateConverter / sizeof qosRateConverter[0]; ++i)
 								{
-									if (!strcmp(converter[i].configInput, rateString))
+									if (!strcmp(qosRateConverter[i].configInput, rateString))
 									{
 										found = true;
-										rate = converter[i].convertedValue;
+										rate = qosRateConverter[i].convertedValue;
 										break;
 									}
 								}
@@ -1333,7 +1344,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 								if (!found)
 								{
 									EmaString errorMsg("failed to read or convert a QoS Rate from the specified service [");
-									errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate").append("]. Will use default Rate.");
+									errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Rate").append("]. Will use default Rate if not config programmatically.");
 									errorMsg.append(" Suspect Rate value is ").append(rateString);
 									pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
 
@@ -1345,7 +1356,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 							if (!entryNodeList[idx]->get< EmaString >("Timeliness", timelinessString))
 							{
 								EmaString errorMsg("no configuration exists for service QoS Timeliness [");
-								errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness").append("]. Will use default Timeliness");
+								errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness").append("]. Will use default Timeliness if not config programmatically");
 								pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 
 								timelinessString.set("Timeliness:RealTime");
@@ -1357,14 +1368,14 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 								UInt64 temp;
 								if (sscanf(timelinessString.c_str(), "%llu", &temp) == 1)
 								{
-									if (temp > maxUInt32)
+									if (temp > MAX_UNSIGNED_INT32)
 									{
 										EmaString errorMsg("specified service QoS::Timeliness [");
 										errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness").append("] is greater than allowed maximum. Will use maximum Timeliness.");
 										errorMsg.append(" Suspect Timeliness value is ").append(timelinessString);
 										pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::WarningEnum);
 
-										timeliness = maxUInt32;
+										timeliness = MAX_UNSIGNED_INT32;
 									}
 									else
 										timeliness = (UInt32)temp;
@@ -1372,7 +1383,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 								else
 								{
 									EmaString errorMsg("failed to read or convert a QoS Timeliness from the specified service [");
-									errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness").append("]. Will use default Timeliness.");
+									errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness").append("]. Will use default Timeliness if not config programmatically.");
 									errorMsg.append(" Suspect Timeliness value is ").append(timelinessString);
 									pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
 
@@ -1381,23 +1392,13 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 							}
 							else
 							{
-								static struct
-								{
-									const char* configInput;
-									UInt32 convertedValue;
-								} converter[] =
-								{
-									{ "Timeliness::RealTime", 0 },
-									{ "Timeliness::InexactDelayed", 0xFFFFFFFF },
-								};
-
 								bool found = false;
-								for (int i = 0; i < sizeof converter / sizeof converter[0]; ++i)
+								for (int i = 0; i < sizeof qosTimelinessConverter / sizeof qosTimelinessConverter[0]; ++i)
 								{
-									if (!strcmp(converter[i].configInput, timelinessString))
+									if (!strcmp(qosTimelinessConverter[i].configInput, timelinessString))
 									{
 										found = true;
-										timeliness = converter[i].convertedValue;
+										timeliness = qosTimelinessConverter[i].convertedValue;
 										break;
 									}
 								}
@@ -1405,7 +1406,7 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 								if (!found)
 								{
 									EmaString errorMsg("failed to read or convert a QoS Timeliness from the specified service [");
-									errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness").append("]. Will use default Timeliness.");
+									errorMsg.append(serviceNodeName + "InfoFilter|QoS|QoSEntry|Timeliness").append("]. Will use default Timeliness if not config programmatically.");
 									errorMsg.append(" Suspect Timeliness value is ").append(timelinessString);
 									pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
 
@@ -1435,13 +1436,9 @@ void DirectoryServiceStore::loadConfigDirectory(DirectoryCache* pDirectoryCache,
 		}
 	}
 
-	if (ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure())
-	{
-		if (pDirectoryCache)
-		{
-			ppc->retrieveDirectoryConfig(directoryName, *pDirectoryCache);
-		}
-	}
+	ProgrammaticConfigure* ppc = 0;
+	if ( (ppc = pConfigImpl->getProgrammaticConfigure()) && pDirectoryCache)
+		ppc->retrieveDirectoryConfig(directoryName, *this, *pDirectoryCache, serviceDictionaryConfigList);
 }
 
 void DirectoryServiceStore::notifyOnServiceStateChange(ClientSession* clientSession, RsslRDMService& service)
@@ -1466,6 +1463,63 @@ void DirectoryServiceStore::notifyOnServiceDelete(ClientSession* clientSession, 
 	{
 		_pDirectoryServiceStoreClient->onServiceDelete(clientSession, service.serviceId);
 	}
+}
+const DirectoryCache& DirectoryServiceStore::getDirectoryCache()
+{
+	return _directoryCache;
+}
+
+bool DirectoryServiceStore::addServiceIdAndNamePair(RsslUInt64 serviceId, const EmaString* pServiceName, EmaString* pErrorText)
+{
+	if (_providerRole == OmmProviderConfig::InteractiveEnum)
+	{
+		if (static_cast<OmmIProviderDirectoryStore*>(this)->getOmmIProviderActiveConfig().getDirectoryAdminControl() == OmmIProviderConfig::ApiControlEnum)
+		{
+			if (_serviceNameToServiceId.find(pServiceName))
+			{
+				if (pErrorText)
+				{
+					pErrorText->set("Attempt to add a service with name of ");
+					pErrorText->append(*pServiceName).append(" and id of ").append(serviceId).append(" while a service with the same id is already added.");
+				}
+
+				delete pServiceName;
+				return false;
+			}
+		}
+		else
+		{
+			if (_serviceNameToServiceId.find(pServiceName) > 0)
+				return true;
+		}
+	}
+	else if (_providerRole == OmmProviderConfig::NonInteractiveEnum)
+	{
+		if (_serviceNameToServiceId.find(pServiceName))
+		{
+			if (pErrorText)
+			{
+				pErrorText->set("Attempt to add a service with name of ");
+				pErrorText->append(*pServiceName).append(" and id of ").append(serviceId).append(" while a service with the same id is already added.");
+			}
+
+			delete pServiceName;
+			return false;
+		}
+	}
+
+	_serviceNameToServiceId.insert(pServiceName, serviceId);
+	_serviceIdToServiceName.insert(serviceId, pServiceName);
+	_serviceNameList.push_back(pServiceName);
+
+	if (pErrorText && OmmLoggerClient::VerboseEnum >= _baseConfig.loggerConfig.minLoggerSeverity)
+	{
+		EmaString temp("Detected Service with name of ");
+		temp.append(*pServiceName).append(" and Id of ").append(serviceId);
+		_ommCommonImpl.getOmmLoggerClient().log(_baseConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+	}
+
+	return true;
 }
 
 bool DirectoryServiceStore::submitSourceDirectory(ClientSession* clientSession, RsslMsg* pMsg, RsslRDMDirectoryMsg& userSubmitSourceDirectory, RsslBuffer& sourceDirectoryBuffer, bool storeUserSubmitted)
@@ -2742,6 +2796,23 @@ const EmaString** DirectoryServiceStore::getServiceNameById(RsslUInt64 serviceId
 	return _serviceIdToServiceName.find(serviceId);
 }
 
+void DirectoryServiceStore::removeServiceNamePair(UInt64 serviceId)
+{
+	EmaStringPtr* pServiceNamePtr = _serviceIdToServiceName.find(serviceId);
+	if (pServiceNamePtr)
+	{
+		UInt64* pServiceId = _serviceNameToServiceId.find(*pServiceNamePtr);
+		if (!pServiceId)
+			return;
+
+		EmaStringPtr pTemp = *pServiceNamePtr;
+		_serviceNameToServiceId.erase(pTemp);
+		_serviceIdToServiceName.erase(serviceId);
+		_serviceNameList.removeValue(pTemp);
+		delete pTemp;
+	}
+}
+
 void DirectoryServiceStore::clearServiceNamePair()
 {
 	_serviceIdToServiceName.clear();
@@ -2815,46 +2886,6 @@ bool OmmIProviderDirectoryStore::checkExistingServiceId(RsslUInt64 serviceId, Em
 	}
 }
 
-bool OmmIProviderDirectoryStore::addServiceIdAndNamePair(RsslUInt64 serviceId, const EmaString* pServiceName, EmaString* pErrorText)
-{
-	if (_ommIProviderActiveConfig.getDirectoryAdminControl() == OmmIProviderConfig::ApiControlEnum)
-	{
-		if (_serviceNameToServiceId.find(pServiceName))
-		{
-			if (pErrorText)
-			{
-				pErrorText->set("Attempt to add a service with name of ");
-				pErrorText->append(*pServiceName).append(" and id of ").append(serviceId).append(" while a service with the same id is already added.");
-			}
-
-			delete pServiceName;
-			return false;
-		}
-
-		_serviceNameToServiceId.insert(pServiceName, serviceId);
-		_serviceIdToServiceName.insert(serviceId, pServiceName);
-		_serviceNameList.push_back(pServiceName);
-	}
-	else
-	{
-		if (_serviceNameToServiceId.find(pServiceName) == 0)
-		{
-			_serviceNameToServiceId.insert(pServiceName, serviceId);
-			_serviceIdToServiceName.insert(serviceId, pServiceName);
-			_serviceNameList.push_back(pServiceName);
-		}
-	}
-
-	if ( pErrorText && OmmLoggerClient::VerboseEnum >= _baseConfig.loggerConfig.minLoggerSeverity)
-	{
-		EmaString temp("Detected Service with name of ");
-		temp.append(*pServiceName).append(" and Id of ").append(serviceId);
-		_ommCommonImpl.getOmmLoggerClient().log(_baseConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
-	}
-
-	return true;
-}
-
 void OmmIProviderDirectoryStore::loadConfigDirectory(EmaConfigBaseImpl *pConfigImpl, bool loadDirectoryConfig )
 {
 	DirectoryCache* pDirectoryCache = 0;
@@ -2879,7 +2910,7 @@ void OmmIProviderDirectoryStore::loadConfigDirectory(EmaConfigBaseImpl *pConfigI
 
 	if (pServiceDictionaryConfigList)
 	{
-		if (_bUsingDefaultService)
+		if (_bUsingDefaultService && pServiceDictionaryConfigList->size() == 0)
 		{
 			ServiceDictionaryConfig* serviceDictionaryConfig = new ServiceDictionaryConfig();
 			serviceDictionaryConfig->serviceId = 1;
@@ -2929,6 +2960,11 @@ bool OmmIProviderDirectoryStore::IsAcceptingRequests(RsslUInt64 serviceId)
 	_ommIProviderImpl.getUserMutex().unlock();
 
 	return acceptingRequests;
+}
+
+OmmIProviderActiveConfig& OmmIProviderDirectoryStore::getOmmIProviderActiveConfig() const
+{
+	return _ommIProviderActiveConfig;
 }
 
 bool OmmIProviderDirectoryStore::IsValidQosRange(RsslUInt64 serviceId, RsslRequestMsg& rsslRequestMsg)
@@ -3070,34 +3106,6 @@ bool OmmNiProviderDirectoryStore::checkExistingServiceId(RsslUInt64 serviceId, E
 		errorText.set("Attempt to add a service with name of ");
 		errorText.append(**pServiceNamePtr).append(" and id of ").append(serviceId).append(" while a service with the same id is already added.");
 		return false;
-	}
-
-	return true;
-}
-
-bool OmmNiProviderDirectoryStore::addServiceIdAndNamePair(RsslUInt64 serviceId, const EmaString* pServiceName, EmaString* pErrorText)
-{
-	if (_serviceNameToServiceId.find(pServiceName))
-	{
-		if (pErrorText)
-		{
-			pErrorText->set("Attempt to add a service with name of ");
-			pErrorText->append(*pServiceName).append(" and id of ").append(serviceId).append(" while a service with the same id is already added.");
-		}
-
-		delete pServiceName;
-		return false;
-	}
-
-	_serviceNameToServiceId.insert(pServiceName, serviceId);
-	_serviceIdToServiceName.insert(serviceId, pServiceName);
-	_serviceNameList.push_back(pServiceName);
-
-	if ( pErrorText && OmmLoggerClient::VerboseEnum >= _baseConfig.loggerConfig.minLoggerSeverity)
-	{
-		EmaString temp("Detected Service with name of ");
-		temp.append(*pServiceName).append(" and Id of ").append(serviceId);
-		_ommCommonImpl.getOmmLoggerClient().log(_baseConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
 	}
 
 	return true;

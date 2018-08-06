@@ -40,5 +40,17 @@ class OmmNiProviderActiveConfig extends ActiveConfig
 		recoverUserSubmitSourceDirectory = DEFAULT_RECOVER_USER_SUBMIT_SOURCEDIRECTORY;
 		removeItemsOnDisconnect = DEFAULT_REMOVE_ITEMS_ON_DISCONNECT;
 	}
+	
+	StringBuilder configTrace()
+	{
+		super.configTrace();
+		traceStr.append("\n\t directoryAdminControl: ").append(directoryAdminControl) 
+		.append("\n\t refreshFirstRequired: ").append(refreshFirstRequired) 
+		.append("\n\t mergeSourceDirectoryStreams: ").append(mergeSourceDirectoryStreams) 
+		.append("\n\t recoverUserSubmitSourceDirectory: ").append(recoverUserSubmitSourceDirectory) 
+		.append("\n\t removeItemsOnDisconnect: ").append(removeItemsOnDisconnect);
+		
+		return traceStr;
+	}
 }
 

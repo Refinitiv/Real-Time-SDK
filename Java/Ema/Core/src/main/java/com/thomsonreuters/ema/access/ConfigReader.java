@@ -460,11 +460,11 @@ class ConfigReader
 					streamState = OmmState.StreamState.OPEN;
 				else if(enumValue.equals("NonStreaming"))
 					streamState = OmmState.StreamState.NON_STREAMING;
-				else if(enumValue.equals("ClosedRecover"))
+				else if(enumValue.equals("ClosedRecover") || enumValue.equals("CloseRecover"))
 					streamState = OmmState.StreamState.CLOSED_RECOVER;
-				else if(enumValue.equals("Closed"))
+				else if(enumValue.equals("Closed") || enumValue.equals("Close"))
 					streamState = OmmState.StreamState.CLOSED;
-				else if(enumValue.equals("ClosedRedirected"))
+				else if(enumValue.equals("ClosedRedirected") || enumValue.equals("CloseRedirected"))
 					streamState = OmmState.StreamState.CLOSED_REDIRECTED;
 				else
 				{
@@ -1527,11 +1527,11 @@ class ConfigReader
 				}
 				else if ( attributeValue.equals(directoryName))
 				{
-					break;
+					return child;
 				}
 			}
 		
-			return child;		
+			return null;		
 		}
 		
 		

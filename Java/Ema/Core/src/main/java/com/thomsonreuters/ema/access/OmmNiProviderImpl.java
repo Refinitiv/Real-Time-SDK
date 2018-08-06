@@ -246,6 +246,41 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		_reusedProviderStreamIds = new ArrayList<IntObject>();
 	}
 	
+	//only for unit test, internal use
+	OmmNiProviderImpl(OmmProviderConfig config, boolean isForTest)
+	{
+		if (!isForTest)
+			return;
+		
+		_activeConfig = new OmmNiProviderActiveConfig();
+		
+		_activeConfig.directoryAdminControl = ((OmmNiProviderConfigImpl)config).adminControlDirectory();
+		
+		if ( _activeConfig.directoryAdminControl == OmmNiProviderConfig.AdminControl.API_CONTROL )
+		{
+			_bIsStreamIdZeroRefreshSubmitted = true;
+		}
+		
+		_ommNiProviderDirectoryStore = new OmmNiProviderDirectoryStore(_objManager, this, _activeConfig);
+		
+		_ommNiProviderDirectoryStore.setClient(this);
+		
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = null;
+		_adminClosure = null;
+		_activeChannelInfo = null;
+		super.initializeForTest(_activeConfig, (OmmNiProviderConfigImpl)config);
+		
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
+		
+		_providerErrorClient = null;
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
+		
+		_nextProviderStreamId = 0;	
+		_reusedProviderStreamIds = new ArrayList<IntObject>();
+	}
+	
 	@Override
 	public void uninitialize()
 	{
@@ -1227,19 +1262,11 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 			{
 				_activeConfig.removeItemsOnDisconnect = element.intLongValue() > 0 ? true : false;
 			}
-			
-			element = (ConfigElement)niProviderAttributes.getElement(ConfigManager.RequestTimeout);
-	            
-            if (element != null)
-            {
-            	 if ( element.intLongValue()  > Integer.MAX_VALUE )
-                     _activeConfig.requestTimeout = Integer.MAX_VALUE;
-                 else
-                     _activeConfig.requestTimeout = element.intLongValue() < 0 ? ActiveConfig.DEFAULT_REQUEST_TIMEOUT : element.intLongValue();
-            }
 		}
 		
-		// TODO: add handling for programmatic configuration
+		ProgrammaticConfigure pc = config.programmaticConfigure();
+		if ( pc != null )
+			pc.retrieveCustomConfig(_activeConfig.configuredName, _activeConfig);
 	}
 
 	@Override

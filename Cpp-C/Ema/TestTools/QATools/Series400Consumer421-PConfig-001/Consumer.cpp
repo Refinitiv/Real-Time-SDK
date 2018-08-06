@@ -5,8 +5,6 @@
 // *|           Copyright Thomson Reuters 2015. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-//APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
-
 #include "Consumer.h"
 
 using namespace thomsonreuters::ema::access;
@@ -76,7 +74,7 @@ void AppClient::decode( const FieldList& fl )
 				cout << fe.getError().getErrorCode() << "( " << fe.getError().getErrorCodeAsString() << " )" << endl;
 				break;
 			case DataType::EnumEnum :
-				cout << fe.getEnum() << endl;
+				fe.hasEnumDisplay() ? cout << fe.getEnumDisplay() << endl : cout << fe.getEnum() << endl;
 				break;
 			case DataType::RmtesEnum:
 				cout << fe.getRmtes().toString() << endl;
@@ -106,21 +104,25 @@ void createProgramaticConfig( Map& configMap )
 		.addUInt( "PostAckTimeout", 5000 )
 		.addUInt( "RequestTimeout", 5000 )
 		.addUInt( "MaxOutstandingPosts", 5000 )
-		.addInt( "DispatchTimeoutApiThread", 1 )
+		.addInt( "DispatchTimeoutApiThread", 100 )
 		.addUInt( "HandleException", 0 )
 		.addUInt( "MaxDispatchCountApiThread", 500 )
 		.addUInt( "MaxDispatchCountUserThread", 500 )
 		.addInt( "ReactorEventFdPort", 45000 )
-		.addAscii( "XmlTraceFileName", "MyXMLTrace" )
-		.addInt( "XmlTraceMaxFileSize", 50000000 )
-		.addUInt( "XmlTraceToFile", 1 )
-		.addUInt( "XmlTraceToStdout", 0 )
-		.addUInt( "XmlTraceToMultipleFiles", 1 )
-		.addUInt( "XmlTraceWrite", 1 )
-		.addUInt( "XmlTraceRead", 1 )
-		.addUInt( "XmlTracePing", 1 )
-		.addUInt( "XmlTraceHex", 1 )
-		.addInt( "PipePort", 4001 ).complete() ).complete();
+		.addInt( "PipePort", 4001 )
+		.addInt("ReconnectAttemptLimit", 10)
+		.addInt("ReconnectMinDelay", 2000)
+		.addInt("ReconnectMaxDelay", 6000)
+		.addAscii("XmlTraceFileName", "MyXMLTrace")
+		.addInt("XmlTraceMaxFileSize", 50000000)
+		.addUInt("XmlTraceToFile", 1)
+		.addUInt("XmlTraceToStdout", 0)
+		.addUInt("XmlTraceToMultipleFiles", 1)
+		.addUInt("XmlTraceWrite", 1)
+		.addUInt("XmlTraceRead", 1)
+		.addUInt("XmlTracePing", 1)
+		.addUInt("XmlTraceHex", 1)
+		.addUInt("MsgKeyInUpdates", 1).complete() ).complete();
 
 	elementList.addMap( "ConsumerList", innerMap );
 
@@ -133,17 +135,16 @@ void createProgramaticConfig( Map& configMap )
 	innerMap.addKeyAscii( "Channel_1", MapEntry::AddEnum,
 		ElementList()
 		.addEnum( "ChannelType", 0 )
+		//APIQA
+		.addAscii( "InterfaceName", "consumerInterface" )
+		.addUInt( "CompressionThreshold", 100 )
+		//END APIQA
 		.addEnum("CompressionType", 1)
-		.addUInt("CompressionThreshold", 100)
 		.addUInt( "GuaranteedOutputBuffers", 5000 )
 		.addUInt( "ConnectionPingTimeout", 50000 )
-		.addInt("ReconnectAttemptLimit", 10)
-		.addInt( "ReconnectMinDelay", 2000 )
-		.addInt( "ReconnectMaxDelay", 6000 )
 		.addAscii( "Host", "localhost" )
 		.addAscii("Port", "14002" )
-		.addUInt( "TcpNodelay", 0 )
-		.addUInt( "MsgKeyInUpdates", 0 ).complete() ).complete();
+		.addUInt( "TcpNodelay", 0 ).complete() ).complete();
 
 	elementList.addMap( "ChannelList", innerMap );
 
@@ -155,9 +156,11 @@ void createProgramaticConfig( Map& configMap )
 
 	innerMap.addKeyAscii( "Logger_1", MapEntry::AddEnum,
 		ElementList()
-		.addEnum( "LoggerType", 0 )
+		//APIQA
+		.addEnum( "LoggerType", logger1Type )
 		.addAscii( "FileName", "logFile" )
-		.addEnum( "LoggerSeverity", 0 ).complete() ).complete();
+		//APIQA
+		.addEnum( "LoggerSeverity", logger1Severity ).complete() ).complete();
 
 	elementList.addMap( "LoggerList", innerMap );
 
@@ -169,7 +172,8 @@ void createProgramaticConfig( Map& configMap )
 
 	innerMap.addKeyAscii( "Dictionary_1", MapEntry::AddEnum,
 		ElementList()
-		.addEnum( "DictionaryType", 2 )
+		//APIQA
+		.addEnum( "DictionaryType", 0 )
 		.addAscii( "RdmFieldDictionaryFileName", "./RDMFieldDictionary" )
 		.addAscii( "EnumTypeDefFileName", "./enumtype.def" ).complete() ).complete();
 
@@ -197,6 +201,3 @@ int main( int argc, char* argv[] )
 	}
 	return 0;
 }
-
-//END APIQA
-

@@ -40,10 +40,6 @@ public:
 
 	OmmNiProviderConfig::AdminControl getAdminControlDirectory() const;
 
-	bool getDictionaryName( const EmaString& , EmaString& ) const;
-
-	bool getDirectoryName( const EmaString& , EmaString& ) const;
-
 private:
 
 	OmmNiProviderConfig::OperationModel		_operationModel;

@@ -38,6 +38,8 @@ void OmmNiProviderConfigImpl::clear()
 
 void OmmNiProviderConfigImpl::providerName( const EmaString& providerName )
 {
+	_configSessionName.append(providerName);
+
 	if ( _pProgrammaticConfigure && _pProgrammaticConfigure->specifyNiProviderName( providerName ) )
 		return;
 
@@ -67,7 +69,7 @@ void OmmNiProviderConfigImpl::providerName( const EmaString& providerName )
 	}
 	else
 	{
-		if ( providerName == "EmaNiProvider" )
+		if ( providerName == DEFAULT_NIPROV_NAME )
 		{
 			XMLnode* niProviderList( _pEmaConfig->find< XMLnode >( "NiProviderGroup|NiProviderList" ) );
 			if ( niProviderList )
@@ -81,6 +83,7 @@ void OmmNiProviderConfigImpl::providerName( const EmaString& providerName )
 				return;
 		}
 
+		_configSessionName.clear();
 		EmaString errorMsg( "OmmNiProviderConfigImpl::providerName parameter [" );
 		errorMsg.append( providerName ).append( "] is a non-existent provider name" );
 		throwIceException( errorMsg );
@@ -89,7 +92,13 @@ void OmmNiProviderConfigImpl::providerName( const EmaString& providerName )
 
 EmaString OmmNiProviderConfigImpl::getConfiguredName()
 {
+	if (!_configSessionName.empty())
+		return _configSessionName;
+
 	EmaString retVal;
+	
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->getDefaultNiProvider(retVal))
+		return retVal;
 
 	if ( _pEmaConfig->get< EmaString >( "NiProviderGroup|DefaultNiProvider", retVal ) )
 	{
@@ -109,26 +118,7 @@ EmaString OmmNiProviderConfigImpl::getConfiguredName()
 	if ( _pEmaConfig->get< EmaString >( "NiProviderGroup|NiProviderList|NiProvider|Name", retVal ) )
 		return retVal;
 
-	return "EmaNiProvider";
-}
-
-bool OmmNiProviderConfigImpl::getDictionaryName( const EmaString& , EmaString& ) const
-{
-	return false;
-}
-
-bool OmmNiProviderConfigImpl::getDirectoryName( const EmaString& instanceName, EmaString& retVal ) const
-{
-	if ( !_pProgrammaticConfigure || !_pProgrammaticConfigure->getActiveDirectoryName( instanceName, retVal ) )
-	{
-		EmaString nodeName( _instanceNodeName );
-		nodeName.append( instanceName );
-		nodeName.append( "|Directory" );
-
-		get<EmaString>( nodeName, retVal );
-	}
-
-	return true;
+	return DEFAULT_NIPROV_NAME;
 }
 
 void OmmNiProviderConfigImpl::operationModel( OmmNiProviderConfig::OperationModel operationModel )

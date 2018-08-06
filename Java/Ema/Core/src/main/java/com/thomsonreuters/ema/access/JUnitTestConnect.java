@@ -8,6 +8,7 @@
 package com.thomsonreuters.ema.access;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import com.thomsonreuters.ema.access.Data;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
@@ -24,54 +25,59 @@ public class JUnitTestConnect
 	public static final int ConfigGroupTypeConsumer = 1;
 	public static final int ConfigGroupTypeDictionary = 2;
 	public static final int ConfigGroupTypeChannel = 3;
+	public static final int ConfigGroupTypeProvider = 4;
+	public static final int ConfigGroupTypeDirectory = 5;
+	public static final int ConfigGroupTypeServer = 6;
+
+	// Common Parameters:
+	public static final int ChannelSet  = ConfigManager.ChannelSet; 
+	public static final int XmlTraceToStdout  = ConfigManager.XmlTraceToStdout; 
+	public static final int ItemCountHint  = ConfigManager.ItemCountHint ; 
+	public static final int DispatchTimeoutApiThread  = ConfigManager.DispatchTimeoutApiThread; 
+	public static final int MaxDispatchCountApiThread  = ConfigManager.MaxDispatchCountApiThread; 
+	public static final int MaxDispatchCountUserThread  = ConfigManager.MaxDispatchCountUserThread; 
+	public static final int RequestTimeout  = ConfigManager.RequestTimeout; 
+	public static final int ServiceCountHint  = ConfigManager.ServiceCountHint; 
+	public static final int ReconnectAttemptLimit  = ConfigManager.ReconnectAttemptLimit; 
+	public static final int ReconnectMaxDelay  = ConfigManager.ReconnectMaxDelay; 
+	public static final int ReconnectMinDelay  = ConfigManager.ReconnectMinDelay; 
+	public static final int LoginRequestTimeOut  = ConfigManager.LoginRequestTimeOut; 
+
+	public static final int ConnectionPingTimeout  = ConfigManager.ConnectionPingTimeout; 
+	public static final int GuaranteedOutputBuffers  = ConfigManager.GuaranteedOutputBuffers; 
+	public static final int InterfaceName  = ConfigManager.InterfaceName; 
+	public static final int NumInputBuffers  = ConfigManager.NumInputBuffers; 
+	public static final int SysRecvBufSize  = ConfigManager.SysRecvBufSize; 
+	public static final int SysSendBufSize  = ConfigManager.SysSendBufSize; 
+	public static final int HighWaterMark  = ConfigManager.HighWaterMark; 
+	public static final int CompressionThreshold  = ConfigManager.ChannelCompressionThreshold; 
+	public static final int CompressionType  = ConfigManager.ChannelCompressionType; 
+	public static final int Host  = ConfigManager.ChannelHost; 
+	public static final int ObjectName  = ConfigManager.ChannelObjectName; 
+	public static final int ProxyHost  = ConfigManager.ChannelProxyHost;
+	public static final int ProxyPort  = ConfigManager.ChannelProxyPort;
+	public static final int Port  = ConfigManager.ChannelPort; 
+	public static final int TcpNodelay  = ConfigManager.ChannelTcpNodelay;
+	public static final int DirectWrite  = ConfigManager.ChannelDirectSocketWrite; 
 	
 	// Consumer Parameters:
-	public static final int ConsumerChannelSet  = ConfigManager.ChannelSet; 
+	public static final int ConsumerDefaultConsumerName  = ConfigManager.DefaultConsumer; 	
 	public static final int ConsumerDictionaryRequestTimeOut  = ConfigManager.DictionaryRequestTimeOut; 
-	public static final int ConsumerDispatchTimeoutApiThread  = ConfigManager.DispatchTimeoutApiThread; 
-	public static final int ConsumerItemCountHint  = ConfigManager.ItemCountHint ; 
-	public static final int ConsumerMaxDispatchCountApiThread  = ConfigManager.MaxDispatchCountApiThread; 
-	public static final int ConsumerMaxDispatchCountUserThread  = ConfigManager.MaxDispatchCountUserThread; 
 	public static final int ConsumerMaxOutstandingPosts  = ConfigManager.MaxOutstandingPosts ; 
 	public static final int ConsumerObeyOpenWindow  = ConfigManager.ObeyOpenWindow; 
 	public static final int ConsumerPostAckTimeout  = ConfigManager.PostAckTimeout ; 
-	public static final int ConsumerRequestTimeout  = ConfigManager.RequestTimeout; 
-	public static final int ConsumerServiceCountHint  = ConfigManager.ServiceCountHint; 
 	public static final int ConsumerMsgKeyInUpdates  = ConfigManager.MsgKeyInUpdates; 
-	public static final int ConsumerReconnectAttemptLimit  = ConfigManager.ReconnectAttemptLimit; 
-	public static final int ConsumerReconnectMaxDelay  = ConfigManager.ReconnectMaxDelay; 
-	public static final int ConsumerReconnectMinDelay  = ConfigManager.ReconnectMinDelay; 
-	public static final int ConsumerXmlTraceFileName  = ConfigManager.XmlTraceFileName; 
-	public static final int ConsumerXmlTraceHex  = ConfigManager.XmlTraceHex; 
-	public static final int ConsumerXmlTraceMaxFileSize  = ConfigManager.XmlTraceMaxFileSize; 
-	public static final int ConsumerXmlTracePing  = ConfigManager.XmlTracePing; 
-	public static final int ConsumerXmlTraceRead  = ConfigManager.XmlTraceRead; 
-	public static final int ConsumerXmlTraceToFile  = ConfigManager.XmlTraceToFile; 
-	public static final int ConsumerXmlTraceToMultipleFiles  = ConfigManager.XmlTraceToMultipleFiles; 
-	public static final int ConsumerXmlTraceToStdout  = ConfigManager.XmlTraceToStdout; 
-	public static final int ConsumerXmlTraceWrite  = ConfigManager.XmlTraceWrite; 	
 	
 	// Dictionary Parameters:
+	public static final int DictionaryName  = ConfigManager.DictionaryName;
 	public static final int DictionaryType  = ConfigManager.DictionaryType;
 	public static final int DictionaryEnumTypeDefFileName  = ConfigManager.DictionaryEnumTypeDefFileName;
 	public static final int DictionaryRDMFieldDictFileName  = ConfigManager.DictionaryRDMFieldDictFileName; 
 
 
 	// Channel Parameters:
-	public static final int ChannelConnectionPingTimeout  = ConfigManager.ConnectionPingTimeout; 
-	public static final int ChannelGuaranteedOutputBuffers  = ConfigManager.GuaranteedOutputBuffers; 
-	public static final int ChannelInterfaceName  = ConfigManager.InterfaceName; 
-	public static final int ChannelNumInputBuffers  = ConfigManager.NumInputBuffers; 
-	public static final int ChannelSysRecvBufSize  = ConfigManager.SysRecvBufSize; 
-	public static final int ChannelSysSendBufSize  = ConfigManager.SysSendBufSize; 
-	public static final int ChannelHighWaterMark  = ConfigManager.HighWaterMark; 
-	public static final int ChannelCompressionThreshold  = ConfigManager.ChannelCompressionThreshold; 
-	public static final int ChannelCompressionType  = ConfigManager.ChannelCompressionType; 
-	public static final int ChannelHost  = ConfigManager.ChannelHost; 
-	public static final int ChannelObjectName  = ConfigManager.ChannelObjectName; 
-	public static final int ChannelPort  = ConfigManager.ChannelPort; 
-	public static final int ChannelTcpNodelay  = ConfigManager.ChannelTcpNodelay;
-	public static final int ChannelDirectWrite  = ConfigManager.ChannelDirectSocketWrite; 
+	public static final int ChannelName  = ConfigManager.ChannelName;
+	public static final int ChannelType  = ConfigManager.ChannelType;
 	
 	// Channel: Multicast
 	public static final int ChannelDisconnectOnGap  = ConfigManager.ChannelDisconnectOnGap; 
@@ -97,6 +103,85 @@ public class JUnitTestConnect
 	public static final int Channeltwait  = ConfigManager.Channeltwait; 
 	public static final int ChannelUnicastPort  = ConfigManager.ChannelUnicastPort; 
 	public static final int ChanneluserQLimit  = ConfigManager.ChanneluserQLimit; 
+	
+	// Provider Parameters:
+	public static final int DictionaryRdmFieldDictionaryItemName = ConfigManager.DictionaryRdmFieldDictionaryItemName;
+	public static final int DictionaryEnumTypeDefItemName = ConfigManager.DictionaryEnumTypeDefItemName;
+	public static final int DictionaryFieldDictFragmentSize = ConfigManager.DictionaryFieldDictFragmentSize;
+	public static final int DictionaryEnumTypeFragmentSize = ConfigManager.DictionaryEnumTypeFragmentSize;
+	
+	// NIProvider
+	public static final int NiProviderGroup = ConfigManager.NiProviderGroup;
+	public static final int DefaultNiProvider = ConfigManager.DefaultNiProvider;
+	public static final int NiProviderList = ConfigManager.NiProviderList;
+	public static final int NiProvider = ConfigManager.NiProvider;
+	
+	public static final int NiProviderName = ConfigManager.NiProviderName;
+	public static final int NiProviderChannelName = ConfigManager.NiProviderChannelName;
+	public static final int NiProviderDirectoryName = ConfigManager.NiProviderDirectoryName;
+	public static final int NiProviderRefreshFirstRequired = ConfigManager.NiProviderRefreshFirstRequired;
+	public static final int NiProviderMergeSourceDirectoryStreams = ConfigManager.NiProviderMergeSourceDirectoryStreams;
+	public static final int NiProviderRecoverUserSubmitSourceDirectory = ConfigManager.NiProviderRecoverUserSubmitSourceDirectory;
+	public static final int NiProviderRemoveItemsOnDisconnect = ConfigManager.NiProviderRemoveItemsOnDisconnect;
+	
+	// Directory
+	public static final int Directory = ConfigManager.Directory;
+	public static final int DirectoryName = ConfigManager.DirectoryName;
+	
+	// Service
+	public static final int Service = ConfigManager.Service;
+	public static final int ServiceName = ConfigManager.ServiceName;
+	public static final int ServiceInfoFilter = ConfigManager.ServiceInfoFilter;
+	public static final int ServiceInfoFilterServiceId = ConfigManager.ServiceInfoFilterServiceId;
+	public static final int ServiceInfoFilterVendor = ConfigManager.ServiceInfoFilterVendor;
+	public static final int ServiceInfoFilterIsSource = ConfigManager.ServiceInfoFilterIsSource;
+	public static final int ServiceInfoFilterCapabilities = ConfigManager.ServiceInfoFilterCapabilities;
+	public static final int ServiceInfoFilterCapabilitiesCapabilitiesEntry = ConfigManager.ServiceInfoFilterCapabilitiesCapabilitiesEntry;
+	public static final int ServiceInfoFilterDictionariesProvided = ConfigManager.ServiceInfoFilterDictionariesProvided;
+	public static final int ServiceInfoFilterDictionariesProvidedDictionariesProvidedEntry = ConfigManager.ServiceInfoFilterDictionariesProvidedDictionariesProvidedEntry;
+	public static final int ServiceInfoFilterDictionariesUsed = ConfigManager.ServiceInfoFilterDictionariesUsed;
+	public static final int ServiceInfoFilterDictionariesUsedDictionariesUsedEntry = ConfigManager.ServiceInfoFilterDictionariesUsedDictionariesUsedEntry;
+	public static final int ServiceInfoFilterQoS = ConfigManager.ServiceInfoFilterQoS;
+	public static final int ServiceInfoFilterQoSEntry = ConfigManager.ServiceInfoFilterQoSEntry;
+	public static final int ServiceInfoFilterQoSEntryTimeliness = ConfigManager.ServiceInfoFilterQoSEntryTimeliness;
+	public static final int ServiceInfoFilterQoSEntryRate = ConfigManager.ServiceInfoFilterQoSEntryRate;
+	public static final int ServiceInfoFilterSupportsQoSRange = ConfigManager.ServiceInfoFilterSupportsQoSRange;
+	public static final int ServiceInfoFilterItemList = ConfigManager.ServiceInfoFilterItemList;
+	public static final int ServiceInfoFilterAcceptingConsumerStatus = ConfigManager.ServiceInfoFilterAcceptingConsumerStatus;
+	public static final int ServiceInfoFilterSupportsOutOfBandSnapshots = ConfigManager.ServiceInfoFilterSupportsOutOfBandSnapshots;
+	public static final int ServiceStateFilter = ConfigManager.ServiceStateFilter;
+	public static final int ServiceStateFilterServiceState = ConfigManager.ServiceStateFilterServiceState;
+	public static final int ServiceStateFilterAcceptingRequests = ConfigManager.ServiceStateFilterAcceptingRequests;
+	public static final int ServiceStateFilterStatus = ConfigManager.ServiceStateFilterStatus;
+	public static final int ServiceStateFilterStatusStreamState = ConfigManager.ServiceStateFilterStatusStreamState;
+	public static final int ServiceStateFilterStatusDataState = ConfigManager.ServiceStateFilterStatusDataState;
+	public static final int ServiceStateFilterStatusStatusCode = ConfigManager.ServiceStateFilterStatusStatusCode;
+	public static final int ServiceStateFilterStatusStatusText = ConfigManager.ServiceStateFilterStatusStatusText;
+	
+	// IProvider
+	public static final int IProviderName = ConfigManager.IProviderName;
+	public static final int IProviderServerName = ConfigManager.IProviderServerName;
+	public static final int IProviderDirectoryName = ConfigManager.IProviderDirectoryName;
+	public static final int IProviderRefreshFirstRequired = ConfigManager.IProviderRefreshFirstRequired;
+	public static final int IProviderAcceptMessageWithoutAcceptingRequests = ConfigManager.IProviderAcceptMessageWithoutAcceptingRequests;
+	public static final int IProviderAcceptDirMessageWithoutMinFilters = ConfigManager.IProviderAcceptDirMessageWithoutMinFilters;
+	public static final int IProviderAcceptMessageWithoutBeingLogin = ConfigManager.IProviderAcceptMessageWithoutBeingLogin;
+	public static final int IProviderAcceptMessageSameKeyButDiffStream = ConfigManager.IProviderAcceptMessageSameKeyButDiffStream;
+	public static final int IProviderAcceptMessageThatChangesService = ConfigManager.IProviderAcceptMessageThatChangesService;
+	public static final int IProviderAcceptMessageWithoutQosInRange = ConfigManager.IProviderAcceptMessageWithoutQosInRange;
+	
+	// Server: Global
+	public static final int Server = ConfigManager.Server;
+	public static final int ServerName = ConfigManager.ServerName;
+	public static final int ServerType = ConfigManager.ServerType;
+	
+	// Server: Socket
+	public static final int ServerCompressionThreshold = ConfigManager.ServerCompressionThreshold;
+	public static final int ServerCompressionType = ConfigManager.ServerCompressionType;
+	public static final int ServerPort = ConfigManager.ServerPort;
+	public static final int ServerTcpNodelay = ConfigManager.ServerTcpNodelay;
+	public static final int ServerDirectSocketWrite = ConfigManager.ServerDirectSocketWrite;
+	public static final int ConnectionMinPingTimeout = ConfigManager.ConnectionMinPingTimeout;
 	
 	public static String _lastErrorText = "";
 	public static EmaObjectManager _objManager = new EmaObjectManager();
@@ -294,7 +379,7 @@ public class JUnitTestConnect
 			_lastErrorText += "' for ";
 			return 6;	
 		}	
-		Boolean boolValue = JUnitTestConnect.configGetBooleanValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelTcpNodelay);
+		Boolean boolValue = JUnitTestConnect.configGetBooleanValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.TcpNodelay);
 		if(boolValue != encCfg.tcpNodelay)
 		{
 			_lastErrorText = "TcpNodelay mismatch in '";
@@ -309,7 +394,7 @@ public class JUnitTestConnect
 			return 7;
 		}	
 		
-		strValue = configGetStringValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelObjectName);
+		strValue = configGetStringValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName);
 		if(strValue.equals(encCfg.objectName) == false)
 		{
 			_lastErrorText = "ObjectName mismatch in '";
@@ -361,7 +446,7 @@ public class JUnitTestConnect
 			_lastErrorText += "' for ";
 			return 6;	
 		}	
-		Boolean boolValue = JUnitTestConnect.configGetBooleanValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelTcpNodelay);
+		Boolean boolValue = JUnitTestConnect.configGetBooleanValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.TcpNodelay);
 		if(boolValue != socCfg.tcpNodelay)
 		{
 			_lastErrorText = "TcpNodelay mismatch in '";
@@ -382,7 +467,7 @@ public class JUnitTestConnect
 	public static int configVerifyChannelCommonAttribs(ChannelConfig chanCfg, String position,  OmmConsumerConfig consConfig, String channelName, ChannelConfig lastChanCfg)
 	{
 		int result = 0;
-		int intValue = JUnitTestConnect.configGetIntValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionType);
+		int intValue = JUnitTestConnect.configGetIntValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionType);
 		if(intValue != chanCfg.compressionType)
 		{
 			_lastErrorText = "CompressionType mismatch in '";
@@ -397,7 +482,7 @@ public class JUnitTestConnect
 			return 9;
 		}
 		
-		int intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelGuaranteedOutputBuffers);
+		int intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers);
 		if(intLongValue != chanCfg.guaranteedOutputBuffers)
 		{
 			_lastErrorText = "GuaranteedOutputBuffers mismatch in '";
@@ -412,7 +497,7 @@ public class JUnitTestConnect
 			return 10;
 		}
 		
-		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelNumInputBuffers);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers);
 		if(intLongValue != chanCfg.numInputBuffers)
 		{
 			_lastErrorText = "NumInputBuffers mismatch in '";
@@ -427,7 +512,7 @@ public class JUnitTestConnect
 			return 11;
 		}
 
-		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysRecvBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize);
 		if(intLongValue != chanCfg.sysRecvBufSize)
 		{
 			_lastErrorText = "SysRecvBufSize mismatch in '";
@@ -442,7 +527,7 @@ public class JUnitTestConnect
 			return 12;
 		}
 
-		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelSysSendBufSize);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize);
 		if(intLongValue != chanCfg.sysSendBufSize)
 		{
 			_lastErrorText = "SysSendBufSize mismatch in '";
@@ -457,7 +542,7 @@ public class JUnitTestConnect
 			return 13;
 		}
 		
-		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelCompressionThreshold);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionThreshold);
 		if(intLongValue != chanCfg.compressionThreshold)
 		{
 			_lastErrorText = "CompressionThreshold mismatch in '";
@@ -472,7 +557,7 @@ public class JUnitTestConnect
 			return 14;
 		}
 
-		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelConnectionPingTimeout);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(consConfig, channelName, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ConnectionPingTimeout);
 		if(intLongValue != chanCfg.connectionPingTimeout)
 		{
 			_lastErrorText = "ConnectionPingTimeout mismatch in '";
@@ -623,7 +708,7 @@ public class JUnitTestConnect
 		OmmConsumerConfigImpl configImpl = ( (OmmConsumerConfigImpl ) consConfig);
 		ConfigAttributes attributes = configImpl.xmlConfig().getChannelAttributes(channelName);
 		ConfigElement ce = null;
-		String host =  configImpl.getUserSpecifiedHostname();;
+		String host =  configImpl.getUserSpecifiedHostname();
 		if (host == null)
 		{
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelHost)) != null)
@@ -639,7 +724,7 @@ public class JUnitTestConnect
 		OmmConsumerConfigImpl configImpl = ( (OmmConsumerConfigImpl ) consConfig);
 		ConfigAttributes attributes = configImpl.xmlConfig().getChannelAttributes(channelName);
 		ConfigElement ce = null;
-		String port =  configImpl.getUserSpecifiedPort();;
+		String port =  configImpl.getUserSpecifiedPort();
 		if (port == null)
 		{
 			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelPort)) != null)
@@ -736,4 +821,672 @@ public class JUnitTestConnect
 		}
 		return configParamValue;
 	}	
+	
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig consConfig)
+	{
+		return new OmmConsumerImpl(consConfig, true);
+	}
+	
+	public static OmmProvider createOmmIProvider(OmmIProviderConfig provConfig)
+	{
+		return new OmmIProviderImpl(provConfig);
+	}
+	
+	public static OmmProvider createOmmNiProvider(OmmNiProviderConfig provConfig)
+	{
+		return new OmmNiProviderImpl(provConfig, true);
+	}
+	
+	public static boolean activeConfigGetBooleanValue(OmmConsumer consumer, int type, int configParam, int channelIndex)
+	{
+		ChannelConfig chanConfig = null;
+		OmmConsumerImpl consImpl = (OmmConsumerImpl) consumer;
+		
+		if (consImpl == null || consImpl.activeConfig() == null)
+		{
+			_lastErrorText = "Not initialize OmmConsumerImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		
+		ActiveConfig activeConfig = consImpl.activeConfig();
+		
+		if (type == ConfigGroupTypeConsumer)
+		{
+			if (configParam == XmlTraceToStdout)
+				return activeConfig.xmlTraceEnable;
+			else if (configParam == ConsumerMsgKeyInUpdates)
+				return activeConfig.msgKeyInUpdates;
+		}
+		else if (type == ConfigGroupTypeChannel)
+		{
+			if (channelIndex >= 0)
+			{
+				if (channelIndex >= activeConfig.channelConfigSet.size())
+				{
+					_lastErrorText = "ChannelIndex is out of range ";
+					throw new IllegalArgumentException(_lastErrorText);   
+				}
+				
+				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
+				if (chanConfig == null)
+				{
+					_lastErrorText = "Unable to find the active channel config object ";
+					throw new NullPointerException(_lastErrorText);  
+				}
+			}
+			
+			if (configParam == TcpNodelay)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					return ((SocketChannelConfig)chanConfig).tcpNodelay;
+				else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).tcpNodelay;
+			}
+			else if (configParam == DirectWrite)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					return ((SocketChannelConfig)chanConfig).directWrite;
+			}
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}	
+	
+	public static int activeConfigGetIntLongValue(OmmConsumer consumer, int type, int configParam, int channelIndex)
+	{
+		ChannelConfig chanConfig = null;
+		OmmConsumerImpl consImpl = (OmmConsumerImpl) consumer;
+		
+		if (consImpl == null || consImpl.activeConfig() == null)
+		{
+			_lastErrorText = "Not initialize OmmConsumerImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);   
+		}
+		
+		ActiveConfig activeConfig = consImpl.activeConfig();
+		
+		if (type == ConfigGroupTypeConsumer)
+		{
+			if (configParam == ItemCountHint)
+				return activeConfig.itemCountHint;
+			else if (configParam == ServiceCountHint)
+				return activeConfig.serviceCountHint;
+			else if (configParam == ConsumerObeyOpenWindow)
+				return activeConfig.obeyOpenWindow;
+			else if (configParam == ConsumerPostAckTimeout)
+				return activeConfig.postAckTimeout;
+			else if (configParam == RequestTimeout)
+				return activeConfig.requestTimeout;
+			else if (configParam == ConsumerMaxOutstandingPosts)
+				return activeConfig.maxOutstandingPosts;
+			else if (configParam == DispatchTimeoutApiThread)
+				return activeConfig.dispatchTimeoutApiThread;
+			else if (configParam == MaxDispatchCountUserThread)
+				return activeConfig.maxDispatchCountUserThread;
+			else if (configParam == MaxDispatchCountApiThread)
+				return activeConfig.maxDispatchCountApiThread;
+			else if (configParam == ReconnectAttemptLimit)
+				return activeConfig.reconnectAttemptLimit;
+			else if (configParam == ReconnectMinDelay)
+				return activeConfig.reconnectMinDelay;
+			else if (configParam == ReconnectMaxDelay)
+				return activeConfig.reconnectMaxDelay;
+		
+			
+		}
+		else if (type == ConfigGroupTypeChannel)
+		{
+			if (channelIndex >= 0)
+			{
+				if (channelIndex >= activeConfig.channelConfigSet.size())
+				{
+					_lastErrorText = "ChannelIndex is out of range ";
+					throw new IllegalArgumentException(_lastErrorText);  
+				}
+				
+				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
+				if (chanConfig == null)
+				{
+					_lastErrorText = "Unable to find the active channel config object ";
+					throw new NullPointerException(_lastErrorText);  
+				}
+			}
+			
+			if (configParam == ChannelType)
+				return chanConfig.rsslConnectionType;
+			else if (configParam == CompressionType)
+				return chanConfig.compressionType;
+			else if (configParam == GuaranteedOutputBuffers)
+				return chanConfig.guaranteedOutputBuffers;
+			else if (configParam == NumInputBuffers)
+				return chanConfig.numInputBuffers;
+			else if (configParam == SysRecvBufSize)
+				return chanConfig.sysRecvBufSize;
+			else if (configParam == SysSendBufSize)
+				return chanConfig.sysSendBufSize;
+			else if (configParam == HighWaterMark)
+				return chanConfig.highWaterMark;
+			else if (configParam == CompressionThreshold)
+				return chanConfig.compressionThreshold;
+			else if (configParam == ConnectionPingTimeout)
+				return chanConfig.connectionPingTimeout;
+		}
+		else if (type == ConfigGroupTypeDictionary)
+		{
+			DictionaryConfig dictConfig = activeConfig.dictionaryConfig;
+			if (dictConfig == null)
+			{
+				_lastErrorText = "Unable to find the active dictionary config object ";
+				throw new NullPointerException(_lastErrorText);  
+			}
+			if (configParam == DictionaryType)
+				return dictConfig.isLocalDictionary ? 1 : 0;
+			
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}
+	
+	public static String activeConfigGetStringValue(OmmConsumer consumer, int type, int configParam, int channelIndex)
+	{
+		ChannelConfig chanConfig = null;
+		OmmConsumerImpl consImpl = (OmmConsumerImpl) consumer;
+		
+		if (consImpl == null || consImpl.activeConfig() == null)
+		{
+			_lastErrorText = "Not initialize OmmConsumerImpl object or Active config object yet ";
+			return null;
+		}
+		
+		ActiveConfig activeConfig = consImpl.activeConfig();
+		
+		if (type == ConfigGroupTypeConsumer)
+		{
+			if (configParam == ConsumerDefaultConsumerName)
+				return activeConfig.configuredName;
+		}
+		else if (type == ConfigGroupTypeChannel)
+		{
+			if (channelIndex >= 0)
+			{
+				if (channelIndex >= activeConfig.channelConfigSet.size())
+				{
+					_lastErrorText = "ChannelIndex is out of range ";
+					throw new IllegalArgumentException(_lastErrorText);  
+				}
+				
+				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
+				if (chanConfig == null)
+				{
+					_lastErrorText = "Unable to find the active channel config object ";
+					throw new NullPointerException(_lastErrorText);  
+				}
+			}
+			
+			if (configParam == InterfaceName)
+				return chanConfig.interfaceName;
+			else if (configParam == ChannelName)
+				return chanConfig.name;
+			else if (configParam == Port)
+			{
+					if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+						return ((SocketChannelConfig)chanConfig).serviceName;
+					else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+						return ((HttpChannelConfig)chanConfig).serviceName;
+			}
+			else if (configParam == Host)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					return ((SocketChannelConfig)chanConfig).hostName;
+				else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).hostName;
+			}
+			else if (configParam == ObjectName)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).objectName;
+			}
+			else if (configParam == ProxyHost)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).httpProxyHostName;
+			}
+			else if (configParam == ProxyPort)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).httpProxyPort;
+			}
+		}
+		else if (type == ConfigGroupTypeDictionary)
+		{
+			DictionaryConfig dictConfig = activeConfig.dictionaryConfig;
+			if (dictConfig == null)
+			{
+				_lastErrorText = "Unable to find the active dictionary config object ";
+				throw new NullPointerException(_lastErrorText);  
+			}
+			if (configParam == DictionaryName)
+				return dictConfig.dictionaryName;
+			else if (configParam == DictionaryEnumTypeDefFileName)
+				return dictConfig.enumtypeDefFileName;
+			else if (configParam == DictionaryRDMFieldDictFileName)
+				return dictConfig.rdmfieldDictionaryFileName;
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}	
+	
+	public static boolean activeConfigGetBooleanValue(OmmProvider provider, int type, int configParam, int channelIndex)
+	{
+		ChannelConfig chanConfig = null;
+		OmmNiProviderImpl niprovImpl = (OmmNiProviderImpl) provider;
+		
+		if (niprovImpl == null || niprovImpl.activeConfig() == null)
+		{
+			_lastErrorText = "Not initialize OmmNiProviderImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		ActiveConfig activeConfig = niprovImpl.activeConfig();
+		
+		if (type == ConfigGroupTypeProvider)
+		{
+			if (configParam == XmlTraceToStdout)
+				return activeConfig.xmlTraceEnable;
+			else if (configParam == NiProviderMergeSourceDirectoryStreams)
+				return ((OmmNiProviderActiveConfig)activeConfig).mergeSourceDirectoryStreams;
+			else if (configParam == NiProviderRefreshFirstRequired)
+				return ((OmmNiProviderActiveConfig)activeConfig).refreshFirstRequired;
+			else if (configParam == NiProviderRecoverUserSubmitSourceDirectory)
+				return ((OmmNiProviderActiveConfig)activeConfig).recoverUserSubmitSourceDirectory;
+			else if (configParam == NiProviderRemoveItemsOnDisconnect)
+				return ((OmmNiProviderActiveConfig)activeConfig).removeItemsOnDisconnect;
+		}
+		else if (type == ConfigGroupTypeChannel)
+		{
+			if (channelIndex >= 0)
+			{
+				if (channelIndex >= activeConfig.channelConfigSet.size())
+				{
+					_lastErrorText = "ChannelIndex is out of range ";
+					throw new IllegalArgumentException(_lastErrorText);    
+				}
+				
+				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
+				if (chanConfig == null)
+				{
+					_lastErrorText = "Unable to find the active channel config object ";
+					throw new NullPointerException(_lastErrorText);  
+				}
+			}
+			
+			if (configParam == TcpNodelay)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					return ((SocketChannelConfig)chanConfig).tcpNodelay;
+				else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).tcpNodelay;
+			}
+			else if (configParam == DirectWrite)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					return ((SocketChannelConfig)chanConfig).directWrite;
+			}
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}	
+	
+	public static int activeConfigGetIntLongValue(OmmProvider provider, int type, int configParam, int channelIndex)
+	{
+		ChannelConfig chanConfig = null;
+		OmmNiProviderImpl niprovImpl = (OmmNiProviderImpl) provider;
+		if (niprovImpl == null || niprovImpl.activeConfig() == null)
+		{
+			_lastErrorText = "Not initialize OmmNiProviderImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		ActiveConfig activeConfig = niprovImpl.activeConfig();
+		
+		if (type == ConfigGroupTypeProvider)
+		{
+			if (configParam == ItemCountHint)
+				return activeConfig.itemCountHint;
+			if (configParam == ServiceCountHint)
+				return activeConfig.serviceCountHint;
+			else if (configParam == RequestTimeout)
+				return activeConfig.requestTimeout;
+			else if (configParam == DispatchTimeoutApiThread)
+				return activeConfig.dispatchTimeoutApiThread;
+			else if (configParam == MaxDispatchCountUserThread)
+				return activeConfig.maxDispatchCountUserThread;
+			else if (configParam == MaxDispatchCountApiThread)
+				return activeConfig.maxDispatchCountApiThread;
+			else if (configParam == ReconnectAttemptLimit)
+				return activeConfig.reconnectAttemptLimit;
+			else if (configParam == ReconnectMinDelay)
+				return activeConfig.reconnectMinDelay;
+			else if (configParam == ReconnectMaxDelay)
+				return activeConfig.reconnectMaxDelay;
+			else if (configParam == LoginRequestTimeOut)
+				return activeConfig.loginRequestTimeOut;
+		}
+		else if (type == ConfigGroupTypeChannel)
+		{
+			if (channelIndex >= 0)
+			{
+				if (channelIndex >= activeConfig.channelConfigSet.size())
+				{
+					_lastErrorText = "ChannelIndex is out of range ";
+					throw new IllegalArgumentException(_lastErrorText);  
+				}
+				
+				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
+				if (chanConfig == null)
+				{
+					_lastErrorText = "Unable to find the active channel config object ";
+					throw new NullPointerException(_lastErrorText);  
+				}
+			}
+			
+			if (configParam == ChannelType)
+				return chanConfig.rsslConnectionType;
+			else if (configParam == CompressionType)
+				return chanConfig.compressionType;
+			else if (configParam == GuaranteedOutputBuffers)
+				return chanConfig.guaranteedOutputBuffers;
+			else if (configParam == NumInputBuffers)
+				return chanConfig.numInputBuffers;
+			else if (configParam == SysRecvBufSize)
+				return chanConfig.sysRecvBufSize;
+			else if (configParam == SysSendBufSize)
+				return chanConfig.sysSendBufSize;
+			else if (configParam == HighWaterMark)
+				return chanConfig.highWaterMark;
+			else if (configParam == CompressionThreshold)
+				return chanConfig.compressionThreshold;
+			else if (configParam == ConnectionPingTimeout)
+				return chanConfig.connectionPingTimeout;
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}
+	
+	public static String activeConfigGetStringValue(OmmProvider provider, int type, int configParam, int channelIndex) 
+	{
+		ChannelConfig chanConfig = null;
+		OmmNiProviderImpl niprovImpl = (OmmNiProviderImpl) provider;
+		if (niprovImpl == null || niprovImpl.activeConfig() == null)
+		{
+			_lastErrorText = "Not initialize OmmNiProviderImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		ActiveConfig activeConfig = niprovImpl.activeConfig();
+	
+		if (type == ConfigGroupTypeProvider)
+		{
+			if (configParam == NiProviderName)
+				return activeConfig.configuredName;
+			else if (configParam == DirectoryName)
+				return ((OmmNiProviderDirectoryStore)niprovImpl.directoryServiceStore()).getApiControlDirectory().directoryName;
+		}
+		else if (type == ConfigGroupTypeChannel)
+		{
+			if (channelIndex >= 0)
+			{
+				if (channelIndex >= activeConfig.channelConfigSet.size())
+				{
+					_lastErrorText = "ChannelIndex is out of range ";
+					throw new IllegalArgumentException(_lastErrorText);    
+				}
+				
+				chanConfig = activeConfig.channelConfigSet.get(channelIndex);
+				if (chanConfig == null)
+				{
+					_lastErrorText = "Unable to find the active channel config object ";
+					throw new NullPointerException(_lastErrorText);  
+				}
+			}
+			
+			if (configParam == InterfaceName)
+				return chanConfig.interfaceName;
+			else if (configParam == ChannelName)
+				return chanConfig.name;
+			else if (configParam == Port)
+			{
+					if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+						return ((SocketChannelConfig)chanConfig).serviceName;
+					else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+						return ((HttpChannelConfig)chanConfig).serviceName;
+			}
+			else if (configParam == Host)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					return ((SocketChannelConfig)chanConfig).hostName;
+				else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).hostName;
+			}
+			else if (configParam == ObjectName)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).objectName;
+			}
+			else if (configParam == ProxyHost)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).httpProxyHostName;
+			}
+			else if (configParam == ProxyPort)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((HttpChannelConfig)chanConfig).httpProxyPort;
+			}
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}	
+	
+	public static boolean activeConfigGetBooleanValue(OmmProvider provider, int type, int configParam)
+	{
+		OmmIProviderImpl iprovImpl = (OmmIProviderImpl) provider;
+		
+		if (iprovImpl == null || iprovImpl._activeServerConfig == null)
+		{
+			_lastErrorText = "Not initialize OmmIProviderImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		ActiveServerConfig activeConfig = iprovImpl._activeServerConfig;
+		
+		if (type == ConfigGroupTypeProvider)
+		{
+			if (configParam == XmlTraceToStdout)
+				return activeConfig.xmlTraceEnable;
+			else if (configParam == IProviderRefreshFirstRequired)
+				return ((OmmIProviderActiveConfig)activeConfig).refreshFirstRequired;
+			else if (configParam == IProviderAcceptDirMessageWithoutMinFilters)
+				return activeConfig.acceptDirMessageWithoutMinFilters;
+			else if (configParam == IProviderAcceptMessageSameKeyButDiffStream)
+				return activeConfig.acceptMessageSameKeyButDiffStream;
+			else if (configParam == IProviderAcceptMessageThatChangesService)
+				return activeConfig.acceptMessageThatChangesService;
+			else if (configParam == IProviderAcceptMessageWithoutAcceptingRequests)
+				return activeConfig.acceptMessageWithoutAcceptingRequests;
+			else if (configParam == IProviderAcceptMessageWithoutBeingLogin)
+				return activeConfig.acceptMessageWithoutBeingLogin;
+			else if (configParam == IProviderAcceptMessageWithoutQosInRange)
+				return activeConfig.acceptMessageWithoutQosInRange;
+		}
+		else if (type == ConfigGroupTypeServer)
+		{
+			if (configParam == TcpNodelay)
+			{
+				if (activeConfig.serverConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					return ((SocketServerConfig)activeConfig.serverConfig).tcpNodelay;
+			}
+			else if (configParam == DirectWrite)
+			{
+				if (activeConfig.serverConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					return ((SocketServerConfig)activeConfig.serverConfig).directWrite;
+			}
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}	
+	
+	public static int activeConfigGetIntLongValue(OmmProvider provider, int type, int configParam)
+	{
+		OmmIProviderImpl iprovImpl = (OmmIProviderImpl) provider;
+		if (iprovImpl == null || iprovImpl._activeServerConfig == null)
+		{
+			_lastErrorText = "Not initialize OmmIProviderImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		ActiveServerConfig activeConfig = iprovImpl._activeServerConfig;
+		
+		if (type == ConfigGroupTypeProvider)
+		{
+			if (configParam == ItemCountHint)
+				return activeConfig.itemCountHint;
+			if (configParam == ServiceCountHint)
+				return activeConfig.serviceCountHint;
+			else if (configParam == RequestTimeout)
+				return activeConfig.requestTimeout;
+			else if (configParam == DispatchTimeoutApiThread)
+				return activeConfig.dispatchTimeoutApiThread;
+			else if (configParam == MaxDispatchCountUserThread)
+				return activeConfig.maxDispatchCountUserThread;
+			else if (configParam == MaxDispatchCountApiThread)
+				return activeConfig.maxDispatchCountApiThread;
+			else if (configParam == DictionaryEnumTypeFragmentSize)
+				return ((OmmIProviderActiveConfig)activeConfig).maxEnumTypeFragmentSize;
+			else if (configParam == DictionaryFieldDictFragmentSize)
+				return ((OmmIProviderActiveConfig)activeConfig).maxFieldDictFragmentSize;
+		}
+		else if (type == ConfigGroupTypeServer)
+		{
+			if (configParam == ServerType)
+				return activeConfig.serverConfig.rsslConnectionType;
+			else if (configParam == CompressionType)
+				return activeConfig.serverConfig.compressionType;
+			else if (configParam == GuaranteedOutputBuffers)
+				return activeConfig.serverConfig.guaranteedOutputBuffers;
+			else if (configParam == NumInputBuffers)
+				return activeConfig.serverConfig.numInputBuffers;
+			else if (configParam == SysRecvBufSize)
+				return activeConfig.serverConfig.sysRecvBufSize;
+			else if (configParam == SysSendBufSize)
+				return activeConfig.serverConfig.sysSendBufSize;
+			else if (configParam == HighWaterMark)
+				return activeConfig.serverConfig.highWaterMark;
+			else if (configParam == CompressionThreshold)
+				return activeConfig.serverConfig.compressionThreshold;
+			else if (configParam == ConnectionPingTimeout)
+				return activeConfig.serverConfig.connectionPingTimeout;
+			else if (configParam == ConnectionMinPingTimeout)
+				return activeConfig.serverConfig.connectionMinPingTimeout;
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");   
+	}
+	
+	public static String activeConfigGetStringValue(OmmProvider provider, int type, int configParam)
+	{
+		OmmIProviderImpl iprovImpl = (OmmIProviderImpl) provider;
+		if (iprovImpl == null || iprovImpl._activeServerConfig == null)
+		{
+			_lastErrorText = "Not initialize OmmIProviderImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		ActiveServerConfig activeConfig = iprovImpl._activeServerConfig;
+	
+		if (type == ConfigGroupTypeProvider)
+		{
+			if (configParam == IProviderName)
+				return activeConfig.configuredName;
+			else if (configParam == ServerName)
+				return activeConfig.serverConfig.name;
+			else if (configParam == DirectoryName)
+				return iprovImpl.directoryServiceStore().getDirectoryCache().directoryName;
+		}
+		else if (type == ConfigGroupTypeServer)
+		{
+			if (configParam == InterfaceName)
+				return activeConfig.serverConfig.interfaceName;
+			else if (configParam == Port)
+			{
+				if (activeConfig.serverConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					return ((SocketServerConfig)activeConfig.serverConfig).serviceName;
+			}
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}	
+	
+	public static List<com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service> activeConfigGetService(OmmProvider provider, boolean isIProv)
+	{
+		if (isIProv)
+		{
+			OmmIProviderImpl iprovImpl = (OmmIProviderImpl) provider;
+			if (iprovImpl == null)
+			{
+				_lastErrorText = "Not initialize OmmIProviderImpl object yet ";
+				throw new NullPointerException(_lastErrorText);  
+			}
+			return iprovImpl.directoryServiceStore().getDirectoryCache().serviceList();
+		}
+		else
+		{
+			OmmNiProviderImpl niprovImpl = (OmmNiProviderImpl) provider;
+			if (niprovImpl == null)
+			{
+				_lastErrorText = "Not initialize OmmNiProviderImpl object yet ";
+				throw new NullPointerException(_lastErrorText);  
+			}
+			return ((OmmNiProviderDirectoryStore)niprovImpl.directoryServiceStore()).getApiControlDirectory().serviceList();
+		}
+	}
+	
+	public static String activeConfigGetServiceDict(OmmProvider provider, int configParam, int serviceId, int dictIndex, boolean isDictProvided)
+	{
+		OmmIProviderImpl iprovImpl = (OmmIProviderImpl) provider;
+		if (iprovImpl == null || iprovImpl._activeServerConfig == null)
+		{
+			_lastErrorText = "Not initialize OmmIProviderImpl object or Active config object yet ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		
+		ServiceDictionaryConfig serviceDictConfig = iprovImpl._activeServerConfig.getServiceDictionaryConfig(serviceId);
+		if (serviceDictConfig == null)
+		{
+			_lastErrorText = "Unable to find the active dictionary config object ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		
+		List<DictionaryConfig> dictConfig = null;
+		
+		if (isDictProvided)
+			dictConfig = serviceDictConfig.dictionaryProvidedList;
+		else
+			dictConfig = serviceDictConfig.dictionaryUsedList;
+		
+		if (dictConfig == null)
+		{
+			_lastErrorText = "Unable to find the active dictionary config object ";
+			throw new NullPointerException(_lastErrorText);  
+		}
+		
+		if (configParam == DictionaryName)
+			return dictConfig.get(dictIndex).dictionaryName;
+		else if (configParam == DictionaryEnumTypeDefFileName)
+			return dictConfig.get(dictIndex).enumtypeDefFileName;
+		else if (configParam == DictionaryRDMFieldDictFileName)
+			return dictConfig.get(dictIndex).rdmfieldDictionaryFileName;
+		else if (configParam == DictionaryEnumTypeDefItemName)
+			return dictConfig.get(dictIndex).enumTypeDefItemName;
+		else if (configParam == DictionaryRdmFieldDictionaryItemName)
+			return dictConfig.get(dictIndex).rdmFieldDictionaryItemName;
+		else if (configParam == DictionaryType)
+			return (dictConfig.get(dictIndex).isLocalDictionary ? new String("FileDictionary") : new String("ChannelDictionary"));
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}
 }

@@ -93,6 +93,30 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		
 		_fanoutDirectoryMsg = DirectoryMsgFactory.createMsg();
 	}
+	
+	//only for unit test, internal use
+	OmmIProviderImpl(OmmProviderConfig config)
+	{
+		super(null, null);
+		
+		_activeConfig = new OmmIProviderActiveConfig();
+		
+		_activeConfig.dictionaryAdminControl = ((OmmIProviderConfigImpl)config).adminControlDictionary();
+		
+		_activeConfig.directoryAdminControl = ((OmmIProviderConfigImpl)config).adminControlDirectory();
+		
+		_ommIProviderDirectoryStore = new OmmIProviderDirectoryStore(_objManager, this, _activeConfig);
+		
+		_ommIProviderDirectoryStore.setClient(this);
+		
+		super.initializeForTest(_activeConfig, (OmmIProviderConfigImpl)config);
+		
+		_itemWatchList = new ItemWatchList(_itemCallbackClient);
+		
+		_storeUserSubmitted = _activeConfig.directoryAdminControl == OmmIProviderConfig.AdminControl.API_CONTROL ? true : false;
+		
+		_fanoutDirectoryMsg = DirectoryMsgFactory.createMsg();
+	}
 
 	@Override
 	public String providerName()
@@ -194,21 +218,12 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
             else
             {
                 _activeConfig.maxEnumTypeFragmentSize = OmmIProviderActiveConfig.DEFAULT_ENUM_TYPE_FRAGMENT_SIZE;
-            }
-            
-            element = (ConfigElement)iProviderAttributes.getElement(ConfigManager.RequestTimeout);
-            
-            if (element != null)
-            {
-            	 if ( element.intLongValue()  > maxInt )
-                     _activeConfig.requestTimeout = maxInt;
-                 else
-                     _activeConfig.requestTimeout = element.intLongValue() < 0 ? OmmIProviderActiveConfig.DEFAULT_REQUEST_TIMEOUT : element.intLongValue();
-            }
-                 
+            }      
 		}
 
-		// TODO: add handling for programmatic configuration
+		ProgrammaticConfigure pc = config.programmaticConfigure();
+		if ( pc != null )
+			pc.retrieveCustomConfig(_activeConfig.configuredName, _activeConfig);
 	}
 
 	@Override

@@ -83,6 +83,33 @@ OmmIProviderImpl::OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderC
 
 	initialize(ommIProviderConfig._pImpl);
 }
+//only for unit test, internal use
+OmmIProviderImpl::OmmIProviderImpl(const OmmIProviderConfig& ommIProviderConfig, OmmProviderClient& ommProviderClient) :
+	OmmProviderImpl(0),
+	OmmServerBaseImpl(_ommIProviderActiveConfig, ommProviderClient, 0),
+	_ommIProviderActiveConfig(),
+	_ommIProviderDirectoryStore(*this, _ommIProviderActiveConfig),
+	_storeUserSubmitted(false),
+	_itemWatchList()
+{
+	_ommIProviderActiveConfig.operationModel = ommIProviderConfig._pImpl->getOperationModel();
+	_ommIProviderActiveConfig.dictionaryAdminControl = ommIProviderConfig._pImpl->getAdminControlDictionary();
+	_ommIProviderActiveConfig.directoryAdminControl = ommIProviderConfig._pImpl->getAdminControlDirectory();
+
+	_storeUserSubmitted = _ommIProviderActiveConfig.directoryAdminControl == OmmIProviderConfig::ApiControlEnum ? true : false;
+
+	_ommIProviderDirectoryStore.setClient(this);
+
+	_rsslDirectoryMsgBuffer.length = 2048;
+	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
+	if (!_rsslDirectoryMsgBuffer.data)
+	{
+		handleMee("Failed to allocate memory in OmmIProviderImpl::OmmIProviderImpl()");
+		return;
+	}
+
+	initializeForTest(ommIProviderConfig._pImpl);
+}
 
 OmmIProviderImpl::~OmmIProviderImpl()
 {
@@ -181,12 +208,9 @@ void OmmIProviderImpl::readCustomConfig(EmaConfigServerImpl* pConfigImpl)
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnumTypeFragmentSize", tmp))
 		_ommIProviderActiveConfig.maxEnumTypeFragmentSize = tmp > 0xFFFFFFFF ? 0xFFFFFFFF : (UInt32)tmp;
 
-	if (pConfigImpl->get<UInt64>(instanceNodeName + "RequestTimeout", tmp))
-		_ommIProviderActiveConfig.requestTimeOut = tmp > 0xFFFFFFFF ? 0xFFFFFFFF : (UInt32)tmp;
-
 	if (ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure())
 	{
-		// Todo: Retrieve from programmatic configure
+		ppc->retrieveCustomConfig(_ommIProviderActiveConfig.configuredName, _ommIProviderActiveConfig);
 	}
 }
 
@@ -1386,5 +1410,5 @@ void OmmIProviderImpl::processChannelEvent(RsslReactorChannelEvent* pEvent)
 
 UInt32 OmmIProviderImpl::getRequestTimeout()
 {
-	return _ommIProviderActiveConfig.requestTimeOut;
+	return _ommIProviderActiveConfig.requestTimeout;
 }

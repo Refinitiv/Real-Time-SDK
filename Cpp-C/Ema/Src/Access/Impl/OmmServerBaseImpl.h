@@ -153,6 +153,7 @@ protected:
 
 	virtual void readCustomConfig(EmaConfigServerImpl*) = 0;
 
+	void useDefaultConfigValues(const EmaString& serverName, const EmaString& port);
 	ServerConfig* readServerConfig(EmaConfigServerImpl*, const EmaString&);
 
 	void addItemGroup(ItemInfo* itemInfo, const EmaBuffer& groupId);
@@ -196,6 +197,9 @@ protected:
 	void removeItemInfo(ItemInfo *, bool eraseItemGroup);
 
 	void bindServerOptions(RsslBindOptions& bindOptions, const EmaString& componentVersion);
+
+	//only for unit test, internal use
+	void initializeForTest(EmaConfigServerImpl* serverConfigImpl);
 
 	ActiveServerConfig&	_activeServerConfig;
 

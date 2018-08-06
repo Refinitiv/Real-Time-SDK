@@ -8,6 +8,7 @@
 package com.thomsonreuters.ema.access;
 
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.access.ProgrammaticConfigure.InstanceEntryFlag;;
 
 class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProviderConfig
 {
@@ -42,6 +43,7 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	@Override
 	public OmmIProviderConfig clear()
 	{
+		super.clearInt();
 		_operationModel = OperationModel.API_DISPATCH;
 		_adminControlDirectory = AdminControl.API_CONTROL;
 		_adminControlDictionary = AdminControl.API_CONTROL;
@@ -89,19 +91,23 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	@Override
 	public OmmIProviderConfig providerName(String providerName)
 	{
-		// TODO: Retrieve from programmatic configuration
-
+		_configSessionName = providerName;
+		
+		if ( _programmaticConfigure != null && _programmaticConfigure.specifyIProviderName( providerName ) )
+			return this;
+		
 		String name = (String) xmlConfig().getIProviderAttributeValue(providerName,ConfigManager.IProviderName);
 
 		if ( name == null ) 
 		{
-			if ( providerName.equals("EmaIProvider") )
+			if ( providerName.equals(ActiveConfig.DEFAULT_IPROV_NAME) )
 			{
 				boolean bFoundChild = xmlConfig().isNiProviderChildAvailable();
 				if( bFoundChild == false )
 					return this;
 			}
 
+			_configSessionName = null;
 			configStrBuilder().append( "OmmIProviderConfigImpl::providerName parameter [" )
 									.append( providerName )
 									.append( "] is an non-existent iprovider name" );
@@ -123,10 +129,13 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	@Override
 	String configuredName()
 	{
-	
+		if (_configSessionName != null && !_configSessionName.isEmpty())
+			return _configSessionName;
+
 		String defaultIProviderName = null;
 
-		// TODO: Retrieve from programmatic configuration
+		if ( _programmaticConfigure != null  && (defaultIProviderName = _programmaticConfigure.defaultIProvider()) != null)
+			return defaultIProviderName;
 		
 		defaultIProviderName = xmlConfig().defaultIProviderName();
 
@@ -151,9 +160,22 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 		if( firstIProviderName != null )
 			return firstIProviderName;
 		
-	    return "EmaIProvider";	
+	    return ActiveConfig.DEFAULT_IPROV_NAME;	
 	}
 
+	@Override
+	String directoryName(String instanceName)
+	{
+		String directoryName = null;
+
+		if ( _programmaticConfigure != null &&
+			(directoryName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.DIRECTORY_FLAG)) != null)
+				return directoryName;
+
+		directoryName = (String)xmlConfig().getIProviderAttributeValue(instanceName,ConfigManager.IProviderDirectoryName);
+		return directoryName;
+	}
+	
 	@Override
 	public OmmIProviderConfig config(Data config)
 	{
@@ -167,5 +189,4 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 		addAdminMsgInt(refreshMsg);
 		return this;
 	}
-
 }

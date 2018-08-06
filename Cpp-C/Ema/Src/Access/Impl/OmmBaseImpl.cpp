@@ -343,76 +343,63 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 	Int64 tmp1;
 	if (pConfigImpl->get<Int64>(instanceNodeName + "ReconnectAttemptLimit", tmp1))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.setReconnectAttemptLimit(tmp1);
 	}
 
 	if (pConfigImpl->get<Int64>(instanceNodeName + "ReconnectMinDelay", tmp1))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.setReconnectMinDelay(tmp1);
 	}
 
 	if (pConfigImpl->get<Int64>(instanceNodeName + "ReconnectMaxDelay", tmp1))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.setReconnectMaxDelay(tmp1);
 	}
 
-	if (pConfigImpl->get<EmaString>(instanceNodeName + "XmlTraceFileName", _activeConfig.xmlTraceFileName) )
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+	pConfigImpl->get<EmaString>(instanceNodeName + "XmlTraceFileName", _activeConfig.xmlTraceFileName);
 
 	if (pConfigImpl->get<Int64>(instanceNodeName + "XmlTraceMaxFileSize", tmp1) && tmp1 > 0)
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.xmlTraceMaxFileSize = tmp1;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceToFile", tmp))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.xmlTraceToFile = tmp > 0 ? true : false;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceToStdout", tmp))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.xmlTraceToStdout = tmp > 0 ? true : false;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceToMultipleFiles", tmp))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.xmlTraceToMultipleFiles = tmp > 0 ? true : false;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceWrite", tmp))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.xmlTraceWrite = tmp > 0 ? true : false;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceRead", tmp))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.xmlTraceRead = tmp > 0 ? true : false;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTracePing", tmp))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.xmlTracePing = tmp > 0 ? true : false;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "XmlTraceHex", tmp))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.xmlTraceHex = tmp > 0 ? true : false;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "MsgKeyInUpdates", tmp))
 	{
-		_activeConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeConfig.msgKeyInUpdates = tmp > 0 ? true : false;
 	}
 
@@ -434,7 +421,7 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 		if ( !pConfigImpl->get< EmaString >( loggerNodeName + "Name", name ) )
 		{
 			EmaString errorMsg( "no configuration exists for consumer logger [" );
-			errorMsg.append( loggerNodeName ).append( "]; will use logger defaults" );
+			errorMsg.append( loggerNodeName ).append( "]; will use logger defaults if not config programmatically" );
 			pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
 		}
 
@@ -501,13 +488,17 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 			int chanConfigByFuncCall = 0;
 			if (pConfigImpl->getUserSpecifiedHostname().length() > 0)
 				chanConfigByFuncCall = SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
-			else if ( pConfigImpl->getUserSpecifiedProxyHostname().length() > 0 ||
-				pConfigImpl->getUserSpecifiedLibSslName().length() > 0 ||
-				pConfigImpl->getUserSpecifiedSecurityProtocol() > 0)
-				chanConfigByFuncCall = TUNNELING_CONN_CONFIG_BY_FUNCTION_CALL;
-			
-			ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall,
-										!(_activeConfig.parameterConfigGroup & PARAMETER_SET_BY_PROGRAMMATIC), fileChannelConfig );
+			else
+			{
+				if (pConfigImpl->getUserSpecifiedProxyHostname().length() > 0)
+					chanConfigByFuncCall |= TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+				if (pConfigImpl->getUserSpecifiedProxyPort().length() > 0)
+					chanConfigByFuncCall |= TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+				if (pConfigImpl->getUserSpecifiedObjectName().length() > 0)
+					chanConfigByFuncCall |= TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
+			}
+
+			ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall, fileChannelConfig );
 			if ( !( ActiveConfig::findChannelConfig( _activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg ) ) )
 				_activeConfig.configChannelSet.push_back( fileChannelConfig );
 			else
@@ -518,7 +509,7 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 		}
 		else if ( isProgramatiCfgChannelset )
 		{
-			_activeConfig.configChannelSet.clear();
+			_activeConfig.clearChannelSet();
 			char* pToken = NULL;
 			char* pNextToken = NULL;
 			pToken = strtok( const_cast<char*>(channelOrChannelSet.c_str() ), "," );
@@ -531,13 +522,17 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 				int chanConfigByFuncCall = 0;
 				if (pConfigImpl->getUserSpecifiedHostname().length() > 0)
 					chanConfigByFuncCall = SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
-				else if (pConfigImpl->getUserSpecifiedProxyHostname().length() > 0 ||
-					pConfigImpl->getUserSpecifiedLibSslName().length() > 0 ||
-					pConfigImpl->getUserSpecifiedSecurityProtocol() > 0)
-					chanConfigByFuncCall = TUNNELING_CONN_CONFIG_BY_FUNCTION_CALL;
+				else
+				{
+					if (pConfigImpl->getUserSpecifiedProxyHostname().length() > 0)
+						chanConfigByFuncCall |= TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+					if (pConfigImpl->getUserSpecifiedProxyPort().length() > 0)
+						chanConfigByFuncCall |= TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+					if (pConfigImpl->getUserSpecifiedObjectName().length() > 0)
+						chanConfigByFuncCall |= TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
+				}
 
-				ppc->retrieveChannelConfig(channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall,
-											(pNextToken == NULL && !(_activeConfig.parameterConfigGroup & PARAMETER_SET_BY_PROGRAMMATIC)), fileChannelConfig );
+				ppc->retrieveChannelConfig(channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall, fileChannelConfig );
 				if ( !( ActiveConfig::findChannelConfig( _activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg ) ) )
 					_activeConfig.configChannelSet.push_back( fileChannelConfig );
 				else
@@ -593,10 +588,23 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 	EmaString channelNodeName( "ChannelGroup|ChannelList|Channel." );
 	channelNodeName.append( channelName ).append( "|" );
 
-	RsslConnectionTypes channelType;
-	if ( !pConfigImpl->get<RsslConnectionTypes>( channelNodeName + "ChannelType", channelType ) ||
-	     pConfigImpl->getUserSpecifiedHostname().length() > 0 )
+	RsslConnectionTypes channelType = RSSL_CONN_TYPE_INIT;
+	if (pConfigImpl->getUserSpecifiedHostname().length() > 0)
+	{
 		channelType = RSSL_CONN_TYPE_SOCKET;
+	}
+	else
+	{
+		bool foundChannelType = false;
+		if (ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure())
+			channelType = (RsslConnectionTypes)ppc->retrieveChannelTypeConfig(channelName);
+
+		if (channelType < 0)
+		{
+			if (!pConfigImpl->get<RsslConnectionTypes>(channelNodeName + "ChannelType", channelType))
+				channelType = RSSL_CONN_TYPE_SOCKET;
+		}
+	}
 
 	switch ( channelType )
 	{
@@ -714,7 +722,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		if (tmp.length())
 			httpChannelCfg->objectName = tmp;
 		else
-		pConfigImpl->get<EmaString>( channelNodeName + "ObjectName", httpChannelCfg->objectName );
+			pConfigImpl->get<EmaString>( channelNodeName + "ObjectName", httpChannelCfg->objectName );
 
 		break;
 	}
@@ -1039,6 +1047,13 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		configImpl->configErrors().log(_pLoggerClient, _activeConfig.loggerConfig.minLoggerSeverity);
 
+		if (OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+		{
+			EmaString temp("Print out active configuration detail.");
+			temp.append(_activeConfig.configTrace());
+			_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+		}
+
 		if ( !_pipe.create() )
 		{
 			EmaString temp( "Failed to create communication Pipe." );
@@ -1227,6 +1242,38 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			notifErrorClientHandler( ommException, getErrorClientHandler() );
 		else
 			throw;
+	}
+}
+
+//only for unit test, internal use
+void OmmBaseImpl::initializeForTest(EmaConfigImpl* configImpl)
+{
+	try
+	{
+		_userLock.lock();
+
+		readConfig(configImpl);
+
+		_pLoggerClient = OmmLoggerClient::create(_activeConfig.loggerConfig.loggerType, _activeConfig.loggerConfig.includeDateInLoggerOutput,
+			_activeConfig.loggerConfig.minLoggerSeverity, _activeConfig.loggerConfig.loggerFileName);
+
+		readCustomConfig(configImpl);
+
+		configImpl->configErrors().log(_pLoggerClient, _activeConfig.loggerConfig.minLoggerSeverity);
+		
+		if (OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
+		{
+			EmaString temp("Print out active configuration detail.");
+			temp.append(_activeConfig.configTrace());
+			_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+		}
+
+		_userLock.unlock();
+	}
+	catch (const OmmException& ommException)
+	{
+		_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, ommException.getText());
+		_userLock.unlock();
 	}
 }
 

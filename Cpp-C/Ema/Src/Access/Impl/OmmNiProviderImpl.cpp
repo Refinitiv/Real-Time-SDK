@@ -160,9 +160,45 @@ OmmNiProviderImpl::OmmNiProviderImpl(OmmProvider* ommProvider, const OmmNiProvid
 	_handleToStreamInfo.rehash(_activeConfig.itemCountHint);
 }
 
+//only for unit test, internal use
+OmmNiProviderImpl::OmmNiProviderImpl(const OmmNiProviderConfig& config, OmmProviderClient& adminClient) :
+	_activeConfig(),
+	OmmProviderImpl(0),
+	OmmBaseImpl(_activeConfig, adminClient, (void*)0),
+	_handleToStreamInfo(),
+	_streamInfoList(),
+	_bIsStreamIdZeroRefreshSubmitted(false),
+	_ommNiProviderDirectoryStore(*this, _activeConfig),
+	_nextProviderStreamId(0),
+	_reusedProviderStreamIds(),
+	_activeChannel(0),
+	_itemWatchList()
+{
+	_activeConfig.operationModel = config._pImpl->getOperationModel();
+
+	_activeConfig.directoryAdminControl = config.getConfigImpl()->getAdminControlDirectory();
+
+	_ommNiProviderDirectoryStore.setClient(this);
+
+	_rsslDirectoryMsgBuffer.length = 2048;
+	_rsslDirectoryMsgBuffer.data = (char*)malloc(_rsslDirectoryMsgBuffer.length * sizeof(char));
+	if (!_rsslDirectoryMsgBuffer.data)
+	{
+		handleMee("Failed to allocate memory in OmmNiProviderImpl::OmmNiProviderImpl()");
+		return;
+	}
+
+	initializeForTest(config._pImpl);
+}
+
 OmmNiProviderImpl::~OmmNiProviderImpl()
 {
+	if (_activeConfig.pDirectoryRefreshMsg)
+		delete _activeConfig.pDirectoryRefreshMsg;
+
 	free(_rsslDirectoryMsgBuffer.data);
+
+	removeItems();
 
 	OmmBaseImpl::uninitialize( false, false );
 }
@@ -1823,6 +1859,11 @@ void OmmNiProviderImpl::unsetActiveRsslReactorChannel( Channel* cancelChannel )
 {
 	if (cancelChannel == _activeChannel)
 		_activeChannel = NULL;
+}
+ 
+DirectoryServiceStore& OmmNiProviderImpl::getDirectoryServiceStore() const
+{
+	return (DirectoryServiceStore&)_ommNiProviderDirectoryStore;
 }
 
 OmmCommonImpl::ImplementationType OmmNiProviderImpl::getImplType()

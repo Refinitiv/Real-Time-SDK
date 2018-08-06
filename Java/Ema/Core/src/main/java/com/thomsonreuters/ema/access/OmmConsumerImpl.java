@@ -40,6 +40,20 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);		
 	}
 	
+	//only for unit test, internal use
+	OmmConsumerImpl(OmmConsumerConfig config, boolean internalUse)
+	{
+		super();
+		
+		if (internalUse)
+		{
+			_activeConfig = new OmmConsumerActiveConfig();
+			_adminClient = null;
+			_adminClosure = null;
+			super.initializeForTest(_activeConfig, (OmmConsumerConfigImpl)config);
+		}
+	}
+	
 	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient client)
 	{
 		super();
@@ -221,23 +235,37 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 
 		ConfigElement ce = null;
 		int maxInt = Integer.MAX_VALUE;
-
+		int value = 0;
+		
 		if (attributes != null)
 		{
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ObeyOpenWindow)) != null)
-				_activeConfig.obeyOpenWindow = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.obeyOpenWindow = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.PostAckTimeout)) != null)
-				_activeConfig.postAckTimeout = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
-
-			if ((ce = attributes.getPrimitiveValue(ConfigManager.RequestTimeout)) != null)
-				_activeConfig.requestTimeout = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.postAckTimeout = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.DirectoryRequestTimeOut)) != null)
-				_activeConfig.directoryRequestTimeOut = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.directoryRequestTimeOut = value > maxInt ? maxInt : value;
+			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.MaxOutstandingPosts)) != null)
-				_activeConfig.maxOutstandingPosts = ce.intLongValue() > maxInt ? maxInt : ce.intLongValue();
+			{
+				value = ce.intLongValue();
+				if (value >= 0)
+					_activeConfig.maxOutstandingPosts = value > maxInt ? maxInt : value;
+			}
 		}
 		
 		if (_activeConfig.dictionaryConfig.dictionaryName == null)
@@ -251,8 +279,8 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			attributes = config.xmlConfig().getDictionaryAttributes(_activeConfig.dictionaryConfig.dictionaryName);
 			if (attributes == null)
 			{
-				config.errorTracker().append("no configuration exists for consumer dictionary [")
-						.append(ConfigManager.DICTIONARY_LIST.toString()).create(Severity.ERROR);
+				config.errorTracker().append("no configuration exists in the config file for consumer dictionary [")
+						.append(ConfigManager.DICTIONARY_LIST.toString()).append("]. Will use dictionary defaults if not config programmatically.").create(Severity.WARNING);
 			}
 			else
 			{
@@ -274,11 +302,18 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			}
 		}
 		
+		ProgrammaticConfigure pc = null;
+		if ( (pc = config.programmaticConfigure()) != null )
+			pc.retrieveDictionaryConfig( _activeConfig.dictionaryConfig.dictionaryName, _activeConfig );
+		
 		_activeConfig.rsslDirectoryRequest = config.directoryReq();
 		_activeConfig.rsslFldDictRequest = config.rdmFldDictionaryReq();
 		_activeConfig.rsslEnumDictRequest = config.enumDefDictionaryReq();
 		_activeConfig.fldDictReqServiceName = config.fidDictReqServiceName();
 		_activeConfig.enumDictReqServiceName = config.enumDictReqServiceName();
+		
+		if ( pc != null )
+			pc.retrieveCustomConfig( _activeConfig.configuredName, _activeConfig );
 	}
 
 	void loadDirectory()

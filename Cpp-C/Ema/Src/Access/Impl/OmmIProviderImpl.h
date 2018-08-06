@@ -25,6 +25,7 @@ class OmmIProviderImpl : public OmmProviderImpl, public OmmServerBaseImpl, publi
 public:
 	OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderConfig&, OmmProviderClient&, void* closure);
 	OmmIProviderImpl(OmmProvider* ommProvider, const OmmIProviderConfig&, OmmProviderClient&, OmmProviderErrorClient&, void* closure);
+	OmmIProviderImpl(const OmmIProviderConfig&, OmmProviderClient&); //for internal UnitTest only
 
 	virtual ~OmmIProviderImpl();
 

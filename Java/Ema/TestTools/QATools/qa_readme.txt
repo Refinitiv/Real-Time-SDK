@@ -8,7 +8,7 @@ List of altered code directories:
 -----------------------------------------------------------------------------------------
 Module:  Series100Consumer100
 -----------------
-Series100Consumer100-ConsFunc-002
+Series100Consumer100-ConsFunc-001
     Alters consumer that sleep for 1 second before requesting item, 
 	calls uninitialize() right after requesting item
 
@@ -128,6 +128,10 @@ Series100Consumer112-ConsFunc-001
 Series100Consumer112-ConsFunc-002
     Alters consumer added addition argument -objectname to set
 	httpObjectName
+
+Series100Consumer112-PConfig-001
+    Alters consumer to specify programatic config for parameters related to EncryptedType connection: 
+	Host,Port,ProxyHost,ProxyPort and ObjectName
 
 Module:  Series100Consumer130
 -----------------------------
@@ -366,7 +370,23 @@ This test tool implements the following high level steps:
             + Validate if recovery succeeds
             + Exits
 
- 
+
+Module:  Series400Consumer421
+---------------------------
+
+Series400Consumer421-PConfig-001
+	Alters consumer such that Channel_1 added configuration for CompressionThreshold and alter value for InterfaceName
+	to consumerInterface.
+
+Series400Consumer421-PConfig-002
+	Alters consumer to specify Channelset parameters using programmatic config for two channels
+
+Series400Consumer421-PConfig-003
+	Alters consumer so it is doing a combination of programmatic and function calls
+	In programmatic Channel_1 added configuration for CompressionThreshold and alter value for InterfaceName
+	In functional configuration for consumerName as Consumer_3 and  host("localhost:14002")
+
+
 Module:  Series400Consumer430
 -----------------------------
 
@@ -553,6 +573,28 @@ Series300Provider320-GenM-001
     Need to run with Series300Consumer331-GenM-001 or Series300Consumer333-GenM-001. 
 
 
+Module:  Series400Provider421
+-----------------------------
+
+Series400Provider421-PConfig-001:
+	Alters Provider for following changes
+		-Added programmatic config for number of Provider configuration in Provider_1
+		 MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc
+		-Added server configuration in Server_1 CompressionThreshold, HighWaterMark, etc,
+
+Series400Provider421-PConfig-002:
+	Alters Provider for following changes
+		-Added programmatic config for number of Provider configuration in Provider_1
+		 MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc
+		-Added server configuration in Server_1 CompressionThreshold, HighWaterMark, etc,
+		-Added fuctional configuration to add providerName to "Provider_2"
+
+Series400Provider421-PConfig-003:
+	Alters Provider for following changes
+		-Added programmatic config for only Dictionary_1 where RdmFieldDictionaryItemName is RWFFld3
+		 and EnumTypeDefItemName RWFEnum3
+		-Removed code for programmatic configure Provider_1 and Server_1
+
 Module:  Series100NiProvider100
 ---------------------------
 Series100NiProvider100-TrepAuth-001
@@ -580,6 +622,32 @@ command line arguments to the tool:
 
     -dirAdminControl < true|false ; default=false >
     If set to true, tool will send a source directory response; otherwise, the EMA layer will send one on behalf of tool.
+
+
+Module:  Series400NiProvider421
+------------------------------
+
+Series400NiProvider421-PConfig-001:
+    Alters NiProvider for following changes
+	-Added programmatic config for number of Provider configuration in Provider_1
+	 MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc
+     -Added channel configuration in Channel_10 CompressionThreshold, HighWaterMark, etc,
+
+Series400NiProvider421-PConfig-002: 
+	Alters NiProvider for following changes
+    -Added programmatic config for number of Provider configuration in Provider_1 
+	MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc 
+    -Added channel configuration in Channel_10 CompressionThreshold, HighWaterMark, etc,
+    -Added fuctional configuration to add providerName to "Provider_2"
+
+Series400NiProvider421-PConfig-003: 
+	Alters NiProvider for following changes
+	-Added programmatic config for number of Provider configuration in Provider_1 
+	ChannelSet, MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc 
+	-Added channel configuration in Channel_10 CompressionThreshold, HighWaterMark, etc,
+    -Added new channel configuration for Channel_11, 
+	-Added code for connection recovery funcationality from NiProvider360
+
 
 Module:  Series400NiProvider430
 ---------------------------

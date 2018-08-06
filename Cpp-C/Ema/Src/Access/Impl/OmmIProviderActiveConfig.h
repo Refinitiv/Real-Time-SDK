@@ -36,6 +36,15 @@ public:
 
 	UInt32 getMaxEnumTypeFragmentSize();
 
+	bool getRefreshFirstRequired();
+
+	void setMaxFieldDictFragmentSize(UInt64);
+
+	void setMaxEnumTypeFragmentSize(UInt64);
+
+	void setRefreshFirstRequired(UInt64);
+
+	EmaString configTrace();
 private:
 
 	friend class OmmIProviderImpl;
@@ -46,7 +55,6 @@ private:
 	bool									refreshFirstRequired;
 	UInt32									maxFieldDictFragmentSize;
 	UInt32									maxEnumTypeFragmentSize;
-	UInt32									requestTimeOut;
 };
 
 }

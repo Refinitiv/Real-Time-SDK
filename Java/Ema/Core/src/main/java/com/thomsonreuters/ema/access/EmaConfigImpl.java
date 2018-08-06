@@ -13,6 +13,7 @@ import java.util.List;
 import com.thomsonreuters.ema.access.ConfigReader.XMLConfigReader;
 
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
@@ -38,12 +39,14 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
 
 abstract class  EmaConfigBaseImpl
 {	
-	private ConfigErrorTracker 					_errorTracker;
-	protected XMLConfigReader						_xmlConfig;
+	protected ConfigErrorTracker 				_errorTracker;
+	protected XMLConfigReader					_xmlConfig;
+	protected ProgrammaticConfigure				_programmaticConfigure;
 	
 	private OmmInvalidConfigurationExceptionImpl _oommICExcept;
 	
 	protected StringBuilder 						_configStrBuilder;
+	protected String							 _configSessionName = null;
 	
 	EmaConfigBaseImpl()
 	{
@@ -76,6 +79,16 @@ abstract class  EmaConfigBaseImpl
 			_configStrBuilder.setLength(0);
 		
 		return _configStrBuilder;
+	}
+	
+	ProgrammaticConfigure programmaticConfigure()
+	{
+		return _programmaticConfigure;
+	}
+	
+	String directoryName(String instanceName)
+	{
+		return null;
 	}
 	
 	abstract void configInt(Data config);
@@ -163,6 +176,9 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 			_enumDictReqServiceIdSet = false;
 			_enumDictReqServiceName = null;
 		}
+		
+		if (_programmaticConfigure != null)
+			_programmaticConfigure.clear();
 	}
 	
 	protected void usernameInt(String username)
@@ -567,7 +583,22 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	
 	void configInt(Data config)
 	{
-		throw new UnsupportedOperationException("Programmatic configuration is not supported yet.");
+		if (config.dataType() == DataTypes.MAP)
+		{
+			if (_programmaticConfigure == null)
+			{
+				_programmaticConfigure = new ProgrammaticConfigure((Map)(config), _errorTracker);
+			}
+			else
+			{
+				_programmaticConfigure.addConfigure((Map)(config));
+			}
+		}
+		else
+		{
+			_errorTracker.append("Invalid Data type='")
+			.append(DataTypes.toString(config.dataType())).append("' for Programmatic Configure.").create(Severity.ERROR);
+		}
 	}
 	
 	int setDirectoryRefresh(com.thomsonreuters.upa.codec.RefreshMsg rsslRefreshMsg)
@@ -830,7 +861,22 @@ abstract class EmaConfigServerImpl extends EmaConfigBaseImpl
 	
 	void configInt(Data config)
 	{
-		throw new UnsupportedOperationException("Programmatic configuration is not supported yet.");
+		if (config.dataType() == DataTypes.MAP)
+		{
+			if (_programmaticConfigure == null)
+			{
+				_programmaticConfigure = new ProgrammaticConfigure((Map)(config), _errorTracker);
+			}
+			else
+			{
+				_programmaticConfigure.addConfigure((Map)(config));
+			}
+		}
+		else
+		{
+			_errorTracker.append("Invalid Data type='")
+			.append(DataTypes.toString(config.dataType())).append("' for Programmatic Configure.").create(Severity.ERROR);
+		}
 	}
 	
 	DecodeIterator rsslDecodeIterator()
@@ -841,5 +887,25 @@ abstract class EmaConfigServerImpl extends EmaConfigBaseImpl
 			_rsslDecIter.clear();
 		
 		return _rsslDecIter;
+	}
+	
+	String serverName(String instanceName)
+	{
+		String serverName = null;
+
+		if ( _programmaticConfigure != null )
+		{
+			serverName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.SERVER_FLAG);
+			if (serverName != null)
+				return serverName;
+		}
+	
+		return (String) _xmlConfig.getIProviderAttributeValue(instanceName, ConfigManager.IProviderServerName);
+	}
+	
+	protected void clearInt()
+	{
+		if (_programmaticConfigure != null)
+			_programmaticConfigure.clear();
 	}
 }

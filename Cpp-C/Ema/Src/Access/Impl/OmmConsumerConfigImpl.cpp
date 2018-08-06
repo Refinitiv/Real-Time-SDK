@@ -43,6 +43,8 @@ OmmConsumerConfigImpl::~OmmConsumerConfigImpl()
 
 void OmmConsumerConfigImpl::consumerName( const EmaString& consumerName )
 {
+	_configSessionName.append(consumerName);
+
 	if ( _pProgrammaticConfigure && _pProgrammaticConfigure->specifyConsumerName( consumerName ) )
 		return;
 
@@ -72,7 +74,7 @@ void OmmConsumerConfigImpl::consumerName( const EmaString& consumerName )
 	}
 	else
 	{
-		if ( consumerName == "EmaConsumer" )
+		if ( consumerName == DEFAULT_CONS_NAME)
 		{
 			XMLnode* consumerList( _pEmaConfig->find< XMLnode >( "ConsumerGroup|ConsumerList" ) );
 			if ( consumerList )
@@ -86,6 +88,7 @@ void OmmConsumerConfigImpl::consumerName( const EmaString& consumerName )
 				return;
 		}
 
+		_configSessionName.clear();
 		EmaString errorMsg( "OmmConsumerConfigImpl::consumerName parameter [" );
 		errorMsg.append( consumerName ).append( "] is a non-existent consumer name" );
 		throwIceException( errorMsg );
@@ -94,6 +97,9 @@ void OmmConsumerConfigImpl::consumerName( const EmaString& consumerName )
 
 EmaString OmmConsumerConfigImpl::getConfiguredName()
 {
+	if(!_configSessionName.empty())
+		return _configSessionName;
+
 	EmaString retVal;
 
 	if ( _pProgrammaticConfigure && _pProgrammaticConfigure->getDefaultConsumer( retVal ) )
@@ -117,7 +123,7 @@ EmaString OmmConsumerConfigImpl::getConfiguredName()
 	if ( _pEmaConfig->get< EmaString >( "ConsumerGroup|ConsumerList|Consumer|Name", retVal ) )
 		return retVal;
 
-	return "EmaConsumer";
+	return DEFAULT_CONS_NAME;
 }
 
 bool OmmConsumerConfigImpl::getDictionaryName( const EmaString& instanceName, EmaString& retVal ) const

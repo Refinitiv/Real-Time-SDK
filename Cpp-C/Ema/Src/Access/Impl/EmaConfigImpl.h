@@ -22,9 +22,18 @@
 #include "OmmConsumerConfig.h"
 #include "OmmNiProviderConfig.h"
 #include "ProgrammaticConfigure.h"
+#include "EmaRdm.h"
 
 #include "rtr/rsslRDMLoginMsg.h"
 #include "libxml/parser.h"
+
+
+#define DEFAULT_CONS_NAME							  EmaString("EmaConsumer")
+#define DEFAULT_IPROV_NAME							  EmaString("EmaIProvider")
+#define DEFAULT_NIPROV_NAME							  EmaString("EmaNiProvider")
+
+using namespace thomsonreuters::ema::rdm;
+
 
 namespace thomsonreuters {
 
@@ -35,6 +44,117 @@ namespace access {
 class XMLnode;
 class ProgrammaticConfigure;
 class EmaConfigBaseImpl;
+
+static struct MsgTypeConverter
+{
+	const char* configInput;
+	UInt16 convertedValue;
+} msgTypeConverter[] =
+{
+	{ "MMT_LOGIN", MMT_LOGIN },
+	{ "MMT_DIRECTORY", MMT_DIRECTORY },
+	{ "MMT_DICTIONARY", MMT_DICTIONARY },
+	{ "MMT_MARKET_PRICE", MMT_MARKET_PRICE },
+	{ "MMT_MARKET_BY_ORDER", MMT_MARKET_BY_ORDER },
+	{ "MMT_MARKET_BY_PRICE", MMT_MARKET_BY_PRICE },
+	{ "MMT_MARKET_MAKER", MMT_MARKET_MAKER },
+	{ "MMT_SYMBOL_LIST", MMT_SYMBOL_LIST },
+	{ "MMT_SERVICE_PROVIDER_STATUS", MMT_SERVICE_PROVIDER_STATUS },
+	{ "MMT_HISTORY", MMT_HISTORY },
+	{ "MMT_HEADLINE", MMT_HEADLINE },
+	{ "MMT_REPLAYHEADLINE", MMT_REPLAYHEADLINE },
+	{ "MMT_REPLAYSTORY", MMT_REPLAYSTORY },
+	{ "MMT_TRANSACTION", MMT_TRANSACTION },
+	{ "MMT_YIELD_CURVE", MMT_YIELD_CURVE },
+	{ "MMT_CONTRIBUTION", MMT_CONTRIBUTION },
+	{ "MMT_PROVIDER_ADMIN", MMT_PROVIDER_ADMIN },
+	{ "MMT_ANALYTICS", MMT_ANALYTICS },
+	{ "MMT_REFERENCE", MMT_REFERENCE },
+	{ "MMT_NEWS_TEXT_ANALYTICS", MMT_NEWS_TEXT_ANALYTICS },
+	{ "MMT_SYSTEM", MMT_SYSTEM }
+};
+
+static struct QosRateConverter
+{
+	const char* configInput;
+	UInt32 convertedValue;
+} qosRateConverter[] =
+{
+	{ "Rate::TickByTick", 0 },
+	{ "Rate::JustInTimeConflated", 0xFFFFFF00 }
+};
+
+static struct QosTimelinessConverter
+{
+	const char* configInput;
+	UInt32 convertedValue;
+} qosTimelinessConverter[] =
+{
+	{ "Timeliness::RealTime", 0 },
+	{ "Timeliness::InexactDelayed", 0xFFFFFFFF }
+};
+
+static struct StreamStateConverter
+{
+	const char* configInput;
+	OmmState::StreamState convertedValue;
+} streamStateConverter[] =
+{
+	{ "Open", OmmState::OpenEnum },
+	{ "NonStreaming", OmmState::NonStreamingEnum },
+	{ "CloseRecover", OmmState::ClosedRecoverEnum },
+	{ "Close", OmmState::ClosedEnum },
+	{ "CloseRedirected", OmmState::ClosedRedirectedEnum }
+};
+
+static struct DataStateConverter
+{
+	const char* configInput;
+	OmmState::DataState convertedValue;
+} dataStateConverter[] =
+{
+	{ "NoChange", OmmState::NoChangeEnum },
+	{ "Ok", OmmState::OkEnum },
+	{ "Suspect", OmmState::SuspectEnum }
+};
+
+static struct StatusCodeConverter
+{
+	const char* configInput;
+	OmmState::StatusCode convertedValue;
+} statusCodeConverter[] = {
+	{ "None", OmmState::NoneEnum },
+	{ "NotFound", OmmState::NotFoundEnum },
+	{ "Timeout", OmmState::TimeoutEnum },
+	{ "NotAuthorized", OmmState::NotAuthorizedEnum },
+	{ "InvalidArgument", OmmState::InvalidArgumentEnum },
+	{ "UsageError", OmmState::UsageErrorEnum },
+	{ "Preempted", OmmState::PreemptedEnum },
+	{ "JustInTimeConflationStarted", OmmState::JustInTimeConflationStartedEnum },
+	{ "TickByTickResumed", OmmState::TickByTickResumedEnum },
+	{ "FailoverStarted", OmmState::FailoverStartedEnum },
+	{ "FailoverCompleted", OmmState::FailoverCompletedEnum },
+	{ "GapDetected", OmmState::GapDetectedEnum },
+	{ "NoResources", OmmState::NoResourcesEnum },
+	{ "TooManyItems", OmmState::TooManyItemsEnum },
+	{ "AlreadyOpen", OmmState::AlreadyOpenEnum },
+	{ "SourceUnknown", OmmState::SourceUnknownEnum },
+	{ "NotOpen", OmmState::NotOpenEnum },
+	{ "NonUpdatingItem", OmmState::NonUpdatingItemEnum },
+	{ "UnsupportedViewType", OmmState::UnsupportedViewTypeEnum },
+	{ "InvalidView", OmmState::InvalidViewEnum },
+	{ "FullViewProvided", OmmState::FullViewProvidedEnum },
+	{ "UnableToRequestAsBatch", OmmState::UnableToRequestAsBatchEnum },
+	{ "NoBatchViewSupportInReq", OmmState::NoBatchViewSupportInReqEnum },
+	{ "ExceededMaxMountsPerUser", OmmState::ExceededMaxMountsPerUserEnum },
+	{ "Error", OmmState::ErrorEnum },
+	{ "DacsDown", OmmState::DacsDownEnum },
+	{ "UserUnknownToPermSys", OmmState::UserUnknownToPermSysEnum },
+	{ "DacsMaxLoginsReached", OmmState::DacsMaxLoginsReachedEnum },
+	{ "DacsUserAccessToAppDenied", OmmState::DacsUserAccessToAppDeniedEnum }
+};
+
+
 
 class ConfigElement
 {
@@ -959,7 +1079,7 @@ public:
 		}
 
 		EmaString errorMsg("could not get value for item [");
-		errorMsg.append(itemToRetrieve).append("]; will use default value if available");
+		errorMsg.append(itemToRetrieve).append("]; will use available default value if not config programmatically");
 		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
 		return false;
 	}
@@ -983,7 +1103,7 @@ public:
 		}
 
 		EmaString errorMsg("could not get values for item [");
-		errorMsg.append(itemToRetrieve).append("]; will use default value if available");
+		errorMsg.append(itemToRetrieve).append("]; will use available default value if not config programmatically");
 		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
 		return false;
 	}
@@ -1055,14 +1175,13 @@ public:
 
 	virtual EmaString getConfiguredName() = 0;
 
-	virtual bool getDirectoryName(const EmaString&, EmaString&) const = 0;
-
 protected:
 
 	XMLnode*				_pEmaConfig;
 	ProgrammaticConfigure*	_pProgrammaticConfigure;
 
 	EmaString				_instanceNodeName;
+	EmaString				_configSessionName;
 
 private:
 
@@ -1091,8 +1210,9 @@ public:
 	void addAdminMsg( const RefreshMsg& );
 
 	void getChannelName( const EmaString&, EmaString& ) const;
+	void getServerName(const EmaString&, EmaString&) const;
 
-	virtual bool getDictionaryName( const EmaString&, EmaString& ) const = 0;
+	bool getDictionaryName( const EmaString&, EmaString& ) const;
 
 	void host( const EmaString& );
 
@@ -1201,12 +1321,12 @@ public:
 
 	void getServerName(const EmaString&, EmaString&) const;
 
-	virtual bool getDictionaryName(const EmaString&, EmaString&) const = 0;
-
 	const PortSetViaFunctionCall& getUserSpecifiedPort() const;
 
 	AdminRefreshMsg* getDirectoryRefreshMsg();
 
+	bool getDirectoryName(const EmaString&, EmaString&) const;
+	
 protected:
 
 	void addDirectoryRefreshMsg(RsslRefreshMsg*);

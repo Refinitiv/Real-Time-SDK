@@ -9,6 +9,7 @@ package com.thomsonreuters.ema.access;
 
 
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
 
 class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConfig
 {
@@ -90,19 +91,23 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	@Override
 	public OmmNiProviderConfig providerName(String providerName) {
 		
-		// TODO: Retrieve from programmatic configuration
+		_configSessionName = providerName;
+		
+		if ( _programmaticConfigure != null && _programmaticConfigure.specifyNiProviderName( providerName ) )
+			return this;
 
 		String name = (String) xmlConfig().getNiProviderAttributeValue(providerName,ConfigManager.NiProviderName);
 
 		if ( name == null ) 
 		{
-			if ( providerName.equals("EmaNiProvider") )
+			if ( providerName.equals(ActiveConfig.DEFAULT_NIPROV_NAME) )
 			{
 				boolean bFoundChild = xmlConfig().isNiProviderChildAvailable();
 				if( bFoundChild == false )
 					return this;
 			}
 
+			_configSessionName = null;
 			configStrBuilder().append( "OmmNiProviderConfigImpl::providerName parameter [" )
 									.append( providerName )
 									.append( "] is an non-existent niprovider name" );
@@ -153,9 +158,13 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	@Override
 	String configuredName()
 	{
+		if (_configSessionName != null && !_configSessionName.isEmpty())
+			return _configSessionName;
+		
 		String defaultNiProviderName = null;
 
-		// TODO: Retrieve from programmatic configuration
+		if ( _programmaticConfigure != null  && (defaultNiProviderName = _programmaticConfigure.defaultNiProvider()) != null)
+			return defaultNiProviderName;
 		
 		defaultNiProviderName = xmlConfig().defaultNiProviderName();
 
@@ -180,7 +189,7 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 		if( firstNiProviderName != null )
 			return firstNiProviderName;
 		
-	    return "EmaNiProvider";	
+	    return ActiveConfig.DEFAULT_NIPROV_NAME;	
 	}
 	
 	@Override
@@ -188,17 +197,27 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	{
 		String channelName = null;
 
-		// TODO: Retrieve from programmatic configuration
+		if ( _programmaticConfigure != null )
+		{
+			channelName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.CHANNEL_FLAG);
+			if (channelName != null)
+				return channelName;
+			channelName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.CHANNELSET_FLAG);
+			if (channelName != null)
+				return channelName;
+		}
 
-		channelName = (String) xmlConfig().getMutualExclusiveAttribute(ConfigManager.NIPROVIDER_LIST, ConfigManager.NiProviderName, instanceName, channelOrChannelSet);
-		return channelName;
+		return (String) xmlConfig().getMutualExclusiveAttribute(ConfigManager.NIPROVIDER_LIST, ConfigManager.NiProviderName, instanceName, channelOrChannelSet);
 	}
 	
+	@Override
 	String directoryName(String instanceName)
 	{
 		String directoryName = null;
 
-		// TODO: Retrieve from programmatic configuration
+		if ( _programmaticConfigure != null &&
+			(directoryName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.DIRECTORY_FLAG)) != null)
+				return directoryName;
 
 		directoryName = (String)xmlConfig().getNiProviderAttributeValue(instanceName,ConfigManager.NiProviderDirectoryName);
 		return directoryName;

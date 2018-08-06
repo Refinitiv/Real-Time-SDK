@@ -35,6 +35,8 @@ public :
 
 	OmmNiProviderImpl(OmmProvider*, const OmmNiProviderConfig&, OmmProviderClient&, OmmProviderErrorClient&, void*);
 
+	OmmNiProviderImpl(const OmmNiProviderConfig&, OmmProviderClient&); //for internal UnitTest only
+
 	virtual ~OmmNiProviderImpl();
 
 	UInt64 registerClient( const ReqMsg& , OmmProviderClient& , void* closure = 0, UInt64 parentHandle = 0 );
@@ -100,6 +102,8 @@ public :
 	void setActiveRsslReactorChannel( Channel* activeChannel );
 
 	void unsetActiveRsslReactorChannel( Channel* cancelChannel);
+
+	DirectoryServiceStore& getDirectoryServiceStore() const;
 
 private :
 

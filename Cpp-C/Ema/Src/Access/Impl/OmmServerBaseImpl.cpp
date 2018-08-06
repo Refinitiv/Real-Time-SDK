@@ -128,6 +128,9 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "ServiceCountHint", tmp))
 		_activeServerConfig.serviceCountHint = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "RequestTimeout", tmp))
+		_activeServerConfig.requestTimeout = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+
 	pConfigServerImpl->get<Int64>(instanceNodeName + "DispatchTimeoutApiThread", _activeServerConfig.dispatchTimeoutApiThread);
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "CatchUnhandledException", tmp))
@@ -139,56 +142,46 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
 		_activeServerConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	if (pConfigServerImpl->get<EmaString>(instanceNodeName + "XmlTraceFileName", _activeServerConfig.xmlTraceFileName))
-		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
+	pConfigServerImpl->get<EmaString>(instanceNodeName + "XmlTraceFileName", _activeServerConfig.xmlTraceFileName);
 
 	Int64 tmp1;
 	if (pConfigServerImpl->get<Int64>(instanceNodeName + "XmlTraceMaxFileSize", tmp1) && tmp1 > 0)
 	{
-		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeServerConfig.xmlTraceMaxFileSize = tmp1;
 	}
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceToFile", tmp))
 	{
-		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeServerConfig.xmlTraceToFile = tmp > 0 ? true : false;
 	}
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceToStdout", tmp))
 	{
-		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeServerConfig.xmlTraceToStdout = tmp > 0 ? true : false;
 	}
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceToMultipleFiles", tmp))
 	{
-		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeServerConfig.xmlTraceToMultipleFiles = tmp > 0 ? true : false;
 	}
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceWrite", tmp))
 	{
-		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeServerConfig.xmlTraceWrite = tmp > 0 ? true : false;
 	}
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceRead", tmp))
 	{
-		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeServerConfig.xmlTraceRead = tmp > 0 ? true : false;
 	}
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTracePing", tmp))
 	{
-		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeServerConfig.xmlTracePing = tmp > 0 ? true : false;
-
 	}
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "XmlTraceHex", tmp))
 	{
-		_activeServerConfig.parameterConfigGroup |= PARAMETER_SET_IN_CONSUMER_PROVIDER;
 		_activeServerConfig.xmlTraceHex = tmp > 0 ? true : false;
 	}
 
@@ -210,7 +203,7 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 		if (!pConfigServerImpl->get< EmaString >(loggerNodeName + "Name", name))
 		{
 			EmaString errorMsg("no configuration exists for consumer logger [");
-			errorMsg.append(loggerNodeName).append("]; will use logger defaults");
+			errorMsg.append(loggerNodeName).append("]; will use logger defaults if not config programmatically");
 			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
 		}
 
@@ -228,14 +221,89 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 	else
 		_activeServerConfig.loggerConfig.loggerName.set("Logger");
 
+	if (ProgrammaticConfigure* ppc = pConfigServerImpl->getProgrammaticConfigure())
+	{
+		ppc->retrieveLoggerConfig(_activeServerConfig.loggerConfig.loggerName, _activeServerConfig);
+	}
+
 	EmaString serverName;
-	pConfigServerImpl->getServerName( _activeServerConfig.configuredName, serverName );
+	pConfigServerImpl->getServerName(_activeServerConfig.configuredName, serverName);
+	if (serverName.trimWhitespace().length() > 0)
+	{
+		if (_activeServerConfig.pServerConfig)
+		{
+			delete _activeServerConfig.pServerConfig;
+			_activeServerConfig.pServerConfig = 0;
+		}
+		_activeServerConfig.pServerConfig = readServerConfig(pConfigServerImpl, serverName.trimWhitespace());
+	}
+	else
+	{
+		useDefaultConfigValues(EmaString("Server"), pConfigServerImpl->getUserSpecifiedPort().userSpecifiedValue);
+	}
 
-	_activeServerConfig.pServerConfig = readServerConfig(pConfigServerImpl, serverName.trimWhitespace());
+	if (ProgrammaticConfigure* ppc = pConfigServerImpl->getProgrammaticConfigure())
+	{
+		ppc->retrieveCommonConfig(_activeServerConfig.configuredName, _activeServerConfig);
+		bool isProgmaticCfgServerName = ppc->getActiveServerName(_activeServerConfig.configuredName, serverName.trimWhitespace());
 
-	// Todo: load configuration parameters from programmatic configuration
+		if (isProgmaticCfgServerName)
+		{
+			if (_activeServerConfig.pServerConfig)
+			{
+				delete _activeServerConfig.pServerConfig;
+				_activeServerConfig.pServerConfig = 0;
+			}
+
+			ServerConfig* fileServerConfig = readServerConfig(pConfigServerImpl, serverName.trimWhitespace());
+
+			int serverConfigByFuncCall = 0;
+			if (pConfigServerImpl->getUserSpecifiedPort().userSpecifiedValue.length() > 0)
+				serverConfigByFuncCall = SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL;
+			
+
+			ppc->retrieveServerConfig(serverName.trimWhitespace(), _activeServerConfig, serverConfigByFuncCall, fileServerConfig);
+			if (!_activeServerConfig.pServerConfig)
+				_activeServerConfig.pServerConfig = fileServerConfig;
+			else
+			{
+				if (fileServerConfig)
+				{
+					delete fileServerConfig;
+					fileServerConfig = 0;
+				}
+			}
+		}
+		
+	}
 
 	catchUnhandledException(_activeServerConfig.catchUnhandledException);
+}
+
+void OmmServerBaseImpl::useDefaultConfigValues(const EmaString& serverName, const EmaString& port)
+{
+	SocketServerConfig* newServerConfig = 0;
+	try
+	{
+		newServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
+
+		if (port.length())
+			newServerConfig->serviceName = port;
+
+		newServerConfig->name.set(serverName);
+		if (_activeServerConfig.pServerConfig)
+		{
+			delete _activeServerConfig.pServerConfig;
+			_activeServerConfig.pServerConfig = 0;
+		}
+		_activeServerConfig.pServerConfig = newServerConfig;
+	}
+	catch (std::bad_alloc)
+	{
+		const char* temp("Failed to allocate memory for SocketServerConfig.");
+		throwMeeException(temp);
+		return;
+	}
 }
 
 ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigServerImpl, const EmaString& serverName )
@@ -453,6 +521,13 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 
 		readCustomConfig(serverConfigImpl);
 
+		if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
+		{
+			EmaString temp("Print out active configuration detail.");
+			temp.append(_activeServerConfig.configTrace());
+			_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+		}
+
 		if (!_pipe.create())
 		{
 			EmaString temp("Failed to create communication Pipe.");
@@ -612,6 +687,38 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 			notifErrorClientHandler(ommException, getErrorClientHandler());
 		else
 			throw;
+	}
+}
+
+//only for unit test, internal use
+void OmmServerBaseImpl::initializeForTest(EmaConfigServerImpl* serverConfigImpl)
+{
+	try
+	{
+		_userLock.lock();
+
+		readConfig(serverConfigImpl);
+
+		_pLoggerClient = OmmLoggerClient::create(_activeServerConfig.loggerConfig.loggerType, _activeServerConfig.loggerConfig.includeDateInLoggerOutput,
+			_activeServerConfig.loggerConfig.minLoggerSeverity, _activeServerConfig.loggerConfig.loggerFileName);
+
+		serverConfigImpl->configErrors().log(_pLoggerClient, _activeServerConfig.loggerConfig.minLoggerSeverity);
+
+		readCustomConfig(serverConfigImpl);
+
+		if (OmmLoggerClient::VerboseEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
+		{
+			EmaString temp("Print out active configuration detail.");
+			temp.append(_activeServerConfig.configTrace());
+			_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
+		}
+
+		_userLock.unlock();
+	}
+	catch (const OmmException& ommException)
+	{
+		_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::VerboseEnum, ommException.getText());
+		_userLock.unlock();
 	}
 }
 

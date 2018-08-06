@@ -25,6 +25,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 {
 	cout << statusMsg << endl;		// defaults to statusMsg.toString()
 }
+
 //APIQA
 void createProgramaticConfig(Map& configMap)
 {
@@ -37,8 +38,6 @@ void createProgramaticConfig(Map& configMap)
                 ElementList()
                 .addAscii("Channel", "Channel_1")
                 .addAscii("Logger", "Logger_2")
-                .addAscii("LibsslName", "libssl.so")
-                .addAscii("LibcryptoName", "libcrypto.so")
                 .addUInt("ItemCountHint", 5000)
                 .addUInt("MsgKeyInUpdates", 1).complete()).complete();
 
@@ -56,7 +55,6 @@ void createProgramaticConfig(Map& configMap)
                 .addEnum("CompressionType", 0)
                 .addUInt("GuaranteedOutputBuffers", 5000)
                 .addUInt("ConnectionPingTimeout", 50000)
-                .addEnum("SecurityProtocol", 7)
                 .addAscii("Host", "localhost")
                 .addAscii("Port", "14002")
                 .addAscii("ObjectName", "P_ObjectName")
@@ -98,21 +96,75 @@ void createProgramaticConfig(Map& configMap)
 
         configMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
         elementList.clear();
-
         configMap.complete();
 }
 //END APIQA
+
+void printHelp()
+{
+	cout << endl << "Options:\n" << " -?\tShows this usage\n"
+		<< " -ph Proxy host name \n"
+		<< " -pp Proxy port number \n"
+		<< " -spTLSv1 enable use of cryptopgrahic protocol TLSv1 used with linux encrypted connections \n"
+		<< " -spTLSv1.1 enable use of cryptopgrahic protocol TLSv1.1 used with linux encrypted connections \n"
+		<< " -spTLSv1.2 enable use of cryptopgrahic protocol TLSv1.2 used with linux encrypted connections \n"
+		<< " -libsslName name of the libssl.so shared library used with linux encrypted connections. \n"
+		<< " -libcryptoName name of the libcrypto.so shared library used with linux encrypted connections \n" << endl;
+}
+
 int main( int argc, char* argv[] )
 { 
 	try { 
 		AppClient client;
-                //APIQA
-                Map configMap;
-                createProgramaticConfig(configMap);
-                OmmConsumer consumer(OmmConsumerConfig().config(configMap).username("user").consumerName("Consumer_3"));
-                //END APIQA
+		OmmConsumerConfig config;
+		int securityProtocol = 0;
+
+		for (int i = 0; i < argc; i++)
+		{
+			if (argv[i] == "-?")
+			{
+				printHelp();
+				return false;
+			}
+			else if (strcmp(argv[i], "-ph") == 0)
+			{
+				config.tunnelingProxyHostName(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-pp") == 0)
+			{
+				config.tunnelingProxyPort(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-spTLSv1") == 0)
+			{
+				securityProtocol |= OmmConsumerConfig::ENC_TLSV1;
+			}
+			else if (strcmp(argv[i], "-spTLSv1.1") == 0)
+			{
+				securityProtocol |= OmmConsumerConfig::ENC_TLSV1_1;
+			}
+			else if (strcmp(argv[i], "-spTLSv1.2") == 0)
+			{
+				securityProtocol |= OmmConsumerConfig::ENC_TLSV1_2;
+			}
+			else if (strcmp(argv[i], "-libsslName") == 0)
+			{
+				config.tunnelingLibSslName(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-libcryptoName") == 0)
+			{
+				config.tunnelingLibCryptoName(i < (argc - 1) ? argv[++i] : NULL);
+			}
+		}
+
+		if (securityProtocol > 0)
+			config.tunnelingSecurityProtocol(securityProtocol);
+        //APIQA
+        Map configMap;
+        createProgramaticConfig(configMap);
+        OmmConsumer consumer(config.config(configMap).username("user").consumerName("Consumer_3"));
+        //END APIQA
 		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client );
-		sleep( 3240000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;
 	}

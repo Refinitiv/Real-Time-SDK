@@ -38,10 +38,8 @@ Reuters Oak Brook, IL USA
 	
 - Single Open: EMA supports application selected single open functionality
 	  
-	
 - Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
 	
-
 		
 		
 ##Non-Interactive Provider Features:
@@ -50,6 +48,8 @@ Reuters Oak Brook, IL USA
  
 - Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
 
+- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
+
 
 ##Interactive Provider Features:
 
@@ -57,6 +57,7 @@ Reuters Oak Brook, IL USA
  
 - Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
 
+- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
 
 
 
@@ -72,7 +73,9 @@ Reuters Oak Brook, IL USA
 
 - File Config:	Enables applications to specify EMA configuration in an EmaConfig.xml file
 
-
+- Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceXXX,MsgKeyInUpdates only can be configured
+  on Consumer/IProvider/NiProvider instance level.
+  
 # Product Content
 
 - CMake files to build EMA library

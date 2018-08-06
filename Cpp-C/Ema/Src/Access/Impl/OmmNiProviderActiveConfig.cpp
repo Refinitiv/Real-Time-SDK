@@ -47,7 +47,71 @@ void OmmNiProviderActiveConfig::clear()
 	removeItemsOnDisconnect = DEFAULT_REMOVE_ITEMS_ON_DISCONNECT;
 }
 
+EmaString OmmNiProviderActiveConfig::configTrace()
+{
+	ActiveConfig::configTrace();
+	traceStr.append("\n\t operationModel: ").append(operationModel)
+		.append("\n\t directoryAdminControl: ").append(directoryAdminControl)
+		.append("\n\t refreshFirstRequired : ").append(refreshFirstRequired)
+		.append("\n\t mergeSourceDirectoryStreams : ").append(mergeSourceDirectoryStreams)
+		.append("\n\t recoverUserSubmitSourceDirectory : ").append(recoverUserSubmitSourceDirectory)
+		.append("\n\t removeItemsOnDisconnect : ").append(removeItemsOnDisconnect);
+	return traceStr;
+}
+
 OmmNiProviderConfig::AdminControl OmmNiProviderActiveConfig::getDirectoryAdminControl()
 {
 	return directoryAdminControl;
+}
+
+bool OmmNiProviderActiveConfig::getMergeSourceDirectoryStreams()
+{
+	return mergeSourceDirectoryStreams;
+}
+
+bool OmmNiProviderActiveConfig::getRecoverUserSubmitSourceDirectory()
+{
+	return recoverUserSubmitSourceDirectory;
+}
+
+bool OmmNiProviderActiveConfig::getRemoveItemsOnDisconnect()
+{
+	return removeItemsOnDisconnect;
+}
+
+void OmmNiProviderActiveConfig::setMergeSourceDirectoryStreams(UInt64 value)
+{
+	if (value <= 0)
+		mergeSourceDirectoryStreams = 0;
+	else
+		mergeSourceDirectoryStreams = 1;
+}
+
+void OmmNiProviderActiveConfig::setRecoverUserSubmitSourceDirectory(UInt64 value)
+{
+	if (value <= 0)
+		recoverUserSubmitSourceDirectory = 0;
+	else
+		recoverUserSubmitSourceDirectory = 1;
+}
+
+void OmmNiProviderActiveConfig::setRemoveItemsOnDisconnect(UInt64 value)
+{
+	if (value <= 0)
+		removeItemsOnDisconnect = 0;
+	else
+		removeItemsOnDisconnect = 1;
+}
+
+bool OmmNiProviderActiveConfig::getRefreshFirstRequired()
+{
+	return refreshFirstRequired;
+}
+
+void OmmNiProviderActiveConfig::setRefreshFirstRequired(UInt64 value)
+{
+	if (value <= 0)
+		refreshFirstRequired = 0;
+	else
+		refreshFirstRequired = 1;
 }

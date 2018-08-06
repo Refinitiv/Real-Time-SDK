@@ -213,6 +213,8 @@ protected:
 
 	static void notifErrorClientHandler( const OmmException&, ErrorClientHandler& );
 
+	void initializeForTest(EmaConfigImpl*); //only for unit test, internal use 
+
 	ActiveConfig&	_activeConfig;
 
 #ifdef USING_SELECT

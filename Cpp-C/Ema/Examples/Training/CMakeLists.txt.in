@@ -15,7 +15,12 @@ set_target_properties( @domainPrefix@@exampleNumber@ @domainPrefix@@exampleNumbe
 								OUTPUT_NAME @domainPrefix@@exampleNumber@ 
 						)
 
+set_source_files_properties(ReadMe.txt PROPERTIES HEADER_FILE_ONLY TRUE)
+
 if (CMAKE_HOST_WIN32)
+	set_property(TARGET @domainPrefix@@exampleNumber@ PROPERTY PROJECT_LABEL @domainPrefix@_@projectLable@)
+	set_property(TARGET @domainPrefix@@exampleNumber@_shared PROPERTY PROJECT_LABEL @domainPrefix@_@projectLable@_shared)
+
 	set_target_properties( @domainPrefix@@exampleNumber@_shared 
                             PROPERTIES 
                                 RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD 

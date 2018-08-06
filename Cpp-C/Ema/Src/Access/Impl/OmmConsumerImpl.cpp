@@ -47,6 +47,22 @@ OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, OmmConsumerCli
 	OmmBaseImpl::initialize(config._pImpl);
 }
 
+//only for unit test, internal use
+OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, bool unitTest) :
+	OmmBaseImpl(_activeConfig)
+{
+	if (unitTest)
+	{
+		_activeConfig.operationModel = config._pImpl->operationModel();
+		OmmBaseImpl::initializeForTest(config._pImpl);
+	}
+	else
+	{
+		_activeConfig.operationModel = config._pImpl->operationModel();
+		OmmBaseImpl::initialize(config._pImpl);
+	}
+}
+
 OmmConsumerImpl::~OmmConsumerImpl()
 {
 	uninitialize( false, false );
@@ -71,9 +87,9 @@ void OmmConsumerImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 		EmaString name;
 		if ( !pConfigImpl->get< EmaString >( dictionaryNodeName + "Name", name ) )
 		{
-			EmaString errorMsg( "no configuration exists for consumer dictionary [" );
-			errorMsg.append( dictionaryNodeName ).append( "]; will use dictionary defaults" );
-			pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
+			EmaString errorMsg( "no configuration exists in the config file for consumer dictionary [" );
+			errorMsg.append( dictionaryNodeName ).append( "]; will use dictionary defaults if not config programmatically" );
+			pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
 		}
 
 		if ( !pConfigImpl->get<Dictionary::DictionaryType>( dictionaryNodeName + "DictionaryType", _activeConfig.dictionaryConfig.dictionaryType ) )

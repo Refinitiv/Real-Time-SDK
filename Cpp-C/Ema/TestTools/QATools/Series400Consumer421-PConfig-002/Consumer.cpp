@@ -5,10 +5,8 @@
 // *|           Copyright Thomson Reuters 2015. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
-//APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 
 #include "Consumer.h"
-//APIQA
 using namespace thomsonreuters::ema::access;
 using namespace std;
 
@@ -85,6 +83,7 @@ void AppClient::decode( const FieldList& fl )
 	}
 }
 
+//APIQA
 void createProgramaticConfig( Map& configMap )
 {
 	Map innerMap;
@@ -94,8 +93,7 @@ void createProgramaticConfig( Map& configMap )
 
 	innerMap.addKeyAscii( "Consumer_1", MapEntry::AddEnum,
 		ElementList()
-		.addAscii( "Channel", "Channel_1" )
-		.addAscii( "ChannelSet", "Channel_1 , Channel_2" )
+		.addAscii( "ChannelSet", "Channel_1,Channel_2" )
 		.addAscii( "Logger", "Logger_1" )
 		.addAscii( "Dictionary", "Dictionary_1" )
 		.addUInt( "ItemCountHint", 5000 )
@@ -104,11 +102,22 @@ void createProgramaticConfig( Map& configMap )
 		.addUInt( "PostAckTimeout", 5000 )
 		.addUInt( "RequestTimeout", 5000 )
 		.addUInt( "MaxOutstandingPosts", 5000 )
-		.addInt( "DispatchTimeoutApiThread", 1 )
+		.addInt( "DispatchTimeoutApiThread", 100 )
 		.addUInt( "HandleException", 0 )
 		.addUInt( "MaxDispatchCountApiThread", 500 )
 		.addUInt( "MaxDispatchCountUserThread", 500 )
 		.addInt( "ReactorEventFdPort", 45000 )
+		.addInt("ReconnectAttemptLimit", 10)
+		.addInt( "ReconnectMinDelay", 2000 )
+		.addInt( "ReconnectMaxDelay", 6000 )
+		.addAscii( "XmlTraceFileName", "MyXMLTrace" )
+		.addInt( "XmlTraceMaxFileSize", 50000000 )
+		.addUInt( "XmlTraceToFile", 1 )
+		.addUInt( "XmlTraceToStdout", 0 )
+		.addUInt( "XmlTraceToMultipleFiles", 1 )
+		.addUInt( "XmlTraceWrite", 1 )
+		.addUInt( "XmlTraceRead", 1 )
+		.addUInt( "MsgKeyInUpdates", 1 )
 		.addInt( "PipePort", 4001 ).complete() ).complete();
 
 	elementList.addMap( "ConsumerList", innerMap );
@@ -125,41 +134,19 @@ void createProgramaticConfig( Map& configMap )
 		.addEnum("CompressionType", 1)
 		.addUInt( "GuaranteedOutputBuffers", 5000 )
 		.addUInt( "ConnectionPingTimeout", 50000 )
-		.addInt("ReconnectAttemptLimit", 10)
-		.addInt( "ReconnectMinDelay", 2000 )
-		.addInt( "ReconnectMaxDelay", 6000 )
-		.addAscii( "Host", "secondhost" )
-		.addAscii("Port", "14002" )
-		.addUInt( "TcpNodelay", 0 )
-		.addAscii( "XmlTraceFileName", "MyXMLTrace" )
-		.addInt( "XmlTraceMaxFileSize", 50000000 )
-		.addUInt( "XmlTraceToFile", 1 )
-		.addUInt( "XmlTraceToStdout", 0 )
-		.addUInt( "XmlTraceToMultipleFiles", 1 )
-		.addUInt( "XmlTraceWrite", 1 )
-		.addUInt( "XmlTraceRead", 1 )
-		.addUInt( "MsgKeyInUpdates", 1 ).complete() )
-	
+		.addAscii( "Host", "channel1_host" )
+		.addAscii("Port", "channel1_port" )
+		.addUInt( "TcpNodelay", 0 ).complete() )
+
 	    .addKeyAscii( "Channel_2", MapEntry::AddEnum,
 		ElementList()
-		.addEnum( "ChannelType", 0 )
+		.addEnum( "ChannelType", channel2Type_input )
 		.addEnum("CompressionType", 0)
 		.addUInt( "GuaranteedOutputBuffers", 5000 )
 		.addUInt( "ConnectionPingTimeout", 50000 )
-		.addInt("ReconnectAttemptLimit", 10)
-		.addInt( "ReconnectMinDelay", 2000 )
-		.addInt( "ReconnectMaxDelay", 6000 )
-		.addAscii( "Host", "localhost" )
-		.addAscii("Port", "14002" )
-		.addUInt( "TcpNodelay", 0 )
-		.addAscii( "XmlTraceFileName", "MyXMLTrace" )
-		.addInt( "XmlTraceMaxFileSize", 50000000 )
-		.addUInt( "XmlTraceToFile", 0 )
-		.addUInt( "XmlTraceToStdout", 0 )
-		.addUInt( "XmlTraceToMultipleFiles", 1 )
-		.addUInt( "XmlTraceWrite", 1 )
-		.addUInt( "XmlTraceRead", 1 )
-		.addUInt( "MsgKeyInUpdates", 1 ).complete() ).complete();
+		.addAscii( "Host", "channel2_host" )
+		.addAscii("Port", "channel2_port" )
+		.addUInt( "TcpNodelay", 0 ).complete() ).complete();
 
 	elementList.addMap( "ChannelList", innerMap );
 
@@ -198,7 +185,7 @@ void createProgramaticConfig( Map& configMap )
 
 	configMap.complete();
 }
-
+//END APIQA
 int main( int argc, char* argv[] )
 { 
 	try { 
@@ -206,11 +193,10 @@ int main( int argc, char* argv[] )
 		Map configMap;
 		createProgramaticConfig( configMap );
 		OmmConsumer consumer( OmmConsumerConfig().config( configMap ) );		// use programmatic configuration parameters
-		consumer.registerClient( ReqMsg().name( "IBM.N" ).serviceName( "ELEKTRON_DD" ), client );
+		consumer.registerClient( ReqMsg().name( "IBM.N" ).serviceName( "DIRECT_FEED" ), client );
 		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;
 	}
 	return 0;
 }
-//END APIQA

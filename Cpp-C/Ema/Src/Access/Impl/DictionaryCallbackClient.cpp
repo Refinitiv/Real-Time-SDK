@@ -149,7 +149,7 @@ bool LocalDictionary::load( const EmaString& fldName, const EmaString& enumName 
 		{
 			EmaString errorText, dir;
 			getCurrentDir( dir );
-			errorText.set( "Unable to load EnumTypeDef from file named " ).append( fldName ).append( CR )
+			errorText.set( "Unable to load EnumTypeDef from file named " ).append(enumName).append( CR )
 			.append( "Current working directory " ).append( dir ).append( CR )
 			.append( "Error text " ).append( errTxt );
 			_ommCommonImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, errorText);

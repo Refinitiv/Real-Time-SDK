@@ -126,8 +126,8 @@ Series100Consumer112-ConsFunc-002
     tunnelingObjectName
 
 Series100Consumer112-PConfig-001
-    Alters consumer to specify programatic config for SecurityProtocol,
-	Host,Port,ProxyHost,ProxyPort,ObjectName,LibsslName and LibcryptoName
+    Alters consumer to specify programatic config for parameters related to EncryptedType connection: 
+	Host,Port,ProxyHost,ProxyPort and ObjectName
 
 
 Module:  Series200Consumer200
@@ -262,11 +262,22 @@ Module:  Series400Consumer421
 ---------------------------
 
 Series400Consumer421-PConfig-001
-	Alters consumer such that programmatic config adds Enum ( "DictionaryType", 2 ) 
-	instead of ( "DictionaryType", 1 ). 
+	Alters consumer such that Channel_1 added configuration for CompressionThreshold and alter value for InterfaceName 
+	to consumerInterface, 
+	Also additional changes are
+	- replace .addEnum( "DictionaryType", 1 ) to .addEnum( "DictionaryType", 0 ) 
+	- replace .addEnum( "LoggerType", 0 ) to .addEnum( "LoggerType", logger1Type ) 
+	- replace .addEnum( "LoggerSeverity", 1 ) to .addEnum( "LoggerSeverity", logger1Severity  ) 
 
 Series400Consumer421-PConfig-002
-    Alters consumer such that programmatic config to specify ChannelSet with Two Channels. 
+    Alters consumer to specify Channelset parameters using programmatic config for two channels 
+
+Series400Consumer421-PConfig-003
+	Alters consumer so it is doing a combination of programmatic and function calls
+	In programmatic Channel_1 added configuration for CompressionThreshold and alter value for InterfaceName 
+	to consumerInterface, also replace Enum ( "DictionaryType", 0 ) 
+	instead of ( "DictionaryType", 1 ). 
+	In functional configuration for consumerName as Consumer_3 and  host("localhost:14002")
 
 
 Module:  Series400Consumer430

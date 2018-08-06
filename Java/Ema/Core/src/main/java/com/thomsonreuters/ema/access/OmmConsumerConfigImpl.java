@@ -9,6 +9,7 @@ package com.thomsonreuters.ema.access;
 
 
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
 
 class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 {
@@ -89,19 +90,23 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	@Override
 	public OmmConsumerConfig consumerName(String consumerName)
 	{
-        // TODO: Retrieve from programmatic configuration
+		_configSessionName = consumerName;
+		
+		if ( _programmaticConfigure != null && _programmaticConfigure.specifyConsumerName( consumerName ) )
+			return this;
 
 		String name = (String) xmlConfig().getConsumerAttributeValue(consumerName,ConfigManager.ConsumerName);
 
 		if ( name == null ) 
 		{
-			if ( consumerName.equals("EmaConsumer") )
+			if ( consumerName.equals(ActiveConfig.DEFAULT_CONS_NAME) )
 			{
 				boolean bFoundChild = xmlConfig().isConsumerChildAvailable();
 				if( bFoundChild == false )
 					return this;
 			}
 
+			_configSessionName = null;
 			configStrBuilder().append( "OmmConsumerConfigImpl::consumerName parameter [" )
 									.append( consumerName )
 									.append( "] is an non-existent consumer name" );
@@ -143,10 +148,14 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	@Override
 	String configuredName()
 	{
+		if (_configSessionName != null && !_configSessionName.isEmpty())
+			return _configSessionName;
+		
 		String defaultConsumerName = null;
 
-		// TODO: Retrieve from programmatic configuration
-				
+		if ( _programmaticConfigure != null  && (defaultConsumerName = _programmaticConfigure.defaultConsumer()) != null)
+			return defaultConsumerName;
+		
 		defaultConsumerName = xmlConfig().defaultConsumerName();
 
 		// check if default consumer Name and the consumer name matched
@@ -170,7 +179,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		if( firstConsumerName != null )
 			return firstConsumerName;
 		
-	    return "EmaConsumer";	
+	    return ActiveConfig.DEFAULT_CONS_NAME;	
 	}
 	
 	@Override
@@ -178,7 +187,15 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	{
 		String channelName = null;
 
-		// TODO: Retrieve from programmatic configuration
+		if ( _programmaticConfigure != null )
+		{
+			channelName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.CHANNEL_FLAG);
+			if (channelName != null)
+				return channelName;
+			channelName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.CHANNELSET_FLAG);
+			if (channelName != null)
+				return channelName;
+		}
 	
 		channelName = (String) xmlConfig().getMutualExclusiveAttribute(ConfigManager.CONSUMER_LIST, ConfigManager.ConsumerName, instanceName, channelOrChannelSet);
 		return channelName;
@@ -188,10 +205,14 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	{
 		String dictionaryName = null;
 
-		// TODO: Retrieve from programmatic configuration
+		if ( _programmaticConfigure != null )
+		{
+			dictionaryName = _programmaticConfigure.activeEntryNames(instanceName, InstanceEntryFlag.DICTIONARY_FLAG); 
+			if (dictionaryName != null)
+				return dictionaryName;
+		}
 
-		dictionaryName = (String) xmlConfig().getConsumerAttributeValue(instanceName,ConfigManager.ConsumerDictionaryName);
-		return dictionaryName;
+		return (String) xmlConfig().getConsumerAttributeValue(instanceName,ConfigManager.ConsumerDictionaryName);
 	}
 
 	@Override

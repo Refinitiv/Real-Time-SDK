@@ -44,6 +44,8 @@ public:
 
 	OmmConsumerImpl(const OmmConsumerConfig&, OmmConsumerClient&, OmmConsumerErrorClient&, void*);
 
+	OmmConsumerImpl(const OmmConsumerConfig&, bool unittest); //for internal UnitTest only
+
 	virtual ~OmmConsumerImpl();
 
 	UInt64 registerClient( const ReqMsg&, OmmConsumerClient&, void* closure = 0, UInt64 parentHandle = 0 );

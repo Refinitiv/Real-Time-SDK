@@ -22,7 +22,7 @@
 #define DEFAULT_ACCEPT_MSG_WITHOUT_ACCEPTING_REQUESTS   false
 #define DEFAULT_ACCEPT_MSG_WITHOUT_BEING_LOGIN          false
 #define DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE         false
-
+#define DEFAULT_REFRESH_FIRST_REQUIRED					true
 // values for DEFAULT_COMPRESSION_THRESHOLD* must match (or exceed) those found in
 // rsslSocketTransportImpl.c
 #define DEFAULT_COMPRESSION_THRESHOLD					30
@@ -92,17 +92,11 @@
 #define DEFAULT_XML_TRACE_TO_STDOUT					  false
 #define DEFAULT_XML_TRACE_WRITE						  true
 
-/* 
- * The following definitions will be removed in the future after the parameterConfigGroup variable has been removed.
- */
-#define PARAMETER_NOT_SET							0x00  /*!< Indicates no parameters set in any config group */
-#define PARAMETER_SET_IN_CONSUMER_PROVIDER			0x01  /*!< Indicates that there are parameters set in Consumer, NIProvider or IProvider group inside EmaConfig.xml file */
-#define PARAMETER_SET_BY_PROGRAMMATIC				0x02  /*!< Indicates that there are parameters set through the programmatical way */
-
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
-#define TUNNELING_CONN_CONFIG_BY_FUNCTION_CALL		0x02  /*!< Indicates that tunneling configuration set though EMA interface function calls
-															 for RSSL_HTTP or RSSL_ENCRYPTED connection type */
-
+#define SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL	0x02  /*!< Indicates that server listen port set though EMA interface function call from server client*/
+#define TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL 0x04  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+#define TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL 0x08  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+#define TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL 0x10  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 
 namespace thomsonreuters {
 
@@ -175,7 +169,6 @@ public:
 
 	EmaString				name;
 	EmaString				interfaceName;
-	EmaString				xmlTraceFileName;
 	RsslCompTypes			compressionType;
 	UInt32					compressionThreshold;
 	RsslConnectionTypes		connectionType;
@@ -226,9 +219,11 @@ public:
 
 	void addDictionaryProvided(DictionaryConfig*);
 
-	const EmaList<DictionaryConfig*>& getDictionaryUsedList();
+	DictionaryConfig* findDictionary(const EmaString& dictionaryName, bool isDictProvided);
 
-	const EmaList<DictionaryConfig*>& getDictionaryProvidedList();
+	EmaList<DictionaryConfig*>& getDictionaryUsedList();
+
+	EmaList<DictionaryConfig*>& getDictionaryProvidedList();
 
 private:
 	EmaList<DictionaryConfig*>	dictionaryUsedList;
@@ -405,6 +400,8 @@ public:
 	void setCatchUnhandledException(UInt64 value);
 	void setMaxDispatchCountApiThread(UInt64 value);
 	void setMaxDispatchCountUserThread(UInt64 value);
+	void setRequestTimeout(UInt64 value);
+	virtual EmaString configTrace();
 
 	EmaString				configuredName;
 	EmaString				instanceName;
@@ -431,6 +428,8 @@ public:
 	LoggerConfig			loggerConfig;
 	EmaString				libSslName;
 	EmaString				libCryptoName;
+	UInt32					requestTimeout;
+	EmaString				traceStr;
 };
 
 class ActiveConfig : public BaseConfig
@@ -445,7 +444,6 @@ public:
 
 	void setObeyOpenWindow( UInt64 value );
 	void setPostAckTimeout( UInt64 value );
-	void setRequestTimeout( UInt64 value );
 	void setMaxOutstandingPosts( UInt64 value );
 	void setLoginRequestTimeOut( UInt64 );
 	void setDirectoryRequestTimeOut( UInt64 );
@@ -458,10 +456,10 @@ public:
 	static bool findChannelConfig( EmaVector< ChannelConfig* >&, const EmaString&, unsigned int& );
 	void clearChannelSet();
 	const EmaString& defaultServiceName() { return _defaultServiceName; }
+	EmaString configTrace();
 
 	Int64			pipePort;
 	UInt32			obeyOpenWindow;
-	UInt32			requestTimeout;
 	UInt32			postAckTimeout;
 	UInt32			maxOutstandingPosts;
 	UInt32			loginRequestTimeOut;
@@ -536,6 +534,8 @@ public:
 	const EmaList<ServiceDictionaryConfig*>& getServiceDictionaryConfigList();
 
 	void setServiceDictionaryConfigList(EmaList<ServiceDictionaryConfig*>&);
+
+	EmaString configTrace();
 
 protected:
 

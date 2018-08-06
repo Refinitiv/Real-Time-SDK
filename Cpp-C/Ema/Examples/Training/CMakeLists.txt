@@ -31,7 +31,7 @@ foreach (_item IN LISTS COMP_LIST)
         ${CMAKE_CURRENT_SOURCE_DIR}/${_item}/*)
     list(APPEND ${_item}_LIST "" )
     # Only need one path per example. So first add all path's
-    # to the example type list, without the file name.  The remove
+    # to the example type list, without the file name.  Then remove
     # the duplicate paths
     foreach (_path IN LISTS _dirList)
         string (REGEX MATCH "(.+)(/.*)$" _matchOut ${_path})
@@ -58,11 +58,15 @@ foreach (_item IN LISTS COMP_LIST)
             set(sourceFileList "")
             file (GLOB _pathFiles RELATIVE 
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_path} 
-                    "${_path}/*.cpp" "${_path}/*.C" "${_path}/*.h")
+                    "${_path}/*.cpp" "${_path}/*.C" "${_path}/*.h" "${_path}/ReadMe.txt")
             foreach (_pf IN LISTS _pathFiles)
                 string(APPEND sourceFileList "${_pf} ")
             endforeach ()
-            
+
+			# Set project label to directory name by removing first set of the path
+			# i.e. 100__MarketPrice__Streaming
+			string( REGEX REPLACE "([a-zA-Z]+)/([0-9]+[_]+[a-zA-Z]+)/" "" projectLable ${_path} )
+
             # Write out the CMakeLists file using the example cmake template
             configure_file(CMakeLists.txt.in ${CMAKE_CURRENT_SOURCE_DIR}/${_path}/CMakeLists.txt @ONLY)
         endif()

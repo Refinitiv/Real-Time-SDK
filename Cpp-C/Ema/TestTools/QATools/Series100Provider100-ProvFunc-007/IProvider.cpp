@@ -117,7 +117,6 @@ void AppClient::onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event )
 int main( int argc, char* argv[] )
 {
 //APIQA
-  signal(SIGPIPE, SIG_IGN);
   for (int i = 0; i < argc; ++i)
 	if (strcmp(argv[i], "-c") == 0) {
 	  if (argc == i + 1) {		// no more arguments
