@@ -23,7 +23,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmProviderEvent&
 	cout << statusMsg << endl;
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try
 	{

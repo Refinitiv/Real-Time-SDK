@@ -25,7 +25,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 	cout << statusMsg << endl;		// defaults to statusMsg.toString()
 }
 
-int main( int argc, char* argv[] )
+int main()
 { 
 	try { 
 		AppClient client;

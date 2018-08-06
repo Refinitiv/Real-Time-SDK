@@ -111,7 +111,7 @@ void AppClient::setOmmConsumer( OmmConsumer & ommConsumer )
 	_pOmmConsumer = &ommConsumer;
 }
 
-int main( int argc, char* argv[] )
+int main()
 { 
 	try { 
 		AppClient client;

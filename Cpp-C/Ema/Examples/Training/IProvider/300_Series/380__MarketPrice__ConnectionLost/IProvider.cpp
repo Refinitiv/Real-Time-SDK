@@ -20,7 +20,7 @@ void AppClient::processLoginRequest( const ReqMsg& reqMsg, const OmmProviderEven
 		event.getHandle() );
 }
 
-void AppClient::processLoginClose(const ReqMsg& reqMsg, const OmmProviderEvent& event)
+void AppClient::processLoginClose(const ReqMsg&, const OmmProviderEvent& event)
 {
 	itemHandle = 0;
 
@@ -84,7 +84,7 @@ void AppClient::onClose(const ReqMsg& reqMsg, const OmmProviderEvent& event)
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try
 	{
@@ -101,8 +101,9 @@ int main( int argc, char* argv[] )
 			{
 				provider.submit(UpdateMsg().payload(FieldList().
 					addReal(22, 3391 + i, OmmReal::ExponentNeg2Enum).
-					addReal(30, 10 + i++, OmmReal::Exponent0Enum).
+					addReal(30, 10 + i, OmmReal::Exponent0Enum).
 					complete()), itemHandle);
+				++i;
 
 				sleep(1000);
 			}

@@ -177,7 +177,7 @@ void AppClient::decodeFieldList( const FieldList& fl )
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 { 
 	try { 
 		AppClient client;

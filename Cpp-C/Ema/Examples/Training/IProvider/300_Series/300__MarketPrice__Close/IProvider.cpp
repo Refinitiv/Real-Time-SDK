@@ -62,7 +62,7 @@ void AppClient::processInvalidItemRequest( const ReqMsg& reqMsg, const OmmProvid
 		event.getHandle() );
 }
 
-void AppClient::processInvalidItemClose(const ReqMsg& reqMsg, const OmmProviderEvent& event)
+void AppClient::processInvalidItemClose(const ReqMsg&, const OmmProviderEvent&)
 {
 	cout << "Item to be closed is not found" << endl;
 }
@@ -96,7 +96,7 @@ void AppClient::onClose(const ReqMsg& reqMsg, const OmmProviderEvent& event)
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try
 	{
@@ -110,9 +110,9 @@ int main( int argc, char* argv[] )
 		{
 			provider.submit( UpdateMsg().payload( FieldList().
 					addReal( 22, 3391 + i, OmmReal::ExponentNeg2Enum ).
-					addReal( 30, 10 + i++, OmmReal::Exponent0Enum ).
+					addReal( 30, 10 + i, OmmReal::Exponent0Enum ).
 					complete() ), itemHandle );
-					
+			++i;
 			sleep( 1000 );
 		} while (itemHandle != 0);
 

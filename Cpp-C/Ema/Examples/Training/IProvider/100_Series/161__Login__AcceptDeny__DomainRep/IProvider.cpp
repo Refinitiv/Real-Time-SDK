@@ -79,7 +79,7 @@ void AppClient::onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event )
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try
 	{

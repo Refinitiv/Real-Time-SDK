@@ -66,7 +66,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 { 
 	try { 
 		AppClient client;

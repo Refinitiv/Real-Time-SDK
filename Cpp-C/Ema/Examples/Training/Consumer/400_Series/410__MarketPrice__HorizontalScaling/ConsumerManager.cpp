@@ -41,21 +41,14 @@ void ConsumerManager::run()
 
 #ifdef WIN32
 unsigned __stdcall ConsumerManager::ThreadFunc( void* pArguments )
+#else
+extern "C" void * ConsumerManager::ThreadFunc( void* pArguments )
+#endif
 {
 	((ConsumerManager *)pArguments)->run();
 
 	return 0;
 }
-
-#else
-extern "C" 
-{
-	 void * ConsumerManager::ThreadFunc( void* pArguments )
-	{
-		((ConsumerManager *)pArguments)->run();
-	}
-}
-#endif
 
 void  ConsumerManager::start()
 {

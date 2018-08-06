@@ -191,7 +191,7 @@ void AppClient::decode( const Vector& vt )
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try {
 		AppClient client;

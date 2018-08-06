@@ -10,7 +10,7 @@
 using namespace thomsonreuters::ema::access;
 using namespace std;
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try
 	{

@@ -72,12 +72,12 @@ void AppClient::onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event )
 	}
 }
 
-void AppClient::onGenericMsg(const thomsonreuters::ema::access::GenericMsg& genericMsg, const thomsonreuters::ema::access::OmmProviderEvent& event)
+void AppClient::onGenericMsg(const thomsonreuters::ema::access::GenericMsg&, const thomsonreuters::ema::access::OmmProviderEvent& event)
 {
 	cout << endl << "Received:    GenericMsg" << endl << "Item Handle: " << event.getHandle() << endl << "Closure:     " << event.getClosure() << endl;
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try
 	{

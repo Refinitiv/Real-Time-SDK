@@ -44,7 +44,7 @@ void AppClient::decode( const OmmOpaque& oq )
 	cout << endl<<  "OmmOpaque data: " << oq.getAsHex() << endl;
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try {
 		AppClient client;

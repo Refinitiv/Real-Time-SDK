@@ -47,7 +47,7 @@ int main( int argc, char* argv[] )
 
 		for (int i = 0; i < argc; i++)
 		{
-			if (argv[i] == "-?")
+			if (strcmp(argv[i], "-?") == 0)
 			{
 				printHelp();
 				return false;

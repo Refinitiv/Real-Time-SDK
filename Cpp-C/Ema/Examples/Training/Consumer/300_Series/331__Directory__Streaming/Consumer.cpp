@@ -253,7 +253,7 @@ void AppClient::decode(const OmmArray& ommArray)
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try {
 		AppClient client;

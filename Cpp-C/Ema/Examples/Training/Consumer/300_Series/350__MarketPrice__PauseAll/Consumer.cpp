@@ -114,7 +114,7 @@ void AppClient::setOmmConsumer( OmmConsumer& consumer, UInt64 loginHandle )
 	_loginHandle = loginHandle;
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try {
 		AppClient client;

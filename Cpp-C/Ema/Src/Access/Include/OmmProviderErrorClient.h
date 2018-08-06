@@ -50,26 +50,26 @@ public:
 		@param[out] text specifies associated error text
 		@return void
 	*/
-	virtual void onInvalidHandle( UInt64 handle, const EmaString& text ) {}
+	virtual void onInvalidHandle( UInt64 handle, const EmaString& text ) {(void)handle;(void)text;}
 
 	/** Invoked when log file is inaccessible. Requires OmmProvider constructor to have an OmmProviderErrorClient.
 		@param[out] filename identifies file name that was not able to b open
 		@param[out] text specifies associated error text
 		@return void
 	*/
-	virtual void onInaccessibleLogFile( const EmaString& filename, const EmaString& text ) {}
+	virtual void onInaccessibleLogFile( const EmaString& filename, const EmaString& text ) {(void)filename;(void)text;}
 
 	/** Invoked in the case of memory exhaustion. Requires OmmProvider constructor to have an OmmProviderErrorClient.
 		@param[out] text specifies associated error text
 		@return void
 	*/ 
-	virtual void onMemoryExhaustion( const EmaString& text) {}
+	virtual void onMemoryExhaustion( const EmaString& text) {(void)text;}
 	
 	/** Invoked in the case of invalid usage. Requires OmmProvider constructor to have an OmmProviderErrorClient.
 		@param[out] text specifies associated error text
 		@return void
 	*/ 
-	virtual void onInvalidUsage( const EmaString& text) {}
+	virtual void onInvalidUsage( const EmaString& text) {(void)text;}
 
 	/** Invoked in the case of an underlying system error. Requires OmmProvider constructor to have an OmmProviderErrorClient.
 		@param[out] code specifies system exception code
@@ -77,7 +77,7 @@ public:
 		@param[out] text specifies associated error text
 		@return void
 	*/ 
-	virtual void onSystemError( Int64 code, void* ptr, const EmaString& text ) {}
+	virtual void onSystemError( Int64 code, void* ptr, const EmaString& text ) {(void)code; (void)ptr; (void)text;}
 	//@}
 
 	///@name Destructor

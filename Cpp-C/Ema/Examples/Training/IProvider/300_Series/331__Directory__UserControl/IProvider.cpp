@@ -41,7 +41,7 @@ void AppClient::processMarketPriceRequest( const ReqMsg& reqMsg, const OmmProvid
 	itemHandle = event.getHandle();
 }
 
-void AppClient::processDirectoryRequest(const ReqMsg& reqMsg, const OmmProviderEvent& event)
+void AppClient::processDirectoryRequest(const ReqMsg&, const OmmProviderEvent& event)
 {
 	event.getProvider().submit(RefreshMsg().domainType(MMT_DIRECTORY).filter(SERVICE_INFO_FILTER | SERVICE_STATE_FILTER).
 		payload(Map().
@@ -91,7 +91,7 @@ void AppClient::onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event )
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try
 	{

@@ -134,7 +134,7 @@ void AppClient::decode( const Map& map )
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try {
 		AppClient client;

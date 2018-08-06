@@ -44,7 +44,7 @@ void AppClient::processAppDomainRequest( const ReqMsg& reqMsg, const OmmProvider
 	itemHandle = event.getHandle();
 }
 
-void AppClient::processAppDomainGenericMsg(const GenericMsg& genericMsg, const OmmProviderEvent& event)
+void AppClient::processAppDomainGenericMsg(const GenericMsg&, const OmmProviderEvent& event)
 {
 	if (itemHandle == 0 || itemHandle != event.getHandle())
 	{
@@ -86,7 +86,7 @@ void AppClient::onGenericMsg(const GenericMsg& genericMsg, const OmmProviderEven
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try
 	{
@@ -104,8 +104,9 @@ int main( int argc, char* argv[] )
 
 			provider.submit( UpdateMsg().domainType(APP_DOMAIN).payload( FieldList().
 					addReal( 22, 3391 + i, OmmReal::ExponentNeg2Enum ).
-					addReal( 30, 10 + i++, OmmReal::Exponent0Enum ).
+					addReal( 30, 10 + i, OmmReal::Exponent0Enum ).
 					complete() ), itemHandle );
+			++i;
 					
 			sleep( 1000 );
 		} 

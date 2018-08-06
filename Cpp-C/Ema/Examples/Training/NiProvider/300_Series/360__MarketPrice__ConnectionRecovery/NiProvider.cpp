@@ -62,7 +62,7 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmProviderEvent&
 		_bConnectionUp = true;
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try
 	{

@@ -93,7 +93,7 @@ void AppClient::decode( const FieldList& fl )
 	}
 }
 
-int main( int argc, char* argv[] )
+int main()
 { 
 	try { 
 		AppClient client;

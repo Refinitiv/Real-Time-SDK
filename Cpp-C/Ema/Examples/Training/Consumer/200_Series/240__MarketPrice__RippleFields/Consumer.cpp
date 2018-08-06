@@ -96,7 +96,7 @@ AppClient::AppClient() :
 {
 }
 
-int main( int argc, char* argv[] )
+int main()
 {
 	try {
 		AppClient client;

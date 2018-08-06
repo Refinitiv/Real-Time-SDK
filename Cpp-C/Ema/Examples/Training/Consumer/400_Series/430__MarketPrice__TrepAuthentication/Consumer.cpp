@@ -126,12 +126,12 @@ void AppLoginClient::onRefreshMsg(const RefreshMsg& refreshMsg, const OmmConsume
 		_TTReissue = 0;
 }
 
-void AppLoginClient::onUpdateMsg(const UpdateMsg& updateMsg, const OmmConsumerEvent& event)
+void AppLoginClient::onUpdateMsg(const UpdateMsg& updateMsg, const OmmConsumerEvent&)
 {
 	cout << endl << updateMsg << endl;
 }
 
-void AppLoginClient::onStatusMsg(const StatusMsg& statusMsg, const OmmConsumerEvent& event)
+void AppLoginClient::onStatusMsg(const StatusMsg& statusMsg, const OmmConsumerEvent&)
 {
 	if (statusMsg.getDomainType() == MMT_LOGIN)
 		cout << endl << "Received login status message" << endl;
