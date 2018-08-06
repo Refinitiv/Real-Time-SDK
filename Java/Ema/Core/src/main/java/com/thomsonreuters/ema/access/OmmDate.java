@@ -36,19 +36,19 @@ package com.thomsonreuters.ema.access;
 public interface OmmDate extends Data
 {
 	/**
-	 * Returns Year.
+	 * Returns Year. Range is 0 - 4095 where 0 indicates blank.
 	 * @return value of year
 	*/
 	public int year();
 	
 	/**
-	 * Returns Month.
+	 * Returns Month. Range is 0 - 12 where 0 indicates blank.
 	 * @return value of month
 	*/
 	public int month();
 	
 	/**
-	 * Returns Day.
+	 * Returns Day. Range is 0 - 31 where 0 indicates blank.
 	 * @return value of day
 	*/
 	public int day();

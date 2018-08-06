@@ -37,55 +37,55 @@ package com.thomsonreuters.ema.access;
 public interface OmmDateTime extends Data
 {
 	/**
-	 * Returns Year.
+	 * Returns Year. Range is 0 - 4095 where 0 indicates blank.
 	 * @return value of year
 	 */
 	public int year();
 
 	/**
-	 * Returns Month.
+	 * Returns Month. Range is 0 - 12 where 0 indicates blank.
 	 * @return value of month
 	 */
 	public int month();
 
 	/**
-	 * Returns Day.
+	 * Returns Day. Range is 0 - 31 where 0 indicates blank.
 	 * @return value of day
 	 */
 	public int day();
 
 	/**
-	 * Returns Hour.
+	 * Returns Hour. Range is 0 - 23 where 255 indicates blank.
 	 * @return value of hour
 	 */
 	public int hour();
 
 	/**
-	 * Returns Minute.
+	 * Returns Minute. Range is 0 - 59 where 255 indicates blank.
 	 * @return value of minutes
 	 */
 	public int minute();
 
 	/**
-	 * Returns Second.
+	 * Returns Second. Range is 0 - 60 where 255 indicates blank and 60 is to account for leap second.
 	 * @return value of seconds
 	 */
 	public int second();
 
 	/**
-	 * Returns Millisecond.
+	 * Returns Millisecond. Range is 0 - 999 where 65535 indicates blank.
 	 * @return value of milliseconds
 	 */
 	public int millisecond();
 
 	/**
-	 * Returns Microsecond.
+	 * Returns Microsecond. Range is 0 - 999 where 2047 indicates blank.
 	 * @return value of microseconds
 	 */
 	public int microsecond();
 
 	/**
-	 * Returns Nanosecond.
+	 * Returns Nanosecond. Range is 0 - 999 where 2047 indicates blank.
 	 * @return value of nanoseconds
 	 */
 	public int nanosecond();

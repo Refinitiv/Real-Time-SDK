@@ -92,17 +92,17 @@ public :
 	*/
 	const EmaString& toString() const;
 
-	/** Returns Year.
+	/** Returns Year. Range is 0 - 4095 where 0 indicates blank.
 		@return value of year
 	*/
 	UInt16 getYear() const;
 
-	/** Returns Month.
+	/** Returns Month. Range is 0 - 12 where 0 indicates blank.
 		@return value of month
 	*/
 	UInt8 getMonth() const;
 
-	/** Returns Day.
+	/** Returns Day. Range is 0 - 31 where 0 indicates blank.
 		@return value of day
 	*/
 	UInt8 getDay() const;

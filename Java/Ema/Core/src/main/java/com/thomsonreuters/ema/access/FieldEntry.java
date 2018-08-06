@@ -996,7 +996,7 @@ public interface FieldEntry
 	 * @param year added OmmDateTime year (0 - 4095 where 0 indicates  blank)
 	 * @param month added OmmDateTime month (0 - 12 where 0 indicates blank)
 	 * @param day added OmmDateTime day (0 - 31 where 0 indicates blank)
-	 * @param hour added OmmDateTime hour (0 - 59 where 255 indicates blank)
+	 * @param hour added OmmDateTime hour (0 - 23 where 255 indicates blank)
 	 * 
 	 * @return reference to this object
 	 */
@@ -1014,7 +1014,7 @@ public interface FieldEntry
 	 * @param year added OmmDateTime year (0 - 4095 where 0 indicates  blank)
 	 * @param month added OmmDateTime month (0 - 12 where 0 indicates blank)
 	 * @param day added OmmDateTime day (0 - 31 where 0 indicates blank)
-	 * @param hour added OmmDateTime hour (0 - 59 where 255 indicates blank)
+	 * @param hour added OmmDateTime hour (0 - 23 where 255 indicates blank)
 	 * @param minute added OmmDateTime minute (0 - 59 where 255 indicates blank)
 	 * 
 	 * @return reference to this object
@@ -1033,7 +1033,7 @@ public interface FieldEntry
 	 * @param year added OmmDateTime year (0 - 4095 where 0 indicates  blank)
 	 * @param month added OmmDateTime month (0 - 12 where 0 indicates blank)
 	 * @param day added OmmDateTime day (0 - 31 where 0 indicates blank)
-	 * @param hour added OmmDateTime hour (0 - 59 where 255 indicates blank)
+	 * @param hour added OmmDateTime hour (0 - 23 where 255 indicates blank)
 	 * @param minute added OmmDateTime minute (0 - 59 where 255 indicates blank)
 	 * @param second added OmmDateTime second (0 - 60 where 255 indicates blank)
 	 * 
@@ -1053,7 +1053,7 @@ public interface FieldEntry
 	 * @param year added OmmDateTime year (0 - 4095 where 0 indicates  blank)
 	 * @param month added OmmDateTime month (0 - 12 where 0 indicates blank)
 	 * @param day added OmmDateTime day (0 - 31 where 0 indicates blank)
-	 * @param hour added OmmDateTime hour (0 - 59 where 255 indicates blank)
+	 * @param hour added OmmDateTime hour (0 - 23 where 255 indicates blank)
 	 * @param minute added OmmDateTime minute (0 - 59 where 255 indicates blank)
 	 * @param second added OmmDateTime second (0 - 60 where 255 indicates blank)
 	 * @param millisecond added OmmDateTime millisecond (0 - 999 where 65535 indicates blank)
@@ -1074,7 +1074,7 @@ public interface FieldEntry
 	 * @param year added OmmDateTime year (0 - 4095 where 0 indicates  blank)
 	 * @param month added OmmDateTime month (0 - 12 where 0 indicates blank)
 	 * @param day added OmmDateTime day (0 - 31 where 0 indicates blank)
-	 * @param hour added OmmDateTime hour (0 - 59 where 255 indicates blank)
+	 * @param hour added OmmDateTime hour (0 - 23 where 255 indicates blank)
 	 * @param minute added OmmDateTime minute (0 - 59 where 255 indicates blank)
 	 * @param second added OmmDateTime second (0 - 60 where 255 indicates blank)
 	 * @param millisecond added OmmDateTime millisecond (0 - 999 where 65535 indicates blank)
@@ -1095,7 +1095,7 @@ public interface FieldEntry
 	 * @param year added OmmDateTime year (0 - 4095 where 0 indicates  blank)
 	 * @param month added OmmDateTime month (0 - 12 where 0 indicates blank)
 	 * @param day added OmmDateTime day (0 - 31 where 0 indicates blank)
-	 * @param hour added OmmDateTime hour (0 - 59 where 255 indicates blank)
+	 * @param hour added OmmDateTime hour (0 - 23 where 255 indicates blank)
 	 * @param minute added OmmDateTime minute (0 - 59 where 255 indicates blank)
 	 * @param second added OmmDateTime second (0 - 60 where 255 indicates blank)
 	 * @param millisecond added OmmDateTime millisecond (0 - 999 where 65535 indicates blank)

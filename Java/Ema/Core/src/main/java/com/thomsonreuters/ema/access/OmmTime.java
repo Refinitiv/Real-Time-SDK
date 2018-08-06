@@ -37,42 +37,42 @@ package com.thomsonreuters.ema.access;
 public interface OmmTime extends Data
 {
 	/**
-	 * Returns Hour.
+	 * Returns Hour. Range is 0 - 23 where 255 indicates blank.
 	 * 
 	 * @return int
 	 */
 	public int hour();
 
 	/**
-	 * Returns Minute.
+	 * Returns Minute. Range is 0 - 59 where 255 indicates blank.
 	 * 
 	 * @return int
 	 */
 	public int minute();
 
 	/**
-	 * Returns Second.
+	 * Returns Second. Range is 0 - 60 where 255 indicates blank and 60 is to account for leap second.
 	 * 
 	 * @return int
 	 */
 	public int second();
 
 	/**
-	 * Returns Millisecond.
+	 * Returns Millisecond. Range is 0 - 999 where 65535 indicates blank.
 	 * 
 	 * @return int
 	 */
 	public int millisecond();
 
 	/**
-	 * Returns Microsecond.
+	 * Returns Microsecond. Range is 0 - 999 where 2047 indicates blank.
 	 * 
 	 * @return int
 	 */
 	public int microsecond();
 
 	/**
-	 * Returns Nanosecond.
+	 * Returns Nanosecond. Range is 0 - 999 where 2047 indicates blank.
 	 * 
 	 * @return int
 	 */

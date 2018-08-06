@@ -92,32 +92,32 @@ public :
 	*/
 	const EmaString& toString() const;
 
-	/** Returns Hour.
+	/** Returns Hour. Range is 0 - 23 where 255 indicates blank.
 		@return value of hour
 	*/
 	UInt8 getHour() const;
 
-	/** Returns Minute.
+	/** Returns Minute. Range is 0 - 59 where 255 indicates blank.
 		@return value of minute
 	*/
 	UInt8 getMinute() const;
 
-	/** Returns Second.
+	/** Returns Second. Range is 0 - 60 where 255 indicates blank and 60 is to account for leap second.
 		@return value of second
 	*/
 	UInt8 getSecond() const;
 
-	/** Returns Millisecond.
+	/** Returns Millisecond. Range is 0 - 999 where 65535 indicates blank.
 		@return value of millisecond
 	*/
 	UInt16 getMillisecond() const;
 
-	/** Returns Microsecond.
+	/** Returns Microsecond. Range is 0 - 999 where 2047 indicates blank.
 		@return value of microsecond
 	*/
 	UInt16 getMicrosecond() const;
 
-	/** Returns Nanosecond.
+	/** Returns Nanosecond. Range is 0 - 999 where 2047 indicates blank.
 		@return value of nanosecond
 	*/
 	UInt16 getNanosecond() const;
