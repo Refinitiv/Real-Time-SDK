@@ -1714,7 +1714,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			{
 				compressionType = channelEntry.getEnum();
 
-				if ( compressionType > 2 )
+				if ( compressionType > RSSL_COMP_LZ4)
 				{
 					EmaString text( "Invalid CompressionType [" );
 					text.append( compressionType );

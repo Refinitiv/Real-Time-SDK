@@ -461,6 +461,28 @@ with change in filter to NORMAL after sending 8 updates, also send update on sou
 delete service after sending 9 updates.
 
 
+Module:  Series400Provider421
+---------------------------
+
+Series400Provider421-PConfig-001: 
+	Alters Provider for following changes
+		-Added programmatic config for number of Provider configuration in Provider_1 
+		 MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc 
+		-Added server configuration in Server_1 CompressionThreshold, HighWaterMark, etc,
+
+Series400Provider421-PConfig-002: 
+	Alters Provider for following changes
+		-Added programmatic config for number of Provider configuration in Provider_1 
+		 MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc 
+		-Added server configuration in Server_1 CompressionThreshold, HighWaterMark, etc,
+		-Added fuctional configuration to add providerName to "Provider_2"
+
+Series400Provider421-PConfig-003: 
+	Alters Provider for following changes
+		-Added programmatic config for only Dictionary_1 where RdmFieldDictionaryItemName is RWFFld3 
+		and EnumTypeDefItemName RWFEnum3 
+		-Removed code for programmatic configure Provider_1 and Server_1
+
 
 Module:  Series100NiProvider100
 ---------------------------
@@ -515,6 +537,30 @@ command line arguments to the tool:
 
 	-dirAdminControl < true|false ; default=false >
 	If set to true, tool will send a source directory response; otherwise, the EMA layer will send one on behalf of tool.
+
+Module:  Series400NiProvider421
+---------------------------
+
+Series400NiProvider421-PConfig-001: 
+	Alters NiProvider for following changes
+		-Added programmatic config for number of Provider configuration in Provider_1 
+		 MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc 
+		-Added channel configuration in Channel_10 CompressionThreshold, HighWaterMark, etc,
+
+Series400NiProvider421-PConfig-002: 
+	Alters NiProvider for following changes
+		-Added programmatic config for number of Provider configuration in Provider_1 
+		 MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc 
+		-Added channel configuration in Channel_10 CompressionThreshold, HighWaterMark, etc,
+		-Added fuctional configuration to add providerName to "Provider_2"
+
+Series400NiProvider421-PConfig-003: 
+	Alters NiProvider for following changes
+		-Added programmatic config for number of Provider configuration in Provider_1 
+		ChannelSet, MaxDispatchCountApiThread, MaxDispatchCountUserThread, MergeSourceDirectoryStreams, etc 
+		-Added channel configuration in Channel_10 CompressionThreshold, HighWaterMark, etc,
+		-Added new channel configuration for Channel_11, 
+		-Added code for connection recovery functionality from NiProvider360
 
 Module:  Series400NiProvider430
 ---------------------------
