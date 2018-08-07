@@ -85,7 +85,7 @@ endif()
 if(BUILD_ELEKTRON-SDK-BINARYPACK)
 	include(addExternal_Elektron-SDK-BinaryPack)
 	
-	find_package(Elektron-SDK-BinaryPack 1.2.1.0 MODULE REQUIRED )
+	find_package(Elektron-SDK-BinaryPack 1.2.0.1 MODULE REQUIRED )
 				
 	set(Elektron-SDK-BinaryPack_NAMESPACE "Elektron-SDK-BinaryPack::")
 endif()
