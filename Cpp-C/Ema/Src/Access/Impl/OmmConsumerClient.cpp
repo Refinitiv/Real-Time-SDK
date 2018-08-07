@@ -17,3 +17,28 @@ OmmConsumerClient::OmmConsumerClient()
 OmmConsumerClient::~OmmConsumerClient()
 {
 }
+
+void OmmConsumerClient::onRefreshMsg( const RefreshMsg&, const OmmConsumerEvent& )
+{
+}
+
+void OmmConsumerClient::onUpdateMsg( const UpdateMsg&, const OmmConsumerEvent& )
+{
+}
+
+void OmmConsumerClient::onStatusMsg( const StatusMsg&, const OmmConsumerEvent& )
+{
+}
+
+void OmmConsumerClient::onGenericMsg( const GenericMsg&, const OmmConsumerEvent& )
+{
+}
+
+void OmmConsumerClient::onAckMsg( const AckMsg&, const OmmConsumerEvent& )
+{
+}
+
+void OmmConsumerClient::onAllMsg( const Msg&, const OmmConsumerEvent& )
+{
+}
+

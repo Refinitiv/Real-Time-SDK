@@ -114,6 +114,7 @@ else()
             Impl/OmmConsumer.cpp Impl/OmmConsumerActiveConfig.cpp Impl/OmmConsumerActiveConfig.h
             Impl/OmmConsumerClient.cpp
             Impl/OmmConsumerConfig.cpp Impl/OmmConsumerConfigImpl.cpp Impl/OmmConsumerConfigImpl.h
+			Impl/OmmConsumerErrorClient.cpp
             Impl/OmmConsumerEvent.cpp Impl/OmmConsumerImpl.cpp Impl/OmmConsumerImpl.h
             Impl/OmmDate.cpp Impl/OmmDateDecoder.cpp Impl/OmmDateDecoder.h
             Impl/OmmDateTime.cpp Impl/OmmDateTimeDecoder.cpp Impl/OmmDateTimeDecoder.h
@@ -150,7 +151,9 @@ else()
             Impl/OmmOutOfRangeException.cpp
             Impl/OmmOutOfRangeExceptionImpl.cpp Impl/OmmOutOfRangeExceptionImpl.h
             Impl/OmmProvider.cpp Impl/OmmProviderClient.cpp
-            Impl/OmmProviderConfig.cpp Impl/OmmProviderEvent.cpp
+            Impl/OmmProviderConfig.cpp 
+			Impl/OmmProviderErrorClient.cpp
+			Impl/OmmProviderEvent.cpp
             Impl/OmmProviderImpl.cpp Impl/OmmProviderImpl.h
             Impl/OmmQos.cpp Impl/OmmQosDecoder.cpp Impl/OmmQosDecoder.h
             Impl/OmmReal.cpp Impl/OmmRealDecoder.cpp Impl/OmmRealDecoder.h

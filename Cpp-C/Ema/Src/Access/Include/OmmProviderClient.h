@@ -84,14 +84,14 @@ public :
 		@param[out] event identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onRefreshMsg( const RefreshMsg& refreshMsg, const OmmProviderEvent& event ) {(void)refreshMsg; (void)event;}
+	virtual void onRefreshMsg( const RefreshMsg& refreshMsg, const OmmProviderEvent& event );
 
 	/** Invoked upon receiving a status message. 
 		@param[out] statusMsg received statusMsg
 		@param[out] event identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onStatusMsg( const StatusMsg& statusMsg, const OmmProviderEvent& event ) {(void)statusMsg; (void)event;}
+	virtual void onStatusMsg( const StatusMsg& statusMsg, const OmmProviderEvent& event );
 
 	/** Invoked upon receiving a generic message.
 		Application need only implement this method if a desire to process messages of type GenericMsg.
@@ -99,7 +99,7 @@ public :
 		@param[out] event identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onGenericMsg( const GenericMsg& genericMsg, const OmmProviderEvent& event ) {(void)genericMsg;(void)event;}
+	virtual void onGenericMsg( const GenericMsg& genericMsg, const OmmProviderEvent& event );
 
 	/** Invoked upon receiving any message.
 		Application need only implement this method if a desire to process all message types.
@@ -107,7 +107,7 @@ public :
 		@param[out] event identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onAllMsg( const Msg& msg, const OmmProviderEvent& event ) {(void)msg;(void)event;}
+	virtual void onAllMsg( const Msg& msg, const OmmProviderEvent& event );
 
 	// IProv
 
@@ -117,7 +117,7 @@ public :
 		@param[out] event identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onPostMsg( const PostMsg& postMsg, const OmmProviderEvent& event ) {(void)postMsg;(void)event;}
+	virtual void onPostMsg( const PostMsg& postMsg, const OmmProviderEvent& event );
 
 	/** invoked upon receiving an initial item request message.
 		Application need only implement this method if a desire to process intial messages of type ReqMsg.
@@ -125,7 +125,7 @@ public :
 		@param[out] event identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event ) {(void)reqMsg;(void)event;}
+	virtual void onReqMsg( const ReqMsg& reqMsg, const OmmProviderEvent& event );
 
 	/** invoked upon receiving a reissue request.
 		Application need only implement this method if a desire to process reissue messages of type ReqMsg.
@@ -133,14 +133,14 @@ public :
 		@param[out] event identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onReissue( const ReqMsg& reqMsg, const OmmProviderEvent& event ) {(void)reqMsg;(void)event;}
+	virtual void onReissue( const ReqMsg& reqMsg, const OmmProviderEvent& event );
 
 	/** invoked upon receiving a close request message.
 		Application need only implement this method if a desire to process item close messages.
 		@param[out] event identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onClose(const ReqMsg& reqMsg, const OmmProviderEvent& event) {(void)reqMsg;(void)event;}
+	virtual void onClose(const ReqMsg& reqMsg, const OmmProviderEvent& event );
 	//@}
 
 protected :

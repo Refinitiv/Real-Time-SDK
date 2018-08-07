@@ -93,7 +93,7 @@ public :
 		@param[out] consumerEvent identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& consumerEvent ) {(void)refreshMsg;(void)consumerEvent;}
+	virtual void onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& consumerEvent );
 
 	/** Invoked upon receiving an update message. 
 		Update messages may be interlaced within a multiple part refresh message sequence.
@@ -101,14 +101,14 @@ public :
 		@param[out] consumerEvent identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& consumerEvent ) {(void)updateMsg;(void)consumerEvent;}
+	virtual void onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& consumerEvent );
 
 	/** Invoked upon receiving a status message. 
 		@param[out] statusMsg received statusMsg
 		@param[out] consumerEvent identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& consumerEvent ) {(void)statusMsg;(void)consumerEvent;}
+	virtual void onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& consumerEvent );
 
 	/** Invoked upon receiving any generic message.
 		Application need only implement this method if a desire to process messages of type GenericMsg.
@@ -116,7 +116,7 @@ public :
 		@param[out] consumerEvent identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onGenericMsg( const GenericMsg& genericMsg, const OmmConsumerEvent& consumerEvent ) {(void)genericMsg;(void)consumerEvent;}
+	virtual void onGenericMsg( const GenericMsg& genericMsg, const OmmConsumerEvent& consumerEvent );
 
 	/** Invoked upon receiving any ack message.
 		Application need only implement this method if a desire to process messages of type AckMsg.
@@ -124,7 +124,7 @@ public :
 		@param[out] consumerEvent identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onAckMsg( const AckMsg& ackMsg, const OmmConsumerEvent& consumerEvent ) {(void)ackMsg;(void)consumerEvent;}
+	virtual void onAckMsg( const AckMsg& ackMsg, const OmmConsumerEvent& consumerEvent );
 
 	/** Invoked upon receiving any message.
 		Application need only implement this method if a desire to process all message types.
@@ -132,7 +132,7 @@ public :
 		@param[out] consumerEvent identifies open item for which this message is received
 		@return void
 	*/
-	virtual void onAllMsg( const Msg& msg, const OmmConsumerEvent& consumerEvent ) {(void)msg;(void)consumerEvent;}
+	virtual void onAllMsg( const Msg& msg, const OmmConsumerEvent& consumerEvent );
 	//@}
 
 protected :
