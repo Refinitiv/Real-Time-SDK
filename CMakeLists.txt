@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 3.10)
 # guarantee of a successful build if changed.
 
 project (esdk
-		VERSION 1.2.0.2
+		VERSION 1.2.1.0
 		LANGUAGES C CXX)
 
 set(esdk_CMAKE_DIR "${esdk_SOURCE_DIR}/CMake")
@@ -85,7 +85,7 @@ endif()
 if(BUILD_ELEKTRON-SDK-BINARYPACK)
 	include(addExternal_Elektron-SDK-BinaryPack)
 	
-	find_package(Elektron-SDK-BinaryPack 1.2.0.1 MODULE REQUIRED )
+	find_package(Elektron-SDK-BinaryPack 1.2.1.0 MODULE REQUIRED )
 				
 	set(Elektron-SDK-BinaryPack_NAMESPACE "Elektron-SDK-BinaryPack::")
 endif()
