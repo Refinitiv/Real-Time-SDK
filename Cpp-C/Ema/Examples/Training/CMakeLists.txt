@@ -63,10 +63,6 @@ foreach (_item IN LISTS COMP_LIST)
                 string(APPEND sourceFileList "${_pf} ")
             endforeach ()
 
-			# Set project label to directory name by removing first set of the path
-			# i.e. 100__MarketPrice__Streaming
-			string( REGEX REPLACE "([a-zA-Z]+)/([0-9]+[_]+[a-zA-Z]+)/" "" projectLable ${_path} )
-
             # Write out the CMakeLists file using the example cmake template
             configure_file(CMakeLists.txt.in ${CMAKE_CURRENT_SOURCE_DIR}/${_path}/CMakeLists.txt @ONLY)
         endif()
