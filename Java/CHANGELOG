@@ -1,0 +1,97 @@
+This is the change log of the Elektron-SDK (ESDK) for Java. ESDK consists of both the Elektron Message API
+(EMA) and the Elektron Transport API (ETA). This file contains history starting from ESDK 1.2.0 which is when
+all components (EMA C++, EMA Java, ETA C, ETA Java) of ESDK are fully open sourced. Note that ESDK version
+numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
+
+There are three types of ESDK releases that append a letter directly followed by a number to the version number.
+"L" releases (e.g., 1.2.0.L1) are full ESDK releases that are uploaded to Customer Zone, Developer Community
+and GitHub. "G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub. "E" releases (E-Loads)
+are emergency ESDK releases that are uploaded to Customer Zone and Developer Community but not to GitHub.
+Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+
+Customer Issues Resolved in Current Release
+-------------------------------------------
+
+EMA Java
+--------
+[Case Number: 06037235] - [ESDK-1309] EMA Java does not receive NAK when Posting timeout occurs
+[Case Number: 06453670] - [ESDK-1446] EMA Java examples missing RMTES data type decoding in decode() function.
+[Case Number: 06469347] - [ESDK-1481] Problem while uninitializing the ommconsumer
+[Case Number: 06486004] - [ESDK-1488] Corrupted EMA response when using EmaRdm.MMT_SYMBOL_LIST
+[Case Number: 06466793] - [ESDK-1538] EMA got stuck while trying to uninitialize the OmmConsumer
+
+ETA Java
+--------
+[GitHub #51] - [ESDK-1415] Incorrect usage of NaN in RealImpl.java
+[GitHub Pull Request #53] - [ESDK-1545] Patterns created for each instance rather than once
+
+Both
+----
+[GitHub #52] - [ESDK-1543] Gradle build script must not rely on working dir
+
+-----------------------------------------
+ESDK Java Release 1.2.0.G1 (May 31, 2018)
+-----------------------------------------
+
+EMA Java 3.2.0.G1 Issues Resolved
+---------------------------------
+
+[ESDK-1309] EMA Java does not receive NAK when Posting timeout occurs [Case Number: 06037235]
+[ESDK-1446] EMA Java examples missing RMTES data type decoding in decode() function [Case Number: 06453670]
+[ESDK-1481] Problem while uninitializing the ommconsumer [Case Number: 06469347]
+[ESDK-1538] EMA got stuck while trying to uninitialize the OmmConsumer [Case Number: 06466793]
+[ESDK-1543] Gradle build script must not rely on working dir [GitHub #52]
+[ESDK-1488] Corrupted EMA response when using EmaRdm.MMT_SYMBOL_LIST [Case Number: 06486004]
+
+ETA Java 3.2.0.G1 Issues Resolved
+---------------------------------
+
+[ESDK-1415] Incorrect usage of NaN in RealImpl.java [GitHub #51]
+[ESDK-1543] Gradle build script must not rely on working dir [GitHub #52]
+[ESDK-1545] Patterns created for each instance rather than once [GitHub Pull Request #53]
+
+-------------------------------------------
+ESDK Java Release 1.2.0.L1 (April 27, 2018)
+-------------------------------------------
+
+New Features Added
+------------------
+
+ESDK Java now utilizes a Gradle build environment. Refer to the ESDK Java Migration Guide for detailed
+instructions regarding how to build EMA Java with Gradle.
+
+EMA now supports encrypted connection type.
+
+EMA Java 3.2.0.L1 Issues Resolved
+---------------------------------
+
+[ESDK-487] EMA throws OmmInvalidUsageException if an empty Map is encoded [Case No. 05338640 and GitHub #28]
+[ESDK-907] EMA can't handle a SERVICE_DIRECTORY refresh that contains a lot of services [Case No 05896732, 06042281 and 06443659]
+[ESDK-929] EMA Java application does not receive updates after received the Status Message with no State information [Case No 06436262 and GitHub #37]
+[ESDK-943] Update EMAJ OmmBuffer documentation
+[ESDK-417] Expose encrypted connection support through EMA Java
+[ESDK-813] Date/Time/DateTime to string and from string conversions should support ISO 8601 format.
+[ESDK-1120] ConcurrentModificationException in EMA [GitHub #34]
+[ESDK-1218] EMA application uses 100% CPU and hangs when it makes a lot of requests and the monitor shows a large number of instances of WorkerEvent [Case No 06393015 and GitHub #41]
+[ESDK-1220] ConcurrentModificationException while invoking dispatch() [Case No 06107164]
+[ESDK-1307] ETAJ connected component could not set for HTTP and HTTPS type connections
+[ESDK-1360] EMA Java Tunnel Stream sub-stream with stream id gets NullPointerException
+[ESDK-1364] AckMsgImpl toString() method typo
+[ESDK-1365] ItemCallbackClient NullPointerException when rsslMsg state is null
+[ESDK-1388] Mavenize the build [GitHub #21]
+[ESDK-1431] EMA Java cannot handle negative FIDs in View request [Case No 06444345]
+
+ETA Java 3.2.0.L1 Issues Resolved
+---------------------------------
+
+[ESDK-676] EMA Java batch consumer encounters "Reactor is shutdown, submit aborted" error status [Case No 05633341]
+[ESDK-907] EMA can't handle a SERVICE_DIRECTORY refresh that contains a lot of services [Case No 05896732, 06042281 and 06443659]
+[ESDK-929] EMA Java application does not receive updates after received the Status Message with no State information [Case No 06436262 and GitHub #37]
+[ESDK-1062] EMA Java encountered java.lang.NullPointerException [Case No 06107469 and 05958461]
+[ESDK-1064] Exception when set http with proxy using Consumer
+[ESDK-1218] EMA application uses 100% CPU and hangs when it makes a lot of requests and the monitor shows a large number of instances of WorkerEvent [Case No 06393015 and GitHub #41]
+[ESDK-1227] Exception reactor.ReactorChannel.releaseBuffer(ReactorChannel.java:658)
+[ESDK-1300] Review/refactor ETAJ Watchlist Recovery & Cleanup Code
+[ESDK-1385] Watchlist consumer returns a ‘NullPointerException” when same item is used with private, private view & snapshot
+[ESDK-1388] Mavenize the build [GitHub #21]
+[ESDK-1489] ETA Java adds payload when container type is set to NO_DATA [Case No 06475782]

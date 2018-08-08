@@ -1,0 +1,82 @@
+This is the change log of the Elektron-SDK (ESDK) for C++/C. ESDK consists of both the Elektron Message API
+(EMA) and the Elektron Transport API (ETA). This file contains history starting from ESDK 1.2.0 which is when
+all components (EMA C++, EMA Java, ETA C, ETA Java) of ESDK are fully open sourced. Note that ESDK version
+numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
+
+There are three types of ESDK releases that append a letter directly followed by a number to the version number.
+"L" releases (e.g., 1.2.0.L1) are full ESDK releases that are uploaded to Customer Zone, Developer Community
+and GitHub. "G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to GitHub. "E" releases (E-Loads)
+are emergency ESDK releases that are uploaded to Customer Zone and Developer Community but not to GitHub.
+Also note that emergency releases may only be partial (i.e., Java or C++/C only).
+
+Customer Issues Resolved in Current Release
+-------------------------------------------
+
+EMA C++
+-------
+[Case Number: 06564982] - [ESDK-1572] Iprovidder CPU Usage 100% for API Dispatch mode After Unsubscribing the clients
+
+ETA C
+-----
+[GitHub #62] - [ESDK-1573] Elektron SDK 1.2.0 rsslNumericStringToReal() regression
+
+------------------------------------------
+ESDK C++/C Release 1.2.0.G1 (May 31, 2018)
+------------------------------------------
+
+EMA C++ 3.2.0.G1 Issues Resolved
+--------------------------------
+
+[ESDK-1572] Iprovidder CPU Usage 100% for API Dispatch mode After Unsubscribing the clients [Case Number: 06564982]
+
+ETA C 3.2.0.G1 Issues Resolved
+------------------------------
+
+[ESDK-1573] Elektron SDK 1.2.0 rsslNumericStringToReal() regression [GitHub #62]
+
+--------------------------------------------
+ESDK C++/C Release 1.2.0.L1 (April 27, 2018)
+--------------------------------------------
+
+New Features Added
+------------------
+
+ESDK C/C++ now utilizes a CMake build environment. Refer to the ESDK C/C++ Migration Guide for detailed
+instructions regarding how to build EMA C++ with CMake.
+
+ESDK C/C++ now supports Visual Studio 2017.
+
+EMA now supports encrypted connection type.
+
+ETA C is now fully open sourced except for reliable multicast transport and VA cache. Open source
+transports include TCP, HTTP, HTTP encrypted, shared memory and sequenced multicast transport types.
+The OMM encoder and decoder have also been open sourced.
+
+Note that the memory footprint has increased this release due to the following:
+
+Around 20 MB is introduced by changing the container type for handling message fragmentation.
+The hash table is initialized when a rsslChannelImpl is created which ETA allocates 10 of them
+upfront for this first initialization of Rssl library.
+
+Around 4.6 MB is introduced by the new functionality of RsslDataDictionary to look up
+RsslDictionaryEntry by name (rsslDictionaryGetEntryByFieldName).
+
+EMA C++ 3.2.0.L1 Issues Resolved
+--------------------------------
+
+[ESDK-487] EMA throws OmmInvalidUsageException if an empty Map is encoded [Case No. 05338640 and GitHub #28]
+[ESDK-813]  Date/Time/DateTime to string and from string conversions should support ISO 8601 format.
+[ESDK-907] EMA can't handle a SERVICE_DIRECTORY refresh that contains a lot of services [Case No 05896732, 06042281 and 06443659]
+[ESDK-1145] Add const to EMAString
+[ESDK-1194] Expose encrypted connection support through EMACPP
+[ESDK-1280] Remove duplicated assignments [GitHub pull request #45]
+[ESDK-1290] ripc sslName cryptoName copy limits to 8 bytes
+[ESDK-1359] Add VS2017 to ESDK
+
+ETA C 3.2.0.L1 Issues Resolved
+------------------------------
+
+[ESDK-709]  No genericmsg be fan out to the client on directory domain stream
+[ESDK-901] EMA does not honor the filters on the directory request message [Case No. 05881972]
+[ESDK-1262] Fix bigBufferPoolCleanup for loop [GitHub Pull Request #43]
+[ESDK-1280] Remove duplicated assignments [GitHub pull request #45]
