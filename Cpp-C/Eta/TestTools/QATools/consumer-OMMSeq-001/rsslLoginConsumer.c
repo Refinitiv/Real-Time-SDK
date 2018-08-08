@@ -38,10 +38,10 @@ static const char *instanceId = "instance1";
 static char cmdLineUsername[MAX_LOGIN_INFO_STRLEN];
 
 /* authentication token requested by application */
-static char cmdLineAuthenticationToken[255];
+static char cmdLineAuthenticationToken[AUTH_TOKEN_LENGTH];
 
 /* authentication extended requested by application */
-static char cmdLineAuthenticationExtended[MAX_LOGIN_INFO_STRLEN];
+static char cmdLineAuthenticationExtended[AUTH_TOKEN_LENGTH];
 
 /* applicationId requested by application */
 static char cmdLineApplicationId[MAX_LOGIN_INFO_STRLEN];
@@ -94,7 +94,7 @@ void setUsername(char* username)
  */
 void setAuthenticationToken(char* authenticationToken)
 {
-	snprintf(cmdLineAuthenticationToken, 255, "%s", authenticationToken);
+	snprintf(cmdLineAuthenticationToken, AUTH_TOKEN_LENGTH, "%s", authenticationToken);
 }
 
 /*
@@ -103,7 +103,7 @@ void setAuthenticationToken(char* authenticationToken)
  */
 void setAuthenticationExtended(char* authenticationExtended)
 {
-	snprintf(cmdLineAuthenticationExtended, 255, "%s", authenticationExtended);
+	snprintf(cmdLineAuthenticationExtended, AUTH_TOKEN_LENGTH, "%s", authenticationExtended);
 }
 
 /*
@@ -179,12 +179,12 @@ RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role
 		/* If an authentication token is present, set the login request's name type to RDM_LOGIN_USER_AUTHN_TOKEN and use the authentication token */
 		if(strlen(cmdLineAuthenticationToken) != 0)
 		{
-			snprintf(loginReqInfo.AuthenticationToken, 255, "%s", cmdLineAuthenticationToken);
+			snprintf(loginReqInfo.AuthenticationToken, AUTH_TOKEN_LENGTH, "%s", cmdLineAuthenticationToken);
 			loginReqInfo.NameType = RDM_LOGIN_USER_AUTHN_TOKEN;
 			
 			if(strlen(cmdLineAuthenticationExtended) != 0)
 			{
-				snprintf(loginReqInfo.AuthenticationExtended, 255, "%s", cmdLineAuthenticationExtended);
+				snprintf(loginReqInfo.AuthenticationExtended, AUTH_TOKEN_LENGTH, "%s", cmdLineAuthenticationExtended);
 			}
 		}
 		/* If the application Id is present, set on the request */

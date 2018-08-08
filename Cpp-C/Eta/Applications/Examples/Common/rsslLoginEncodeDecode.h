@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 #define MAX_LOGIN_INFO_STRLEN 128
+#define AUTH_TOKEN_LENGTH 1024
 
 /* login request information */
 typedef struct {
@@ -21,8 +22,8 @@ typedef struct {
 	char		ApplicationName[MAX_LOGIN_INFO_STRLEN];
 	char		Position[MAX_LOGIN_INFO_STRLEN];
 	char		Password[MAX_LOGIN_INFO_STRLEN];
-	char		AuthenticationToken[255];
-	char		AuthenticationExtended[255];
+	char		AuthenticationToken[AUTH_TOKEN_LENGTH];
+	char		AuthenticationExtended[AUTH_TOKEN_LENGTH];
 	RsslUInt64	ProvidePermissionProfile;
 	RsslUInt64	ProvidePermissionExpressions;
 	RsslUInt64	SingleOpen;

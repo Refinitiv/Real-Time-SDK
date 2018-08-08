@@ -291,29 +291,29 @@ RsslRet decodeLoginRequest(RsslLoginRequestInfo* loginReqInfo, RsslMsg* msg, Rss
 				/* Authentication Token */
 				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TOKEN))
 				{
-					if (element.encData.length < 255)
+					if (element.encData.length < AUTH_TOKEN_LENGTH)
 					{
 						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, element.encData.length);
 						loginReqInfo->AuthenticationToken[element.encData.length] = '\0';
 					}
 					else
 					{
-						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, 255 - 1);
-						loginReqInfo->AuthenticationToken[255 - 1] = '\0';
+						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, AUTH_TOKEN_LENGTH - 1);
+						loginReqInfo->AuthenticationToken[AUTH_TOKEN_LENGTH - 1] = '\0';
 					}
 				}
 				/* Authentication Extended */
 				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_EXTENDED))
 				{
-					if (element.encData.length < 255)
+					if (element.encData.length < AUTH_TOKEN_LENGTH)
 					{
 						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, element.encData.length);
 						loginReqInfo->AuthenticationToken[element.encData.length] = '\0';
 					}
 					else
 					{
-						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, 255 - 1);
-						loginReqInfo->AuthenticationToken[255 - 1] = '\0';
+						strncpy(loginReqInfo->AuthenticationToken, element.encData.data, AUTH_TOKEN_LENGTH - 1);
+						loginReqInfo->AuthenticationToken[AUTH_TOKEN_LENGTH - 1] = '\0';
 					}
 				}
 				
