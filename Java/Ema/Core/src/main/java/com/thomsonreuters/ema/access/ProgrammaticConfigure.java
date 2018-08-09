@@ -746,7 +746,7 @@ class ProgrammaticConfigure
 		}
 	}
 	
-	void  retrieveDirectoryConfig(String dictionaryName, DirectoryServiceStore dirServiceStrore, DirectoryCache directoryCache, List<ServiceDictionaryConfig> serviceDictionaryConfigList)
+	void  retrieveDirectoryConfig(String dictionaryName, DirectoryServiceStore dirServiceStore, DirectoryCache directoryCache, List<ServiceDictionaryConfig> serviceDictionaryConfigList)
 	{
 		if (_serverDictList.size() == 0)
 		{
@@ -755,7 +755,7 @@ class ProgrammaticConfigure
 		}
 	
 		 for (Map map : _configList)
-			retrieveDirectory(map, dictionaryName, dirServiceStrore, directoryCache, serviceDictionaryConfigList);
+			retrieveDirectory(map, dictionaryName, dirServiceStore, directoryCache, serviceDictionaryConfigList);
 	}
 	
 	void retrieveInstanceCommonConfig( Map map, String instanceName, BaseConfig activeConfig )
@@ -1738,7 +1738,7 @@ class ProgrammaticConfigure
 		}
 	}
 	
-	void retrieveDirectory( Map map, String directoryName, DirectoryServiceStore dirServiceStrore, DirectoryCache directoryCache, List<ServiceDictionaryConfig> serviceDictionaryConfigList)
+	void retrieveDirectory( Map map, String directoryName, DirectoryServiceStore dirServiceStore, DirectoryCache directoryCache, List<ServiceDictionaryConfig> serviceDictionaryConfigList)
 	{
 		
 		for (MapEntry mapEntry : map)
@@ -1758,6 +1758,7 @@ class ProgrammaticConfigure
 								dirListMapEntry.loadType() == DataTypes.MAP) 
 							{
 								_serviceNameList.clear();
+								ServiceIdInteger origServiceIdInteger;
 								for (MapEntry eachServiceEntry : dirListMapEntry.map())
 								{
 									if (eachServiceEntry.key().dataType() == DataTypes.ASCII &&
@@ -1767,10 +1768,10 @@ class ProgrammaticConfigure
 										_dictUsed.clear();
 										
 										String serviceName = eachServiceEntry.key().ascii().ascii();
-										ServiceIdInteger serInt = dirServiceStrore.serviceId(serviceName);
+										origServiceIdInteger = dirServiceStore.serviceId(serviceName);
 										Service service = null;
-										if (serInt != null)
-											service = directoryCache.getService(serInt.value());
+										if (origServiceIdInteger != null)
+											service = directoryCache.getService(origServiceIdInteger.value());
 										
 										boolean addNewService = false;
 										if (service == null)
@@ -1806,7 +1807,12 @@ class ProgrammaticConfigure
 											if (addNewService)
 											{
 												directoryCache.addService(service);
-												dirServiceStrore.addServiceIdAndNamePair(service.serviceId(), service.info().serviceName().toString(), null);
+												dirServiceStore.addToMap(service.serviceId(), service.info().serviceName().toString());
+											}
+											else if (origServiceIdInteger != null && origServiceIdInteger.value() != service.serviceId())
+											{
+												dirServiceStore.remove(origServiceIdInteger.value());
+												dirServiceStore.addToMap(service.serviceId(), service.info().serviceName().toString());
 											}
 											
 											retrieveServerDictionaryConfig(service, serviceDictionaryConfigList);
@@ -1816,7 +1822,7 @@ class ProgrammaticConfigure
 								}
 								
 								//remove old ones from config file which is not configured by programmatic
-								removeConfigFileService(dirServiceStrore, directoryCache);
+								removeConfigFileService(dirServiceStore, directoryCache);
 								break;
 							}
 						} 

@@ -88,19 +88,20 @@ public interface OmmArray extends Data, Collection<OmmArrayEntry>
 
 	/**
 	 * Specifies FixedWidth. Setting fixed-width implies each array entry has
-	 * been populated with the same fixed size, to allow minimizing bandwidth.
+	 * been populated with the same fixed size, to allow minimizing bandwidth.<br>
 	 * Setting fixed-width as 0 implies the data contained in the array entries
 	 * may be of different sizes, to allow the flexibility of different sized
-	 * encoding;
+	 * encoding;<br>
 	 * 
 	 * When using a fixed width, the application still passes in the base
 	 * primitive type when encoding (e.g., if encoding fixed width
-	 * DataTypes.INT types, an Int is passed in regardless of itemLength). When
-	 * encoding buffer types as fixed width: Any content that exceeds
+	 * DataTypes.INT types, an Int is passed in regardless of itemLength).<br>
+	 * When encoding buffer types as fixed width: Any content that exceeds
 	 * fixedWidth will be truncated Any content that is shorter than fixedWidth
-	 * will be padded with the \0 (NULL) character.
+	 * will be padded with the \0 (NULL) character.<br>
 	 * 
-	 * Only specific types are allowed as fixed-width encodings. Here lists supported fixed widths and allowable data ranges: 
+	 * Only specific types are allowed as fixed-width encodings. Here lists supported fixed widths and allowable data ranges: <br>
+	 * <pre>
 	 * DataType::IntEnum supports one byte(-2^7 to 2^7-1), two byte(-2^15 to 2^15-1), four byte((-2^31 to 2^31-1), or eight byte((-2^63 to 2^63-1).
 	 * DataType::UIntEnum supports one byte(0 to 2^8-1), two byte(0 to 2^16-1), four byte(0 to 2^32-1), or eight byte(0 to 2^64-1).
 	 * DataType::FloatEnum supports four byte, floating point type that represents the same range of values allowed by the system float type. Follows the IEEE 754 specification.
@@ -119,6 +120,7 @@ public interface OmmArray extends Data, Collection<OmmArrayEntry>
 	 * DataType::EnumEnum supports one byte(0 to 2^8-1) or two byte(0 to 2^16-1).
      * DataType::BufferEnum, DataType::AsciiEnum, DataType::Utf8Enum, and
 	 *		DataType::RmtesEnum support any legal width value.
+	 * </pre>
 	 * 
 	 * @throws OmmInvalidUsageException
 	 *             if an entry was already added

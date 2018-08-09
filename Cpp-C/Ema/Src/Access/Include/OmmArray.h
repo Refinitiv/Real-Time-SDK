@@ -170,23 +170,23 @@ public :
 		Any content that is shorter than fixedWidth will be padded with the \0 (NULL) character.
 
 		Only specific types are allowed as fixed-width encodings. Here lists supported fixed widths and allowable data ranges: 
-		#DataType::IntEnum supports one byte(-2^7 to 2^7-1), two byte(-2^15 to 2^15-1), four byte((-2^31 to 2^31-1), or eight byte((-2^63 to 2^63-1).
-		#DataType::UIntEnum supports one byte(0 to 2^8-1), two byte(0 to 2^16-1), four byte(0 to 2^32-1), or eight byte(0 to 2^64-1).
-        #DataType::FloatEnum supports four byte, floating point type that represents the same range of values allowed by the system float type. Follows the IEEE 754 specification.
-		#DataType::DoubleEnum supports eight byte, floating point type that represents the same range of values allowed by the system double type. Follows the IEEE 754 specification.
-        #DataType::DateEnum supports four byte(year, month, day).
-		#DataType::TimeEnum supports:
+		DataType::IntEnum supports one byte(-2^7 to 2^7-1), two byte(-2^15 to 2^15-1), four byte((-2^31 to 2^31-1), or eight byte((-2^63 to 2^63-1).
+		DataType::UIntEnum supports one byte(0 to 2^8-1), two byte(0 to 2^16-1), four byte(0 to 2^32-1), or eight byte(0 to 2^64-1).
+        DataType::FloatEnum supports four byte, floating point type that represents the same range of values allowed by the system float type. Follows the IEEE 754 specification.
+		DataType::DoubleEnum supports eight byte, floating point type that represents the same range of values allowed by the system double type. Follows the IEEE 754 specification.
+        DataType::DateEnum supports four byte(year, month, day).
+		DataType::TimeEnum supports:
 			three byte(hour, minute, second);
 			five byte(hour, minute, second, millisec);
 			seven byte(hour, minute, second, millisec, microsec);
 			eight byte(hour, minute, second, millisec, microsec, nanosec). 
-		#DataType::DateTimeEnum supports:
+		DataType::DateTimeEnum supports:
 			seven byte(year, month, day, hour, minute, second);
 			nine byte(year, month, day, hour, minute, second, millisec);
 			eleven byte(year, month, day, hour, minute, second, millisec, microsec);
 			twelve byte(year, month, day, hour, minute, second, millisec, microsec, nanosec);
-		#DataType::EnumEnum supports one byte(0 to 2^8-1) or two byte(0 to 2^16-1).
-		#DataType::BufferEnum, DataType::AsciiEnum, DataType::Utf8Enum, and
+		DataType::EnumEnum supports one byte(0 to 2^8-1) or two byte(0 to 2^16-1).
+		DataType::BufferEnum, DataType::AsciiEnum, DataType::Utf8Enum, and
 		DataType::RmtesEnum support any legal width value.
 		 
 		@throw OmmInvalidUsageException if an entry was already added

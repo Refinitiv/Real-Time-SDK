@@ -2578,6 +2578,7 @@ void ProgrammaticConfigure::retrieveDirectory( const Map& map, const EmaString& 
 						{
 							_serviceNameList.clear();
 							Service newService;
+							int origServiceId = 0;
 
 							const Map& serviceListMap = dirListMapEntry.getMap();  
 							while (serviceListMap.forth())
@@ -2592,6 +2593,7 @@ void ProgrammaticConfigure::retrieveDirectory( const Map& map, const EmaString& 
 									Service* service = directoryCache.getService(serviceName);
 									newService.clear();
 									bool addNewService = false;
+									origServiceId = 0;
 									if (!service)
 									{
 										addNewService = true;
@@ -2606,6 +2608,8 @@ void ProgrammaticConfigure::retrieveDirectory( const Map& map, const EmaString& 
 										service->infoFilter.qos.push_back(rsslQos);
 										service->infoFilter.flags |= RDM_SVC_IFF_HAS_QOS;
 									}
+									else
+										origServiceId = service->serviceId;
 
 									const ElementList& serviceFilterList = eachServiceEntry.getElementList();
 									while (serviceFilterList.forth())  // two directory filters
@@ -2644,6 +2648,14 @@ void ProgrammaticConfigure::retrieveDirectory( const Map& map, const EmaString& 
 											service = directoryCache.addService(newService);
 											dirServiceStrore.addServiceIdAndNamePair(service->serviceId, new EmaString(service->infoFilter.serviceName), 0);
 										}
+										else if (origServiceId != service->serviceId)
+										{
+											dirServiceStrore.removeServiceNamePair(origServiceId);
+											dirServiceStrore.addServiceIdAndNamePair(service->serviceId, new EmaString(service->infoFilter.serviceName), 0);
+											service = directoryCache.addService(*service);
+											directoryCache.removeService(origServiceId);
+										}
+
 										retrieveServerDictionaryConfig(*service, serviceDictionaryConfigList);
 										_serviceNameList.push_back(service->infoFilter.serviceName);
 									}
