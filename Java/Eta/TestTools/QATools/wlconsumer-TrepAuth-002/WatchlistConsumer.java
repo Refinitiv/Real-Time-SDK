@@ -461,6 +461,8 @@ public class WatchlistConsumer implements ConsumerCallback
 	        if(closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null &&
 	           !tunnelStreamHandler._chnlInfo.isTunnelStreamUp) 
                 break;
+                if(closeHandled && tunnelStreamHandler == null)
+                        break;
         }
     }
 
