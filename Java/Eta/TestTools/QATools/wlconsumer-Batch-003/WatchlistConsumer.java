@@ -792,8 +792,11 @@ public class WatchlistConsumer implements ConsumerCallback
     			chnlInfo.reactorChannel = event.reactorChannel();
 
 				if (fieldDictionaryLoaded && enumDictionaryLoaded
-						 || itemDecoder.fieldDictionaryLoadedFromFile && itemDecoder.enumTypeDictionaryLoadedFromFile)
-					requestItems(reactor, event.reactorChannel());
+				 || itemDecoder.fieldDictionaryLoadedFromFile && itemDecoder.enumTypeDictionaryLoadedFromFile)
+				 {
+					 requestItems(reactor, event.reactorChannel());
+					 requestMPItem(reactor, event.reactorChannel(), "TRI", false);
+				 }
 				else
 	                requestDictionaries(event.reactorChannel(), chnlInfo);
     			
