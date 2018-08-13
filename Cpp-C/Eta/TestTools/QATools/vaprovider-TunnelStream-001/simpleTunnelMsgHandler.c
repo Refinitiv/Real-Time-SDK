@@ -295,8 +295,8 @@ void simpleTunnelMsgHandlerInit(SimpleTunnelMsgHandler *pMsgHandler,
 	tunnelStreamHandlerInit(&pMsgHandler->tunnelStreamHandler, consumerName, domainType, useAuthentication,
 			simpleTunnelMsgHandlerProcessTunnelOpened,
 			simpleTunnelMsgHandlerProcessTunnelClosed,
-			simpleTunnelMsgHandlerConsumerMsgCallback,
-			NULL);
+			simpleTunnelMsgHandlerConsumerMsgCallback
+			);
 
 	pMsgHandler->isProvider = isProvider;
 }
