@@ -22,7 +22,9 @@ public interface OmmConsumerEvent
 {
 	/**
 	 * Returns a unique item identifier (a.k.a., item handle) associated by EMA with an open item stream.<br>
-	 * Item identifier is returned from all OmmConsumer registerClient() methods.
+	 * Item identifier is returned from all OmmConsumer registerClient() methods. For tunnel stream onStatusMsg()<br>
+	 * call backs this is the parent handle returned by the OmmConsumer registerClient() method. For tunnel stream<br>
+	 * sub-stream call backs this is the handle of the sub-stream itself. 
 	 * 
 	 * @return item identifier or handle
 	 */
@@ -40,7 +42,10 @@ public interface OmmConsumerEvent
 	/**
 	 * Returns current item's parent item identifier (a.k.a. parent item handle).<br>
 	 * Application specifies parent item identifier on<br>
-	 * OmmConsumer registerClient(... , ... , ... , long parentHandle) methods.
+	 * OmmConsumer registerClient(... , ... , ... , long parentHandle) method.<br>
+	 * For tunnel stream sub-stream call backs this is the handle of parent tunnel<br>
+	 * stream. For batch request items this is the item identifier of the top level<br>
+	 * batch request.
 	 * 
 	 * @return parent item identifier or parent handle
 	*/

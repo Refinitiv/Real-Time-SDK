@@ -168,7 +168,7 @@ public interface OmmConsumer
 	 * @param reqMsg specifies item and its unique attributes
 	 * @param client specifies OmmConsumerClient instance receiving notifications about this item
 	 * @param closure specifies application defined item identification
-	 * @param parentHandle specifies a handle of stream over which this stream is open
+	 * @param parentHandle specifies handle of tunnel stream over which this substream is open (required for substreams)
 	 * @return item identifier (a.k.a. handle)
 	 */
 	public long registerClient(ReqMsg reqMsg, OmmConsumerClient client, Object closure, long parentHandle);

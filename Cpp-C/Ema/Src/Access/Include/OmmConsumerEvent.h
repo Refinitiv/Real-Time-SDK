@@ -40,7 +40,9 @@ public :
 	///@name Accessors
 	//@{
 	/** Returns a unique item identifier (a.k.a., item handle) associated by EMA with an open item stream.
-		Item identifier is returned from OmmConsumer::registerClient().
+		Item identifier is returned from OmmConsumer::registerClient(). For tunnel stream onStatusMsg()
+	    call backs this is the parent handle returned by the OmmConsume::registerClient() method. For tunnel
+		stream sub-stream call backs this is the handle of the sub-stream itself.
 		@return item identifier or handle
 	*/
 	UInt64 getHandle() const;
@@ -52,7 +54,10 @@ public :
 	void* getClosure() const;
 
 	/** Returns current item's parent item identifier (a.k.a. parent item handle).
-		Application specifies parent item identifier on OmmConsumer::registerClient( ... , ... , ... , UInt64 parentHandle ) 
+		Application specifies parent item identifier on OmmConsumer::registerClient( ... , ... , ... , UInt64 parentHandle ).
+		For tunnel stream sub-stream call backs this is the handle of parent tunnel
+	    stream. For batch request items this is the item identifier of the top level
+	    batch request.
 		@return parent item identifier or parent handle
 	*/
 	UInt64 getParentHandle() const;

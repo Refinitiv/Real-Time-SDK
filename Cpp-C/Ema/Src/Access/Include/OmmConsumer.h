@@ -209,7 +209,7 @@ public :
 		@param[in] reqMsg specifies item and its unique attributes
 		@param[in] client specifies OmmConsumerClient instance receiving notifications about this item
 		@param[in] closure specifies application defined item identification
-		@param[in] parentHandle specifies a handle of stream over which this stream is open
+		@param[in] parentHandle specifies handle of tunnel stream over which this substream is open (required for substreams)
 		@return item identifier (a.k.a. handle)
 		@throw OmmMemoryExhaustionException if system runs out of memory
 		@throw OmmInvalidUsageException if application passes invalid ReqMsg
