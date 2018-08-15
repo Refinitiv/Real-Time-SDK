@@ -9,25 +9,80 @@ and GitHub. "G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to
 are emergency ESDK releases that are uploaded to Customer Zone and Developer Community but not to GitHub.
 Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
-Customer Issues Resolved in Current Release
--------------------------------------------
+-------------------------------------
+New Features Added in Current Release
+-------------------------------------
+
+Programmatic configuration for EMA Consumer, IProvider and NIProvider.
+
+-----------------------------------------------
+Customer Issues Resolved since 1.2.0.L1 Release
+-----------------------------------------------
 
 EMA Java
 --------
+[Case Number: 05109877] - [ESDK-415] Clarify parent handle usage in EMA interface
+[Case Number: 05630733] - [ESDK-677] Improve reference manual documentation for OmmArray.fixedwidth
+[Case Number: 06558057] - [ESDK-705] Programmatic configuration for EMA Java
 [Case Number: 06037235] - [ESDK-1309] EMA Java does not receive NAK when Posting timeout occurs
 [Case Number: 06453670] - [ESDK-1446] EMA Java examples missing RMTES data type decoding in decode() function.
-[Case Number: 06469347] - [ESDK-1481] Problem while uninitializing the ommconsumer
-[Case Number: 06486004] - [ESDK-1488] Corrupted EMA response when using EmaRdm.MMT_SYMBOL_LIST
-[Case Number: 06466793] - [ESDK-1538] EMA got stuck while trying to uninitialize the OmmConsumer
+[Case Numbers: 06469347, 06466793] - [ESDK-1481, ESDK-1538] EMA hangs when uninitializing the OmmConsumer
+[Case Number: 06486004] - [ESDK-1488] EMA Java does not decode the Buffer in a MapEntry key correctly
+[Case Number: 06538048] - [ESDK-1548] Update RDMUsageGuide to include information on the required filters to mark a service back Up
+[GitHub #55] - [ESDK-1556] Update JavaDoc for OmmDateTime, OmmDate and OmmTime
+[GitHub #65] - [ESDK-1587] Deprecate unused StatusCodes
+[Case Number: 06604413] - [ESDK-1596] Data from two different services are mixed up when an item is requested from different services using the same OmmConsumer
+[Case Number: 06589180] - [ESDK-1603] toString on a newly created ElementList throws NullPointerException
+[Case Number: 06669026, GitHub #72] - [ESDK-1640, ESDK-1646] Handle leak in OmmBaseImpl that results in issues while reconnecting
 
 ETA Java
 --------
 [GitHub #51] - [ESDK-1415] Incorrect usage of NaN in RealImpl.java
 [GitHub Pull Request #53] - [ESDK-1545] Patterns created for each instance rather than once
 
-Both
-----
+
+Both EMA Java and ETA Java
+--------------------------
 [GitHub #52] - [ESDK-1543] Gradle build script must not rely on working dir
+[Case Number: 06591880] - [ESDK-1590] Gradlew Build Failed for Elektron SDK Java 1.2.0 package downloaded from the Developer Portal
+
+--------------------------------------------
+ESDK Java Release 1.2.1.L1 (August 15, 2018)
+--------------------------------------------
+
+New Features Added
+------------------
+
+Programmatic configuration for EMA Consumer, IProvider and NIProvider.
+
+EMA Java 3.2.1.L1 Issues Resolved
+---------------------------------
+
+[ESDK-380] If CompressionType is set to "None", the CompressionThreshold range check still occurs
+[ESDK-415] Clarify parent handle usage in EMA interface [Case Number: 05109877]
+[ESDK-677] Improve reference manual documentation for OmmArray.fixedwidth [Case Number: 05630733]
+[ESDK-705] Programmatic configuration for EMA Java [Case Number: 06558057]
+[ESDK-1513] Eliminate ESDK Java Warnings
+[ESDK-1548] Update RDMUsageGuide to include information on the required filters to mark a service back Up [Case Number: 06538048]
+[ESDK-1587] Deprecate unused StatusCodes [GitHub #65]
+[ESDK-1556] Update JavaDoc for OmmDateTime, OmmDate and OmmTime [GitHub #55]
+[ESDK-1590] Gradlew Build Failed for Elektron SDK Java 1.2.0 package downloaded from the Developer Portal [Case Number: 06591880]
+[ESDK-1596] Data from two different services are mixed up when an item is requested from different services using the same OmmConsumer [Case Number: 06604413]
+[ESDK-1602] Fix EMA/ETA Java Gradle warnings
+[ESDK-1603] toString on a newly created ElementList throws NullPointerException [Case Number: 06589180]
+[ESDK-1640, ESDK-1646] Handle leak in OmmBaseImpl that results in issues while reconnecting [Case Number: 06669026, GitHub #72]
+[ESDK-1644] Fix README content Github to have change log (without duplicating information)
+
+ETA Java 3.2.1.L1 Issues Resolved
+---------------------------------
+
+[ESDK-380] If CompressionType is set to "None", the CompressionThreshold range check still occurs
+[ESDK-1513] Eliminate ESDK Java Warnings
+[ESDK-1590] Gradlew Build Failed for Elektron SDK Java 1.2.0 package downloaded from the Developer Portal [Case Number: 06591880]
+[ESDK-1602] Fix EMA/ETA Java Gradle warnings
+[ESDK-1635] ETA should not have EDF/Queue examples
+[ESDK-1636] Consumer Module_2_Login training example does not properly fall through
+[ESDK-1644] Fix README content Github to have change log (without duplicating information)
 
 -----------------------------------------
 ESDK Java Release 1.2.0.G1 (May 31, 2018)
@@ -38,10 +93,9 @@ EMA Java 3.2.0.G1 Issues Resolved
 
 [ESDK-1309] EMA Java does not receive NAK when Posting timeout occurs [Case Number: 06037235]
 [ESDK-1446] EMA Java examples missing RMTES data type decoding in decode() function [Case Number: 06453670]
-[ESDK-1481] Problem while uninitializing the ommconsumer [Case Number: 06469347]
-[ESDK-1538] EMA got stuck while trying to uninitialize the OmmConsumer [Case Number: 06466793]
-[ESDK-1543] Gradle build script must not rely on working dir [GitHub #52]
-[ESDK-1488] Corrupted EMA response when using EmaRdm.MMT_SYMBOL_LIST [Case Number: 06486004]
+[ESDK-1481, ESDK-1538] EMA hangs when uninitializing the OmmConsumer [Case Numbers: 06469347, 06466793]
+[[ESDK-1543] Gradle build script must not rely on working dir [GitHub #52]
+[ESDK-1488] EMA Java does not decode the Buffer in a MapEntry key correctly [Case Number: 06486004]
 
 ETA Java 3.2.0.G1 Issues Resolved
 ---------------------------------

@@ -9,16 +9,78 @@ and GitHub. "G" releases (e.g., 1.2.0.G1) are releases that are only uploaded to
 are emergency ESDK releases that are uploaded to Customer Zone and Developer Community but not to GitHub.
 Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
-Customer Issues Resolved in Current Release
--------------------------------------------
+-------------------------------------
+New Features Added in Current Release
+-------------------------------------
+
+Programmatic configuration for EMA IProvider and NIProvider.
+
+-----------------------------------------------
+Customer Issues Resolved since 1.2.0.L1 Release
+-----------------------------------------------
 
 EMA C++
 -------
-[Case Number: 06564982] - [ESDK-1572] Iprovidder CPU Usage 100% for API Dispatch mode After Unsubscribing the clients
+[Case Number: 04296327] - [ESDK-405] Example 421 is not using the Dictionary_1 and Logger_1 defined in the code
+[Case Number: 05109877] - [ESDK-415] Clarify parent handle usage in EMA interface
+[Case Numbers: 05354708, 06292070, GitHub #54] - [ESDK-430, ESDK-1323, ESDK-1552] EMA C++ crashes when encoding a large Map
+[Case Number: 05830919] - [ESDK-635] EMA C++ Compiler warnings
+[Case Number: 06538048] - [ESDK-1548] Update RDMUsageGuide to include information on the required filters to mark a service back Up
+[GitHub #55] - [ESDK-1556] Update Doxygen for OmmDateTime, OmmDate and OmmTime
+[Case Number: 06548186] - [ESDK-1560] Provide ability to modify the configuration programmatically for IProvider
+[Case Number: 06564982] - [ESDK-1572] IProvider application hits 100% CPU in API dispatch mode after Consumer disconnects
+[Case Number: 06484891] - [ESDK-1595] Calling toString on a newly created message throws Access Violation Exception
 
 ETA C
 -----
-[GitHub #62] - [ESDK-1573] Elektron SDK 1.2.0 rsslNumericStringToReal() regression
+[GitHub #62] - [ESDK-1573] rsslNumericStringToReal() conversion error
+[GitHub #61] - [ESDK-1574] Check for empty string instead of null pointer
+
+Both EMA C++ and ETA C
+----------------------
+[Case Number: 06612117] - [ESDK-1624] Can't build Elektron-SDK1.2.0.win.rrg on MS Windows
+
+---------------------------------------------
+ESDK C++/C Release 1.2.1.L1 (August 15, 2018)
+---------------------------------------------
+
+New Features Added
+------------------
+
+Programmatic configuration for EMA IProvider and NIProvider.
+
+EMA C++ 3.2.1.L1 Issues Resolved
+--------------------------------
+
+[ESDK-380] If CompressionType is set to "None", the CompressionThreshold range check still occurs
+[ESDK-398] XMLTrace may not flush all information to trace file
+[ESDK-405] Example 421 is not using the Dictionary_1 and Logger_1 defined in the code [Case Number: 04296327]
+[ESDK-415] Clarify parent handle usage in EMA interface [Case Number: 05109877]
+[ESDK-430, ESDK-1323, ESDK-1552] EMA C++ crashes when encoding a large Map [Case Numbers: 05354708, 06292070, GitHub #54]
+[ESDK-635] EMA C++ Compiler warnings [Case Number: 05830919]
+[ESDK-1496] Double login reissue & Exception with EMA C++ NIProvider (430)
+[ESDK-1529] Ema Example Cons100 valgrind errors when EmaConfig.xml is present
+[ESDK-1548] Update RDMUsageGuide to include information on the required filters to mark a service back Up [Case Number: 06538048]
+[ESDK-1556] Update Doxygen for OmmDateTime, OmmDate and OmmTime [GitHub #55]
+[ESDK-1560] Provide ability to modify the configuration programmatically for IProvider [Case Number: 06548186]
+[ESDK-1593] Migration Guide Issues with CMake Elektron SDK 1.2
+[ESDK-1595] Calling toString on a newly created message throws Access Violation Exception [Case Number: 06484891]
+[ESDK-1624] Can't build Elektron-SDK1.2.0.win.rrg on MS Windows [Case Number: 06612117]
+[ESDK-1644] Fix README content Github to have change log (without duplicating information)
+
+ETA C 3.2.1.L1 Issues Resolved
+------------------------------
+
+[ESDK-380] If CompressionType is set to "None", the CompressionThreshold range check still occurs
+[ESDK-398] XMLTrace may not flush all information to trace file
+[ESDK-1423] Warnings ( 240 ) when doing build all
+[ESDK-1574] Check for empty string instead of null pointer [GitHub #61]
+[ESDK-1593] Migration Guide Issues with CMake Elektron SDK 1.2
+[ESDK-1624] Can't build Elektron-SDK1.2.0.win.rrg on MS Windows [Case Number: 06612117]
+[ESDK-1635] ETA should not have EDF/Queue examples
+[ESDK-1636] Consumer Module_2_Login training example does not properly fall through
+[ESDK-1644] Fix README content Github to have change log (without duplicating information)
+[ESDK-1659] ETA Consumer reserves too little space for AuthenticationToken
 
 ------------------------------------------
 ESDK C++/C Release 1.2.0.G1 (May 31, 2018)
@@ -27,12 +89,12 @@ ESDK C++/C Release 1.2.0.G1 (May 31, 2018)
 EMA C++ 3.2.0.G1 Issues Resolved
 --------------------------------
 
-[ESDK-1572] Iprovidder CPU Usage 100% for API Dispatch mode After Unsubscribing the clients [Case Number: 06564982]
+[ESDK-1572] IProvider application hits 100% CPU in API dispatch mode after Consumer disconnects [Case Number: 06564982]
 
 ETA C 3.2.0.G1 Issues Resolved
 ------------------------------
 
-[ESDK-1573] Elektron SDK 1.2.0 rsslNumericStringToReal() regression [GitHub #62]
+[ESDK-1573] rsslNumericStringToReal() conversion error [GitHub #62]
 
 --------------------------------------------
 ESDK C++/C Release 1.2.0.L1 (April 27, 2018)
