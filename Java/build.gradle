@@ -34,7 +34,7 @@ subprojects {
 ext.YEAR = '2018'
 // NOTE! please update the tag in the BinaryPack repo
 // for a new release below in the cloneBinaryPack task.
-ext.BuildDate = 'Tue May 29 10:35:01 CDT ' + "$YEAR"
+ext.BuildDate = 'Wed Aug 15 10:35:01 CDT ' + "$YEAR"
 ext.SpecificationVersion = '3.2.1.0'
 ext.SpecificationVersionShort = '3.2.1'
 // Comment out line below to publish offical release
@@ -57,7 +57,7 @@ task cloneBinaryPack {
             if (!dir.exists()) {
                 println "Cloning Elektron-SDK-BinaryPack from GitHub, please wait."
                 def grgit = Grgit.clone(dir: dir, uri: 'https://github.com/thomsonreuters/Elektron-SDK-BinaryPack.git')
-                grgit.checkout(branch: 'Elektron-SDK_1.2.0.1.L1', createBranch: false)
+                grgit.checkout(branch: 'Elektron-SDK_1.2.1.0.L1', createBranch: false)
                 println "Done cloning Elektron-SDK-BinaryPack from GitHub."
             }
         }
