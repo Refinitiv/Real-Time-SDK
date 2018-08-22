@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.32
-!tag Build_RDMD  4.20.32
-!tag DT_Version  18.61
-!tag Date        10-Jul-2018
+!tag RT_Version  4.20.33
+!tag Build_RDMD  4.20.33
+!tag DT_Version  18.71
+!tag Date        17-Aug-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -360,6 +360,7 @@ BASE_CURR  13592
 CAN_P_CCY  13593
 QUOTE_CUR  13594
 CURRENCY_D 13595
+MN_IIN_CCY 13596
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -414,6 +415,7 @@ CURRENCY_D 13595
     226        "EEK"   Estonian kroon
     230        "ETB"   Ethiopian birr
     232        "ERN"   Nakfa
+    233        "EEK"   Estonian Kroon
     238        "FKP"   Falkland Islands pound
     242        "FJD"   Fiji dollar
     246        "FIM"   Finnish markka
@@ -651,6 +653,13 @@ CURRENCY_D 13595
    2034        "LTC"   Litecoin
    2035        "BOF"   Bolivian Unidad de Fomento de Vivienda
    2036        "VEc"   Venezuelan Centimo
+   2037        "ROb"   Romanian Ban
+   2038        "BHf"   Bahraini Fils
+   2039        "KWf"   Kuwaiti Fils
+   2040        "OMb"   Omani Baisa
+   2041        "QAd"   Qatari Dirham
+   2042        "SAh"   Saudi Halala
+   2043        "AEf"   UAE Fils
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4089,6 +4098,11 @@ CAN_COND    6585
   21343        "BMR"   Benchmark Trade. Out of Sequence Retransmission. (OPRA).
   21345        "TTE"   Trade Trough Exempt. Out of Sequence. Not LAST (OPRA).
   21346        "TTR"   Trade Through Exempt. Out of sequence Retransmission. (OPRA).
+  32673        "ERT"   Exercise Related Transaction
+  32674        "LCT"   Linked Component Transaction
+  32675        "BOT"   Beneficial Ownership Transfer Transaction
+  32676        "GIT"   Give-up or Give-in Transaction
+  32677        "CCP"   CCP Related Transaction
   32678        "OPN"   Market open trade (trade resulting from matching of orders at market open)
   32679        "IMP"   Implied trade
   32680        "REG"   Regular order book trade
@@ -8365,7 +8379,7 @@ LEG4_EXCH  13574
    1314        "OSN"   Oslo Bors Nibor
    1315        "OSR"   Oslo Bors Delayed Revending
    1316        "LNX"   OMEGA SECURITIES INC. - LYNX ATS
-   1317        "AKT"   AKTIETORGET EXCHANGE
+   1317        "AKT"   Spotlight Stock Market
    1318        "MDB"   MONTREAL EXCHANGE
    1319        "MYT"   MYSTEEL
    1320        "ENA"   Empresa Nacional de Electricidad (Endesa) S.A
@@ -8381,8 +8395,8 @@ LEG4_EXCH  13574
    1330        "BZX"   Cboe BZX PITCH
    1331        "CLN"   CAROLINA CAPITAL MARKETS
    1332        "KGE"   KRX Gold Spot Exchange
-   1333        "DXA"   Direct EDGE Multicast - EDGA
-   1334        "DXX"   Direct EDGE Multicast - EDGX
+   1333        "DXA"   Cboe EDGA Multicast (formerly Direct EDGE Multicast - EDGA)
+   1334        "DXX"   Cboe EDGX Multicast (formerly Direct EDGE Multicast - EDGX)
    1335        "CLV"   COLOMBIA SE- L2 DERIVATIVES
    1336        "DR2"   DERIVEX- L2
    1337        "CSF"   COLOMBIA SE L2 FIXED INCOME L1 AND L2
@@ -8558,6 +8572,16 @@ LEG4_EXCH  13574
    1507        "BLC"   Bolsa de Cereales
    1508        "SYP"   Euronext Synapse
    1509        "OAP"   Oslo Stock Exchange APA
+   1510        "MIX"   MIAX EMERALD OPTIONS EXCHANGE
+   1511        "MPN"   India Ministry of Petroleum & Natural Gas
+   1512        "NAA"   NASDAQ MIFID II APA SERVICE
+   1513        "VIA"   Vienna Stock Exchange APA
+   1514        "BUA"   Budapest Stock Exchange APA
+   1515        "BMA"   BME Spanish Exchange APA
+   1516        "BPA"   Bond Pricing Agency Malaysia
+   1517        "ATA"   Athens Stock Exchange APA
+   1518        "GRF"   Griffin Markets Limited
+   1519        "ASY"   A.A. Sayia & Company
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12539,6 +12563,9 @@ OFFBK_H_RN 14142
      73         "CH"   Company Requested Halt
      74         "UH"   Underlying halt
      75         "UA"   Underlying in auction
+     76         "IS"   Instrument suspension by exchange
+     77         "CL"   Clearing problem
+     78         "PL"   Instrument past last trading day
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16827,6 +16854,19 @@ ROUTE_INDX 12977
      71   "HS5     "   Delivery South East Asia via Australia. Redelivery Singapore - Japan
      72   "HS6     "   Delivery South Korea - Japan via NOPAC. Redelivery Singapore - Japan
      73   "TD3C    "   Middle East Gulf to China
+     74   "FBX     "   Freightos Baltic Global container index
+     75   "FBX01   "   Freightos Baltic China/East Asia to North America West Coast
+     76   "FBX02   "   Freightos Baltic North America West Coast to China/East Asia
+     77   "FBX03   "   Freightos Baltic China/East Asia to North America East Coast
+     78   "FBX04   "   Freightos Baltic North America East Coast to China/East Asia
+     79   "FBX11   "   Freightos Baltic China/East Asia to North Europe
+     80   "FBX12   "   Freightos Baltic North Europe to China/East Asia
+     81   "FBX13   "   Freightos Baltic China/East Asia to Mediterranean
+     82   "FBX14   "   Freightos Baltic Mediterranean to China/East Asia
+     83   "FBX21   "   Freightos Baltic North America East Coast to Europe
+     84   "FBX22   "   Freightos Europe to North America East Coast China/East Asia
+     85   "FBX24   "   Freightos Baltic Europe to South America East Coast
+     86   "FBX26   "   Freightos Baltic Europe to South America West Coast
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16945,6 +16985,26 @@ OUT_PROD16 13008
      11   "PROPAN  "   Propane
      12   "PROPYL  "   Propylene
      13   "PETCOK  "   Petroleum Coke
+     14   "SRRESID "   Straight Run Residuals
+     15   "NAPHTHA "   Naphtha
+     16   "GSL SUPR"   Superior Gasoline
+     17   "ULSD10pp"   Ultra Low Sulphur Diesel 10ppm
+     18   "GO10ppm "   GasOil 10ppm
+     19   "GO500ppm"   GasOil 500ppm
+     20   "HSFO3.5%"   3.5% High Sulphur Fuel Oil
+     21   "ASPHALT "   Asphalt
+     22   "MTBE    "   Methyl Tertiary Butyl Ether
+     23   "ETHANOL "   Ethanol
+     24   "FAME    "   Fatty Acid Methyl Esters
+     25   "DTFO15pp"   Distillate Fuel Oil 15ppm
+     26   "SRFO    "   Straight Run Fuel Oil
+     27   "DSL2000p"   Diesel 2000ppm
+     28   "DSL15ppm"   Diesel 15ppm
+     29   "DSL10ppm"   Diesel 10ppm
+     30   "MOG 92R "   Mogas 92 RON
+     31   "MOG 95R "   Mogas 95 RON
+     32   "FO180CST"   Fuel Oil 180 CST
+     33   "FO380CST"   Fuel Oil 380 CST
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17511,6 +17571,7 @@ MBS_CLASS  13043
 SETTLE_MTH 13044
 LEG2_SET_M 13045
 LEG3_SET_M 13046
+DELIV_MTH  13070
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -17554,8 +17615,17 @@ DATTRD_RUL 13068
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET368 13069
-PRE_1ET369 13070
+INCOME_POL 13069
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "DIST    "   Distributing
+      2   "CAP     "   Capitalising
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET370 13071
 PRE_1ET371 13072
 PRE_1ET372 13073
@@ -18611,6 +18681,7 @@ MET_UNIT   13564
     403      " BON "   Bonds (equivalent to $100.00 MXN)
     404      " MXN "   Mexican peso
     405      "KVAH "   Kilo Volt Ampere Hours
+    406      "ENVCD"   Environmental credit
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21115,9 +21186,31 @@ MIFD_SUBCL 13589
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET275 13596
-PRE_2ET276 13597
-PRE_2ET277 13598
+FIXING_TYP 13597
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "REG_REG "   Regular publication of rate determined using regular fixing methodology
+      2   "RPB_REG "   Republication of rate determined using regular fixing methodology
+      3   "REG_CNT "   Regular publication of rate determined using contingency methodology
+      4   "RPB_CNT "   Republication of rate determined using contingency methodology
+!
+! ACRONYM    FID
+! -------    ---
+!
+INST_LB_RU 13598
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "None    "   Any price is accepted
+      2   ">=LTRD  "   Price equal or above the last traded price
+      3   ">=HCLS  "   Price equal or above the historical close price
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET278 13599
 PRE_2ET279 13600
 PRE_2ET280 13601

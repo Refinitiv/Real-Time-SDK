@@ -4,14 +4,14 @@
 ! Thomson Reuters. Thomson Reuters may update or remove this
 ! document at any time without notice.
 !
-!   Version	 4.20.32_TREP_18.61		07/12/2018
-!	* Modified 07/12/2018 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.32.
+!   Version	 4.20.33_TREP_18.71		08/17/2018
+!	* Modified 08/17/2018 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.33.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.32_TREP
+!   Version: 4.20.33_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.32
-!tag Build     004
-!tag Date      09-May-2018
+!tag Version   4.20.33
+!tag Build     002
+!tag Date      03-Aug-2018
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -1333,14 +1333,32 @@ SESS7_FLAG "SESSION 7 FLG"        400  NULL        ALPHANUMERIC        1  RMTES_
 ! Session flag associated with the 7th session price SESSION7 above.
 !
 SESS1_VOL  "SESSION 1 VOL"        401  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated trade volume for the first trading session.
+!
 SESS2_VOL  "SESSION 2 VOL"        402  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated trade volume for the second trading session.
+!
 SESS3_VOL  "SESSION 3 VOL"        403  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated trade volume for the third trading session.
+!
 SESS4_VOL  "SESSION 4 VOL"        404  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated trade volume for the fourth trading session.
+!
 SESS5_VOL  "SESSION 5 VOL"        405  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated trade volume for the fifth trading session.
+!
 SESS6_VOL  "SESSION 6 VOL"        406  NULL        INTEGER            15  REAL64           9
+!
+! Accumulated trade volume for the sixth trading session.
+!
 SESS7_VOL  "SESSION 7 VOL"        407  NULL        INTEGER            15  REAL64           9
 !
-! Volumes for the first to seventh trading sessions respectively.
+! Accumulated trade volume for the seventh trading session.
 !
 SELL_FRESH "NEW SALES"            408  NULL        INTEGER            15  REAL64           9
 !
@@ -9061,9 +9079,7 @@ LST_TRD_IV "LAST TRADED IV"      3674  NULL        ALPHANUMERIC        7  RMTES_
 !
 LST_TRD_PR "LST TRD PR"          3675  NULL        PRICE              17  REAL64           9
 !
-! The final trade of a normal trading market period if there is an end of day auction 
-! period or other post market trading period.  Also known as the clean last trade of 
-! continous trading.
+! The last eligible trade price of the day.trading.
 !
 LT_CL_DATE "LTS CLS PRC DATE"    3676  NULL        DATE               11  DATE             4
 !
@@ -16773,7 +16789,7 @@ LOW_DISC   "LOW DISCOUNT"        6229  NULL        PRICE              17  REAL64
 !
 CLOSE_DISC "HIST CLOSE DISC"     6230  NULL        PRICE              17  REAL64           9
 !
-! The historical closing discount
+! Today's close discount.
 !
 CLSDISCDAT "HIST CLS DISC DATE"  6231  NULL        DATE               11  DATE             4
 !
@@ -19817,9 +19833,18 @@ IMP_NO_ORD "NUM IMP ORDS"        7141  NULL        INTEGER            15   INT64
 !
 ! The number of implied orders in an orderbook row.
 !
-PRE_INT263 "PRED INTEGER 263"    7142  NULL        INTEGER            15   INT64           8
-PRE_INT264 "PRED INTEGER 264"    7143  NULL        INTEGER            15   INT64           8
-PRE_INT265 "PRED INTEGER 265"    7144  NULL        INTEGER            15   INT64           8
+PREMKT_VOL "PRE MKT TRD VOL"     7142  NULL        INTEGER            15   INT64           8
+!
+! Volume of the most recent pre-market trade.
+!
+AFTMKT_VOL "AFT MKT TRD VOL"     7143  NULL        INTEGER            15   INT64           8
+!
+! Volume of the most recent post-market trade.
+!
+QTE_XA_TRD "QTE MAX ALLOW TRD"   7144  NULL        INTEGER            15   INT64           8
+!
+! Maximum number of trades that could be executed with the quote.
+!
 PRE_INT266 "PRED INTEGER 266"    7145  NULL        INTEGER            15   INT64           8
 PRE_INT267 "PRED INTEGER 267"    7146  NULL        INTEGER            15   INT64           8
 PRE_INT268 "PRED INTEGER 268"    7147  NULL        INTEGER            15   INT64           8
@@ -24963,8 +24988,14 @@ SECTR_DESC "SECTOR DESC"         8765  NULL        ALPHANUMERIC      255  RMTES_
 !
 ! Main sector applicable to the instrument
 !
-PRE255T015 "PRED 255 TXT 015"    8766  NULL        ALPHANUMERIC      255  RMTES_STRING   255
-PRE255T016 "PRED 255 TXT 016"    8767  NULL        ALPHANUMERIC      255  RMTES_STRING   255
+MDU_DPKEY1 "MDU DEDUP KEY 1"     8766  NULL        ALPHANUMERIC      255  RMTES_STRING   255
+!
+! News Platform Field. Metadata Exchange dedup key 1.
+!
+MDU_DPKEY2 "MDU DEDUP KEY 2"     8767  NULL        ALPHANUMERIC      255  RMTES_STRING   255
+!
+! News Platform Field. Metadata Exchange dedup key 2.
+!
 PRE255T017 "PRED 255 TXT 017"    8768  NULL        ALPHANUMERIC      255  RMTES_STRING   255
 PRE255T018 "PRED 255 TXT 018"    8769  NULL        ALPHANUMERIC      255  RMTES_STRING   255
 PRE255T019 "PRED 255 TXT 019"    8770  NULL        ALPHANUMERIC      255  RMTES_STRING   255
@@ -25100,7 +25131,10 @@ NF_90D     "NEWSFLAG 90DAY"      8881  NULL        INTEGER             3  UINT64
 !
 ! Binary flag for news in last 90 days 
 !
-PRE_1BN007 "PRED 1 BIN 007"      8882  NULL        INTEGER             3  UINT64           8
+MDU_V_MIN  "MDU VER MINOR"       8882  NULL        INTEGER             3  UINT64           8
+!
+! News Platform Field.  Metadata Exchange update minor version.
+!
 PRE_1BN008 "PRED 1 BIN 008"      8883  NULL        INTEGER             3  UINT64           8
 PRE_1BN009 "PRED 1 BIN 009"      8884  NULL        INTEGER             3  UINT64           8
 PRE_1BN010 "PRED 1 BIN 010"      8885  NULL        INTEGER             3  UINT64           8
@@ -26499,15 +26533,42 @@ SC_HLTR_DT "SEC HALT RESUME DT"  9342  NULL        DATE               11  DATE  
 !
 ! Secondary field for trade resumption date for a halted/suspended security.
 !
-PRE_DT232  "PRED DATE 232"       9343  NULL        DATE               11  DATE             4
-PRE_DT233  "PRED DATE 233"       9344  NULL        DATE               11  DATE             4
-PRE_DT234  "PRED DATE 234"       9345  NULL        DATE               11  DATE             4
-PRE_DT235  "PRED DATE 235"       9346  NULL        DATE               11  DATE             4
-PRE_DT236  "PRED DATE 236"       9347  NULL        DATE               11  DATE             4
-PRE_DT237  "PRED DATE 237"       9348  NULL        DATE               11  DATE             4
-PRE_DT238  "PRED DATE 238"       9349  NULL        DATE               11  DATE             4
-PRE_DT239  "PRED DATE 239"       9350  NULL        DATE               11  DATE             4
-PRE_DT240  "PRED DATE 240"       9351  NULL        DATE               11  DATE             4
+MDU_DATE   "MDU DATE"            9343  NULL        DATE               11  DATE             4
+!
+! News Platform Field. Metadata Exchange update date.
+!
+ED_SETL_DT "EXCH DELIV SETL DT"  9344  NULL        DATE               11  DATE             4
+!
+! Exchange Delivery Settlement Date.  Associated with EDSP(#3917).
+!
+PREMKT_DT  "PRE MKT TRD DATE"    9345  NULL        DATE               11  DATE             4
+!
+! Date of the most recent pre-market trade.
+!
+AFTMKT_DT  "AFT MKT TRD DATE"    9346  NULL        DATE               11  DATE             4
+!
+! Date of the most recent post-market trade.
+!
+IND_AUCDT2 "IND AUC PRC DATE 2"  9347  NULL        DATE               11  DATE             4
+!
+! Secondary Indicative Auction Price Date.
+!
+OFFER_DT   "OFFER DATE"          9348  NULL        DATE               11  DATE             4
+!
+! The date when OFFER field was last updated.
+!
+MN_IINP_DT "MN INIT INV PRC DT"  9349  NULL        DATE               11  DATE             4
+!
+! Minimum initial investment price date. 
+!
+NDEL_ST_DT "NO DELIVERY ST DT"   9350  NULL        DATE               11  DATE             4
+!
+! The start date of no delivery period.
+!
+NDEL_EN_DT "NO DELIVERY EN DT"   9351  NULL        DATE               11  DATE             4
+!
+! The end date of no delivery period.
+!
 PRE_DT241  "PRED DATE 241"       9352  NULL        DATE               11  DATE             4
 PRE_DT242  "PRED DATE 242"       9353  NULL        DATE               11  DATE             4
 PRE_DT243  "PRED DATE 243"       9354  NULL        DATE               11  DATE             4
@@ -29594,22 +29655,70 @@ C_DISCFACT "CLOSE DISC FACTOR"  10584  NULL        PRICE              17  REAL64
 !
 ! The closing Discount Factor of the day.
 !
-PRERL1594  "PRED REAL 1594"     10585  NULL        PRICE              17  REAL64           9
-PRERL1595  "PRED REAL 1595"     10586  NULL        PRICE              17  REAL64           9
-PRERL1596  "PRED REAL 1596"     10587  NULL        PRICE              17  REAL64           9
-PRERL1597  "PRED REAL 1597"     10588  NULL        PRICE              17  REAL64           9
-PRERL1598  "PRED REAL 1598"     10589  NULL        PRICE              17  REAL64           9
-PRERL1599  "PRED REAL 1599"     10590  NULL        PRICE              17  REAL64           9
-PRERL1600  "PRED REAL 1600"     10591  NULL        PRICE              17  REAL64           9
-PRERL1601  "PRED REAL 1601"     10592  NULL        PRICE              17  REAL64           9
-PRERL1602  "PRED REAL 1602"     10593  NULL        PRICE              17  REAL64           9
-PRERL1603  "PRED REAL 1603"     10594  NULL        PRICE              17  REAL64           9
-PRERL1604  "PRED REAL 1604"     10595  NULL        PRICE              17  REAL64           9
-PRERL1605  "PRED REAL 1605"     10596  NULL        PRICE              17  REAL64           9
-PRERL1606  "PRED REAL 1606"     10597  NULL        PRICE              17  REAL64           9
-PRERL1607  "PRED REAL 1607"     10598  NULL        PRICE              17  REAL64           9
-PRERL1608  "PRED REAL 1608"     10599  NULL        PRICE              17  REAL64           9
-PRERL1609  "PRED REAL 1609"     10600  NULL        PRICE              17  REAL64           9
+PREMKT_PRC "PRE MKT TRD PRC"    10585  NULL        PRICE              17  REAL64           9
+!
+! Price of the most recent pre-market trade.
+!
+AFTMKT_PRC "AFT MKT TRD PRC"    10586  NULL        PRICE              17  REAL64           9
+!
+! Price of the most recent post-market trade.
+!
+CDS_HSTPAY "CDS HIST CRED PMNT" 10587  NULL        PRICE              17  REAL64           9
+!
+! CDS historical premium and credit event payments.
+!
+DSC_NETCHG "DISC PRC NETCHG"    10588  NULL        PRICE              17  REAL64           9
+!
+! The net change for discount rate.
+!
+HST_DISC   "HST CLS DISC PRC"   10589  NULL        PRICE              17  REAL64           9
+!
+! Historical close discount.
+!
+EL_MAR_RT  "EXTRM LOSS MRGN RT" 10590  NULL        PRICE              17  REAL64           9
+!
+! Extreme Loss margin rate.
+!
+OPINT_VAL  "OPN INT VALUE"      10591  NULL        PRICE              17  REAL64           9
+!
+! Open Interest Value.
+!
+ORDER_YTC  "ORD YIELD TO CALL"  10592  NULL        PRICE              17  REAL64           9
+!
+! The Yield to Call of the order.
+!
+ORDER_YTP  "ORD YIELD TO PUT"   10593  NULL        PRICE              17  REAL64           9
+!
+! The Yield to Put of the order.
+!
+VAR_MAR_RT "VL AT RISK MRGN RT" 10594  NULL        PRICE              17  REAL64           9
+!
+! Value at Risk (VaR) margin rate.
+!
+ISS_UPLMT  "ISS UPPER LMT"      10595  NULL        PRICE              17  REAL64           9
+!
+! Number of constituents of which price is traded at upper limit.
+!
+ISS_LOLMT  "ISS LOWER LMT"      10596  NULL        PRICE              17  REAL64           9
+!
+! Number of constituents of which price is traded at lower limit.
+!
+SESS3_CLS  "SESS3 CLS"          10597  NULL        PRICE              17  REAL64           9
+!
+! The closing value of the third session.
+!
+SESS3_OPEN "SESS3 OPEN"         10598  NULL        PRICE              17  REAL64           9
+!
+! The opening value for the third session.
+!
+SESSION3HI "SESSION3 HIGH"      10599  NULL        PRICE              17  REAL64           9
+!
+! Third session high price.
+!
+SESSION3LO "SESSION3 LOW"       10600  NULL        PRICE              17  REAL64           9
+!
+! Third session low price.
+!
 PRERL1610  "PRED REAL 1610"     10601  NULL        PRICE              17  REAL64           9
 PRERL1611  "PRED REAL 1611"     10602  NULL        PRICE              17  REAL64           9
 PRERL1612  "PRED REAL 1612"     10603  NULL        PRICE              17  REAL64           9
@@ -30873,7 +30982,10 @@ CFI_CODE_D "CFI CODE D"         11700  NULL        ALPHANUMERIC        8  RMTES_
 !
 ! Dynamic Reference Field - CFI Code.
 !
-PRE_8TX020 "PRED 8 TXT 020"     11701  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+NAV_TONE   "NAV TONE"           11701  NULL        ALPHANUMERIC        8  RMTES_STRING     8
+!
+! Price indicators for FID NAVALUE(#120).
+!
 PRE_8TX021 "PRED 8 TXT 021"     11702  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX022 "PRED 8 TXT 022"     11703  NULL        ALPHANUMERIC        8  RMTES_STRING     8
 PRE_8TX023 "PRED 8 TXT 023"     11704  NULL        ALPHANUMERIC        8  RMTES_STRING     8
@@ -31605,7 +31717,10 @@ CLEAR_HSE2 "CLEARING HOUSE 2"   12081  NULL        ALPHANUMERIC       32  RMTES_
 !
 ! Clearing house 2 for which the spread is shown in CLEAR_SPD
 !
-PRE_32T031 "PRED 32 TXT 031"    12082  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+MIN_IIN_DS "MN INIT INV DESC"   12082  NULL        ALPHANUMERIC       32  RMTES_STRING    32
+!
+! Minimum initial investment description.
+!
 PRE_32T032 "PRED 32 TXT 032"    12083  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 PRE_32T033 "PRED 32 TXT 033"    12084  NULL        ALPHANUMERIC       32  RMTES_STRING    32
 PRE_32T034 "PRED 32 TXT 034"    12085  NULL        ALPHANUMERIC       32  RMTES_STRING    32
@@ -33419,8 +33534,14 @@ DATTRD_RUL "DAY TRADING RULE"   13068  NULL        ENUMERATED    3 ( 5 )  ENUM  
 !
 ! Day Trading rule.
 !
-PRE_1ET368 "PRED 1 ET 368"      13069  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET369 "PRED 1 ET 369"      13070  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+INCOME_POL "INCOME DIST POLICY" 13069  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Income Policy.
+!
+DELIV_MTH  "DELIVERY MONTH"     13070  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Delivery month.
+!
 PRE_1ET370 "PRED 1 ET 370"      13071  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET371 "PRED 1 ET 371"      13072  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET372 "PRED 1 ET 372"      13073  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -34488,9 +34609,18 @@ CURRENCY_D "CURRENCY D"         13595  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 ! Dynamic Reference Field - Currency.
 !
-PRE_2ET275 "PRED 2 ET 275"      13596  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET276 "PRED 2 ET 276"      13597  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET277 "PRED 2 ET 277"      13598  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+MN_IIN_CCY "MN INIT INV PR CCY" 13596  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Minimum initial investment currency.
+!
+FIXING_TYP "FIXING TYPE"        13597  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Fixing type.
+!
+INST_LB_RU "INST LEND BRW RULE" 13598  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Institutional security lending and borrowing rules.
+!
 PRE_2ET278 "PRED 2 ET 278"      13599  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET279 "PRED 2 ET 279"      13600  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET280 "PRED 2 ET 280"      13601  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -36250,18 +36380,54 @@ SC_HLTR_NS "SEC HALT RSM TM NS" 14565  NULL        INTEGER            15  TIME  
 !
 ! Secondary field for trade resumption time for a halted/suspended security.
 !
-PRE_136_NS "PRED TIME NS 136"   14566  NULL        INTEGER            15  TIME             8
-PRE_137_NS "PRED TIME NS 137"   14567  NULL        INTEGER            15  TIME             8
-PRE_138_NS "PRED TIME NS 138"   14568  NULL        INTEGER            15  TIME             8
-PRE_139_NS "PRED TIME NS 139"   14569  NULL        INTEGER            15  TIME             8
-PRE_140_NS "PRED TIME NS 140"   14570  NULL        INTEGER            15  TIME             8
-PRE_141_NS "PRED TIME NS 141"   14571  NULL        INTEGER            15  TIME             8
-PRE_142_NS "PRED TIME NS 142"   14572  NULL        INTEGER            15  TIME             8
-PRE_143_NS "PRED TIME NS 143"   14573  NULL        INTEGER            15  TIME             8
-PRE_144_NS "PRED TIME NS 144"   14574  NULL        INTEGER            15  TIME             8
-PRE_145_NS "PRED TIME NS 145"   14575  NULL        INTEGER            15  TIME             8
-PRE_146_NS "PRED TIME NS 146"   14576  NULL        INTEGER            15  TIME             8
-PRE_147_NS "PRED TIME NS 147"   14577  NULL        INTEGER            15  TIME             8
+SESS1_V_NS "SESS1 VOL TM NS"    14566  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESS1_VOL was set. 
+!
+SESS2_V_NS "SESS2 VOL TM NS"    14567  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESS2_VOL was set. 
+!
+MDUTM_NS   "MDU TIME NS"        14568  NULL        INTEGER            15  TIME             8
+!
+! News Platform Field. Metadata Exchange update time in Nanoseconds.
+!
+PREMKT_NS  "PRE MKT TRD NS"     14569  NULL        INTEGER            15  TIME             8
+!
+! Trade execution time of the most recent pre-market trade.
+!
+AFTMKT_NS  "AFT MKT TRD NS"     14570  NULL        INTEGER            15  TIME             8
+!
+! Trade execution time of the most recent post-market trade.
+!
+ACVOLTM_NS "ACVOL TIME NS"      14571  NULL        INTEGER            15  TIME             8
+!
+! The time when accumulated volume was last updated.
+!
+TNOVTM_NS  "TNOV TIME NS"       14572  NULL        INTEGER            15  TIME             8
+!
+! The time when turnover value was last updated.
+!
+PAUC_UX_NS "PLAN AUC UNCRS NS"  14573  NULL        INTEGER            15  TIME             8
+!
+! Planned time for the auction uncross.
+!
+SESS3_H_NS "SESS3 HIGH TM NS"   14574  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESSION3HI was set.
+!
+SESS3_L_NS "SESS3 LOW TM NS"    14575  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESSION3LO was set.
+!
+SESS3_O_NS "SESS3 OPEN TM NS"   14576  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESS3_OPEN was set.
+!
+SESS3_C_NS "SESS3 CLS TM NS"    14577  NULL        INTEGER            15  TIME             8
+!
+! The time at which the value in SESS3_CLS was set.
+!
 PRE_148_NS "PRED TIME NS 148"   14578  NULL        INTEGER            15  TIME             8
 PRE_149_NS "PRED TIME NS 149"   14579  NULL        INTEGER            15  TIME             8
 PRE_150_NS "PRED TIME NS 150"   14580  NULL        INTEGER            15  TIME             8
@@ -38207,7 +38373,10 @@ HST_EX_VOL "HST EXCH VOL UNS"   32493  NULL        INTEGER            15  UINT64
 !
 ! The previous day's un-scaled accumulated volume reported by the exchange/source
 !
-PR_UINT016 "PRED UNS INT 016"   32494  NULL        INTEGER            15  UINT64           8
+UIN_UPD_ID "UNIQUE UPD ID"      32494  NULL        INTEGER            15  UINT64           8
+!
+! Unique identifier number derived from date, timestamp and RIC name of an observation.
+!
 PR_UINT017 "PRED UNS INT 017"   32495  NULL        INTEGER            15  UINT64           8
 PR_UINT018 "PRED UNS INT 018"   32496  NULL        INTEGER            15  UINT64           8
 PR_UINT019 "PRED UNS INT 019"   32497  NULL        INTEGER            15  UINT64           8
@@ -38445,7 +38614,10 @@ PDRPT_NOTL "PRVD TRD RPT NOTL"  32601  NULL        PRICE              17  REAL64
 !
 ! Todays reported notional amount for a previous days trade
 !
-PRE_LRL044 "PRED LRG REAL 044"  32602  NULL        PRICE              17  REAL64           9
+WADJ_ACVOL "WEIGHT ADJ ACVOL"   32602  NULL        PRICE              17  REAL64           9
+!
+! Weight-adjusted accumulated volume
+!
 PRE_LRL045 "PRED LRG REAL 045"  32603  NULL        PRICE              17  REAL64           9
 PRE_LRL046 "PRED LRG REAL 046"  32604  NULL        PRICE              17  REAL64           9
 PRE_LRL047 "PRED LRG REAL 047"  32605  NULL        PRICE              17  REAL64           9
