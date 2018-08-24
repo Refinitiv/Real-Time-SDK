@@ -47,8 +47,8 @@ void OmmCommonImpl::removeFd( int fd )
   }
 
   --_eventFdsCount;
-  while (i < _eventFdsCount)
-	_eventFds[i] = _eventFds[++i];
+  for ( ; i < _eventFdsCount; ++i );
+	_eventFds[i] = _eventFds[i+1];
 }
 #endif
 
