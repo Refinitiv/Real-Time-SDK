@@ -19,21 +19,6 @@
 
 #include "Ema.h"
 
-unsigned long long getCurrentTime()
-{
-	unsigned long long msec = 0;
-#ifdef WIN32
-	struct	_timeb	_time;
-	_ftime_s(&_time);
-	msec = _time.time * 1000 + _time.millitm;
-#else
-	struct  timeval _time;
-	gettimeofday(&_time, 0);
-	msec = ((unsigned long long)(_time.tv_sec)) * 1000ULL + ((unsigned long long)(_time.tv_usec)) / 1000ULL;
-#endif
-	return msec;
-}
-
 void sleep(int millisecs)
 {
 #if defined WIN32

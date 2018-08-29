@@ -117,8 +117,6 @@ public class IProvider
 			
 			for(int i = 0; i < 60; i++)
 			{
-				long startTime = System.currentTimeMillis();
-
 				provider.dispatch(1000);
 		
 				fieldList.clear();
@@ -129,7 +127,7 @@ public class IProvider
 			
 				provider.submit(updateMsg.clear().payload(fieldList), appClient.itemHandle );
 				
-				while(System.currentTimeMillis() - startTime < 1000 );;
+				Thread.sleep(1000);
 			}
 		}
 		catch (OmmException | InterruptedException excp)

@@ -81,8 +81,6 @@ int main()
 
 		for ( Int32 i = 0; i < 60; i++ )
 		{
-			unsigned long long  startTime = getCurrentTime();
-
 			provider.dispatch( 10000 );
 
 			provider.submit( UpdateMsg().clear().domainType( MMT_MARKET_BY_PRICE ).payload( Map().
@@ -93,8 +91,7 @@ int main()
 				addRmtes( 3435, EmaBuffer( "Market Maker", 12 ) ).
 				complete() ).
 				complete() ), itemHandle );
-
-			while (getCurrentTime() - startTime < 1000);;
+			sleep(1000);
 		}
 	}
 	catch ( const OmmException& excp )

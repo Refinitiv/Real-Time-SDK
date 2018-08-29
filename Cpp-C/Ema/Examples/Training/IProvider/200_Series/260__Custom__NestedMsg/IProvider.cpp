@@ -89,8 +89,6 @@ int main()
 
 		for ( Int32 i = 0; i < 60; i++ )
 		{
-			unsigned long long  startTime = getCurrentTime();
-
 			provider.dispatch( 10000 );
 
 			provider.submit( GenericMsg().domainType(APP_DOMAIN).name( "genericMsg" ).payload(
@@ -99,7 +97,7 @@ int main()
 				addReal( 30, 10 + i, OmmReal::Exponent0Enum ).
 				complete() ) ), itemHandle );
 
-			while (getCurrentTime() - startTime < 1000);;
+			sleep(1000);
 		}
 	}
 	catch ( const OmmException& excp )
