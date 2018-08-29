@@ -48,7 +48,7 @@ function(get_lsb_release_info _relid _relnum)
         else()
         endif()
         #]========================================================]
-        find_program(_uname_binary lsb_release)
+        find_program(_uname_binary uname)
         if (_uname_binary)
             execute_process(COMMAND ${_uname_binary} -s 
                             RESULT_VARIABLE _retval
