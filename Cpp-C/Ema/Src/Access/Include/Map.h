@@ -17,19 +17,6 @@
 	same primitive data type. All entries must have same complex data type
 	(except for delete action).
 
-	Map supports two methods of adding containers; they are:
-	- adding of already populated containers, (e.g. complete() was called) and 
-	- adding of clear containers (e.g. clear() was called) which would be populated after that.
-
-	The first method of adding of already populated containers allows for easy data
-	manipulation but incurs additional memory copy. This method is useful in
-	applications extracting data containers from some messages or containers and then
-	setting them on other containers.
-
-	The second method allows for fast container population since it avoids additional
-	memory copy incurred by the first method. This method is useful in source applications
-	setting OMM data from native data formats.
-
 	The following code snippet shows addition of entry and summaryData to Map.
 
 	\code
