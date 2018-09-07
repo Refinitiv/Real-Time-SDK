@@ -24,6 +24,7 @@ class AppClient implements OmmConsumerClient
             decode(refreshMsg.payload().map());
         if (DataTypes.OPAQUE == refreshMsg.payload().dataType())
             decode(refreshMsg.payload().opaque());
+        System.out.println("Received Refresh, SolicitedFlag=" + refreshMsg.solicited() + ", StreamID= " + refreshMsg.streamId() + "\n");
     }
 
     @Override
@@ -197,10 +198,10 @@ public class Consumer
 
             OmmConsumer consumer = EmaFactory.createOmmConsumer(cc);
 
-            Integer closure4 = new Integer(1);
             Integer closure1 = new Integer(1);
             Integer closure2 = new Integer(1);
             Integer closure3 = new Integer(1);
+            Integer closure4 = new Integer(1);
             Integer closure5 = new Integer(1);
             Integer closure6 = new Integer(1);
             Integer closure7 = new Integer(1);
@@ -646,14 +647,52 @@ public class Consumer
                     long h1 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").payload(elementList2), client, closure2);
                     long h2 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("IBM.N"), client, closure3);
                     long h3 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").interestAfterRefresh(false), client, closure4);
-		    // Sleep 3 seconds
+                    // Sleep 3 seconds
                     Thread.sleep(3000);
                     long h4 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").payload(elementList).interestAfterRefresh(false), client, closure1);
-		    // Sleep 15 seconds
+                    // Sleep 15 seconds
                     Thread.sleep(15000);
                     long h5 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").payload(elementList).interestAfterRefresh(false), client, closure1);
 
-		}
+                }
+                else if (temp == 32)
+                {
+                    OmmArray ommArray = EmaFactory.createOmmArray();
+                    OmmArray ommArray2 = EmaFactory.createOmmArray();
+                    OmmArray ommArray3 = EmaFactory.createOmmArray();
+                    OmmArray ommArray4 = EmaFactory.createOmmArray();
+                    ommArray.add(EmaFactory.createOmmArrayEntry().ascii("TRDPRC_1"));
+                    ommArray.add(EmaFactory.createOmmArrayEntry().ascii("BID"));
+                    ommArray2.add(EmaFactory.createOmmArrayEntry().ascii("ASK"));
+                    ommArray2.add(EmaFactory.createOmmArrayEntry().ascii("VOL ACCUMULATED"));
+                    ommArray3.add(EmaFactory.createOmmArrayEntry().ascii("BID"));
+                    ommArray3.add(EmaFactory.createOmmArrayEntry().ascii("ASK_TIME"));
+                    ommArray3.add(EmaFactory.createOmmArrayEntry().ascii("VOL ACCUMULATED"));
+                    ommArray4.add(EmaFactory.createOmmArrayEntry().ascii("ASK_TIME"));
+                    ommArray4.add(EmaFactory.createOmmArrayEntry().ascii("DIVPAYDATE"));
+                    ommArray4.add(EmaFactory.createOmmArrayEntry().ascii("NETCHNG_1"));
+
+                    ElementList elementList = EmaFactory.createElementList();
+                    ElementList elementList1 = EmaFactory.createElementList();
+                    ElementList elementList2 = EmaFactory.createElementList();
+                    ElementList elementList3 = EmaFactory.createElementList();
+                    elementList.add(EmaFactory.createElementEntry().uintValue(":ViewType", 2));
+                    elementList.add(EmaFactory.createElementEntry().array(":ViewData", ommArray));
+                    elementList1.add(EmaFactory.createElementEntry().uintValue(":ViewType", 2));
+                    elementList1.add(EmaFactory.createElementEntry().array(":ViewData", ommArray2));
+                    elementList2.add(EmaFactory.createElementEntry().uintValue(":ViewType", 2));
+                    elementList2.add(EmaFactory.createElementEntry().array(":ViewData", ommArray3));
+                    elementList3.add(EmaFactory.createElementEntry().uintValue(":ViewType", 2));
+                    elementList3.add(EmaFactory.createElementEntry().array(":ViewData", ommArray4));
+
+                    long h1 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").payload(elementList), client, closure1);
+                    Thread.sleep(3000);
+                    long h3 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").payload(elementList1), client, closure3);
+                    Thread.sleep(3000);
+                    long h4 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").payload(elementList2), client, closure4);
+                    Thread.sleep(3000);
+                    long h5 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N").interestAfterRefresh(false).payload(elementList3), client, closure5);
+                }
                 else if (temp == 99)
                 {
                     System.out.println("Selected option 99");

@@ -39,6 +39,7 @@ public class WlViewHandler
     LinkedList<LinkedList<WlView>> _newViewsPool = new LinkedList<LinkedList<WlView>>();   
     LinkedList<HashMap<Integer, Integer>> _viewFieldIdCountMapPool = new LinkedList<HashMap<Integer, Integer>>();
     LinkedList<HashMap<String, Integer>> _viewElementNameCountMapPool = new LinkedList<HashMap<String, Integer>>();
+   ArrayList<Integer> fidsToRemove = new ArrayList<Integer>();
 
     WlViewHandler(Watchlist watchlist)
     {
@@ -52,96 +53,85 @@ public class WlViewHandler
 		{		
 			case ViewTypes.FIELD_ID_LIST:
 			{
-				boolean hasDuplicateFields = false;
 				WlView wlView = ReactorFactory.createWlView();
 				wlView.viewHandler(this);
 				wlView.viewType(viewType);
-			    wlView.elemCount(elemCount);
+			    wlView.elemCount(0);
 			    wlView.state(WlView.State.NEW);
-				wlView._fieldIdList = fieldIdList;
+				wlView._fieldIdList = _viewFieldIdListPool.poll();
+				if (wlView._fieldIdList == null)
+					wlView._fieldIdList = new ArrayList<Integer>();
+				else {
+					wlView._fieldIdList.clear();
+				}
+					
+				for (Integer I : fieldIdList) {
+					wlView._fieldIdList.add(I);
+					++wlView._elemCount;
+				}
 				
 				if (wlView._fieldIdList != null && wlView.elemCount() > 0 )
 				{
 					Collections.sort(wlView._fieldIdList);
-					if ( elemCount > 0 && wlView._fieldIdList.get(0).equals(0) )
-						hasDuplicateFields = true;
-					for (int i = 1; i < wlView._fieldIdList.size(); i++)
-					{
-						if (!wlView._fieldIdList.get(i).equals(0) &&
-                           wlView._fieldIdList.get(i).equals(wlView._fieldIdList.get(i-1)))
-						{
-							wlView._fieldIdList.set(i, 0);
-							hasDuplicateFields = true;
-						}							   
+					int startingCount = wlView.elemCount();
+					int newCount = startingCount;
+					int nextValidPos = 1;
+					for (int i = 1; i < startingCount; ++i) {
+						if (wlView._fieldIdList.get(i) == wlView._fieldIdList.get(nextValidPos - 1)) {
+							--newCount;
+						}
+						else {
+							if (i > nextValidPos)
+								wlView._fieldIdList.set(nextValidPos, wlView._fieldIdList.get(i));
+							nextValidPos++;
+						}
 					}
-				
-					if (hasDuplicateFields)
-					{
-						for (int i = 0; i < wlView._elemCount;)
-						{
-							if (wlView._fieldIdList.get(i).equals(0))
-							{
-								wlView._fieldIdList.set(i, wlView._fieldIdList.get(wlView._elemCount-1));
-								wlView._elemCount --;
-							}
-							else
-								++i;
-						}						
-					
-						Collections.sort(wlView._fieldIdList.subList(0, wlView._elemCount));
-					}
-					return wlView;				
-				}			
-				else
-				{
-				    wlView.elemCount(0);
-				    return wlView;
+					wlView._elemCount = newCount;
 				}
+				else
+				    wlView.elemCount(0);
+				
+				return wlView;
+
 			}
 			case ViewTypes.ELEMENT_NAME_LIST:
 			{
-				boolean hasDuplicateFields = false;
 				WlView wlView = ReactorFactory.createWlView();
 				wlView.viewHandler(this);
 				wlView.viewType(viewType);
-			    wlView.elemCount(elemCount);   
+			    wlView.elemCount(0);
 			    wlView.state(WlView.State.NEW);
-				wlView._elementNameList = elementNameList;
-				
+				wlView._elementNameList = _viewElementNameListPool.poll();
+				if (wlView._elementNameList == null)
+					wlView._elementNameList = new ArrayList<String>();
+				else
+					wlView._elementNameList.clear();
+				for (String S : elementNameList) {
+					wlView._elementNameList.add(S);
+					++wlView._elemCount;
+				}
 				if (wlView._elementNameList != null && wlView.elemCount() > 0 )
 				{
 					Collections.sort(wlView._elementNameList);
-
-					for (int i = 1; i < wlView._elementNameList.size(); i++)
-					{
-						if (wlView._elementNameList.get(i) != null &&
-                           wlView._elementNameList.get(i).equals(wlView._elementNameList.get(i-1)))
-						{
-							wlView._elementNameList.set(i, null);
-							hasDuplicateFields = true;
+					int startingCount = wlView.elemCount();
+					int newCount = startingCount;
+					int nextValidPos = 1;
+					for (int i = 1; i < startingCount; ++i) {
+						if (wlView._elementNameList.get(i).equals(wlView._elementNameList.get(nextValidPos - 1))) {
+							--newCount;
+						}
+						else {
+							if (i > nextValidPos)
+								wlView._elementNameList.set(nextValidPos, wlView._elementNameList.get(i));
+							++nextValidPos;
 						}							   
 					}				
-					if (hasDuplicateFields)
-					{
-						for (int i = 0; i < wlView._elemCount;)
-						{
-							if (wlView._elementNameList.get(i) == null)
-							{
-								wlView._elementNameList.set(i, wlView._elementNameList.get(wlView._elemCount-1));
-								wlView._elemCount --;
-							}
-							else
-								++i;
-						}						
-					}					
-					Collections.sort(wlView._elementNameList.subList(0, wlView._elemCount));
-					return wlView;				
+					wlView._elemCount = newCount;
 				}			
 				else
-				{
 				    wlView.elemCount(0);
-				    return wlView;
-				}	
+
+				return wlView;
 			}
 			default:			
 			{
@@ -210,7 +200,8 @@ public class WlViewHandler
 				aggView.viewType(view.viewType());
 			    aggView.elemCount(view.elemCount());
 				aggView._fieldIdList = _viewFieldIdListPool.poll();
-				if (aggView._fieldIdList == null) aggView._fieldIdList = new ArrayList<Integer>();	
+				if (aggView._fieldIdList == null)
+					aggView._fieldIdList = new ArrayList<Integer>();	
 				aggView._fieldIdList.clear();
 				aggView._fieldIdList.addAll(view.fieldIdList());
 				break;
@@ -265,16 +256,18 @@ public class WlViewHandler
 					if (aggViewFieldIdList == null)
 					{
 						aggViewFieldIdList = _viewFieldIdListPool.poll();
-						if (aggViewFieldIdList == null ) aggViewFieldIdList = new ArrayList<Integer>();
+						if (aggViewFieldIdList == null )
+							aggViewFieldIdList = new ArrayList<Integer>();
 						else 
 							aggViewFieldIdList.clear();
 						 
 						aggView.fieldIdList(aggViewFieldIdList);	
 						aggView._elemCount = 0;
 					}
-				
+
+					ArrayList<Integer> newFids = new ArrayList<Integer>();
 					for (int i = 0; i < view.fieldIdList().subList(0, view.elemCount()).size(); i++)
-					{					
+					{
 						Integer fid = view.fieldIdList().get(i);
 						int index = Collections.binarySearch(aggViewFieldIdList.subList(0, aggView._elemCount), fid);
 						if (index >= 0)
@@ -283,20 +276,19 @@ public class WlViewHandler
 							aggView._viewFieldIdCountMap.put(fid, ++count);
 						}
 						else
-						{
-							if (aggView.elemCount() < aggViewFieldIdList.size())
-							{
-								aggViewFieldIdList.set(aggView._elemCount, fid);
-							}
-							else 
-								aggViewFieldIdList.add(fid);
-
-							aggView._viewFieldIdCountMap.put(fid, 1);
-							aggView._elemCount++;				    		
-						}
+							newFids.add(fid);
 					}
+					
+					for (int j = 0; j < newFids.size(); ++j) {
+						if (aggView.elemCount() < aggViewFieldIdList.size())
+							aggViewFieldIdList.set(aggView._elemCount, newFids.get(j));
+						else 
+							aggViewFieldIdList.add(newFids.get(j));
+						aggView._viewFieldIdCountMap.put(newFids.get(j), 1);
+						aggView._elemCount++;
+					}
+					
 					Collections.sort(aggViewFieldIdList.subList(0, aggView._elemCount));
-               
 					break;
 				}
 				case ViewTypes.ELEMENT_NAME_LIST:
@@ -306,15 +298,16 @@ public class WlViewHandler
 					if (aggViewElementNameList == null)
 					{
 						aggViewElementNameList = _viewElementNameListPool.poll();
-						if (aggViewElementNameList == null ) aggViewElementNameList = new ArrayList<String>();
+						if (aggViewElementNameList == null )
+							aggViewElementNameList = new ArrayList<String>();
 						else 
 							aggViewElementNameList.clear();
 						
-						aggView.elementNameList(aggViewElementNameList);	
-
+						aggView.elementNameList(aggViewElementNameList);
 						aggView._elemCount = 0;
 					}
-				
+
+					ArrayList<String> newElements = new ArrayList<String>();
 					for (int i = 0; i < view.elementNameList().subList(0, view.elemCount()).size(); i++)
 					{						
 					    String elementName = view.elementNameList().get(i);
@@ -325,17 +318,16 @@ public class WlViewHandler
 							aggView._viewElementNameCountMap.put(elementName, ++count);
 						}
 						else
-						{
-							if (aggView.elemCount() < aggViewElementNameList.size())
-							{
-								aggViewElementNameList.set(aggView._elemCount, elementName);
-							}
-							else 
-								aggViewElementNameList.add(elementName);
+							newElements.add(elementName);
+					}
 
-							aggView._viewElementNameCountMap.put(elementName, 1);
-							aggView._elemCount++;				    		
-						}
+					for (int j = 0; j < newElements.size(); ++j) {
+						if (aggView.elemCount() < aggViewElementNameList.size())
+							aggViewElementNameList.set(aggView._elemCount, newElements.get(j));
+						else
+							aggViewElementNameList.add(newElements.get(j));
+						aggView._viewElementNameCountMap.put(newElements.get(j),  1);
+						++aggView._elemCount;
 					}
 					Collections.sort(aggViewElementNameList.subList(0, aggView._elemCount));
 					break;
@@ -383,92 +375,111 @@ public class WlViewHandler
 		
 		if(view.state() == WlView.State.MERGED || view.state() == WlView.State.COMMITTED)
 		{
-			switch(view.viewType())
-			{		
-				case ViewTypes.FIELD_ID_LIST:
+			if (view.viewType() == ViewTypes.FIELD_ID_LIST) {
+				ArrayList<Integer> aggViewFieldIdList = aggView.fieldIdList();
+				fidsToRemove.clear();
+				for (int i = 0; i < view.fieldIdList().subList(0, view.elemCount()).size(); i++)
 				{
-					ArrayList<Integer> aggViewFieldIdList = aggView.fieldIdList();
-								
-					for (int i = 0; i < view.fieldIdList().subList(0, view.elemCount()).size(); i++)
-					{						
-						Integer fid = view.fieldIdList().get(i);
-						int index = Collections.binarySearch(aggViewFieldIdList.subList(0, aggView._elemCount), fid);
-						if ( index >= 0) 
-						{
-					    	Integer count = aggView._viewFieldIdCountMap.get(fid);
-					    	aggView._viewFieldIdCountMap.put(fid, --count);
-						}
-						else
-						{
-							_watchlist.reactor().populateErrorInfo(errorInfo,
-									ReactorReturnCodes.FAILURE, "ViewHandder",
-									"Aggregate View cannot remove a non-existent field id  <" + fid + ">");
-							 
-						}
+					Integer fid = view.fieldIdList().get(i);
+					int index = Collections.binarySearch(aggViewFieldIdList.subList(0, aggView._elemCount), fid);
+					if ( index >= 0) 
+					{
+						Integer count = aggView._viewFieldIdCountMap.get(fid);
+						aggView._viewFieldIdCountMap.put(fid, --count);
+						if (count == 0)
+							fidsToRemove.add(fid);
 					}
-					
-					_resorted = false;
-					for (int i = 0; i < aggViewFieldIdList.subList(0, aggView.elemCount()).size(); i++)
-					{						
-						if (aggView._viewFieldIdCountMap.get(aggViewFieldIdList.get(i)) == 0 ) 
-						{
-//							aggView._viewFieldIdCommitMap.remove(aggViewFieldIdList.get(i));
-						
-							aggViewFieldIdList.set(i, aggViewFieldIdList.get(aggView.elemCount()-1));
-							--aggView._elemCount;
-							_resorted = true;							
-						}
+					else
+					{
+						_watchlist.reactor().populateErrorInfo(errorInfo,
+								ReactorReturnCodes.FAILURE, "ViewHandder",
+								"Aggregate View cannot remove a non-existent field id  <" + fid + ">");
 					}
-						
-					if (_resorted)
-						Collections.sort(aggViewFieldIdList.subList(0, aggView._elemCount));					
-
-					break;
-				}			
-				case ViewTypes.ELEMENT_NAME_LIST:
-				{
-					ArrayList<String> aggViewElementNameList = aggView.elementNameList();
-								
-					for (int i = 0; i < view.elementNameList().subList(0, view.elemCount()-1).size(); i++)
-					{						
-						String elementName = view.elementNameList().get(i);
-						int index = Collections.binarySearch(aggViewElementNameList.subList(0, aggView._elemCount), elementName);
-						if ( index >= 0) 
-						{
-					    	Integer count = aggView._viewElementNameCountMap.get(elementName);
-					    	aggView._viewElementNameCountMap.put(elementName, --count);
-						}
-						else
-						{
-							_watchlist.reactor().populateErrorInfo(errorInfo,
-									ReactorReturnCodes.FAILURE, "ViewHandder",
-									"Aggregate View cannot remove a non-existent elementName  <" + elementName + ">");
-						}
-					}
-
-					_resorted = false;
-					for (int i = 0; i < aggViewElementNameList.subList(0, aggView.elemCount()-1).size(); i++)
-					{						
-						if (aggView._viewElementNameCountMap.get(aggViewElementNameList.get(i)) == 0 ) 
-						{
-//							aggView._viewElementNameCommitMap.remove(aggViewElementNameList.get(i));
-						
-							aggViewElementNameList.set(i, aggViewElementNameList.get(aggView.elemCount()-1));
-							--aggView._elemCount;
-							_resorted = true;							
-						}
-					}
-					
-					if (_resorted)
-						Collections.sort(aggViewElementNameList.subList(0, aggView._elemCount-1));					
-					
-					break;
 				}
-				default:
-					return CodecReturnCodes.FAILURE;
-		
-			}		
+
+				int writePos = 0;
+				int currentPos = 0;
+				int originalSize = aggView.elemCount();
+				_resorted = (fidsToRemove.isEmpty() ? false : true);	// needed so updated view is resent
+				for ( int k = 0; k < fidsToRemove.size(); ++k ) {
+					while (currentPos < originalSize) {
+						if (aggViewFieldIdList.get(currentPos) == fidsToRemove.get(k) ) {
+							++currentPos;
+							--aggView._elemCount;
+							break;
+						}
+						if (aggViewFieldIdList.get(currentPos) < fidsToRemove.get(k) ) {
+							if (writePos != currentPos)
+								aggViewFieldIdList.set(writePos, aggViewFieldIdList.get(currentPos));
+							++currentPos;
+							++writePos;
+						}
+						else
+							// should never get here
+							return _watchlist.reactor().populateErrorInfo(errorInfo,
+									ReactorReturnCodes.FAILURE, "ViewHandler",
+									"Aggregate View cannot remove a non-existent field id  <" + fidsToRemove.get(k) + ">");break;
+					}
+				}
+
+				// may have remaining elements to write
+				while (currentPos < originalSize)
+					aggViewFieldIdList.set(writePos++, aggViewFieldIdList.get(currentPos++));
+			}
+			else { 	// ViewTypes.ELEMENT_NAME_LIST:
+				ArrayList<String> aggViewElementNameList = aggView.elementNameList();
+				ArrayList<String> elementNamesToRemove = new ArrayList<String>();
+				for (int i = 0; i < view.elemCount(); i++)
+				{
+					String elementName = view.elementNameList().get(i);
+					int index = Collections.binarySearch(aggViewElementNameList.subList(0, aggView._elemCount), elementName);
+					if ( index >= 0)
+					{
+						Integer count = aggView._viewElementNameCountMap.get(elementName);
+						aggView._viewElementNameCountMap.put(elementName, --count);
+						if (count == 0)
+							elementNamesToRemove.add(elementName);
+					}
+					else
+					{
+						_watchlist.reactor().populateErrorInfo(errorInfo,
+								ReactorReturnCodes.FAILURE, "ViewHandder",
+								"Aggregate View cannot remove a non-existent elementName  <" + elementName + ">");
+					}
+				}
+
+				int writePos = 0;
+				int currentPos = 0;
+				int originalSize = aggView.elemCount();
+				_resorted = (elementNamesToRemove.isEmpty() ? false : true);	// needed so updated view is resent
+				for ( int k = 0; k < elementNamesToRemove.size(); ++k ) {
+					while (currentPos < originalSize) {
+						int comparisonResult = aggViewElementNameList.get(currentPos).compareTo(elementNamesToRemove.get(k));
+						if (comparisonResult == 0) {	// remove
+							++currentPos;
+							--aggView._elemCount;
+							break;
+						}
+						if (comparisonResult < 0 ) {
+							if (currentPos > writePos)
+								aggViewElementNameList.set(writePos, aggViewElementNameList.get(currentPos));
+							++currentPos;
+							++writePos;
+						}
+						else
+							// should never get here
+							return _watchlist.reactor().populateErrorInfo(errorInfo,
+									ReactorReturnCodes.FAILURE, "ViewHandler",
+									"Aggregate View cannot remove a non-existent field id  <" + elementNamesToRemove.get(k) + ">");
+					}
+				}
+
+				// may have remaining elements to write
+				while (currentPos < originalSize)
+					aggViewElementNameList.set(writePos++, aggViewElementNameList.get(currentPos++));
+			}
 		}
+
 		return CodecReturnCodes.SUCCESS;
 	}
 	
@@ -589,7 +600,7 @@ public class WlViewHandler
 					return ret;
 				}	
 
-				for (String elementName : aggView.elementNameList())
+				for (String elementName : aggView.elementNameList().subList(0, aggView.elemCount()))
 				{
 					if (aggView._viewElementNameCountMap.get(elementName) == null || aggView._viewElementNameCountMap.get(elementName) == 0 ) continue;
 

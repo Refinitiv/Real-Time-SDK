@@ -476,6 +476,10 @@ WlView *wlViewCreate(void *elemList, RsslUInt32 elemCount, RsslUInt viewType,
 
 		if (fieldIdList)
 		{
+			int i;
+			int startingCount;
+			int nextValidPos = 1;
+
 			WlView *pView = (WlView*)malloc(sizeof(WlView) + sizeof(RsslFieldId) * elemCount);
 			RsslFieldId *viewFieldIdList = (RsslFieldId*)((char*)pView + sizeof(WlView));
 			verify_malloc(pView, pErrorInfo, NULL);
@@ -490,36 +494,16 @@ WlView *wlViewCreate(void *elemList, RsslUInt32 elemCount, RsslUInt viewType,
 
 			qsort(viewFieldIdList, pView->elemCount, sizeof(RsslFieldId), wlaCompareFieldId);
 
-			/* Check for fields that are 0 or duplicated, and remove them. */
-
-			if (pView->elemCount && viewFieldIdList[0] == 0)
-				hasDuplicateFields = RSSL_TRUE;
-			for(ui = 1; ui < pView->elemCount; ++ui)
-			{
-				if (viewFieldIdList[ui] == 0 || viewFieldIdList[ui] == viewFieldIdList[ui-1])
-				{
-					viewFieldIdList[ui] = 0;
-					hasDuplicateFields = RSSL_TRUE;
-				}
-			}
-
-			if (hasDuplicateFields)
-			{
-				for(ui = 0; ui < pView->elemCount;)
-				{
-					if (viewFieldIdList[ui] == 0)
-					{
-						viewFieldIdList[ui] = viewFieldIdList[elemCount-1];
-						(pView->elemCount)--;
-					}
-					else
-						++ui;
-				}
-
-				/* Resort list. */
-				qsort(viewFieldIdList, pView->elemCount, sizeof(RsslFieldId), wlaCompareFieldId);
-			}
-
+			// remove duplicates
+			startingCount = pView->elemCount;
+			for (i = 1; i < startingCount; ++i)
+			  if (viewFieldIdList[i] == viewFieldIdList[nextValidPos - 1])
+				  --pView->elemCount;
+			  else {
+				if (i > nextValidPos)
+				  viewFieldIdList[nextValidPos] = viewFieldIdList[i];
+				++nextValidPos;
+			  }
 			return pView;
 		}
 		else
@@ -541,6 +525,10 @@ WlView *wlViewCreate(void *elemList, RsslUInt32 elemCount, RsslUInt viewType,
 
 		if (nameList)
 		{
+		    int i;
+			int startingCount;
+			int nextValidPos = 1;
+
 			WlView *pView;
 			RsslBuffer *viewNameList;
 			RsslUInt32 elementNameBufSize = 0;
@@ -558,37 +546,16 @@ WlView *wlViewCreate(void *elemList, RsslUInt32 elemCount, RsslUInt viewType,
 
 			qsort(viewNameList, pView->elemCount, sizeof(RsslBuffer), wlaCompareName);
 
-			/* Check for any elements that are duplicate, and remove them. */
-			for(ui = 1; ui < pView->elemCount; ++ui)
-			{
-				if (viewNameList[ui-1].data &&
-						rsslBufferIsEqual(&viewNameList[ui], &viewNameList[ui-1]))
-				{
-					/* Any duplicate elements should be removed. 
-					 * (Set name to a clearly invalid value so we know to remove it).*/
-					viewNameList[ui].data = NULL;
-					viewNameList[ui].length = (RsslUInt32)-1;
-					hasDuplicateFields = RSSL_TRUE;
-				}
-			}
-
-			if (hasDuplicateFields)
-			{
-				/* Remove the duplicated fields. */
-				for(ui = 0; ui < pView->elemCount;)
-				{
-					if (viewNameList[ui].data == NULL && viewNameList[ui].length == (RsslUInt32)-1)
-					{
-						viewNameList[ui] = viewNameList[elemCount-1];
-						(pView->elemCount)--;
-					}
-					else
-						++ui;
-				}
-
-				/* Resort list. */
-				qsort(viewNameList, pView->elemCount, sizeof(RsslBuffer), wlaCompareName);
-			}
+			// remove duplicates
+			startingCount = pView->elemCount;
+			for (i = 1; i < startingCount; ++i)
+			  if (rsslBufferIsEqual(&viewNameList[i], &viewNameList[nextValidPos - 1]))
+				  --pView->elemCount;
+			  else {
+				if (i > nextValidPos)
+				  viewNameList[nextValidPos] = viewNameList[i];
+				++nextValidPos;
+			  }
 
 			/* Copy element names. */
 			for(ui = 0; ui < pView->elemCount; ++ui)

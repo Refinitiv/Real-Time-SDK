@@ -230,7 +230,7 @@ class WlItemHandler implements WlHandler
 		if ( requestMsg.checkHasView())
 		{
 			if ( (ret = extractViewFromMsg(wlRequest, requestMsg, errorInfo)) < ReactorReturnCodes.SUCCESS)
-            return ret;
+				return ret;
 		}
         _tempMatchedQos.clear();
         
@@ -268,7 +268,7 @@ class WlItemHandler implements WlHandler
                     
                		if ( requestMsg.checkHasView() && requestMsg.domainType() != DomainTypes.SYMBOL_LIST)
             		{ 
-               			if ( (ret = handleViews(wlRequest, false, errorInfo)) < ReactorReturnCodes.SUCCESS)
+               			if ( (ret = handleViews(wlRequest, errorInfo)) < ReactorReturnCodes.SUCCESS)
                				return ret;			
             		}
             	                    
@@ -434,8 +434,8 @@ class WlItemHandler implements WlHandler
                         !wlStream.multiPartRefreshPending() ) && !wlStream._pendingViewRefresh  && !(requestMsg.checkHasView() && !requestMsg.checkStreaming() && wlStream.requestPending()) )
                     {                   	
                 		if ( requestMsg.checkHasView())
-                 		{                   			
-                			if ( (ret = handleViews(wlRequest, false, errorInfo)) < ReactorReturnCodes.SUCCESS)
+                 		{   
+                			if ( (ret = handleViews(wlRequest, errorInfo)) < ReactorReturnCodes.SUCCESS)
                 	            return ret;
                  		}
                         // add request to stream
@@ -903,7 +903,7 @@ class WlItemHandler implements WlHandler
             if (requestMsg.checkHasView())
             {
             	extractViewFromMsg(wlRequest, requestMsg, errorInfo);  	  
-    			if ( (ret = handleViews(wlRequest, false, errorInfo)) < ReactorReturnCodes.SUCCESS)
+    			if ( (ret = handleViews(wlRequest, errorInfo)) < ReactorReturnCodes.SUCCESS)
     	            return ret;
             	wlRequest._reissue_hasViewChange = true;
             	
@@ -3320,7 +3320,7 @@ class WlItemHandler implements WlHandler
 								wlRequest._viewFieldIdList = _wlViewHandler._viewFieldIdListPool.poll();
 							if (wlRequest._viewFieldIdList == null) wlRequest._viewFieldIdList  = new ArrayList<Integer>();
 							else 
-								wlRequest._viewFieldIdList.clear();;
+								wlRequest._viewFieldIdList.clear();
 								
 							while ((ret = _viewArrayEntry.decode(_dIter)) != CodecReturnCodes.END_OF_CONTAINER)
 							{								
@@ -3540,7 +3540,7 @@ class WlItemHandler implements WlHandler
 		return CodecReturnCodes.SUCCESS;
 	}	
 	
-	private int handleViews(WlRequest wlRequest, boolean isReissue, ReactorErrorInfo errorInfo)
+	private int handleViews(WlRequest wlRequest, ReactorErrorInfo errorInfo)
 	{
 		switch(wlRequest.viewAction())
 		{
@@ -3622,6 +3622,12 @@ class WlItemHandler implements WlHandler
                 default:
                     break;
             }
+
+            if (wlRequest._view._fieldIdList != null)
+            	_wlViewHandler._viewFieldIdListPool.add(wlRequest._view._fieldIdList);
+            if (wlRequest._view._elementNameList != null)
+            	_wlViewHandler._viewElementNameListPool.add(wlRequest._view._elementNameList);
+
             wlRequest._view.returnToPool();
             wlRequest._view = null;
         }

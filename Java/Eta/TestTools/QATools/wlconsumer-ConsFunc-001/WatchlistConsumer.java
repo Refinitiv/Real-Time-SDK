@@ -556,6 +556,9 @@ public class WatchlistConsumer implements ConsumerCallback
 				viewFieldList.add(2);
 				viewFieldList.add(4);
 				viewFieldList.add(38);
+				viewElementNameList.add("RDNDISPLAY");
+				viewElementNameList.add("RDN_EXCHID");
+				viewElementNameList.add("DIVPAYDATE");
 
 			}
 			if (viewId == 1)
@@ -563,12 +566,16 @@ public class WatchlistConsumer implements ConsumerCallback
 				System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 1 [FIDS: 6, 22]");
 				viewFieldList.add(6);
 				viewFieldList.add(22);
+				viewElementNameList.add("TRDPRC_1");
+				viewElementNameList.add("BID");
 			}
 			if (viewId == 2)
 			{
 				System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 2 [FIDS 25,32]");
 				viewFieldList.add(25);
 				viewFieldList.add(32);
+				viewElementNameList.add("ASK");
+				viewElementNameList.add("VOL ACCUMULATED");
 			}
 			if (viewId == 3)
 			{
@@ -576,6 +583,9 @@ public class WatchlistConsumer implements ConsumerCallback
 				viewFieldList.add(22);
 				viewFieldList.add(32);
 				viewFieldList.add(267);
+				viewElementNameList.add("BID");
+				viewElementNameList.add("VOL ACCUMULATED");
+				viewElementNameList.add("ASK_TIME");
 			}
 			if (viewId == 4)
 			{
@@ -583,6 +593,9 @@ public class WatchlistConsumer implements ConsumerCallback
 				viewFieldList.add(11);
 				viewFieldList.add(38);
 				viewFieldList.add(267);
+				viewElementNameList.add("NETCHNG_1");
+				viewElementNameList.add("DIVPAYDATE");
+				viewElementNameList.add("ASK_TIME");
 			}
 			//APIQA: added more viewIds
 			if (viewId == 5)
@@ -590,6 +603,8 @@ public class WatchlistConsumer implements ConsumerCallback
 				System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 5 [FIDS 2,32]");
 				viewFieldList.add(2);
 				viewFieldList.add(32);
+				viewElementNameList.add("RDNDISPLAY");
+				viewElementNameList.add("VOL ACCUMULATED");
 			}
 			if (viewId == 6)
 			{
@@ -597,6 +612,9 @@ public class WatchlistConsumer implements ConsumerCallback
 				viewFieldList.add(4);
 				viewFieldList.add(7);
 				viewFieldList.add(8);
+				viewElementNameList.add("RDN_EXCHID");
+				viewElementNameList.add("TRDPRC_2");
+				viewElementNameList.add("TRDPRC_3");
 			}
 			if (viewId == 7)
 			{
@@ -700,8 +718,19 @@ public class WatchlistConsumer implements ConsumerCallback
 				viewFieldList.add(97);
 				viewFieldList.add(98);
 				viewFieldList.add(99);
+				viewElementNameList.add("BID");
+				viewElementNameList.add("ASK");
+				viewElementNameList.add("TRD");
+				viewElementNameList.add("VOLUME");
 			}	
-			itemRequest.viewFields(viewFieldList);
+			if (!watchlistConsumerConfig.isElementView())
+			{
+				itemRequest.viewFields(viewFieldList);
+			}
+			else
+			{
+				itemRequest.viewElementNames(viewElementNameList);				
+			}
 			ret = itemRequest.encode(encIter);
 			if (ret < CodecReturnCodes.SUCCESS)
 			{
@@ -1006,18 +1035,27 @@ public class WatchlistConsumer implements ConsumerCallback
 					viewFieldList.add(2);
 					viewFieldList.add(4);
 					viewFieldList.add(38);
+					viewElementNameList.add("RDNDISPLAY");
+					viewElementNameList.add("RDN_EXCHID");
+					viewElementNameList.add("DIVPAYDATE");
 				}
 				if (watchlistConsumerConfig.itemList().get(itemListIndex).viewId() == 1)
 				{
 					System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 1 [FIDS 6,22]");
 					viewFieldList.add(6);
 					viewFieldList.add(22);
+					System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 1 [TRDPRC_1, BID]");
+					viewElementNameList.add("TRDPRC_1");
+					viewElementNameList.add("BID");
 				}
 				if (watchlistConsumerConfig.itemList().get(itemListIndex).viewId() == 2)
 				{
 					System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 2 [FIDS 25,32]");
 					viewFieldList.add(25);
 					viewFieldList.add(32);
+					System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 2 [ASK, VOL ACCUMULATED]");
+					viewElementNameList.add("ASK");
+					viewElementNameList.add("VOL ACCUMULATED");
 				}
 				if (watchlistConsumerConfig.itemList().get(itemListIndex).viewId() == 3)
 				{
@@ -1025,6 +1063,10 @@ public class WatchlistConsumer implements ConsumerCallback
 					viewFieldList.add(22);
 					viewFieldList.add(32);
 					viewFieldList.add(267);
+					System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 3 [BID, VOL ACCUMULATED, ASK_TIME]");
+					viewElementNameList.add("BID");
+					viewElementNameList.add("VOL ACCUMULATED");
+					viewElementNameList.add("ASK_TIME");
 				}
 				if (watchlistConsumerConfig.itemList().get(itemListIndex).viewId() == 4)
 				{
@@ -1032,12 +1074,18 @@ public class WatchlistConsumer implements ConsumerCallback
 					viewFieldList.add(11);
 					viewFieldList.add(38);
 					viewFieldList.add(267);
+					viewElementNameList.add("NETCHNG_1");
+					viewElementNameList.add("DIVPAYDATE");
+					viewElementNameList.add("ASK_TIME");
+					System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 4 [NETCHNG_1, DIVPAYDATE, ASK_TIME]");
 				}
 				if (watchlistConsumerConfig.itemList().get(itemListIndex).viewId() == 5)
 				{
 					System.out.println("------------------APIQA: StreamID: " +  itemRequest.streamId() + " Setting VIEW 5 [FIDS 2,32]");
 					viewFieldList.add(2);
 					viewFieldList.add(32);
+					viewElementNameList.add("RDNDISPLAY");
+					viewElementNameList.add("VOL ACCUMULATED");
 				}
 				if (watchlistConsumerConfig.itemList().get(itemListIndex).viewId() == 6)
 				{
@@ -1045,6 +1093,9 @@ public class WatchlistConsumer implements ConsumerCallback
 					viewFieldList.add(4);
 					viewFieldList.add(7);
 					viewFieldList.add(8);
+					viewElementNameList.add("RDN_EXCHID");
+					viewElementNameList.add("TRDPRC_2");
+					viewElementNameList.add("TRDPRC_3");
 				}
 				if (watchlistConsumerConfig.itemList().get(itemListIndex).viewId() == 7)
 				{
@@ -1148,10 +1199,22 @@ public class WatchlistConsumer implements ConsumerCallback
 					viewFieldList.add(97);
 					viewFieldList.add(98);
 					viewFieldList.add(99);
+					viewElementNameList.add("BID");
+					viewElementNameList.add("ASK");
+					viewElementNameList.add("TRD");
+					viewElementNameList.add("VOLUME");
 				}
 				// END APIQA:  Added contents of view
 
-				itemRequest.viewFields(viewFieldList);
+				if (!watchlistConsumerConfig.isElementView())
+				{
+					itemRequest.viewFields(viewFieldList);
+				}
+				else
+				{
+					itemRequest.viewElementNames(viewElementNameList);				
+				}
+
 				ret = itemRequest.encode(encIter);
 												         
 				if (ret < CodecReturnCodes.SUCCESS)

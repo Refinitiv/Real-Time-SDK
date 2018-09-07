@@ -36,6 +36,7 @@ public class WatchlistConsumerConfig
     private int maxInitialStreamId;
     // delayIntialRequest, if specified, will delay all initial requests until after Src Dir Refresh
     private boolean delayInitialRequest;
+    private boolean isElementView;
     // END APIQA
 
     List<ConnectionArg> connectionList = new ArrayList<ConnectionArg>();
@@ -475,6 +476,12 @@ public class WatchlistConsumerConfig
                 delayInitialRequest = true;
             }
 
+            // APIQA
+            if (CommandLine.hasArg("eView"))
+            {
+                isElementView = true;
+            }
+
             List<String> itemNames = CommandLine.values("mp");
             if (itemNames != null)
             {
@@ -845,6 +852,10 @@ public class WatchlistConsumerConfig
 	public boolean delayInitialRequest()
 	{
 		return delayInitialRequest;
+	}
+	public boolean isElementView()
+	{
+		return isElementView;
 	}
 	public ArrayList<EventCounter> eventCounters()
 	{
@@ -1245,6 +1256,7 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("e4", "Reissue on item(s) after item is established and streaming");
         CommandLine.addOption("e5", "Request new view item(s) after specified number of defaultMsg REFRESHES");
         CommandLine.addOption("delayInitialRequest", "Delay sending initial request for items until after source directory refresh");
+        CommandLine.addOption("eView", "Specifies each view request using a elementlist view. Default is false.");
         // END APIQA
     }
 }

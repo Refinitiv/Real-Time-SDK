@@ -90,6 +90,9 @@ Series100Consumer110-ConsFunc-001
     -m 31: Request TRI.N with view2, IBM and TRI.N as snapshot
 	       After 3 seconds, request TRI.N with view1 as snapshot (view 1 & view2 have overlapping FIDs)
 	       After 15 seconds, request TRI.N with view1 as snapshot again
+    -m 32: Requests element view or ViewType 2 with this sequence:  
+		   requests TRI.N with view1, waits, requests TRI.N with view2, waits, 
+		   requests TRI.N with view3, waits and requests TRI.N with view4 
 	-m 99: Requests a market price item with 99 view FIDS.
 
 

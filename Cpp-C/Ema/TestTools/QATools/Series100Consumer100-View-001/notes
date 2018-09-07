@@ -1,0 +1,11 @@
+# Linux
+
+Two required and one recommended change are necessary for EmaConfig.xml:
+(required) The host and port for the channel used by the consumer must point to the ADS used for this testing.
+(required) XmlTraceToStdout must be set to one for the consumer; the verifyTest.py script uses this output
+(recommended) reading the dictionary from the file system
+
+to generate the test output: ./Cons100 > out
+to verify that the output is correct: ./verifyTest.py
+verifyTest.py assumes that the test output was written to a file named out
+if verifyTest.py returns zero, then the test succeeded.
