@@ -246,6 +246,7 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				exitOnMissingArgument(argv, iargs - 1);
 				return false;
 			}
+			consPerfConfig.logLatencyToFile = true;
 			consPerfConfig.latencyLogFilename = argv[iargs++];
 		}
 		else if(strcmp("-summaryFile", argv[iargs]) == 0)
