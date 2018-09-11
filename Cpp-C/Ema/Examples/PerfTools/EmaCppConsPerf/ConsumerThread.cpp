@@ -288,7 +288,7 @@ void ConsumerThread::run()
 	}
 
 	try {
-		pEmaOmmConsumer = new  OmmConsumer( OmmConsumerConfig().consumerName( consumerName ).operationModel( (pConsPerfCfg->useUserDispatch ? OmmConsumerConfig::UserDispatchEnum :OmmConsumerConfig::ApiDispatchEnum) ) );
+		pEmaOmmConsumer = new  OmmConsumer( OmmConsumerConfig().consumerName( consumerName ).username( pConsPerfCfg->username ).operationModel( (pConsPerfCfg->useUserDispatch ? OmmConsumerConfig::UserDispatchEnum :OmmConsumerConfig::ApiDispatchEnum) ) );
 	}
 	catch ( const OmmException& excp )
 	{

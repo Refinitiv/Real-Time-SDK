@@ -166,9 +166,9 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 	protected void initializeOmmConsumer()
 	{
 		if (_consPerfConfig.useUserDispatch()) 
-			_consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().operationModel(OperationModel.USER_DISPATCH));
+			_consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().username(_consPerfConfig.username()).operationModel(OperationModel.USER_DISPATCH));
 		else
-			_consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().operationModel(OperationModel.API_DISPATCH));
+			_consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().username(_consPerfConfig.username()).operationModel(OperationModel.API_DISPATCH));
 		
 		_srcDirHandler.serviceName(_consPerfConfig.serviceName());
 		long directoryHandle = _consumer.registerClient(_srcDirHandler.getRequest(), _srcDirHandler);
