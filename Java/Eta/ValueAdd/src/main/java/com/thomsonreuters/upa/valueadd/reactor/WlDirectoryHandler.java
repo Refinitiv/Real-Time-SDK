@@ -247,7 +247,7 @@ class WlDirectoryHandler implements WlHandler
 	        }
     }
 	
-    private void fillDirectoryRefreshServiceListFromCache(DirectoryRefresh directoryRefresh) {
+    private void fillDirectoryRefreshServiceListFromCache(DirectoryRefresh directoryRefresh, String serviceName) {
     	Service service = null;
     	if (_servicePool.isEmpty())
 		{
@@ -259,7 +259,16 @@ class WlDirectoryHandler implements WlHandler
     		service.clear();
     	}
     	
-    	if (directoryRefresh.checkHasServiceId())
+    	if (serviceName != null)
+    	{
+    		if (_serviceCache.service(serviceName) != null)
+    		{
+    			_serviceCache.service(serviceName).rdmService().copy(service);
+    			directoryRefresh.serviceList().add(service);
+    			setFilterFlagsRefresh(directoryRefresh.filter(), directoryRefresh.serviceList().get(0));
+    		}
+    	}
+    	else if (directoryRefresh.checkHasServiceId())
     	{
     		if (_serviceCache.service(directoryRefresh.serviceId()) != null)
     		{
@@ -652,7 +661,7 @@ class WlDirectoryHandler implements WlHandler
                     
                     fillDirectoryRefreshFromRequestMsg(newDirectoryRefresh, wlRequest.requestMsg());
                     
-                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh);
+                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh, wlRequest.streamInfo()._serviceName);
                     
                     _tempRefreshMsg.clear();
                     _watchlist.convertRDMToCodecMsg(newDirectoryRefresh, _tempRefreshMsg);
@@ -775,7 +784,7 @@ class WlDirectoryHandler implements WlHandler
                     
                     fillDirectoryRefreshFromRequestMsg(newDirectoryRefresh, wlRequest.requestMsg());
                     
-                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh);
+                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh, wlRequest.streamInfo()._serviceName);
  
                     // Turn the Directory Refresh into a Directory Update before sending
                     _directoryUpdate.clear();
@@ -1019,7 +1028,7 @@ class WlDirectoryHandler implements WlHandler
                     newDirectoryRefresh.clear();
                     fillDirectoryRefreshFromRequestMsg(newDirectoryRefresh, wlRequest.requestMsg());
 	                	
-                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh);
+                    fillDirectoryRefreshServiceListFromCache(newDirectoryRefresh, wlRequest.streamInfo()._serviceName);
 	                	
                     _tempRefreshMsg.clear();
                     _watchlist.convertRDMToCodecMsg(newDirectoryRefresh, _tempRefreshMsg);

@@ -1,3 +1,10 @@
+///*|-----------------------------------------------------------------------------
+// *|            This source code is provided under the Apache 2.0 license      --
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+// *|                See the project's LICENSE.md for details.                  --
+// *|           Copyright Thomson Reuters 2015 - 2018. All rights reserved.     --
+///*|-----------------------------------------------------------------------------
+
 package com.thomsonreuters.upa.valueadd.reactor;
 
 import static org.junit.Assert.assertEquals;
@@ -7117,7 +7124,11 @@ public class ReactorWatchlistJunit
                     Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP);
             directoryRequest.applyStreaming();
             assertNotNull(directoryRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, submitOptions, errorInfo));
+            // remove serviceName from submitOptions so all services will be returned
+            ReactorSubmitOptions directoryRequestSubmitOptions = ReactorFactory.createReactorSubmitOptions();
+            directoryRequestSubmitOptions.clear();
+            directoryRequestSubmitOptions.requestMsgOptions().userSpecObj(new String("Unit Test"));
+            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, directoryRequestSubmitOptions, errorInfo));
             
             /*
              * the reactor will send out our default DirectoryRequest. wait for
@@ -7146,7 +7157,7 @@ public class ReactorWatchlistJunit
             msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
-            assertTrue(directoryMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
+            assertNull(directoryMsgEvent.streamInfo().serviceName());
             assertTrue(directoryMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             DirectoryRefresh returnDirectoryRefresh = (DirectoryRefresh)directoryMsgEvent._directoryMsg;
             RefreshMsg returnRefreshMsg = (RefreshMsg)directoryMsgEvent.msg();
@@ -7801,7 +7812,12 @@ public class ReactorWatchlistJunit
                     Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.DATA);
             directoryRequest.applyStreaming();
             assertNotNull(directoryRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, submitOptions, errorInfo));
+
+            // do not set serviceName because we want to test that all services are received
+            ReactorSubmitOptions directoryRequestSubmitOptions = ReactorFactory.createReactorSubmitOptions();
+            directoryRequestSubmitOptions.clear();
+            directoryRequestSubmitOptions.requestMsgOptions().userSpecObj(new String("Unit Test"));
+            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, directoryRequestSubmitOptions, errorInfo));
 
             /*
              * go back to the select loop, the consumerReactorChannel should
@@ -7878,7 +7894,6 @@ public class ReactorWatchlistJunit
             msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
 
-            assertTrue(directoryMsgEvent.streamInfo().serviceName().equals("DIRECT_FEED"));
             assertTrue(directoryMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
             DirectoryRefresh returnDirectoryRefresh = (DirectoryRefresh)directoryMsgEvent._directoryMsg;
             RefreshMsg returnRefreshMsg = (RefreshMsg)directoryMsgEvent.msg();
@@ -8384,5 +8399,234 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
         }
+    }
+
+    @Test
+    public void watchlistUserDirectoryRequestTestSpecificDirectory()
+    {
+    	final String inputFile = BASE_TEST_DATA_DIR_NAME
+    			+ "/200_Provider_DirectoryRequestClose.txt";
+    	Reactor reactor = null;
+    	ReactorErrorInfo errorInfo = null;
+    	ReactorChannel theReactorChannel = null;
+    	Selector selector = null;
+    	ReactorCallbackHandler callbackHandler = null;
+    	TestServer testServer = null;
+
+    	try
+    	{
+    		NetworkReplay replay = ReactorJunit.parseReplayFile(inputFile);
+    		/*
+    		 * create a testServer which will send RIPC ConnectAck.
+    		 */
+    		int serverPort = ++_serverPort;
+    		testServer = new TestServer(serverPort);
+    		testServer.setupServerSocket();
+
+    		/*
+    		 * create ReactorErrorInfo.
+    		 */
+    		errorInfo = ReactorFactory.createReactorErrorInfo();
+    		assertNotNull(errorInfo);
+
+    		/*
+    		 * create a Reactor.
+    		 */
+    		reactor = ReactorJunit.createReactor(errorInfo);
+
+    		assertEquals(false, reactor.isShutdown());
+
+    		/*
+    		 * create a selector and register with the reactor's reactorChannel.
+    		 */
+    		theReactorChannel = reactor.reactorChannel();
+    		assertNotNull(theReactorChannel);
+
+    		selector = SelectorProvider.provider().openSelector();
+    		theReactorChannel.selectableChannel().register(selector, SelectionKey.OP_READ, theReactorChannel);
+
+    		/*
+    		 * create a Client Connection.
+    		 */
+    		ReactorConnectOptions rcOpts = ReactorJunit.createDefaultConsumerConnectOptions(String.valueOf(serverPort));
+    		callbackHandler = new ReactorCallbackHandler(selector);
+    		assertEquals(null, callbackHandler.lastChannelEvent());
+    		ConsumerRole consumerRole = createWatchlistConsumerRole(callbackHandler);
+
+    		// if watchlist enabled, connect cannot succeed with dictionaryDownloadMode = DictionaryDownloadModes.FIRST_AVAILABLE
+    		consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
+    		assertEquals(ReactorReturnCodes.INVALID_USAGE, reactor.connect(rcOpts, consumerRole, errorInfo));
+
+    		// if watchlist enabled, connect can only succeed with dictionaryDownloadMode = DictionaryDownloadModes.NONE
+    		consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.NONE);
+    		assertEquals(ReactorReturnCodes.SUCCESS, reactor.connect(rcOpts, consumerRole, errorInfo));
+
+    		// wait for the TestServer to accept a connection.
+    		testServer.waitForAcceptable();
+    		testServer.acceptSocket();
+
+    		// wait and read one message.
+    		assertTrue(testServer.readMessageFromSocket() > 0);
+    		ReactorJunit.verifyConnectReq(testServer.buffer());
+    		// have the TestServer send the replay msg to the Reactor.
+    		testServer.writeMessageToSocket(replay.read());
+    		// read the extra RIPC 14 handshake message
+    		assertTrue(testServer.readMessageFromSocket() > 0);
+    		assertEquals(KEY_EXCHANGE, testServer.buffer().get(2)); // verify
+    		// KEY_EXCHANGE
+    		// flag
+
+    		// dispatch on the reactor's reactorChannel. There should
+    		// be one "WorkerEvent" to dispatch on. There should
+    		// be two ReactorChannelEventCallbacks waiting, 1)
+    		// CHANNEL_UP and 2) CHANNEL_READY.
+    		ReactorJunit.dispatchReactor(selector, reactor);
+    		// verify that the ReactorChannelEventCallback was called.
+    		assertEquals(3, callbackHandler.channelEventCount());
+    		assertEquals(1, callbackHandler.channelOpenedEventCount()); // watchlist callback
+    		assertEquals(1, callbackHandler.channelUpEventCount());
+    		assertEquals(1, callbackHandler.channelReadyEventCount());
+    		ReactorChannelEvent event = callbackHandler.lastChannelEvent();
+    		assertNotNull(event);
+    		assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
+
+    		// submit login request and make sure selector is triggered and dispatch succeeds
+    		ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+    		submitOptions.serviceName("NI_PUB");
+    		submitOptions.requestMsgOptions().userSpecObj(new String("Unit Test"));
+    		assertEquals("NI_PUB", submitOptions.serviceName());
+    		assertNotNull(submitOptions.requestMsgOptions().userSpecObj());
+    		assertNull(consumerRole.rdmLoginRequest());
+    		consumerRole.initDefaultRDMLoginRequest();
+
+    		LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
+    		assertNotNull(loginRequest);
+    		assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+
+    		/*
+    		 * the reactor will send out our default LoginRequest. wait for
+    		 * testServer to read the LoginRequest, then send the LoginResponse
+    		 */
+    		testServer.waitForReadable();
+    		// wait and read one message.
+    		assertTrue(testServer.readMessageFromSocket() > 0);
+    		ReactorJunit.verifyMessage(testServer.buffer(), MsgClasses.REQUEST, DomainTypes.LOGIN);
+    		// have the TestServer send the LoginRefresh to the Reactor.
+    		testServer.writeMessageToSocket(replay.read());
+
+    		/*
+    		 * call dispatch which should read the LoginRefresh, invoke
+    		 * callback. Have callback return RAISE, then Reactor should call
+    		 * defaultMsgCallback. When that returns, reactor will send the
+    		 * DirectoryRequest.
+    		 */
+    		callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.RAISE);
+    		ReactorJunit.dispatchReactor(selector, reactor);
+    		// verify that the RDMLoginMsgCallback and defaultMsgCallback was called.
+    		assertEquals(1, callbackHandler.loginMsgEventCount());
+    		assertEquals(1, callbackHandler.defaultMsgEventCount());
+    		RDMLoginMsgEvent loginMsgEvent = callbackHandler.lastLoginMsgEvent();
+    		assertNotNull(loginMsgEvent);
+    		assertTrue(loginMsgEvent.streamInfo().serviceName().equals("NI_PUB"));
+    		assertTrue(loginMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
+    		ReactorJunit.verifyLoginMessage(loginMsgEvent.rdmLoginMsg());
+    		ReactorMsgEvent msgEvent = callbackHandler.lastDefaultMsgEvent();
+    		assertNotNull(msgEvent);
+    		assertTrue(msgEvent.streamInfo().serviceName().equals("NI_PUB"));
+    		assertTrue(msgEvent.streamInfo().userSpecObject().equals("Unit Test"));
+
+
+
+    		// Send Normal Directory Request to succeed
+    		DirectoryRequest directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();
+    		directoryRequest.rdmMsgType(DirectoryMsgType.REQUEST);
+    		directoryRequest.streamId(2);
+    		directoryRequest.filter(Directory.ServiceFilterFlags.INFO |
+    				Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP);
+    		directoryRequest.applyStreaming();
+    		assertNotNull(directoryRequest);
+    		    		
+    		assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, submitOptions, errorInfo));
+
+    		/*
+    		 * the reactor will send out our default DirectoryRequest. wait for
+    		 * testServer to read the DirectoryRequest, then send the DirectoryResponse
+    		 */
+    		testServer.waitForReadable();
+    		// wait and read one message.
+    		assertTrue(testServer.readMessageFromSocket() > 0);
+    		ReactorJunit.verifyMessage(testServer.buffer(), MsgClasses.REQUEST, DomainTypes.SOURCE);
+    		// have the TestServer send the DirectoryRefresh to the Reactor.
+    		testServer.writeMessageToSocket(replay.read());
+
+    		/*
+    		 * call dispatch which should read the DirectoryRefresh, invoke
+    		 * callback. Have callback return RAISE, then Reactor should call
+    		 * defaultMsgCallback.
+    		 */
+    		callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.RAISE);
+    		ReactorJunit.dispatchReactor(selector, reactor);
+    		// verify that the RDMDirectoryMsgCallback and defaultMsgCallback was called.
+    		assertEquals(1, callbackHandler.directoryMsgEventCount());
+    		assertEquals(2, callbackHandler.defaultMsgEventCount());
+    		RDMDirectoryMsgEvent directoryMsgEvent = callbackHandler.lastDirectoryMsgEvent();
+    		assertNotNull(directoryMsgEvent);
+    		ReactorJunit.verifyDirectoryMessage(directoryMsgEvent.rdmDirectoryMsg());
+    		msgEvent = callbackHandler.lastDefaultMsgEvent();
+    		assertNotNull(msgEvent);
+
+    		assertTrue(msgEvent.streamInfo().serviceName().equals("NI_PUB"));
+    		assertTrue(directoryMsgEvent.streamInfo().userSpecObject().equals("Unit Test"));
+    		DirectoryRefresh returnDirectoryRefresh = (DirectoryRefresh)directoryMsgEvent._directoryMsg;
+    		RefreshMsg returnRefreshMsg = (RefreshMsg)directoryMsgEvent.msg();
+
+    		// Check RDM message contents
+    		assertEquals(2, returnDirectoryRefresh.streamId());
+    		assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnDirectoryRefresh.filter());
+    		assertEquals(returnDirectoryRefresh.serviceList().size(), 1);
+    		for (int i = 0; i < returnDirectoryRefresh.serviceList().size(); ++i)
+    		{
+    			assertFalse(returnDirectoryRefresh.serviceList().get(i).checkHasData());
+    			assertTrue(returnDirectoryRefresh.serviceList().get(i).checkHasInfo());
+    			assertFalse(returnDirectoryRefresh.serviceList().get(i).checkHasLink());
+    			assertFalse(returnDirectoryRefresh.serviceList().get(i).checkHasLoad());
+    			assertTrue(returnDirectoryRefresh.serviceList().get(i).checkHasState());
+    		}
+    		assertEquals(0, returnDirectoryRefresh.serviceId());
+    		assertEquals("NI_PUB", returnDirectoryRefresh.serviceList().get(0).info().serviceName().toString());
+   
+    		// Check Codec message contents
+    		assertEquals(2, returnRefreshMsg.streamId());
+    		assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP, returnRefreshMsg.msgKey().filter());
+    		assertEquals(0, returnRefreshMsg.msgKey().serviceId());
+
+
+    		// reset the msgReturnCode to SUCCESS.
+    		callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.SUCCESS);
+
+    	}
+    	catch (Exception e)
+    	{
+    		assertTrue("exception occurred" + e.getLocalizedMessage(), false);
+    	}
+    	finally
+    	{
+    		testServer.shutDown();
+
+    		if (theReactorChannel != null)
+    		{
+    			SelectionKey key = theReactorChannel.selectableChannel().keyFor(selector);
+    			key.cancel();
+    		}
+
+    		assertNotNull(reactor);
+    		errorInfo.clear();
+    		assertEquals(ReactorReturnCodes.SUCCESS, reactor.shutdown(errorInfo));
+    		assertEquals(true, reactor.isShutdown());
+
+    		ReactorChannelEvent event = callbackHandler.lastChannelEvent();
+    		assertNotNull(event);
+    		assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, event.eventType());
+    	}
     }
 }
