@@ -40,6 +40,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_activeServerConfig(activeServerConfig),
 	_pOmmProviderClient(&ommProviderClient),
 	_userLock(),
+	_dispatchLock(),
+	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state( NotInitializedEnum ),
@@ -60,7 +62,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_pRsslServer(0),
-	_pClosure(closure)
+	_pClosure(closure),
+	_bApiDispatchThreadStarted(false)
 {
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
@@ -69,6 +72,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_activeServerConfig(activeServerConfig),
 	_pOmmProviderClient(&ommProviderClient),
 	_userLock(),
+	_dispatchLock(),
+	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -89,7 +94,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_pRsslServer(0),
-	_pClosure(closure)
+	_pClosure(closure),
+	_bApiDispatchThreadStarted(false)
 {
 	try
 	{
@@ -673,7 +679,13 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 		_serverReadEventFdsIdx = addFd(_pRsslServer->socketId);
 #endif
 
-		if (isApiDispatching()) start();
+		if ( isApiDispatching() && !_atExit )
+		{
+			start();
+
+			/* Waits until the API dispatch thread started */
+			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmServerBaseImpl>::sleep(100);
+		}
 
 		_userLock.unlock();
 	}
@@ -894,11 +906,10 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 {
 	OmmBaseImplMap<OmmServerBaseImpl>::remove(this);
 
-	if (!calledFromInit) _userLock.lock();
+	if (!calledFromInit) _uninitializeLock.lock();
 
-	if (_state == NotInitializedEnum)
+	if ( _state == NotInitializedEnum )
 	{
-		if (!calledFromInit) _userLock.unlock();
 		return;
 	}
 
@@ -906,11 +917,26 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 
 	if (isApiDispatching() && !caughtException)
 	{
+		stop();
 		eventReceived();
 		msgDispatched();
 		pipeWrite();
-		stop();
-		wait();
+
+		if (!calledFromInit)
+		{
+			_dispatchLock.lock();
+			_userLock.lock();
+			if (_bApiDispatchThreadStarted ) wait();
+			_dispatchLock.unlock();
+		}
+		else
+		{
+			if (_bApiDispatchThreadStarted) wait();
+		}
+	}
+	else
+	{
+		if (!calledFromInit) _userLock.lock();
 	}
 
 	_state = OmmServerBaseImpl::UnInitializingEnum;
@@ -988,7 +1014,11 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 
 	_state = NotInitializedEnum;
 
-	if (!calledFromInit) _userLock.unlock();
+	if (!calledFromInit)
+	{
+		_userLock.unlock();
+		_uninitializeLock.unlock();
+	}
 
 #ifdef USING_POLL
 	delete[] _eventFds;
@@ -1467,8 +1497,13 @@ LoggerConfig& OmmServerBaseImpl::getActiveLoggerConfig()
 
 void OmmServerBaseImpl::run()
 {
+	_dispatchLock.lock();
+	_bApiDispatchThreadStarted = true;
+
 	while (!Thread::isStopping() && !_atExit)
 		rsslReactorDispatchLoop(_activeServerConfig.dispatchTimeoutApiThread, _activeServerConfig.maxDispatchCountApiThread, _bEventReceived);
+
+	_dispatchLock.unlock();
 }
 
 int OmmServerBaseImpl::runLog(void* pExceptionStructure, const char* file, unsigned int line)

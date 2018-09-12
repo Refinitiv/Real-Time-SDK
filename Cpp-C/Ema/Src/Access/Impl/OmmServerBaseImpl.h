@@ -212,8 +212,10 @@ protected:
 	int				_serverReadEventFdsIdx;
 #endif
 	Mutex						_userLock;
+	Mutex						_dispatchLock;
 	Mutex						_pipeLock;
 	Mutex						_timeOutLock;
+	Mutex						_uninitializeLock;
 	RsslErrorInfo				_reactorDispatchErrorInfo;
 	ServerImplState				_state;
 	RsslReactor*				_pRsslReactor;
@@ -235,6 +237,7 @@ protected:
 	OmmProviderClient*			_pOmmProviderClient;
 	OmmProviderEvent			ommProviderEvent;
 	void*						_pClosure;
+	bool						_bApiDispatchThreadStarted;
 
 	ReqMsg                      _reqMsg;
 	StatusMsg					_statusMsg;

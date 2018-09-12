@@ -156,6 +156,18 @@ public:
 	}
 #endif
 
+	static void sleep(UInt32 millisecs)
+	{
+#if defined WIN32
+		::Sleep((DWORD)(millisecs));
+#else
+		struct timespec sleeptime;
+		sleeptime.tv_sec = millisecs / 1000;
+		sleeptime.tv_nsec = (millisecs % 1000) * 1000000;
+		nanosleep(&sleeptime, 0);
+#endif
+	}
+
 private:
 
 	static void init()
@@ -191,18 +203,6 @@ private:
 		_listLock.unlock();
 
 		OmmBaseImplMap<T>::sleep(100);
-	}
-
-	static void sleep(UInt32 millisecs)
-	{
-#if defined WIN32
-		::Sleep((DWORD)(millisecs));
-#else
-		struct timespec sleeptime;
-		sleeptime.tv_sec = millisecs / 1000;
-		sleeptime.tv_nsec = (millisecs % 1000) * 1000000;
-		nanosleep(&sleeptime, 0);
-#endif
 	}
 
 	static Mutex						_listLock;

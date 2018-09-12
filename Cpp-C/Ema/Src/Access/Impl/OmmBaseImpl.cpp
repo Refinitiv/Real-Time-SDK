@@ -48,6 +48,8 @@ static DummyProvClient defaultProvClient;
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_activeConfig(activeConfig),
 	_userLock(),
+	_dispatchLock(),
+	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -69,7 +71,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_hasProvAdminClient( false ),
 	_hasConsAdminClient( false ),
 	_pErrorClientHandler( 0 ),
-	_theTimeOuts()
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false)
 {
 	_adminClosure = 0;
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
@@ -78,6 +81,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, void* adminClosure) :
 	_activeConfig(activeConfig),
 	_userLock(),
+	_dispatchLock(),
+	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -99,7 +104,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasConsAdminClient(true),
 	_hasProvAdminClient(false),
 	_pErrorClientHandler(0),
-	_theTimeOuts()
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false)
 {
 	_adminClosure = adminClosure;
 	
@@ -109,6 +115,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminClient, void* adminClosure) :
 	_activeConfig(activeConfig),
 	_userLock(),
+	_dispatchLock(),
+	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -130,7 +138,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_hasConsAdminClient(false),
 	_hasProvAdminClient(true),
 	_pErrorClientHandler(0),
-	_theTimeOuts()
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false)
 {
 	_adminClosure = adminClosure;
 
@@ -141,6 +150,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& client ) :
 	_activeConfig( activeConfig ),
 	_userLock(),
+	_dispatchLock(),
+	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state( NotInitializedEnum ),
@@ -162,7 +173,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_hasConsAdminClient( false ),
 	_hasProvAdminClient( false ),
 	_pErrorClientHandler( 0 ),
-	_theTimeOuts()
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false)
 {
 	_adminClosure = 0;
 	try
@@ -180,6 +192,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* adminClosure) :
 	_activeConfig(activeConfig),
 	_userLock(),
+	_dispatchLock(),
+	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -201,7 +215,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasConsAdminClient(true),
 	_hasProvAdminClient(false),
 	_pErrorClientHandler(0),
-	_theTimeOuts()
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false)
 {
 	_adminClosure = adminClosure;
 	try
@@ -219,6 +234,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& client ) :
 	_activeConfig( activeConfig ),
 	_userLock(),
+	_dispatchLock(),
+	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state( NotInitializedEnum ),
@@ -238,7 +255,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_bMsgDispatched( false ),
 	_bEventReceived( false ),
 	_pErrorClientHandler( 0 ),
-	_theTimeOuts()
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false)
 {
 	_adminClosure = 0;
 	try
@@ -256,6 +274,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminClient, OmmProviderErrorClient& errorClient, void* adminClosure) :
 	_activeConfig(activeConfig),
 	_userLock(),
+	_dispatchLock(),
+	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -277,7 +297,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_hasConsAdminClient(false),
 	_hasProvAdminClient(true),
 	_pErrorClientHandler(0),
-	_theTimeOuts()
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false)
 {
 	_adminClosure = adminClosure;
 	try
@@ -1228,7 +1249,13 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		loadDirectory();
 		loadDictionary();
 
-		if ( isApiDispatching() ) start();
+		if ( isApiDispatching() && !_atExit )
+		{
+			start();
+
+			/* Waits until the API dispatch thread started */
+			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmBaseImpl>::sleep(100);
+		}
 		
 		_userLock.unlock();
 	}
@@ -1337,23 +1364,37 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 {
 	OmmBaseImplMap<OmmBaseImpl>::remove(this);
 
-	if ( !calledFromInit ) _userLock.lock();
+	if (!calledFromInit) _uninitializeLock.lock();
 
 	if ( _state == NotInitializedEnum )
 	{
-		if ( !calledFromInit ) _userLock.unlock();
 		return;
 	}
-	 
+
 	_atExit = true;
 
-	if ( isApiDispatching() && !caughtExcep )
+	if (isApiDispatching() && !caughtExcep)
 	{
+		stop();
 		eventReceived();
 		msgDispatched();
 		pipeWrite();
-		stop();
-		wait();
+
+		if (!calledFromInit)
+		{
+			_dispatchLock.lock();
+			_userLock.lock();
+			if (_bApiDispatchThreadStarted) wait();
+			_dispatchLock.unlock();
+		}
+		else
+		{
+			if (_bApiDispatchThreadStarted) wait();
+		}
+	}
+	else
+	{
+		if (!calledFromInit) _userLock.lock();
 	}
 
 	if ( _pRsslReactor )
@@ -1416,7 +1457,11 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 
 	_state = NotInitializedEnum;
 
-	if ( !calledFromInit ) _userLock.unlock();
+	if ( !calledFromInit )
+	{
+		_userLock.unlock();
+		_uninitializeLock.unlock();
+	}
 
 #ifdef USING_POLL
 	delete[] _eventFds;
@@ -1845,8 +1890,13 @@ Mutex& OmmBaseImpl::getUserMutex()
 
 void OmmBaseImpl::run()
 {
+	_dispatchLock.lock();
+	_bApiDispatchThreadStarted = true;
+
 	while ( !Thread::isStopping() && !_atExit )
 		rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread, _bEventReceived );
+
+	_dispatchLock.unlock();
 }
 
 int OmmBaseImpl::runLog( void* pExceptionStructure, const char* file, unsigned int line )

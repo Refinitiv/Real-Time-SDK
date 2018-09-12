@@ -223,8 +223,10 @@ protected:
 #endif
 
 	Mutex						_userLock;
+	Mutex						_dispatchLock;
 	Mutex						_pipeLock;
 	Mutex						_timeOutLock;
+	Mutex						_uninitializeLock;
 	RsslErrorInfo				_reactorDispatchErrorInfo;
 	ImplState					_state;
 	RsslReactor*				_pRsslReactor;
@@ -247,6 +249,7 @@ protected:
 	bool						_hasProvAdminClient;
 	ErrorClientHandler*			_pErrorClientHandler;
 	EmaList< TimeOut* >			_theTimeOuts;
+	bool						_bApiDispatchThreadStarted;
 
 private:
 
