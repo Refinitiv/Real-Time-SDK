@@ -120,6 +120,19 @@ GenericMsg contains ElementList with one ElementEntry.
 Also added is the ability to decode genericMsg from a provider. 
 This works in conjuction with the VAProvider code change from vaprovider-GenM-001 
 
+wlconsumer-ConnRec-001: Alters WLConsumer to be able configure multiple providers for connection recovery using 
+the following command line inputs.
+  Command Line Arguments:
+    "-h2" input that permits user to specify second host to connect to
+    "-p2" input that permits user to specify second port to connect to
+    "-h3" input that permits user to specify third host to connect to
+    "-p3" input that permits user to specify third port to connect to
+    "-attemptLimit"  input that permits user to specify ReconnectAttemptLimit
+    "-numConnections"  input that permits user to specify number of connections
+    "-minDelay"  input that permits user to specify ReconnectMinDelay
+    "-maxDelay"  input that permits user to specify ReconnectMaxDelay
+Sample usage: -h2 localhost -p2 14025 -h3 localhost -p3 14026 -attempLimit -1 -numConnections 3 -minDelay 5000 -maxDelay 30000
+
 Module:  Provider 
 -----------------
 
@@ -132,6 +145,10 @@ provider-Src-002: Alters Provider to respond with a source directory refresh con
 
 provider-Item-001: Alters Provider to not send a market price refresh when market price request is received     
 provider-Item-002: Alters Provider to send only 1 refresh and 10 updates when market price request received. 
+
+provider-Item-003: Alters Provider to not send RSSL_DMT_SYMBOL_LIST capability in source directory refresh
+
+provider-Item-004: Alters Provider to send AcceptingRequests false in function initServiceStateInfo
 
 provider-Dict-001: Alters Provider to not return failure if it receives a source directory request and
 not send dictionary reject if it receives an invalid dictionary request. This is done by commenting out
@@ -158,3 +175,9 @@ Module:  NIProvider
 -----------------
 
 niprovider-Item-001: Alters NIProvider to send only 1 refresh and 2 updates for each item specified on command line 
+
+
+Module: Reactor
+-----------------
+
+etareactor-001: Alters reactor worker thread to print calculated reconnect delay for connection recovery
