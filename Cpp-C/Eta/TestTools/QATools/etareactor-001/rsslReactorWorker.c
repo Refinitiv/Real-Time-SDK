@@ -469,7 +469,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												pReactorChannel->lastReconnectAttemptMs = pReactorImpl->reactorWorker.lastRecordedTimeMs;
 
 												_reactorWorkerCalculateNextTimeout(pReactorImpl, pReactorChannel->reconnectDelay);
-												printf("\n--------------APIQA, reconnectDelay is %d\n\n", pReactorChannel->reconnectDelay);
+											 	printf("--------------APIQA, ReactorChannel: Using connection %d \n--------------APIQA, ReactorChannel: reconnectDelay is %d\n\n", 
+													pReactorChannel->connectionListIter, pReactorChannel->reconnectDelay);
 
 												break;
 
