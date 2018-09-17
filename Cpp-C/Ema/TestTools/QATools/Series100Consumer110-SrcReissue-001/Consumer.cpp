@@ -212,7 +212,7 @@ int main( int argc, char* argv[] )
 	try {
 		AppClient client;
 		OmmConsumerConfig cc;
-		cc.addAdminMsg( ReqMsg().domainType( MMT_DIRECTORY ).filter(4).interestAfterRefresh(true).serviceId(999));
+		cc.addAdminMsg( ReqMsg().domainType( MMT_DIRECTORY ).filter(29).interestAfterRefresh(true).serviceId(999));
 		OmmConsumer * consumer = new OmmConsumer(cc);
 		void* closure = (void*)1;
 		void* closure1 = (void*)1;
