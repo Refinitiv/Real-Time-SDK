@@ -11,7 +11,7 @@ set(_UnitTestSrcFiles
         FieldListTests.cpp FilterListTests.cpp
         GenericMsgTests.cpp LoginHelperTest.cpp
         MapTests.cpp NoDataSizeTest.cpp
-        OmmExceptionTests.cpp
+        OmmExceptionTests.cpp PollFdMaintenanceTest.cpp
         PostMsgTests.cpp RefreshMsgTests.cpp
         RequestMsgTests.cpp RmtesBufferTest.cpp
         SeriesTests.cpp StatusMsgTests.cpp

@@ -24,7 +24,6 @@ int OmmCommonImpl::addFd( int fd, short events )
 	}
 	_eventFds[ _eventFdsCount ].fd = fd;
 	_eventFds[ _eventFdsCount ].events = events;
-
 	return _eventFdsCount++;
 }
 
@@ -32,12 +31,10 @@ void OmmCommonImpl::removeFd( int fd )
 {
   _pipeReadEventFdsIdx = -1;
 
-  int i = 0;
-  while (i < _eventFdsCount) {
+  int i;
+  for (i = 0; i < _eventFdsCount; ++i)
 	if (_eventFds[i].fd == fd)
 	  break;
-	++i;
-  }
 
   if (i == _eventFdsCount)		// did not find the fd in the list
 	return;
@@ -47,8 +44,8 @@ void OmmCommonImpl::removeFd( int fd )
   }
 
   --_eventFdsCount;
-  while (i < _eventFdsCount)
-	_eventFds[i] = _eventFds[++i];
+  for (; i < _eventFdsCount; ++i)
+	_eventFds[i] = _eventFds[i+1];
 }
 #endif
 
