@@ -49,7 +49,6 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
-	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -82,7 +81,6 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
-	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -116,7 +114,6 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
-	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -151,7 +148,6 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_activeConfig( activeConfig ),
 	_userLock(),
 	_dispatchLock(),
-	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state( NotInitializedEnum ),
@@ -193,7 +189,6 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
-	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -235,7 +230,6 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_activeConfig( activeConfig ),
 	_userLock(),
 	_dispatchLock(),
-	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state( NotInitializedEnum ),
@@ -275,7 +269,6 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
-	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -1364,13 +1357,6 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 {
 	OmmBaseImplMap<OmmBaseImpl>::remove(this);
 
-	if (!calledFromInit) _uninitializeLock.lock();
-
-	if ( _state == NotInitializedEnum )
-	{
-		return;
-	}
-
 	_atExit = true;
 
 	if (isApiDispatching() && !caughtExcep)
@@ -1395,6 +1381,12 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 	else
 	{
 		if (!calledFromInit) _userLock.lock();
+	}
+	
+	if ( _state == NotInitializedEnum )
+	{
+		if ( !calledFromInit ) _userLock.unlock();
+		return;
 	}
 
 	if ( _pRsslReactor )
@@ -1457,11 +1449,7 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 
 	_state = NotInitializedEnum;
 
-	if ( !calledFromInit )
-	{
-		_userLock.unlock();
-		_uninitializeLock.unlock();
-	}
+	if ( !calledFromInit ) _userLock.unlock();
 
 #ifdef USING_POLL
 	delete[] _eventFds;

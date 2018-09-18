@@ -226,7 +226,6 @@ protected:
 	Mutex						_dispatchLock;
 	Mutex						_pipeLock;
 	Mutex						_timeOutLock;
-	Mutex						_uninitializeLock;
 	RsslErrorInfo				_reactorDispatchErrorInfo;
 	ImplState					_state;
 	RsslReactor*				_pRsslReactor;

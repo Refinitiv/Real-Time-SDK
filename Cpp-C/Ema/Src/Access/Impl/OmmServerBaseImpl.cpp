@@ -41,7 +41,6 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pOmmProviderClient(&ommProviderClient),
 	_userLock(),
 	_dispatchLock(),
-	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state( NotInitializedEnum ),
@@ -73,7 +72,6 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_pOmmProviderClient(&ommProviderClient),
 	_userLock(),
 	_dispatchLock(),
-	_uninitializeLock(),
 	_pipeLock(),
 	_reactorDispatchErrorInfo(),
 	_state(NotInitializedEnum),
@@ -906,13 +904,6 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 {
 	OmmBaseImplMap<OmmServerBaseImpl>::remove(this);
 
-	if (!calledFromInit) _uninitializeLock.lock();
-
-	if ( _state == NotInitializedEnum )
-	{
-		return;
-	}
-
 	_atExit = true;
 
 	if (isApiDispatching() && !caughtException)
@@ -937,6 +928,12 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 	else
 	{
 		if (!calledFromInit) _userLock.lock();
+	}
+
+	if ( _state == NotInitializedEnum )
+	{
+		if ( !calledFromInit ) _userLock.unlock();
+		return;
 	}
 
 	_state = OmmServerBaseImpl::UnInitializingEnum;
@@ -1014,11 +1011,7 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 
 	_state = NotInitializedEnum;
 
-	if (!calledFromInit)
-	{
-		_userLock.unlock();
-		_uninitializeLock.unlock();
-	}
+	if (!calledFromInit) _userLock.unlock();
 
 #ifdef USING_POLL
 	delete[] _eventFds;
