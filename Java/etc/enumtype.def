@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.33
 !tag Build_RDMD  4.20.33
-!tag DT_Version  18.71
-!tag Date        17-Aug-2018
+!tag DT_Version  18.81
+!tag Date        17-Sep-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -555,6 +555,7 @@ MN_IIN_CCY 13596
     905        "SAh"   Saudi Arabian Halalah
     906        "QAd"   Qatari Dirham
     907        "AEf"   UAE Fils
+    927        "UYW"   Uruguayan Unidad Previsional
     928        "VES"   Venezuelan Bolivar Soberano
     929        "MRU"   Mauritanian Ouguiya
     930        "STN"   Sao Tome and Principe Dobra
@@ -985,6 +986,7 @@ BIDXID      3298
     228        "NLS"   Aequitas NEO-L Special Terms
     229        "IEX"   IEX GROUP INC - (CTA)
     230        "CXD"   Nasdaq CXD
+    231        "NED"   AEQUITAS NEO-D
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8416,7 +8418,7 @@ LEG4_EXCH  13574
    1351        "NDT"   FINRA BTDS 144A
    1352        "BOC"   Blue Ocean Company (Brunei) Pte. Ltd.
    1353        "TX2"   EURO TLX LEVEL 2
-   1354        "NTR"   NASDAQ AND FINRA TRADE REPORTING FACILITY
+   1354        "NTR"   NASDAQ/FINRA TRADE REPORTING FACILITY-TRF CARTERET
    1355        "NCU"   NATIONAL STOCK EXCHANGE OF INDIA LTD -TICK BY TICK
    1356        "PPB"   Proveedor Integral de Precios SA de CV
    1357        "CDD"   CBID / PERIMETER MARKETS INC
@@ -8582,6 +8584,10 @@ LEG4_EXCH  13574
    1517        "ATA"   Athens Stock Exchange APA
    1518        "GRF"   Griffin Markets Limited
    1519        "ASY"   A.A. Sayia & Company
+   1520        "NED"   AEQUITAS NEO-D
+   1521        "NFC"   NASDAQ/FINRA TRADE REPORTING FACILITY-TRF CHICAGO
+   1522        "MAR"   Ministry of Agriculture and Rural Information Center, China
+   1523        "MAS"   MONETARY AUTHORITY OF SINGAPORE
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20393,6 +20399,11 @@ ORGN_PORT  13579
     456   "CA PMO  "   Port Moody/Vancouver
     457   "AU ADL  "   Adelaide
     458   "AU PKL  "   Kembla
+    459   "AR RDS  "   Rincon de los Sauces
+    460   "MY KIK  "   Kikeh
+    461   "MY MYY  "   Miri, Sarawak
+    462   "GB HPT  "   Hound Point
+    463   "US SJM  "   Saint James
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21195,6 +21206,8 @@ FIXING_TYP 13597
       2   "RPB_REG "   Republication of rate determined using regular fixing methodology
       3   "REG_CNT "   Regular publication of rate determined using contingency methodology
       4   "RPB_CNT "   Republication of rate determined using contingency methodology
+      5   "PROV    "   Provisional rate
+      6   "FINAL   "   Final rate
 !
 ! ACRONYM    FID
 ! -------    ---
