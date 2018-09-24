@@ -13,6 +13,7 @@ public enum TestReactorEventTypes {
 	LOGIN_MSG,		           /** RDMLoginMsgEvent */
 	DIRECTORY_MSG,	           /** RDMDirectoryMsgEvent */
 	DICTIONARY_MSG,	           /** RDMDictionaryMsgEvent */
+	STATUS_MSG,
 	MSG,				       /** ReactorMsgEvent */
 	TUNNEL_STREAM_STATUS,      /** TunnelStreamStatusEvent */
 	TUNNEL_STREAM_MSG,         /** TunnelStreamMsgEvent */

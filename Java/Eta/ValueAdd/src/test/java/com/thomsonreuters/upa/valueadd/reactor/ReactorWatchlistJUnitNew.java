@@ -19533,4 +19533,126 @@ public class ReactorWatchlistJUnitNew
         
         TestReactorComponent.closeSession(consumer, provider);
     }
+
+    @Test
+    public void closeWhileDisconnectedTest()
+    {
+    	for (boolean useServiceNames : new boolean[] {true, false} )
+    	{
+    		ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+    		Msg msg = CodecFactory.createMsg();
+    		RequestMsg requestMsg = (RequestMsg)msg;
+    		CloseMsg closeMsg = (CloseMsg)msg;
+
+    		/* Create reactors. */
+    		TestReactor consumerReactor = new TestReactor();
+    		TestReactor providerReactor = new TestReactor();
+
+    		/* Create consumer. */
+    		Consumer consumer = new Consumer(consumerReactor);
+    		ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+    		consumerRole.initDefaultRDMLoginRequest();
+    		consumerRole.initDefaultRDMDirectoryRequest();
+    		consumerRole.channelEventCallback(consumer);
+    		consumerRole.loginMsgCallback(consumer);
+    		consumerRole.directoryMsgCallback(consumer);
+    		consumerRole.dictionaryMsgCallback(consumer);
+    		consumerRole.defaultMsgCallback(consumer);
+    		consumerRole.watchlistOptions().enableWatchlist(true);
+    		consumerRole.watchlistOptions().channelOpenCallback(consumer);
+    		consumerRole.watchlistOptions().requestTimeout(3000);
+
+    		/* Create provider. */
+    		Provider provider = new Provider(providerReactor);
+    		ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+    		providerRole.channelEventCallback(provider);
+    		providerRole.loginMsgCallback(provider);
+    		providerRole.directoryMsgCallback(provider);
+    		providerRole.dictionaryMsgCallback(provider);
+    		providerRole.defaultMsgCallback(provider);
+
+    		/* Connect the consumer and provider. Setup login & directory streams automatically. */
+    		ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+    		opts.setupDefaultLoginStream(true);
+    		opts.setupDefaultDirectoryStream(true);
+    		provider.bind(opts);
+    		TestReactor.openSession(consumer, provider, opts);
+    		
+    		final class TestData
+    		{
+    			private Integer streamId;
+    			private Integer serviceId;
+    			private String serviceName;
+    			
+    			public TestData(Integer idStream, Integer idService, String nameService)
+    			{
+    				streamId = idStream;
+    				serviceId = idService;
+    				serviceName = nameService;
+    			}
+    			public Integer streamId() { return streamId; }
+    			public Integer serviceId() { return serviceId; }
+    			public String serviceName() { return serviceName; }
+    		}
+    		ArrayList<TestData> requestData = new ArrayList<TestData>();
+    		requestData.add(new TestData(5, 1, Provider.defaultService().info().serviceName().toString()));
+    		requestData.add(new TestData(6, 2, "DIRECT_FEED2"));
+    		requestData.add(new TestData(7, 3, "DIRECT_FEED3"));
+    		
+    		// send consumer requests
+    		for (TestData td : requestData)
+    		{
+    			requestMsg.clear();
+    			requestMsg.msgClass(MsgClasses.REQUEST);
+        		requestMsg.streamId(td.streamId());
+        		requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        		requestMsg.applyStreaming();
+        		requestMsg.msgKey().applyHasName();
+        		requestMsg.msgKey().name().data("TRI.N");
+
+        		submitOptions.clear();
+        		if (useServiceNames)
+        			submitOptions.serviceName(td.serviceName());
+        		else {
+        			requestMsg.msgKey().applyHasServiceId();
+        			requestMsg.msgKey().serviceId(td.serviceId());
+        		}
+        		assertTrue(consumer.submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+    		}
+
+    		/* Consumer receives status. */
+    		consumerReactor.dispatch(2);
+    		consumerReactor.pollEvent();
+    		consumerReactor.pollEvent();
+
+    		/* Provider receives the request for the known service. */
+    		providerReactor.dispatch(1);
+    		providerReactor.pollEvent();
+
+    		/* Provider disconnects. */
+    		provider.closeChannel();
+
+    		// Consumer receives four events
+    		consumerReactor.dispatch(4);
+    		assertEquals(TestReactorEventTypes.CHANNEL_EVENT, consumerReactor.pollEvent().type());
+    		assertEquals(TestReactorEventTypes.LOGIN_MSG, consumerReactor.pollEvent().type());
+    		assertEquals(TestReactorEventTypes.DIRECTORY_MSG, consumerReactor.pollEvent().type());
+    		assertEquals(TestReactorEventTypes.MSG, consumerReactor.pollEvent().type());
+
+    		/* Consumer closes requests. */
+    		for (TestData td : requestData )
+    		{
+    			closeMsg.clear();
+    			closeMsg.msgClass(MsgClasses.CLOSE);
+    			closeMsg.streamId(td.streamId());
+    			closeMsg.domainType(DomainTypes.MARKET_PRICE);
+    			closeMsg.containerType(DataTypes.NO_DATA); 
+    			submitOptions.clear();
+    			submitOptions.serviceName(td.serviceName());
+    			assertTrue(consumer.submitAndDispatch(closeMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+    		}
+
+    		TestReactorComponent.closeSession(consumer, provider);
+    	}
+    }
 }

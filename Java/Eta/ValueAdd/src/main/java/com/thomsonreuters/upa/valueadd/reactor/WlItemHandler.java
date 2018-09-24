@@ -3,6 +3,7 @@ package com.thomsonreuters.upa.valueadd.reactor;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -564,7 +565,12 @@ class WlItemHandler implements WlHandler
 
             if (!requestMsg.checkPrivateStream() && _watchlist.loginHandler().supportSingleOpen())
             {
-                addToPendingRequestTable(wlRequest, submitOptions);
+            	// wlRequest._requestMsg may not be set yet.  However, if submitOptions.serviceName is not set,
+            	// addToPendingRequestTable uses the serviceId from wlRequst._requestMsg.msgKey so just
+            	// set it here
+            	if (submitOptions.serviceName() == null)
+            		wlRequest.requestMsg().msgKey().serviceId(requestMsg.msgKey().serviceId());
+            	addToPendingRequestTable(wlRequest, submitOptions);
             }
         }
         return ret;
@@ -1535,56 +1541,43 @@ class WlItemHandler implements WlHandler
             }
         }        
 
-        // remove from _pendingRequestByIdTable
-        for (int intKey : _pendingRequestByIdTable.keySet())
+        Iterator<Map.Entry<Integer, LinkedList<WlRequest>>> I = _pendingRequestByIdTable.entrySet().iterator();
+        while (I.hasNext())
         {
-            LinkedList<WlRequest> wlRequestList = _pendingRequestByIdTable.remove(intKey);
-            
-            for (int i = 0; i < wlRequestList.size(); i++)
-            {
-                WlRequest wlRequestInList = wlRequestList.get(i);
-                
-                if (wlRequestInList.requestMsg().streamId() == wlRequest.requestMsg().streamId())
-                {
-                    wlRequestList.remove(i);
-                    _pendingRequestByIdTable.put(intKey, wlRequestList);
-                    break;
-                }
-                else
-                {
-                    _pendingRequestListPool.add(wlRequestList);
-                }
-            }
+        	Map.Entry<Integer, LinkedList<WlRequest>> entry = I.next();
+        	LinkedList<WlRequest> pendingRequests = entry.getValue();
+        	Iterator<WlRequest> K = pendingRequests.iterator();
+        	while (K.hasNext())
+        		if (K.next().requestMsg().streamId() == wlRequest.requestMsg().streamId())
+        			K.remove();
+        	if (pendingRequests.isEmpty())
+        	{
+        		I.remove();
+        		_pendingRequestListPool.add(pendingRequests);
+        	}
         }
         
         // remove from _pendingRequestByNameTable
-        for (String stringKey : _pendingRequestByNameTable.keySet())
+        Iterator<Map.Entry<String, LinkedList<WlRequest>>> J = _pendingRequestByNameTable.entrySet().iterator();
+        while (J.hasNext())
         {
-            LinkedList<WlRequest> wlRequestList = _pendingRequestByNameTable.remove(stringKey);
-            
-            for (int i = 0; i < wlRequestList.size(); i++)
-            {
-                WlRequest wlRequestInList = wlRequestList.get(i);
-                
-                if (wlRequestInList.requestMsg().streamId() == wlRequest.requestMsg().streamId())
-                {
-                    wlRequestList.remove(i);
-                    if (wlRequestList.size() > 0)
-                    {
-                        _pendingRequestByNameTable.put(stringKey, wlRequestList);
-                    }
-                    break;
-                }
-                else
-                {
-                    _pendingRequestListPool.add(wlRequestList);                    
-                }
+	        Map.Entry<String, LinkedList<WlRequest>> entry = J.next();
+	        LinkedList<WlRequest> pendingRequests = entry.getValue();
+        	Iterator<WlRequest> K = pendingRequests.iterator();
+        	while(K.hasNext())
+                if (K.next().requestMsg().streamId() == wlRequest.requestMsg().streamId()) {
+                	K.remove();
             }
+        	if (pendingRequests.isEmpty())
+        	{
+        		J.remove();
+        		_pendingRequestListPool.add(pendingRequests);
+        	}
         }
         
         closeWlRequest(wlRequest);
         repoolWlRequest(wlRequest);
-        
+
         return ret;        
     }
 
