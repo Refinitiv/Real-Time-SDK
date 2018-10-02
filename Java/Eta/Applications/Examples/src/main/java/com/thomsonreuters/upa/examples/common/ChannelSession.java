@@ -493,7 +493,7 @@ public class ChannelSession
     private int close(Error error)
     {
         int cstate = channelState();
-        if (cstate != ChannelState.INACTIVE && cstate != ChannelState.CLOSED)
+        if (cstate != ChannelState.INACTIVE)
         {
             /* cancel channel select */
             for (SelectionKey key : selector.keys())
@@ -509,9 +509,15 @@ public class ChannelSession
                             System.out.println("Channel flush failed with return code: " + ret + "  - " + error.text());
                         }
                     }
-                    key.cancel();
                 }
+                key.cancel();
             }
+            // call select to ensure channel is immediately de-registered from selector after canceling keys
+        	try
+        	{
+				selector.selectNow();
+			}
+        	catch (IOException e) { }
             int ret = channel.close(error);
             if (ret != TransportReturnCodes.SUCCESS)
             {
