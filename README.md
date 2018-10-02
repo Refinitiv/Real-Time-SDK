@@ -1,3 +1,13 @@
+# Elektron SDK Announcement
+
+As of Oct 1, 2018 the former Financial and Risk business division of Thomson Reuters is now known as Refinitiv. All names and marks owned by Thomson Reuters, including Thomson, Reuters and the Kinesis logo are used under license from Thomson Reuters and its affiliated companies.
+
+Refinitiv products will be undergoing brand changes at a future date to reflect Refinitiv branding.
+
+For any further information please contact us at legal@refinitiv.com.
+
+
+
 # Elektron SDK
 This is the Elektron SDK. This SDK is an all encompassing package of all Elektron APIs. This currently includes the open source Elektron Message API (EMA) and the open source Elektron Transport API (ETA).
 
