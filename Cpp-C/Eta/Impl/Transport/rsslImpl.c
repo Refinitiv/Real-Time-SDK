@@ -1216,7 +1216,13 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 			/* build it first */
 			size_t rsslLinkTypeLen = strlen(rsslLinkType);
 
-			rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(length + RSSL_ComponentVersionEnd_Len + Rssl_ComponentVersionPlatform_Len + Rssl_Bits_Len + rsslLinkTypeLen);
+			if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(length + RSSL_ComponentVersionEnd_Len + Rssl_ComponentVersionPlatform_Len + Rssl_Bits_Len + rsslLinkTypeLen)) == NULL)
+			{
+				_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
+				rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
+				return RSSL_RET_FAILURE;
+			}
 			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
 			MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslComponentVersionPlatform, Rssl_ComponentVersionPlatform_Len);
 			length += (rtrUInt32)Rssl_ComponentVersionPlatform_Len;
@@ -1247,7 +1253,13 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 				userInfoLength = rsslChnlImpl->connOptsCompVer.componentVersion.length;
 			}
 
-			rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(totalLength);
+			if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(totalLength)) == NULL)
+			{
+				_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
+				rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
+				return RSSL_RET_FAILURE;
+			}
 			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
 			length = (rtrUInt32)RSSL_ComponentVersionStart_Len;
 			/* see explanation above the declaration of defaultLength to understand the pointer arithmetic below */
