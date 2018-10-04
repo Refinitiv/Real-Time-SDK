@@ -219,28 +219,37 @@ class ServerImpl extends UpaNode implements Server
             
             if(_bindOpts.componentVersion() != null)
             {
-                // user specified info was passed in through the bind Opts
-                byte divider = (byte)'|';
-                ByteBuffer connectOptsCompVerBB = ByteBuffer.wrap(_bindOpts.componentVersion().getBytes());
-                int totalLength = connectOptsCompVerBB.limit() + 1 + Transport._defaultComponentVersionBuffer.limit();
-                if (totalLength > 253)
+                try
                 {
-                    // the total component data length is too long, so truncate the user defined data
-                    totalLength = 253;
-                    connectOptsCompVerBB.limit(253 - Transport._defaultComponentVersionBuffer.limit() - 1);
+                    Transport._globalLock.lock();
+
+                    // user specified info was passed in through the bind Opts
+                    byte divider = (byte)'|';
+                    ByteBuffer connectOptsCompVerBB = ByteBuffer.wrap(_bindOpts.componentVersion().getBytes());
+                    int totalLength = connectOptsCompVerBB.limit() + 1 + Transport._defaultComponentVersionBuffer.limit();
+                    if (totalLength > 253)
+                    {
+                        // the total component data length is too long, so truncate the user defined data
+                        totalLength = 253;
+                        connectOptsCompVerBB.limit(253 - Transport._defaultComponentVersionBuffer.limit() - 1);
+                    }
+
+                    // append the user defined connect opts componentVersionInfo to the default value
+                    ByteBuffer combinedBuf = ByteBuffer.allocate(totalLength);
+
+                    Transport._defaultComponentVersionBuffer.mark();
+                    combinedBuf.put(Transport._defaultComponentVersionBuffer);
+                    Transport._defaultComponentVersionBuffer.reset();
+                    combinedBuf.put(divider);
+                    combinedBuf.put(connectOptsCompVerBB);
+
+                    // the combined length of the new buffer includes the user defined data, the '|', and the default component version data
+                    _componentInfo.componentVersion().data(combinedBuf, 0, totalLength);
                 }
-
-                // append the user defined connect opts componentVersionInfo to the default value
-                ByteBuffer combinedBuf = ByteBuffer.allocate(totalLength);
-
-                Transport._defaultComponentVersionBuffer.mark();
-                combinedBuf.put(Transport._defaultComponentVersionBuffer);
-                Transport._defaultComponentVersionBuffer.reset();
-                combinedBuf.put(divider);
-                combinedBuf.put(connectOptsCompVerBB);
-
-                // the combined length of the new buffer includes the user defined data, the '|', and the default component version data
-                _componentInfo.componentVersion().data(combinedBuf, 0, totalLength);
+                finally
+                {
+                    Transport._globalLock.unlock();
+                }
             }
         }
         catch (Exception e)

@@ -592,40 +592,48 @@ public class JNIChannel extends UpaNode implements Channel
     {
         /* Connected Component Info */
 
-        if (_connectOptsComponentInfo != null)
+        try
         {
-            byte divider = (byte)'|';
-            int totalLength = _connectOptsComponentInfo.componentVersion().data().limit() + 1 + Transport._defaultComponentVersionBuffer.limit();
-            int origLimit = _connectOptsComponentInfo.componentVersion().data().limit();
-            if (totalLength > 253)
+            Transport._globalLock.lock();
+
+            if (_connectOptsComponentInfo != null)
             {
-                // the total component data length is too long, so truncate the
-                // user defined data
-                totalLength = 253;
-                _connectOptsComponentInfo.componentVersion().data().limit(253 - Transport._defaultComponentVersionBuffer.limit() - 1);
+                byte divider = (byte)'|';
+                int totalLength = _connectOptsComponentInfo.componentVersion().data().limit() + 1 + Transport._defaultComponentVersionBuffer.limit();
+                int origLimit = _connectOptsComponentInfo.componentVersion().data().limit();
+                if (totalLength > 253)
+                {
+                    // the total component data length is too long, so truncate the
+                    // user defined data
+                    totalLength = 253;
+                    _connectOptsComponentInfo.componentVersion().data().limit(253 - Transport._defaultComponentVersionBuffer.limit() - 1);
+                }
+
+                // append the user defined connect opts componentVersionInfo to the default value
+                ByteBuffer combinedBuf = ByteBuffer.allocate(totalLength);
+
+                Transport._defaultComponentVersionBuffer.mark();
+                combinedBuf.put(Transport._defaultComponentVersionBuffer);
+                Transport._defaultComponentVersionBuffer.reset();
+                combinedBuf.put(divider);
+                combinedBuf.put(_connectOptsComponentInfo.componentVersion().data());
+
+                // the combined length of the new buffer includes the user defined data, the '|', and the default component version data
+                _componentInfo.componentVersion().data(combinedBuf, 0, totalLength);
+
+                // reset the limit for this buffer in case it was truncated
+                _connectOptsComponentInfo.componentVersion().data().limit(origLimit);
             }
-
-            // append the user defined connect opts componentVersionInfo to the default value
-            ByteBuffer combinedBuf = ByteBuffer.allocate(totalLength);
-
-            Transport._defaultComponentVersionBuffer.mark();
-            combinedBuf.put(Transport._defaultComponentVersionBuffer);
-            Transport._defaultComponentVersionBuffer.reset();
-            combinedBuf.put(divider);
-            combinedBuf.put(_connectOptsComponentInfo.componentVersion().data());
-
-            // the combined length of the new buffer includes the user defined data, the '|', and the default component version data
-            _componentInfo.componentVersion().data(combinedBuf, 0, totalLength);
-
-            // reset the limit for this buffer in case it was truncated
-            _connectOptsComponentInfo.componentVersion().data().limit(origLimit);
+            else
+            {
+                // not client specified, use default from MANIFEST.MF
+                _componentInfo.componentVersion().data(Transport._defaultComponentVersionBuffer, 0, Transport._defaultComponentVersionBuffer.limit());
+            }
         }
-        else
+        finally
         {
-            // not client specified, use default from MANIFEST.MF
-            _componentInfo.componentVersion().data(Transport._defaultComponentVersionBuffer, 0, Transport._defaultComponentVersionBuffer.limit());
+            Transport._globalLock.unlock();
         }
-
         ioctl(IoctlCodes.COMPONENT_INFO, _componentInfo, error);
     }
 
