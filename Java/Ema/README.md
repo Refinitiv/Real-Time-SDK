@@ -14,7 +14,7 @@ Reuters Oak Brook, IL USA
 
 # Message API Features and Functionality
 
-##Consumer Features:
+## Consumer Features:
 - Default Admin Domain Requests: EMA uses default login, directory and dictionary request while connecting to server. This provides minimum configuration for applications to get up and running.   
 
 - Connection Failover: EMA can be configured to specify a list of failover servers via ChannelSet configuration.  In the event that the consumer's connection attempt fails, EMA will utilize the next channel in the ChannelSet list.
@@ -33,7 +33,7 @@ Reuters Oak Brook, IL USA
  
 
 
-##Non-Interactive Provider Features:
+## Non-Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
 
@@ -41,7 +41,7 @@ Reuters Oak Brook, IL USA
 
 - Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
 
-##Interactive Provider Features:
+## Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
  
@@ -50,7 +50,7 @@ Reuters Oak Brook, IL USA
 - Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
   		
 
-##Common Features:
+## Common Features:
 
 - TCP/IP Connectivity
 
