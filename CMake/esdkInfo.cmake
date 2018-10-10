@@ -43,6 +43,6 @@ endif()
 # GoogleTest
 #[====================================================================]
 set(googletest_repo https://github.com/google/googletest.git)
-set(googletest_tag master)
+set(googletest_tag release-1.8.1)
 
 
