@@ -320,7 +320,7 @@ public class EncodersJunit
     public void encodeFilterEntryTest()
     {
         Buffer smallBuf = CodecFactory.createBuffer();
-        smallBuf.data(ByteBuffer.allocate(16));
+        smallBuf.data(ByteBuffer.allocate(6));
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(64));
         FilterList filterList = CodecFactory.createFilterList();
@@ -350,6 +350,14 @@ public class EncodersJunit
 
         assertTrue(filterList.encodeInit(iter) == CodecReturnCodes.SUCCESS);
         assertTrue(filterEntry.encode(iter) == CodecReturnCodes.BUFFER_TOO_SMALL);
+
+        int ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(smallBuf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)        
+        {
+            ret = filterEntry.encode(iter);
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);  
         assertTrue(filterList.encodeComplete(iter, true) == CodecReturnCodes.SUCCESS);
         
         // reset to bigger buffer
@@ -987,6 +995,16 @@ public class EncodersJunit
 
         assertTrue(map.encodeInit(iter, 0, 0) == CodecReturnCodes.SUCCESS);
         assertTrue(mapEntry.encode(iter, intKey) == CodecReturnCodes.BUFFER_TOO_SMALL);
+        
+        int ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(smallBuf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)        
+        {
+            ret = mapEntry.encode(iter, intKey);        
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);  
+   
+        
         assertTrue(mapEntry.encodeComplete(iter, true) == CodecReturnCodes.INVALID_DATA);
 
         // reset to bigger buffer
@@ -1338,6 +1356,14 @@ public class EncodersJunit
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeInit(iter, null, 32));
         assertEquals(CodecReturnCodes.BUFFER_TOO_SMALL, elementEntry.encode(iter, uint));
         
+        int ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(buf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)        
+        {
+            ret = elementEntry.encode(iter, uint);       
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);        
+        
         // 3. Neg case - encode one element entry into an element list with entry.name too big.
         buf.data().rewind();
         buf.data(buf.data(), 0, 10);
@@ -1347,6 +1373,14 @@ public class EncodersJunit
         elementEntry.name(name);
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeInit(iter, null, 32));
         assertEquals(CodecReturnCodes.BUFFER_TOO_SMALL, elementEntry.encode(iter, uint));
+        
+        ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(buf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)        
+        {
+            ret = elementEntry.encode(iter, uint);   
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);        
         
         // 4. Neg case - encode one preencoded element entry into an element list.
         Buffer bigBuf = CodecFactory.createBuffer();
@@ -1359,7 +1393,16 @@ public class EncodersJunit
         elementEntry.encodedData(preencoded);
         assertEquals(CodecReturnCodes.BUFFER_TOO_SMALL, elementEntry.encode(iter));
         
+        ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(bigBuf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)        
+        {
+            ret = elementEntry.encode(iter);  
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);        
+        
         // 5. Positive case - encode one preencoded element entry into an element list.
+        bigBuf.data(bigBuf.data(), 0, bigBuf.data().position());        
         bigBuf.data().rewind();
         name.data("ABCDEFGHIJK");
         elementEntry.name(name);
@@ -1458,6 +1501,14 @@ public class EncodersJunit
         assertEquals(CodecReturnCodes.SUCCESS, elementList.encodeInit(iter, null, 32));
         elementEntry.encodedData(preencoded);
         assertEquals(CodecReturnCodes.BUFFER_TOO_SMALL, elementEntry.encode(iter));
+        
+        ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(buf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)        
+        {
+            ret = elementEntry.encode(iter);     
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);           
         
     }
     
@@ -1963,6 +2014,14 @@ public class EncodersJunit
         uint.value(554433);
         assertEquals(CodecReturnCodes.BUFFER_TOO_SMALL, fieldEntry.encode(iter, uint));
         
+        int ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(buf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)        
+        {
+            ret = fieldEntry.encode(iter, uint);
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);           
+        
         // 2. test with unsupported data type in entry.
         buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(60));
@@ -1998,6 +2057,14 @@ public class EncodersJunit
         fieldEntry.encodedData(encodedData);
         assertEquals(CodecReturnCodes.BUFFER_TOO_SMALL, fieldEntry.encode(iter));
         
+        ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(buf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)        
+        {
+            ret = fieldEntry.encode(iter);     
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);            
+        
         // 5. test with encoding blank.
         buf.data().clear();
         fieldEntry.clear();
@@ -2017,6 +2084,14 @@ public class EncodersJunit
         fieldEntry.fieldId(30);
         fieldEntry.dataType(DataTypes.REAL);
         assertEquals(CodecReturnCodes.BUFFER_TOO_SMALL, fieldEntry.encodeBlank(iter));
+
+        ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(buf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)        
+        {
+            ret = fieldEntry.encodeBlank(iter);   
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);           
     }
     
     /**
@@ -3580,6 +3655,15 @@ public class EncodersJunit
         }
     }
     
+    private Buffer growByOneAndCopy(Buffer src)
+    {
+    	ByteBuffer newBuf =  ByteBuffer.allocate(src.data().capacity() + 1) ;
+    	src.data().flip();
+    	newBuf.put(src.data());
+    	src.data(newBuf);
+    	return src;
+    }
+    
     /**
      * This tests the encodeSeriesEntry() method. It contains five test cases.<BR>
      * 
@@ -3623,8 +3707,18 @@ public class EncodersJunit
                         
         // 1. Negative test for buffer too small
         iter.setBufferAndRWFVersion(smallBuf, Codec.majorVersion(), Codec.minorVersion());
+        
         assertTrue(series.encodeInit(iter, 0, 0) == CodecReturnCodes.SUCCESS);
         assertTrue(seriesEntry.encode(iter) == CodecReturnCodes.BUFFER_TOO_SMALL);
+        
+        // need to copy into new buffer
+        int ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(smallBuf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)
+        {
+            ret = seriesEntry.encode(iter);       
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);        
 
         // 2. Positive test for everything good without pre-encoded data
         iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
@@ -4072,7 +4166,7 @@ public class EncodersJunit
         assertTrue(vector.encodeInit(iter, 0, 0) == CodecReturnCodes.SUCCESS);
         assertTrue(vectorEntry.encodeInit(iter, 0) == CodecReturnCodes.SUCCESS);
         ((EncodeIteratorImpl)iter)._curBufPos = 100000;
-        assertTrue(vectorEntry.encodeComplete(iter, true) == CodecReturnCodes.BUFFER_TOO_SMALL);
+        assertTrue(vectorEntry.encodeComplete(iter, true) == CodecReturnCodes.BUFFER_TOO_SMALL);   
 
         // 2. Negative test for invalid data
         buf.data().rewind();
@@ -4200,8 +4294,17 @@ public class EncodersJunit
         iter.setBufferAndRWFVersion(smallBuf, Codec.majorVersion(), Codec.minorVersion());
         assertTrue(vector.encodeInit(iter, 0, 0) == CodecReturnCodes.SUCCESS);
         assertTrue(vectorEntry.encode(iter) == CodecReturnCodes.BUFFER_TOO_SMALL);
+        
+        // 2. Try to grow the buffer to hit the edge cases
+        int ret = CodecReturnCodes.BUFFER_TOO_SMALL;
+        while ((ret == CodecReturnCodes.BUFFER_TOO_SMALL) && 
+        		iter.setBufferAndRWFVersion(growByOneAndCopy(smallBuf), Codec.majorVersion(), Codec.minorVersion()) == CodecReturnCodes.SUCCESS)
+        {
+            ret = vectorEntry.encode(iter);     
+        }
+        assertTrue(ret == CodecReturnCodes.SUCCESS);
 
-        // 2. Positive test for everything good without pre-encoded data
+        // 3. Positive test for everything good without pre-encoded data
         iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         assertTrue(vector.encodeInit(iter, 0, 0) == CodecReturnCodes.SUCCESS);
         assertTrue(vectorEntry.encode(iter) == CodecReturnCodes.SUCCESS);

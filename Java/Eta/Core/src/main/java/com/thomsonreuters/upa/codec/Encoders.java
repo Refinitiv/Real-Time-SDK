@@ -5401,6 +5401,7 @@ class Encoders
 
         /* Store id as UInt8 */
         iter._writer.writeUByte(filterEntry._id);
+        iter._curBufPos = iter._writer.position();
 
         /* Store _containerType as UInt8 */
         if (filterEntry.checkHasContainerType())
@@ -5413,9 +5414,10 @@ class Encoders
 
             /* container type needs to be scaled before its encoded */
             iter._writer.writeUByte(filterEntry.containerType() - DataTypes.CONTAINER_TYPE_MIN);
+            iter._curBufPos = iter._writer.position();
         }
 
-        iter._curBufPos = iter._writer.position();
+
 
         /* Store perm lock */
         if (filterEntry.checkHasPermData())
@@ -6948,8 +6950,11 @@ class Encoders
 
         /* Store index as UInt30_rb */
         ret = iter._writer.writeUInt30rb((int)vectorEntry.index());
+
         if (ret != CodecReturnCodes.SUCCESS)
             return ret;
+
+        iter._curBufPos = iter._writer.position();
 
         if (vectorEntry.checkHasPermData())
         {
@@ -6989,7 +6994,6 @@ class Encoders
         }
 
         iter._curBufPos = iter._writer.position();
-
         return CodecReturnCodes.SUCCESS;
     }
 
