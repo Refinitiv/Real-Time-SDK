@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.33
-!tag Build_RDMD  4.20.33
-!tag DT_Version  18.81
-!tag Date        17-Sep-2018
+!tag RT_Version  4.20.34
+!tag Build_RDMD  4.20.34
+!tag DT_Version  18.91
+!tag Date        29-Oct-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -4089,6 +4089,8 @@ CAN_COND    6585
    2255        "DVP"   Regular + Derivativley Priced
    2275        "DAB"   Regular + Derivativley Priced +Average Price or bunched
    2365        "DAP"   Regular + Derivativley Priced +Average Price Trade
+  21331        "CSC"   Cancellation of Scheduled Auction Trade
+  21332        "SCH"   Scheduled Auction Trade
   21333        "INT"   Internal Cross
   21334        "NON"   Cross trade from another venue
   21335        "NAT"   National Cross
@@ -8588,6 +8590,11 @@ LEG4_EXCH  13574
    1521        "NFC"   NASDAQ/FINRA TRADE REPORTING FACILITY-TRF CHICAGO
    1522        "MAR"   Ministry of Agriculture and Rural Information Center, China
    1523        "MAS"   MONETARY AUTHORITY OF SINGAPORE
+   1524        "MXQ"   CONSOLIDATED MEXICAN EXCHANGES
+   1525        "NXX"   NEX Exchange
+   1526        "EMA"   Euronext Market Access
+   1527        "NCA"   NATIONAL CONFECTIONERS ASSOCIATION
+   1528        "MAA"   Morgan Stanley MTF
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12292,6 +12299,9 @@ IMB_TYPE    6511
 ! -------    ---
 !
 SETL_TYPE   6513
+ALTSETL_TP 13074
+SETL1_TP   13075
+SETL2_TP   13076
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -12743,6 +12753,9 @@ MK_PHASE   12765
      14        "POT"   Post-Market Trading
      15        "IC "   Intra-day Close (scheduled)
      16        "QP "   Quotation Only Period
+     17        " U "   Up
+     18        " D "   Down
+     19        " R "   In recovery
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17632,12 +17645,20 @@ INCOME_POL 13069
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET370 13071
-PRE_1ET371 13072
-PRE_1ET372 13073
-PRE_1ET373 13074
-PRE_1ET374 13075
-PRE_1ET375 13076
+PRCLMT_TP  13071
+PRCLMT_TP2 13072
+PRCLMT_TP3 13073
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "UNIT    "   Price Unit
+      2   "TICK    "   Tick
+      3   "PERCENT "   Percentage (%)
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET376 13077
 PRE_1ET377 13078
 PRE_1ET378 13079
@@ -18688,6 +18709,7 @@ MET_UNIT   13564
     404      " MXN "   Mexican peso
     405      "KVAH "   Kilo Volt Ampere Hours
     406      "ENVCD"   Environmental credit
+    407      "DGE  "   Diesel Gallon Equivalent
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18756,6 +18778,14 @@ CAN_TRTFLG 13489
      11      "PA   "   Periodic Auction Trade (typically operating alongside continuous and distinct from other auctions)
      12      "SI   "   Real Time Systematic Internaliser (SI) Trade
      13      "SD   "   Delayed Systematic Internaliser (SI) Trade
+     14      "NT   "   On Exchange Negotiated Trade Waiver Immediate (NTW)
+     15      "ND   "   On Exchange Negotiated Trade Waiver Non Immediate (NTW)
+     16      "LD   "   On Exchange Large In Scale Deferral
+     17      "LO   "   OTC Large In Scale Deferral
+     18      "SL   "   SI Large In Scale Deferral
+     19      "TX   "   On Exchange Non Price Forming Trade/Trade Not Contributing to Price Discovery (NPFT/TNCP)
+     20      "TO   "   OTC On Exchange Non Price Forming Trade/Trade Not Contributing to Price Discovery (NPFT/TNCP)
+     21      "TS   "   SI On Exchange Non Price Forming Trade/Trade Not Contributing to Price Discovery (NPFT/TNCP)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21069,23 +21099,17 @@ CNV_PAR_UT 13582
 ! -------    ---
 !
 LMT_TYPE   13583
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0   "        "   undefined
-      1   "Static  "   Static
-      2   "Dynamic "   Dynamic
-!
-! ACRONYM    FID
-! -------    ---
-!
 LMT_TYPE2  13584
+LMT_TYPE3  13599
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
       1   "Static  "   Static
       2   "Dynamic "   Dynamic
+      3   "Hard    "   Protection tunnel during auction
+      4   "Auction "   Auction tunnel
+      5   "Reject  "   Rejection tunnel
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21224,7 +21248,6 @@ INST_LB_RU 13598
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET278 13599
 PRE_2ET279 13600
 PRE_2ET280 13601
 PRE_2ET281 13602
