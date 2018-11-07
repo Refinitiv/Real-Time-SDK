@@ -276,7 +276,7 @@ class TunnelItem<T> extends Item<T> {
 
 			if (!foundReturnedStreamId)
 			{
-				if ((streamId < _subItems.size()) && (_subItems.get(streamId).streamId() > 0))
+				if ((streamId < _subItems.size()) && (_subItems.get(streamId) != null))
 				{
 					StringBuilder temp = _baseImpl.strBuilder();
 					temp.append("Invalid attempt to open a substream: substream streamId (").append(streamId)
@@ -532,7 +532,7 @@ class TunnelItem<T> extends Item<T> {
 			}
 
 			if (_baseImpl._itemCallbackClient._rsslRDMLoginMsg == null)
-				_baseImpl._itemCallbackClient._rsslRDMLoginMsg = (LoginRequest) LoginMsgFactory.createMsg();
+				_baseImpl._itemCallbackClient._rsslRDMLoginMsg = LoginMsgFactory.createMsg();
 			else
 				_baseImpl._itemCallbackClient._rsslRDMLoginMsg.clear();
 
@@ -635,6 +635,20 @@ class TunnelItem<T> extends Item<T> {
 		int retCode = 0;
 		_baseImpl.rsslErrorInfo().clear();
 
+		if (_rsslTunnelStream == null)
+		{
+			StringBuilder temp = _baseImpl.strBuilder();
+			temp.append("Internal Error. Tunnel stream is not open yet");
+
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient()
+						.error(_baseImpl.formatLogMessage(TunnelItem.CLIENT_NAME, temp.toString(), Severity.ERROR));
+
+			_baseImpl.handleInvalidUsage(temp.toString());
+
+			return false;
+		}
+		
 		TransportBuffer tunnelStreamBuf = _rsslTunnelStream.getBuffer(bufSize, _baseImpl.rsslErrorInfo());
 
 		if (tunnelStreamBuf == null)
@@ -926,7 +940,7 @@ class SubItem<T> extends Item<T>
 		rsslCloseMsg.streamId(_streamId);
 		rsslCloseMsg.streamId(_streamId);
 
-		boolean retCode = ((TunnelItem<T>) (_parent)).submitSubItemMsg((Msg) (rsslCloseMsg));
+		boolean retCode = ((TunnelItem<T>) (_parent)).submitSubItemMsg((rsslCloseMsg));
 
 		remove();
 
@@ -994,6 +1008,7 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 TunnelStreamStatusEventCallback
 {
 	private static final String CLIENT_NAME = "ItemCallbackClient";
+	// APIQA
 	private static final int  CONSUMER_STARTING_STREAM_ID = 2147483641;
 	private static final int  PROVIDER_STARTING_STREAM_ID = 0;
 	private static final int CONSUMER_MAX_STREAM_ID_MINUSONE = Integer.MAX_VALUE -1;
@@ -2120,7 +2135,7 @@ TunnelStreamStatusEventCallback
 							_baseImpl.objManager()._singleItemPool.updatePool(item);
 						}
 						else
-							((SingleItem<T>)item).reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
+							item.reset((OmmBaseImpl<T>)_baseImpl, client, closure, null);
 					
 						if (!item.open(reqMsg))
 						{
@@ -3531,7 +3546,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 	{
 		cancelReqTimerEvent();
 		
-		_baseImpl.<OmmProviderClient>itemCallbackClient().removeFromMap( (Item<OmmProviderClient>)this );
+		_baseImpl.<OmmProviderClient>itemCallbackClient().removeFromMap( this );
 		
 		_itemWatchList.removeItem(this);
 	}
@@ -3547,7 +3562,7 @@ abstract class IProviderSingleItem extends Item<OmmProviderClient> implements Pr
 		{
 			rsslRequestMsg.streamId(getNextStreamId(0));
 			_streamId = rsslRequestMsg.streamId();
-			_baseImpl.<OmmProviderClient>itemCallbackClient().addToMap(_baseImpl.nextLongId(), (Item<OmmProviderClient>) this);
+			_baseImpl.<OmmProviderClient>itemCallbackClient().addToMap(_baseImpl.nextLongId(), this);
 		}
 		else
 			rsslRequestMsg.streamId(_streamId);
@@ -4054,6 +4069,9 @@ class ItemWatchList
 			case ReactorChannelEventTypes.CHANNEL_DOWN:
 			case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
 				notifyClosedRecoverableStatusMessage();
+				break;
+			default:
+				break;
 		}
 	}
 	
@@ -4164,6 +4182,8 @@ class ItemWatchList
 				
 				break;
 			}
+			default:
+				return null;
 		}
 		
 		return eventMsg;

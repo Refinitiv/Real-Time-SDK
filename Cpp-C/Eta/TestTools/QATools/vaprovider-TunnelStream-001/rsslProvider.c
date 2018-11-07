@@ -88,7 +88,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 #endif
 			printf("Connection up!\n");
 			pClientSessionInfo->clientChannel = pReactorChannel;
-		    printf("\nServer fd="SOCKET_PRINT_TYPE": New client on Channel fd="SOCKET_PRINT_TYPE"\n",	
+			printf("\nServer fd="SOCKET_PRINT_TYPE": New client on Channel fd="SOCKET_PRINT_TYPE"\n",
 					pReactorChannel->pRsslServer->socketId, pReactorChannel->socketId);
 			FD_SET(pReactorChannel->socketId, &readFds);
 			FD_SET(pReactorChannel->socketId, &exceptFds);
@@ -501,7 +501,7 @@ static void handleRuntime()
 			if (clientSessions[i].clientChannel != NULL)
 			{
 				/* If any tunnel streams are still open, wait for them to close before quitting. */
-				for (j = 0; j < MAX_CLIENT_SESSIONS; j++)
+				for (j = 0; j < MAX_TUNNEL_STREAMS; j++)
 				{
 					if (clientSessions[i].simpleTunnelMsgHandler[j].tunnelStreamHandler.pTunnelStream != NULL)
 				{

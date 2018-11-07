@@ -28,12 +28,3 @@ rsslDirectoryHandler.c,Applications/Examples/VAProvider
 rsslLoginHandler.c,Applications/Examples/VAProvider
 rsslItemHandler.c,Applications/Examples/VAProvider
 rsslProvider.c,Applications/Examples/VAProvider
-makefile,Applications/Examples/VAProvider
-VAProvider_VS100.vcxproj,Applications/Examples/VAProvider
-VAProvider_VS110.vcxproj,Applications/Examples/VAProvider
-VAProvider_VS120.vcxproj,Applications/Examples/VAProvider
-VAProvider_VS140.vcxproj,Applications/Examples/VAProvider
-VAProvider_VS100.vcxproj.filter,Applications/Examples/VAProvider
-VAProvider_VS110.vcxproj.filter,Applications/Examples/VAProvider
-VAProvider_VS120.vcxproj.filter,Applications/Examples/VAProvider
-VAProvider_VS140.vcxproj.filter,Applications/Examples/VAProvider
