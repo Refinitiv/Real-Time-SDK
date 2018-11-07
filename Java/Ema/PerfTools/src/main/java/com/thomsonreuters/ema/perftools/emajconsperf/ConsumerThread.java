@@ -9,6 +9,7 @@ import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.GenericMsg;
 import com.thomsonreuters.ema.access.OmmConsumer;
 import com.thomsonreuters.ema.access.OmmConsumerClient;
+import com.thomsonreuters.ema.access.OmmConsumerConfig;
 import com.thomsonreuters.ema.access.OmmConsumerEvent;
 import com.thomsonreuters.ema.access.OmmState;
 import com.thomsonreuters.ema.access.ReqMsg;
@@ -57,6 +58,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
     protected LatencyRandomArray _genMsgLatencyRandomArray; /* generic msg random latency array */
     private int _JVMPrimingRefreshCount; /* used to determine when JVM priming is complete */
     private OmmConsumer _consumer;
+    private OmmConsumerConfig _ommConfig;
     private long _itemHandle;
 
     {
@@ -165,10 +167,24 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 	
 	protected void initializeOmmConsumer()
 	{
-		if (_consPerfConfig.useUserDispatch()) 
-			_consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().username(_consPerfConfig.username()).operationModel(OperationModel.USER_DISPATCH));
-		else
-			_consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().username(_consPerfConfig.username()).operationModel(OperationModel.API_DISPATCH));
+		try
+		{
+			_ommConfig = EmaFactory.createOmmConsumerConfig();
+			// A blank user name is an invalid input to OmmConsumerConfig.username and will trigger an invalid usage exception.
+			if(_consPerfConfig.username().length() != 0)
+				_ommConfig.username(_consPerfConfig.username());
+			
+			if(_consPerfConfig.useUserDispatch())
+				_ommConfig.operationModel(OperationModel.USER_DISPATCH);
+			else
+				_ommConfig.operationModel(OperationModel.API_DISPATCH);
+				
+			_consumer = EmaFactory.createOmmConsumer(_ommConfig);
+		}
+		catch(Exception e)
+		{
+			System.out.println("Exception found"+e);
+		}
 		
 		_srcDirHandler.serviceName(_consPerfConfig.serviceName());
 		long directoryHandle = _consumer.registerClient(_srcDirHandler.getRequest(), _srcDirHandler);

@@ -44,6 +44,7 @@ abstract class  EmaConfigBaseImpl
 	protected ProgrammaticConfigure				_programmaticConfigure;
 	
 	private OmmInvalidConfigurationExceptionImpl _oommICExcept;
+	private OmmInvalidUsageExceptionImpl		_ommIUExcept;
 	
 	protected StringBuilder 						_configStrBuilder;
 	protected String							 _configSessionName = null;
@@ -70,6 +71,15 @@ abstract class  EmaConfigBaseImpl
 		
 		return _oommICExcept;
 	}
+	
+	protected OmmInvalidUsageExceptionImpl ommIUExcept()
+	{
+		if (_ommIUExcept == null)
+			_ommIUExcept = new OmmInvalidUsageExceptionImpl();
+		
+		return _ommIUExcept;
+	}
+	
 	
 	protected StringBuilder configStrBuilder()
 	{
@@ -183,6 +193,12 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	
 	protected void usernameInt(String username)
 	{
+		if(username == null || username.length() == 0)
+		{
+			configStrBuilder().append("EmaConfigImpl:UserName input String cannot be blank.");
+			throw ( ommIUExcept().message( _configStrBuilder.toString()));
+		}
+			
 		_rsslLoginReq.userName().data(username);
 	}
 	
