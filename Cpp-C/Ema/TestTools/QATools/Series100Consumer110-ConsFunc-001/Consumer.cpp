@@ -1,4 +1,4 @@
-///*|-----------------------------------------------------------------------------
+///*|-----------------------------------------------------------------------------A
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
@@ -372,7 +372,7 @@ int main( int argc, char* argv[] )
 	    { 
             cout << "SEND REQUEST FOR Different DOMAIN needs to do with live ELEKTRON FEED "<< endl;
 			UInt64 h1 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "TRI.N" ), client,  closure1 );
-			UInt64 h2 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "AAO.V" ).domainType(7), client,  closure2 );
+			UInt64 h2 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "AGG.V" ).domainType(7), client,  closure2 );
 			UInt64 h3 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "BBH.ITC" ).domainType(8), client,  closure3 );
 			UInt64 h4 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "TRBI.PQ" ).domainType(9), client,  closure4 );
 			UInt64 h5 = consumer->registerClient( ReqMsg().serviceName( sName.c_str() ).name( "_ADS_CACHE_LIST" ).domainType(10), client,  closure5 );

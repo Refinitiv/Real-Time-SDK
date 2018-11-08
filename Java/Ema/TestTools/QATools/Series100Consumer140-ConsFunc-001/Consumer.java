@@ -132,7 +132,7 @@ public class Consumer
 			consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"));
 			
 			consumer.registerClient( EmaFactory.createReqMsg().domainType(EmaRdm.MMT_MARKET_BY_ORDER)
-															.serviceName("DIRECT_FEED").name("AAO.V"), appClient, 0);
+															.serviceName("DIRECT_FEED").name("AGG.V"), appClient, 0);
 			
 			Thread.sleep(60000);			// API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
 		}

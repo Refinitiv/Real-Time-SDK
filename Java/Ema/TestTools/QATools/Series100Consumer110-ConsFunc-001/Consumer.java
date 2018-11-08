@@ -471,7 +471,7 @@ public class Consumer
                 {
                     System.out.println("SEND REQUEST FOR Different DOMAIN needs to do with live FEED ");
                     long h1 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRI.N"), client, closure1);
-                    long h2 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("AAO.V").domainType(7), client, closure2);
+                    long h2 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("AGG.V").domainType(7), client, closure2);
                     long h3 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("BBH.ITC").domainType(8), client, closure3);
                     long h4 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("TRBI.PQ").domainType(9), client, closure4);
                     long h5 = consumer.registerClient(EmaFactory.createReqMsg().serviceName(sName).name("_ADS_CACHE_LIST").domainType(10), client, closure5);
