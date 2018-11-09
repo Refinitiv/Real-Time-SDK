@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2015-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -134,6 +134,8 @@
 
 #include "Access/Include/Common.h"
 #include "Access/Include/OmmProviderConfig.h"
+#include "Access/Include/ChannelInformation.h"
+#include "Access/Include/EmaVector.h"
 
 namespace thomsonreuters {
 
@@ -153,6 +155,7 @@ class RefreshMsg;
 class ReqMsg;
 class StatusMsg;
 class UpdateMsg;
+class ChannelInformation;
 
 class EMA_ACCESS_API OmmProvider
 {
@@ -330,11 +333,32 @@ public :
 	*/
 	void submit( const AckMsg& ackMsg, UInt64 handle );
 
+	/** Provides channel information about connected clients.  Only relevant to IProvider
+		applications. This method throws an exception is called by NiProvider applications.
+		@param[in] caller provided EmaVector<ChannelInformation>; vector will be cleared before channel
+		           information about connected clients is added
+		@return void
+		@throw OmmInvalidUsageException if is called by an NiProvider application.
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void getConnectedClientChannelInfo(EmaVector<ChannelInformation> &);
+
+	/** Provides channel information about the active channel.  Only relevant to NiProvider
+		application. This method throws an exception is called by IProvider applications.
+		@param[in] caller provider ChannelInformation&; parameter will be cleared and then
+		           current channel information will be provided
+		@return void
+		@throw OmmInvalidUsageException if is called by an IProvider applications.
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void getChannelInformation(ChannelInformation&);
+
 	//@}
 
 private :
 
 	OmmProviderImpl*	_pImpl;
+	OmmProviderConfig::ProviderRole _role;
 
 	OmmProvider( const OmmProvider& );
 	OmmProvider& operator=( const OmmProvider& );

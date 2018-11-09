@@ -330,6 +330,7 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
 								_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 								_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 								_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+								_ommServerBaseImpl.ommProviderEvent()._channel = event.reactorChannel();
 		
 								_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 								_ommServerBaseImpl.ommProviderClient().onReqMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
@@ -391,6 +392,7 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
 			    			 _ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 			    			 _ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 							 _ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+							 _ommServerBaseImpl.ommProviderEvent()._channel = event.reactorChannel();
 						
 							 _ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 							 _ommServerBaseImpl.ommProviderClient().onReissue(reqMsg, _ommServerBaseImpl.ommProviderEvent());
@@ -487,7 +489,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
 						_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 						_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 						_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
-					 
+						_ommServerBaseImpl.ommProviderEvent()._channel = event.reactorChannel();
+
 						_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 						_ommServerBaseImpl.ommProviderClient().onClose(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 		            }

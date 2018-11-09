@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
 */
 
@@ -13,8 +13,6 @@
 #include "StaticDecoder.h"
 #include "ClientSession.h"
 #include "EmaRdm.h"
-
-#include <new>
 
 using namespace thomsonreuters::ema::access;
 using namespace thomsonreuters::ema::rdm;
@@ -165,6 +163,7 @@ RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslRe
 				0);
 
 			ommServerBaseImpl->ommProviderEvent._clientHandle = clientSession->getClientHandle();
+			ommServerBaseImpl->ommProviderEvent._channel = pReactorChannel;
 			ommServerBaseImpl->ommProviderEvent._closure = ommServerBaseImpl->_pClosure;
 			ommServerBaseImpl->ommProviderEvent._provider = ommServerBaseImpl->getProvider();
 

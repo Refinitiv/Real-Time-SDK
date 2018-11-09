@@ -1008,7 +1008,8 @@ class ItemCallbackClient<T> extends CallbackClient<T> implements DefaultMsgCallb
 TunnelStreamStatusEventCallback
 {
 	private static final String CLIENT_NAME = "ItemCallbackClient";
-	// APIQA
+
+	// APIQA: changing starting stream id 
 	private static final int  CONSUMER_STARTING_STREAM_ID = 2147483641;
 	private static final int  PROVIDER_STARTING_STREAM_ID = 0;
 	private static final int CONSUMER_MAX_STREAM_ID_MINUSONE = Integer.MAX_VALUE -1;
@@ -1476,6 +1477,8 @@ TunnelStreamStatusEventCallback
         }
         
         _eventImpl._item = (Item<T>)(event.streamInfo() != null ? event.streamInfo().userSpecObject() : null);
+		_eventImpl._channel = event.reactorChannel();
+
         if (_eventImpl._item == null && msg.streamId() != 1)
         {
         	if ( _baseImpl.implType() != OmmCommonImpl.ImplementationType.CONSUMER )
@@ -3286,6 +3289,12 @@ class SingleItem<T> extends Item<T>
 	int getNextStreamId(int numOfItem) {
 		return _baseImpl._itemCallbackClient.nextStreamId(numOfItem);
 	}
+
+	OmmBaseImpl<T> baseImpl()
+	{
+		return _baseImpl;
+	}
+
 }
 
 interface ProviderItem

@@ -247,6 +247,7 @@ class ServerChannelHandler implements ReactorChannelEventCallback
                     }
                 }
 
+                _serverImpl.addConnectedChannel(rsslReactorChannel);
                 return ReactorCallbackReturnCodes.SUCCESS;
             }
             case ReactorChannelEventTypes.FD_CHANGE:
@@ -358,6 +359,7 @@ class ServerChannelHandler implements ReactorChannelEventCallback
                 }
 
                 closeChannel(rsslReactorChannel);
+                _serverImpl.removeConnectedChannel(rsslReactorChannel);
 
                 return ReactorCallbackReturnCodes.SUCCESS;
             }

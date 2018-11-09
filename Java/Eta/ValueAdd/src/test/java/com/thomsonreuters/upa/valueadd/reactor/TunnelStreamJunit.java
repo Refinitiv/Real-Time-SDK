@@ -1315,6 +1315,12 @@ public class TunnelStreamJunit
         {
             return 0;
         }
+
+		@Override
+		public String hostname() {
+			// TODO Auto-generated method stub
+			return null;
+		}
     }
         
 

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -22,6 +22,7 @@ import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StreamStates;
+import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
@@ -30,9 +31,14 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceState;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
+import com.thomsonreuters.upa.transport.ChannelInfo;
+import com.thomsonreuters.upa.transport.ComponentInfo;
+import com.thomsonreuters.upa.transport.Error;
+import com.thomsonreuters.upa.transport.TransportFactory;
 
 class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, DirectoryServiceStoreClient
 {
@@ -1452,4 +1458,52 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			break;
 		}
 	}
+	
+	@Override
+	public void connectedClientChannelInfo(List<ChannelInformation> ci)
+	{
+		ci.clear();
+		try {
+			ChannelInfo upaChannelInfo = TransportFactory.createChannelInfo();
+			Error error = TransportFactory.createError();
+			StringBuilder componentInfo = new StringBuilder();
+
+			userLock().lock();
+			for (ReactorChannel reactorChannel : connectedChannels()) {
+				Channel channel = reactorChannel.channel();
+				if (channel == null)
+					continue;
+
+				componentInfo.setLength(0);
+				upaChannelInfo.clear();
+				error.clear();
+
+				channel.info(upaChannelInfo, error);
+				if (upaChannelInfo.componentInfo() == null ||
+						upaChannelInfo.componentInfo().isEmpty())
+					componentInfo.append("unavailable");
+				else
+					for (ComponentInfo item : upaChannelInfo.componentInfo())
+						componentInfo.append(item.componentVersion().toString());
+
+				ChannelInformation tmp =
+						new ChannelInformationImpl(componentInfo.toString(), upaChannelInfo.clientHostname(), upaChannelInfo.clientIP(),
+								reactorChannel.channel().state(), channel.connectionType(), channel.protocolType(), channel.majorVersion(),
+								channel.minorVersion(), channel.pingTimeout());
+				ci.add(tmp);
+			}
+		}
+		finally {
+			userLock().unlock();
+		}
+		return;
+	}
+
+	@Override
+	public void channelInformation(ChannelInformation ci) {
+		StringBuilder temp = strBuilder();
+		temp.append("IProvider applications do not support the channelInformation method");
+		handleInvalidUsage(temp.toString());
+	}
+
 }

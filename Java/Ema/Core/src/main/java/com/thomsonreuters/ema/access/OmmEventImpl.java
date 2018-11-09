@@ -7,6 +7,9 @@
 
 package com.thomsonreuters.ema.access;
 
+import java.util.List;
+import com.thomsonreuters.ema.access.OmmProviderConfig.ProviderRole;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 
 class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 {
@@ -15,6 +18,8 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 	LongObject _clientHandle = new LongObject().value(0);
 	Object 	_closure;
 	LongObject _handle;
+	ReactorChannel _channel;
+	ChannelInformationImpl _channelInfo;
 	
 	@Override
 	public long handle()
@@ -53,5 +58,42 @@ class OmmEventImpl<T> implements OmmConsumerEvent, OmmProviderEvent
 	public long clientHandle()
 	{
 		return _clientHandle.value();
+	}
+
+	@Override
+	public ChannelInformation channelInformation()
+	{
+		if ( _channelInfo == null )
+			_channelInfo = new ChannelInformationImpl();
+		else
+			_channelInfo.clear();
+		
+		// this should work for consumers and interactive providers
+		if (_channel != null) {
+			_channelInfo.set(_channel);
+			if (_ommProvider == null)
+				_channelInfo.ipAddress("not available for OmmConsumer connections");
+			else if (_ommProvider != null && _ommProvider.providerRole() == ProviderRole.NON_INTERACTIVE)
+				_channelInfo.ipAddress("not available for OmmNiProvider connections");			
+			return _channelInfo;
+		}
+
+		// for NiProviders, the only channel is the login channel so we'll just use
+		// the channel from the LoginCallbackClient
+		if (_ommProvider != null && _ommProvider.providerRole() == ProviderRole.NON_INTERACTIVE) {
+			if (((OmmNiProviderImpl)(_ommProvider))._loginCallbackClient != null) {
+				List<ChannelInfo> chInfo = (((OmmNiProviderImpl)(_ommProvider))._loginCallbackClient).loginChannelList();
+				if (!chInfo.isEmpty()) {
+					if (chInfo.get(0).rsslReactorChannel() != null) {
+						_channelInfo.set(chInfo.get(0).rsslReactorChannel());
+						_channelInfo.ipAddress("not available for OmmNiProvider connections");
+						return _channelInfo;
+					}
+				}
+			}
+		}
+
+		// at this point, something wasn't set
+		return _channelInfo;
 	}
 }

@@ -1267,6 +1267,12 @@ public class ReactorJunit
         {
             return 0;
         }
+
+		@Override
+		public String hostname() {
+			// TODO Auto-generated method stub
+			return null;
+		}
     }
 
     @Test
@@ -1619,6 +1625,12 @@ public class ReactorJunit
         {
             return 0;
         }
+
+		@Override
+		public String hostname() {
+			// TODO Auto-generated method stub
+			return null;
+		}
     }
 
     @Test
@@ -2019,6 +2031,12 @@ public class ReactorJunit
         {
             return 0;
         }
+
+		@Override
+		public String hostname() {
+			// TODO Auto-generated method stub
+			return null;
+		}
     }
 
     @Test

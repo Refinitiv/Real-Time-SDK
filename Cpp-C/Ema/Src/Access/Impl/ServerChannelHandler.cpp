@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
 */
 
@@ -14,8 +14,6 @@
 #include "DictionaryHandler.h"
 #include "MarketItemHandler.h"
 #include "StaticDecoder.h"
-
-#include <new>
 
 using namespace thomsonreuters::ema::access;
 
@@ -225,7 +223,7 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 					ommServerBase->getOmmLoggerClient().log(_clientName, OmmLoggerClient::VerboseEnum, temp);
 				}
 			}
-
+			ommServerBase->addConnectedChannel(pRsslReactorChannel);
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_CHANNEL_READY:
@@ -437,6 +435,8 @@ void ServerChannelHandler::removeChannel(RsslReactorChannel* pRsslReactorChannel
 	removeClientSession( clientSession );
 
 	_pOmmServerBaseImpl->getUserMutex().unlock();
+
+	_pOmmServerBaseImpl->removeConnectedChannel(pRsslReactorChannel);
 }
 
 const EmaList<ClientSession*>& ServerChannelHandler::getClientSessionList()

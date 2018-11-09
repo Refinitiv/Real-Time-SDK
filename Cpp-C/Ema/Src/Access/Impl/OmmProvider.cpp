@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,12 +14,11 @@
 #include "OmmIProviderConfigImpl.h"
 #include "ExceptionTranslator.h"
 
-#include <new>
-
 using namespace thomsonreuters::ema::access;
 
 OmmProvider::OmmProvider( const OmmProviderConfig& config ) :
-	_pImpl( 0 )
+  _pImpl( 0 ),
+  _role(config.getProviderRole())
 {
 	if ( config.getProviderRole() == OmmProviderConfig::InteractiveEnum )
 		throwIueException( "Attempt to pass an OmmIProvConfig instance to non interactive provider OmmProvider constructor." );
@@ -37,7 +36,8 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config ) :
 }
 
 OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& client, void* closure) :
-	_pImpl(0)
+  _pImpl(0),
+  _role(config.getProviderRole())
 {
 	if (config.getProviderRole() == OmmProviderConfig::NonInteractiveEnum)
 	{
@@ -64,7 +64,8 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 }
 
 OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderErrorClient& errorClient ) :
-	_pImpl( 0 )
+  _pImpl( 0 ),
+  _role(config.getProviderRole())
 {
 	if ( config.getProviderRole() == OmmProviderConfig::InteractiveEnum )
 		throwIueException( "Attempt to pass an OmmIProvConfig instance to non interactive provider OmmProvider constructor." );
@@ -82,7 +83,8 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderErrorClien
 }
 
 OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& client, OmmProviderErrorClient& errorClient, void* closure) :
-	_pImpl(0)
+  _pImpl(0),
+  _role(config.getProviderRole())
 {
 	if (config.getProviderRole() == OmmProviderConfig::NonInteractiveEnum)
 	{
@@ -116,6 +118,10 @@ OmmProvider::~OmmProvider()
 const EmaString& OmmProvider::getProviderName() const
 {
 	return _pImpl->getInstanceName();
+}
+
+OmmProviderConfig::ProviderRole OmmProvider::getProviderRole() const {
+  return _role;
 }
 
 UInt64 OmmProvider::registerClient( const ReqMsg& reqMsg, OmmProviderClient& client, void* closure ) 
@@ -156,4 +162,17 @@ Int64 OmmProvider::dispatch( Int64 timeOut )
 void OmmProvider::unregister( UInt64 handle )
 {
 	_pImpl->unregister( handle );
+}
+
+void OmmProvider::getConnectedClientChannelInfo( EmaVector<ChannelInformation>& ci ) {
+	return _pImpl->getConnectedClientChannelInfo( ci );
+}
+
+void OmmProvider::getChannelInformation( ChannelInformation& ci ) {
+	// this function can be called during the OmmProvider constructor (usually from an event
+	// received during that process). If so, just have to return 0.
+	if ( _pImpl )
+		_pImpl->getChannelInformation( ci );
+	else
+		ci.clear();
 }

@@ -759,13 +759,7 @@ public class Reactor
 
         if (eventType == ReactorChannelEventTypes.CHANNEL_DOWN || eventType == ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING)
 		{
-            /* Channel callback complete. If channel is not already closed, notify worker. */
-            if (reactorChannel.state() != State.CLOSED)
-            {
-                sendWorkerEvent(WorkerEventTypes.CHANNEL_DOWN, reactorChannel);
-            }
-
-		    if (reactorChannel.watchlist() == null)
+        	if (reactorChannel.watchlist() == null)
 		    {
     			_tmpState.clear();
     			_tmpState.streamState(StreamStates.CLOSED_RECOVER);
@@ -784,6 +778,12 @@ public class Reactor
 		    {
 		        reactorChannel.watchlist().channelDown();
 		    }
+		    
+        	 /* Channel callback complete. If channel is not already closed, notify worker. */
+            if (reactorChannel.state() != State.CLOSED)
+            {
+                sendWorkerEvent(WorkerEventTypes.CHANNEL_DOWN, reactorChannel);
+            }
 		}
 
         return retval;

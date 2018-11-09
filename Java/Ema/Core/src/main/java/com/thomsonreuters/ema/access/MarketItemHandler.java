@@ -287,6 +287,7 @@ class MarketItemHandler implements DefaultMsgCallback
 					_ommServerBaseImpl.addItemInfo(clientSession, itemInfo);
 				
 					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+					_ommServerBaseImpl.ommProviderEvent()._channel = msgEvent.reactorChannel();
 				
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onReqMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
@@ -344,6 +345,7 @@ class MarketItemHandler implements DefaultMsgCallback
 					}
 					
 					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+					_ommServerBaseImpl.ommProviderEvent()._channel = msgEvent.reactorChannel();
 					
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onReissue(reqMsg, _ommServerBaseImpl.ommProviderEvent());
@@ -366,7 +368,8 @@ class MarketItemHandler implements DefaultMsgCallback
 	        	}
 				
 				_streamId.value(msg.streamId());
-				
+				_ommServerBaseImpl.ommProviderEvent()._channel = msgEvent.reactorChannel();
+
 				ItemInfo itemInfo = clientSession.getItemInfo(_streamId);
 				
 				if ( itemInfo != null )
@@ -427,6 +430,7 @@ class MarketItemHandler implements DefaultMsgCallback
 					_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 					_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+					_ommServerBaseImpl.ommProviderEvent()._channel = msgEvent.reactorChannel();
 					
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onGenericMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());

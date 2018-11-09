@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2015-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,8 +14,7 @@
 #include "rtr/rsslReactor.h"
 #include "DirectoryCallbackClient.h"
 #include "LoginCallbackClient.h"
-
-#include <new>
+#include "ChannelInfoImpl.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -342,4 +341,14 @@ bool OmmConsumerImpl::isApiDispatching() const
 OmmCommonImpl::ImplementationType OmmConsumerImpl::getImplType()
 {
 	return OmmCommonImpl::ConsumerEnum;
+}
+
+void OmmConsumerImpl::getChannelInformation(ChannelInformation& ci) {
+  Channel* pChannel;
+  if (_state == NotInitializedEnum ||
+	  (pChannel = getLoginCallbackClient().getActiveChannel()) == 0) {
+	ci.clear();
+	return;
+  }
+  return getChannelInformationImpl(pChannel->getRsslChannel(), OmmCommonImpl::ConsumerEnum, ci);
 }

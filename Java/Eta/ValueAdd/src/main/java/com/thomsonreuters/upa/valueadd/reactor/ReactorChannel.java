@@ -758,6 +758,18 @@ public class ReactorChannel extends VaNode
     }
 
     /**
+     * provides the name of the host to which a consumer or niprovider application is
+     * connected.
+     *
+     * @return the host name
+     */
+    public String hostname() {
+		if (channel() == null)
+			return null;
+		return channel().hostname();
+    }
+
+    /**
      * When a {@link ReactorChannel} becomes active for a client or server, this is
      * populated with the negotiated minor version number that is associated
      * with the content being sent on this connection. Typically, a minor

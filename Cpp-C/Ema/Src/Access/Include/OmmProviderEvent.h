@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -24,6 +24,7 @@
 */
 
 #include "Access/Include/Common.h"
+#include "Access/Include/ChannelInformation.h"
 
 namespace thomsonreuters {
 
@@ -34,6 +35,7 @@ namespace access {
 class Item;
 class OmmProvider;
 class LoginHandler;
+class EmaString;
 
 class EMA_ACCESS_API OmmProviderEvent
 {
@@ -63,11 +65,14 @@ public :
 	*/
 	UInt64 getClientHandle() const;
 
-	//@}
-
+	/** Returns the Channel Information for this event
+		@return the channel information for this event
+	*/
+	const ChannelInformation& getChannelInformation() const;
 private :
 
 	friend class ProviderItem;
+	friend class NiProviderLoginItem;
 	friend class LoginHandler;
 	friend class DictionaryHandler;
 	friend class DirectoryHandler;
@@ -77,7 +82,9 @@ private :
 	UInt64			_handle;
 	UInt64			_clientHandle;
 	void*			_closure;
+	void*           _channel;
 	OmmProvider*	_provider;
+	ChannelInformation	_channelInfo;
 
 	OmmProviderEvent();
 	virtual ~OmmProviderEvent();

@@ -3138,6 +3138,12 @@ class RsslSocketChannel extends UpaNode implements Channel
         return _state;
     }
 
+    @Override
+    public String hostname()
+    {
+    	return _host;
+    }
+
     @Override @Deprecated
     public java.nio.channels.SocketChannel scktChannel()
     {

@@ -1475,6 +1475,8 @@ TunnelStreamStatusEventCallback
         }
         
         _eventImpl._item = (Item<T>)(event.streamInfo() != null ? event.streamInfo().userSpecObject() : null);
+		_eventImpl._channel = event.reactorChannel();
+
         if (_eventImpl._item == null && msg.streamId() != 1)
         {
         	if ( _baseImpl.implType() != OmmCommonImpl.ImplementationType.CONSUMER )
@@ -3285,6 +3287,12 @@ class SingleItem<T> extends Item<T>
 	int getNextStreamId(int numOfItem) {
 		return _baseImpl._itemCallbackClient.nextStreamId(numOfItem);
 	}
+
+	OmmBaseImpl<T> baseImpl()
+	{
+		return _baseImpl;
+	}
+
 }
 
 interface ProviderItem

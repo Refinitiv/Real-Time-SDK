@@ -200,8 +200,12 @@ RTR_C_ALWAYS_INLINE void _rsslSocketToChannel(rsslChannelImpl *chnl, RsslSocketC
 
 	chnl->Channel.connectionType = sckt->connType;
 
+	// valid for rsslAccept
 	chnl->Channel.clientHostname = sckt->clientHostname;
 	chnl->Channel.clientIP = sckt->clientIP;
+
+	// valid for rsslConnect
+	chnl->Channel.hostname = sckt->hostName;
 
 	return;
 }

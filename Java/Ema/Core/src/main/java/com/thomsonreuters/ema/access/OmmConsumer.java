@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -92,29 +92,30 @@ package com.thomsonreuters.ema.access;
  */
 public interface OmmConsumer
 {
+	
+	/**
+	 * The Class DispatchTimeout.
+	 */
 	public static class DispatchTimeout
 	{
-		/**
-		 * dispatch blocks till a message arrives
-		 */
+		
+		/** dispatch blocks till a message arrives. */
 		public static final int INFINITE_WAIT = 0;
 		
-		/**
-		 * dispatch exits immediately even if there is no message
-		 */
+		/** dispatch exits immediately even if there is no message. */
 		public static final int NO_WAIT = 1; 
 	}
 
+	/**
+	 * The Class DispatchReturn.
+	 */
 	public static class DispatchReturn
 	{
-		/**
-		 * dispatch exits immediately even if there is no message
-		 */
+		
+		/** dispatch exits immediately even if there is no message. */
 		public static final int TIMEOUT = 0;
 		
-		/**
-		 * a message was dispatched on this dispatch call
-		 */
+		/** a message was dispatched on this dispatch call. */
 		public static final int DISPATCHED = 1; 
 	}
 
@@ -125,51 +126,51 @@ public interface OmmConsumer
 	 */
 	public String consumerName();
 
-	/** 
+	/**
+	 *  
 	 * Opens an item stream.
 	 * 
 	 * <p>This method is ObjectLevelSafe if OmmConsumerErrorClient is used and an error condition is encountered,
 	 * then null handle is returned.</p>
-	 * 
-	 * @throws OmmInvalidUsageException if application passes invalid ReqMsg
-	 * @throws OmmInvalidHandleException if application passes invalid parent item handle
-	 * 
+	 *
 	 * @param reqMsg specifies item and its unique attributes
 	 * @param client specifies OmmConsumerClient instance receiving notifications about this item
 	 * @return item identifier (a.k.a. handle)
+	 * @throws OmmInvalidUsageException if application passes invalid ReqMsg
+	 * @throws OmmInvalidHandleException if application passes invalid parent item handle
 	 */
 	public long registerClient(ReqMsg reqMsg, OmmConsumerClient client);
 	
-	/** 
+	/**
+	 *  
 	 * Opens an item stream.
 	 * 
 	 * <p>This method is ObjectLevelSafe if OmmConsumerErrorClient is used and an error condition is encountered,
 	 * then null handle is returned.</p>
-	 * 
-	 * @throws OmmInvalidUsageException if application passes invalid ReqMsg
-	 * @throws OmmInvalidHandleException if application passes invalid parent item handle
-	 * 
+	 *
 	 * @param reqMsg specifies item and its unique attributes
 	 * @param client specifies OmmConsumerClient instance receiving notifications about this item
 	 * @param closure specifies application defined item identification
 	 * @return item identifier (a.k.a. handle)
+	 * @throws OmmInvalidUsageException if application passes invalid ReqMsg
+	 * @throws OmmInvalidHandleException if application passes invalid parent item handle
 	 */
 	public long registerClient(ReqMsg reqMsg, OmmConsumerClient client, Object closure);
 	
-	/** 
+	/**
+	 *  
 	 * Opens an item stream.
 	 * 
 	 * <p>This method is ObjectLevelSafe if OmmConsumerErrorClient is used and an error condition is encountered,
 	 * then null handle is returned.</p>
-	 * 
-	 * @throws OmmInvalidUsageException if application passes invalid ReqMsg
-	 * @throws OmmInvalidHandleException if application passes invalid parent item handle
-	 * 
+	 *
 	 * @param reqMsg specifies item and its unique attributes
 	 * @param client specifies OmmConsumerClient instance receiving notifications about this item
 	 * @param closure specifies application defined item identification
 	 * @param parentHandle specifies handle of tunnel stream over which this substream is open (required for substreams)
 	 * @return item identifier (a.k.a. handle)
+	 * @throws OmmInvalidUsageException if application passes invalid ReqMsg
+	 * @throws OmmInvalidHandleException if application passes invalid parent item handle
 	 */
 	public long registerClient(ReqMsg reqMsg, OmmConsumerClient client, Object closure, long parentHandle);
 	
@@ -178,13 +179,11 @@ public interface OmmConsumer
 	 * 
 	 * <p>This method is ObjectLevelSafe if OmmConsumerErrorClient is used and an error condition is encountered,
 	 * then null handle is returned.</p>
-	 * 
-	 * @throws OmmInvalidUsageException if application passes invalid TunnelStreamRequest
-	 * 
+	 *
 	 * @param tunnelStreamRequest specifies tunnel stream attributes
 	 * @param client specifies OmmConsumerClient instance receiving notifications about this item
-	 * 
 	 * @return tunnel stream handle (a.k.a. parentHandle)
+	 * @throws OmmInvalidUsageException if application passes invalid TunnelStreamRequest
 	 */
 	public long registerClient(TunnelStreamRequest tunnelStreamRequest, OmmConsumerClient client);
 	
@@ -193,41 +192,38 @@ public interface OmmConsumer
 	 * 
 	 * <p>This method is ObjectLevelSafe if OmmConsumerErrorClient is used and an error condition is encountered,
 	 * then null handle is returned.</p>
-	 * 
-	 * @throws OmmInvalidUsageException if application passes invalid TunnelStreamRequest
-	 * 
+	 *
 	 * @param tunnelStreamRequest specifies tunnel stream attributes
 	 * @param client specifies OmmConsumerClient instance receiving notifications about this item
 	 * @param closure specifies application defined item identification
-	 * 
 	 * @return tunnel stream handle (a.k.a. parentHandle)
+	 * @throws OmmInvalidUsageException if application passes invalid TunnelStreamRequest
 	 */
 	public long registerClient(TunnelStreamRequest tunnelStreamRequest, OmmConsumerClient client, Object closure);
 	
-	/** 
+	/**
+	 *  
 	 * Changes the interest in an open item stream.
 	 * The first formal parameter houses a ReqMsg.
 	 * ReqMsg attributes that may change are Priority(), InitialImage(), InterestAfterRefresh(),
 	 * Pause() and Payload ViewData().
 	 * The second formal parameter is a handle that identifies the open stream to be modified.
 	 * This method is ObjectLevelSafe.
-	 * 
-	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
-	 * @throws OmmInvalidUsageException if passed in ReqMsg violates reissue rules
-	 * 
+	 *
 	 * @param reqMsg specifies modifications to the open item stream
 	 * @param handle identifies item to be modified
+	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
+	 * @throws OmmInvalidUsageException if passed in ReqMsg violates reissue rules
 	 */
 	public void reissue(ReqMsg reqMsg, long handle);
 	
 	/**
 	 * Sends a GenericMsg.
 	 * <p>This method is ObjectLevelSafe.</p>
-	 * 
-	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
-	 * 
+	 *
 	 * @param genericMsg specifies GenericMsg to be sent on the open item stream
 	 * @param handle identifies item stream on which to send the GenericMsg
+	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
 	 */
 	public void submit(GenericMsg genericMsg, long handle);
 	
@@ -237,11 +233,10 @@ public interface OmmConsumer
 	 * Specifying an item handle is known as "on stream posting".
 	 * Specifying a login handle is known as "off stream posting".
 	 * <p> This method is ObjectLevelSafe.</p>
-	 * 
-	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
-	 * 
+	 *
 	 * @param postMsg specifies PostMsg to be sent on the open item stream
 	 * @param handle identifies item stream on which to send the PostMsg
+	 * @throws OmmInvalidHandleException if passed in handle does not refer to an open stream
 	 */
 	void submit(PostMsg postMsg, long handle);
 	
@@ -249,10 +244,9 @@ public interface OmmConsumer
 	 * Relinquishes application thread of control to receive callbacks via OmmConsumerClient descendant.
 	 * Requires OperationalModel to be set to {@link OmmConsumerConfig.OperationModel#USER_DISPATCH}.
 	 * <p> This method is ObjectLevelSafe.</p>
-	 * 
-	 * @throws OmmInvalidUsageException if OperationalModel is not set to {@link OmmConsumerConfig.OperationModel#USER_DISPATCH}
-	 * 
+	 *
 	 * @return {@link DispatchReturn#TIMEOUT} if nothing was dispatched; {@link DispatchReturn#DISPATCHED} otherwise
+	 * @throws OmmInvalidUsageException if OperationalModel is not set to {@link OmmConsumerConfig.OperationModel#USER_DISPATCH}
 	 */
 	public long dispatch();
 	
@@ -260,11 +254,10 @@ public interface OmmConsumer
 	 * Relinquishes application thread of control to receive callbacks via OmmConsumerClient descendant.
 	 * Requires OperationalModel to be set to {@link OmmConsumerConfig.OperationModel#USER_DISPATCH}.
 	 * <p> This method is ObjectLevelSafe.</p>
-	 * 
-	 * @throws OmmInvalidUsageException if OperationalModel is not set to {@link OmmConsumerConfig.OperationModel#USER_DISPATCH}
-	 * 
+	 *
 	 * @param timeOut specifies time in microseconds to wait in dispatch() for a message to dispatch
 	 * @return {@link DispatchReturn#TIMEOUT} if nothing was dispatched; {@link DispatchReturn#DISPATCHED} otherwise
+	 * @throws OmmInvalidUsageException if OperationalModel is not set to {@link OmmConsumerConfig.OperationModel#USER_DISPATCH}
 	 */
 	public long dispatch(long timeOut);
 	
@@ -282,4 +275,11 @@ public interface OmmConsumer
 	 */
 	public void uninitialize();
 
+	/**
+	 * Retrieves channel information on the OmmConsumer object.
+	 *
+	 * @param ci the ChannelInformation
+	 */
+	public void channelInformation(ChannelInformation ci);
 }
+

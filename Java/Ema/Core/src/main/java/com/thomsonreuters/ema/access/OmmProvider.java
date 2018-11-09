@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -190,6 +190,7 @@ package com.thomsonreuters.ema.access;
  * @see OmmProviderErrorClient
  * @see	EmaFactory
  */
+import java.util.List;
 
 public interface OmmProvider 
 {
@@ -368,4 +369,25 @@ public interface OmmProvider
 	 */
 	public void uninitialize();
 
+	/**
+	 * Returns a list of client ChannelInformation (e.g., the host name from which the client
+	 * connected) for clients connected to an IProvider application.
+	 * <p> This method is ObjectLevelSafe.</p>
+	 *
+	 * @throws OmmInvalidUsageException if is called by an NiProvider application.
+	 *
+	 * @param ci the ChannelInformation List
+	 */
+	public void connectedClientChannelInfo(List<ChannelInformation> ci);
+
+	/**
+	 * Returns the channel information for an NiProvider application. The channel would be
+	 * the channel used to connect to the ADH, for example.
+	 * <p> This method is ObjectLevelSafe.</p>
+	 * 
+	 * @throws OmmInvalidUsageException if is called by an IProvider applications.
+	 *
+	 * @param ci the ChannelInformation 
+	 */
+	public void channelInformation(ChannelInformation ci);
 }

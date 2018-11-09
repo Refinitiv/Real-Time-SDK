@@ -136,7 +136,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	protected ServerChannelHandler _serverChannelHandler;
 	protected ItemCallbackClient<OmmProviderClient> _itemCallbackClient;
 	private SelectionKey _pipeSelectKey;
-	
+	private ArrayList<ReactorChannel> _connectedChannels;
+
 	abstract OmmProvider provider();
 	
 	abstract Logger createLoggerClient();
@@ -151,12 +152,24 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	
 	abstract void processChannelEvent( ReactorChannelEvent reactorChannelEvent);
 	
+	void addConnectedChannel(ReactorChannel reactorChannel) {
+		_connectedChannels.add(reactorChannel);
+	}
+	void removeConnectedChannel(ReactorChannel reactorChannel) {
+		_connectedChannels.remove(reactorChannel);
+	}
+
+	ArrayList<ReactorChannel> connectedChannels() {
+		return _connectedChannels;
+	}
+
 	OmmServerBaseImpl(OmmProviderClient ommProviderClient, Object closure)
 	{
 		_itemInfoMap = new HashMap<>();
 		_ommProviderClient = ommProviderClient;
 		_closure = closure;
 		_ommProviderEvent = new OmmEventImpl<OmmProviderEvent>();
+		_connectedChannels = new ArrayList<ReactorChannel>();
 	}
 
 	OmmServerBaseImpl(OmmProviderClient ommProviderClient, OmmProviderErrorClient providerErrorClient, Object closure)

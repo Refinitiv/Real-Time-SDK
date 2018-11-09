@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,6 +12,7 @@
 #include "OmmBaseImpl.h"
 #include "OmmProviderClient.h"
 #include "OmmProviderConfig.h"
+#include "ChannelInformation.h"
 
 namespace thomsonreuters {
 
@@ -52,6 +53,9 @@ public :
 	virtual void unregister(UInt64) = 0;
 
 	virtual void submit(const AckMsg&, UInt64) = 0;
+
+    virtual void getConnectedClientChannelInfo(EmaVector<ChannelInformation>&) = 0;
+    virtual void getChannelInformation(ChannelInformation&) = 0;
 
 protected:
 

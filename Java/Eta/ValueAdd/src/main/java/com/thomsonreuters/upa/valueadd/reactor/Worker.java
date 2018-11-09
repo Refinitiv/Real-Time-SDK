@@ -437,8 +437,6 @@ class Worker implements Runnable
         if (retval < TransportReturnCodes.SUCCESS)
         {
             cancelRegister(reactorChannel);
-            reactorChannel.channel().close(_error);
-            reactorChannel.selectableChannelFromChannel(null);
             reactorChannel.state(ReactorChannel.State.DOWN);
             sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
                             ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
@@ -455,8 +453,6 @@ class Worker implements Runnable
                     if ((retval = reRegister(_inProg, reactorChannel, _error)) != ReactorReturnCodes.SUCCESS)
                     {
                         cancelRegister(reactorChannel);
-                        reactorChannel.channel().close(_error);                            
-                        reactorChannel.selectableChannelFromChannel(null);
                         sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
                                         ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
                                         "Error - failed to re-register on SCKT_CHNL_CHANGE: "
@@ -469,8 +465,6 @@ class Worker implements Runnable
                     if (System.currentTimeMillis() > reactorChannel.initializationEndTimeMs())
                     {
                         cancelRegister(reactorChannel);
-                        reactorChannel.channel().close(_error);
-                        reactorChannel.selectableChannelFromChannel(null);
                         sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
                                         ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
                                         "Error - exceeded initialization timeout ("
@@ -495,8 +489,6 @@ class Worker implements Runnable
                 break;
             default:
                 cancelRegister(reactorChannel);
-                reactorChannel.channel().close(_error);
-                reactorChannel.selectableChannelFromChannel(null);
                 sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
                                 ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
                                 "Error - invalid return code: " + retval);

@@ -8,6 +8,7 @@
 package com.thomsonreuters.ema.access;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StreamStates;
+import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
@@ -30,9 +32,14 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryUpdate;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceState;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
+import com.thomsonreuters.upa.transport.ChannelInfo;
+import com.thomsonreuters.upa.transport.ComponentInfo;
+import com.thomsonreuters.upa.transport.Error;
+import com.thomsonreuters.upa.transport.TransportFactory;
 
 class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, DirectoryServiceStoreClient
 {
@@ -1454,5 +1461,54 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		default:
 			break;
 		}
+	}
+
+	public void getConnectedClientChannelInfo(ArrayList<ChannelInformation> ci)
+	{
+		ci.clear();
+		try {
+			ChannelInfo upaChannelInfo = TransportFactory.createChannelInfo();
+			Error error = TransportFactory.createError();
+			StringBuilder componentInfo = new StringBuilder();
+
+			userLock().lock();
+			for (ReactorChannel reactorChannel : connectedChannels()) {
+				Channel channel = reactorChannel.channel();
+				if (channel == null)
+					continue;
+
+				componentInfo.setLength(0);
+				upaChannelInfo.clear();
+				error.clear();
+
+				channel.info(upaChannelInfo, error);
+				if (upaChannelInfo.componentInfo() == null ||
+						upaChannelInfo.componentInfo().isEmpty())
+					componentInfo.append("unavailable");
+				else
+					for (ComponentInfo item : upaChannelInfo.componentInfo())
+						componentInfo.append(item.componentVersion().toString());
+
+				ChannelInformation tmp =
+						new ChannelInformationImpl(componentInfo.toString(), upaChannelInfo.clientHostname(), upaChannelInfo.clientIP(),
+								reactorChannel.state(), channel.connectionType(), channel.protocolType(), channel.majorVersion(),
+								channel.minorVersion(), channel.pingTimeout());
+				ci.add(tmp);
+			}
+		}
+		finally {
+			userLock().unlock();
+		}
+		return;
+	}
+
+	@Override
+	public void channelInformation(ChannelInformation ci) {
+		ci.clear();
+	}
+
+	@Override
+	public ChannelInformation channelInformation() {
+		return new ChannelInformationImpl();
 	}
 }

@@ -2,15 +2,15 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
 */
 
+#include "OmmProvider.h"
 #include "OmmIProviderImpl.h"
 #include "OmmIProviderConfigImpl.h"
 #include "ItemInfo.h"
 #include "ClientSession.h"
-#include "OmmProvider.h"
 #include "RefreshMsgEncoder.h"
 #include "ReqMsgEncoder.h"
 #include "UpdateMsgEncoder.h"
@@ -24,6 +24,7 @@
 #include "LoginHandler.h"
 #include "ServerChannelHandler.h"
 #include "RdmUtilities.h"
+#include "ExceptionTranslator.h"
 
 #ifdef WIN32
 #pragma warning( disable : 4355)
@@ -1411,4 +1412,15 @@ void OmmIProviderImpl::processChannelEvent(RsslReactorChannelEvent* pEvent)
 UInt32 OmmIProviderImpl::getRequestTimeout()
 {
 	return _ommIProviderActiveConfig.requestTimeout;
+}
+
+void OmmIProviderImpl::getConnectedClientChannelInfo(EmaVector<ChannelInformation> & ci) {
+  return getConnectedClientChannelInfoImpl(ci);
+}
+
+/* method getChannelInfo not supported for IProvider objects. Function is defined
+ * here because the function is defined in a common base class
+ */
+void OmmIProviderImpl::getChannelInformation(ChannelInformation&) {
+  throwIueException("IProvider applications do not support the getChannelInformation method");
 }

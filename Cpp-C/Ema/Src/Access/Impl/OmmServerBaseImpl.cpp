@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
 */
 
@@ -17,6 +17,7 @@
 #include "ClientSession.h"
 #include "ActiveConfig.h"
 #include "EmaBufferInt.h"
+#include "ChannelInformation.h"
 
 #include "OmmInaccessibleLogFileException.h"
 #include "OmmInvalidHandleException.h"
@@ -1780,4 +1781,52 @@ size_t OmmServerBaseImpl::UInt64rHasher::operator()(const UInt64& value) const
 bool OmmServerBaseImpl::UInt64Equal_To::operator()(const UInt64& x, const UInt64& y) const
 {
 	return x == y ? true : false;
+}
+
+void OmmServerBaseImpl::addConnectedChannel(RsslReactorChannel* channel) {
+  _userLock.lock();
+  connectedChannels.push_back(channel);
+  _userLock.unlock();
+}
+
+void OmmServerBaseImpl::removeConnectedChannel(RsslReactorChannel* channel) {
+  _userLock.lock();
+  connectedChannels.removeValue(channel);
+  _userLock.unlock();
+
+}
+
+void OmmServerBaseImpl::getConnectedClientChannelInfoImpl(EmaVector<ChannelInformation>& ci) {
+  RsslReactorChannelInfo rsslReactorChannelInfo;
+  RsslErrorInfo rsslErrorInfo;
+
+  ci.clear();
+
+  _userLock.lock();
+
+  RsslReactorChannel* rrc;
+  for (UInt32 index = 0; index < connectedChannels.size(); ++index) {
+	rrc = connectedChannels[index];
+	// create connected component info
+	rsslReactorGetChannelInfo(rrc, &rsslReactorChannelInfo, &rsslErrorInfo);
+	EmaString componentInfo("Connected component version: ");
+	for (unsigned int i = 0; i < rsslReactorChannelInfo.rsslChannelInfo.componentInfoCount; ++i) {
+	  componentInfo.append(rsslReactorChannelInfo.rsslChannelInfo.componentInfo[i]->componentVersion.data);
+	  if (i < (rsslReactorChannelInfo.rsslChannelInfo.componentInfoCount - 1))
+		componentInfo.append(", ");
+	}
+
+	ChannelInformation item(componentInfo, rrc->pRsslChannel->clientHostname,
+							rrc->pRsslChannel->clientIP,
+							static_cast<ChannelInformation::ChannelState>(rrc->pRsslChannel->state),
+							static_cast<ChannelInformation::ConnectionType>(rrc->pRsslChannel->connectionType),
+							static_cast<ChannelInformation::ProtocolType>(rrc->pRsslChannel->protocolType),
+							rrc->pRsslChannel->majorVersion, rrc->pRsslChannel->minorVersion,
+							rrc->pRsslChannel->pingTimeout);
+	ci.push_back(item);
+  }
+
+  _userLock.unlock();
+
+  return;
 }

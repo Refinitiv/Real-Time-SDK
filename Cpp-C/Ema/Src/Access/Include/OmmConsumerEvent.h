@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2015,2016,2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -24,6 +24,7 @@
 */
 
 #include "Access/Include/Common.h"
+#include "Access/Include/ChannelInformation.h"
 
 namespace thomsonreuters {
 
@@ -61,15 +62,23 @@ public :
 		@return parent item identifier or parent handle
 	*/
 	UInt64 getParentHandle() const;
+
+	/** Returns the Channel Information for this event
+		@return the channel information for this event
+	*/
+	const ChannelInformation& getChannelInformation() const;
 	//@}
 
 private :
 
 	friend class ConsumerItem;
+	friend class LoginItem;
 
 	UInt64			_handle;
 	UInt64			_parentHandle;
 	void*			_closure;
+	void*           _channel;
+	ChannelInformation _channelInfo;
 
 	OmmConsumerEvent();
 	virtual ~OmmConsumerEvent();

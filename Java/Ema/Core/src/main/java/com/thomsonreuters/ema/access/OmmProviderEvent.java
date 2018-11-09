@@ -51,4 +51,11 @@ public interface OmmProviderEvent
 	 * @return client identifier or handle
 	 */
 	public long clientHandle();
+
+	/**
+	 * Returns the channel information for the channel associated with the event
+	 *
+	 * @return the channel information associated with the event
+	 */
+	public ChannelInformation channelInformation();
 }

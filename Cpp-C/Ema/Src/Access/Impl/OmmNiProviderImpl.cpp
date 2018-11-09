@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the projects LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2016-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -21,9 +21,9 @@
 #include "OmmQosDecoder.h"
 #include "StreamId.h"
 #include "DirectoryServiceStore.h"
+#include "ChannelInfoImpl.h"
 
 #include <limits.h>
-#include <new>
 
 #ifdef WIN32
 #pragma warning( disable : 4355)
@@ -1896,4 +1896,22 @@ void OmmNiProviderImpl::onServiceDelete(ClientSession* clientSession, RsslUInt s
 UInt32 OmmNiProviderImpl::getRequestTimeout()
 {
 	return _activeConfig.requestTimeout;
+}
+
+/* method getConnectedClientChannelInfo not supported for NIProvider applications. Function is
+ * defined here because the function is defined in a common base class
+ */
+void OmmNiProviderImpl::getConnectedClientChannelInfo(EmaVector<ChannelInformation>&) {
+  throwIueException("NIProvider applications do not support the getConnectedClientChannelInfo method");
+}
+
+void OmmNiProviderImpl::getChannelInformation(ChannelInformation& ci) {
+  Channel* pChannel;
+  RsslReactorChannel* rsslReactorChannel;
+  if ((pChannel = getLoginCallbackClient().getActiveChannel()) == 0 ||
+	  (rsslReactorChannel = pChannel->getRsslChannel()) == 0) {
+	ci.clear();
+	return;
+  }
+  return getChannelInformationImpl(rsslReactorChannel, OmmCommonImpl::NiProviderEnum, ci);
 }

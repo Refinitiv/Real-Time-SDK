@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2015-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -114,6 +114,7 @@
 */
 
 #include "Access/Include/Common.h"
+#include "Access/Include/ChannelInformation.h"
 
 namespace thomsonreuters {
 
@@ -129,7 +130,7 @@ class ReqMsg;
 class PostMsg;
 class GenericMsg;
 class TunnelStreamRequest;
-
+class ChannelInformation;
 class OmmConsumerImpl;
 
 class EMA_ACCESS_API OmmConsumer
@@ -279,6 +280,8 @@ public :
 		\remark This method is \ref ObjectLevelSafe
 	*/
 	void unregister( UInt64 handle );
+
+	void getChannelInformation(ChannelInformation&);
 	//@}
 
 private :

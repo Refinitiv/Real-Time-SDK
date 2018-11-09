@@ -359,6 +359,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		for (int idx = 0; idx < itemSize; ++idx)
 		{
 			_eventImpl._item = _loginItemList.get(idx);
+			_eventImpl._channel = rsslReactorChannel;
 			
 			notifyOnAllMsg(_refreshMsg);
 			notifyOnRefreshMsg();
@@ -1082,6 +1083,7 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 		refreshMsg.decode(loginCallbackClient.rsslRefreshMsg(), rsslReactorChannel.majorVersion(), rsslReactorChannel.minorVersion(), null);
 
 		loginCallbackClient._eventImpl._item = this;
+		loginCallbackClient._eventImpl._channel = rsslReactorChannel;
 		
 		loginCallbackClient.notifyOnAllMsg(refreshMsg);
 		loginCallbackClient.notifyOnRefreshMsg();

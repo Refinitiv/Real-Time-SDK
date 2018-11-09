@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2015-2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,8 +10,6 @@
 #include "OmmConsumerConfig.h"
 #include "OmmConsumerImpl.h"
 #include "ExceptionTranslator.h"
-
-#include <new>
 
 using namespace thomsonreuters::ema::access;
 
@@ -111,4 +109,13 @@ Int64 OmmConsumer::dispatch( Int64 timeOut )
 void OmmConsumer::unregister( UInt64 handle )
 {
 	_pImpl->unregister( handle );
+}
+
+void OmmConsumer::getChannelInformation(ChannelInformation& ci) {
+  // this function can be called during the OmmConsumer constructor (usually from an event
+  // received during that process). If so, just have to return 0.
+  if (_pImpl)
+	_pImpl->getChannelInformation(ci);
+  else
+	ci.clear();
 }

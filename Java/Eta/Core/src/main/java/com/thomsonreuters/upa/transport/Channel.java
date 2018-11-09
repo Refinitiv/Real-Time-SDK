@@ -437,4 +437,11 @@ public interface Channel
      * @see ConnectionTypes
      */
     public int connectionType();
+
+    /**
+     * For NIProvider and Consumer applications, the host name associated with the {@link Channel}.
+     * 
+     * @return the host name
+     */
+    public String hostname();
 }

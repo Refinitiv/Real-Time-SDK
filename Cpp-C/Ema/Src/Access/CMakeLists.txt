@@ -41,6 +41,7 @@ else()
             Impl/ActiveConfig.cpp Impl/ActiveConfig.h
             # Impl/C....
             Impl/ChannelCallbackClient.cpp Impl/ChannelCallbackClient.h
+			Impl/ChannelInformation.cpp
             Impl/ClientSession.cpp Impl/ClientSession.h
             Impl/ComplexType.cpp Impl/ConfigErrorHandling.h
             # Impl/D....

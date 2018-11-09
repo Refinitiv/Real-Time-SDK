@@ -1277,4 +1277,10 @@ public class RsslSeqMulticastSocketChannel extends UpaNode implements Channel
         return TransportReturnCodes.SUCCESS;
     }
 
+	@Override
+	public String hostname() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

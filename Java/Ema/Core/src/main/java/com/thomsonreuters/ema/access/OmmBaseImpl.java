@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 
+import com.thomsonreuters.ema.access.ChannelInformation;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigAttributes;
 import com.thomsonreuters.ema.access.ConfigManager.ConfigElement;
 import com.thomsonreuters.ema.access.OmmConsumer.DispatchReturn;
@@ -76,6 +77,8 @@ interface OmmCommonImpl
 	int implType();
 	
 	long nextLongId();
+
+	void channelInformation(ChannelInformation ci);
 }
 
 abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient

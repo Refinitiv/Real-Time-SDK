@@ -2,7 +2,7 @@
 *|            This source code is provided under the Apache 2.0 license      --
 *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 *|                See the project's LICENSE.md for details.                  --
-*|           Copyright Thomson Reuters 2016. All rights reserved.            --
+*|           Copyright Thomson Reuters 2016-2018. All rights reserved.            --
 *|-----------------------------------------------------------------------------
 */
 
@@ -19,6 +19,7 @@
 #ifdef USING_PPOLL
 #include <poll.h>
 #endif
+#include <iostream>
 
 #include "rtr/rsslReactor.h"
 #include "EmaList.h"
@@ -34,6 +35,7 @@
 #include "OmmBaseImplMap.h"
 #include "ReqMsg.h"
 #include "PostMsg.h"
+#include "ChannelInformation.h"
 
 namespace thomsonreuters {
 
@@ -136,6 +138,9 @@ public:
 
 	bool isAtExit();
 
+    void addConnectedChannel(RsslReactorChannel*);
+    void removeConnectedChannel(RsslReactorChannel*);
+
 protected:
 
 	friend class OmmBaseImplMap<OmmServerBaseImpl>;
@@ -203,6 +208,8 @@ protected:
 
 	ActiveServerConfig&	_activeServerConfig;
 
+    void getConnectedClientChannelInfoImpl(EmaVector<ChannelInformation>&);
+
 #ifdef USING_SELECT
 	fd_set			_readFds;
 	fd_set			_exceptFds;
@@ -243,6 +250,7 @@ protected:
 	GenericMsg					_genericMsg;
 	PostMsg						_postMsg;
 
+
 private:
 
 	friend class LoginHandler;
@@ -274,6 +282,7 @@ private:
 	RsslReactorOMMProviderRole	_providerRole;
 	RsslServer*					_pRsslServer;
 	RsslReactorAcceptOptions	_reactorAcceptOptions;
+    EmaVector<RsslReactorChannel*> connectedChannels;
 };
 
 }

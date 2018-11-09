@@ -36,6 +36,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceState;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEventTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
@@ -1775,5 +1776,41 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 
 	@Override
 	public void onServiceGroupChange(ClientSession clientSession, int serviceId, List<ServiceGroup> serviceGroupList) {
+	}
+
+	@Override
+	public void channelInformation(ChannelInformation channelInformation)
+	{
+		if (_loginCallbackClient == null || _loginCallbackClient.loginChannelList().isEmpty())
+		{
+			channelInformation.clear();
+			return;
+		}
+		try {
+			super.userLock().lock();
+
+			ReactorChannel reactorChannel = null;
+			// return first item in channel list with proper status
+			for (ChannelInfo ci : _loginCallbackClient.loginChannelList())
+				if (ci.rsslReactorChannel().state() == ReactorChannel.State.READY || ci.rsslReactorChannel().state() == ReactorChannel.State.UP)
+					reactorChannel = ci.rsslReactorChannel();
+
+			// if reactorChannel is not set, then just use the first element in _loginCallbackClient.loginChannelList()
+			if (reactorChannel == null)
+				reactorChannel = _loginCallbackClient.loginChannelList().get(0).rsslReactorChannel();
+
+			((ChannelInformationImpl)channelInformation).set(reactorChannel);
+			channelInformation.ipAddress("not available for OmmNiProvider connections");
+		}
+		finally {
+			super.userLock().unlock();
+		}
+	}
+
+	@Override
+	public void connectedClientChannelInfo(List<ChannelInformation> ci) {
+		StringBuilder temp = strBuilder();
+		temp.append("NIProvider applications do not support the connectedClientChannelInfo method");
+		handleInvalidUsage(temp.toString());
 	}
 }

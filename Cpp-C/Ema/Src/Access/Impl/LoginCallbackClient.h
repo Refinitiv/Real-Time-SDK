@@ -150,6 +150,8 @@ public :
 
 	ItemType getType() const { return Item::LoginItemEnum; }
 
+	void setEventChannel( void* channel ) { _event._channel = channel; }
+
 private :
 
 	bool submit( RsslRDMLoginRequest* );
@@ -179,7 +181,9 @@ public:
 	bool submit( const GenericMsg& );
 	bool close();
 
-	ItemType getType() const { return Item::LoginItemEnum; }
+	ItemType getType() const { return Item::NiProviderLoginItemEnum; }
+
+	void setEventChannel( void* channel ) { _event._channel = channel; }
 
 private:
 

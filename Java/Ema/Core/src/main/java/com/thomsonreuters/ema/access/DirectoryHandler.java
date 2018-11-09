@@ -164,6 +164,7 @@ class DirectoryHandler implements RDMDirectoryMsgCallback
 							_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 							_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 							_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+							_ommServerBaseImpl.ommProviderEvent()._channel = directoryMsgEvent.reactorChannel();
 						
 							_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 							_ommServerBaseImpl.ommProviderClient().onReqMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
@@ -188,6 +189,7 @@ class DirectoryHandler implements RDMDirectoryMsgCallback
 							_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 							_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 							_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+							_ommServerBaseImpl.ommProviderEvent()._channel = directoryMsgEvent.reactorChannel();
 							
 							_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 							_ommServerBaseImpl.ommProviderClient().onReissue(reqMsg, _ommServerBaseImpl.ommProviderEvent());
@@ -256,6 +258,7 @@ class DirectoryHandler implements RDMDirectoryMsgCallback
 				_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 				_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 				_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+				_ommServerBaseImpl.ommProviderEvent()._channel = directoryMsgEvent.reactorChannel();
 				
 				_ommServerBaseImpl.ommProviderClient().onAllMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());
 				_ommServerBaseImpl.ommProviderClient().onGenericMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());
@@ -284,6 +287,7 @@ class DirectoryHandler implements RDMDirectoryMsgCallback
 				{
 					if ( _apiAdminControl == false )
 					{
+						_ommServerBaseImpl.ommProviderEvent()._channel = directoryMsgEvent.reactorChannel();
 						notifyOnClose(directoryMsgEvent.reactorChannel(), directoryMsgEvent.msg(), itemInfo);
 					}
 					

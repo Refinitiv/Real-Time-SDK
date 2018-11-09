@@ -766,4 +766,10 @@ public class JNIChannel extends UpaNode implements Channel
         error.errorId(retVal);
         error.text(text);
     }
+
+	@Override
+	public String hostname() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

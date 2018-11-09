@@ -366,6 +366,7 @@ RTR_C_ALWAYS_INLINE void _rsslCleanChan(rsslChannelImpl *chnl)
 	/* ripc should free the memory when the channel goes away */
 	chnl->Channel.clientIP = 0;
 	chnl->Channel.clientHostname = 0;
+	chnl->Channel.hostname = 0;
 
 	chnl->Channel.pingTimeout = 0;
 

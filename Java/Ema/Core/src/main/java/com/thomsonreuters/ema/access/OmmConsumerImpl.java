@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -16,7 +16,10 @@ import com.thomsonreuters.ema.access.OmmException.ExceptionType;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.WritePriorities;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelInfo;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorErrorInfo;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamSubmitOptions;
 import com.thomsonreuters.ema.access.ReqMsg;
@@ -480,5 +483,69 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	@Override
 	public long nextLongId() {
 		return LongIdGenerator.nextLongId();
+	}
+
+	@Override
+	public void channelInformation(ChannelInformation channelInformation)
+	{
+		if (_loginCallbackClient == null || _loginCallbackClient.loginChannelList().isEmpty()) {
+			channelInformation.clear();
+			return;
+		}
+
+		try {
+			super.userLock().lock();
+
+			ReactorChannel reactorChannel = null;
+			// return first item in channel list with proper status
+			for (ChannelInfo ci : _loginCallbackClient.loginChannelList())
+				if (ci.rsslReactorChannel().state() == ReactorChannel.State.READY || ci.rsslReactorChannel().state() == ReactorChannel.State.UP) {
+					reactorChannel = ci.rsslReactorChannel();
+					break;
+				}
+
+			// if reactorChannel is not set, then just use the first element in _loginCallbackClient.loginChannelList()
+			if (reactorChannel == null)
+				reactorChannel = _loginCallbackClient.loginChannelList().get(0).rsslReactorChannel();
+
+			channelInformation.hostname(reactorChannel.hostname());
+			channelInformation.ipAddress("not available for OmmConsumer connections");
+
+			if (reactorChannel.channel() == null ) {
+				channelInformation.componentInfo("unavailable");
+			}
+			else {
+				ReactorChannelInfo rci = ReactorFactory.createReactorChannelInfo();
+				ReactorErrorInfo ei = ReactorFactory.createReactorErrorInfo();
+				reactorChannel.info(rci, ei);
+
+				if (rci.channelInfo() == null ||
+					rci.channelInfo().componentInfo() == null ||
+					rci.channelInfo().componentInfo().isEmpty())
+					channelInformation.componentInfo("unavailable");
+				else {
+					channelInformation.componentInfo(rci.channelInfo().componentInfo().get(0).componentVersion().toString());
+				}
+			}
+			channelInformation.channelState(reactorChannel.channel().state());
+			if (reactorChannel.channel() != null) {
+				channelInformation.connectionType(reactorChannel.channel().connectionType());
+				channelInformation.protocolType(reactorChannel.channel().protocolType());
+				channelInformation.majorVersion(reactorChannel.channel().majorVersion());
+				channelInformation.minorVersion(reactorChannel.channel().minorVersion());
+				channelInformation.pingTimeout(reactorChannel.channel().pingTimeout());
+			}
+			else {
+				channelInformation.connectionType(-1);
+				channelInformation.protocolType(-1);
+				channelInformation.majorVersion(0);
+				channelInformation.minorVersion(0);
+				channelInformation.pingTimeout(0);
+			}
+		}
+		finally {
+			super.userLock().unlock();
+		}
+
 	}
 }

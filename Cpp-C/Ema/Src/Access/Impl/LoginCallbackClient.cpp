@@ -1209,6 +1209,8 @@ RsslReactorCallbackRet LoginCallbackClient::processRefreshMsg( RsslMsg* pRsslMsg
 	{
 		_ommBaseImpl.msgDispatched();
 		Item* item = _loginItems[idx];
+		item->setEventChannel( pRsslReactorChannel );
+
 		item->onAllMsg( _refreshMsg );
 		item->onRefreshMsg( _refreshMsg );
 	}
@@ -1349,6 +1351,8 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 		{
 			_ommBaseImpl.msgDispatched();
 			Item* item = _loginItems[idx];
+
+			item->setEventChannel( pEvent->pReactorChannel );
 			item->onAllMsg( _statusMsg );
 			item->onStatusMsg( _statusMsg );
 		}
@@ -1386,6 +1390,8 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 		{
 			_ommBaseImpl.msgDispatched();
 			Item* item = _loginItems[idx];
+
+			item->setEventChannel( pEvent->pReactorChannel );
 			item->onAllMsg( _statusMsg );
 			item->onStatusMsg( _statusMsg );
 		}
@@ -1420,6 +1426,8 @@ void LoginCallbackClient::processChannelEvent( RsslReactorChannelEvent* pEvent )
 		{
 			_ommBaseImpl.msgDispatched();
 			Item* item = _loginItems[idx];
+
+			item->setEventChannel( pEvent->pReactorChannel );
 			item->onAllMsg( _statusMsg );
 			item->onStatusMsg( _statusMsg );
 		}
@@ -1531,6 +1539,9 @@ NiProviderLoginItem* LoginCallbackClient::getLoginItem( const ReqMsg&, OmmProvid
 
 	if ( li )
 	{
+		if ( getActiveChannel() )
+			li->setEventChannel( getActiveChannel()->getRsslChannel() );
+
 		_loginItems.push_back(li);
 		if (_refreshReceived == true)
 		{

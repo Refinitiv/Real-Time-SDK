@@ -109,6 +109,7 @@ class LoginHandler implements RDMLoginMsgCallback
 				_ommServerBaseImpl.ommProviderEvent()._clientHandle = clientSession.clientHandle();
 				_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 				_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
+				_ommServerBaseImpl.ommProviderEvent()._channel = loginMsgEvent.reactorChannel();
 				
 				_streamId.value(loginMsgEvent.msg().streamId());
 				
@@ -127,7 +128,7 @@ class LoginHandler implements RDMLoginMsgCallback
 					_itemInfoList.add(itemInfo);
 				
 					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
-				
+
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onReqMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 				}
@@ -136,7 +137,7 @@ class LoginHandler implements RDMLoginMsgCallback
 					itemInfo.setRequestMsg(requestMsg);
 					
 					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
-					
+
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onReissue(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 				}
@@ -172,6 +173,7 @@ class LoginHandler implements RDMLoginMsgCallback
 					_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 					_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+					_ommServerBaseImpl.ommProviderEvent()._channel = loginMsgEvent.reactorChannel();
 					
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onGenericMsg(genericMsg, _ommServerBaseImpl.ommProviderEvent());
@@ -231,6 +233,7 @@ class LoginHandler implements RDMLoginMsgCallback
 					_ommServerBaseImpl.ommProviderEvent()._closure = _ommServerBaseImpl.closure();
 					_ommServerBaseImpl.ommProviderEvent()._ommProvider = _ommServerBaseImpl.provider();
 					_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
+					_ommServerBaseImpl.ommProviderEvent()._channel = loginMsgEvent.reactorChannel();
 					
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onClose(reqMsg, _ommServerBaseImpl.ommProviderEvent());
