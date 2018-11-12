@@ -1,0 +1,4 @@
+226c226
+<         cout << "channel info (niprovider)" << endl << ci << endl;
+---
+>         cout << "channel info (provider)" << endl << ci << endl;

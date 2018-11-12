@@ -149,6 +149,11 @@ Series100Consumer140-ConsFunc-001
     Alters consumer to decode mapEntry Key using EmaUtility.asAsciiString() 
 	  This altered code works in conjunction with Series100Provider140-ProvFunc-001.
 
+Module:  Series100Consumer170
+-----------------------------
+Series100Consumer170-ConsFunc-001
+    Alters consumer to test Channel Information ESDK-1601 
+
 
 Module:  Series200Consumer200
 -----------------------------
@@ -625,6 +630,9 @@ command line arguments to the tool:
 
     -dirAdminControl < true|false ; default=false >
     If set to true, tool will send a source directory response; otherwise, the EMA layer will send one on behalf of tool.
+
+	-testChannelInfoWithLoginHandle
+	If set to true, tool will create NiProvider without register login in OmmProvider constructor, but it will call register client later.
 
 
 Module:  Series400NiProvider421

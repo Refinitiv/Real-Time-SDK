@@ -1,6 +1,7 @@
 //APIQA this file is QATools standalone. See qa_readme.txt for details about this tool.
 package com.thomsonreuters.ema.examples.training.niprovider.series300.example360__MarketPrice__ConnectionRecovery;
 
+import com.thomsonreuters.ema.access.ChannelInformation;
 import com.thomsonreuters.ema.access.EmaFactory;
 import com.thomsonreuters.ema.access.FieldList;
 import com.thomsonreuters.ema.access.GenericMsg;
@@ -37,6 +38,9 @@ class AppClient implements OmmProviderClient
 										 // with channel set
 	static boolean DIRADMINCONTROL = false; // test case admin Control with
 											// channel set
+	// APIQA ESDK-1601
+	static boolean TESTCHANNELINFOWITHLOGINHANDLE = false;
+    // END APIQA ESDK-1601	
 	boolean _sendRefreshMsg = false;
 	// END APAQA
 	boolean _connectionUp;
@@ -53,6 +57,10 @@ class AppClient implements OmmProviderClient
 		System.out.println("Service Name: " + (refreshMsg.hasServiceName() ? refreshMsg.serviceName() : "<not set>"));
 
 		System.out.println("Item State: " + refreshMsg.state());
+		
+		// APIQA ESDK-1601
+		System.out.println( "event channel info (refresh)\n" + event.channelInformation());
+		// END APIQA ESDK-1601
 
 		if (refreshMsg.state().streamState() == OmmState.StreamState.OPEN)
 		{
@@ -76,8 +84,10 @@ class AppClient implements OmmProviderClient
 		System.out.println("Item Name: " + (statusMsg.hasName() ? statusMsg.name() : "<not set>"));
 		System.out.println("Service Name: " + (statusMsg.hasServiceName() ? statusMsg.serviceName() : "<not set>"));
 		System.out.println("Item State: " + statusMsg.state());
+		// APIQA ESDK-1601
+		System.out.println( "event channel info (status)\n" + event.channelInformation());
+		// END APIQA ESDK-1601
 	}
-
 	// APIQA
 	boolean sendRefreshMsg()
 	{
@@ -94,11 +104,13 @@ class AppClient implements OmmProviderClient
 	public void onPostMsg(PostMsg postMsg, OmmProviderEvent providerEvent){}
 	public void onReqMsg(ReqMsg reqMsg, OmmProviderEvent providerEvent){}
 	public void onReissue(ReqMsg reqMsg, OmmProviderEvent providerEvent){}
-	public void onClose(ReqMsg reqMsg, OmmProviderEvent providerEvent){}
+	public void onClose(ReqMsg reqMsg, OmmProviderEvent event){
+		System.out.println( "channel information (niprovider close event):\n" + event.channelInformation() );
 	}
+}
 
-	public class NiProvider
-	{
+public class NiProvider
+{
 	// APIQA
 	public static void sendDirRefresh(OmmProvider provider)
 	{
@@ -130,14 +142,15 @@ class AppClient implements OmmProviderClient
 		if (!reflect)
 		{
 			System.out.println("\nOptions:\n" + "  -?\tShows this usage\n\n" + "  -numOfUpdatesForApp \tSend the number of item updates for the whole test [default = 600]\n"
-					+ "  -userDispatch \tUse UserDispatch Operation Model [default = false]\n" + "  -dirAdminControl \tSet if user controls sending directory msg [default = false]\n" + "\n");
+					+ "  -userDispatch \tUse UserDispatch Operation Model [default = false]\n" + "  -dirAdminControl \tSet if user controls sending directory msg [default = false]\n" + "\n"
+					+ "  -testChannelInfoWithLoginHandle \tSet for testing ChannelInformation and register Login client [default = false]\n" + "\n");
 
 			System.exit(-1);
 		}
 		else
 		{
 			System.out.println("\n  Options will be used:\n" + "  -numOfUpdatesForApp \t " + AppClient.NUMOFITEMUPDATEFORTEST + "\n" + "  -userDispatch \t " + AppClient.USERDISPATCH + "\n"
-					+ "  -dirAdminControl \t " + AppClient.DIRADMINCONTROL + "\n" + "\n");
+					+ "  -dirAdminControl \t " + AppClient.DIRADMINCONTROL + "\n" + "  -testChannelInfoWithLoginHandle \t " + AppClient.TESTCHANNELINFOWITHLOGINHANDLE + "\n" + "\n");
 		}
 	}
 
@@ -183,6 +196,16 @@ class AppClient implements OmmProviderClient
 				AppClient.DIRADMINCONTROL = ((argv[idx].compareToIgnoreCase("TRUE") == 0) ? true : false);
 				++idx;
 			}
+			else if (0 == argv[idx].compareToIgnoreCase("-testChannelInfoWithLoginHandle"))
+			{
+				if (++idx >= count)
+				{
+					printHelp(false);
+					return false;
+				}
+				AppClient.TESTCHANNELINFOWITHLOGINHANDLE = ((argv[idx].compareToIgnoreCase("TRUE") == 0) ? true : false);
+				++idx;
+			}
 			else
 			{
 				printHelp(false);
@@ -204,12 +227,25 @@ class AppClient implements OmmProviderClient
 			if (!readCommandlineArgs(args))
 				return;
 			OmmNiProviderConfig config = EmaFactory.createOmmNiProviderConfig();
+			ChannelInformation ci = EmaFactory.createChannelInformation();
 			// APIQA
 			if (appClient.USERDISPATCH)
 				config.operationModel(OperationModel.USER_DISPATCH);
 			if (appClient.DIRADMINCONTROL)
 				config.adminControlDirectory(OmmNiProviderConfig.AdminControl.USER_CONTROL);
-			provider = EmaFactory.createOmmProvider(config.username("user"), appClient);
+			//APIQA ESDK-1601
+			if (appClient.TESTCHANNELINFOWITHLOGINHANDLE)
+				provider = EmaFactory.createOmmProvider(config.username("user"));
+			else 
+				provider = EmaFactory.createOmmProvider(config.username("user"), appClient);
+            
+			provider.channelInformation(ci);
+            System.out.println("channel information (niprovider): " + ci);
+
+			if (appClient.TESTCHANNELINFOWITHLOGINHANDLE)
+			    provider.registerClient(EmaFactory.createReqMsg().domainType(EmaRdm.MMT_LOGIN), appClient);
+			//END APIQA ESDK-1601
+			
 			if (appClient.DIRADMINCONTROL)
 				sendDirRefresh(provider);
 			if (appClient.USERDISPATCH)
