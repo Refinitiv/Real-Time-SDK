@@ -15,9 +15,9 @@ set(INTERNAL_API_VERSION_MAJOR 3)
 set(INTERNAL_RELEASE_TWEAK L1)
 set(RELEASE_TYPE rrg)
 
-set( librssl_SO_VERSION 7 )
+set( librssl_SO_VERSION 8 )
 set( librsslVA_SO_VERSION 10 )
-set( libema_SO_VERSION 4 )
+set( libema_SO_VERSION 5 )
 
 # Build Timestamp
 string(TIMESTAMP esdk_timestamp "%a %b %d %H:%M:%S CST")
@@ -36,7 +36,7 @@ set(Elektron-SDK-BinaryPack_repo "${_download_site}/Elektron-SDK-BinaryPack.git"
 if (DEFINED RCDEV_BP_BRANCH)
 	set(Elektron-SDK-BinaryPack_tag ${RCDEV_BP_BRANCH})
 else()
-	set(Elektron-SDK-BinaryPack_tag Elektron-SDK_1.2.1.0.L1)
+	set(Elektron-SDK-BinaryPack_tag Elektron-SDK_1.2.2.0.L1)
 endif()
 
 #

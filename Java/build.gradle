@@ -34,9 +34,9 @@ subprojects {
 ext.YEAR = '2018'
 // NOTE! please update the tag in the BinaryPack repo
 // for a new release below in the cloneBinaryPack task.
-ext.BuildDate = 'Wed Aug 15 10:35:01 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.2.1.0'
-ext.SpecificationVersionShort = '3.2.1'
+ext.BuildDate = 'Wed Nov 14 10:35:01 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.2.2.0'
+ext.SpecificationVersionShort = '3.2.2'
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
 ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
