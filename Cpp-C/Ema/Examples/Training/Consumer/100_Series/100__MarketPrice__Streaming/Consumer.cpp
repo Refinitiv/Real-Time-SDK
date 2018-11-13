@@ -6,7 +6,6 @@
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
-#include <stdlib.h>
 
 using namespace thomsonreuters::ema::access;
 using namespace std;
@@ -18,11 +17,7 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 
 void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& ) 
 {
-  static int i(0);  
-  cout << "updateMsg " << ++i << " for " << updateMsg.getName() << endl;
-  //	cout << updateMsg << endl;		// defaults to updateMsg.toString()
-  if (i == 20)
-	exit(1);
+	cout << updateMsg << endl;		// defaults to updateMsg.toString()
 }
 
 void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& ) 
@@ -30,16 +25,12 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 	cout << statusMsg << endl;		// defaults to statusMsg.toString()
 }
 
-int main()
+int main( int argc, char* argv[] )
 { 
 	try { 
 		AppClient client;
-		OmmConsumer consumer( OmmConsumerConfig("EmaConfig.xml").username( "user" ) );
+		OmmConsumer consumer( OmmConsumerConfig().host( "localhost:14002" ).username( "user" ) );
 		consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client );
-		UInt64 h(consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "GOOG.N" ), client ));
-		sleep( 2000 );
-		consumer.unregister(h);
-		cout << "called unregister" << endl;
 		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 	} catch ( const OmmException& excp ) {
 		cout << excp << endl;

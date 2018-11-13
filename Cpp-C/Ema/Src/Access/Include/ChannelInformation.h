@@ -57,7 +57,7 @@ public:
   */
   enum ConnectionType
   {
-	InitEnum = -1,            /*!< (-1) Channel is not connected */
+	Unidentified = -1,         /*!< (-1) Unidentified */
 	SocketEnum = 0,           /*!< (0) Channel is a standard TCP socket connection type */
 	EncryptedEnum = 1,        /*!< (1) Channel is encrypted */
 	HttpEnum = 2,             /*!< (2) Channel is an HTTP connection based tunneling type */
@@ -124,55 +124,55 @@ public:
   */
   void clear();
 
-  /** returns the connected component info as a string
+  /** Gets the connected component info as a string
 	  @return string representation of this object's connected component info
   */
   const EmaString& getConnectedComponentInfo() const { return _connectedComponentInfo; }
 
-  /** returns the hostname as a string
+  /** Gets the hostname as a string
 	  @return string representation of this object's hostname
 	  \remark see discussion of this class at the top of this file for more information
   */
   const EmaString& getHostname() const { return _hostname; }
 
-  /** returns the IP address as a string
+  /** Gets the IP address of the connected client
 	  @return string representation of this object's IP address
 	  \remark see discussion of this class at the top of this file for more information.
 	  \remark this is set only for IProvider applications
   */
   const EmaString& getIPaddress() const { return _ipAddress; }
 
-  /** returns the channel state as a ChannelState enum
+  /** Gets the channel state as a ChannelState enum
 	  @return ChannelState enum representation of this object's channel state
   */
   ChannelState getChannelState() const { return _channelState; }
 
-  /** returns the connection type as a ConnectionType enum
+  /** Gets the connection type as a ConnectionType enum
 	  @return ConnectionType enum representation of this object's connection type
   */
   ConnectionType getConnectionType() const { return _connectionType; }
 
-  /** returns the protocol type as a ProtocolType enum
+  /** Gets the protocol type as a ProtocolType enum
 	  @return ProtocolType enum representation of this object's protocol type
   */
   ProtocolType getProtocolType() const { return _protocolType; }
 
-  /** returns the major version as a UInt32
+  /** Gets the major version
 	  @return UInt32 representation of this object's major version
   */
   UInt32 getMajorVersion() const { return _majorVersion; }
 
-  /** returns the minor version as a UInt32
+  /** Gets the minor version
 	  @return UInt32 representation of this object's minor version
   */
   UInt32 getMinorVersion() const { return _minorVersion; }
 
-  /** returns the ping timeout as a UInt32
+  /** Gets the ping timeout
 	  @return UInt32 representation of this object's ping timeout
   */
   UInt32 getPingTimeout() const { return _pingTimeout; }
 
-  /** Returns a string representation of the class instance.
+  /** Gets a string representation of the class instance.
 	  @return string representation of the class instance.
   */
   const EmaString& toString() const;
@@ -193,7 +193,7 @@ public:
   */
   ChannelInformation& hostname(const EmaString& hostname);
 
-  /** Specifies IP address
+  /** Specifies the IP address of the connected client
 	  @param[in] ipAddress specifies IP address as a string
 	  @return reference to this object
   */
@@ -224,19 +224,19 @@ public:
   ChannelInformation& protocolType(ProtocolType protocolType);
 
   /** Specifies major version
-	  @param[in] majorVersion specifies majorVersion as a UInt32
+	  @param[in] majorVersion specifies majorVersion
 	  @return reference to this object
   */
   ChannelInformation& majorVersion(UInt32 majorVersion);
 
   /** Specifies minor version
-	  @param[in] minorVersion specifies minorVersion as a UInt32
+	  @param[in] minorVersion specifies minorVersion
 	  @return reference to this object
   */
   ChannelInformation& minorVersion(UInt32 minorVersion);
 
   /** Specifies ping timeout
-	  @param[in] pingTimeout specifies ping timeout as a UInt32
+	  @param[in] pingTimeout specifies ping timeout
 	  @return reference to this object
   */
   ChannelInformation& pingTimeout(UInt32 pingTimeout);

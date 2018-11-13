@@ -8,7 +8,6 @@
 package com.thomsonreuters.ema.access;
 
 import com.thomsonreuters.upa.codec.Codec;
-import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannelInfo;
@@ -40,9 +39,11 @@ class ChannelInformationImpl implements ChannelInformation
 		set(channel);
 	}
 
+	@Override
 	public void clear() {
 		_channelState = ChannelState.CLOSED;
-		_connectionType = _protocolType = -1;
+		_connectionType = ConnectionType.UNIDENTIFIED;
+		_protocolType = ProtocolType.UNKNOWN;
 		_pingTimeout = _majorVersion = _minorVersion = 0;
 		_ipAddress = _hostname = _componentInfo = null;
 	}
@@ -93,6 +94,7 @@ class ChannelInformationImpl implements ChannelInformation
 		}
 	}
 	
+	@Override
 	public String toString() {
 		_stringBuilder.setLength(0);
 		_stringBuilder.append("hostname: " + _hostname + "\n\tIP address: " + _ipAddress
@@ -116,7 +118,11 @@ class ChannelInformationImpl implements ChannelInformation
 				_stringBuilder.append(_channelState);
 				break;
 		}
-		_stringBuilder.append( "\n\tconnection type: " + ConnectionTypes.toString(_connectionType)
+		
+		if(_connectionType == ConnectionType.UNIDENTIFIED)
+			_stringBuilder.append( "\n\tconnection type: unknown" + "\n\tprotocol type: ");
+		else
+			_stringBuilder.append( "\n\tconnection type: " + ConnectionTypes.toString(_connectionType)
 				+ "\n\tprotocol type: ");
 		if (_protocolType == 0)
 			_stringBuilder.append("Reuters wire format");
@@ -127,18 +133,22 @@ class ChannelInformationImpl implements ChannelInformation
 		return _stringBuilder.toString();
 	}
 
+	@Override
 	public String componentInformation() {
 		return _componentInfo;
 	}
 
+	@Override
 	public String hostname() {
 		return _hostname;
 	}
 
+	@Override
 	public String ipAddress() {
 		return _ipAddress;
 	}
 
+	@Override
 	public int connectionType() {
 		switch (_connectionType) {
 		case 0: return ConnectionTypes.SOCKET;
@@ -151,60 +161,74 @@ class ChannelInformationImpl implements ChannelInformation
 		}
 	}
 
+	@Override
 	public int channelState() {
 		return _channelState;
 	}
 
+	@Override
 	public int protocolType() {
 		if (_protocolType == Codec.RWF_PROTOCOL_TYPE)
 			return Codec.RWF_PROTOCOL_TYPE;
 		return _protocolType;
 	}
 
+	@Override
 	public int majorVersion() {
 		return _majorVersion;
 	}
 
+	@Override
 	public int minorVersion() {
 		return _minorVersion;
 	}
 
+	@Override
 	public int pingTimeout() {
 		return _pingTimeout;
 	}
 
+	@Override
 	public void hostname(String hostname) {
 		_hostname = hostname;
 	}
 
+	@Override
 	public void ipAddress(String ipAddress) {
 		_ipAddress = ipAddress;
 	}
 
+	@Override
 	public void componentInfo(String componentInfo) {
 		_componentInfo = componentInfo;
 	}
 
+	@Override
 	public void channelState(int channelState) {
 		_channelState = channelState;
 	}
 
+	@Override
 	public void connectionType(int connectionType) {
 		_connectionType = connectionType;
 	}
 
+	@Override
 	public void protocolType(int protocolType) {
 		_protocolType = protocolType;
 	}
 
+	@Override
 	public void majorVersion(int majorVersion) {
 		_majorVersion = majorVersion;
 	}
 
+	@Override
 	public void minorVersion(int minorVersion) {
 		_minorVersion = minorVersion;
 	}
 
+	@Override
 	public void pingTimeout(int pingTimeout) {
 		_pingTimeout = pingTimeout;
 
