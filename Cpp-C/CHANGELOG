@@ -33,6 +33,9 @@ EMA C++
 [Case Number: 05958811] - [ESDK-1125] - EMA ConsPerf applications do not use specified username in Login Request
 [Case Number: 06611113] - [ESDK-1601] - Provide channel information in EMA's callback methods 
 [GitHub #80] - [ESDK-1751] - Remove undefined increment operator behavior 
+
+ETA C
+-------
 [Developer Community] - [ESDK-2550] ETA RDM Usage guide section 6.2.4 shows market price update instead of status
 
 

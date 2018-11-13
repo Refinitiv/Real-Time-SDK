@@ -33,6 +33,7 @@ EMA Java
 [Case Number: 05958811] - [ESDK-1125] - EMA ConsPerf applications do not use specified username in Login Request 
 [Case Number: 06041830 and 06041830] - [ESDK-2555] - Include latest jdacsUpalib.jar in ESDK
 [Case Number: 06611113] - [ESDK-1601] - Provide channel information in EMA's callback methods 
+[GitHub #76] - [ESDK-1724] - Fixed a concurrent modification exception in ETAJ Reactor service handling after a disconnect. 
 [GitHub #89] - [ESDK-2528] - Fix headings syntax in readme
 
 ETA Java
@@ -40,7 +41,6 @@ ETA Java
 [Case Number: 06041830 and 06041830] - [ESDK-2555] - Include latest jdacsUpalib.jar in ESDK
 [Case Number: 06705745] - [ESDK-1651] - UPAJConsPerf throws IllegalArgumentException while 
     connecting when numerous threads attempt to initialize the channel at the same time 
-[GitHub #76] - [ESDK-1724] - Fixed a concurrent modification exception in ETAJ Reactor service handling after a disconnect. 
 
 
 
@@ -64,6 +64,7 @@ EMA Java 3.2.2.L1 Issues Resolved
 [ESDK-1125] - EMA ConsPerf applications do not use specified username in Login Request [Case Number: 05958811]
 [ESDK-1601] - Provide channel information in EMA's callback methods [Case Number: 06611113]
 [ESDK-1723] - IProvider application with UserDispatch has 100% cpu 
+[ESDK-1724] - Fixed a concurrent modification exception in ETAJ Reactor service handling after a disconnect. [GitHub #76] 
 [ESDK-1753] - Add support for WindowsServer2016 
 [ESDK-2528] - Fix headings syntax in readme [GitHub Pull Request #89]
 [ESDK-2555] - Include latest jdacsUpalib.jar in ESDK [Case Number:  06041830 and 06041830]
@@ -73,7 +74,6 @@ ETA Java 3.2.2.L1 Issues Resolved
 [ESDK-647] - EMAJ or ETAJ consumer sends duplicate FIDs in a snapshot view request
 [ESDK-1651] - UPAJConsPerf throws IllegalArgumentException while connecting when numerous threads 
 	attempt to initialize the channel at the same time
-[ESDK-1724] - Fixed a concurrent modification exception in ETAJ Reactor service handling after a disconnect. 
 [ESDK-1745] - File Descriptor leak - open a SocketChannel but never closed [GitHub #78]
 [ESDK-1753] - Add support for WindowsServer2016 
 [ESDK-2550] - ETA RDM Usage guide section 6.2.4 shows market price update instead of status
