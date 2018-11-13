@@ -97,21 +97,22 @@ Reuters Oak Brook, IL USA
 - ESDK Java Migration Guide
 - EMA Examples Supported Features Matrix (EMAJ_Examples.pdf)
 
-
 # Hardware/OS Requirements
 
       (Linux)
       - HP Intel PC or AMD Opteron (64-bit)
       - AMD Opteron (64-bit)
       - Red Hat Enterprise Linux Advanced Server 6.0 64-bit 
-      - Oracle Linux Server 6.0 64-bit (Qualified on RHAS 6.0)
+      - Oracle Linux Server 6.0 64-bit (Qualified on RHAS 6.0) **
       - Oracle Linux Server 7.0 64-bit
-	  - CentOS 7 64-bit (Qualified on OL7)
+      - CentOS 7 64-bit (Qualified on OL7) **
 
       (Windows)
       - Intel compatible PC and AMD Opteron for 64-bit
       - CPUs must have high resolution timer frequencies greater than 1GHz.
       - Microsoft Windows Server 2008 (SP1 or greater) 64-bit 
+      - Microsoft Windows Server 2012 64-bit 
+      - Microsoft Windows Server 2016 64-bit 
       - Microsoft Windows 7 Professional 64-bit
       - Microsoft Windows 8 Professional 64-bit
       - Microsoft Windows 8.1 Professional 64-bit 
@@ -119,42 +120,37 @@ Reuters Oak Brook, IL USA
 
 
 
-# Software Requirements
-	
-    ----------------- 
-    Core OS Platforms
-    ----------------- 
-    - Microsoft Windows Server 2008 (SP1 or greater) 64-bit
-    - Microsoft Windows Server 2012 Standard 64-bit
-    - Microsoft Windows 7 Professional 64-bit
-    - Microsoft Windows 8 Professional 64-bit
-    - Microsoft Windows 8.1 Professional 64-bit   
-    - Microsoft Windows 10 Professional 64-bit   
+# Software Requirements (Java JNI)
 
-    - Red Hat Enterprise Linux Advanced Server 6.0 (or grater) 64-bit 
-    - Oracle Linux Server 6.0 (or greater) 64-bit 
-    - Oracle Linux Server 7.0 (or greater) 64-bit
-    - CentOS Linux 7.0 (or greater) 64-bit
+      (Linux)
+      - GCC compiler suite version 4.4.4 or higher for RHAS 6.0 (64-bit)
+      - GCC compiler suite version 4.4.4 or higher for OLS 6.0 (64-bit)
+      - GCC compiler suite version 4.8.2 or higher for OLS 7.0 (64-bit)
+      - GCC compiler suite version 4.8.2 or higher for CentOS 7.0 (64-bit)
 
-    
-	-------------
-    Core Java VMs  
-    -------------
-    - Java SE 7 (JDK1.7)
-    - Java SE 8 (JDK1.8)
+      (Windows)
+      - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
+      - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
+      - Microsoft Visual C++ 14.0 64-bit (Visual Studio 2015)
+      - Microsoft Visual C++ 15.0 64-bit (Visual Studio 2017)
 
-		  
-    ---------------------------------------------------------
-    Enterprise Platform for Real-Time - RSSL/RWF connections
-    ---------------------------------------------------------
-    - ADS 2.4 or higher
-    - ADH 2.4 or higher
-	  
-    --------
-    EleKtron
-    --------
-    - EleKtron Deployed
-    - EleKtron Hosted
+      ---------------------------------------------------------
+      Enterprise Platform for Real-Time - RSSL/RWF connections
+      ---------------------------------------------------------
+      - ADS 2.5 or higher
+      - ADH 2.5 or higher
+
+      -------------
+      Core Java VMs  
+      -------------
+      - Java SE 7 (JDK1.7)
+      - Java SE 8 (JDK1.8)
+
+      --------
+      Elektron
+      --------
+      - Elektron Deployed
+      - Elektron Hosted
       
       
 # Installation and Use

@@ -14,14 +14,20 @@ ETA Java can be used with a J2SE7 or J2SE8 compilant JVM.
 These can be downloaded from http://www.oracle.com 
 
 At the current time, the JNI libraries support the following platform/compiler combinations:
+
 - RedHat Advanced Server 6.X 64-bit (gcc4.4.4)
+- Oracle Linux Server 6.X 64-bit (gcc4.4.4)
 - Oracle Linux Server 7.X 64-bit (gcc4.8.2)
-- CentOS 7.X 64-bit (gcc4.8.2) using the Oracle Linux libraries
-- Windows 7 64-bit, Windows 8 64-bit, Windows 8.1 64-bit, Windows 10 64-bit, Windows Server 2008 64-bit, Windows Server 2012 64-bit
-	- Visual Studio 11 (2012)
-	- Visual Studio 12 (2013)
-	- Visual Studio 14 (2015)
-	- Visual Studio 15 (2017)
+- CentOS 7.X 64-bit (gcc4.8.2)
+- Windows 7 64-bit
+- Windows 8 64-bit
+- Windows 8.1 64-bit
+- Windows 10 64-bit
+- Windows Server 2008 64-bit
+- Windows Server 2012 64-bit
+- Windows Server 2016 64-bit
+
+Compilers: Visual Studio 11 (2012), Visual Studio 12 (2013), Visual Studio 14 (2015), Visual Studio 15 (2017)
 
 Users are welcome to migrate open source code to the platforms they prefer, however support for the included ETA libraries are only provided on platforms captured in the README file.
 
@@ -59,8 +65,6 @@ https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 - **Category**: MDS - API
 - **Products**: Elektron SDK
 
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 
 # Developing 
