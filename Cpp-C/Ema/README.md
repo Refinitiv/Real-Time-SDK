@@ -19,45 +19,45 @@ Reuters Oak Brook, IL USA
 ##Consumer Features:
 
 - ADS Multicast: Applications can connect to the ADS Multicast component by specifying the connection type RSSL_RELIABLE_MCAST.  
-	  
+
 - RSSL Encrypted and HTTP Connectivity
 
 - Connection Failover: EMA can be configured to specify a list of failover servers via ChannelSet configuration.  In the event that the consumer's connection attempt fails, EMA will utilize the next channel in the ChannelSet list.
 
 - Default Admin Domain Requests: EMA uses default login, directory and dictionary request while connecting to server. This provides minimum configuration for applications to get up and running.
-	  
+
 - Configurable Admin Domain Requests:  EMA provides means for modifying the default admin domain requests. 
       
 - Tunnel Streams: EMA supports private streams, with additional associated behaviors (e.g., end-to-end authentication, guaranteed delivery, and flow control).
-	  
+
 - Batch Request: Application may use a single request message to specify interest in multiple items via the item list
-	  
-- Dynamic View:	Application may specify a subset of fields or elements of a particular item
-	  
+
+- Dynamic View: Application may specify a subset of fields or elements of a particular item
+
 - Optimized Pause and Resume: Application may request server to pause and resume item stream
-	
+
 - Single Open: EMA supports application selected single open functionality
-	  
-- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
-	
-		
-		
+
+- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
+
+
+
 ##Non-Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
  
-- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
+- Configurable Admin Domains: EMA provides means for modifying the default admin domain messages. 
 
-- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
+- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
 
 
 ##Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
  
-- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 	
+- Configurable Admin Domains: EMA provides means for modifying the default admin domain messages. 
 
-- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
+- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
 
 
 
@@ -65,13 +65,13 @@ Reuters Oak Brook, IL USA
 
 - TCP/IP Connectivity
 
-- RMTES Decoder	EMA provides a built in RMTES decoder. IF desired, application may cache RmtesBuffer objects and apply all the received changes to them.
-	
-- Data::toString()	All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format.
-	
-- Data::getAsHex()	Applications may obtain binary representations of all OMM containers, primitives and messages.
+- RMTES Decoder: EMA provides a built in RMTES decoder. IF desired, application may cache RmtesBuffer objects and apply all the received changes to them.
 
-- File Config:	Enables applications to specify EMA configuration in an EmaConfig.xml file
+- Data::toString(): All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format.
+
+- Data::getAsHex(): Applications may obtain binary representations of all OMM containers, primitives and messages.
+
+- File Config: Enables applications to specify EMA configuration in an EmaConfig.xml file
 
 - Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceXXX,MsgKeyInUpdates only can be configured
   on Consumer/IProvider/NiProvider instance level.
@@ -81,8 +81,8 @@ Reuters Oak Brook, IL USA
 - CMake files to build EMA library
 - EMA Examples
 - Documentation 
-	
-			
+
+
 # Documentation
 
 - EMA Developers Guide
@@ -95,7 +95,7 @@ Reuters Oak Brook, IL USA
 - Test Results
 - ESDK C/C++ Migration Guide
 - EMA Examples Supported Features Matrix (EMACPP_Examples.pdf)
-	
+
 Elektron Message API Documentation is also available online at https://developers.thomsonreuters.com/elektron/elektron-sdk-cc/docs 
 
 
@@ -107,7 +107,7 @@ Elektron Message API Documentation is also available online at https://developer
       - Red Hat Enterprise Linux Advanced Server 6.0 64-bit 
       - Oracle Linux Server 6.0 64-bit (Qualified on RHAS 6.0) **
       - Oracle Linux Server 7.0 64-bit
-	  - CentOS 7 64-bit (Qualified on OL7) **
+      - CentOS 7 64-bit (Qualified on OL7) **
 
 ** EMA is qualified on Oracle Linux Server 6.0 64-bit and CentOS 7 64-bit. Qualification was established by building on Red Hat AS 6.0 64-bit and Oracle Linux 7.0 64-bit, and by running the output on OL6 and CentOS 7, respectively. If you want to build source code on OL6 or CentOS 7, refer to the information in ETA’s readme and replicate the OL6 or CentOS 7 build steps from the ETA Makefiles for the EMA components you want to build. 
 
@@ -115,15 +115,17 @@ Elektron Message API Documentation is also available online at https://developer
       - Intel compatible PC and AMD Opteron for 64-bit
       - CPUs must have high resolution timer frequencies greater than 1GHz.
       - Microsoft Windows Server 2008 (SP1 or greater) 64-bit 
+      - Microsoft Windows Server 2012 64-bit 
+      - Microsoft Windows Server 2016 64-bit 
       - Microsoft Windows 7 Professional 64-bit
       - Microsoft Windows 8 Professional 64-bit
       - Microsoft Windows 8.1 Professional 64-bit 
-	  - Microsoft Windows 10 Professional 64-bit
+      - Microsoft Windows 10 Professional 64-bit
 
 
 
 # Software Requirements
-	
+
       (Linux)
       - GCC compiler suite version 4.4.4 or higher for RHAS 6.0 (64-bit)
       - GCC compiler suite version 4.4.4 or higher for OLS 6.0 (64-bit)
@@ -133,15 +135,15 @@ Elektron Message API Documentation is also available online at https://developer
       (Windows)
       - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
       - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
-	  - Microsoft Visual C++ 14.0 64-bit (Visual Studio 2015)
-	  - Microsoft Visual C++ 15.0 64-bit (Visual Studio 2017)
-	  
+      - Microsoft Visual C++ 14.0 64-bit (Visual Studio 2015)
+      - Microsoft Visual C++ 15.0 64-bit (Visual Studio 2017)
+
       ---------------------------------------------------------
       Enterprise Platform for Real-Time - RSSL/RWF connections
       ---------------------------------------------------------
       - ADS 2.5 or higher
       - ADH 2.5 or higher
-	  
+
        --------
        Elektron
        --------
@@ -153,12 +155,11 @@ Elektron Message API Documentation is also available online at https://developer
 See the top level Elektron-SDK README.md for details.
 
 
-	  
+
 # Issues and Workarounds
 
 - ESDK-380 If CompressionType is set to "None", the CompressionThreshold range check still occurs
-- ESDK-421 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA
-- ESDK-455: Shared windows solution file doesn't build ema if the libxml2 library in eta doesn't already exist. 
+- ESDK-421 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA 
 - ESDK-398 XMLTrace may not flush all information to trace file 
 - ESDK-385 ChannelSet with two multicast channels userQLimit set incorrectly 
 - ESDK-395 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
@@ -190,7 +191,7 @@ Please see the top level **README.md** file for details.
     EU ECCN: None
     Export Code: NL
     Security Compliance: Thomson Reuters Security Compliant
-	  
+
 
 # Notes
 - Please make sure to review the **LICENSE.md** file.

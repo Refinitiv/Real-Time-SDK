@@ -13,15 +13,20 @@ This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/
 Only a subset of platforms is supported, generally overlapping with platforms supported or qualified by the product.
 
 At the current time, the following platform/compiler combinations are supported:
+
 - RedHat Advanced Server 6.X 64-bit (gcc4.4.4)
 - Oracle Linux Server 6.X 64-bit (gcc4.4.4)
 - Oracle Linux Server 7.X 64-bit (gcc4.8.2)
 - CentOS 7.X 64-bit (gcc4.8.2)
-- Windows 7 64-bit, Windows 8 64-bit, Windows 8.1 64-bit, Windows 10 64-bit, Windows Server 2008 64-bit, Windows Server 2012 64-bit
-	- Visual Studio 11 (2012)
-	- Visual Studio 12 (2013)
-	- Visual Studio 14 (2015)
-	- Visual Studio 15 (2017)
+- Windows 7 64-bit
+- Windows 8 64-bit
+- Windows 8.1 64-bit
+- Windows 10 64-bit
+- Windows Server 2008 64-bit
+- Windows Server 2012 64-bit
+- Windows Server 2016 64-bit
+
+Compilers: Visual Studio 11 (2012), Visual Studio 12 (2013), Visual Studio 14 (2015), Visual Studio 15 (2017)
 
 
 Users are welcome to migrate open source code to the platforms they prefer, however support for the included ETA libraries are only provided on platforms captured in the README file.
@@ -52,14 +57,14 @@ Then select the following options:
 - **APIs in this Family**: Elektron SDK - C/C++ Edition
 - **Downloads**: ETA - C - LATEST VERSION
 
-Customer Zone:
+**Customer Zone:**
+
 https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
+
 
 - **Category**: MDS - API
 - **Products**: Elektron SDK
 
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
 
 
 # Developing 
@@ -92,50 +97,50 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
     - A transport-level API allowing for connectivity using TCP, HTTP, HTTPS,
          sockets, reliable and unreliable UDP multicast, and Shared Memory.  
     - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages.
-	
-	- RMTES Support.
+    
+    - RMTES Support.
       Several structures and functions can be used to process RMTES content 
       and convert to several Unicode formats for interpretation. 
-	  
+    
 - Open Source performance tools:
     - Allow users to measure the performance through their system.  Customers can modify the tools to suit their specific needs.  These are found in the Value Add portion of this package.
-	  
+    
 - Open Source value added helpers:
     - Reactor is a connection management and event processing
-		component that can significantly reduce the amount of code an 
-		application must write to leverage OMM in their own applications
-		and to connect to other OMM based devices.  The Reactor can be
-		used to create or enhance Consumer, Interactive Provider, and
-		Non-Interactive Provider start-up processing, including user log
-		in, source directory establishment, and dictionary download.  The
-		Reactor also allows for dispatching of events to user implemented
-		callback functions.  In addition, it handles flushing of user
-		written content and manages network pings on the user's behalf.
-		Value Added domain representations are coupled with the Reactor,
-		allowing domain specific callbacks to be presented with their
-		respective domain representation for easier, more logical 
-		access to content.
-	- The Administration Domain Model Representations are RDM specific
-		representations of the OMM administrative domain models.  This
+        component that can significantly reduce the amount of code an 
+        application must write to leverage OMM in their own applications
+        and to connect to other OMM based devices.  The Reactor can be
+        used to create or enhance Consumer, Interactive Provider, and
+        Non-Interactive Provider start-up processing, including user log
+        in, source directory establishment, and dictionary download.  The
+        Reactor also allows for dispatching of events to user implemented
+        callback functions.  In addition, it handles flushing of user
+        written content and manages network pings on the user's behalf.
+        Value Added domain representations are coupled with the Reactor,
+        allowing domain specific callbacks to be presented with their
+        respective domain representation for easier, more logical 
+        access to content.
+    - The Administration Domain Model Representations are RDM specific
+        representations of the OMM administrative domain models.  This
         Value Added Component contains structures that represent the 
-		messages within the Login, Source Directory, and Dictionary 
-		domains.  This component also handles all encoding and decoding
-		functionality for these domain models, so the application needs
-		only to manipulate the message's structure members to send or
-		receive this content.  This not only significantly reduces the
-		amount of code an application needs to interact with OMM devices
-		(i.e., Enterprise Platform for Real-time), but also ensures that
-		encoding/decoding for these domain models follow OMM specified
-		formatting rules.  Applications can use this Value Added 
-		Component directly to help with encoding, decoding and
-		representation of these domain models.  When using the UPA
-		Reactor, this component is embedded to manage and present
-		callbacks with a domain specific representation of content.
-		
+        messages within the Login, Source Directory, and Dictionary 
+        domains.  This component also handles all encoding and decoding
+        functionality for these domain models, so the application needs
+        only to manipulate the message's structure members to send or
+        receive this content.  This not only significantly reduces the
+        amount of code an application needs to interact with OMM devices
+        (i.e., Enterprise Platform for Real-time), but also ensures that
+        encoding/decoding for these domain models follow OMM specified
+        formatting rules.  Applications can use this Value Added 
+        Component directly to help with encoding, decoding and
+        representation of these domain models.  When using the UPA
+        Reactor, this component is embedded to manage and present
+        callbacks with a domain specific representation of content.
+    
 - DACS library for users to create custom locks for content publishing
-	
+    
 - ANSI library for users to process ANSI Page based content
-	
+    
 
 ####General Capabilities
 Transport API provides the following general capabilities independent of the type of application:
