@@ -41,7 +41,7 @@ const EmaString& ChannelInformation::toString() const {
   }
   _toString.append( "\n\tconnection type: " );
   switch( _connectionType ) {
-	case ConnectionType::Unidentified: _toString.append("unknown"); break;
+	case Unidentified: _toString.append("unknown"); break;
 	case SocketEnum: _toString.append( "socket" ); break;
 	case EncryptedEnum: _toString.append( "encrypted" ); break;
 	case HttpEnum: _toString.append( "http" ); break;
@@ -72,7 +72,7 @@ ChannelInformation::operator const char*() const
 
 void ChannelInformation::clear() {
   _channelState = ClosedEnum;
-  _connectionType = ConnectionType::Unidentified;
+  _connectionType = Unidentified;
   _hostname.clear();
   _ipAddress.clear();
   _connectedComponentInfo.clear();
