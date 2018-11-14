@@ -165,7 +165,7 @@ static RsslBool populateJavaChannel(JNIEnv *env, RsslChannel *rsslChnl, jobject 
 	}
 
 	/* set socketId field */
-	(*env)->SetIntField(env, *jchnl, fid, rsslChnl->socketId);
+	(*env)->SetIntField(env, *jchnl, fid, ((int)rsslChnl->socketId));
 
 	/* get oldSocketId field id */
 	fid = (*env)->GetFieldID(env, jniChannelClass, "_oldSocketId", "I");
@@ -175,7 +175,7 @@ static RsslBool populateJavaChannel(JNIEnv *env, RsslChannel *rsslChnl, jobject 
 	}
 
 	/* set oldSocketId field */
-	(*env)->SetIntField(env, *jchnl, fid, rsslChnl->oldSocketId);
+	(*env)->SetIntField(env, *jchnl, fid, ((int)rsslChnl->oldSocketId));
 
 	/* get state field id */
 	fid = (*env)->GetFieldID(env, jniChannelClass, "_state", "I");
@@ -534,7 +534,7 @@ static RsslBool bindJavaServer(JNIEnv *env, RsslServer *rsslSrvr, jobject *jsrvr
 	/* add java server FD to JNISrvrFDList */
 	jniSrvrFDs = (JNISrvrFDs *)malloc(sizeof(JNISrvrFDs));
 	jniSrvrFDs->jSrvrPort = javaServerPort;
-	jniSrvrFDs->cSrvrScktFD = rsslSrvr->socketId;
+	jniSrvrFDs->cSrvrScktFD = (int)rsslSrvr->socketId;
 	rsslInitQueueLink(&jniSrvrFDs->link1);
 	rsslQueueAddLinkToBack(&JNISrvrFDList, &jniSrvrFDs->link1);
 	getLock();
@@ -2278,7 +2278,7 @@ static RsslBool populateJavaServer(JNIEnv *env, RsslServer *rsslSrvr, jobject *j
 	}
 
 	/* set socketId field */
-	(*env)->SetIntField(env, *jsrvr, fid, rsslSrvr->socketId);
+	(*env)->SetIntField(env, *jsrvr, fid, ((int)rsslSrvr->socketId));
 
 	/* get state field id */
 	fid = (*env)->GetFieldID(env, jniServerClass, "_state", "I");
@@ -2571,7 +2571,7 @@ static void notifyJavaServer(int jSrvrPort)
 	struct sockaddr_in scktAddr;
 	int scktFD;
 
-	scktFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	scktFD = (int)socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if (scktFD == -1)
 	{
@@ -2622,7 +2622,7 @@ static void notifyJavaChannel(JNIChnlFDs *jniChnlFD)
 static void acceptJavaChannel(int selectLoopServerFD)
 {
 	JNIChnlFDs *jniChnlFDs = NULL;
-	int jChnlScktFD = accept(selectLoopServerFD, NULL, NULL);
+	int jChnlScktFD = (int)accept(selectLoopServerFD, NULL, NULL);
  
 	if(jChnlScktFD == -1)
 	{
@@ -2902,7 +2902,7 @@ JNIEXPORT jint JNICALL Java_com_thomsonreuters_upa_transport_JNIProtocol_rsslIni
 #endif
 
 		/* create selectLoopServer socket */
-		selectLoopServerFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+		selectLoopServerFD = (int)socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 		if (selectLoopServerFD == -1)
 		{
