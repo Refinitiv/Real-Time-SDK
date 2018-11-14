@@ -37,7 +37,7 @@ const EmaString& ChannelInformation::toString() const {
 	case InactiveEnum: _toString.append( "inactive" ); break;
 	case InitializingEnum: _toString.append( "initializing" ); break;
 	case ActiveEnum: _toString.append( "active" ); break;
-	default: _toString.append( "unknown: " + _channelState ); break;
+	default: _toString.append( "unknown: ").append( _channelState ); break;
   }
   _toString.append( "\n\tconnection type: " );
   switch( _connectionType ) {
@@ -49,14 +49,14 @@ const EmaString& ChannelInformation::toString() const {
 	case Reliable_McastEnum: _toString.append( "reliableMCast" ); break;
 	case Ext_Line_SocketEnum: _toString.append( "extended line socket" ); break;
 	case Seq_McastEnum: _toString.append( "seqMCast" ); break;
-	default: _toString.append( "unknown: " + _connectionType ); break;
+	default: _toString.append( "unknown"); break;
   }
   _toString.append( "\n\tprotocol type: " );
   switch( _protocolType ) {
 	case RwfEnum: _toString.append( "Reuters wire format" ); break;
 	case UnknownEnum:
 	default:
-	_toString.append( "unknown wire format: " + _protocolType ); break;
+	_toString.append( "unknown wire format"); break;
   }
   _toString.append( "\n\tmajor version: " ).append( _majorVersion )
 	.append( "\n\tminor version: " ).append( _minorVersion )

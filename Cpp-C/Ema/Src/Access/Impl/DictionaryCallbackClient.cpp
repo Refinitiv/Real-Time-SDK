@@ -1587,6 +1587,9 @@ bool DictionaryItem::open( const ReqMsg& reqMsg )
 	{
 		Dictionary* dictionary = _ommBaseImpl.getDictionaryCallbackClient().getDefaultDictionary();
 
+		// Unset the channel as the dictionary information is generated from EMA.
+		_event._channel = 0;
+
 		if ( dictionary )
 		{
 			if (_name == DictionaryCallbackClient::_rwfFldName)

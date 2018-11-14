@@ -73,6 +73,7 @@ private :
 
 	friend class ConsumerItem;
 	friend class LoginItem;
+	friend class DictionaryItem;
 
 	UInt64			_handle;
 	UInt64			_parentHandle;
