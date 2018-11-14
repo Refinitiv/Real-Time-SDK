@@ -49,7 +49,6 @@ public:
 	InactiveEnum = 0,		/*!< (0) Channel is in the INACTIVE state. */
 	InitializingEnum = 1,	/*!< (1) Channel is in the INITIALIZING state. */
 	ActiveEnum = 2,			/*!< (2) Channel is in the ACTIVE state. */
-	UnknownChannelStateEnum = 99        /*!< (99) Channel state is unknown */
   };
 
   /** @enum ConnectionType

@@ -37,7 +37,7 @@ const EmaString& ChannelInformation::toString() const {
 	case InactiveEnum: _toString.append( "inactive" ); break;
 	case InitializingEnum: _toString.append( "initializing" ); break;
 	case ActiveEnum: _toString.append( "active" ); break;
-	default: _toString.append( "unknown: ").append( _channelState ); break;
+	default: _toString.append( "unknown"); break;
   }
   _toString.append( "\n\tconnection type: " );
   switch( _connectionType ) {
@@ -71,7 +71,7 @@ ChannelInformation::operator const char*() const
 }
 
 void ChannelInformation::clear() {
-  _channelState = UnknownChannelStateEnum;
+  _channelState = ClosedEnum;
   _connectionType = ConnectionType::Unidentified;
   _hostname.clear();
   _ipAddress.clear();
