@@ -812,6 +812,9 @@ NiProviderSingleItem::NiProviderSingleItem( OmmBaseImpl& ommBaseImpl, OmmProvide
 	_ommBaseImpl( ommBaseImpl )
 {
 	setProvider( static_cast<OmmNiProviderImpl&>(ommBaseImpl).getProvider() );
+
+	if (ommBaseImpl.getLoginCallbackClient().getActiveChannel() != 0)
+		_event._channel = ommBaseImpl.getLoginCallbackClient().getActiveChannel()->getRsslChannel();
 }
 
 NiProviderSingleItem::~NiProviderSingleItem()

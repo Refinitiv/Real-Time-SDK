@@ -73,6 +73,7 @@ private :
 
 	friend class ProviderItem;
 	friend class NiProviderLoginItem;
+	friend class NiProviderSingleItem;
 	friend class LoginHandler;
 	friend class DictionaryHandler;
 	friend class DirectoryHandler;
