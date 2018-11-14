@@ -77,7 +77,7 @@ class AppClient implements OmmProviderClient
 				return;
 			}
 			tmp.remove((Long)event.handle());
-			itemHandles.replace((Long)event.clientHandle(), tmp);
+			itemHandles.put((Long)event.clientHandle(), tmp);
 		}
 		System.out.println("channel info for close event:\n\t" + event.channelInformation());
 	}
@@ -119,7 +119,7 @@ class AppClient implements OmmProviderClient
 		}
 
 		handles.add(event.handle());
-		itemHandles.replace(event.clientHandle(), handles);
+		itemHandles.put(event.clientHandle(), handles);
 
 		System.out.println("added item " + event.handle() + " to client " + event.clientHandle());
 		System.out.println("channel info for market price request event:\n\t" + event.channelInformation());
