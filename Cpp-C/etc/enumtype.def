@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.34
 !tag Build_RDMD  4.20.34
-!tag DT_Version  18.91
-!tag Date        29-Oct-2018
+!tag DT_Version  19.01
+!tag Date        26-Nov-2018
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -5141,6 +5141,7 @@ OFF_CD_IN2  1055
      58        "TWI"   Tradeweb ID Code
      59        "RED"   RED ID code for Credit Default Swaps
      60        "TSH"   TOSHO - Tokyo SE security Identification number
+     61        "BAS"   Buenos Aires code
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8595,6 +8596,13 @@ LEG4_EXCH  13574
    1526        "EMA"   Euronext Market Access
    1527        "NCA"   NATIONAL CONFECTIONERS ASSOCIATION
    1528        "MAA"   Morgan Stanley MTF
+   1529        "IFC"   INTL FCStone Inc
+   1530        "EMM"   European Money Markets Institute
+   1531        "EML"   Euronext Access Lisbon
+   1532        "EMB"   Euronext Access Brussels
+   1533        "ATE"   Athens Stock Exchange APA
+   1534        "TRO"   TRADEcho
+   1535        "UGC"   US Grains Council
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22013,9 +22021,11 @@ DEF_DMI    32312
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "LCM     "   LCM
-      2   "UDM     "   UDM
+      1   "LCM     "   Legacy Compatible Model
+      2   "UDM     "   UDM (NOT IN USE)
       3   "UNSPC_DM"   UNSPEC_DM
+      4   "LDM     "   Legacy Data Model
+      5   "PDM     "   Platform Data Model
 !
 ! ACRONYM    FID
 ! -------    ---
