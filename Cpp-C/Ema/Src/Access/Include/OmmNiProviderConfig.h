@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -52,6 +52,16 @@ public :
 	{
 		UserDispatchEnum,		/*!< specifies callbacks happen on user thread of control */
 		ApiDispatchEnum			/*!< specifies callbacks happen on API thread of control */
+	};
+
+	/** @enum EncryptionProtocolTypes
+	*/
+	enum EncryptionProtocolTypes
+	{
+		ENC_NONE = 0x00,			/*!< (0x00) No encryption. */
+		ENC_TLSV1 = 0x01,			/*!< (0x02) Encryption using TLSv1 protocol */
+		ENC_TLSV1_1 = 0x02,			/*!< (0x04) Encryption using TLSv1.1 protocol */
+		ENC_TLSV1_2 = 0x04			/*!< (0x08) Encryption using TLSv1.2 protocol */
 	};
 
 	/** @enum AdminControl
@@ -165,6 +175,51 @@ public :
 		@return reference to this object
 	*/
 	OmmNiProviderConfig& providerName( const EmaString& providerName );
+
+	/** Specifies the address or host name of the proxy server to connect to for an HTTP or HTTPS connection.
+		@param[in] proxyHostName specifies the address or host name of the proxy server
+		for tunneling connection.
+		@return reference to this object
+	*/
+	OmmNiProviderConfig& tunnelingProxyHostName(const EmaString& proxyHostName);
+
+	/** Specifies the port number of the proxy server to connect to for an HTTP or HTTPS connection.
+		@param[in] proxyPort specifies the port number of the proxy server
+		for tunneling connection.
+		@return reference to this object
+	*/
+	OmmNiProviderConfig& tunnelingProxyPort(const EmaString& proxyPort);
+
+	/** Specifies the cryptographic protocols to be used for an Encrypted connection on a Linux operating system,
+		of values TLSv1, TLSv1.1, and TLSv1.2. The highest value of TLS will be selected by
+		the Rssl API first, then it will roll back if the encryption handshake fails.
+		The protocol defaults to TLSv1.2.
+		Use OmmNiProviderConfig::EncryptedProtocolTypes flags to set allowed protocols.
+		@param[in] securityProtocol specifies a cryptopgraphic protocol.
+		@return reference to this object
+	*/
+	OmmNiProviderConfig& tunnelingSecurityProtocol(int securityProtocol);
+
+	/** Specifies the object name to pass along with the underlying
+		URL in HTTP and HTTPS connection messages.
+		@param[in] objectName specifies the object name.
+		@return reference to this object
+	*/
+	OmmNiProviderConfig& tunnelingObjectName(const EmaString& objectName);
+
+	/** Specifies the name of the libssl.so shared library for Encrypted connections on
+		a Linux operating system.
+		@param[in] libsslName specifies the name of the libssl.so shared library
+		@return reference to this object
+	*/
+	OmmNiProviderConfig& tunnelingLibSslName(const EmaString& libsslName);
+
+	/** Specifies the name of the libcrypto.so shared library for Encrypted connections on
+		a Linux operating system.
+		@param[in] libsslName specifies the name of the libcrypto.so shared library
+		@return reference to this object
+	*/
+	OmmNiProviderConfig& tunnelingLibCryptoName(const EmaString& libcryptoName);
 
 	/** Specifies the local configuration, overriding and adding to the current content.
 		@param[in] config specifies OmmProvider configuration

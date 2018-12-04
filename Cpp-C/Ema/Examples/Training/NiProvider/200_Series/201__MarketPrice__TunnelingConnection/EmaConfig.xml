@@ -37,18 +37,6 @@
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
 
-    <Consumer>
-      <Name value="Consumer_3"/>
-
-      <!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
-      <!-- connect, one at a time, if the previous one fails to connect							-->
-      <ChannelSet value="Channel_3"/>
-
-      <Logger value="Logger_1"/>
-      <Dictionary value="Dictionary_1"/>
-      <XmlTraceToStdout value="0"/>
-    </Consumer>
-
 	</ConsumerList>
 </ConsumerGroup>
 

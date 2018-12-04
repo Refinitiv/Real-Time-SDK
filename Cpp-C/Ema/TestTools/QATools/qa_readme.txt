@@ -512,6 +512,15 @@ Series100NiProvider100-TrepAuth-002
 Series100NiProvider100-ProvFunc-001
     Alters NiProvider to repeat multiple iterations of the following: initialize niprovider, request item, sleep 1 sec, uninitializing niprovider
 
+Module:  Series200NiProvider201
+----------------------------------
+Series200NiProvider201-ProvFunc-001
+    Alter NiProvider to use user dispatch and checking for status to recovery connection
+	with attached new argument and configuration for NiProvider HTTPs Encryption.
+
+Series200NiProvider201-PConfig-001
+    Alter NiProvider to use Programmatic Congig along with Tunneling Connection arguments.
+
 Module:  Series300NiProvider350
 ----------------------------------
 Series300NiProvider350-ProvFunc-001:  Alters Series300NiProvider350 to request dictionary

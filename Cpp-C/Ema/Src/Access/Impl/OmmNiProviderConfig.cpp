@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -109,6 +109,42 @@ OmmNiProviderConfig& OmmNiProviderConfig::adminControlDirectory( AdminControl co
 OmmNiProviderConfig& OmmNiProviderConfig::providerName( const EmaString& providerName )
 {
 	_pImpl->providerName( providerName );
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::tunnelingProxyHostName(const EmaString& proxyHostName)
+{
+	_pImpl->proxyHostName(proxyHostName);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::tunnelingProxyPort(const EmaString& proxyPort)
+{
+	_pImpl->proxyPort(proxyPort);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::tunnelingSecurityProtocol(int securityProtocol)
+{
+	_pImpl->securityProtocol(securityProtocol);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::tunnelingObjectName(const EmaString& objectName)
+{
+	_pImpl->objectName(objectName);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::tunnelingLibSslName(const EmaString& libsslName)
+{
+	_pImpl->libsslName(libsslName);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::tunnelingLibCryptoName(const EmaString& libcryptoName)
+{
+	_pImpl->libcryptoName(libcryptoName);
 	return *this;
 }
 

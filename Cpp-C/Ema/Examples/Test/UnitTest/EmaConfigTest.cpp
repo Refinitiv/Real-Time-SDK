@@ -1453,6 +1453,98 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 	}
 }
 
+TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv)
+{
+	//test function call for niprov encrypted connection
+
+	Map outermostMap, innerMap;
+	ElementList elementList;
+
+	try
+	{
+		innerMap.addKeyAscii("Provider_2", MapEntry::AddEnum,
+			ElementList()
+			.addAscii("Channel", "Channel_6")
+			.addAscii("Logger", "Logger_1")
+			.complete())
+			.complete();
+
+		elementList.addMap("NiProviderList", innerMap);
+		elementList.complete();
+		outermostMap.addKeyAscii("NiProviderGroup", MapEntry::AddEnum, elementList);
+
+		elementList.clear();
+		innerMap.clear();
+		innerMap.addKeyAscii("Channel_6", MapEntry::AddEnum,
+			ElementList()
+			.addEnum("ChannelType", RSSL_CONN_TYPE_ENCRYPTED)
+			.addAscii("InterfaceName", "localhost")
+			.addAscii("Host", "localhost")
+			.addAscii("Port", "14009")
+			.addAscii("ProxyHost", "proxyhost6")
+			.addAscii("ProxyPort", "proxyport6")
+			.addAscii("ObjectName", "objectname6")
+			.addUInt("TcpNodelay", 0).complete())
+			.complete();
+		elementList.addMap("ChannelList", innerMap);
+
+		elementList.complete();
+
+		outermostMap.addKeyAscii("ChannelGroup", MapEntry::AddEnum, elementList);
+
+		innerMap.clear();
+		elementList.clear();
+		innerMap.addKeyAscii("Logger_1", MapEntry::AddEnum,
+			ElementList()
+			.addEnum("LoggerType", 0)
+			.addAscii("FileName", "logFile")
+			.addEnum("LoggerSeverity", 3).complete()).complete();
+
+		elementList.addMap("LoggerList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("LoggerGroup", MapEntry::AddEnum, elementList);
+
+		outermostMap.complete();
+
+		EmaString localConfigPath;
+		EmaString workingDir;
+		ASSERT_EQ(getCurrentDir(workingDir), true)
+			<< "Error: failed to load config file from current working dir "
+			<< workingDir.c_str();
+		localConfigPath.append(workingDir).append("//EmaConfigTest.xml");
+
+		OmmNiProviderConfig niProviderConfig(localConfigPath);
+		niProviderConfig.config(outermostMap).tunnelingProxyHostName("proxyHost").tunnelingProxyPort("14032").tunnelingObjectName("objectName");
+
+		OmmNiProviderImpl ommNiProviderImpl(niProviderConfig, appClient);
+
+		OmmNiProviderActiveConfig& activeConfig = static_cast<OmmNiProviderActiveConfig&>(ommNiProviderImpl.getActiveConfig());
+		bool found = ommNiProviderImpl.getInstanceName().find("Provider_2") >= 0 ? true : false;
+
+		EXPECT_TRUE(found) << "ommNiProviderImpl.getNiProviderName() , \"Provider_2_1\"";
+
+		EXPECT_TRUE(activeConfig.configChannelSet.size() == 1) << "Channel Count , 1";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_6") << "Connection name , \"Channel_6\"";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "Connection type , \"RSSL_CONN_TYPE_ENCRYPTED\"";
+		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyHost") << "Proxy hostname , \"proxyHost\"";
+		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "14032") << "Proxy port , \"14032\"";
+		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectName") << "Object name , \"objectName\"";
+		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
+		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";
+		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
+
+		EXPECT_TRUE(activeConfig.loggerConfig.loggerName == "Logger_1") << "Logger name , \"Logger_1\"";
+	}
+	catch (const OmmException& excp)
+	{
+		std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+		EXPECT_TRUE(false) << "Unexpected exception in testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv()";
+	}
+}
+
 TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 {
 	//two testcases:
