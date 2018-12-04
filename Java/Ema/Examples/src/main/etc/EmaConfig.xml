@@ -21,29 +21,29 @@
 			<Dictionary value="Dictionary_1"/>
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
-		
+
 		<Consumer>
 			<Name value="Consumer_2"/>
-			
+
 			<!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
 			<!-- connect, one at a time, if the previous one fails to connect							-->
 			<ChannelSet value="Channel_1, Channel_2"/>
-			
+
 			<Dictionary value="Dictionary_2"/>
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
-		
+
 		<Consumer>
 			<Name value="Consumer_3"/>
-			
+
 			<!-- Channel set to "RSSL_ENCRYPTED"														-->
 			<Channel value="Channel_4"/>
-			
+
 			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
 			<Dictionary value="Dictionary_1"/>
 			<XmlTraceToStdout value="0"/>
 		</Consumer>
-		
+
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -58,10 +58,10 @@
 		<NiProvider>
 			<!-- Name is mandatory																		-->
 			<Name value="Provider_1"/>
-			
+
 			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14003"					-->
 			<Channel value="Channel_3"/>
-			
+
 			<!-- Directory is optional.																	-->
 			<!-- the EMA provides hardcoded directory containing a single service named "NI_PUB".		-->
 			<!-- the EMA defaults the OmmNiProviderConfig::adminControlDirectory() to ApiControlEnum.	-->
@@ -72,20 +72,30 @@
 			<!-- if desired the OmmNiProviderConfig::adminControlDirectory() to UserControlEnum			-->
 			<!-- which allows applications to specify and control the directory.						-->
 			<Directory value="Directory_1"/>
-			
+
 			<XmlTraceToStdout value="0"/>
 		</NiProvider>
-		
+
 		<NiProvider>
 			<Name value="Provider_2"/>
-		
+
 			<Channel value="Channel_3"/>
-			
+
 			<Directory value="Directory_2"/>
-			
+
 			<XmlTraceToStdout value="0"/>
 		</NiProvider>
-		
+
+		<NiProvider>
+			<Name value="Provider_3"/>
+
+			<Channel value="Channel_11"/>
+
+			<Directory value="Directory_1"/>
+
+			<XmlTraceToStdout value="0"/>
+		</NiProvider>
+
 	</NiProviderList>
 </NiProviderGroup>
 
@@ -108,21 +118,21 @@
             <!-- this configuration also decides which dictionaries will be loaded at startup            -->
             <!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()              -->
             <Directory value="Directory_2"/>
-			
+
 			<ItemCountHint value="10000"/>
-			
+
 			<ServiceCountHint value="10000" />
-			
+
 			<DispatchTimeoutApiThread value="500" />
 
 			<MaxDispatchCountApiThread value="500" />
-			
+
 			<MaxDispatchCountUserThread value="500" />
-			
+
 			<PipePort value="9009" />
-			
+
 			<RefreshFirstRequired value="1" />
-		
+
         </IProvider>
     </IProviderList>
 </IProviderGroup>
@@ -145,7 +155,7 @@
 
 			<!-- ConnectionPingTimeout is optional: defaulted to 30000									-->
 			<ConnectionPingTimeout value="30000"/>
-			
+
 			<!-- TcpNodelay is optional: defaulted to 1 												-->
 			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set)					-->
 			<TcpNodelay value="1"/>
@@ -189,6 +199,16 @@
 			<!-- ObjectName is optional: defaulted to ""												-->
 			<ObjectName value=""/>
 		</Channel>
+		<Channel>
+			<Name value="Channel_11"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="122.1.1.100"/>
+			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to ""												-->
+			<ObjectName value=""/>
+		</Channel>
 	</ChannelList>
 </ChannelGroup>
 
@@ -218,17 +238,17 @@
 	<DefaultDirectory value="Directory_1"/>
 	<DirectoryList>
 		<!-- providers refer to the Directory by name													-->
-		<!-- Directory is a set of Services (one or more) on which a provider will provide item data	--> 
+		<!-- Directory is a set of Services (one or more) on which a provider will provide item data	-->
 		<Directory>
 			<Name value="Directory_1"/>
-			
+
 			<Service>
 				<Name value="TEST_NI_PUB"/>
 
 				<InfoFilter>
 					<!-- optional value; if not specified EMA will assign it							-->
 					<ServiceId value="11"/>
-					
+
 					<!-- optional value																	-->
 					<Vendor value="company name"/>
 
@@ -252,7 +272,7 @@
 						<DictionariesProvidedEntry value="Dictionary_3"/>
 						<DictionariesProvidedEntry value="Dictionary_4"/>
 					</DictionariesProvided>
-					
+
 					<!-- list of dictionary names specified in the DictionaryGroup						-->
 					<!-- EMA will populate the Service::InfoFilter::DictionariesUsed element			-->
 					<!-- with the respective <>ItemName values											-->
@@ -272,10 +292,10 @@
 							<Rate value="Rate::JustInTimeConflated"/>
 						</QoSEntry>
 					</QoS>
-					
+
 					<!-- 0 means does not support, 1 - means supports QoS range							-->
 					<SupportsQoSRange value="0"/>
-					
+
 					<!-- name of item list																-->
 					<ItemList value="#.itemlist"/>
 
@@ -285,7 +305,7 @@
 					<!-- 0 means does not support, 1 - means supports out of band snapshots				-->
 					<SupportsOutOfBandSnapshots value="0"/>
 				</InfoFilter>
-				
+
 				<!-- StateFilter is optional															-->
 				<!-- EMA will default the values as follows:											-->
 				<!-- for interactive provider															-->
@@ -298,12 +318,12 @@
 
 					<!-- 0 means service does not accept, 1 - means service accepts (default; 1)		-->
 					<AcceptingRequests value="1"/>
-					
+
 					<!-- optional; specifies status change to apply to all items provided by this service -->
 					<!-- possible values are listed in the OmmState.h file of the EMA					-->
 					<Status>
 						<!-- possible values are: Open, Close, CloseRecover								-->
-						<StreamState value="StreamState::Open"/> 
+						<StreamState value="StreamState::Open"/>
 						<!-- possibe values are: NoChange, Ok, Suspect									-->
 						<DataState value="DataState::Ok"/>
 						<!-- possible values are: None, DacsDown, etc									-->
@@ -313,9 +333,9 @@
 					</Status>
 				</StateFilter>
 			</Service>
-			
+
 			<Service>
-				<Name value="NI_PUB"/>		
+				<Name value="NI_PUB"/>
 				<InfoFilter>
 					<DictionariesProvided>
 						<DictionariesProvidedEntry value="Dictionary_3"/>
@@ -341,7 +361,7 @@
 					<AcceptingConsumerStatus value="0"/>
 					<SupportsOutOfBandSnapshots value="0"/>
 				</InfoFilter>
-				
+
 				<StateFilter>
 					<ServiceState value="1"/>
 					<AcceptingRequests value="1"/>
@@ -354,7 +374,7 @@
 				</StateFilter>
 			</Service>
 		</Directory>
-		
+
 		<Directory>
 			<Name value="Directory_2"/>
 			<Service>
@@ -389,7 +409,7 @@
 							<Rate value="100"/>
 						</QoSEntry>
 					</QoS>
-					
+
 					<SupportsQoSRange value="0"/>
 					<ItemList value="#.itemlist"/>
 					<AcceptingConsumerStatus value="0"/>
@@ -401,11 +421,11 @@
 					<AcceptingRequests value="1"/>
 				</StateFilter>
 			</Service>
-			
+
 		</Directory>
-		
+
 	</DirectoryList>
-	
+
 </DirectoryGroup>
 
 <DictionaryGroup>
@@ -419,7 +439,7 @@
 			<!-- if dictionaryType is set to ChannelDictionary, file names are ignored -->
 			<DictionaryType value="DictionaryType::ChannelDictionary"/>
 		</Dictionary>
-		
+
 		<Dictionary>
 			<Name value="Dictionary_2"/>
 			<DictionaryType value="DictionaryType::FileDictionary"/>
@@ -437,7 +457,7 @@
 			<!-- dictionary file names are optional: defaulted to ./RDMFieldDictionary and ./enumtype.def -->
 			<RdmFieldDictionaryFileName value="./RDMFieldDictionary"/>
 			<EnumTypeDefFileName value="./enumtype.def"/>
-			
+
 			<!-- <dictionary>ItemName represents the names shown in DictionariesProvided and DictionariesUsed
 				elements of the Directory InfoFilter -->
 			<!-- <dictionary>ItemName is optional; default values are "RWFFld" for the RdmFieldDictionary
@@ -454,7 +474,7 @@
 			<RdmFieldDictionaryItemName value="RWFFld_ID4"/>
 			<EnumTypeDefItemName value="RWFEnum_ID4"/>
 		</Dictionary>
-		
+
 	</DictionaryList>
 </DictionaryGroup>
 

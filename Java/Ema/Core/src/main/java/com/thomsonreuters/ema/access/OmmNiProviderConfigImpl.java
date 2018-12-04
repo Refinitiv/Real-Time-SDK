@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2016. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -227,5 +227,110 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	public int providerRole()
 	{
 		return OmmProviderConfig.ProviderRole.NON_INTERACTIVE;
+	}
+	
+	@Override
+	public OmmNiProviderConfig tunnelingProxyHostName(String proxyHostName)
+	{
+		tunnelingChannelCfg().httpProxyHostName = proxyHostName;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingProxyPort(String proxyPort)
+	{
+		tunnelingChannelCfg().httpProxyPort = proxyPort;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingObjectName(String objectName)
+	{
+		tunnelingChannelCfg().objectName = objectName;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingCredentialUserName(String userName)
+	{
+		tunnelingChannelCfg().httpProxyUserName = userName;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingCredentialPasswd(String passwd)
+	{
+		tunnelingChannelCfg().httpproxyPasswd = passwd;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingCredentialDomain(String domain)
+	{
+		tunnelingChannelCfg().httpProxyDomain = domain;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingCredentialKRB5ConfigFile(String krb5ConfigFile)
+	{
+		tunnelingChannelCfg().httpProxyKRB5ConfigFile = krb5ConfigFile;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingCredentialLocalHostName(String localHostName)
+	{
+		tunnelingChannelCfg().httpProxyLocalHostName = localHostName;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingKeyStoreType(String keyStoreType)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStoreType = keyStoreType;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingKeyStoreFile(String keyStoreFile)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStoreFile = keyStoreFile;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingKeyStorePasswd(String keyStorePasswd)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyStorePasswd = keyStorePasswd;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingSecurityProtocol(String securityProtocol)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).SecurityProtocol = securityProtocol;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingSecurityProvider(String securityProvider)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).SecurityProvider = securityProvider;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingKeyManagerAlgorithm(String keyManagerAlgorithm)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).KeyManagerAlgorithm = keyManagerAlgorithm;
+		return this;
+	}
+
+	@Override
+	public OmmNiProviderConfig tunnelingTrustManagerAlgorithm(String trustManagerAlgorithm)
+	{
+		((EncryptedChannelConfig)tunnelingChannelCfg()).TrustManagerAlgorithm = trustManagerAlgorithm;
+		return this;
 	}
 }

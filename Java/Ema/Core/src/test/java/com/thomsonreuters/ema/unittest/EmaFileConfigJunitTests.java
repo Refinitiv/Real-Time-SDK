@@ -10,6 +10,7 @@ import com.thomsonreuters.ema.access.OmmConsumer;
 import junit.framework.TestCase;
 import com.thomsonreuters.ema.access.OmmConsumerConfig;
 import com.thomsonreuters.ema.access.OmmException;
+import com.thomsonreuters.ema.access.OmmNiProviderConfig;
 import com.thomsonreuters.ema.access.OmmProvider;
 import com.thomsonreuters.ema.access.Series;
 import com.thomsonreuters.upa.codec.Qos;
@@ -1652,6 +1653,141 @@ public class EmaFileConfigJunitTests extends TestCase
 				TestUtilities.checkResult("Receiving exception, test failed.", false );
 			}
 		}
+	}
+	
+	public void testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv()
+	{
+		TestUtilities.printTestHead("testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv","Test merge all configuration parameters between "
+				+ "function call, config file and programmatically config");
+		
+		// test function call for http/encrypted connection
+				
+		Map configDB1 = EmaFactory.createMap();
+		Map configDB2 = EmaFactory.createMap();
+		Map configDB3 = EmaFactory.createMap();
+		Map innerMap = EmaFactory.createMap();
+		ElementList elementList = EmaFactory.createElementList();
+		ElementList innerElementList = EmaFactory.createElementList();
+		
+		try
+		{
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_6"));
+			
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ItemCountHint", 9000));
+			
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_2", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+			
+			elementList.add(EmaFactory.createElementEntry().map( "NiProviderList", innerMap ));
+			innerMap.clear();
+
+			configDB1.add(EmaFactory.createMapEntry().keyAscii( "NiProviderGroup", MapEntry.MapAction.ADD, elementList ));
+			elementList.clear();
+
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_ENCRYPTED"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ProxyHost", "proxyhost6"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ProxyPort", "proxyport6"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ObjectName", "objectname6"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::LZ4"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 7000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 888888));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("SysRecvBufSize", 550000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("SysSendBufSize", 700000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12758));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ConnectionPingTimeout", 70000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TcpNodelay", 1));
+			
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_6", MapEntry.MapAction.ADD, innerElementList));
+			
+			innerElementList.clear();
+
+			elementList.add(EmaFactory.createElementEntry().map( "ChannelList", innerMap ));
+			innerMap.clear();
+
+			configDB2.add(EmaFactory.createMapEntry().keyAscii( "ChannelGroup", MapEntry.MapAction.ADD, elementList ));
+			elementList.clear();
+
+			innerElementList.add(EmaFactory.createElementEntry().ascii("RdmFieldDictionaryFileName", "./ConfigDB3_RDMFieldDictionary"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("EnumTypeDefFileName", "./ConfigDB3_enumtype.def"));
+			
+			innerElementList.clear();
+
+			// To specify EmaConfig.xml file location use -DEmaConfigFileLocation=EmaConfig.xml
+			String EmaConfigFileLocation = System.getProperty("EmaConfigFileLocation");
+			if ( EmaConfigFileLocation == null )
+			{
+				EmaConfigFileLocation = "./src/test/resources/com/thomsonreuters/ema/unittest/EmaFileConfigTests/EmaConfigTest.xml";
+				System.out.println("EmaConfig.xml file not specified, using default file");
+			}
+			else
+			{
+				System.out.println("Using Ema Config: " + EmaConfigFileLocation);
+			}
+			
+			OmmNiProviderConfig testConfig = null;
+			testConfig = EmaFactory.createOmmNiProviderConfig(EmaConfigFileLocation).config(configDB1).config(configDB2).config(configDB3)
+					.tunnelingCredentialDomain("domain").tunnelingProxyHostName("proxyHost").tunnelingProxyPort("14032").tunnelingObjectName("objectName");
+			
+			OmmProvider niProv = JUnitTestConnect.createOmmNiProvider(testConfig);
+
+			// Check default niprovider name (Provider_2) and associated values
+			System.out.println("Retrieving DefaultNiProvider configuration values: (DefaultNiProvider value=Provider_2) "); 
+		
+			String defaultNiProvName = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.NiProviderName, -1);
+			TestUtilities.checkResult("DefaultNiProvider value != null", defaultNiProvName != null);
+			TestUtilities.checkResult("DefaultNiProvider value == Provider_2", defaultNiProvName.contentEquals("Provider_2") );
+			String NiProvChannelVal = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 0);
+			boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToStdout, -1);
+			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+			
+			// Check values of Provider_2
+			System.out.println("\nRetrieving Provider_1 configuration values "); 
+			
+			NiProvChannelVal = "Channel_6";
+			System.out.println("\nRetrieving Channel_6 configuration values "); 
+			NiProvChannelVal = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 0);
+			TestUtilities.checkResult("Channel value != null", NiProvChannelVal != null);
+			TestUtilities.checkResult("Channel value == Channel_6", NiProvChannelVal.contentEquals("Channel_6") );
+			int channelConnType = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelType, 0);
+			TestUtilities.checkResult("channelConnType == ChannelType::RSSL_ENCRYPTED", channelConnType == ChannelTypeEncrypted);
+			
+			String strValue = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.InterfaceName, 0);
+			TestUtilities.checkResult("InterfaceName == localhost", strValue.contentEquals("localhost"));
+			
+			int intValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionType, 0);
+			TestUtilities.checkResult("CompressionType == CompressionType::LZ4", intValue == CompressionTypeLZ4);
+			
+			int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
+			TestUtilities.checkResult("GuaranteedOutputBuffers == 7000", intLongValue == 7000);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
+			TestUtilities.checkResult("NumInputBuffers == 888888", intLongValue == 888888);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
+			TestUtilities.checkResult("SysRecvBufSize == 550000", intLongValue == 550000);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
+			TestUtilities.checkResult("SysSendBufSize == 700000", intLongValue == 700000);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionThreshold, 0);
+			TestUtilities.checkResult("CompressionThreshold == 12758", intLongValue == 12758);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ConnectionPingTimeout, 0);
+			TestUtilities.checkResult("ConnectionPingTimeout == 70000", intLongValue == 70000);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.TcpNodelay, 0);
+			TestUtilities.checkResult("TcpNodelay == 1", boolValue == true);
+
+			String chanHost = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ProxyHost, 0);
+			TestUtilities.checkResult("ProxyHost == proxyHost", chanHost.contentEquals("proxyHost"));
+			String chanPort = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ProxyPort, 0);
+			TestUtilities.checkResult("ProxyPort == 14032", chanPort.contentEquals("14032"));
+			String chanObj = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName, 0);
+			TestUtilities.checkResult("ObjectName == objectName", chanObj.contentEquals("objectName"));
+			
+			niProv = null;
+		}
+		catch ( OmmException excp)
+		{
+			System.out.println(excp.getMessage());
+			TestUtilities.checkResult("Receiving exception, test failed.", false );
+		}
+		
 	}
 	
 	public void testMergCfgBetweenFunctionCallAndProgrammatic()
