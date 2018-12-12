@@ -37,7 +37,7 @@ if the application will attempt to make an http or encrypted
 	- specified Channel's host and port
   - Sets the username to "user"
   - Sets the tunneling configurations
-  - Sets the provider name to "Provider_3"
+  - Sets the provider name to "Provider_4"
 + Instantiates an OmmProvider object which:
   - initializes the connection and logs into the configured ADH
   - sends down the source directory refresh message with TEST_NI_PUB service info

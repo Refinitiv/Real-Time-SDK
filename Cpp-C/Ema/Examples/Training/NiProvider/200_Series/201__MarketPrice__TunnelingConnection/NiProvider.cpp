@@ -70,7 +70,7 @@ int main( int argc, char* argv[] )
 		if (securityProtocol > 0)
 			config.tunnelingSecurityProtocol(securityProtocol);
 
-		OmmProvider provider( config.username( "user" ).providerName( "Provider_3" ) );
+		OmmProvider provider( config.username( "user" ).providerName( "Provider_4" ) );
 		UInt64 ibmHandle = 5;
 		UInt64 triHandle = 6;
 		RefreshMsg refresh;

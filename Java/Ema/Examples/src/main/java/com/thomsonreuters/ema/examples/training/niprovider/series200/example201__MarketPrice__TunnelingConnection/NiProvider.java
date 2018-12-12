@@ -116,7 +116,7 @@ public class NiProvider {
 			if (!readCommandlineArgs(args, config))
                 return;
 			
-			provider = EmaFactory.createOmmProvider(config.username("user").providerName("Provider_3"));
+			provider = EmaFactory.createOmmProvider(config.username("user").providerName("Provider_4"));
 			
 			long ibmHandle = 5;
 			long triHandle = 6;
