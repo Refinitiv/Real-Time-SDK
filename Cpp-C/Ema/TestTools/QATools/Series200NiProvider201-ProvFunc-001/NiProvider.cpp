@@ -197,7 +197,7 @@ int main( int argc, char* argv[] )
 		// API QA
         AppClient appClient;
 		// End API QA
-		OmmProvider provider( config.operationModel( OmmNiProviderConfig::UserDispatchEnum ).username( "user" ).providerName( "Provider_3" ), appClient );
+		OmmProvider provider( config.operationModel( OmmNiProviderConfig::UserDispatchEnum ).username( "user" ).providerName( "Provider_4" ), appClient );
 		UInt64 ibmHandle = 5;
 		UInt64 triHandle = 6;
 		UInt64 aaoHandle = 7;

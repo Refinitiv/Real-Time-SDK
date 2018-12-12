@@ -265,7 +265,7 @@ public class NiProvider {
                 return;
 			
 			provider = EmaFactory.createOmmProvider(config.operationModel(OmmNiProviderConfig.OperationModel.USER_DISPATCH)
-			            .username("user").providerName("Provider_3"), appClient);
+			            .username("user").providerName("Provider_4"), appClient);
 						
 			provider.dispatch( 1000000 );
 			

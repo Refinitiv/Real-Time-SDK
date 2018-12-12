@@ -16,9 +16,9 @@ void createProgrammaticConfig( Map& configMap )
 	Map innerMap;
 	ElementList elementList;
 
-	elementList.addAscii( "DefaultNiProvider", "Provider_3" );
+	elementList.addAscii( "DefaultNiProvider", "Provider_4" );
 
-	innerMap.addKeyAscii( "Provider_3", MapEntry::AddEnum, ElementList()
+	innerMap.addKeyAscii( "Provider_4", MapEntry::AddEnum, ElementList()
 		.addAscii( "Channel", "Channel_13" )
 		.addAscii( "Directory", "Directory_1" )
 		.addAscii( "Logger", "Logger_1" )
@@ -178,7 +178,7 @@ int main( int argc, char* argv[] )
 		//API QA
 		Map configMap;
         createProgrammaticConfig(configMap);	
-		OmmProvider provider( config.config(configMap).username( "user" ).providerName( "Provider_3" ) );
+		OmmProvider provider( config.config(configMap).username( "user" ).providerName( "Provider_4" ) );
 		//END API QA
 		UInt64 ibmHandle = 5;
 		UInt64 triHandle = 6;

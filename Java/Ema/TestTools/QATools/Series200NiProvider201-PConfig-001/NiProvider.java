@@ -117,14 +117,14 @@ public class NiProvider {
 		ElementList elementList = EmaFactory.createElementList();
 		ElementList innerElementList = EmaFactory.createElementList();
 		
-		elementList.add( EmaFactory.createElementEntry().ascii( "DefaultNiProvider", "Provider_3" ));
+		elementList.add( EmaFactory.createElementEntry().ascii( "DefaultNiProvider", "Provider_4" ));
 		
 		innerElementList.add( EmaFactory.createElementEntry().ascii( "Channel", "Channel_13" ));
 		innerElementList.add( EmaFactory.createElementEntry().ascii( "Directory", "Directory_1" ));
 		innerElementList.add( EmaFactory.createElementEntry().intValue( "XmlTraceToStdout", 1 ));
 		innerElementList.add( EmaFactory.createElementEntry().intValue( "RefreshFirstRequired", 1 ));
 
-		innerMap.add( EmaFactory.createMapEntry().keyAscii( "Provider_3", MapEntry.MapAction.ADD, innerElementList));
+		innerMap.add( EmaFactory.createMapEntry().keyAscii( "Provider_4", MapEntry.MapAction.ADD, innerElementList));
 		innerElementList.clear();
 		
 		elementList.add( EmaFactory.createElementEntry().map( "NiProviderList", innerMap ));
@@ -220,7 +220,7 @@ public class NiProvider {
 			if (!readCommandlineArgs(args, config))
                 return;
 			
-			provider = EmaFactory.createOmmProvider(config.config(createProgrammaticConfig()).providerName("Provider_3").username("user"));
+			provider = EmaFactory.createOmmProvider(config.config(createProgrammaticConfig()).providerName("Provider_4").username("user"));
 	
 			
 			long ibmHandle = 5;
