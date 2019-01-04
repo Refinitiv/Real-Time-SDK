@@ -135,14 +135,14 @@ class WlDirectoryHandler implements WlHandler
         {
             if (_requestDispatchFlag == false)
             {
-                // trigger dispatch only for first add to list, and only if the directory refresh was recieved
+                // trigger dispatch only for first add to list, and only if the directory refresh was received
                 _watchlist.reactor().sendWatchlistDispatchNowEvent(_watchlist.reactorChannel());
                 
                 _requestDispatchFlag = true;
             }
         }
         	
-        wlRequest.state(WlRequest.State.REFRESH_PENDING);
+        wlRequest.state(WlRequest.State.PENDING_REFRESH);
         
         return ret;
     }
@@ -532,7 +532,7 @@ class WlDirectoryHandler implements WlHandler
             for (int j = 0; j < requestList.size(); j++)
             {    	 
                 usrRequest = requestList.get(j);
-                usrRequest.state(WlRequest.State.REFRESH_PENDING);
+                usrRequest.state(WlRequest.State.PENDING_REFRESH);
                 _directoryUpdate.streamId(usrRequest.requestMsg().streamId());
 
                 for (int i = 0; i < serviceList().size(); ++i) 
@@ -641,9 +641,9 @@ class WlDirectoryHandler implements WlHandler
             {
                 WlRequest wlRequest = wlStream.userRequestList().get(i);
 
-                // only fanout to those whose state is REFRESH_PENDING or unsolicited
+                // only fanout to those whose state is PENDING_REFRESH or unsolicited
                 if (!((RefreshMsg)msg).checkSolicited() ||
-                    wlRequest.state() == WlRequest.State.REFRESH_PENDING)
+                    wlRequest.state() == WlRequest.State.PENDING_REFRESH)
                 {
                     DirectoryRefresh newDirectoryRefresh = null;
                     if (!_directoryRefreshPool.isEmpty())
@@ -764,9 +764,9 @@ class WlDirectoryHandler implements WlHandler
             {
                 WlRequest wlRequest = wlStream.userRequestList().get(i);
 
-                // only fanout to those whose state is REFRESH_PENDING or unsolicited
+                // only fanout to those whose state is PENDING_REFRESH or unsolicited
                 if (!((RefreshMsg)msg).checkSolicited() ||
-                    wlRequest.state() == WlRequest.State.REFRESH_PENDING)
+                    wlRequest.state() == WlRequest.State.PENDING_REFRESH)
                 {
                     DirectoryRefresh newDirectoryRefresh = null;
                     if (!_directoryRefreshPool.isEmpty())
@@ -890,14 +890,14 @@ class WlDirectoryHandler implements WlHandler
         	return ret;
         }
         
-        // fanout refresh message to user requests associated with the stream
+        // fanout update message to user requests associated with the stream
         for (int i = 0; i < wlStream.userRequestList().size(); i++)
         {
             WlRequest wlRequest = wlStream.userRequestList().get(i);
             
-            // only fanout to those whose state is OPEN or REFRESH_PENDING
-            if (wlRequest.state() == WlRequest.State.OPEN ||
-                wlRequest.state() == WlRequest.State.REFRESH_PENDING)
+            // only fanout to those whose state is PENDING_REFRESH OR OPEN
+            if (wlRequest.state() == WlRequest.State.PENDING_REFRESH || 
+            		wlRequest.state() == WlRequest.State.OPEN)
             {
         		// Find services they want and keep them on the list of services for the update
                 _directoryUpdateCopy.clear();
@@ -959,10 +959,10 @@ class WlDirectoryHandler implements WlHandler
         {
             WlRequest wlRequest = wlStream.userRequestList().get(i);
             
-            // only fanout to those whose state is OPEN or REFRESH_PENDING or REFRESH_COMPLETE_PENDING
-            if (wlRequest.state() == WlRequest.State.OPEN ||
-                wlRequest.state() == WlRequest.State.REFRESH_PENDING ||
-        		wlRequest.state() == WlRequest.State.REFRESH_COMPLETE_PENDING)
+            // only fanout to those whose state is PENDING_REFRESH, PENDING_COMPLETE_REFRESH or OPEN
+            if (wlRequest.state() == WlRequest.State.PENDING_REFRESH ||
+                wlRequest.state() == WlRequest.State.PENDING_COMPLETE_REFRESH ||
+                wlRequest.state() == WlRequest.State.OPEN)
             {
             	// update stream id in message to that of user request
                 msg.streamId(wlRequest.requestMsg().streamId());
@@ -1020,8 +1020,8 @@ class WlDirectoryHandler implements WlHandler
             {
                 WlRequest wlRequest = _stream.userRequestList().get(i);
 	                
-	            // only fanout to those whose state is OPEN or REFRESH_PENDING
-                if (wlRequest.state() == WlRequest.State.REFRESH_PENDING)
+	            // only fanout to those whose state is PENDING_REFRESH
+                if (wlRequest.state() == WlRequest.State.PENDING_REFRESH)
 	            {
                     wlRequest.state(WlRequest.State.OPEN);
 	
@@ -1097,7 +1097,7 @@ class WlDirectoryHandler implements WlHandler
                 wlRequest.tableKey(wlInteger);
                 _watchlist.streamIdtoWlRequestTable().put(wlInteger, wlRequest);
                 // Go immediately into Refresh Complete Pending state because we do not use Pending Request
-                wlRequest.state(WlRequest.State.REFRESH_PENDING);
+                wlRequest.state(WlRequest.State.PENDING_REFRESH);
             	_stream.userRequestList().add(wlRequest);	
 				wlRequest.stream(_stream);
             	_roleDirectoryRequestAdded = true;
@@ -1197,9 +1197,9 @@ class WlDirectoryHandler implements WlHandler
         {
             WlRequest wlRequest = _stream.userRequestList().get(i);
             
-            // only fanout to those whose state is OPEN or REFRESH_PENDING
-            if (wlRequest.state() == WlRequest.State.OPEN ||
-                wlRequest.state() == WlRequest.State.REFRESH_PENDING)
+            // only fanout to those whose state is PENDING_REFRESH or OPEN
+            if (wlRequest.state() == WlRequest.State.PENDING_REFRESH ||
+                wlRequest.state() == WlRequest.State.OPEN)
             {
                 // Set streamId and filter to that of the userRequest
             	_statusMsg.streamId(wlRequest.requestMsg().streamId());

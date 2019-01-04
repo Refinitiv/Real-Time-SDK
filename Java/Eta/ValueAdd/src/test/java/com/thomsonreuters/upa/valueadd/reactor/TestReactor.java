@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.upa.valueadd.reactor;
@@ -86,7 +86,7 @@ public class TestReactor {
 		}
 	}
 	
-
+	
     /** Enables XML tracing on created reactors (convenience function for test debugging). */
     public static void enableReactorXmlTracing()
     {
@@ -122,8 +122,10 @@ public class TestReactor {
         long currentTimeUsec, stopTimeUsec;
         int lastDispatchRet = 0;
 
-        /* Ensure no events were missed from previous calls to dispatch. */
-        assertEquals(0, _eventQueue.size());
+        /* Ensure no events were missed from previous calls to dispatch.
+           But don't check event queue size when expectedEventCount is set to -1 */
+        if(expectedEventCount != -1 )
+        	assertEquals(0, _eventQueue.size());
 
         currentTimeUsec = System.nanoTime()/1000;
         
@@ -198,7 +200,9 @@ public class TestReactor {
 
         } while(currentTimeUsec < stopTimeUsec);
         
-        assertEquals(expectedEventCount, _eventQueue.size());
+        /* Don't check event queue size when expectedEventCount is set to -1 */
+        if(expectedEventCount != -1 )
+        	assertEquals(expectedEventCount, _eventQueue.size());
     }
 	
     /** Stores the received channel event, and updates the relevant component's channel information. */ 

@@ -50,11 +50,10 @@ class WlRequest extends VaNode
     enum State
     {
         RETURN_TO_POOL,
-        PENDING_REQUEST,
-        REFRESH_PENDING,
-        REFRESH_VIEW_PENDING, 
-        REFRESH_COMPLETE_PENDING, // multi-part
-        OPEN
+        PENDING_REQUEST, 			// Waiting to send a request message via WlStream
+        PENDING_REFRESH,			// Waiting to receive a refresh message
+        PENDING_COMPLETE_REFRESH,	// Waiting to receive the complete refresh message for multi-part
+        OPEN 						// Request has been completed									
     }
     
     /* Returns the request message. */

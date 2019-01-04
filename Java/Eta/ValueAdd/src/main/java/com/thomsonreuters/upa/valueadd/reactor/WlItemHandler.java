@@ -56,6 +56,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgTyp
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
 import com.thomsonreuters.upa.valueadd.reactor.WlRequest.State;
+import com.thomsonreuters.upa.valueadd.reactor.WlStream.RefreshStates;
 
 class WlItemHandler implements WlHandler
 {
@@ -264,6 +265,7 @@ class WlItemHandler implements WlHandler
                     // item cannot be aggregated, create new stream
                     wlStream = createNewStream(requestMsg);
                     wlRequest.stream(wlStream);
+                    
                     // add to fanout list                        
                     wlStream.userRequestList().add(wlRequest);
                     
@@ -329,18 +331,14 @@ class WlItemHandler implements WlHandler
                     {
                         _tempItemAggregationRequest.flags(_tempItemAggregationRequest.flags() & ~RequestMsgFlags.MSG_KEY_IN_UPDATES);
                     }
-    
-                    // increment number of snapshots pending
-                    if (!requestMsg.checkStreaming())
-                    {
-                        wlStream.numSnapshotsPending(wlStream.numSnapshotsPending() + 1);
-                    }
                     
                     // send message to stream
                     if (sendNow)
                     {
                         // send now
                         ret = wlStream.sendMsg(_tempItemAggregationRequest, submitOptions, _errorInfo);
+                        wlStream.refreshState( _tempItemAggregationRequest.checkHasView() ? WlStream.RefreshStates.REFRESH_VIEW_PENDING :
+                        						WlStream.RefreshStates.REFRESH_PENDING);
                     }
                     else // don't send now, just set request message on stream
                     {
@@ -393,8 +391,8 @@ class WlItemHandler implements WlHandler
                         // add stream to service's stream list
                         wlService.streamList().add(wlStream);
                         
-                        // update request state to REFRESH_PENDING
-                        wlRequest.state(WlRequest.State.REFRESH_PENDING);
+                        // update request state to PENDING_REFRESH
+                        wlRequest.state(WlRequest.State.PENDING_REFRESH);
                         
                         if ( wlRequest.requestMsg().checkPause() && wlRequest.requestMsg().checkStreaming())
                         	wlStream.numPausedRequestsCount(1);
@@ -429,24 +427,26 @@ class WlItemHandler implements WlHandler
                     // set stream associated with request
                     wlRequest.stream(wlStream);
                     
-                    /* add request to stream only if not in the middle of snapshot or
-                       multi-part refresh and not in pending view refresh, and snapshot view with no request pending */
-                    if ((((wlStream.numSnapshotsPending() == 0 || (wlStream.numSnapshotsPending() > 0 && !requestMsg.checkStreaming())) || wlRequest.state() == WlRequest.State.PENDING_REQUEST ) &&
-                        !wlStream.multiPartRefreshPending() ) && !wlStream._pendingViewRefresh  && !(requestMsg.checkHasView() && !requestMsg.checkStreaming() && wlStream.requestPending()) )
+                    /* Add request to stream if the stream is not waiting for a refresh or the stream is streaming but it it not waiting for multi-part and view pending */
+                    if( !wlStream.requestPending() || wlStream.refreshState() == WlStream.RefreshStates.REFRESH_NOT_REQUIRED ||
+                    	( wlStream.requestMsg().checkStreaming() && wlStream.refreshState() != RefreshStates.REFRESH_COMPLETE_PENDING && 
+                    	  wlStream.refreshState() != RefreshStates.REFRESH_VIEW_PENDING )
+                    	)
                     {                   	
-                		if ( requestMsg.checkHasView())
-                 		{   
-                			if ( (ret = handleViews(wlRequest, errorInfo)) < ReactorReturnCodes.SUCCESS)
-                	            return ret;
-                 		}
+                        if (requestMsg.checkHasView())
+                        {   
+                            if ( (ret = handleViews(wlRequest, errorInfo)) < ReactorReturnCodes.SUCCESS)
+                                return ret;
+                        }
+                		
                         // add request to stream
                         wlStream.userRequestList().add(wlRequest);
 
                         if ( wlRequest.requestMsg().checkPause() && wlRequest.requestMsg().checkStreaming())
-                        	wlStream.numPausedRequestsCount(wlStream.numPausedRequestsCount() +1);
+                        	wlStream.numPausedRequestsCount(wlStream.numPausedRequestsCount() + 1);
                                                 
-                        // update request state to REFRESH_PENDING
-                        wlRequest.state(WlRequest.State.REFRESH_PENDING);
+                        // update request state to PENDING_REFRESH
+                        wlRequest.state(WlRequest.State.PENDING_REFRESH);
     
                         // retrieve request from stream
                         RequestMsg streamRequestMsg = wlStream.requestMsg();
@@ -454,50 +454,50 @@ class WlItemHandler implements WlHandler
                         // increment number of snapshots pending
                         if (!requestMsg.checkStreaming())
                         {
-                            wlStream.numSnapshotsPending(wlStream.numSnapshotsPending() + 1);
+                            // Join the existing request if the current request haven't received a refresh yet. 
+                            if( wlStream.refreshState() == WlStream.RefreshStates.REFRESH_PENDING)
+                            	return ret;
+                        }
+                        else
+                        {
+	                        // Update priority for streaming requests only
+	                        if (requestMsg.checkHasPriority())
+	                        {
+	                            // use priorityClass of request if greater than existing one
+	                            if (requestMsg.priority().priorityClass() > streamRequestMsg.priority().priorityClass())
+	                            {
+	                                streamRequestMsg.priority().priorityClass(requestMsg.priority().priorityClass());
+	                            }
+	                            
+	                            // add priorityCount to that of existing one
+	                            if (!streamRequestMsg.checkStreaming())
+	                            	streamRequestMsg.priority().count(requestMsg.priority().count());
+	                            else
+	                            	streamRequestMsg.priority().count(streamRequestMsg.priority().count() + requestMsg.priority().count());
+	                        }
+	                        else // request has no priority, assume default of 1/1
+	                        {
+	                            streamRequestMsg.applyHasPriority();
+	                            if (!streamRequestMsg.checkStreaming())
+	                            	streamRequestMsg.priority().count(1);
+	                            else
+	                            	streamRequestMsg.priority().count(streamRequestMsg.priority().count() + 1);
+	                        }
+
+	                        if (!streamRequestMsg.checkStreaming())
+	                            streamRequestMsg.applyStreaming();
                         }
 
-                        // update priority
-                        if (requestMsg.checkHasPriority())
-                        {
-                            // use priorityClass of request if greater than existing one
-                            if (requestMsg.priority().priorityClass() > streamRequestMsg.priority().priorityClass())
-                            {
-                                streamRequestMsg.priority().priorityClass(requestMsg.priority().priorityClass());
-                            }
-                            
-                            // add priorityCount to that of existing one
-                            if (requestMsg.checkStreaming() && !streamRequestMsg.checkStreaming())
-                            	streamRequestMsg.priority().count(requestMsg.priority().count());
-                            else if (requestMsg.checkStreaming())
-                            	streamRequestMsg.priority().count(streamRequestMsg.priority().count() + requestMsg.priority().count());
-                        }
-                        else // request has no priority, assume default of 1/1
-                        {
-                            streamRequestMsg.applyHasPriority();
-                            if (requestMsg.checkStreaming() && !streamRequestMsg.checkStreaming())
-                            	streamRequestMsg.priority().count(1);
-                            else if (requestMsg.checkStreaming())
-                            	streamRequestMsg.priority().count(streamRequestMsg.priority().count() + 1);
-                        }
-
-                        if (requestMsg.checkStreaming() && !streamRequestMsg.checkStreaming())
-                        	streamRequestMsg.applyStreaming();
-                        
                         if (sendNow)
                         {
-                            // send message to stream if streaming or it is a snapshot with no request pending
-                            if (requestMsg.checkStreaming() || !wlStream.requestPending())
+                            // increment number of outstanding requests if not dictionary domain and a request isn't currently pending
+                            if (requestMsg.domainType() != DomainTypes.DICTIONARY && !wlStream.requestPending() && !requestMsg.checkNoRefresh())
                             {
-                                // increment number of outstanding requests if not dictionary domain and a request isn't currently pending
-                                if (requestMsg.domainType() != DomainTypes.DICTIONARY && !wlStream.requestPending() && !requestMsg.checkNoRefresh())
-                                {
-                                    wlService.numOutstandingRequests(wlService.numOutstandingRequests() + 1);
-                                }
+                                wlService.numOutstandingRequests(wlService.numOutstandingRequests() + 1);
+                            }
 
-                                ret = wlStream.sendMsg(streamRequestMsg, submitOptions, _errorInfo);
-                            }                        
-                            // Otherwise already waiting on a response and have nothing to send right now.
+                            ret = wlStream.sendMsg(streamRequestMsg, submitOptions, _errorInfo);
+                            wlStream.refreshState(streamRequestMsg.checkHasView() ? WlStream.RefreshStates.REFRESH_VIEW_PENDING : WlStream.RefreshStates.REFRESH_PENDING );
                         }
                         else // if not sendNow, add stream to pending send message list if not already there
                         {
@@ -521,14 +521,22 @@ class WlItemHandler implements WlHandler
                             }
                         }
                     }
-                    else // currently in the middle of snapshot or multi-part refresh
-                    {
-                        // cannot open item at this time, add to waiting request list
-    
-                        // add to waiting request list for stream
-                        wlRequest.streamInfo().serviceName(submitOptions.serviceName());
-                        wlRequest.streamInfo().userSpecObject(submitOptions.requestMsgOptions().userSpecObj());
-                        wlStream.waitingRequestList().add(wlRequest);
+                    else
+                    {  
+                    	// WlStream is waiting a response for snapshot request and the user's request is snapshot without view
+                    	if( (!wlStream.requestMsg().checkStreaming() && (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_PENDING )) &&
+                    		!requestMsg.checkStreaming() && !requestMsg.checkHasView() )
+                    	{
+                    	    // join the snapshot request to the existing snapshot stream
+                    		wlRequest.state(State.PENDING_REFRESH);
+                            wlStream.userRequestList().add(wlRequest);
+                    	}
+                    	else
+                    	{
+                    	    // currently in the middle of snapshot, multi-part refresh or pending view
+                    	    wlRequest.state(State.PENDING_REQUEST);
+                    	    wlStream.waitingRequestList().add(wlRequest);
+                    	}
                     }
                 }
             }
@@ -978,9 +986,8 @@ class WlItemHandler implements WlHandler
             // send reissue if stream is open
             if (wlRequest.stream().state().streamState() == StreamStates.OPEN)
             {
-                // handle reissue only if not in the middle of snapshot or multi-part refresh
-                if (wlRequest.stream().numSnapshotsPending() == 0 &&
-                    !wlRequest.stream().multiPartRefreshPending())
+                // handle reissue only if not in the middle of multi-part refresh
+                if ( wlRequest.stream().refreshState() != WlStream.RefreshStates.REFRESH_COMPLETE_PENDING )
                 {                   
                     // send message to stream
             		if( wlRequest._reissue_hasChange || wlRequest._reissue_hasViewChange)
@@ -992,14 +999,14 @@ class WlItemHandler implements WlHandler
             			{
                				// this stems from when no_refresh is set on request, but later still get refresh callback from Provider,
                				// need this flag to send fan out to all
-              				 if (requestMsg.checkNoRefresh()) wlRequest.stream()._pendingViewRefresh = true;
+              				 if (requestMsg.checkNoRefresh()) wlRequest.stream().refreshState(WlStream.RefreshStates.REFRESH_VIEW_PENDING);
             				_wlViewHandler.destroyView(oldView);
             			} 
             		
-              			// update request state to REFRESH_PENDING if refresh is desired
+              			// update request state to PENDING_REFRESH if refresh is desired
               			if (!requestMsg.checkNoRefresh())
               			{
-              				wlRequest.state(WlRequest.State.REFRESH_PENDING);
+              				wlRequest.state(WlRequest.State.PENDING_REFRESH);
               			}
             		}
             		            	
@@ -1211,7 +1218,7 @@ class WlItemHandler implements WlHandler
         wlStream.domainType(requestMsg.domainType());
         wlStream._pendingViewChange = false;
         wlStream._requestsWithViewCount = 0;
-        wlStream._pendingViewRefresh = false;        
+        wlStream.refreshState(WlStream.RefreshStates.REFRESH_NOT_REQUIRED);        
         return wlStream;
     }
 
@@ -1341,7 +1348,7 @@ class WlItemHandler implements WlHandler
             	if (wlStream != null)
             	{
                 	if (wlStream.requestPending() && wlStream.wlService() != null)
-                		wlStream.wlService().numOutstandingRequests(wlStream.wlService().numOutstandingRequests() - 1); 
+                		wlStream.wlService().numOutstandingRequests(wlStream.wlService().numOutstandingRequests() - 1);
                 	
             	    ret = removeUserRequestFromOpenStream(wlRequest, msg, wlStream, submitOptions, errorInfo);
             	}
@@ -1442,24 +1449,52 @@ class WlItemHandler implements WlHandler
     {
         int ret = ReactorReturnCodes.SUCCESS;
         
+        for(int i =0; i < wlStream.waitingRequestList().size(); i++)
+        {
+        	WlRequest wlRequestInList = wlStream.waitingRequestList().get(i);
+        	
+        	if (wlRequestInList.requestMsg().streamId() != wlRequest.requestMsg().streamId())
+                continue;
+            else
+            {
+            	wlStream.waitingRequestList().remove(i);
+                
+                // close watchlist request
+                closeWlRequest(wlRequest);
+                repoolWlRequest(wlRequest);
+                return ret;
+            }
+        }
+        
         for (int i = 0; i < wlStream.userRequestList().size(); i++)
         {
-            WlRequest wlRequestInList = wlRequest.stream().userRequestList().get(i);
+            WlRequest wlRequestInList = wlStream.userRequestList().get(i);
         
             if (wlRequestInList.requestMsg().streamId() != wlRequest.requestMsg().streamId())
                 continue;
             else
             {
-                wlRequest.stream().userRequestList().remove(i);
-       			if ( wlRequest.requestMsg().checkPause())
+            	wlStream.userRequestList().remove(i);
+            	
+            	wlStream.refreshState(WlStream.RefreshStates.REFRESH_NOT_REQUIRED);
+            	
+       			if (wlRequest.requestMsg().checkPause())
     			{
-    				wlRequest.stream().numPausedRequestsCount(wlRequest.stream().numPausedRequestsCount() - 1);
+       				wlStream.numPausedRequestsCount(wlStream.numPausedRequestsCount() - 1);
     			}
+       			
+       			if (wlRequest.requestMsg().checkHasView() &&  wlStream._requestsWithViewCount > 0)
+       			{
+       				removeRequestView(wlStream, wlRequest, errorInfo);
+       				wlStream._pendingViewChange = true;
+       			}
+       			else if (wlStream._requestsWithViewCount > 0 )
+       				wlStream._pendingViewChange = true;
                 
-       			if (wlRequest.stream().state().streamState() == StreamStates.OPEN)
+       			if (wlStream.state().streamState() == StreamStates.OPEN)
        			{
                     // Stream is open; need to change priority or close it.
-	                if (wlRequest.stream().userRequestList().size() == 0 )
+	                if (wlStream.userRequestList().size() == 0)
 	                {                        
                         closeWlStream(wlRequest.stream());
 	
@@ -1487,13 +1522,6 @@ class WlItemHandler implements WlHandler
 	                    int userRequestPriorityCount = wlRequest.requestMsg().checkHasPriority() ? 
 	                            wlRequest.requestMsg().priority().count() : 1;
 	                    wlRequest.stream().requestMsg().priority().count(streamPriorityCount - userRequestPriorityCount);                            
-	                    if (wlRequest.requestMsg().checkHasView() &&  wlStream._requestsWithViewCount > 0)
-	                    {
-	                    	removeRequestView(wlStream, wlRequest, errorInfo);
-	                    	wlStream._pendingViewChange = true;
-	                    }
-	                    else if (wlStream._requestsWithViewCount > 0 )
-	                    	wlStream._pendingViewChange = true;
 	                    	
 	                    // resend  
 	                    wlRequest.stream().requestMsg().flags(wlStream.requestMsg().flags() | RequestMsgFlags.NO_REFRESH);            		   
@@ -1885,7 +1913,7 @@ class WlItemHandler implements WlHandler
         boolean needtoSetPendingViewRefreshFlagOff = false;
         
         boolean isRefreshComplete = msg.checkRefreshComplete();
-        
+
         WlService wlService = wlStream.wlService();
         
         // notify stream that response received if solicited
@@ -1893,7 +1921,7 @@ class WlItemHandler implements WlHandler
         {
             wlStream.responseReceived();
         }
-        if( wlStream._requestsWithViewCount  > 0 && wlStream._pendingViewRefresh)
+        if( wlStream._requestsWithViewCount  > 0 && (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_VIEW_PENDING) )
         {
         	needtoSetPendingViewRefreshFlagOff = true;
         }
@@ -1905,18 +1933,19 @@ class WlItemHandler implements WlHandler
         
         // set state from refresh message
         msg.state().copy(wlStream.state());
-        
-        // decrement number of outstanding requests on service
-        if (isRefreshComplete)
-        {
-            wlService.numOutstandingRequests(wlService.numOutstandingRequests() - 1);   
-        }
 
         // If message isn't open or non-streaming, let recovery code handle it.
         if (msg.state().streamState() != StreamStates.OPEN && msg.state().streamState() != StreamStates.NON_STREAMING)
             return ReactorReturnCodes.SUCCESS;
 
         int listSize = wlStream.userRequestList().size();
+        
+        // decrement number of outstanding requests on service when the request has not been removed by the user
+        if (isRefreshComplete && (listSize != 0) )
+        {
+            wlService.numOutstandingRequests(wlService.numOutstandingRequests() - 1);   
+        }
+        
         int numRequestsProcessed = 0;
         // fanout refresh message to user requests associated with the stream
         for (int i = 0; i < wlStream.userRequestList().size(); i++)
@@ -1928,15 +1957,16 @@ class WlItemHandler implements WlHandler
             // only fanout if refresh is desired and refresh is unsolicited or to those whose state is awaiting refresh
             if (!wlRequest.requestMsg().checkNoRefresh() &&
                     (!msg.checkSolicited() ||
-                     wlRequest.state() == WlRequest.State.REFRESH_PENDING ||
-                     wlRequest.state() == WlRequest.State.REFRESH_COMPLETE_PENDING ) ||
-                    wlStream._pendingViewRefresh)
+                     wlRequest.state() == WlRequest.State.PENDING_REFRESH ||
+                     wlRequest.state() == WlRequest.State.PENDING_COMPLETE_REFRESH) ||
+                     wlStream.refreshState() == WlStream.RefreshStates.REFRESH_VIEW_PENDING)
             {
                 // check refresh complete flag and change state of user request accordingly
                 if (isRefreshComplete)
                 {
-                    // reset multi-part refresh pending flag
-                    wlStream.multiPartRefreshPending(false);
+                    // Change the refresh state as WlStream receives the refresh complete flag except for the view pending
+                	if(wlStream.refreshState() != WlStream.RefreshStates.REFRESH_VIEW_PENDING)
+                		wlStream.refreshState(WlStream.RefreshStates.REFRESH_NOT_REQUIRED);
 
                     // Remove item from existing group, if present.
                     removeStreamFromItemGroup(wlStream);
@@ -1975,25 +2005,18 @@ class WlItemHandler implements WlHandler
                     }
                     else // snapshot request or NON_STREAMING
                     {
-                        // if snapshot request, decrement number of snapshots pending
-                        if (!wlRequest.requestMsg().checkStreaming())
-                        {
-                            wlStream.numSnapshotsPending(wlStream.numSnapshotsPending() - 1);
-                        }
-
                         if( wlRequest.requestMsg().checkStreaming() && wlRequest.requestMsg().checkPause())
                         {
                             wlRequest.stream().numPausedRequestsCount(wlRequest.stream().numPausedRequestsCount() -1);
                         }
                     }
                 }
-                else if (wlRequest.state() == WlRequest.State.REFRESH_PENDING) // multi-part refresh
+                else if (wlRequest.state() == WlRequest.State.PENDING_REFRESH) // multi-part refresh
                 {
-                    // change user request state to REFRESH_COMPLETE_PENDING
-                    wlRequest.state(WlRequest.State.REFRESH_COMPLETE_PENDING);
-
+                	wlRequest.state(WlRequest.State.PENDING_COMPLETE_REFRESH);
+                	
                     // set multi-part refresh pending flag
-                    wlStream.multiPartRefreshPending(true);
+                    wlStream.refreshState(WlStream.RefreshStates.REFRESH_COMPLETE_PENDING);
 
                     // start another request timer for each part of multi-part refresh
                     wlStream.startRequestTimer(errorInfo);
@@ -2007,9 +2030,9 @@ class WlItemHandler implements WlHandler
                 if (!wlRequest.requestMsg().checkStreaming() && tmpStreamState == StreamStates.OPEN)
                     msg.state().streamState(StreamStates.NON_STREAMING);
 
-                // if snapshot request or NON_STREAMING, close watchlist request and stream if necessary
-                if (!wlRequest.requestMsg().checkStreaming() ||
-                        msg.state().streamState() == StreamStates.NON_STREAMING)
+                // if snapshot request or NON_STREAMING and the refresh complete is received, close watchlist request and stream if necessary
+                if ( (!wlRequest.requestMsg().checkStreaming() ||
+                        msg.state().streamState() == StreamStates.NON_STREAMING) && isRefreshComplete)
                 {
                     wlStream.userRequestList().remove(i--);
                     if (wlStream._requestsWithViewCount > 0) 
@@ -2026,6 +2049,8 @@ class WlItemHandler implements WlHandler
                     // if no more requests in stream, close stream
                     boolean allRequestsClosed = (wlStream.userRequestList().size() == 0 &&   
                         wlStream.waitingRequestList().size() == 0);
+                    
+                    wlStream.refreshState(WlStream.RefreshStates.REFRESH_NOT_REQUIRED);
                     
                     // If there are no requests pending refresh completion, the stream can be closed at this point.
                     if (allRequestsClosed)
@@ -2064,18 +2089,16 @@ class WlItemHandler implements WlHandler
 
         if (_currentFanoutStream != null)
         {
-            if(needtoSetPendingViewRefreshFlagOff) wlStream._pendingViewRefresh = false;
+        	/* Change the state after fanning out for the view request */
+            if(needtoSetPendingViewRefreshFlagOff) wlStream.refreshState(WlStream.RefreshStates.REFRESH_NOT_REQUIRED);
 
-
-            /* if longer waiting for snapshot or multi-part refresh,
-               send requests in waiting request list */
+            /* if no longer waiting for snapshot, send requests in waiting request list */
             if (wlStream.waitingRequestList().size() > 0 &&
-                    wlStream.numSnapshotsPending() == 0 &&
-                    !wlStream.multiPartRefreshPending())
+                    (wlStream.refreshState() != WlStream.RefreshStates.REFRESH_COMPLETE_PENDING))
             {
                 WlRequest waitingRequest = null;
 
-                while(!wlStream._pendingViewRefresh && (waitingRequest = wlStream.waitingRequestList().poll()) != null) 
+                while( (wlStream.refreshState() < WlStream.RefreshStates.REFRESH_PENDING) && (waitingRequest = wlStream.waitingRequestList().poll()) != null) 
                 {
                     _submitOptions.serviceName(waitingRequest.streamInfo().serviceName());
                     _submitOptions.requestMsgOptions().userSpecObj(waitingRequest.streamInfo().userSpecObject());
@@ -2135,8 +2158,8 @@ class WlItemHandler implements WlHandler
             WlRequest wlRequest = wlStream.userRequestList().get(i);
                         
             // only fanout to those whose state is OPEN or REFRESH_COMPLETE_PENDING
-            if (wlRequest.state() == WlRequest.State.OPEN ||
-                wlRequest.state() == WlRequest.State.REFRESH_COMPLETE_PENDING)
+            if ( wlRequest.state() == WlRequest.State.PENDING_COMPLETE_REFRESH ||
+            	 wlRequest.state() == WlRequest.State.OPEN)
             {
                 // update stream id in message to that of user request
                 msg.streamId(wlRequest.requestMsg().streamId());
@@ -2206,10 +2229,10 @@ class WlItemHandler implements WlHandler
         {
             WlRequest wlRequest = wlStream.userRequestList().get(i);
             
-            // only fanout to those whose state is OPEN, REFRESH_COMPLETE_PENDING or REFRESH_PENDING
-            if (wlRequest.state() == WlRequest.State.OPEN ||
-                wlRequest.state() == WlRequest.State.REFRESH_COMPLETE_PENDING ||
-                wlRequest.state() == WlRequest.State.REFRESH_PENDING)
+            // only fanout to those whose state is PENDING_REFRESH or OPEN
+            if (wlRequest.state() == WlRequest.State.PENDING_REFRESH ||
+            	wlRequest.state() == WlRequest.State.PENDING_COMPLETE_REFRESH ||
+                wlRequest.state() == WlRequest.State.OPEN)
             {
                 // update stream id in message to that of user request
                 msg.streamId(wlRequest.requestMsg().streamId());

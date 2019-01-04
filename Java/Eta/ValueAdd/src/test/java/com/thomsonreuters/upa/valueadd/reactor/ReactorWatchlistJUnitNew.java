@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.upa.valueadd.reactor;
@@ -16,7 +16,14 @@ import static java.lang.Math.abs;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.junit.Test;
 
@@ -34,6 +41,8 @@ import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.ElementEntry;
 import com.thomsonreuters.upa.codec.ElementList;
 import com.thomsonreuters.upa.codec.EncodeIterator;
+import com.thomsonreuters.upa.codec.FieldEntry;
+import com.thomsonreuters.upa.codec.FieldList;
 import com.thomsonreuters.upa.codec.FilterEntryActions;
 import com.thomsonreuters.upa.codec.Int;
 import com.thomsonreuters.upa.codec.Map;
@@ -46,6 +55,8 @@ import com.thomsonreuters.upa.codec.NakCodes;
 import com.thomsonreuters.upa.codec.PostMsg;
 import com.thomsonreuters.upa.codec.QosRates;
 import com.thomsonreuters.upa.codec.QosTimeliness;
+import com.thomsonreuters.upa.codec.Real;
+import com.thomsonreuters.upa.codec.RealHints;
 import com.thomsonreuters.upa.codec.RefreshMsg;
 import com.thomsonreuters.upa.codec.RefreshMsgFlags;
 import com.thomsonreuters.upa.codec.RequestMsg;
@@ -19654,5 +19665,761 @@ public class ReactorWatchlistJUnitNew
 
     		TestReactorComponent.closeSession(consumer, provider);
     	}
+    }
+    
+    class AppClient
+	{
+		private volatile int handle;
+		private String Item;
+		
+		public AppClient(String item)
+		{
+			Item = item;
+			handle = 0;
+		}
+		
+		public int getHandle()
+		{
+			return handle;
+		}
+		
+		public void setHandle(int handle)
+		{
+			this.handle = handle;
+		}
+	}
+    
+    class MultithreadedOmmConsumer extends Consumer implements Runnable
+    {
+    	class ItemSubscriber
+    	{
+    		private int _streamID = 0;
+    		private Msg _msg = CodecFactory.createMsg();
+    		private RequestMsg _requestMsg = (RequestMsg)_msg;
+    		private CloseMsg _closeMsg = (CloseMsg)_msg;
+    		private ReactorSubmitOptions _submitOptions = ReactorFactory.createReactorSubmitOptions();
+    		private Consumer _consumer;
+			
+    		ItemSubscriber(Consumer consumer, int streamID)
+    		{
+        		_consumer = consumer;
+        		_streamID = streamID;
+        	}
+    		
+    		void openRequest(String serviceName, String itemName, int domainType, boolean streaming, List<Integer> viewFids)
+    		{
+				_requestMsg.clear();
+				_requestMsg.msgClass(MsgClasses.REQUEST);
+				_requestMsg.streamId(_streamID);
+				_requestMsg.domainType(domainType);
+				
+				if(streaming)
+					_requestMsg.applyStreaming();
+				
+				_requestMsg.msgKey().applyHasName();
+				_requestMsg.msgKey().name().data(itemName);
+				
+				if(viewFids != null)
+				{
+					_requestMsg.applyHasView();
+					encodeViewFieldIdList(_consumer.reactorChannel(), viewFids, _requestMsg);
+				}
+				
+				_submitOptions.clear();
+				_submitOptions.serviceName(serviceName);
+				_submitOptions.requestMsgOptions().userSpecObj(itemName);
+			
+				assertTrue(_consumer.submit(_requestMsg, _submitOptions) >= ReactorReturnCodes.SUCCESS);
+    		}
+    		
+    		void closeRequest()
+    		{
+    			_closeMsg.clear();
+    			_closeMsg.msgClass(MsgClasses.CLOSE);
+    			_closeMsg.containerType(DataTypes.NO_DATA);
+    			_closeMsg.streamId(_streamID);
+    			_submitOptions.clear();
+    			
+    			assertTrue(_consumer.submit(_closeMsg, _submitOptions) >= ReactorReturnCodes.SUCCESS);
+    		}
+    	}
+    	
+		private ExecutorService _executor = Executors.newSingleThreadExecutor();
+		private ReentrantLock _userLock = new java.util.concurrent.locks.ReentrantLock();
+		private HashMap<Int, ItemSubscriber> _itemHashTable;
+		private AtomicInteger _intValue = new AtomicInteger(5);
+		private Int intValue = CodecFactory.createInt();
+		private volatile boolean _dispatching = false;
+		private DecodeIterator _decodeIt = CodecFactory.createDecodeIterator();
+		private FieldList _fieldList = CodecFactory.createFieldList();
+		private FieldEntry _fieldEntry = CodecFactory.createFieldEntry();
+		private List<Integer> _viewFids;
+		private int _numRefreshMessage = 0;
+		private int _numRefreshCompleteMessage = 0;
+    	
+    	public MultithreadedOmmConsumer(TestReactor testReactor)
+    	{
+    		super(testReactor);
+    		_itemHashTable = new HashMap<Int, ItemSubscriber>();
+    		_userLock = new java.util.concurrent.locks.ReentrantLock();
+    	}
+    	
+    	public void UnsubAndSub(AppClient appClient, String serviceName, int domainType, boolean streaming, List<Integer> viewFids)
+		{
+    		_viewFids = viewFids;
+			if(appClient.getHandle() > 0)
+			{
+				unsubscribe(appClient.getHandle());
+			}
+			
+			int handle = subscribe(serviceName, appClient.Item, domainType, streaming, _viewFids);
+			appClient.setHandle(handle);
+		}
+		
+		public int subscribe(String serviceName, String itemName, int domainType, boolean streaming, List<Integer> viewFids)
+		{
+			_viewFids = viewFids;
+			_userLock.lock();
+			
+			int streamId = _intValue.getAndIncrement();
+			ItemSubscriber item = new ItemSubscriber(this, streamId);
+			
+			intValue.value(streamId);
+			
+			try
+			{
+				item.openRequest(serviceName, itemName, domainType, streaming, _viewFids);
+				_itemHashTable.put(intValue, item);
+			}
+			finally
+			{
+				_userLock.unlock();
+			}
+			
+			return streamId;
+		}
+		
+		public void unsubscribe(int handle)
+		{
+			_userLock.lock();
+			
+			intValue.value(handle);
+			
+			try
+			{
+				ItemSubscriber item = _itemHashTable.get(intValue);
+				
+				if ( item != null)
+				{
+					item.closeRequest();
+					_itemHashTable.remove(intValue);
+				}
+			}
+			finally
+			{
+				_userLock.unlock();
+			}
+		}
+    	
+    	@Override
+		public int defaultMsgCallback(ReactorMsgEvent event) {
+			
+			String closure = (String)event.streamInfo().userSpecObject();
+			
+			assertTrue(event.msg().msgClass() == MsgClasses.REFRESH);
+			RefreshMsg refreshMsg = (RefreshMsg)event.msg();
+			
+			++_numRefreshMessage;
+			
+			if(refreshMsg.checkRefreshComplete())
+				++_numRefreshCompleteMessage;
+			
+			/* Checks the requested and received item name must be the same */
+			assertTrue(closure.equals(refreshMsg.msgKey().name().toString()));
+			
+			if(_viewFids != null)
+			{
+				_fieldList.clear();
+				_fieldEntry.clear();
+				_decodeIt.clear();
+				assertTrue(refreshMsg.containerType() == DataTypes.FIELD_LIST );
+				assertTrue(refreshMsg.encodedDataBody() != null);
+				assertTrue(refreshMsg.encodedDataBody().data() != null);
+				
+				int ret;
+				int fieldCount = 0;
+				
+				assertTrue(_decodeIt.setBufferAndRWFVersion(refreshMsg.encodedDataBody(),
+						event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion())
+						== CodecReturnCodes.SUCCESS);
+				
+				assertTrue(_fieldList.decode(_decodeIt, null) == CodecReturnCodes.SUCCESS);
+				
+				while ((ret = _fieldEntry.decode(_decodeIt)) != CodecReturnCodes.END_OF_CONTAINER)
+				{
+					assertTrue(ret == CodecReturnCodes.SUCCESS);
+					
+					assertTrue(_viewFids.contains(_fieldEntry.fieldId()));
+					
+					++fieldCount;
+				}
+				
+				assertTrue(fieldCount == _viewFids.size());
+			}
+			else
+			{
+				assertTrue(refreshMsg.containerType() == DataTypes.NO_DATA);
+			}
+			
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+    	
+    	public int getNumRefreshMessage()
+    	{
+    		return _numRefreshMessage;
+    	}
+    	
+    	public int getNumRefreshCompleteMessage()
+    	{
+    		return _numRefreshCompleteMessage;
+    	}
+    	
+		public void start()
+		{
+			_dispatching = true;
+			_executor.execute(this);
+		}
+		
+		public void stop()
+		{
+			_dispatching = false;
+			_executor.shutdownNow();
+			try {
+				_executor.awaitTermination(1, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void run() {
+			try {
+				do
+				{
+					_testReactor.dispatch(-1, 100);
+					
+				}while(_dispatching);
+			} catch (Exception e) {}
+		}
+    }
+    
+    class ViewRequestProvider extends Provider implements Runnable
+    {
+    	private ExecutorService _executor = Executors.newSingleThreadExecutor();
+    	private RefreshMsg _refreshMsg = (RefreshMsg)CodecFactory.createMsg();
+		private ReactorSubmitOptions _submitOptions = ReactorFactory.createReactorSubmitOptions();
+		private DecodeIterator _dIter = CodecFactory.createDecodeIterator();
+		private ElementList _elementList = CodecFactory.createElementList();
+		private ElementEntry _elementEntry = CodecFactory.createElementEntry();
+		private UInt _viewType = CodecFactory.createUInt();
+		private Buffer _viewData = CodecFactory.createBuffer();
+		private Array _viewArray = CodecFactory.createArray();
+		private ArrayEntry _viewArrayEntry = CodecFactory.createArrayEntry();
+		private Int _fieldId = CodecFactory.createInt();
+		private ArrayList<Integer> _viewFieldIdList = new ArrayList<>();
+		private EncodeIterator _encodeIt = CodecFactory.createEncodeIterator();
+	    private FieldList _fieldList = CodecFactory.createFieldList();
+	    private FieldEntry _fieldEntry = CodecFactory.createFieldEntry();
+	    private Buffer _buffer = CodecFactory.createBuffer();
+	    private Real _real = CodecFactory.createReal();
+		private volatile boolean _dispatching = false;
+		private boolean _multipart;
+		private int _refreshCompleteMessage = 0;
+		private int _numRequestMessage = 0;
+		private int _numRefreshMessage = 0;
+    	
+		public ViewRequestProvider(TestReactor testReactor, boolean multipart)
+		{
+			super(testReactor);
+			_multipart = multipart;
+		}
+		
+		public int getNumRefreshMessage()
+		{
+			return _numRefreshMessage;
+		}
+		
+		public int getRefreshCompleteMessage()
+		{
+			return _refreshCompleteMessage;
+		}
+		
+		public int getNumRequestMessage()
+		{
+			return _numRequestMessage;
+		}
+		
+		public void start()
+		{
+			_dispatching = true;
+			_executor.execute(this);
+		}
+		
+		public void stop()
+		{
+			_dispatching = false;
+			_executor.shutdownNow();
+			try {
+				_executor.awaitTermination(1, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		@Override
+		public int defaultMsgCallback(ReactorMsgEvent event)
+		{	
+			int ret;
+			Msg msg = event.msg();
+			_dIter.clear();
+			_elementList.clear();
+			_elementEntry.clear();
+			_viewType.clear();
+			_viewData.clear();
+			_viewArray.clear();
+			_viewArrayEntry.clear();
+			_fieldId.clear();
+			_viewFieldIdList.clear();
+			
+			if ( event.msg().msgClass() == MsgClasses.REQUEST )
+			{
+				++_numRequestMessage;
+				RequestMsg requestMsg = (RequestMsg)event.msg();
+				
+				// Decoding the list of FIDs in the request message.
+				if(msg.containerType() == DataTypes.ELEMENT_LIST && msg.encodedDataBody().data() != null)
+				{
+					_dIter.clear();
+					_dIter.setBufferAndRWFVersion(msg.encodedDataBody(), event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion());
+				
+					_elementList.clear();
+					ret = _elementList.decode(_dIter, null);
+					
+					assertTrue(ret == CodecReturnCodes.SUCCESS);
+					
+					_elementEntry.clear();
+					// Decoding the list of Field IDs
+					while ((ret = _elementEntry.decode(_dIter)) != CodecReturnCodes.END_OF_CONTAINER)
+					{
+						assertTrue(ret == CodecReturnCodes.SUCCESS);
+						
+						if (_elementEntry.name().equals(ElementNames.VIEW_TYPE) || _elementEntry.name().equals(ElementNames.VIEW_DATA))
+						{
+							switch(_elementEntry.dataType())
+							{
+								case DataTypes.UINT:
+								{
+									assertTrue(_viewType.decode(_dIter) == CodecReturnCodes.SUCCESS);
+									break;
+								}
+								case DataTypes.ARRAY:
+								{
+									_viewData = _elementEntry.encodedData();
+									break;
+								}
+							}
+						}
+					}
+					
+					_dIter.clear();
+					_dIter.setBufferAndRWFVersion(_viewData, event.reactorChannel().majorVersion(), 
+							event.reactorChannel().minorVersion());
+					
+					// Support only as a list of Field IDs
+					assertTrue(_viewType.toBigInteger().intValue() == ViewTypes.FIELD_ID_LIST);
+				    _viewArray.clear();
+					assertTrue(_viewArray.decode(_dIter) == CodecReturnCodes.SUCCESS);
+				    assertTrue(_viewArray.primitiveType() == DataTypes.INT);						
+					while ((ret = _viewArrayEntry.decode(_dIter)) != CodecReturnCodes.END_OF_CONTAINER)
+					{
+					    assertFalse(ret < CodecReturnCodes.SUCCESS);							
+						if ((ret = _fieldId.decode(_dIter)) == CodecReturnCodes.SUCCESS)
+						{
+						    assertFalse(_fieldId.toLong() < Short.MIN_VALUE || _fieldId.toLong() > Short.MAX_VALUE);
+							_viewFieldIdList.add((int)_fieldId.toLong());
+						}					
+					}// while
+				} // End checking the pay load type
+				
+				boolean applyRefreshComplete = _multipart ? false : true;
+				
+				do
+				{
+				   	_refreshMsg.clear();
+				   	_submitOptions.clear();
+			        _refreshMsg.msgClass(MsgClasses.REFRESH);			       
+			        _refreshMsg.applySolicited();
+			        _refreshMsg.applyClearCache();
+			        _refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+			        _refreshMsg.streamId(event.msg().streamId());
+			        _refreshMsg.applyHasMsgKey();
+			        _refreshMsg.msgKey().applyHasServiceId();
+			        _refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+			        _refreshMsg.msgKey().applyHasName();
+			        _refreshMsg.msgKey().name().data(event.msg().msgKey().name().toString());
+			        
+			        if (requestMsg.checkStreaming())
+			        {
+			        	_refreshMsg.state().streamState(StreamStates.OPEN);
+			        	_refreshMsg.state().dataState(DataStates.OK);
+			        }
+			        else
+			        {
+			        	_refreshMsg.state().streamState(StreamStates.NON_STREAMING);
+			        	_refreshMsg.state().dataState(DataStates.SUSPECT);
+			        }
+			        
+			        _encodeIt.clear();
+			        _fieldList.clear();
+			        _fieldEntry.clear();
+			        _buffer.clear();
+			        if(_viewFieldIdList.size() > 0)
+			        {
+			        	ByteBuffer byteBuffer = ByteBuffer.allocate(8192);
+			        	_buffer.data(byteBuffer);
+			        	_encodeIt.clear();
+			        	assertTrue(_encodeIt.setBufferAndRWFVersion(_buffer, event.reactorChannel().majorVersion(), 
+			        			event.reactorChannel().minorVersion()) == CodecReturnCodes.SUCCESS);
+			        	
+			        	_fieldList.clear();
+			        	_fieldList.applyHasStandardData();
+			        	ret = _fieldList.encodeInit(_encodeIt, null, 0);
+			        	
+			        	assertFalse(ret < CodecReturnCodes.SUCCESS);
+			        	
+			        	Iterator<Integer> it = _viewFieldIdList.iterator();
+			        	while(it.hasNext())
+			        	{
+			        		Integer fid = it.next();
+			        		_fieldEntry.clear();
+			        		switch(fid.intValue())
+			        		{
+			        			case 6:
+			        			case 12:
+			        			case 13:
+			        			case 19:
+			        			case 21:
+			        			case 22:
+			        			case 25:
+			        			case 30:
+			        			case 31:
+			        			case 1465:
+			        			{
+			        				_fieldEntry.fieldId(fid.intValue());
+			        				_fieldEntry.dataType(DataTypes.REAL);
+			        				_real.clear();
+			        				_real.value(fid.intValue(), RealHints.EXPONENT1);
+			        				assertTrue(_fieldEntry.encode(_encodeIt, _real) == CodecReturnCodes.SUCCESS);
+			        				break;
+			        			}
+			        			default:
+			        				assertFalse(true); // Support only the above fields
+			        		}
+			        	}
+			        	
+			        	assertTrue(_fieldList.encodeComplete(_encodeIt, true) == CodecReturnCodes.SUCCESS);
+			        	_refreshMsg.containerType(DataTypes.FIELD_LIST);
+			        	_refreshMsg.encodedDataBody(_buffer);
+			        }
+			        else
+			        {
+			        	_refreshMsg.containerType(DataTypes.NO_DATA);
+			        }
+			        
+			        
+			        try {
+						Thread.sleep(10);
+					} catch (Exception e){}
+			        
+			        if (applyRefreshComplete)
+			        {
+			        	++_refreshCompleteMessage;
+			        	_refreshMsg.applyRefreshComplete();
+			        }
+			        
+			        ++_numRefreshMessage;
+			        assertTrue(submit(_refreshMsg, _submitOptions) >= ReactorReturnCodes.SUCCESS);
+			        
+			        if(applyRefreshComplete)
+			        	break;
+			        else
+			        	applyRefreshComplete = true;
+			        
+				}while(_multipart);
+			}
+			
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}
+    
+		@Override
+		public void run() {
+			try {
+				do
+				{
+					_testReactor.dispatch(-1, 100);
+					
+				}while(_dispatching);
+			} catch (Exception e) {}
+		}
+    }
+    
+    interface TestWithMultithreadedOmmConsumer
+    {
+    	void runTest(MultithreadedOmmConsumer consumer, AppClient appClient, String serviceName, int domainType, boolean streaming, List<Integer> viewFids);
+    }
+    
+    public MultithreadedOmmConsumer multithreadedSubscriptionTest(final boolean streaming, String stockList, final List<Integer> viewFieldList, final int numIteration, boolean multipart, final TestWithMultithreadedOmmConsumer test)
+    {
+		/* Create consumer. */
+		final MultithreadedOmmConsumer consumer = new MultithreadedOmmConsumer(new TestReactor());
+		ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+		consumerRole.initDefaultRDMLoginRequest();
+		consumerRole.initDefaultRDMDirectoryRequest();
+		consumerRole.channelEventCallback(consumer);
+		consumerRole.loginMsgCallback(consumer);
+		consumerRole.directoryMsgCallback(consumer);
+		consumerRole.dictionaryMsgCallback(consumer);
+		consumerRole.defaultMsgCallback(consumer);
+		consumerRole.watchlistOptions().enableWatchlist(true);
+		consumerRole.watchlistOptions().channelOpenCallback(consumer);
+		consumerRole.watchlistOptions().requestTimeout(3000);
+		
+		/* Create provider. */
+		final ViewRequestProvider provider = new ViewRequestProvider(new TestReactor(), multipart);
+		ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+		providerRole.channelEventCallback(provider);
+		providerRole.loginMsgCallback(provider);
+		providerRole.directoryMsgCallback(provider);
+		providerRole.dictionaryMsgCallback(provider);
+		providerRole.defaultMsgCallback(provider);
+		
+		/* Connect the consumer and provider. Setup login & directory streams automatically. */
+		ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+		opts.setupDefaultLoginStream(true);
+		opts.setupDefaultDirectoryStream(true);
+		provider.bind(opts);
+		TestReactor.openSession(consumer, provider, opts);
+		
+		provider.start();
+		consumer.start();
+		
+		/* Consumer sends request. */
+		String[] stocks = stockList.split(",");
+		for (final String stock : stocks) {
+			
+			final AppClient appClient = new AppClient(stock);
+			new Thread() {
+				public void run() {
+					for (int i = 0; i < numIteration; i++) {
+						
+						test.runTest(consumer, appClient, Provider.defaultService().info().serviceName().toString(),
+								DomainTypes.MARKET_PRICE, streaming, viewFieldList);
+						
+						try {
+							Thread.sleep(5);
+						} catch (Exception e){
+						}
+					}
+				}
+			}.start();
+		}
+        
+        try {
+        	
+			Thread.sleep(10000); // Wait 10 seconds to complete all requests
+			
+			consumer.stop();
+			provider.stop();
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+        
+        return consumer;
+    }
+    
+    class MultithreadedUnsubAndSubTheSameItemListTest implements TestWithMultithreadedOmmConsumer
+	{
+
+		@Override
+		public void runTest(MultithreadedOmmConsumer consumer, AppClient appClient, String serviceName,
+				int domainType, boolean streaming, List<Integer> viewFids) {
+			
+			consumer.UnsubAndSub(appClient, serviceName, domainType, streaming, viewFids);
+			
+		}
+	}
+    
+    @Test
+    public void multithreadedUnsubAndSubTheSameItemList_StreamingTest()
+    {		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, null, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
+		
+		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
+    }
+    
+    @Test
+    public void multithreadedUnsubAndSubTheSameItemList_NonStreamingTest()
+    {		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, null, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
+    
+		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
+    }
+    
+    @Test
+    public void multithreadedUnsubAndSubTheSameItemListWithView_StreamingTest()
+    {
+    	List<Integer> viewFieldList = new ArrayList<Integer>();
+		viewFieldList.add(6);
+		viewFieldList.add(12);
+		viewFieldList.add(13);
+		viewFieldList.add(19);
+		viewFieldList.add(21);
+		viewFieldList.add(22);
+		viewFieldList.add(25);
+		viewFieldList.add(30);
+		viewFieldList.add(31);
+		viewFieldList.add(1465);
+		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, viewFieldList, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
+		
+		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
+    }
+    
+    @Test
+    public void multithreadedUnsubAndSubTheSameItemListWithView_NonStreamingTest()
+    {
+    	List<Integer> viewFieldList = new ArrayList<Integer>();
+		viewFieldList.add(6);
+		viewFieldList.add(12);
+		viewFieldList.add(13);
+		viewFieldList.add(19);
+		viewFieldList.add(21);
+		viewFieldList.add(22);
+		viewFieldList.add(25);
+		viewFieldList.add(30);
+		viewFieldList.add(31);
+		viewFieldList.add(1465);
+		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, viewFieldList, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
+		
+		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
+    }
+    
+    class MultithreadedSubTheSameItemListTest implements TestWithMultithreadedOmmConsumer
+	{
+
+		@Override
+		public void runTest(MultithreadedOmmConsumer consumer, AppClient appClient, String serviceName,
+				int domainType, boolean streaming, List<Integer> viewFids) {
+			
+			consumer.subscribe(serviceName, appClient.Item, domainType, streaming, viewFids);	
+		}
+	}
+    
+    @Test
+    public void multithreadedSubTheSameItemList_StreamingTest()
+    {		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, null, 30, false, new MultithreadedSubTheSameItemListTest());
+		
+		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30 ) );
+    }
+    
+    @Test
+    public void multithreadedSubTheSameItemList_MultiPartStreamingTest()
+    {		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, null, 30, true, new MultithreadedSubTheSameItemListTest());
+		
+		assertTrue(consumer.getNumRefreshCompleteMessage() == (stockList.split(",").length * 30 ) );
+		
+		assertTrue(consumer.getNumRefreshMessage() == (consumer.getNumRefreshCompleteMessage() * 2) );
+    }
+    
+    @Test
+    public void multithreadedSubTheSameItemList_NonStreamingTest()
+    {		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI,AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, null, 30, false, new MultithreadedSubTheSameItemListTest());
+		
+		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30));
+    }
+    
+    @Test
+    public void multithreadedSubTheSameItemList_MultipartNonStreamingTest()
+    {		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI,AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, null, 30, true, new MultithreadedSubTheSameItemListTest());
+		
+		assertTrue(consumer.getNumRefreshCompleteMessage() == (stockList.split(",").length * 30));
+		assertTrue(consumer.getNumRefreshMessage() == (consumer.getNumRefreshCompleteMessage() * 2));
+    }
+    
+    @Test
+    public void multithreadedSubTheSameItemListWithView_StreamingTest()
+    {
+    	List<Integer> viewFieldList = new ArrayList<Integer>();
+		viewFieldList.add(6);
+		viewFieldList.add(12);
+		viewFieldList.add(13);
+		viewFieldList.add(19);
+		viewFieldList.add(21);
+		viewFieldList.add(22);
+		viewFieldList.add(25);
+		viewFieldList.add(30);
+		viewFieldList.add(31);
+		viewFieldList.add(1465);
+		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, viewFieldList, 4, false, new MultithreadedSubTheSameItemListTest());
+		
+		assertTrue(consumer.getNumRefreshMessage() == ( stockList.split(",").length + (stockList.split(",").length * 2) + (stockList.split(",").length *3)
+				+ (stockList.split(",").length *4)));
+    }
+    
+    @Test
+    public void multithreadedSubTheSameItemListWithView_NonStreamingTest()
+    {
+    	List<Integer> viewFieldList = new ArrayList<Integer>();
+		viewFieldList.add(6);
+		viewFieldList.add(12);
+		viewFieldList.add(13);
+		viewFieldList.add(19);
+		viewFieldList.add(21);
+		viewFieldList.add(22);
+		viewFieldList.add(25);
+		viewFieldList.add(30);
+		viewFieldList.add(31);
+		viewFieldList.add(1465);
+		
+		String stockList="AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI,AEMN.SI,DBSM.SI,BOUS.SI,SGXL.SI,CMDG.SI";
+		
+		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, viewFieldList, 30, false, new MultithreadedSubTheSameItemListTest());
+		
+		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30));
     }
 }

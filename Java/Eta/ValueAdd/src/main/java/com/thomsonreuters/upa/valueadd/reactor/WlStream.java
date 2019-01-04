@@ -31,6 +31,22 @@ import com.thomsonreuters.upa.valueadd.common.VaNode;
 /* Watchlist stream that handles basic stream management. */
 class WlStream extends VaNode
 {
+    /* The state of the watch-list stream. */
+	class RefreshStates
+    {		
+		// No refresh needed.
+		static final int REFRESH_NOT_REQUIRED = 0;
+		
+		// Currently waiting for a refresh.
+		static final int REFRESH_PENDING = 1;
+		
+		// Currently waiting for a view refresh
+		static final int REFRESH_VIEW_PENDING = 2; 
+		
+		// Received partial refresh, need the rest
+		static final int REFRESH_COMPLETE_PENDING = 3;
+    }
+	
     Watchlist _watchlist;
     WlHandler _handler; // handler associated with stream
     ReactorChannel _reactorChannel;
@@ -55,8 +71,8 @@ class WlStream extends VaNode
     RequestMsg _requestMsg; // current request message associated with stream
                             // this is the request exchanged with the ADS or Provider
     
-    boolean _multiPartRefreshPending; // flag to indicate a multi-part refresh is pending on the stream
-    int _numSnapshotsPending; // number of snapshots pending on the stream
+    // The refresh state defined in RefreshStates
+    int _refreshState;
     
     /* waiting request list to handle cases where request could not be submitted with
      * directory stream up but there was a pending multi-part refresh or snapshot in progress */
@@ -97,7 +113,6 @@ class WlStream extends VaNode
     WlView _aggregateView;
     int _requestsWithViewCount;
     boolean _pendingViewChange;  
-    boolean _pendingViewRefresh;
     boolean _viewSubsetContained;
     Buffer _viewBuffer = CodecFactory.createBuffer();
     ByteBuffer _viewByteBuffer = ByteBuffer.allocateDirect(2048);
@@ -181,28 +196,16 @@ class WlStream extends VaNode
         return requestMsg.copy(_requestMsg, CopyMsgFlags.ALL_FLAGS);
     }
     
-    /* Returns whether or not a multi-part refresh is pending. */
-    boolean multiPartRefreshPending()
+    /* Returns the current refresh state of this stream */
+    int refreshState()
     {
-        return _multiPartRefreshPending;
+        return _refreshState;
     }
 
-    /* Sets whether or not a multi-part refresh is pending. */
-    void multiPartRefreshPending(boolean multiPartRefreshPending)
+    /* Sets the refresh state of this stream defined in RefreshStates */
+    void refreshState(int refreshState)
     {
-        _multiPartRefreshPending = multiPartRefreshPending;
-    }
-    
-    /* Returns number of snapshots pending. */
-    int numSnapshotsPending()
-    {
-        return _numSnapshotsPending;
-    }
-
-    /* Sets number of snapshots pending. */
-    void numSnapshotsPending(int numSnapshotsPending)
-    {
-        _numSnapshotsPending = numSnapshotsPending;
+    	_refreshState = refreshState;
     }
     
     /* Returns the service associated with this stream. */
@@ -264,6 +267,7 @@ class WlStream extends VaNode
     /* Handles channel down event. */
     void channelDown()
     {
+        _refreshState = RefreshStates.REFRESH_NOT_REQUIRED;
         _requestPending = false;
         _channelUp = false;
     }
@@ -271,7 +275,7 @@ class WlStream extends VaNode
     /* Response received for this stream. */
     void responseReceived()
     {
-        _requestPending = false;
+    	_requestPending = false;
     }
     
     /* Handles a timeout for the stream. */
@@ -289,7 +293,7 @@ class WlStream extends VaNode
 
         // handle request timeout
         // if request pending, resend request
-        if (_requestExpireTime <= currentTime && _requestPending)
+        if (_requestExpireTime <= currentTime &&  _requestPending)
         {
             // encode into buffer and send out
             if (isChannelUp())
@@ -300,7 +304,7 @@ class WlStream extends VaNode
                 if ((ret = sendCloseMsg(_closeMsg, errorInfo)) >= ReactorReturnCodes.SUCCESS)
                 {
                     // reset request pending flag
-                    _requestPending = false;
+                	_requestPending = false;
                     
                     // notify handler of request timeout
                     ret = _handler.requestTimeout(this, errorInfo);
@@ -374,7 +378,7 @@ class WlStream extends VaNode
 						_watchlist._loginHandler._loginRefresh.features().checkHasSupportViewRequests() &&
 						_watchlist._loginHandler._loginRefresh.features().supportViewRequests() == 1)
 				{			
-					if (_pendingViewChange && !_pendingViewRefresh)
+					if (_pendingViewChange && (_refreshState != RefreshStates.REFRESH_VIEW_PENDING) )
 					{						
 						_viewSubsetContained = false;
 						if(_aggregateView.viewHandler().aggregateViewContainsNewViews(_aggregateView))
@@ -455,7 +459,7 @@ class WlStream extends VaNode
 	                    }
 	                    
 	                    // start timer if request is not already pending
-	                    if (!_requestPending && !((RequestMsg)msg).checkNoRefresh())
+	                    if ( !_requestPending && !((RequestMsg)msg).checkNoRefresh())
 	                    {
 	                        if (startRequestTimer(errorInfo) != ReactorReturnCodes.SUCCESS)
 	                        {
@@ -467,7 +471,7 @@ class WlStream extends VaNode
 	                    	// no need to send refresh back on other app streams already received
 	                    	_pendingViewChange = false;                        	
 	                    	if (!((RequestMsg)msg).checkNoRefresh() && !_viewSubsetContained)
-	                    		_pendingViewRefresh = true;
+	                    		_refreshState = RefreshStates.REFRESH_VIEW_PENDING;
 	                                        
 	                        if (_aggregateView != null && 	(msg.flags() & RequestMsgFlags.HAS_VIEW) > 0)
 	                        	_aggregateView.viewHandler().aggregateViewCommit(_aggregateView);
@@ -884,8 +888,9 @@ class WlStream extends VaNode
         _streamId = 0;
         _domainType = 0;
         _state.clear();
-        _requestPending = false;
+        _refreshState = RefreshStates.REFRESH_NOT_REQUIRED;
         _channelUp = false;
+        _requestPending = false;
         _handler  = null;
         _ackMsg.clear();
         _ackMsg.msgClass(MsgClasses.ACK);
@@ -897,8 +902,6 @@ class WlStream extends VaNode
         _requestMsg = null;
         _itemAggregationKey = null;
         _requestExpireTime = 0;
-        _multiPartRefreshPending = false;
-        _numSnapshotsPending = 0;
         _eIter.clear();
         _reactorChannelInfo.clear();
         _submitOptions.clear();
