@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.34
-!tag Build_RDMD  4.20.34
-!tag DT_Version  19.01
-!tag Date        26-Nov-2018
+!tag RT_Version  4.20.35
+!tag Build_RDMD  4.20.35
+!tag DT_Version  19.11
+!tag Date        7-Jan-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -8603,6 +8603,14 @@ LEG4_EXCH  13574
    1533        "ATE"   Athens Stock Exchange APA
    1534        "TRO"   TRADEcho
    1535        "UGC"   US Grains Council
+   1536        "GTX"   GETTEX
+   1537        "UEE"   Ukrainian Energy Exchange
+   1538        "MTY"   MTS CYPRUS
+   1539        "4AX"   4 AFRICA EXCHANGE
+   1540        "TQE"   Turquoise (EU)
+   1541        "BSB"   Cboe Europe BXE (EU)
+   1542        "CHN"   Cboe Europe CXE (EU)
+   1543        "AQE"   Aquis (EU)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11291,6 +11299,7 @@ RPT_UNITS   4033
     213   "Tonne   "   Tonne (Metric)
     214   "Bale    "   480 Pound Bale (USDA)
     215   "Pound   "   Pound as a measure of weight as defined by the British Imperial Standards. 1 Pound = 0.4536 Kilograms
+    216   "OZS     "   Troy Ounces
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13111,6 +13120,7 @@ REFPRC_TP4 13491
      36   "FIX2    "   Fixing 2
      37   "CLSFIX  "   Close Fixing
      38   "Block   "   Block Deal Reference Price
+     39   "INT_REF "   Intraday reference price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15610,6 +15620,8 @@ PHASE_RSN  12822
      16   "UMO     "   Uncrossing by market operations
      17   "AMO     "   Action by market operations
      18   "WTS     "   Waiting for trading state
+     19   "UCOND-RE"   Unconditional Random End Triggered
+     20   "COND-RE "   Conditional Random End Triggered
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16894,6 +16906,13 @@ ROUTE_INDX 12977
      84   "FBX22   "   Freightos Europe to North America East Coast China/East Asia
      85   "FBX24   "   Freightos Baltic Europe to South America East Coast
      86   "FBX26   "   Freightos Baltic Europe to South America West Coast
+     87   "TD20    "   West Africa to UK-Continent
+     88   "TD21    "   Caribbean to US Gulf (50,000mt fuel oil)
+     89   "S1C_58  "   US Gulf trip to China-south Japan
+     90   "TC2_37  "   Continent to US Atlantic coast (CPP, UNL)
+     91   "TC3_38  "   Caribbean to US Atlantic coast (CPP, UNL)
+     92   "TC11    "   South Korea to Singapore
+     93   "C11_03  "   Delivery China-Japan ; Trip Continent - Med
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17656,6 +17675,7 @@ INCOME_POL 13069
 PRCLMT_TP  13071
 PRCLMT_TP2 13072
 PRCLMT_TP3 13073
+PRCLMT_TP4 13077
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -17667,11 +17687,52 @@ PRCLMT_TP3 13073
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET376 13077
-PRE_1ET377 13078
-PRE_1ET378 13079
-PRE_1ET379 13080
-PRE_1ET380 13081
+QUORUM1_TP 13078
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "CONTRIB "   Contributors
+      2   "COUNTRY "   Countries
+!
+! ACRONYM    FID
+! -------    ---
+!
+QUORUM2_TP 13079
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "CONTRIB "   Contributors
+      2   "COUNTRY "   Countries
+!
+! ACRONYM    FID
+! -------    ---
+!
+QUORUM_ST  13080
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "MET     "   Quorum met
+      2   "NOT MET "   Quorum not met
+!
+! ACRONYM    FID
+! -------    ---
+!
+FIXING_ST  13081
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "PUBED   "   Published
+      2   "REFIXING"   Refixing in progress
+      3   "REFIXED "   Refixed
+      4   "NOTSTART"   Not started
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET381 13082
 PRE_1ET382 13083
 PRE_1ET383 13084
@@ -18299,6 +18360,7 @@ OWNER      13414
       4   "MKTAXESS"   MarketAxess
       5   "CBID    "   CBID/Perimeter Markets Inc.
       6   "CANPX   "   CanPx - Real Time Data Feed
+      7   "REFINITV"   Refinitiv
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20442,6 +20504,8 @@ ORGN_PORT  13579
     461   "MY MYY  "   Miri, Sarawak
     462   "GB HPT  "   Hound Point
     463   "US SJM  "   Saint James
+    464   "AR   ROS"   Rosario
+    465   "BR   IAR"   Itacoatiara
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21109,6 +21173,7 @@ CNV_PAR_UT 13582
 LMT_TYPE   13583
 LMT_TYPE2  13584
 LMT_TYPE3  13599
+LMT_TYPE4  13600
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -21256,9 +21321,28 @@ INST_LB_RU 13598
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET279 13600
-PRE_2ET280 13601
-PRE_2ET281 13602
+BA_CANAL   13601
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "SUEZ    "   Suez Canal
+      2   "PANAMA  "   Panama Canal
+!
+! ACRONYM    FID
+! -------    ---
+!
+LA_CANAL   13602
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "SUEZ    "   Suez Canal
+      2   "PANAMA  "   Panama Canal
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET282 13603
 PRE_2ET283 13604
 PRE_2ET284 13605

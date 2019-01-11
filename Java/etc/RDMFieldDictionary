@@ -1,10 +1,10 @@
 !
 ! RWF.DAT file.
 !
-! Release 4.20.34
+! Release 4.20.35
 !
-! Produced by u6062221 at 10:16:06 on 04/10/18.
-! Using Master FID list software version 7.00 (03 Oct 2018)
+! Produced by Ian Carter at 10:55:46 on 06/12/2018.
+! Using Master FID list software version 7.00 (03 Oct 18)
 !
 ! Copyright Refinitiv 2018
 !
@@ -19,9 +19,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.34
+!tag Version   4.20.35
 !tag Build     001
-!tag Date      04-Oct-2018
+!tag Date      06-Dec-2018
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -15543,20 +15543,24 @@ YLDWST3    "YIELD TO WORST 3"    5899  NULL        PRICE              17  REAL64
 ! defaulting.
 !
 YLDCALL1   "YIELD TO CALL 1"     5900  NULL        PRICE              17  REAL64           7
-YLDCALL2   "YIELD TO CALL 2"     5901  NULL        PRICE              17  REAL64           7
 !
 ! A field to show the interest rate that investors would receive if they held the bond 
 ! until the call date.
 !
-YLDCALL3   "YIELD TO CALL 3"     5902  NULL        PRICE              17  REAL64           7
+YLDCALL2   "YIELD TO CALL 2"     5901  NULL        PRICE              17  REAL64           7
 !
 ! A second field to show the interest rate that investors would receive if they held 
 ! the bond until the call date.
 !
-YLDTOMAT2  "YIELD TO MAT 2"      5903  NULL        PRICE              17  REAL64           7
+YLDCALL3   "YIELD TO CALL 3"     5902  NULL        PRICE              17  REAL64           7
 !
 ! A third field to show the interest rate that investors would receive if they held 
 ! the bond until the call date.
+!
+YLDTOMAT2  "YIELD TO MAT 2"      5903  NULL        PRICE              17  REAL64           7
+!
+! A second field to show rate of return anticipated on a bond if it is held to 
+! maturity.
 !
 YLDTOMAT3  "YIELD TO MAT 3"      5904  NULL        PRICE              17  REAL64           7
 !
@@ -19826,8 +19830,14 @@ QTE_XA_TRD "QTE MAX ALLOW TRD"   7144  NULL        INTEGER            15  INT64 
 !
 ! Maximum number of trades that could be executed with the quote.
 !
-PRE_INT266 "PRED INTEGER 266"    7145  NULL        INTEGER            15  INT64            6
-PRE_INT267 "PRED INTEGER 267"    7146  NULL        INTEGER            15  INT64            6
+QUORUM1    "QUORUM 1"            7145  NULL        INTEGER            15  INT64            6
+!
+! Indicates the number required to meet first quorum criteria.
+!
+QUORUM2    "QUORUM 2"            7146  NULL        INTEGER            15  INT64            6
+!
+! Indicates the number required to meet second quorum criteria.
+!
 PRE_INT268 "PRED INTEGER 268"    7147  NULL        INTEGER            15  INT64            6
 PRE_INT269 "PRED INTEGER 269"    7148  NULL        INTEGER            15  INT64            6
 PRE_INT270 "PRED INTEGER 270"    7149  NULL        INTEGER            15  INT64            6
@@ -26576,7 +26586,10 @@ SETL2_DT   "SETTLE 2 DATE"       9361  NULL        DATE               11  DATE  
 !
 ! The date when SETTLE2 (3036) was last updated.
 !
-PRE_DT251  "PRED DATE 251"       9362  NULL        DATE               11  DATE             4
+REFPRC_DT2 "REF PRICE DATE 2"    9362  NULL        DATE               11  DATE             4
+!
+! Secondary Reference Price Date.
+!
 PRE_DT252  "PRED DATE 252"       9363  NULL        DATE               11  DATE             4
 PRE_DT253  "PRED DATE 253"       9364  NULL        DATE               11  DATE             4
 PRE_DT254  "PRED DATE 254"       9365  NULL        DATE               11  DATE             4
@@ -28561,11 +28574,11 @@ INT_BSIS_M "INT CDS BASIS MID"  10273  NULL        PRICE              17  REAL64
 !
 INT_G_SP_A "INT GOVT SPRD ASK"  10274  NULL        PRICE              17  REAL64           7
 !
-! Interpolated G-Spread Ask
+! Interpolated Government Spread ASK
 !
 INT_G_SP_M "INT GOVT SPRD MID"  10275  NULL        PRICE              17  REAL64           7
 !
-! Interpolated G-Spread Mid
+! Interpolated Government Spread MID
 !
 INT_G_YLDA "INT GOVT YIELD ASK" 10276  NULL        PRICE              17  REAL64           7
 !
@@ -29003,7 +29016,7 @@ TRD_INT_GB "TRD PRC INT GB YLD" 10379  NULL        PRICE              17  REAL64
 !
 TRD_INT_GS "TRD PRC INT G SPRD" 10380  NULL        PRICE              17  REAL64           7
 !
-! Interpolated G-Spread - calculation based on trade value(s)
+! Interpolated Government Spread - calculation based on trade value(s)
 !
 TRD_INTBEI "TRD PRC INT BEI"    10381  NULL        PRICE              17  REAL64           7
 !
@@ -29827,23 +29840,75 @@ CRSTRD_YLD "CROSS TRD YLD"      10627  NULL        PRICE              17  REAL64
 !
 ! Cross trade price
 !
-PRERL1637  "PRED REAL 1637"     10628  NULL        PRICE              17  REAL64           7
-PRERL1638  "PRED REAL 1638"     10629  NULL        PRICE              17  REAL64           7
-PRERL1639  "PRED REAL 1639"     10630  NULL        PRICE              17  REAL64           7
-PRERL1640  "PRED REAL 1640"     10631  NULL        PRICE              17  REAL64           7
-PRERL1641  "PRED REAL 1641"     10632  NULL        PRICE              17  REAL64           7
-PRERL1642  "PRED REAL 1642"     10633  NULL        PRICE              17  REAL64           7
-PRERL1643  "PRED REAL 1643"     10634  NULL        PRICE              17  REAL64           7
-PRERL1644  "PRED REAL 1644"     10635  NULL        PRICE              17  REAL64           7
-PRERL1645  "PRED REAL 1645"     10636  NULL        PRICE              17  REAL64           7
-PRERL1646  "PRED REAL 1646"     10637  NULL        PRICE              17  REAL64           7
-PRERL1647  "PRED REAL 1647"     10638  NULL        PRICE              17  REAL64           7
-PRERL1648  "PRED REAL 1648"     10639  NULL        PRICE              17  REAL64           7
-PRERL1649  "PRED REAL 1649"     10640  NULL        PRICE              17  REAL64           7
-PRERL1650  "PRED REAL 1650"     10641  NULL        PRICE              17  REAL64           7
-PRERL1651  "PRED REAL 1651"     10642  NULL        PRICE              17  REAL64           7
-PRERL1652  "PRED REAL 1652"     10643  NULL        PRICE              17  REAL64           7
-PRERL1653  "PRED REAL 1653"     10644  NULL        PRICE              17  REAL64           7
+MMEY_SNP1  "MM EQUIV YLD SNAP1" 10628  NULL        PRICE              17  REAL64           7
+!
+! Money Market Equivalent Yield Snapshot 1.
+!
+MMEY_SNP2  "MM EQUIV YLD SNAP2" 10629  NULL        PRICE              17  REAL64           7
+!
+! Money Market Equivalent Yield Snapshot 2.
+!
+MMEY_SNP3  "MM EQUIV YLD SNAP3" 10630  NULL        PRICE              17  REAL64           7
+!
+! Money Market Equivalent Yield Snapshot 3.
+!
+MMEY_SNP4  "MM EQUIV YLD SNAP4" 10631  NULL        PRICE              17  REAL64           7
+!
+! Money Market Equivalent Yield Snapshot 4.
+!
+DELTA_CALL "CALL DELTA"         10632  NULL        PRICE              17  REAL64           7
+!
+! Option delta based on calls.
+!
+DELTA_PUT  "PUT DELTA"          10633  NULL        PRICE              17  REAL64           7
+!
+! Option delta based on puts.
+!
+FRNIDXCNVX "FRN IDX CONVEXITY"  10634  NULL        PRICE              17  REAL64           7
+!
+! Convexity of Floating Rate Note in relation to Reference Index.
+!
+FRNIDXDRTN "FRN IDX DURATION"   10635  NULL        PRICE              17  REAL64           7
+!
+! Duration of Floating Rate Note in relation to Reference Index.
+!
+SPD_CONVX  "SPREAD CONVEXITY"   10636  NULL        PRICE              17  REAL64           7
+!
+! Spread Convexity.
+!
+LOLIMIT_4  "LOWER LIMIT LEVEL4" 10637  NULL        PRICE              17  REAL64           7
+!
+! The fourth level lower trading limit for today's trading.
+!
+UPLIMIT_4  "UPPER LIMIT LEVEL4" 10638  NULL        PRICE              17  REAL64           7
+!
+! The fourth level upper trading limit for today's trading.
+!
+INT_G_SP_B "INT GOVT SPRD BID"  10639  NULL        PRICE              17  REAL64           7
+!
+! Interpolated Government Spread BID.
+!
+INT_SP_A   "INT SPRD ASK"       10640  NULL        PRICE              17  REAL64           7
+!
+! Interpolated Spread ASK.
+!
+INT_SP_B   "INT SPRD BID"       10641  NULL        PRICE              17  REAL64           7
+!
+! Interpolated Spread BID.
+!
+VWA_SPRD   "VWA SPRD"           10642  NULL        PRICE              17  REAL64           7
+!
+! Volume Weighted Average Spread.
+!
+CARGO_QNTY "CARGO QUANTITY"     10643  NULL        PRICE              17  REAL64           7
+!
+! The quantity of commodity transported.
+!
+D_AB_TNOVT "DAYS ABV TNOV THRE" 10644  NULL        PRICE              17  REAL64           7
+!
+! The number of days, in percentage, where the daily turnover is above the threshold 
+! value within a period of time.
+!
 PRERL1654  "PRED REAL 1654"     10645  NULL        PRICE              17  REAL64           7
 PRERL1655  "PRED REAL 1655"     10646  NULL        PRICE              17  REAL64           7
 PRERL1656  "PRED REAL 1656"     10647  NULL        PRICE              17  REAL64           7
@@ -33061,19 +33126,19 @@ DECAY_ELG  "DECAY PROD ELGB"    12902  NULL        ENUMERATED    3 ( 3 )  ENUM  
 !
 EBF_ELG    "EBF ELGB"           12903  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! EBF Eligible
+! Exchange Basis Facility (EBF) Eligible - relates to interest rate contracts.
 !
 EFP_ELG    "EFP ELGB"           12904  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! EFP Eligible
+! Exchange For Physical (EFP) Eligible
 !
 EFR_ELG    "EFR ELGB"           12905  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! EFR Eligible
+! Exchange For Risk (EFR) Eligible
 !
 EFS_ELG    "EFS ELGB"           12906  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! EFS Eligible
+! Exchange For Swap (EFS) Eligible
 !
 ELMTCH_ELG "ELEC MATCH ELGB"    12907  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -33085,7 +33150,7 @@ FRACT_ELG  "FRACTIONL PRC ELGB" 12908  NULL        ENUMERATED    3 ( 3 )  ENUM  
 !
 GTORD_ELG  "GT ORD ELGB"        12909  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! GT Orders Eligibility
+! Good-Till (GT) Orders Eligibility
 !
 IMPMAT_ELG "IMPLIED MATCH ELGB" 12910  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
@@ -33653,11 +33718,26 @@ SETL2_TP   "SETTLE 2 TYPE"      13076  NULL        ENUMERATED    3 ( 3 )  ENUM  
 !
 ! Settlement Price 2 qualifier associated with SETTLE2 (3036).
 !
-PRE_1ET376 "PRED 1 ET 376"      13077  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET377 "PRED 1 ET 377"      13078  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET378 "PRED 1 ET 378"      13079  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET379 "PRED 1 ET 379"      13080  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET380 "PRED 1 ET 380"      13081  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+PRCLMT_TP4 "PRC LMT TYPE 4"     13077  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Price Limit 4 Qualifier.
+!
+QUORUM1_TP "QUORUM 1 TYPE"      13078  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Indicates the type of constituents of first quorum criteria.
+!
+QUORUM2_TP "QUORUM 2 TYPE"      13079  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Indicates the type of constituents of second quorum criteria.
+!
+QUORUM_ST  "QUORUM STATUS"      13080  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Indicates whether or not quorum criteria has been met.
+!
+FIXING_ST  "FIXING STATUS"      13081  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Indicates the current fixing status of a fixing instrument.
+!
 PRE_1ET381 "PRED 1 ET 381"      13082  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET382 "PRED 1 ET 382"      13083  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET383 "PRED 1 ET 383"      13084  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -34730,9 +34810,18 @@ LMT_TYPE3  "LMT PRC TYPE 3"     13599  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Price Limit 3 Type
 !
-PRE_2ET279 "PRED 2 ET 279"      13600  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET280 "PRED 2 ET 280"      13601  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET281 "PRED 2 ET 281"      13602  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+LMT_TYPE4  "LMT PRC TYPE 4"     13600  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Price Limit 4 Type.
+!
+BA_CANAL   "BALLAST CANAL"      13601  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Ballast Canal - The canal the vessel passes through from origin port to load port.
+!
+LA_CANAL   "LADEN CANAL"        13602  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Laden Canal - The canal the vessel passes through from load port to discharge port.
+!
 PRE_2ET282 "PRED 2 ET 282"      13603  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET283 "PRED 2 ET 283"      13604  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET284 "PRED 2 ET 284"      13605  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -36570,7 +36659,7 @@ CF_TIME_NS "CF TIME NS"         14585  NULL        INTEGER            15  TIME  
 !
 INDNAV_NS  "IND NAV TM NS"      14586  NULL        INTEGER            15  TIME             8
 !
-! Real-Time Others
+! Indicative NAV Time
 !
 ADJ_ETM_NS "ADJ END TM NS"      14587  NULL        INTEGER            15  TIME             8
 !
@@ -36840,14 +36929,38 @@ BIDLO5_NS  "BID LO TM5 NS"      14662  NULL        INTEGER            15  TIME  
 !
 ! Ripple FID for the update associated with the BID LOW FID
 !
-PRE_233_NS "PRED TIME NS 233"   14663  NULL        INTEGER            15  TIME             8
-PRE_234_NS "PRED TIME NS 234"   14664  NULL        INTEGER            15  TIME             8
-PRE_235_NS "PRED TIME NS 235"   14665  NULL        INTEGER            15  TIME             8
-PRE_236_NS "PRED TIME NS 236"   14666  NULL        INTEGER            15  TIME             8
-PRE_237_NS "PRED TIME NS 237"   14667  NULL        INTEGER            15  TIME             8
-PRE_238_NS "PRED TIME NS 238"   14668  NULL        INTEGER            15  TIME             8
-PRE_239_NS "PRED TIME NS 239"   14669  NULL        INTEGER            15  TIME             8
-PRE_240_NS "PRED TIME NS 240"   14670  NULL        INTEGER            15  TIME             8
+TIMSNP1_NS "TIME SNAP1"         14663  NULL        INTEGER            15  TIME             8
+!
+! Time of snapshot 1.
+!
+TIMSNP2_NS "TIME SNAP2"         14664  NULL        INTEGER            15  TIME             8
+!
+! Time of snapshot 2.
+!
+TIMSNP3_NS "TIME SNAP3"         14665  NULL        INTEGER            15  TIME             8
+!
+! Time of snapshot 3.
+!
+TIMSNP4_NS "TIME SNAP4"         14666  NULL        INTEGER            15  TIME             8
+!
+! Time of snapshot 4.
+!
+TRD_LM4_NS "TRD LMT UPT 4 NS"   14667  NULL        INTEGER            15  TIME             8
+!
+! The time when UPLIMIT_4 or LOLIMIT_4 was last updated in nanoseconds.
+!
+FRNTTM_NS  "FRN TRADE TIME NS"  14668  NULL        INTEGER            15  TIME             8
+!
+! Foreigners trading price time.
+!
+TRK_ERR_NS "TRACKING ERR NS"    14669  NULL        INTEGER            15  TIME             8
+!
+! The time for ETF Tracking Error Rate.
+!
+REF_TM2_NS "REF PRICE TIM 2 NS" 14670  NULL        INTEGER            15  TIME             8
+!
+! Secondary Reference Price Time.
+!
 PRE_241_NS "PRED TIME NS 241"   14671  NULL        INTEGER            15  TIME             8
 PRE_242_NS "PRED TIME NS 242"   14672  NULL        INTEGER            15  TIME             8
 PRE_243_NS "PRED TIME NS 243"   14673  NULL        INTEGER            15  TIME             8
@@ -37374,10 +37487,25 @@ PRE_24T171 "PRED 24 TXT 171"    15196  NULL        ALPHANUMERIC       24  RMTES_
 PRE_24T172 "PRED 24 TXT 172"    15197  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T173 "PRED 24 TXT 173"    15198  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T174 "PRED 24 TXT 174"    15199  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_LRL131 "PRED LRG REAL 131"  15200  NULL        PRICE              17  REAL64           8
-PRE_LRL132 "PRED LRG REAL 132"  15201  NULL        PRICE              17  REAL64           8
-PRE_LRL133 "PRED LRG REAL 133"  15202  NULL        PRICE              17  REAL64           8
-PRE_LRL134 "PRED LRG REAL 134"  15203  NULL        PRICE              17  REAL64           8
+!
+! Predefined FIDs. Acronym, DDE Acronym and Description subject to change.
+!
+OF_FR_BVAL "OFFBK FRGN BUY VAL" 15200  NULL        PRICE              17  REAL64           8
+!
+! Turnover for off book Foreign Buy Trades.
+!
+OF_FR_BVOL "OFFBK FRGN BUY VOL" 15201  NULL        PRICE              17  REAL64           8
+!
+! The off book foreigners buy volume.
+!
+OF_FR_SVAL "OFFBK FRGN SEL VAL" 15202  NULL        PRICE              17  REAL64           8
+!
+! Turnover for off book Foreign Sell Trades.
+!
+OF_FR_SVOL "OFFBK FRGN SEL VOL" 15203  NULL        PRICE              17  REAL64           8
+!
+! The off book foreigners sell volume.
+!
 PRE_LRL135 "PRED LRG REAL 135"  15204  NULL        PRICE              17  REAL64           8
 PRE_LRL136 "PRED LRG REAL 136"  15205  NULL        PRICE              17  REAL64           8
 PRE_LRL137 "PRED LRG REAL 137"  15206  NULL        PRICE              17  REAL64           8
