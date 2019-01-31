@@ -116,7 +116,6 @@ public class Consumer
 			DispatchThread dThread = new DispatchThread(consumer);
 			dThread.start();
 			
-			ReqMsg reqMsg = EmaFactory.createReqMsg();
 		while (true) {	
 			System.out.println("############## Starting a new iteration ###############");
 			Thread.sleep(1000);
