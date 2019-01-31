@@ -1619,7 +1619,12 @@ public class Reactor
                     return ret;
                 }
                 // Msg not pending - proceed
-                int bufferSize = getMaxFragmentSize(reactorChannel, errorInfo);
+                int bufferSize;
+                if ((bufferSize = getMaxFragmentSize(reactorChannel, errorInfo)) < 0)
+                {
+                    return bufferSize;
+                }            
+                
                 while (true) // try to get buffer and encode until success or error
                 {
                     TransportBuffer writeBuffer
@@ -2257,8 +2262,14 @@ public class Reactor
             return;
         }
         
-        TransportBuffer msgBuf = channel.getBuffer(getMaxFragmentSize(reactorChannel, errorInfo), false,
-                                                   errorInfo.error());
+        int bufSize;
+        if ((bufSize = getMaxFragmentSize(reactorChannel, errorInfo)) < 0)
+        {
+            return;
+        }
+        
+        TransportBuffer msgBuf = channel.getBuffer(bufSize, false, errorInfo.error());        
+
         if (msgBuf == null)
         {
             populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -2340,8 +2351,14 @@ public class Reactor
         // get a buffer for the directory request
         Channel channel = reactorChannel.channel();
 
-        TransportBuffer msgBuf = channel.getBuffer(getMaxFragmentSize(reactorChannel, errorInfo), false,
-                                                   errorInfo.error());
+        int bufSize;
+        if ((bufSize = getMaxFragmentSize(reactorChannel, errorInfo)) < 0)
+        {
+            return;
+        }
+        
+        TransportBuffer msgBuf = channel.getBuffer(bufSize, false, errorInfo.error());        
+ 
         if (msgBuf == null)
         {
             populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -2423,8 +2440,14 @@ public class Reactor
         // get a buffer for the directory request
         Channel channel = reactorChannel.channel();
 
-        TransportBuffer msgBuf = channel.getBuffer(getMaxFragmentSize(reactorChannel, errorInfo), false,
-                                                   errorInfo.error());
+        int bufSize;
+        if ((bufSize = getMaxFragmentSize(reactorChannel, errorInfo)) < 0)
+        {
+            return;
+        }
+        
+        TransportBuffer msgBuf = channel.getBuffer(bufSize, false, errorInfo.error());        
+
         if (msgBuf == null)
         {
             populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -2506,8 +2529,14 @@ public class Reactor
         // get a buffer for the dictionary request
         Channel channel = reactorChannel.channel();
 
-        TransportBuffer msgBuf = channel.getBuffer(getMaxFragmentSize(reactorChannel, errorInfo), false,
-                                                   errorInfo.error());
+        int bufSize;
+        if ((bufSize = getMaxFragmentSize(reactorChannel, errorInfo)) < 0)
+        {
+            return;
+        }
+        
+        TransportBuffer msgBuf = channel.getBuffer(bufSize, false, errorInfo.error());        
+        
         if (msgBuf == null)
         {
             populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -2592,8 +2621,14 @@ public class Reactor
         if (channel == null || channel.state() != ChannelState.ACTIVE)
             return;
 
-        TransportBuffer msgBuf = channel.getBuffer(getMaxFragmentSize(reactorChannel, errorInfo), false,
-                                                   errorInfo.error());
+        int bufSize;
+        if ((bufSize = getMaxFragmentSize(reactorChannel, errorInfo)) < 0)
+        {
+            return;
+        }
+        
+        TransportBuffer msgBuf = channel.getBuffer(bufSize, false, errorInfo.error());
+        
         if (msgBuf == null)
         {
             populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -3344,8 +3379,12 @@ public class Reactor
     
     int getMaxFragmentSize(ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
     {
+    	int ret;
         _reactorChannelInfo.clear();
-        reactorChannel.info(_reactorChannelInfo, errorInfo);
+        if ((ret = reactorChannel.info(_reactorChannelInfo, errorInfo)) < ReactorReturnCodes.SUCCESS)
+        {
+            return ret;
+        }
         return _reactorChannelInfo.channelInfo().maxFragmentSize();
     }
     

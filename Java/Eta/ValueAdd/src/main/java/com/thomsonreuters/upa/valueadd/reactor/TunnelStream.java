@@ -588,7 +588,12 @@ public class TunnelStream
                                          "TunnelStream.submit", "ReactorChannel is closed, aborting.");
             }
             
-            int bufLength = _reactor.getMaxFragmentSize(reactorChannel, errorInfo);
+            int bufLength;
+            if ((bufLength = _reactor.getMaxFragmentSize(reactorChannel, errorInfo)) < 0)
+            {
+            	return bufLength;
+            }
+            
             TransportBuffer buffer = getBuffer(bufLength, errorInfo);
             
             if (buffer != null)

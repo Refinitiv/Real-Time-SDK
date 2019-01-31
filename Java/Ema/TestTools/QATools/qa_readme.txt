@@ -143,6 +143,10 @@ Series100Consumer130-MultiThreadBatchView-001
 	requests. This tools uses multiple threads. The items are read in from a file: 1k.xml. 
 	The tools uses a distinct third of items from file to make the 3 types of requests mentioned.
 
+Series100Consumer130-Perf-UserDispatch-001
+	Alters consumer to request 10000 items, ItemName RTR1.N, RTR2.N... RTR2000.N 
+	  This altered code works in conjunction with Eta ProvPerf. 
+
 Module:  Series100Consumer140
 -----------------------------
 Series100Consumer140-ConsFunc-001

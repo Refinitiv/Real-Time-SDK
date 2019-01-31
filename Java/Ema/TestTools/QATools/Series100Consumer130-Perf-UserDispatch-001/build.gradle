@@ -1,0 +1,89 @@
+apply plugin: 'application'
+
+eclipse {
+        project {
+                name = 'ESDK-Ema-Examples'
+        }
+}
+
+dependencies {
+	compile project(':Ema:PerfTools')
+	compile project(':Ema:Core')
+}
+
+mainClassName = 'com.thomsonreuters.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming.IProvider'
+
+task createExtraRunApp(type: CreateStartScripts) {
+	mainClassName = 'com.thomsonreuters.ema.examples.training.iprovider.series100.example100__MarketPrice__Streaming.IProvider'
+	classpath = startScripts.classpath
+	outputDir = startScripts.outputDir
+	applicationName = 'iprovider100'
+	classpath += files ('build/classes/java')
+}
+
+task copyDictionary( type: Copy ) {
+	from '../../etc'
+	into '.'
+}
+
+task deleteDictionary( type: Delete ) {
+	delete "$projectDir/RDMFieldDictionary"
+	delete "$projectDir/RDMFieldDictionary_large"
+	delete "$projectDir/enumtype.def"
+}
+
+run.dependsOn copyDictionary
+clean.dependsOn deleteDictionary
+
+tasks.withType ( JavaExec ) {
+	// to enable the logger comment out the line below
+	// jvmArgs += "-Djava.util.logging.config.file=../Core/src/main/resources/logging.properties"
+}
+
+/* Automatically generates the tasks for all example applications */
+fileTree('.') {
+	include '**/*.java'
+	}.collect { relativePath(it.parent) }.each { 
+
+	def exampleMainLocation = (it.replace(File.separator, '.') )
+
+	def TaskName = (exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1) ).replaceAll('\\D+', '')
+	def TaskDescription = (exampleMainLocation.substring(exampleMainLocation.lastIndexOf('.') + 1))
+    def ExampleType 
+
+	// create tasks names, descriptions based on the type of the example and example number
+	if ( exampleMainLocation.contains('niprovider') )
+	{
+		TaskName = 'runniprovider' + TaskName
+		TaskDescription = 'NiProvider ' + TaskDescription
+		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.NiProvider'
+        ExampleType = 'Non Interactive Provider'
+	}
+	else if ( exampleMainLocation.contains('consumer') )
+	{
+		TaskName = 'runconsumer' + TaskName
+		TaskDescription = 'Consumer ' + TaskDescription
+		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.Consumer'
+        ExampleType = 'Consumer'
+	}
+	else if ( exampleMainLocation.contains('iprovider') )
+	{
+		TaskName = 'runiprovider' + TaskName
+		TaskDescription = 'IProvider ' + TaskDescription
+		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.IProvider'
+        ExampleType = 'Interactive Provider'
+	}
+
+	// creating tasks for running all the examples dynamically
+	task "${TaskName}" ( type: JavaExec ) {
+        group 'Run EMA ' + ExampleType + ' Application Examples'
+
+		description 'This task runs the ' + TaskDescription
+
+		tasks.copyDictionary.execute()	
+
+		main = exampleMainLocation
+		classpath = sourceSets.main.runtimeClasspath
+	}
+}
+

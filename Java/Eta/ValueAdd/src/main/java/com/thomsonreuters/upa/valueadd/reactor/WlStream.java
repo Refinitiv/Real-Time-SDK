@@ -23,6 +23,7 @@ import com.thomsonreuters.upa.codec.RequestMsgFlags;
 import com.thomsonreuters.upa.codec.State;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.IoctlCodes;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
@@ -314,7 +315,14 @@ class WlStream extends VaNode
         
         // change WRITE_FLUSH_FAILED and NO_BUFFERS to SUCCESS
         if (ret == TransportReturnCodes.WRITE_FLUSH_FAILED ||
-            ret == TransportReturnCodes.NO_BUFFERS)
+            ret == TransportReturnCodes.NO_BUFFERS )
+        {
+            ret = ReactorReturnCodes.SUCCESS;
+        }
+        
+        // change FAILURE when channel state is not ACTIVE to SUCCESS
+        if (ret == TransportReturnCodes.FAILURE && 
+        	_reactorChannel.channel().state() != ChannelState.ACTIVE)
         {
             ret = ReactorReturnCodes.SUCCESS;
         }
@@ -443,7 +451,8 @@ class WlStream extends VaNode
 	            	}
 	            }
 	                     
-	            ret =  encodeIntoBufferAndWrite(msg, submitOptions, errorInfo);
+	            ret = encodeIntoBufferAndWrite(msg, submitOptions, errorInfo);	
+	            	
 	            if (ret >= ReactorReturnCodes.SUCCESS)
 	            {
 	                // start request timer if request and refresh expected and refresh not already pending
@@ -715,7 +724,13 @@ class WlStream extends VaNode
         // lazily initialize channel info to get maxFragmentSize
         if (_reactorChannelInfo.channelInfo().maxFragmentSize() == 0)
         {
-            _reactorChannel.info(_reactorChannelInfo, errorInfo);
+            if ((ret = _reactorChannel.info(_reactorChannelInfo, errorInfo)) < ReactorReturnCodes.SUCCESS)
+            {
+            	if (ret == ReactorReturnCodes.FAILURE && _reactorChannel.channel().state() != ChannelState.ACTIVE)
+            		return ReactorReturnCodes.SUCCESS;
+            	else
+            		return ret;
+            }
         }
         
         TransportBuffer buffer = _reactorChannel.getBuffer(_reactorChannelInfo.channelInfo().maxFragmentSize(), false, errorInfo);
@@ -789,6 +804,8 @@ class WlStream extends VaNode
                         return ret2;
                     }
                 }
+                else
+                    return ret2;
             }
         } while (ret == ReactorReturnCodes.NO_BUFFERS || ret == TransportReturnCodes.WRITE_FLUSH_FAILED);
       

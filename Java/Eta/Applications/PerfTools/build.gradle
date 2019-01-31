@@ -64,8 +64,11 @@ task runETAPerfProvider(type: JavaExec) {
     // - uncomment and add to APP_ARGS to specify the command line options
     // APP_ARGS="-runTime 60 -latencyUpdateRate 1000 -tickRate 1000 -updateRate 100000"
 
-	main = 'com.thomsonreuters.upa.perftools.upajprovperf.upajProvPerf'
-	classpath = sourceSets.main.runtimeClasspath
+    if (APP_ARGS)
+        args Eval.me ( buildArgsList ( APP_ARGS ) ) 
+
+    main = 'com.thomsonreuters.upa.perftools.upajprovperf.upajProvPerf'
+    classpath = sourceSets.main.runtimeClasspath
 }
 
 task runETAPerfConsumer(type: JavaExec) {
