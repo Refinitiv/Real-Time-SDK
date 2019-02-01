@@ -701,6 +701,8 @@ LoginCallbackClient::LoginCallbackClient( OmmBaseImpl& ommBaseImpl ) :
 	_loginList(),
 	_loginRequestMsg(),
 	_loginRequestBuffer( 0 ),
+	_loginRefreshMsg(),
+	_loginRefreshBuffer( 0 ),
 	_refreshMsg(),
 	_statusMsg(),
 	_genericMsg(),
@@ -724,6 +726,9 @@ LoginCallbackClient::~LoginCallbackClient()
 
 	if ( _loginRequestBuffer )
 		free( _loginRequestBuffer );
+
+	if (_loginRefreshBuffer)
+		free(_loginRefreshBuffer);
 
 	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
@@ -759,6 +764,7 @@ void LoginCallbackClient::destroy( LoginCallbackClient*& pClient )
 void LoginCallbackClient::initialize()
 {
 	rsslClearRDMLoginRequest( &_loginRequestMsg );
+	rsslClearRDMLoginRefresh(&_loginRefreshMsg);
 	_notifyChannelDownReconnecting = false;
 
 	if ( !_ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->userName.length )
@@ -828,6 +834,11 @@ UInt32 LoginCallbackClient::sendLoginClose()
 RsslRDMLoginRequest* LoginCallbackClient::getLoginRequest()
 {
 	return &_loginRequestMsg;
+}
+
+RsslRDMLoginRefresh* LoginCallbackClient::getLoginRefresh()
+{
+	return &_loginRefreshMsg;
 }
 
 /* This function will take in an RsslRDMLoginRequest, and overlay any string element changes to the stored request login request in the loginCallbackClient.
@@ -998,6 +1009,34 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		pLogin->set( &pLoginMsg->refresh ).setChannel( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
 		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->setLogin( pLogin );
+
+		RsslBuffer tempLRB;
+
+		tempLRB.length = 1000;
+		tempLRB.data = (char*)malloc(tempLRB.length);
+		if (!tempLRB.data)
+		{
+			_ommBaseImpl.handleMee("Failed to allocate memory for RsslRDMLoginRefresh in LoginCallbackClient.");
+			return RSSL_RC_CRET_FAILURE;
+		}
+
+		_loginRefreshBuffer = tempLRB.data;
+
+		while (RSSL_RET_BUFFER_TOO_SMALL == rsslCopyRDMLoginRefresh(&_loginRefreshMsg, &pLoginMsg->refresh, &tempLRB))
+		{
+			free(_loginRequestBuffer);
+
+			tempLRB.length += tempLRB.length;
+
+			tempLRB.data = (char*)malloc(tempLRB.length);
+			if (!tempLRB.data)
+			{
+				_ommBaseImpl.handleMee("Failed to allocate memory for RsslRDMLoginRefresh in LoginCallbackClient.");
+				return RSSL_RC_CRET_FAILURE;
+			}
+
+			_loginRequestBuffer = tempLRB.data;
+		}
 
 		RsslState* pState = &pLoginMsg->refresh.state;
 

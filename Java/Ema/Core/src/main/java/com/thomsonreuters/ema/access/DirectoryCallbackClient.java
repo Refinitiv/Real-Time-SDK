@@ -784,7 +784,7 @@ class DirectoryItem<T> extends SingleItem<T>
 		{
 			directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceName());
 
-			if (directory == null)
+			if (directory == null && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
 			{
 				/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
 				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
@@ -806,7 +806,7 @@ class DirectoryItem<T> extends SingleItem<T>
 			{
 				directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceId());
 
-				if (directory == null)
+				if (directory == null && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
 				{
 					/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
 					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
@@ -825,13 +825,15 @@ class DirectoryItem<T> extends SingleItem<T>
 
 		_directory = directory;
 		
-		return submit(((ReqMsgImpl)reqMsg).rsslMsg());
+		String serviceName = reqMsg.hasServiceName() ? reqMsg.serviceName() : null;
+		return submit(((ReqMsgImpl)reqMsg).rsslMsg(), serviceName);
 	}
 	
 	@Override
 	boolean modify(ReqMsg reqMsg)
 	{
-		return submit(((ReqMsgImpl) reqMsg).rsslMsg());
+		String serviceName = reqMsg.hasServiceName() ? reqMsg.serviceName() : null;
+		return submit(((ReqMsgImpl) reqMsg).rsslMsg(), serviceName);
 	}
 	
 	@Override
@@ -921,7 +923,7 @@ class DirectoryItem<T> extends SingleItem<T>
 		_baseImpl.itemCallbackClient().removeFromMap(this);
 	}
 	
-	boolean submit(RequestMsg rsslRequestMsg)
+	boolean submit(RequestMsg rsslRequestMsg, String serviceName)
 	{	
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
@@ -944,8 +946,7 @@ class DirectoryItem<T> extends SingleItem<T>
 		if (_baseImpl.activeConfig().msgKeyInUpdates)
 			rsslRequestMsg.applyMsgKeyInUpdates();
 		
-		if (_directory != null)
-			rsslSubmitOptions.serviceName(_directory.serviceName());
+		rsslSubmitOptions.serviceName(serviceName);
 		
 		rsslSubmitOptions.requestMsgOptions().userSpecObj(this);
 

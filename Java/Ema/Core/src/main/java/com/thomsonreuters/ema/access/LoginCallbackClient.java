@@ -71,6 +71,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
     private Msg						_tempMsg = CodecFactory.createMsg();
 	private LoginRequest			_tempLoginReq = (LoginRequest) LoginMsgFactory.createMsg();
 	private OmmBaseImpl<T>			_ommBaseImpl;
+	private LoginRefresh			_loginRefresh;
     
 	LoginCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
@@ -100,6 +101,18 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		_tempBuffer.data(_tempByteBuffer);
 	}
 	
+	
+	public com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh loginRefreshMsg()
+	{
+		if (_loginRefresh == null)
+		{
+			_loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
+			_loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
+		}
+		
+		return _loginRefresh;
+	}
+
 	@Override
 	public int rdmLoginMsgCallback(RDMLoginMsgEvent event)
 	{
@@ -154,6 +167,8 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 					_rsslRefreshMsg.msgClass(MsgClasses.REFRESH);
 					msg.copy(_rsslRefreshMsg, CopyMsgFlags.ALL_FLAGS);
 				}
+				
+				((LoginRefresh)loginMsg).copy(loginRefreshMsg());
 				
 				com.thomsonreuters.upa.codec.State state = ((LoginRefresh)loginMsg).state();
 	

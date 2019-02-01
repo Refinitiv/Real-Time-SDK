@@ -47,6 +47,7 @@ import com.thomsonreuters.upa.valueadd.common.VaNode;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsg;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 import com.thomsonreuters.upa.valueadd.reactor.DefaultMsgCallback;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorCallbackReturnCodes;
@@ -93,6 +94,7 @@ class CallbackClient<T> implements CallbackRsslMsgPool
 	protected CloseMsg					_rsslCloseMsg;
 	protected RequestMsg 				_rsslRequestMsg;
 	protected StatusMsg					_rsslStatusMsg;
+	protected LoginRefresh				_loginRefresh;
 	
 
 	CallbackClient(OmmBaseImpl<T> baseImpl, String clientName)
@@ -165,6 +167,17 @@ class CallbackClient<T> implements CallbackRsslMsgPool
 		
 		_rsslCloseMsg.msgClass(MsgClasses.CLOSE);
 		return _rsslCloseMsg;
+	}
+	
+	public com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh loginRefreshMsg()
+	{
+		if (_loginRefresh == null)
+		{
+			_loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
+			_loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
+		}
+		
+		return _loginRefresh;
 	}
 	
 	void notifyOnAllMsg(com.thomsonreuters.ema.access.Msg msg) {}
@@ -386,7 +399,7 @@ class TunnelItem<T> extends Item<T> {
 		if (tunnelStreamRequest.hasServiceName())
 		{
 			directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceName());
-			if (directory == null)
+			if (directory == null && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Service name of  ").append("tunnelStreamRequest.getServiceName()")
@@ -408,7 +421,7 @@ class TunnelItem<T> extends Item<T> {
 		} else if (tunnelStreamRequest.hasServiceId())
 		{
 			directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceId());
-			if (directory == null)
+			if (directory == null && !_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Service id of  ").append(tunnelStreamRequest.serviceId()).append(" is not found.");
@@ -517,7 +530,7 @@ class TunnelItem<T> extends Item<T> {
 
 			if (ReactorReturnCodes.SUCCESS > (dIter.setBufferAndRWFVersion(
 					((TunnelStreamRequestImpl) tunnelStreamRequest).tunnelStreamLoginReqMsg().buffer(),
-					_directory.channelInfo()._majorVersion, _directory.channelInfo()._minorVersion)))
+					_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion)))
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Internal Error. Failed to set decode iterator version in TunnelItem.submit");
@@ -558,7 +571,10 @@ class TunnelItem<T> extends Item<T> {
 
 		tsOpenOptions.guaranteedOutputBuffers(tunnelStreamRequest.guaranteedOutputBuffers());
 		tsOpenOptions.responseTimeout(tunnelStreamRequest.responseTimeOut());
-		tsOpenOptions.serviceId(_directory.service().serviceId());
+		if (_directory != null)
+			tsOpenOptions.serviceId(_directory.service().serviceId());
+		else
+			tsOpenOptions.serviceId(tunnelStreamRequest.serviceId());
 		tsOpenOptions.streamId(_streamId);
 
 		tsOpenOptions.userSpecObject(this);
@@ -581,7 +597,7 @@ class TunnelItem<T> extends Item<T> {
 		tsOpenOptions.classOfService().guarantee().persistLocally(cos.guarantee().persistedLocally());
 		tsOpenOptions.classOfService().guarantee().persistenceFilePath(cos.guarantee().persistenceFilePath());
 
-		if (_directory.channelInfo().rsslReactorChannel().openTunnelStream(tsOpenOptions,
+		if (_baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel().openTunnelStream(tsOpenOptions,
 				_baseImpl.rsslErrorInfo()) != ReactorCallbackReturnCodes.SUCCESS)
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
@@ -667,7 +683,7 @@ class TunnelItem<T> extends Item<T> {
 
 		_baseImpl.rsslEncIter().clear();
 		if (ReactorReturnCodes.SUCCESS > _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
-				_directory.channelInfo()._majorVersion, _directory.channelInfo()._minorVersion))
+				_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion))
 		{
 			StringBuilder temp = _baseImpl.strBuilder();
 			temp.append("Internal Error. Failed to set encode iterator in TunnelItem.submitSubItemMsg");
@@ -702,7 +718,7 @@ class TunnelItem<T> extends Item<T> {
 			}
 			_baseImpl.rsslEncIter().clear();
 			if (ReactorReturnCodes.SUCCESS > _baseImpl.rsslEncIter().setBufferAndRWFVersion(tunnelStreamBuf,
-					_directory.channelInfo()._majorVersion, _directory.channelInfo()._minorVersion))
+					_baseImpl.loginCallbackClient().activeChannelInfo()._majorVersion, _baseImpl.loginCallbackClient().activeChannelInfo()._minorVersion))
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Internal Error. Failed to set encode iterator in in TunnelItem.submitSubItemMsg");
@@ -1141,7 +1157,11 @@ TunnelStreamStatusEventCallback
 				tunnelStreamStatusEvent.reactorChannel().minorVersion(), channelInfo.rsslDictionary());
 
 		((TunnelItem<T>) (_eventImpl._item)).rsslTunnelStream(tunnelStreamStatusEvent.tunnelStream());
-		_statusMsg.service(_eventImpl._item.directory().serviceName());
+		
+		if(_eventImpl._item.directory() != null)
+			_statusMsg.service(_eventImpl._item.directory().serviceName());
+		else
+			_statusMsg.service(null);
 
 		notifyOnAllMsg(_statusMsg);
 		notifyOnStatusMsg();
@@ -1755,7 +1775,10 @@ TunnelStreamStatusEventCallback
 			}
 		}
 
-		_refreshMsg.service(_eventImpl._item.directory().serviceName());
+		if(_eventImpl._item.directory() != null)
+			_refreshMsg.service(_eventImpl._item.directory().serviceName());
+		else
+			_refreshMsg.service(null);
 		
 		notifyOnAllMsg(_refreshMsg);
 		notifyOnRefreshMsg();
@@ -1799,7 +1822,10 @@ TunnelStreamStatusEventCallback
 			}
 		}
 
-		_updateMsg.service(_eventImpl._item.directory().serviceName());
+		if(_eventImpl._item.directory() != null)
+			_updateMsg.service(_eventImpl._item.directory().serviceName());
+		else
+			_updateMsg.service(null);
 
 		notifyOnAllMsg(_updateMsg);
 		notifyOnUpdateMsg();
@@ -1813,7 +1839,6 @@ TunnelStreamStatusEventCallback
 			_statusMsg = new StatusMsgImpl(_baseImpl.objManager());
 		
 		_statusMsg.decode(rsslMsg, reactorChannel.majorVersion(), reactorChannel.minorVersion(), dataDictionary);
-		
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
 		{
 			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
@@ -1830,12 +1855,14 @@ TunnelStreamStatusEventCallback
 					_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME,
 							temp.toString(), Severity.ERROR));
 				}
-
 				return ReactorCallbackReturnCodes.FAILURE;
 			}
 		}
 		
-		_statusMsg.service(_eventImpl._item.directory().serviceName());
+		if (_eventImpl._item.directory() != null)
+			_statusMsg.service(_eventImpl._item.directory().serviceName());
+		else
+			_statusMsg.service(null);
 
 		notifyOnAllMsg(_statusMsg);
 		notifyOnStatusMsg();
@@ -1909,8 +1936,11 @@ TunnelStreamStatusEventCallback
 			}
 		}
 
-		_ackMsg.service(_eventImpl._item.directory().serviceName());
-
+		if(_eventImpl._item.directory() != null)
+			_ackMsg.service(_eventImpl._item.directory().serviceName());
+		else
+			_ackMsg.service(null);
+		
 		notifyOnAllMsg(_ackMsg);
 		notifyOnAckMsg();
 
@@ -2752,7 +2782,7 @@ class SingleItem<T> extends Item<T>
 		if (reqMsg.hasServiceName())
 		{
 			directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceName());
-			if (directory == null)
+			if (directory == null && !_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
 			{
 				/* EMA is generating the status down response because the service is not valid */
 				StringBuilder temp = _baseImpl.strBuilder();
@@ -2786,7 +2816,7 @@ class SingleItem<T> extends Item<T>
 				return true;
 			}
 
-			if (directory == null)
+			if (directory == null && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				
@@ -2943,7 +2973,7 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
 		int ret;
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
@@ -2996,7 +3026,7 @@ class SingleItem<T> extends Item<T>
 	
 		ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslCloseMsg, rsslSubmitOptions, rsslErrorInfo)))
@@ -3045,7 +3075,7 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslPostMsg, rsslSubmitOptions, rsslErrorInfo)))
@@ -3094,7 +3124,7 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslGenericMsg, rsslSubmitOptions, rsslErrorInfo)))
@@ -3142,7 +3172,7 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRefreshMsg, rsslSubmitOptions, rsslErrorInfo)))
@@ -3179,21 +3209,21 @@ class SingleItem<T> extends Item<T>
 		return true;
 	}
 	
-	boolean rsslSubmit(com.thomsonreuters.upa.codec.UpdateMsg rsslUpateMsg)
+	boolean rsslSubmit(com.thomsonreuters.upa.codec.UpdateMsg rsslUpdateMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
 		rsslSubmitOptions.serviceName(null);
 		rsslSubmitOptions.requestMsgOptions().clear();
 		
-		rsslUpateMsg.streamId(_streamId);
-		rsslUpateMsg.domainType(_domainType);
+		rsslUpdateMsg.streamId(_streamId);
+		rsslUpdateMsg.domainType(_domainType);
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
 		int ret;
 		
-		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpateMsg, rsslSubmitOptions, rsslErrorInfo)))
+		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslUpdateMsg, rsslSubmitOptions, rsslErrorInfo)))
 	    {
 			StringBuilder temp = _baseImpl.strBuilder();
 			if (_baseImpl.loggerClient().isErrorEnabled())
@@ -3238,7 +3268,7 @@ class SingleItem<T> extends Item<T>
 		
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
-		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
 		int ret;
 			
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslStatusMsg, rsslSubmitOptions, rsslErrorInfo)))

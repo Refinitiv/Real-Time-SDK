@@ -1732,12 +1732,17 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 	        	
 	        	return true;
 			}
-			else
+			else if (serviceId != null)
 			{
 				_serviceId = serviceId.value();
 				reqMsgImpl.rsslMsg().msgKey().applyHasServiceId();
 				reqMsgImpl.rsslMsg().msgKey().serviceId(_serviceId);
 				serviceName = reqMsgImpl.serviceName();
+				_specifiedServiceInReq = true;
+			}
+			else
+			{
+				_serviceId = reqMsgImpl.serviceId();
 				_specifiedServiceInReq = true;
 			}
 		}
@@ -1909,12 +1914,7 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 	    ReactorErrorInfo rsslErrorInfo = _baseImpl.rsslErrorInfo();
 		rsslErrorInfo.clear();
 		
-		if ( _directory.channelInfo() == null )
-		{
-			_directory.channelInfo(_baseImpl.channelCallbackClient().channelList().get(0));
-		}
-		
-		ReactorChannel rsslChannel = _directory.channelInfo().rsslReactorChannel();
+		ReactorChannel rsslChannel = _baseImpl.loginCallbackClient().activeChannelInfo().rsslReactorChannel();
 		
 		int ret;
 		if (ReactorReturnCodes.SUCCESS > (ret = rsslChannel.submit(rsslRequestMsg, rsslSubmitOptions, rsslErrorInfo)))

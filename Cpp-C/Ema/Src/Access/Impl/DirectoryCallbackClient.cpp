@@ -8,6 +8,7 @@
 
 #include "ChannelCallbackClient.h"
 #include "DirectoryCallbackClient.h"
+#include "LoginCallbackClient.h"
 #include "OmmConsumerClient.h"
 #include "OmmConsumerErrorClient.h"
 #include "OmmConsumerEvent.h"
@@ -1333,7 +1334,7 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 	{
 		pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getServiceName() );
 
-		if ( !pDirectory )
+		if ( !pDirectory && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen )
 		{
 			EmaString temp( "Service name of '" );
 			temp.append( reqMsgEncoder.getServiceName() ).append( "' is not found." );
@@ -1348,7 +1349,7 @@ bool DirectoryItem::open( const ReqMsg& reqMsg )
 		{
 			pDirectory = _ommBaseImpl.getDirectoryCallbackClient().getDirectory( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId );
 
-			if ( !pDirectory )
+			if ( !pDirectory && !_ommBaseImpl.getLoginCallbackClient().getLoginRefresh()->singleOpen)
 			{
 				EmaString temp( "Service id of '" );
 				temp.append( reqMsgEncoder.getRsslRequestMsg()->msgBase.msgKey.serviceId ).

@@ -216,6 +216,8 @@ public :
 
 	RsslRDMLoginRequest* getLoginRequest();
 
+	RsslRDMLoginRefresh* getLoginRefresh();
+
 	UInt32 sendLoginClose();
 
 	Login* getLogin();
@@ -252,7 +254,11 @@ private :
 
 	RsslRDMLoginRequest				_loginRequestMsg;
 
+	RsslRDMLoginRefresh				_loginRefreshMsg;
+
 	char*							_loginRequestBuffer;
+
+	char*							_loginRefreshBuffer;
 
 	bool							_refreshReceived;
 
