@@ -24,9 +24,6 @@ Series100Consumer110-SrcReissue-001
 	with an item request. After receiving one item refresh, this code sends 
 	a source directory reissue with a specific serviceID. 
 
-Series100Consumer110-Src-001
-	Alters consumer to send a directory request for a specific service with serviceName.
-
 Series100Consumer110-Dict-001
 	Alters consumer to send a streaming dictionary request (no service name specified) 
 	using addAdminMsg.
@@ -152,6 +149,35 @@ Series300Consumer331-GenM-001
 Series300Consumer331-SrcReissue-001
 	Alters consumer to create a directory handle with an invalid serviceId. 
 	Then this code attempts to send a reissue on the invalid handle.
+
+Series300Consumer331-ConsFunc-000
+    Alters consumer to request directory with several options 
+    -f <filter>:  User may choose a value in decimal between 0 and 63
+       inclusive to pick up one or more filters. Here are filter definitions
+       -f 1  SERVICE_INFO_FILTER 0x01
+       -f 2  SERVICE_STATE_FILTER 0x02
+       -f 4  SERVICE_GROUP_FILTER 0x04
+       -f 8  SERVICE_LOAD_FILTER 0x08
+       -f 16  SERVICE_DATA_FILTER 0x10
+       -f 32  SERVICE_LINK_FILTER 0x10
+       User may mix and match different filters:
+       -f 5  INFO & GROUP 4+1 
+       -f 63 INFO, STATE, GROUP, LOAD, DATA 7 LINK (1+2+4+8+16+32)
+	   etc.
+    -m <option>: 
+       -m 0: Request source directory without serviceName or ID and a filter
+       if specified
+       (uses default filter)
+       -m 1: Request source directory with serviceName and filter if specified 
+       -m 2: Request source directory with serviceName and filter if specified 
+             Also request item using serviceName after a sleep if sleeptime is
+             specified
+       -m 3: Request source diretory with serviceId and filter if specified 
+       -m 4: Request source diretory with serviceId and filter if specified 
+             Also request item using serviceId after a sleep if sleeptime is
+             specified
+    -s <sleeptime>:  Amount of time specified in seconds to wait before making
+             an item request. This only applies to -m 2 -m 4
 
 Series300Consumer331-ConsFunc-001
 	Alters consumer to request directory using info filter without a serviceName. 

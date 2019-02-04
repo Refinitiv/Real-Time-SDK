@@ -265,133 +265,147 @@ class AppClient implements OmmConsumerClient
 
 public class Consumer 
 {
+    public static int _OPTION = 0;
+    public static int _FILTER = -1;
+    public static int _SLEEPTIME = 0; 
+
+    public static void printHelp()
+    {
+        System.out.println("\nOptions:\n" + 
+            "  -?\t\t\tShows this usage\n\n" + 
+            "  -f <source directory filter in decimal; default = no filter is specified>\n" +
+            "     Possible values for filter, valid range = 0-63:\n" +
+            "     0 :  No Filter \n" +   
+            "     1 :  SERVICE_INFO_FILTER 0x01 \n" +   
+            "     2 :  SERVICE_STATE_FILTER 0x02 \n" +
+            "     4 :  SERVICE_GROUP_FILTER 0x04 \n" +
+            "     8 :  SERVICE_LOAD_FILTER 0x08 \n" +
+            "    16 :  SERVICE_DATA_FILTER 0x10 \n" +
+            "    32 :  SERVICE_LINK_FILTER 0x20 \n" +
+            "    ?? :  Mix of above values upto 63 \n\n" +
+            "  -m <option>; default = option 0\n" +
+            "     Possible values for option, valid range = 0-4:\n" +
+            "     0 :  Request source directory without serviceName or serviceId\n" +   
+            "     1 :  Request source directory with serviceName\n" +   
+            "     2 :  Request source directory with serviceName; Request item on that service\n" +   
+            "     3 :  Request source directory with serviceId\n" +
+            "     4 :  Request source directory with serviceId; Request item on that service\n\n" +   
+            "  -s <amount of time to wait before requesting an item in seconds; default = no wait>\n" +
+            "     This option only applies to -m 2 or -m 4\n" +
+            " \n");
+    }
+
+    public static boolean readCommandlineArgs(String[] argv)
+    {
+        int count = argv.length;
+        int idx = 0;
+
+        while (idx < count)
+        {
+            if (0 == argv[idx].compareTo("-?"))
+            {
+                printHelp();
+                return false;
+            }
+            else if (0 == argv[idx].compareToIgnoreCase("-f"))
+            {
+                if (++idx >= count)
+                {
+                    printHelp();
+                    return false;
+                }
+                Consumer._FILTER = Integer.parseInt(argv[idx]);
+                ++idx;
+            }
+            else if (0 == argv[idx].compareToIgnoreCase("-m"))
+            {
+                if (++idx >= count)
+                {
+                    printHelp();
+                    return false;
+                }
+                Consumer._OPTION = Integer.parseInt(argv[idx]);
+                ++idx;
+            }
+            else if (0 == argv[idx].compareToIgnoreCase("-s"))
+            {
+                if (++idx >= count)
+                {
+                    printHelp();
+                    return false;
+                }
+                Consumer._SLEEPTIME = Integer.parseInt(argv[idx]);
+                ++idx;
+            }
+            else
+            {
+                printHelp();
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static void main(String[] args) throws InterruptedException
     {
         OmmConsumer consumer = null;
         try
         {
+            if ( !readCommandlineArgs(args) ) return;
             AppClient appClient = new AppClient();
             
-            consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("132.88.227.161:14002").username("user"));
+            consumer  = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().host("localhost:14002").username("user"));
  
             ReqMsg reqMsg = EmaFactory.createReqMsg();
-            int input = 0;
 
             Integer closure = (Integer)1;
+
             //APIQA: Tring different registerClient commands depending on input
-
-            if (args[0].equalsIgnoreCase("-m"))
+      
+            switch(Consumer._OPTION)
             {
-                int temp = Integer.valueOf(args[1]); 
-
-                switch(temp)
-                {
-                    case 0:
-                       System.out.println("APIQA: Requesting directory without service name specified or filter specified\n\n");
+                default:
+                case 0:
+                   if (Consumer._FILTER >= 0) {
+                       System.out.println("********APIQA: Requesting directory without service name, service id, and filter=" + Consumer._FILTER + "\n\n");
+                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(Consumer._FILTER), appClient); 
+                   } else {
+                       System.out.println("********APIQA: Requesting directory without service name, service id\n\n");
                        consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY), appClient); 
-                       break; 
-                    case 1:
-                       System.out.println("APIQA: Requesting directory with service name of DIRECT_FEED specified and no filter specified\n\n");
+                   } 
+                   break; 
+                case 1:
+                case 2: 
+                   if (Consumer._FILTER >= 0) {
+                       System.out.println("********APIQA: Requesting directory with service=DIRECT_FEED and filter=" + Consumer._FILTER + "\n\n");
+                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DIRECT_FEED").filter(Consumer._FILTER), appClient);
+                   } else {
+                       System.out.println("********APIQA: Requesting directory with service=DIRECT_FEED\n\n");
                        consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DIRECT_FEED"), appClient);
-		       break; 
-                    case 2:
-                       System.out.println("APIQA: Requesting directory with service name of DF415 specified and no filter specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DF415"), appClient);
-                       break; 
-                    case 3:
-                       System.out.println("APIQA: Requesting directory without service name and with filter 0 specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(0), appClient);
-                       break; 
-                    case 4:
-                       System.out.println("APIQA: Requesting directory without service name and with filter SERVICE_INFO_FILTER specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_INFO_FILTER), appClient);
-                       break; 
-                    case 5:
-                       System.out.println("APIQA: Requesting directory without service name and with filter SERVICE_STATE_FILTER specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_STATE_FILTER), appClient);
-                       break; 
-                    case 6:
-                       System.out.println("APIQA: Requesting directory without service name and with filter SERVICE_GROUP_FILTER specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_GROUP_FILTER), appClient);
-                       break; 
-                    case 7:
-                       System.out.println("APIQA: Requesting directory without service name and with filter SERVICE_LOAD_FILTER specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_LOAD_FILTER), appClient);
-                       break; 
-                    case 8:
-                       System.out.println("APIQA: Requesting directory without service name and with filter SERVICE_DATA_FILTER specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_DATA_FILTER), appClient);
-                       break; 
-                    case 9:
-                       System.out.println("APIQA: Requesting directory without service name and with filter SERVICE_LINK_FILTER specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_LINK_FILTER), appClient);
-                       break; 
-                    case 10:
-                       System.out.println("APIQA: Requesting directory with service id of 8090 specified and no filter specified\n\n");
+                   } 
+                   break; 
+                case 3:
+                case 4:
+                   if (Consumer._FILTER >= 0) {
+                       System.out.println("********APIQA: Requesting directory with service=serviceID and filter=" + Consumer._FILTER + "\n\n");
+                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceId(8090).filter(Consumer._FILTER), appClient);
+                   } else {
+                       System.out.println("********APIQA: Requesting directory with service=serviceID\n\n");
                        consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceId(8090), appClient);
-                       break; 
-                    case 11:
-                       System.out.println("APIQA: Requesting directory with service id of 8090 specified and with filter 0 specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceId(8090).filter(0), appClient);
-                       break;
-		    case 12:
-                       System.out.println("APIQA: Requesting directory with service id of 8090 specified and with filter 29 specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceId(8090).filter(29), appClient);
-		       break;
-		    case 13:
-                       System.out.println("APIQA: Requesting directory with service name of DIRECT_FEED specified, name of IBM.N specified, and no filter specified\n\n");
-                       consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
-		       break;
-		    case 14:
-                       System.out.println("APIQA: Requesting directory with service name of DF415 specified, name of JPY= specified, and no filter specified\n\n");
-                       consumer.registerClient(reqMsg.clear().serviceName("DF415").name("JPY="), appClient, closure);
-		       break;
-		    case 15:
-                       System.out.println("APIQA: Requesting directory with service id of 8090 specified, name of JPY= specified, and no filter specified\n\n");
-                       consumer.registerClient(reqMsg.clear().serviceId(8090).name("JPY="), appClient, closure);
-		       break; 
-                    default:
-                       System.out.println("APIQA: Requesting directory with service id of 8090 specified and with filter 0 specified\n\n");
-                       consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceId(8090).filter(0), appClient);
-                       break;
-                }
+                   }
+                   break;
             }
-           
-                    
-            //APIQA
-            //long directoryHandle = consumer.registerClient(EmaFactory.createReqMsg()
-            //                     .domainType(EmaRdm.MMT_DIRECTORY)
-            //                     .filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_INFO_FILTER), appClient);
-            //long directoryHandle = consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DIRECT_FEED"), appClient);
-            // long directoryHandle = consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DF415"), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(0), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_INFO_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_STATE_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_GROUP_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_LOAD_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_DATA_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_LINK_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DF415").filter(0), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DF415").filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_INFO_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DF415").filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_STATE_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DF415").filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_GROUP_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DF415").filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_LOAD_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DF415").filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_DATA_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceName("DF415").filter(com.thomsonreuters.ema.rdm.EmaRdm.SERVICE_LINK_FILTER), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceId(8090), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceId(8090), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceId(8090).filter(0), appClient);
-            //consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).serviceId(8090).filter(29), appClient);
-            
-            //long handle = consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
-            //Integer closure = (Integer)1;
-            //consumer.registerClient(reqMsg.clear().serviceName("DF415").name("JPY="), appClient, closure);
-            //consumer.registerClient(reqMsg.clear().serviceId(8090).name("JPY="), appClient, closure);
-
+            if ( ( Consumer._OPTION == 2 ) || ( Consumer._OPTION == 4 ) )
+	        {
+                   if (Consumer._SLEEPTIME > 0 ) {
+                       System.out.println("********APIQA: Sleeping (in seconds): " + Consumer._SLEEPTIME + "\n");
+                       Thread.sleep(Consumer._SLEEPTIME * 1000);            // API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
+                   }
+                   System.out.println("********APIQA: Requesting item wth service=serviceID\n\n"); 
+                   consumer.registerClient(reqMsg.clear().serviceId(8090).name("IBM.N"), appClient);
+            }
             Thread.sleep(60000);            // API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
-        } 
+        }
         catch (InterruptedException | OmmException excp)
         {
             System.out.println(excp.getMessage());

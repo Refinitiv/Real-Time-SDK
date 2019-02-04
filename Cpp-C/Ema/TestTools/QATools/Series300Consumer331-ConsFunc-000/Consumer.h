@@ -15,6 +15,8 @@
 #include <time.h>
 #else
 #include <sys/time.h>
+#include <cstring>
+#include <stdlib.h>
 #endif
 
 #include "Ema.h"
@@ -45,6 +47,8 @@ public :
 	void decode( const thomsonreuters::ema::access::FilterList& );			// print content of passed in FilterList to screen
 
 	void decode( const thomsonreuters::ema::access::Map& );					// print content of passed in Map to screen
+
+	void decode( const thomsonreuters::ema::access::OmmArray& );			// print content of passed in Array to screen
 
 protected :
 
