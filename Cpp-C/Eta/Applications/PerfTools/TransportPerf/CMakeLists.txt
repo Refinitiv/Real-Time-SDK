@@ -19,7 +19,7 @@ set_target_properties( TransportPerf_shared
 							)
 target_link_libraries( TransportPerf_shared 
 							librsslVA_shared 
-							libxml2 
+							LibXml2::LibXml2 
 							${SYSTEM_LIBRARIES} 
 							)
 
@@ -31,7 +31,7 @@ target_include_directories(TransportPerf
 							)
 target_link_libraries( TransportPerf 
 							librsslVA  
-							libxml2 
+							LibXml2::LibXml2 
 							${SYSTEM_LIBRARIES} 
 							)
 

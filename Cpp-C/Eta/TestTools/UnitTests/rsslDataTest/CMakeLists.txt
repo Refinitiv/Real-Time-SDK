@@ -1,7 +1,7 @@
 
 add_executable( rsslDataTest rsslDataTest.C dictionaries.h )
 
-target_link_libraries( rsslDataTest librssl gtest ${SYSTEM_LIBRARIES} )
+target_link_libraries( rsslDataTest librssl GTest::Main ${SYSTEM_LIBRARIES} )
 set_target_properties( rsslDataTest PROPERTIES OUTPUT_NAME rsslDataTest )
 
 target_include_directories(rsslDataTest

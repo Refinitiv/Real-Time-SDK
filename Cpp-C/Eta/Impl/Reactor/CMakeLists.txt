@@ -1,8 +1,8 @@
 project(Reactor)
 
 if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
-    include(prebuiltLibrary)
-    wrap_prebuilt_library(librsslVA
+
+    rcdev_wrap_prebuilt_library(librsslVA
                           LIBNAME librsslVA
                           LIBTYPE STATIC
                           LANGUAGE C
@@ -13,7 +13,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
                                      ${Eta_SOURCE_DIR}/Include/RDM
                         )
 
-    wrap_prebuilt_library(librsslVA_shared
+    rcdev_wrap_prebuilt_library(librsslVA_shared
                           LIBNAME librsslVA
                           LIBTYPE SHARED
                           LANGUAGE C
@@ -109,8 +109,13 @@ else()
         )
     endif()
 
+	if (NOT WIN32)
+		set(staticVAVersionSrc rsslVAVersionStatic.c)
+		set(sharedVAVersionSrc rsslVAVersionShared.c)
+	endif()
+
     add_library( librsslVA STATIC 
-                ${rsslVASrcFiles} rsslVAVersionStatic.c )
+                ${rsslVASrcFiles} ${staticVAVersionSrc} )
     target_link_libraries(librsslVA librssl)
 
     target_include_directories(librsslVA
@@ -131,10 +136,7 @@ else()
 
                     
     add_library( librsslVA_shared SHARED
-                    ${rsslVAWinSrcFiles} 
-                    ${rsslVASrcFiles}
-					rsslVAVersionShared.c
-                 )
+                    ${rsslVAWinSrcFiles} ${rsslVASrcFiles} ${sharedVAVersionSrc})
     target_link_libraries( librsslVA_shared librssl_shared )
 
     target_include_directories(librsslVA_shared

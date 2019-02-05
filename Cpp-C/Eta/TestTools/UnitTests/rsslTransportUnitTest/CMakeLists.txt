@@ -1,7 +1,7 @@
 add_executable( rsslTransportUnitTest rsslTransportUnitTest.cpp )
 target_link_libraries( rsslTransportUnitTest 
 							librssl 
-							gtest 
+							GTest::Main 
 							${SYSTEM_LIBRARIES} 
 						)
 set_target_properties( rsslTransportUnitTest 
@@ -12,7 +12,7 @@ set_target_properties( rsslTransportUnitTest
 add_executable( rsslTransportUnitTest_shared rsslTransportUnitTest.cpp )
 target_link_libraries( rsslTransportUnitTest_shared 
 							librssl_shared 
-							gtest 
+							GTest::Main 
 							${SYSTEM_LIBRARIES} 
 						)
 set_target_properties( rsslTransportUnitTest_shared 

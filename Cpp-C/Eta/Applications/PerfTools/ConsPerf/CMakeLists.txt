@@ -22,9 +22,8 @@ target_include_directories(ConsPerf_shared
 set_target_properties( ConsPerf_shared 
 							PROPERTIES 
 								OUTPUT_NAME ConsPerf )
-target_link_libraries( ConsPerf_shared 
-								librsslVA_shared 
-								libxml2 
+target_link_libraries( ConsPerf_shared librsslVA_shared 
+								LibXml2::LibXml2 
 								${SYSTEM_LIBRARIES} )
 
 add_executable( ConsPerf ${SOURCE_FILES} )
@@ -37,8 +36,7 @@ set_target_properties( ConsPerf
 							PROPERTIES 
 								OUTPUT_NAME ConsPerf )
 target_link_libraries( ConsPerf 
-								librsslVA  
-								libxml2 
+								librsslVA  LibXml2::LibXml2 
 								${SYSTEM_LIBRARIES} )
 
 if ( CMAKE_HOST_UNIX )

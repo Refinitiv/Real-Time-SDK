@@ -32,7 +32,7 @@ set(rsslTunnelStreamTestSrcFiles
 add_executable( rsslTunnelStreamTest ${rsslTunnelStreamTestSrcFiles} )
 target_link_libraries( rsslTunnelStreamTest 
 							librsslVA 
-							gtest 
+							GTest::Main 
 							${SYSTEM_LIBRARIES} 
 						)
 set_target_properties( rsslTunnelStreamTest 

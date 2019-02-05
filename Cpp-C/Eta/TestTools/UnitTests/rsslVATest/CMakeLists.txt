@@ -29,7 +29,7 @@ set(rsslVATestSrcFiles
 add_executable( rsslVATest ${rsslVATestSrcFiles} )
 target_link_libraries( rsslVATest 
 							librsslVA 
-							gtest 
+							GTest::Main 
 							${SYSTEM_LIBRARIES} 
 						)
 set_target_properties( rsslVATest 

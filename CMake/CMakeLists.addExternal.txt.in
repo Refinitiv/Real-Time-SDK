@@ -1,0 +1,61 @@
+#[=============================================================================[
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+#]=============================================================================]
+
+cmake_minimum_required (VERSION 3.10.3)
+
+project(@_EPA_NAME@-addExp NONE)
+
+if (WIN32)
+	### Disable package registry
+	set(CMAKE_EXPORT_NO_PACKAGE_REGISTRY ON)
+	set(CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY ON)
+	set(CMAKE_FIND_PACKAGE_NO_SYSTEM_PACKAGE_REGISTRY ON)
+
+	### Disable environment variables
+	set(ENV{CMAKE_PREFIX_PATH} "")
+	set(ENV{CMAKE_FRAMEWORK_PATH} "")
+	set(ENV{CMAKE_APPBUNDLE_PATH} "")
+endif()
+
+include(ExternalProject)
+
+ExternalProject_Add(@_EPA_NAME@
+	# DOWNLOAD METHOD
+	@_DL_METHOD@
+
+	# SOURCE_DIR		
+	@_EPA_SOURCE_DIR@
+	# BINARY_DIR		
+	@_EPA_BINARY_DIR@
+	# INSTALL_DIR 	
+	@_EPA_INSTALL_DIR@
+
+	CMAKE_GENERATOR 
+		"${CMAKE_GENERATOR}"
+
+	# CONFIGURE_COMMAND   
+	@_EPA_CONFIGURE_COMMAND@
+
+	@_EPA_CACHE_ARGS@
+	@_EPA_CMAKE_ARGS@
+
+	# UPDATE_COMMAND      
+	@_EPA_UPDATE_COMMAND@
+
+	# BUILD_COMMAND       
+	@_EPA_BUILD_COMMAND@
+
+	# INSTALL_COMMAND     
+	@_EPA_INSTALL_COMMAND@
+
+	# TEST_COMMAND        
+	@_EPA_TEST_COMMAND@
+    @_EPA_UPDATE_DISCONNECTED@
+
+	@_EPA_ADDITIONAL_ARGS@
+)
+

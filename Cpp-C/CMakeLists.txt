@@ -14,8 +14,6 @@ endif()
 
 DEBUG_PRINT(CMAKE_C_FLAGS)
 			
-#find_package(GTest REQUIRED)
-
 add_subdirectory( Eta )
 
 if (BUILD_EMA_LIBRARY)

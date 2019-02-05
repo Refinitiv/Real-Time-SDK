@@ -28,7 +28,7 @@ set_target_properties( NIProvPerf_shared
 						)
 target_link_libraries( NIProvPerf_shared 
 						librsslVA_shared 
-                        libxml2 
+                        LibXml2::LibXml2 
                         ${SYSTEM_LIBRARIES} 
 						)
 
@@ -46,7 +46,7 @@ set_target_properties( NIProvPerf
 						)
 target_link_libraries( NIProvPerf 
 						librsslVA 
-                        libxml2 
+                        LibXml2::LibXml2 
                         ${SYSTEM_LIBRARIES} 
 						)
 

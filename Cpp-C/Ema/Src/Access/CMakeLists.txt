@@ -1,16 +1,16 @@
 
 if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
-    include(prebuiltLibrary)
+
 	if(CMAKE_HOST_WIN32)
 		set(libema_compile_opts "/D __EMA_STATIC_BUILD__" "/D __EMA_COPY_ON_SET__" )
 	else()
 		set(libema_compile_opts "-D__EMA_STATIC_BUILD__" "-D__EMA_COPY_ON_SET__" )
 	endif()
-    wrap_prebuilt_library(libema 
+    rcdev_wrap_prebuilt_library(libema 
                           LIBNAME libema 
                           LIBTYPE STATIC
                           LANGUAGE CXX
-                          LINKDEPENDS librsslVA libxml2 
+                          LINKDEPENDS librsslVA LibXml2::LibXml2 
                           PATHROOT   ${Ema_SOURCE_DIR}/Libs
                           LIBHEADERS ${CMAKE_CURRENT_SOURCE_DIR}/Include
                                      ${Ema_SOURCE_DIR}/Src/Domain/Login/Include
@@ -20,11 +20,11 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
 						  COMPILEOPTS ${libema_compile_opts}
                         )
 
-    wrap_prebuilt_library(libema_shared 
+    rcdev_wrap_prebuilt_library(libema_shared 
                           LIBNAME libema 
                           LIBTYPE SHARED
                           LANGUAGE CXX
-                          LINKDEPENDS librsslVA_shared libxml2 
+                          LINKDEPENDS librsslVA_shared LibXml2::LibXml2 
                           PATHROOT   ${Ema_SOURCE_DIR}/Libs
                           LIBHEADERS ${CMAKE_CURRENT_SOURCE_DIR}/Include
                                      ${Ema_SOURCE_DIR}/Src/Domain/Login/Include
@@ -345,7 +345,7 @@ else()
                                 )
     target_link_libraries( libema 
                                 librsslVA 
-                                libxml2 
+                                LibXml2::LibXml2 
                             )
 
     add_library( libema_shared SHARED ${EmaSrcFiles} ${EmaWinRcFiles} )
@@ -362,7 +362,7 @@ else()
 									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Rdm/Impl>
 									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Domain/Login/Impl>
                                 )
-    target_link_libraries( libema_shared librsslVA_shared libxml2 )
+    target_link_libraries( libema_shared librsslVA_shared LibXml2::LibXml2 )
 
     if ( CMAKE_HOST_WIN32 )
 

@@ -1,12 +1,11 @@
 
 if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
-    include(prebuiltLibrary)
 	
 	if(CMAKE_HOST_WIN32)
 		set(librssl_shared_compile_opts "/D RSSL_IMPORTS")
 	endif()
 	
-    wrap_prebuilt_library(librssl 
+    rcdev_wrap_prebuilt_library(librssl 
                           LIBNAME librssl 
                           LIBTYPE STATIC
                           LANGUAGE C
@@ -17,7 +16,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
 									 ${Eta_SOURCE_DIR}/Impl/Util/Include
                         )
 
-    wrap_prebuilt_library(librssl_shared 
+    rcdev_wrap_prebuilt_library(librssl_shared 
                           LIBNAME librssl 
                           LIBTYPE SHARED
                           LANGUAGE C
@@ -143,36 +142,6 @@ else()
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/tr_sha_1.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/tr_sl1_64.h
                 
-                #LZ4 Source
-                ${Eta_SOURCE_DIR}/Utils/Lzf/lz4.c
-                ${Eta_SOURCE_DIR}/Utils/Lzf/lz4.h
-
-
-                #Zlib source and headers
-                ${Eta_SOURCE_DIR}/Utils/zlib/adler32.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/compress.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/crc32.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/deflate.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/gzio.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/infback.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/inffast.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/inflate.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/inftrees.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/trees.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/uncompr.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/zutil.c
-                ${Eta_SOURCE_DIR}/Utils/zlib/crc32.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/deflate.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/inffast.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/inffixed.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/inflate.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/inftrees.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/trees.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/zconf.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/zconf.in.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/zlib.h
-                ${Eta_SOURCE_DIR}/Utils/zlib/zutil.h
-        
 
                 # Etac external Includes
                 ${Eta_SOURCE_DIR}/Include/rsslVersion.h
@@ -230,11 +199,12 @@ else()
                 ${Eta_SOURCE_DIR}/Include/rsslResource.h
             )
     else()
-        set(rsslWinInetSrcFiles)
+		set(staticVersionSrc	rsslVersionStatic.c)
+		set(sharedVersionSrc	rsslVersionShared.c)
     endif()
 
     add_library( librssl STATIC 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} rsslVersionStatic.c )
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} )
 
     target_include_directories(librssl
                                 PUBLIC
@@ -246,12 +216,10 @@ else()
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Utils/zlib>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Utils/Lzf>
                                 )
 
     add_library( librssl_shared SHARED 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} rsslVersionShared.c )
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} )
 
     target_include_directories(librssl_shared
                                 PUBLIC
@@ -263,13 +231,13 @@ else()
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Utils/zlib>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Utils/Lzf>
                                 )
 
     if (CMAKE_HOST_WIN32)
         target_link_libraries( librssl wininet.lib 
-                                    ws2_32.lib)
+                                    ws2_32.lib
+									ZLIB::ZLIB
+									LZ4::LZ4)
         target_compile_options(librssl 
                                 PRIVATE 
                                     ${RCDEV_DEBUG_TYPE_FLAGS_STATIC}
@@ -277,8 +245,9 @@ else()
                                 
         target_link_libraries( librssl_shared 
                                     wininet.lib 
-                                    ws2_32.lib 
-                                )
+                                    ws2_32.lib
+									ZLIB::ZLIB 
+									LZ4::LZ4)
         target_compile_options( librssl_shared 
                                     INTERFACE
                                         "/D RSSL_IMPORTS"
@@ -323,6 +292,13 @@ else()
                                     SOVERSION 
                                         ${librssl_SO_VERSION} 
                             )
+
+		target_link_libraries( librssl ZLIB::ZLIB LZ4::LZ4)
+		target_link_libraries( librssl_shared ZLIB::ZLIB LZ4::LZ4)
+
     endif()
+
 endif()
+
+rcdev_add_target(esdk librssl librssl_shared)
 

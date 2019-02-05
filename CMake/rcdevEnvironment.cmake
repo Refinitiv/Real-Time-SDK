@@ -1,203 +1,138 @@
-if (_rdevCMakeInclude)
-	if ($ENV{RCDEV_DEBUG_ENABLED})
-		message(STATUS "rdevCMakeInclude already included")
-	endif()
-    return()
+#[=============================================================================[
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+#]=============================================================================]
+
+# The following files are intended to be included multiple times.  If the 
+# files contain function or macro definitions, they are conditioned to 
+# avoid being included more then once.
+#
+
+include(rcdevDebug)
+include(rcdevBuildConfig)
+include(rcdevSystemInfo)
+include(rcdevCompilerOptions)
+include(rcdevProjectPaths)
+
+set( RCDEV_LIST_NODE_OPTIONS	UPDATE_SOURCE
+								)
+
+set( RCDEV_LIST_NODE_ONEVALUE	NAME			# intended project name 
+								NODE_NAME       # source node name if different from NAME
+								SOURCE_DIR		# 
+								BINARY_DIR		# 
+								INSTALL_DIR		# 
+								REPO_NAME       # Name of source repo
+								GIT_REPOSITORY  # Location of Git source repo
+								GIT_TAG         # 
+								URL             # 
+								URL_HASH        #
+								VERSION         # 
+								IS_SUBNODE      # TRUE|FALSE
+                                IS_ROOT_NODE	# Source repo is the root 
+                                IS_BINARY_REPO  # Source repo contains and is needed only for pre-built libraries 
+                                IS_EXTERNAL_REPO# Source repo is external 
+                                IS_CMAKE_ENABLED# Source repo has a CMake entry point defined
+								)
+
+set( RCDEV_LIST_NODE_MULTIVALUE	DEPENDS			  # Source repo direct dependencies
+								BINARY_DEPENDS    # A repository of pre-built libs/bins which
+								                  # which may or may not be a CMake project
+								EXTERNAL_DEPENDS  # Dependencies from an external/third-party source
+								OPTIONS			  # Options to set for current or sub repos 
+								CM_ARGS			  #   (argument prob not needed)
+								)
+
+#############################################################
+#  Add target object to the projects list of added targets and 
+#    will be made available to the wrapped find_package
+#  input _t_nspace  - the namespace value for the target object
+#                     i.e.  repoA for libutilsA - repoA::libutilsA
+#############################################################
+macro(rcdev_add_target  _t_nspace)
+	set(_rtl "${RCDEV_REPO_TARGET_LIST}")
+	foreach(_t ${ARGN})
+		if (TARGET ${_t})
+			add_library(${_t_nspace}::${_t} ALIAS ${_t})
+			list(APPEND _rtl "${_t_nspace}::${_t}" "${_t}")
+		endif()
+	endforeach()
+	set(RCDEV_REPO_TARGET_LIST	"${_rtl}" CACHE INTERNAL "")
+	unset(_rtl)
+endmacro()
+
+#############################################################
+#  This macro makes CMakes find_package a no-op for local targets
+#  already created and existing within the build tree 
+#    will be made available to the wrapped find_package
+#  The check for _find_package_override, prevents this function from being 
+#  included/defined multiple times and the result is an infinite loop within the
+#  CMake code.
+#  input ARGV  - the namespace value for the target object or
+#                the target object name or
+#                an external package which has a xxxConfig.cmake file or
+#                is an installed system package
+#  If ARGV is namespace::repoA or repoA the variable repoA_FOUND will be
+#  set to 'TRUE'
+#############################################################
+if (NOT _find_package_override)
+	set(_find_package_override TRUE CACHE BOOL INTERNAL "")
+
+	macro(find_package)
+		set(_args ${ARGN})
+		
+		if (${ARGV0} IN_LIST RCDEV_REPO_TARGET_LIST)
+			set(_pkg ${ARGV0})
+			if (${_pkg} MATCHES "^([a-zA-Z0-9_-]+)::([a-zA-Z0-9_-]+)")
+				set(${CMAKE_MATCH_2}_FOUND TRUE)
+			else()
+				set(${_pkg}_FOUND TRUE)
+			endif()
+			unset(_pkg)
+	DEBUG_PRINT(RCDEV_REPO_TARGET_LIST)
+		else()
+			if( POLICY CMP0074 )
+				#message("Setting CMake policy CMP0074 find_package override ${_pkg}:[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] ")
+				cmake_policy(SET CMP0074 NEW)
+			endif()
+
+			_find_package(${_args})
+		endif()
+	endmacro()
+
 endif()
-set(_rdevCMakeInclude TRUE)
 
-macro(print_all_variables)
-    message(STATUS "
-	print_all_variables BEGIN ----------------------------------------")
-    get_cmake_property(_variableNames VARIABLES)
-    foreach (_variableName ${_variableNames})
-        message(STATUS "${_variableName}=${${_variableName}}")
-    endforeach()
-    message(STATUS "
-	print_all_variables END ------------------------------------------")
-endmacro()
+#############################################################
+#  This function makes CMakes add_library a force a pre-check looking
+#  for any calls to add_library for IMPORTED targets append the GLOBAL
+#    attribute.  This option will be usefule when older Find<xxx> modules
+#   are called and do not add the GLOBAL attribute to their IMPORTED library.
+#  The check for _add_library_override, prevents this function from being 
+#  included/defined multiple times and the result is an infinite loop within the
+#  CMake code.
+#  input ARGV  - arguments for add_library
+#
+#  If ARGV has arguments for an IMPORTED library, the GLOBAL attribute
+#  will be appended
+#  
+#############################################################
+if (NOT _add_library_override)
+	set(_add_library_override TRUE CACHE BOOL INTERNAL "")
+	function(add_library)
 
-function(_load_cmake_properties cp_list)
-    execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE CMAKE_PROPERTY_LIST)
-
-    # Convert command output into a CMake list
-    string(REGEX REPLACE ";" "\\\\;" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
-    string(REGEX REPLACE "\n" ";" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
-
-    set(${cp_list} ${CMAKE_PROPERTY_LIST} PARENT_SCOPE)
-
-endfunction(_load_cmake_properties)
-
-function(print_properties)
-    message ("CMAKE_PROPERTY_LIST = ${CMAKE_PROPERTY_LIST}")
-endfunction(print_properties)
-
-function(print_target_properties tgt)
-    if(NOT TARGET ${tgt})
-        message(STATUS "There is no target named '${tgt}'")
-        return()
-    endif()
-
-    _load_cmake_properties(CMAKE_PROPERTY_LIST)
-
-    foreach (prop ${CMAKE_PROPERTY_LIST})
-        if (UNIX)
-			string(REPLACE "<CONFIG>" "${CMAKE_BUILD_TYPE}" prop ${prop})
-        endif()
-		if(prop STREQUAL "LOCATION" OR prop
-		    MATCHES "^LOCATION_" OR prop MATCHES "_LOCATION$")
-				continue()
-		endif()
-        
-        #message (STATUS "Checking ${prop}")
-		get_target_property(_pType ${tgt} TYPE)
-		if(_pType STREQUAL "INTERFACE_LIBRARY" )
-			if (prop STREQUAL "INTERFACE_INCLUDE_DIRECTORIES")
-				get_property(propval TARGET ${tgt} PROPERTY INTERFACE_INCLUDE_DIRECTORIES SET)
-				if (propval STREQUAL "NOTFOUND")
-					continue()
-				else()
-					get_target_property(propval ${tgt} ${prop})
-					message (STATUS "Target Interface ${tgt} ${prop} = ${propval}")
-				endif()
+		set(_args ${ARGN})
+		if ("${_args}" MATCHES ";IMPORTED")
+			if (NOT("${_args}" MATCHES ";GLOBAL"))
+				list(APPEND _args GLOBAL)
 			endif()
-		# INTERFACE_INCLUDE_DIRECTORIES
-		else()
-			get_property(propval TARGET ${tgt} PROPERTY ${prop} SET)
-			if (propval)
-				get_target_property(propval ${tgt} ${prop})
-				message (STATUS "Target: ${tgt} ${prop} = ${propval}")
-			endif()
+
 		endif()
-    endforeach(prop)
-endfunction(print_target_properties)
 
-macro(_cmake_debug dMsg)
-    message(STATUS "DEBUG Variable: ${dMsg}")
-endmacro()
+		_add_library(${_args})
 
-macro (DEBUG_PRINT vName)
-	if ($ENV{RCDEV_DEBUG_ENABLED})
-        string(TOUPPER ${vName} _vName_U)
-		if (${ARGC} GREATER 1 AND ${_vName_U} MATCHES "^[ ]*::[ ]*MESSAGE")
-			message(STATUS "DEBUG message: ${ARGV1}")
+	endfunction()
 
-		elseif (${_vName_U} MATCHES "^[ ]*::PRINT_ALL")
-			print_all_variables()
-
-		elseif (TARGET ${vName})
-			print_target_properties(${vName})
-
-		elseif (${vName} MATCHES "^::.*")
-            message(WARNING "Poorly formatted DEBUG_PRINT message - the prefix \'::\', is a reserved character sequence \(argv[1]\'${vName}\'\):
-    DEBUG_PRINT\(::MESSAGE \'<text>\'\)
-                  or 
-    DEBUG_PRINT\(::PRINT_ALL\)-print all CMAKE vars \(the world\)
-        ")
-		elseif (NOT (${vName} MATCHES "::"))	
-			_cmake_debug("${vName}=\${${vName}}")
-		else()
-			message(STATUS "DEBUG message: ${vName}= \'\'")
-		endif ()
-        unset(_vName_U)
-	endif ()
-endmacro ()
-
-
-function(_getDTNumberFields dtString wd mn dy yr hr min sec)
-    #DEBUG_PRINT(dtString)
-    string(REGEX MATCH "^([0-9]+),([0-9]+)-([0-9]+)-([0-9]+)T([0-9]+):([0-9]+):([0-9]+)" _matchout ${dtString})
-    set(${wd} ${CMAKE_MATCH_1} PARENT_SCOPE)
-    set(${mn} ${CMAKE_MATCH_2} PARENT_SCOPE)
-    set(${dy} ${CMAKE_MATCH_3} PARENT_SCOPE)
-    set(${yr} ${CMAKE_MATCH_4} PARENT_SCOPE)
-    set(${hr} ${CMAKE_MATCH_5} PARENT_SCOPE)
-    set(${min} ${CMAKE_MATCH_6} PARENT_SCOPE)
-    set(${sec} ${CMAKE_MATCH_7} PARENT_SCOPE)
-endfunction()
-
-function(_getDTAlphaNumFields dtString wd mn dy yr hr min sec)
-    #DEBUG_PRINT(dtString)
-    string(REGEX MATCH "^([A-Za-z]+) ([A-Za-z]+) ([0-9]+),([0-9]+)T([0-9]+):([0-9]+):([0-9]+)" _matchout ${dtString})
-    set(${wd} ${CMAKE_MATCH_1} PARENT_SCOPE)
-    set(${mn} ${CMAKE_MATCH_2} PARENT_SCOPE)
-    set(${dy} ${CMAKE_MATCH_3} PARENT_SCOPE)
-    set(${yr} ${CMAKE_MATCH_4} PARENT_SCOPE)
-    set(${hr} ${CMAKE_MATCH_5} PARENT_SCOPE)
-    set(${min} ${CMAKE_MATCH_6} PARENT_SCOPE)
-    set(${sec} ${CMAKE_MATCH_7} PARENT_SCOPE)
-endfunction()
-
-function(_getTSNumberString tsString)
-    string(TIMESTAMP TS "%w,%m-%d-%YT%H:%M:%S") 
-	set(${tsString} ${TS} PARENT_SCOPE)
-endfunction()
-
-function(_getTSNameString tsString)
-    string(TIMESTAMP TS "%a %b %d,%YT%H:%M:%S") 
-	set(${tsString} ${TS} PARENT_SCOPE)
-endfunction()
-
-function(_getMonthName mValue mVar)
-    set(L_Months Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
-    #DEBUG_PRINT(mValue)
-    if (${mValue} STRGREATER "00" AND ${mValue} STRLESS "13")
-        math(EXPR M_IDX "(${mValue}*1) - 1")
-        list(GET L_Months ${M_IDX} Month_Name)
-	    set(${mVar} ${Month_Name} PARENT_SCOPE)
-    else()
-        message(STATUS "_getMonthName: invalid arg value")
-        #DEBUG_PRINT(mValue)
-    endif()
-endfunction()
-
-function(_getWeekdayName dValue dVar)
-    set(L_Days Sun Mon Tue Wed Thr Fri Sat)
-    #DEBUG_PRINT(dValue)
-    if ((${dValue} STRGREATER "0" OR ${dValue} STREQUAL "0") AND
-        (${dValue} STRLESS "7"))
-        math(EXPR D_IDX "${dValue}*1")
-        list(GET L_Days ${D_IDX} Weekday_Name)
-	    set(${dVar} ${Weekday_Name} PARENT_SCOPE)
-    else()
-        message(STATUS "_getWeekdayName: invalid arg value")
-        #DEBUG_PRINT(dValue)
-    endif()
-endfunction()
-
-function(Get_Build_Time bTIME)
-	_getTSNumberString(FULL_TS)
-	_getDTNumberFields(${FULL_TS} _wd _month _day _year _hour _min _sec)
-	set(${bTIME} "${_hour}:${_min}:${_sec}" PARENT_SCOPE)
-endfunction()
-
-function(Get_Build_Date bDATE)
-	_getTSNameString(FULL_TS)
-	_getDTAlphaNumFields(${FULL_TS} _wd _month _day _year _hour _min _sec)
-    #_getWeekdayName(${_wd} _wName)
-    #_getMonthName(${_month} _mName)
-	set(${bDATE} "${_wd} ${_month} ${_day}, ${_year}" PARENT_SCOPE)
-endfunction()
-
-function(Get_Timestamp_Fields wDAY MONTH DAY YEAR HOUR MINUTE SECOND)
-	_getTSNameString(FULL_TS)
-	_getDTAlphaNumFields(${FULL_TS} _wd _month _day _year _hour _min _sec)
-    #_getWeekdayName(${_wd} _wName)
-    #_getMonthName(${_month} _mName)
-    set(${wDAY} ${_wd} PARENT_SCOPE)
-    set(${MONTH} ${_month} PARENT_SCOPE)
-    set(${DAY} ${_day} PARENT_SCOPE)
-    set(${YEAR} ${_year} PARENT_SCOPE)
-    set(${HOUR} ${_hour} PARENT_SCOPE)
-    set(${MINUTE} ${_min} PARENT_SCOPE)
-    set(${SECOND} ${_sec} PARENT_SCOPE)
-endfunction()
-
-function(Get_Build_Timestamp bTS)
-	_getTSNameString(FULL_TS)
-	_getDTAlphaNumFields(${FULL_TS} _wd _month _day _year _hour _min _sec)
-    #_getWeekdayName(${_wd} _wName)
-    #_getMonthName(${_month} _mName)
-    set(${bTS} "${_wd} ${_month} ${_day}, ${_year} at ${_hour}: ${_min} ${_sec}" PARENT_SCOPE)
-endfunction()
+endif()
 

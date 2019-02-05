@@ -30,7 +30,7 @@ target_include_directories(EmaUnitTest
 								$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Domain/Login/Impl>
 							)
 
-target_link_libraries( EmaUnitTest libema gtest ${SYSTEM_LIBRARIES} )
+target_link_libraries( EmaUnitTest libema GTest::Main ${SYSTEM_LIBRARIES} )
 
 
 if (CMAKE_HOST_WIN32)

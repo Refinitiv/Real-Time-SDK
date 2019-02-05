@@ -31,7 +31,7 @@ set_target_properties( ProvPerf_shared
 
 target_link_libraries( ProvPerf_shared 
 							librsslVA_shared 
-							libxml2 
+							LibXml2::LibXml2 
 							${SYSTEM_LIBRARIES} 
 						)
 
@@ -52,7 +52,7 @@ set_target_properties( ProvPerf
 
 target_link_libraries( ProvPerf 
 							librsslVA  
-							libxml2 
+							LibXml2::LibXml2 
 							${SYSTEM_LIBRARIES} 
 						)
 

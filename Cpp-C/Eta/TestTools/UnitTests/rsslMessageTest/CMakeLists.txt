@@ -1,7 +1,7 @@
 add_executable( rsslMessageTest rsslMessageTest.C )
 target_link_libraries( rsslMessageTest 
 							librssl 
-							gtest 
+							GTest::Main 
 							${SYSTEM_LIBRARIES} 
 						)
 set_target_properties( rsslMessageTest 
@@ -12,7 +12,7 @@ set_target_properties( rsslMessageTest
 add_executable( rsslMessageTest_shared rsslMessageTest.C )
 target_link_libraries( rsslMessageTest_shared 
 							librssl_shared 
-							gtest 
+							GTest::Main 
 							${SYSTEM_LIBRARIES} 
 						)
 set_target_properties( rsslMessageTest_shared 

@@ -1,0 +1,259 @@
+#[=============================================================================[
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+#]=============================================================================]
+
+
+include(rcdevExternalUtils)
+
+if(NOT curl_url)
+	set(curl_url "https://github.com/curl/curl/releases/download/curl-7_63_0/curl-7.63.0.tar.xz")
+endif()
+if(NOT curl_hash)
+	set(curl_hash "MD5=f43d618cc49c1820d3a2fed31e451d4c")
+endif()
+if(NOT curl_version)
+	set(curl_version "7.63.0")
+endif()
+
+# If the option for using the system installed 
+#  package is not defined
+if((NOT curl_USE_INSTALLED) AND 
+	(NOT CURL_FOUND) )
+	set(_EPA_NAME "curl")
+
+	if((openssl_USE_INSTALLED) AND
+		(NOT OPENSSL_FOUND) )
+		# In order for the CMake OpenSSL find module to succeed:
+		# CMake <=3.4.3
+		# Set OPENSSL_ROOT_DIR to the root directory of an OpenSSL installation. 
+		# Set OPENSSL_USE_STATIC_LIBS to TRUE to look for static libraries. 
+		# Set OPENSSL_MSVC_STATIC_RT set TRUE to choose the MT version of the lib
+		find_package(OpenSSL REQUIRED)
+		if( (DEFINED openssl_version) AND
+			(OPENSSL_VERSION VERSION_LESS "${openssl_version}") )
+			message(WARNING
+					"  OpenSSL ver:${OPENSSL_VERSION_STRING} found, is older than the supported ver:${openssl_version}\n"
+					"  This may cause unexpected behavior and/or build results"
+					)
+		endif()
+	endif()
+
+    # Initialize the directory variables for the external project
+	# default:
+	#        external/
+	#                dlcache/
+	#                  BUILD/_EP_NAME/
+	#                               source/
+	#                               build/
+	#        install/
+	rcdev_init_ep_add(${_EPA_NAME})
+
+	# get the file name off the url to ensure it is
+	# downloaded with the same name
+	get_filename_component(_dl_filename "${curl_url}" NAME)
+	set(_DL_METHOD	"URL           ${curl_url}" )
+
+	if(curl_hash)
+		list(APPEND _DL_METHOD "URL_HASH       ${curl_hash}")
+	endif()
+
+	list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${curl_download}")
+
+	if (DEFINED _dl_filename)
+		list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
+	endif()
+
+	set(_EPA_SOURCE_DIR "SOURCE_DIR ${curl_source}")
+	# the BINARY_DIR is not seperate for this type of external project
+	set(_EPA_INSTALL_DIR "INSTALL_DIR ${curl_install}")
+
+	# check for any defined flags
+	# The shared library is the default build
+	if(curl_BUILD_STATIC_LIBS)
+		set(_shared_arg "-DBUILD_SHARED_LIBS:BOOL=OFF")
+	else()
+		set(_shared_arg "-DBUILD_SHARED_LIBS:BOOL=ON")
+	endif()
+
+	# The curl distribution has a autoconf configure method a well as a CMake.
+	# These _CONFIG_OPTIONS would be used if this external add was changed to build curl
+	# using the autouconf method
+	#[=============================================================[
+	if(curl_CONFIG_OPTIONS)
+		set(_config_options "${curl_CONFIG_OPTIONS}")
+	else()
+		set(_config_options "no-asm no-tests no-comp no-srp no-hw no-dso ")
+	endif()
+	#]=============================================================]
+
+	if(curl_CONFIG_OPTIONS)
+		set(_config_options "${curl_CONFIG_OPTIONS}")
+	else()
+		# append the standard set of cmake configuration args
+		set(_config_options	"-DBUILD_CURL_EXE:BOOL=OFF"
+						"-DCMAKE_USE_LIBSSH2:BOOL=OFF"
+						"-DHTTP_ONLY:BOOL=ON"
+						"-DBUILD_TESTING:BOOL=OFF"
+						"-DENABLE_IPV6:BOOL=OFF"
+						"-DENABLE_MANUAL:BOOL=OFF"
+						"-DCURL_CA_PATH=none"
+						)
+	endif()
+
+	unset(_cfg_type)
+	if(WIN32)
+		set(_config_options "${curl_CONFIG_OPTIONS}"
+						"-DCMAKE_USE_WINSSL:BOOL=ON")
+	else()
+		set(_config_options "${curl_CONFIG_OPTIONS}" 
+							"-DCMAKE_USE_OPENSSL:BOOL=ON")
+		# Since our internal build types are Debug and Optimized, only Debug will translate
+		if (CMAKE_BUILD_TYPE MATCHES "Debug")
+			set(_cfg_type "${CMAKE_BUILD_TYPE}")
+			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
+										"-DCMAKE_DEBUG_POSTFIX:STRING= ")
+		else()
+			set(_cfg_type "Release")
+			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
+		endif()
+	endif()
+
+	if(curl_BUILD_STATIC_LIBS)
+		set(_config_options "${curl_CONFIG_OPTIONS}"
+						"-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON")
+	endif()
+	# Append the config and shared args to the CMake arguments to the template variable
+	set( _EPA_CMAKE_ARGS "CMAKE_ARGS"
+						"-DCMAKE_INSTALL_PREFIX:STRING=<INSTALL_DIR>"
+						"${_config_options}"
+						"${_shared_arg}"
+						)
+
+	# Since this external project has a CMakeLists.txt, the default CONFIG_COMMAND will be
+	# used and one sonce not need to be defined here.
+	#  Adding CONFIGURE_COMMAND  "" would skip the default CMake configure step
+	#  list(APPEND _EPA_CONFIGURE_COMMAND  "CONFIGURE_COMMAND  \"\"" )
+
+	# Typically, the build and install steps can be combined.  However, having them as 
+	#  two seperate steps help in the event of having to debug a build
+	# Set the <.....>_COMMAND for the build and install template fields
+	# However, for this external project it is works out better to combine these next two steps
+	# within the INSTALL_COMMAND step.  So, this is skipping the BUILD_COMMAND by 
+	# passing "" as the argument for the BUILD_COMMAND
+	if (WIN32)
+		set( _EPA_BUILD_COMMAND      
+					"BUILD_COMMAND     \"${CMAKE_COMMAND}\"   --build .  --config Release ")
+		if(curl_BUILD_STATIC_LIBS)
+			list(APPEND _EPA_BUILD_COMMAND      
+						"COMMAND    \"${CMAKE_COMMAND}\"   --build .  --config Debug ")
+		endif()
+	else()
+		set( _EPA_BUILD_COMMAND 
+					"BUILD_COMMAND    ${CMAKE_COMMAND}   --build .  --config ${_cfg_type} ")
+	endif()
+
+	# Passing the two supported build config types along to the INSTALL_COMMAND for Windows and for 
+	# single build type platforms, like Linux, the current config typed is built and installed
+	if (WIN32)
+		set( _EPA_INSTALL_COMMAND 
+					"INSTALL_COMMAND    \"${CMAKE_COMMAND}\"   --build .  --target install  --config Release ")
+			if(curl_BUILD_STATIC_LIBS)
+				list(APPEND _EPA_BUILD_COMMAND      
+					"	COMMAND    \"${CMAKE_COMMAND}\"   --build .  --target install  --config Debug ")
+			endif()
+	else()
+		set( _EPA_INSTALL_COMMAND 
+					"INSTALL_COMMAND    ${CMAKE_COMMAND}   --build .  --target install  --config ${_cfg_type} ")
+	endif()	
+
+	set(_EPA_TEST_COMMAND "TEST_COMMAND \"\"")
+
+	# If there isn't a binary directory defined then make sure
+	# the option 'BUILD_IN_SOURCE' is enabled
+	if (NOT DEFINED _EPA_BINARY_DIR)
+		set(_EPA_ADDITIONAL_ARGS "BUILD_IN_SOURCE 1" )
+	endif()
+
+	# Add log defiitions if selected to be enabled and append them to the
+	# additional args variable
+	if(curl_LOG_BUILD)
+		set(_log_args 
+						"LOG_CONFIGURE 1"
+						"LOG_BUILD 1"
+						"LOG_INSTALL 1"
+			)
+	endif()
+
+	list(APPEND _EPA_ADDITIONAL_ARGS "${_log_args}")
+
+	# Call cmake configure and build on the CMakeLists.txt file
+	# written using the previously set template arguments
+	rcdev_config_build_ep(${_EPA_NAME})
+
+	# this policy is needed to supress a CMake warning about the new
+	# standard for using <project>_ROOT variable for find_package()
+	if( POLICY CMP0074 )
+		#message("Setting CMake policy CMP0074 ${_EPA_NAME}:[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] ")
+		cmake_policy(SET CMP0074 NEW)
+	endif()
+
+	# Not yet supported by the Curl Find module, but set it for good practice
+	if(NOT CURL_ROOT)
+		set(CURL_ROOT "${curl_install}")
+	endif()
+
+	unset(_shared_arg)
+	unset(_config_args)
+	unset(_log_args)
+	unset(_dl_filename)
+
+	# This call will reset all the _EPA_... variables. Because this is a
+	# macro and if this is not called, the next external project using
+	# this template will be at risk being currupted with old values.
+	rcdev_reset_ep_add()
+	
+	set(curl_find_options HINT "${curl_install}")
+
+endif()
+
+# Find the package, for both a system installed version or the one
+# just added with the ecternal project template
+if(NOT CURL_FOUND)
+	# Calling find_package with a required version number will fail if the
+	# package does not have a <name>version.cmake in the same location as
+	# the <package>config.cmake.  Unfortunately, CMake will not use the version
+	# field defiition within a <package>.pc file. Also, the option to search for the
+	# newly built version are passed as an argument, in case they have been defined, 
+	# in lieu of an installed version
+	find_package(CURL  REQUIRED "${curl_find_options}")
+
+	# This condition is here since the FindCURL CMake module for version < Cmake.12.0 does not 
+	#  crete an IMPORTED targte object (CURL::libcurl)
+	if(NOT TARGET CURL::libcurl)
+    	add_library(CURL::libcurl UNKNOWN IMPORTED)
+    	set_target_properties(CURL::libcurl PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CURL_INCLUDE_DIRS}")
+    	set_property(TARGET CURL::libcurl APPEND PROPERTY IMPORTED_LOCATION "${CURL_LIBRARY}")
+	endif()
+
+	if(curl_BUILD_STATIC_LIBS)
+		rcdev_map_imported_ep_types(CURL::libcurl)
+	endif()
+
+	if(CURL_VERSION_STRING VERSION_LESS "${curl_version}")
+		message(WARNING
+				"  libcurl ver:${CURL_VERSION_STRING} found, is older than the supported ver:${curl_version}\n"
+				"  This may cause unexpected behavior and/or build results"
+				)
+	endif()
+
+endif()
+
+DEBUG_PRINT(CURL_FOUND)
+DEBUG_PRINT(CURL_LIBRARY)
+DEBUG_PRINT(CURL_VERSION_STRING)
+DEBUG_PRINT(CURL::libcurl)
+
+

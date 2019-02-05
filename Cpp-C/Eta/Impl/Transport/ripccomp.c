@@ -208,7 +208,7 @@ static RsslRet lz4Comp(void* stream, ripcCompBuffer *buf, RsslError *error)
 {
 	RsslInt32 err;
 
-	err = LZ4_compress(buf->next_in, buf->next_out, buf->avail_in);
+	err = LZ4_compress_default(buf->next_in, buf->next_out, buf->avail_in, buf->avail_out);
 
 	if(err < 0)
 	{
@@ -236,7 +236,7 @@ static RsslRet lz4Comp(void* stream, ripcCompBuffer *buf, RsslError *error)
 static RsslRet lz4Decomp(void* stream, ripcCompBuffer *buf, RsslError *error)
 {
 	RsslInt32 err;
-	err = LZ4_uncompress_unknownOutputSize(buf->next_in, buf->next_out, buf->avail_in, buf->avail_out);
+	err = LZ4_decompress_safe(buf->next_in, buf->next_out, buf->avail_in, buf->avail_out);
 
 	if(err < 0)
 	{
