@@ -366,6 +366,7 @@ public class Consumer
             {
                 default:
                 case 0:
+                case 5:
                    if (Consumer._FILTER >= 0) {
                        System.out.println("********APIQA: Requesting directory without service name, service id, and filter=" + Consumer._FILTER + "\n\n");
                        consumer.registerClient(reqMsg.domainType(EmaRdm.MMT_DIRECTORY).filter(Consumer._FILTER), appClient); 
@@ -395,14 +396,19 @@ public class Consumer
                    }
                    break;
             }
-            if ( ( Consumer._OPTION == 2 ) || ( Consumer._OPTION == 4 ) )
-	        {
+            if ( ( Consumer._OPTION == 2 ) || ( Consumer._OPTION == 4 ) || ( Consumer._OPTION == 5 ) )
+            {
                    if (Consumer._SLEEPTIME > 0 ) {
                        System.out.println("********APIQA: Sleeping (in seconds): " + Consumer._SLEEPTIME + "\n");
                        Thread.sleep(Consumer._SLEEPTIME * 1000);            // API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
                    }
-                   System.out.println("********APIQA: Requesting item wth service=serviceID\n\n"); 
-                   consumer.registerClient(reqMsg.clear().serviceId(8090).name("IBM.N"), appClient);
+                   if ( ( Consumer._OPTION == 2 ) || ( Consumer._OPTION == 5 ) ) {
+                       System.out.println("********APIQA: Requesting item wth service=DIRECT_FEED\n\n"); 
+                       consumer.registerClient(reqMsg.clear().serviceName("DIRECT_FEED").name("IBM.N"), appClient);
+                   } else {
+                       System.out.println("********APIQA: Requesting item wth service=serviceID\n\n"); 
+                       consumer.registerClient(reqMsg.clear().serviceId(8090).name("IBM.N"), appClient);
+                   }
             }
             Thread.sleep(60000);            // API calls onRefreshMsg(), onUpdateMsg() and onStatusMsg()
         }

@@ -200,7 +200,7 @@ Series300Consumer331-ConsFunc-000
        User may mix and match different filters:
        -f 5  INFO & GROUP 4+1 
        -f 63 INFO, STATE, GROUP, LOAD, DATA 7 LINK (1+2+4+8+16+32)
-	   etc.
+       etc.
     -m <option>: 
        -m 0: Request source directory without serviceName or ID and a filter
        if specified
@@ -213,6 +213,8 @@ Series300Consumer331-ConsFunc-000
        -m 4: Request source diretory with serviceId and filter if specified 
              Also request item using serviceId after a sleep if sleeptime is
              specified
+       -m 5: Request source directory without serviceName or ID and a filter if specified. 
+             Also request item usin serviceName after a sleep if specified
     -s <sleeptime>:  Amount of time specified in seconds to wait before making
              an item request. This only applies to -m 2 -m 4
 

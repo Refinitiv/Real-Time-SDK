@@ -341,6 +341,7 @@ int main(int argc, char* argv[])
 		{
 		default:
 		case 0: //  do directory request with filter if specified 
+		case 5: //  do directory request with filter if specified; do a item request after a sleep if specified 
 			if ( _FILTER >= 0 )
 			{
 				cout << "********APIQA: Requesting directory without service name, service id, and filter=" << _FILTER << "\n\n"; 
@@ -357,7 +358,7 @@ int main(int argc, char* argv[])
 				cout << "********APIQA: Requesting directory with service=DIRECT_FEED and filter=" << _FILTER << "\n\n"; 
 				UInt64 dirHandle = consumer.registerClient( ReqMsg().domainType( MMT_DIRECTORY ).serviceName( "DIRECT_FEED" ).filter(_FILTER), client, closure );
 			} else {
-				cout << "********APIQA: Requesting directory without service=DIRECT_FEED\n\n"; 
+				cout << "********APIQA: Requesting directory with service=DIRECT_FEED\n\n"; 
 				UInt64 dirHandle = consumer.registerClient( ReqMsg().domainType( MMT_DIRECTORY ).serviceName( "DIRECT_FEED" ), client, closure );
 			}
 			break;
@@ -368,12 +369,12 @@ int main(int argc, char* argv[])
 				cout << "********APIQA: Requesting directory with service=SERVICE_ID and filter=" << _FILTER << "\n\n"; 
 				UInt64 dirHandle = consumer.registerClient( ReqMsg().domainType( MMT_DIRECTORY ).serviceId( 8090 ).filter(_FILTER), client, closure );
 			} else {
-				cout << "********APIQA: Requesting directory without service=SERVICE_ID\n\n"; 
+				cout << "********APIQA: Requesting directory with service=SERVICE_ID\n\n"; 
 				UInt64 dirHandle = consumer.registerClient( ReqMsg().domainType( MMT_DIRECTORY ).serviceId( 8090 ), client, closure );
 			}
 			break;
 		}
-		if ( ( _OPTION == 2 ) || ( _OPTION == 4 ) )
+		if ( ( _OPTION == 2 ) || ( _OPTION == 4 ) || ( _OPTION == 5 ) )
 		{
 			if (_SLEEPTIME > 0 ) 
 			{
@@ -381,7 +382,10 @@ int main(int argc, char* argv[])
 				sleep( _SLEEPTIME * 1000 );    // API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 			}
 			cout << "********APIQA: Requesting item\n"; 
-			UInt64 itemHandle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client, closure );
+			if ( ( _OPTION == 2 ) || ( _OPTION == 5 ) )
+				UInt64 itemHandle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "IBM.N" ), client, closure );
+			else
+				UInt64 itemHandle = consumer.registerClient( ReqMsg().serviceId( 8090 ).name( "IBM.N" ), client, closure );
 		}
 		
 		sleep( 60000 );				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
