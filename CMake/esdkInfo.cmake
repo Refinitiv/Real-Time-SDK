@@ -44,9 +44,8 @@ string(TIMESTAMP esdk_year %Y)
 #       zlib
 #       lz4
 #       libxml2
-#  In futuer releasesL
-#       openssl (coming soon)
-#       curl    (coming soon)
+#       cjson 
+#       curl 
 #
 # Each external project has a corresponding cmake module in the esdk/CMake module
 # directory.  Each module has the common prefix 'addExternal_'(e.g. addExternal_zlib.cmake).
@@ -78,31 +77,44 @@ else()
 endif()
 
 #
-# googletest - default values in addExternal_gtest.cmake
+# googletest - default values, for latest, look in addExternal_gtest.cmake
 #[====================================================================]
 # set(googletest_url "https://github.com/abseil/googletest/archive/release-1.8.1.tar.gz")
 # set(googletest_hash "MD5=2e6fbeb6a91310a16efe181886c59596")
 # set(googletest_version "1.8.1")
 
 #
-# zlib - default values in addExternal_zlib.cmake
+# zlib - default value, for latest, look in addExternal_zlib.cmake
 #[====================================================================]
-# set(zlib_url "https://github.com/madler/zlib/archive/zlib-1.2.11.tar.xz")
-# set(zlib_hash "MD5=85adef240c5f370b308da8c938951a68")
+# set(zlib_url "https://www.zlib.net/zlib-1.2.11.tar.xz")
+# set(zlib_hash "SHA256=4ff941449631ace0d4d203e3483be9dbc9da454084111f97ea0a2114e19bf066")
 # set(zlib_version "1.2.11")
 
 #
-# lz4 see - default values in addExternal_lz4.cmake
+# lz4 see - default value, for latest, look in addExternal_lz4.cmake
 #[====================================================================]
-# set(lz4_url "https://github.com/lz4/lz4/archive/v1.8.3.tar.gz")
+# set(lz4_url "https://github.com/lz4/lz4/archive/v1.8.3.tar.gz"
 # set(lz4_hash "MD5=d5ce78f7b1b76002bbfffa6f78a5fc4e")
 # set(lz4_version "1.8.3")
 
 #
-# libxml2 - default values in addExternal_libxml2.cmake
+# libxml2 - default value, for latest, look in addExternal_libxml2.cmake
 #[====================================================================]
-# set(libxml2_url "https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.9.8/libxml2-v2.9.8.tar.gz")
-# set(libxml2_hash "MD5=5e9d56f7f6b564111f9526b2c687256c")
-# set(libxml2_version "2.9.8")
+# set(libxml2_url "ftp://xmlsoft.org/libxml2/libxml2-2.9.9.tar.gz")
+# set(libxml2_hash "MD5=c04a5a0a042eaa157e8e8c9eabe76bd6")
+# set(libxml2_version "2.9.9")
 
+#
+# curl - default value, for latest, look in addExternal_curl.cmake
+#[====================================================================]
+# set(curl_url "https://github.com/curl/curl/releases/download/curl-7_63_0/curl-7.63.0.tar.xz")
+# set(curl_hash "MD5=f43d618cc49c1820d3a2fed31e451d4c")
+# set(curl_version "7.63.0")
+
+#
+# cjson - default value, for latest, look in addExternal_cjson.cmake
+#[====================================================================]
+# set(cjson_url "https://github.com/DaveGamble/cJSON/archive/v1.7.10.tar.gz")
+# set(curl_hash "MD5=f7ee1a04b7323440f1d7a58ea2c0c197")
+# set(curl_version "1.7.10")
 

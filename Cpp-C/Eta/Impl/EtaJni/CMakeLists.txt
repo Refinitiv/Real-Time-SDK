@@ -103,4 +103,5 @@ else()
 
 endif()
 
+rcdev_add_target(esdk libEtaJni_shared)
 

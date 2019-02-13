@@ -42,19 +42,24 @@ if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND
 	#        install/
 	rcdev_init_ep_add(${_EPA_NAME})
 
-	# get the file name off the url to ensure it is
-	# downloaded with the same name
-	get_filename_component(_dl_filename "${elektron-sdk-binarypack_url}" NAME)
-	set(_DL_METHOD	 "URL           ${elektron-sdk-binarypack_url}")
+	# The download step should be skipped for packages which already contain
+	# the Elektron-SDK-BinaryPack withon the origional bundle and not as a 
+	# pre-bundeled tarball
+	if (NOT RCDEV_GSG_PACKAGE)
+		# get the file name off the url to ensure it is
+		# downloaded with the same name
+		get_filename_component(_dl_filename "${elektron-sdk-binarypack_url}" NAME)
+		set(_DL_METHOD	 "URL           ${elektron-sdk-binarypack_url}")
 
-	if(elektron-sdk-binarypack_hash)
-		list(APPEND _DL_METHOD "URL_HASH      ${elektron-sdk-binarypack_hash}")
-	endif()
+		if(elektron-sdk-binarypack_hash)
+			list(APPEND _DL_METHOD "URL_HASH      ${elektron-sdk-binarypack_hash}")
+		endif()
 
-	list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${elektron-sdk-binarypack_download}")
+		list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${elektron-sdk-binarypack_download}")
 
-	if (DEFINED _dl_filename)
-		list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
+		if (DEFINED _dl_filename)
+			list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
+		endif()
 	endif()
 
 	# Since the elektron-sdk-binarypack is a different external beast, the default

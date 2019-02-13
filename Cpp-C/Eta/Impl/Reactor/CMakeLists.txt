@@ -202,5 +202,8 @@ else()
                                     SOVERSION ${librsslVA_SO_VERSION}
                             )
     endif()
+
+	rcdev_add_target(esdk librsslVA librsslVA_shared)
+
 endif()
 

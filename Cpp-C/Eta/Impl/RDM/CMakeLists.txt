@@ -19,4 +19,5 @@ if (CMAKE_HOST_UNIX)
     set_target_properties(librsslRDM PROPERTIES PREFIX "" )
 endif()
 
+rcdev_add_target(esdk librsslRDM)
 

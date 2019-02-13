@@ -424,6 +424,8 @@ else()
                                 PUBLIC 
                                     "-D__EMA_COPY_ON_SET__")
     endif()
-endif()
 
+	rcdev_add_target(esdk libema libema_shared)
+
+endif()
 

@@ -21,7 +21,7 @@ endif()
 # If the option for using the system installed 
 #  package is not defined
 if((NOT curl_USE_INSTALLED) AND 
-	(NOT CURL_FOUND) )
+	(NOT TARGET CURL::libcurl) )
 	set(_EPA_NAME "curl")
 
 	if((openssl_USE_INSTALLED) AND
@@ -105,10 +105,10 @@ if((NOT curl_USE_INSTALLED) AND
 
 	unset(_cfg_type)
 	if(WIN32)
-		set(_config_options "${curl_CONFIG_OPTIONS}"
+		set(_config_options "${_config_options}"
 						"-DCMAKE_USE_WINSSL:BOOL=ON")
 	else()
-		set(_config_options "${curl_CONFIG_OPTIONS}" 
+		set(_config_options "${_config_options}" 
 							"-DCMAKE_USE_OPENSSL:BOOL=ON")
 		# Since our internal build types are Debug and Optimized, only Debug will translate
 		if (CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -122,7 +122,7 @@ if((NOT curl_USE_INSTALLED) AND
 	endif()
 
 	if(curl_BUILD_STATIC_LIBS)
-		set(_config_options "${curl_CONFIG_OPTIONS}"
+		set(_config_options "${_config_options}"
 						"-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON")
 	endif()
 	# Append the config and shared args to the CMake arguments to the template variable
@@ -145,11 +145,8 @@ if((NOT curl_USE_INSTALLED) AND
 	# passing "" as the argument for the BUILD_COMMAND
 	if (WIN32)
 		set( _EPA_BUILD_COMMAND      
-					"BUILD_COMMAND     \"${CMAKE_COMMAND}\"   --build .  --config Release ")
-		if(curl_BUILD_STATIC_LIBS)
-			list(APPEND _EPA_BUILD_COMMAND      
-						"COMMAND    \"${CMAKE_COMMAND}\"   --build .  --config Debug ")
-		endif()
+					"BUILD_COMMAND     \"${CMAKE_COMMAND}\"   --build .  --config Release "  
+					"COMMAND    \"${CMAKE_COMMAND}\"   --build .  --config Debug ")
 	else()
 		set( _EPA_BUILD_COMMAND 
 					"BUILD_COMMAND    ${CMAKE_COMMAND}   --build .  --config ${_cfg_type} ")
@@ -159,11 +156,8 @@ if((NOT curl_USE_INSTALLED) AND
 	# single build type platforms, like Linux, the current config typed is built and installed
 	if (WIN32)
 		set( _EPA_INSTALL_COMMAND 
-					"INSTALL_COMMAND    \"${CMAKE_COMMAND}\"   --build .  --target install  --config Release ")
-			if(curl_BUILD_STATIC_LIBS)
-				list(APPEND _EPA_BUILD_COMMAND      
-					"	COMMAND    \"${CMAKE_COMMAND}\"   --build .  --target install  --config Debug ")
-			endif()
+					"INSTALL_COMMAND    \"${CMAKE_COMMAND}\"   --build .  --target install  --config Release "
+  					"	COMMAND    \"${CMAKE_COMMAND}\"   --build .  --target install  --config Debug ")
 	else()
 		set( _EPA_INSTALL_COMMAND 
 					"INSTALL_COMMAND    ${CMAKE_COMMAND}   --build .  --target install  --config ${_cfg_type} ")
@@ -202,7 +196,7 @@ if((NOT curl_USE_INSTALLED) AND
 
 	# Not yet supported by the Curl Find module, but set it for good practice
 	if(NOT CURL_ROOT)
-		set(CURL_ROOT "${curl_install}")
+		set(CURL_ROOT "${curl_install}" CACHE INTERNAL "")
 	endif()
 
 	unset(_shared_arg)
@@ -215,20 +209,21 @@ if((NOT curl_USE_INSTALLED) AND
 	# this template will be at risk being currupted with old values.
 	rcdev_reset_ep_add()
 	
-	set(curl_find_options HINT "${curl_install}")
+	set(curl_find_options HINTS ${curl_install} CACHE INTERNAL "")
 
 endif()
 
 # Find the package, for both a system installed version or the one
 # just added with the ecternal project template
-if(NOT CURL_FOUND)
+if ((NOT CURL_FOUND) OR
+	(NOT TARGET CURL::libcurl))
 	# Calling find_package with a required version number will fail if the
 	# package does not have a <name>version.cmake in the same location as
 	# the <package>config.cmake.  Unfortunately, CMake will not use the version
 	# field defiition within a <package>.pc file. Also, the option to search for the
 	# newly built version are passed as an argument, in case they have been defined, 
 	# in lieu of an installed version
-	find_package(CURL  REQUIRED "${curl_find_options}")
+	find_package(CURL  REQUIRED ${curl_find_options})
 
 	# This condition is here since the FindCURL CMake module for version < Cmake.12.0 does not 
 	#  crete an IMPORTED targte object (CURL::libcurl)
@@ -242,9 +237,17 @@ if(NOT CURL_FOUND)
 		rcdev_map_imported_ep_types(CURL::libcurl)
 	endif()
 
-	if(CURL_VERSION_STRING VERSION_LESS "${curl_version}")
+	if( (DEFINED CURL_VERSION_STRING) AND
+		(CURL_VERSION_STRING VERSION_LESS "${curl_version}") )
 		message(WARNING
 				"  libcurl ver:${CURL_VERSION_STRING} found, is older than the supported ver:${curl_version}\n"
+				"  This may cause unexpected behavior and/or build results"
+				)
+	# In case the version string from the package config is defined
+	elseif( (DEFINED CVF_VERSION_MAJOR) AND
+		(CVF_VERSION_MAJOR VERSION_LESS "${curl_version}") )
+		message(WARNING
+				"  libcurl ver:${CVF_VERSION_MAJOR } found, is older than the supported ver:${curl_version}\n"
 				"  This may cause unexpected behavior and/or build results"
 				)
 	endif()

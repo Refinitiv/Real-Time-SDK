@@ -82,7 +82,7 @@ endif()
 # If the option for using the system installed 
 #  package is not defined
 if((NOT libxml2_USE_INSTALLED) AND 
-	(NOT LibXml2_FOUND) )
+	(NOT TARGET LibXml2::LibXml2) )
 	set(_EPA_NAME "libxml2")
 
 	# Initialize the directory variables for the external project
@@ -127,167 +127,169 @@ if((NOT libxml2_USE_INSTALLED) AND
 	# However, multiple build types are not compatible with the default CMake find_package
 	# logic without adding additional logic to the package config file.  This functionality
 	# is currently not within the scope of this realease
-	#check_libxml2_installed(_is_installed)
+	check_libxml2_installed(_is_installed)
 
-	# Configure steps and options are different for win32
-	if(WIN32)
-		# after the first build type, do not reset all the
-		# _EPA variables since there is one more build for the
-		# second build type
-		#set(_save_epa_vars TRUE)
-
-		set(_install_prefix "${libxml2_install}")
-		file(TO_NATIVE_PATH "${_install_prefix}" _install_prefix)
-
-		# Check for any defined options
-		if(libxml2_BUILD_SHARED_LIBS)
-			set(_shared_arg "static=no")
-		else()
-			set(_shared_arg "static=yes")
-		endif()
-
-		# If the source anb build files exists, remove and extract a new copy
-		# This will avoid ithe possibility inheriting any configurations from 
-		# a previous build of a different type
-		if (EXISTS "${libxml2_source}")
+	if (NOT _is_installed)
+		# Configure steps and options are different for win32
+		if(WIN32)
+			# after the first build type, do not reset all the
+			# _EPA variables since there is one more build for the
+			# second build type
+			#set(_save_epa_vars TRUE)
+	
+			set(_install_prefix "${libxml2_install}")
+			file(TO_NATIVE_PATH "${_install_prefix}" _install_prefix)
+	
+			# Check for any defined options
+			if(libxml2_BUILD_SHARED_LIBS)
+				set(_shared_arg "static=no")
+			else()
+				set(_shared_arg "static=yes")
+			endif()
+	
+			# If the source anb build files exists, remove and extract a new copy
+			# This will avoid ithe possibility inheriting any configurations from 
+			# a previous build of a different type
+			if (EXISTS "${libxml2_source}")
 				message("\n\t\tRemoving ${libxml2_projroot} .....\n")
-			file(REMOVE_RECURSE "${libxml2_projroot}")
-		endif()
-
-		message("\n\t\tConfiguring LibXmls ${_cfg_type} build\n")
-
-		set(_bld_type "debug=no")
-		set(_crt "MD")
-		file(TO_NATIVE_PATH "${_libdir}" _libdir)
-		set(_libdir "libdir=${_libdir}")
-
-		# To avoid dealing with CMake string/list formatting for a Win32 command prompt, it
-		# is easier to write the commands to a CMake script file
-		# Write the script file for the configure step
-		file(WRITE ${libxml2_build}/libxml2_config.cmake 
-		"execute_process(
-		COMMAND cscript configure.js compiler=msvc ${_shared_arg} cruntime=/${_crt} ")
-		file(APPEND ${libxml2_build}/libxml2_config.cmake
-					"prefix=${_install_prefix} iconv=no zlib=no ${_bld_type} ftp=no ${_libdir}
-		WORKING_DIRECTORY \"${libxml2_source}/win32\" )")
-
-		# Typically, the build and install steps can be combined.  However, having them as 
-		#  two seperate steps help in the event of having to debug a build
-		# Write the script file for the build step
-		file(WRITE ${libxml2_build}/libxml2_build.cmake 
-					"execute_process(
-						COMMAND nmake /f Makefile.msvc 
-						WORKING_DIRECTORY \"${libxml2_source}/win32\"
-						)")
-						#  TRY nmake /f Makefile.msvc libxmla
-
-		# Write the script file for the install step
-		file(WRITE ${libxml2_build}/libxml2_install.cmake
-					"execute_process(
-						COMMAND nmake /f Makefile.msvc install-libs
-						WORKING_DIRECTORY \"${libxml2_source}/win32\")
-				")
-
-		# Set the <.....>_COMMAND for the configure, build and install template fields
-		set(_EPA_CONFIGURE_COMMAND
-							"CONFIGURE_COMMAND \"${CMAKE_COMMAND}\" -P ${libxml2_build}/libxml2_config.cmake")
-
-		set(_EPA_BUILD_COMMAND
-						"BUILD_COMMAND \"${CMAKE_COMMAND}\" -P ${libxml2_build}/libxml2_build.cmake")
-
-		set(_EPA_INSTALL_COMMAND
-						"INSTALL_COMMAND \"${CMAKE_COMMAND}\" -P ${libxml2_build}/libxml2_install.cmake")
-
-		# If there isn't a binary directory defined then make sure
-		# the option 'BUILD_IN_SOURCE' is enabled
-		if (NOT DEFINED _EPA_BINARY_DIR)
-			set( _EPA_ADDITIONAL_ARGS "BUILD_IN_SOURCE 1" )
-		endif()
-
-		# Add log defiitions if selected to be enabled and append them to the
-		# additional args variable
-		if(libxml2_LOG_BUILD)
+				file(REMOVE_RECURSE "${libxml2_projroot}")
+			endif()
+	
+			message("\n\t\tConfiguring LibXmls ${_cfg_type} build\n")
+	
+			set(_bld_type "debug=no")
+			set(_crt "MD")
+			file(TO_NATIVE_PATH "${_libdir}" _libdir)
+			set(_libdir "libdir=${_libdir}")
+	
+			# To avoid dealing with CMake string/list formatting for a Win32 command prompt, it
+			# is easier to write the commands to a CMake script file
+			# Write the script file for the configure step
+			file(WRITE ${libxml2_build}/libxml2_config.cmake 
+			"execute_process(
+			COMMAND cscript configure.js compiler=msvc ${_shared_arg} cruntime=/${_crt} ")
+			file(APPEND ${libxml2_build}/libxml2_config.cmake
+						"prefix=${_install_prefix} iconv=no zlib=no ${_bld_type} ftp=no ${_libdir}
+			WORKING_DIRECTORY \"${libxml2_source}/win32\" )")
+	
+			# Typically, the build and install steps can be combined.  However, having them as 
+			#  two seperate steps help in the event of having to debug a build
+			# Write the script file for the build step
+			file(WRITE ${libxml2_build}/libxml2_build.cmake 
+						"execute_process(
+							COMMAND nmake /f Makefile.msvc 
+							WORKING_DIRECTORY \"${libxml2_source}/win32\"
+							)")
+							#  TRY nmake /f Makefile.msvc libxmla
+	
+			# Write the script file for the install step
+			file(WRITE ${libxml2_build}/libxml2_install.cmake
+						"execute_process(
+							COMMAND nmake /f Makefile.msvc install-libs
+							WORKING_DIRECTORY \"${libxml2_source}/win32\")
+					")
+	
+			# Set the <.....>_COMMAND for the configure, build and install template fields
+			set(_EPA_CONFIGURE_COMMAND
+								"CONFIGURE_COMMAND \"${CMAKE_COMMAND}\" -P ${libxml2_build}/libxml2_config.cmake")
+	
+			set(_EPA_BUILD_COMMAND
+							"BUILD_COMMAND \"${CMAKE_COMMAND}\" -P ${libxml2_build}/libxml2_build.cmake")
+	
+			set(_EPA_INSTALL_COMMAND
+							"INSTALL_COMMAND \"${CMAKE_COMMAND}\" -P ${libxml2_build}/libxml2_install.cmake")
+	
+			# If there isn't a binary directory defined then make sure
+			# the option 'BUILD_IN_SOURCE' is enabled
+			if (NOT DEFINED _EPA_BINARY_DIR)
+				set( _EPA_ADDITIONAL_ARGS "BUILD_IN_SOURCE 1" )
+			endif()
+	
+			# Add log defiitions if selected to be enabled and append them to the
+			# additional args variable
+			if(libxml2_LOG_BUILD)
 				set(_log_args 
 							"LOG_CONFIGURE 1"
 							"LOG_BUILD 1"
 							"LOG_INSTALL 1"
 					)
-		endif()
-
-		list(APPEND _EPA_ADDITIONAL_ARGS 
-							"${_log_args}"
-			)
-
-		# Call cmake configure and build on the CMakeLists.txt file
-		# written using the previously set template arguments
-		rcdev_config_build_ep(${_EPA_NAME})
-
-		# For the first iteration, only reset a few key _EPA variables
-		unset(_EPA_CONFIGURE_COMMAND)
-		unset(_EPA_UPDATE_COMMAND)
-		unset(_EPA_BUILD_COMMAND)
-		unset(_EPA_INSTALL_COMMAND)
-		unset(_EPA_TEST_COMMAND)
-		unset(_EPA_ADDITIONAL_ARGS)
-
-		unset(_bld_type)
-		unset(_cfg_type)
-		unset(_crt)
-		unset(_libdir)
-
-	else()
-
-		# check for any defined flags
-		if(libxml2_BUILD_SHARED_LIBS)
-			set(_shared_arg "--enable-shared --disable-static")
-		else()
-			set(_shared_arg "--enable-static --with-pic --disable-shared")
-		endif()
-		# since this is not a cmake build the config is done with configure 
-		# or autogen if configure is not present. The build/install are a
-		# simple 'gmake' / 'gmale install'
-		set( _EPA_CONFIGURE_COMMAND "CONFIGURE_COMMAND"
-										   "<SOURCE_DIR>/configure "
-										   "--prefix=<INSTALL_DIR> "
-										   "--without-python "
-										   "--without-lzma "
-										   "--without-zlib "
-										   "${_shared_arg} "
-										   "--with-threads "
-								)
-		
-		# set the make/gmake command for the build
-		set( _EPA_BUILD_COMMAND "BUILD_COMMAND"
-										"${CMAKE_MAKE_PROGRAM}"
-						)
-		# set the make/gmake command for the install
-		set( _EPA_INSTALL_COMMAND "INSTALL_COMMAND"
-										"${CMAKE_MAKE_PROGRAM} install"
-						)
-
-		# If there isn't a binary directory defined then make sure
-		# the option 'BUILD_IN_SOURCE' is enabled
-		if (NOT DEFINED _EPA_BINARY_DIR)
-			set( _EPA_ADDITIONAL_ARGS "BUILD_IN_SOURCE 1" )
-		endif()
-
-		# Add log defiitions if selected to be enabled and append them to the
-		# additional args variable
-		if(libxml2_LOG_BUILD)
-			set(_log_args 
-						"LOG_CONFIGURE 1"
-						"LOG_BUILD 1"
-						"LOG_INSTALL 1"
+			endif()
+	
+			list(APPEND _EPA_ADDITIONAL_ARGS 
+								"${_log_args}"
 				)
+	
+			# Call cmake configure and build on the CMakeLists.txt file
+			# written using the previously set template arguments
+			rcdev_config_build_ep(${_EPA_NAME})
+	
+			# For the first iteration, only reset a few key _EPA variables
+			unset(_EPA_CONFIGURE_COMMAND)
+			unset(_EPA_UPDATE_COMMAND)
+			unset(_EPA_BUILD_COMMAND)
+			unset(_EPA_INSTALL_COMMAND)
+			unset(_EPA_TEST_COMMAND)
+			unset(_EPA_ADDITIONAL_ARGS)
+	
+			unset(_bld_type)
+			unset(_cfg_type)
+			unset(_crt)
+			unset(_libdir)
+	
+		else()
+	
+			# check for any defined flags
+			if(libxml2_BUILD_SHARED_LIBS)
+				set(_shared_arg "--enable-shared --disable-static")
+			else()
+				set(_shared_arg "--enable-static --with-pic --disable-shared")
+			endif()
+			# since this is not a cmake build the config is done with configure 
+			# or autogen if configure is not present. The build/install are a
+			# simple 'gmake' / 'gmale install'
+			set( _EPA_CONFIGURE_COMMAND "CONFIGURE_COMMAND"
+										   	"<SOURCE_DIR>/configure "
+										   	"--prefix=<INSTALL_DIR> "
+										   	"--without-python "
+										   	"--without-lzma "
+										   	"--without-zlib "
+										   	"${_shared_arg} "
+										   	"--with-threads "
+									)
+			
+			# set the make/gmake command for the build
+			set( _EPA_BUILD_COMMAND "BUILD_COMMAND"
+											"${CMAKE_MAKE_PROGRAM}"
+							)
+			# set the make/gmake command for the install
+			set( _EPA_INSTALL_COMMAND "INSTALL_COMMAND"
+											"${CMAKE_MAKE_PROGRAM} install"
+							)
+	
+			# If there isn't a binary directory defined then make sure
+			# the option 'BUILD_IN_SOURCE' is enabled
+			if (NOT DEFINED _EPA_BINARY_DIR)
+				set( _EPA_ADDITIONAL_ARGS "BUILD_IN_SOURCE 1" )
+			endif()
+	
+			# Add log defiitions if selected to be enabled and append them to the
+			# additional args variable
+			if(libxml2_LOG_BUILD)
+				set(_log_args 
+							"LOG_CONFIGURE 1"
+							"LOG_BUILD 1"
+							"LOG_INSTALL 1"
+					)
+			endif()
+	
+			list(APPEND _EPA_ADDITIONAL_ARGS 
+							"${_log_args}"
+				)
+	
+			# Call cmake configure and build on the CMakeLists.txt file
+			# written using the previously set template arguments
+			rcdev_config_build_ep(${_EPA_NAME})
 		endif()
-
-		list(APPEND _EPA_ADDITIONAL_ARGS 
-						"${_log_args}"
-			)
-
-		# Call cmake configure and build on the CMakeLists.txt file
-		# written using the previously set template arguments
-		rcdev_config_build_ep(${_EPA_NAME})
 	endif()
 
 
@@ -338,7 +340,8 @@ endif()
 
 # Find the package, for both a system installed version or the one
 # just added with the ecternal project template
-if(NOT LibXml2_FOUND)
+if ((NOT LibXml2_FOUND) OR
+	(NOT TARGET LibXml2::LibXml2) )
 
 	# Calling find_package with a required version number will fail if the
 	# package does not have a <name>version.cmake in the same location as
@@ -348,9 +351,10 @@ if(NOT LibXml2_FOUND)
 	# in lieu of an installed version
 	find_package(LibXml2  REQUIRED ${libxml2_find_options})
 
+	set(libxml2_USE_INSTALLED ON CACHE BOOL "")
 	# This condition is here since the FindLibXl2 CMake module for version < Cmake.12.0 does not 
 	#  crete an IMPORTED targte object (LibXml2::LibXml2)
-	if(NOT TARGET LibXml2::LibXml2)
+	if (NOT TARGET LibXml2::LibXml2)
    		add_library(LibXml2::LibXml2 UNKNOWN IMPORTED)
    		set_target_properties(LibXml2::LibXml2 PROPERTIES 
 				IMPORTED_LINK_INTERFACE_LANGUAGES "C"

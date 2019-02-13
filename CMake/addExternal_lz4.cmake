@@ -25,7 +25,8 @@ endif()
 # since lz4 does not have a published CMake find module. However,
 # if a set of previously built lz4 binaries exist outside this build
 # tree, this provides the option to use them
-if((NOT lz4_USE_INSTALLED) AND (NOT lz4_FOUND) )
+if((NOT lz4_USE_INSTALLED) AND 
+	(NOT TARGET LZ4::LZ4) )
 
 	# An external project for liblz4
 	set(_EPA_NAME "lz4")
@@ -171,7 +172,8 @@ endif()
 # Find the package, for either the system installed version or the one
 # just added with the external project template.  Since lz4 does not have
 # a find_package CMake module, we need to define the target ourselves
-if(NOT LZ4_FOUND)
+if ((NOT LZ4_FOUND) OR
+	(NOT TARGET LZ4::LZ4) )
 	if (NOT LZ4_INCLUDE_DIR)
 		if (EXISTS "${LZ4_ROOT}/include/lz4.h")
 			set(LZ4_INCLUDE_DIR "${LZ4_ROOT}/include" CACHE PATH "")

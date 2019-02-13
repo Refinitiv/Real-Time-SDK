@@ -9,6 +9,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
                           LIBNAME librssl 
                           LIBTYPE STATIC
                           LANGUAGE C
+                          LINKDEPENDS ZLIB::ZLIB LZ4::LZ4
                           PATHROOT   ${Eta_SOURCE_DIR}/Libs
                           LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
                                      ${Eta_SOURCE_DIR}/Include/Util
@@ -20,6 +21,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
                           LIBNAME librssl 
                           LIBTYPE SHARED
                           LANGUAGE C
+                          LINKDEPENDS ZLIB::ZLIB LZ4::LZ4
                           PATHROOT   ${Eta_SOURCE_DIR}/Libs
                           LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
                                      ${Eta_SOURCE_DIR}/Include/Util
@@ -298,7 +300,7 @@ else()
 
     endif()
 
-endif()
+	rcdev_add_target(esdk librssl librssl_shared)
 
-rcdev_add_target(esdk librssl librssl_shared)
+endif()
 
