@@ -2162,7 +2162,7 @@ public class DecodersJunit
         assertEquals(20, dateTime.day());
         assertEquals(4, dateTime.month());
         assertEquals(2014, dateTime.year());
-        assertEquals(11, dateTime.hour());
+        assertEquals(16, dateTime.hour());
         assertEquals(05, dateTime.minute());
         assertEquals(52, dateTime.second());
         assertEquals(238, dateTime.millisecond());
@@ -2171,7 +2171,7 @@ public class DecodersJunit
         assertEquals(20, dateTime2.day());
         assertEquals(4, dateTime2.month());
         assertEquals(2014, dateTime2.year());
-        assertEquals(11, dateTime2.hour());
+        assertEquals(16, dateTime2.hour());
         assertEquals(05, dateTime2.minute());
         assertEquals(52, dateTime2.second());
         assertEquals(238, dateTime2.millisecond());

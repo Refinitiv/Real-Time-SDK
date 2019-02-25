@@ -2332,7 +2332,7 @@ class DateTimeImpl implements DateTime
 
         if (_calendar == null)
         {
-            _calendar = Calendar.getInstance();
+            _calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         }
 
         _calendar.setTimeInMillis(value);
@@ -2347,7 +2347,7 @@ class DateTimeImpl implements DateTime
     {
         if (_calendar == null)
         {
-            _calendar = Calendar.getInstance();
+            _calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         }
 
         syncToCalendar();
