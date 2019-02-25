@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.35
 !tag Build_RDMD  4.20.35
-!tag DT_Version  19.11
-!tag Date        7-Jan-2019
+!tag DT_Version  19.21
+!tag Date        19-Feb-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -38,7 +38,7 @@ RDN_EXCHID     4
       5        "PSE"   NYSE Arca
       6        "XPH"   NASDAQ OMX PSX when trading in SIAC (formerly Philadelphia Stock Exchange)
       7        "THM"   NASDAQ InterMarket
-      8        "MID"   Chicago Stock Exchange
+      8        "MID"   NYSE Chicago
       9        "NYQ"   Consolidated Issue, listed by NYSE
      10        "TOR"   Toronto Stock Exchange
      11        "MON"   Montreal Stock Exchange
@@ -948,7 +948,7 @@ BIDXID      3298
       5        "PSE"   NYSE Arca
       6        "XPH"   Philadelphia Stock Exchange
       7        "THM"   Third Market Stock - OTC
-      8        "MID"   Chicago Stock Exchange
+      8        "MID"   NYSE Chicago
      10        "TOR"   Toronto Stock Exchange
      11        "CVE"   TSX Venture Exchange (formerly known as Canadian Ventures Exchange)
      12        "PTX"   Canadian Securities Exchange/PURE - CSE Listed & Other Canadian Listed Securities
@@ -4102,6 +4102,7 @@ CAN_COND    6585
   21343        "BMR"   Benchmark Trade. Out of Sequence Retransmission. (OPRA).
   21345        "TTE"   Trade Trough Exempt. Out of Sequence. Not LAST (OPRA).
   21346        "TTR"   Trade Through Exempt. Out of sequence Retransmission. (OPRA).
+  32672        "TAC"   Trading at Closing Price
   32673        "ERT"   Exercise Related Transaction
   32674        "LCT"   Linked Component Transaction
   32675        "BOT"   Beneficial Ownership Transfer Transaction
@@ -7075,7 +7076,7 @@ LEG4_EXCH  13574
       5        "PSE"   NYSE Arca
       6        "XPH"   NASDAQ OMX PSX when trading in SIAC (formerly Philadelphia Stock Exchange)
       7        "THM"   NASDAQ InterMarket
-      8        "MID"   Chicago Stock Exchange
+      8        "MID"   NYSE Chicago
       9        "NYQ"   Consolidated Issue, listed by NYSE
      10        "TOR"   Toronto Stock Exchange
      11        "MON"   Montreal Stock Exchange
@@ -7621,7 +7622,7 @@ LEG4_EXCH  13574
     551        "LCA"   NYSE American when trading NASDAQ Global Market
     552        "LCB"   Boston Stock Exchange for Nasdaq Large Cap
     553        "LCC"   NYSE National Exchange for Nasdaq Large Cap
-    554        "LCM"   Chicago Stock Exchange for Nasdaq Large Cap
+    554        "LCM"   NYSE Chicago for Nasdaq Large Cap
     555        "LCN"   New York Stock Exchange for Nasdaq Large Cap
     556        "LCP"    NYSE Arca FOR NASDAQ LARGE CAP
     557        "LCW"   Chicago Board Options Exchange for Nasdaq Large Cap Equity
@@ -7631,7 +7632,7 @@ LEG4_EXCH  13574
     561        "SCA"   NYSE American when trading NASDAQ Global Market
     562        "SCB"   Boston Stock Exchange for Nasdaq Capital Market
     563        "SCC"   NYSE National Exchange for Nasdaq Capital Market
-    564        "SCM"   Chicago Stock Exchange for Nasdaq Capital Market
+    564        "SCM"   NYSE Chicago for Nasdaq Capital Market
     565        "SCN"   New York Stock Exchange for Nasdaq Capital Market
     566        "SCP"   NYSE Arca FOR NASDAQ SMALL CAP
     567        "SCW"   Chicago Board Options Exchange for Nasdaq Capital Market
@@ -7718,7 +7719,7 @@ LEG4_EXCH  13574
     648        "GSA"   NYSE American when trading NASDAQ Global Select Market
     649        "GSB"   Boston SE when trading Nasdaq Global Select Market
     650        "GSW"   CBOE when trading Nasdaq Global Select Market
-    651        "GSM"   Chicago SE when trading Nasdaq Global Select Market
+    651        "GSM"   NYSE Chicago for Nasdaq Global Select Market
     652        "GSC"   NYSE National Exchange when trading Nasdaq Global Select Market
     653        "GSI"   ISE when trading Nasdaq Global Select Market
     654        "GSL"   NASD TRF when trading Nasdaq Global Select Market
@@ -8609,8 +8610,26 @@ LEG4_EXCH  13574
    1539        "4AX"   4 AFRICA EXCHANGE
    1540        "TQE"   Turquoise (EU)
    1541        "BSB"   Cboe Europe BXE (EU)
-   1542        "CHN"   Cboe Europe CXE (EU)
+   1542        "XCE"   Cboe Europe CXE (EU)
    1543        "AQE"   Aquis (EU)
+   1544        "ECA"   EUROPEAN COCOA ASSOCIATION
+   1545        "FOT"   Forte Securities (EU)
+   1546        "FXA"   FXALL RFQ (EU)
+   1547        "FXM"   Forwards Matching (EU)
+   1548        "TBM"   Tradeweb MTF (EU)
+   1549        "TBO"   Tradeweb OTF (EU)
+   1550        "TBE"   Tradeweb APA/SINT/XOFF/Others (EU)
+   1551        "TEA"   TRAX APA (EU)
+   1552        "TEO"   Tullet Prebon OTF (EU)
+   1553        "IEO"   ICAP OTF (EU)
+   1554        "TEM"   TP ICAP - MTF - ORDERBOOK (EU)
+   1555        "TEP"   TP ICAP - MTF - REGISTRATION (EU)
+   1556        "BEA"   BLOOMBERG APA (EU)
+   1557        "BEM"   BLOOMBERG MTF (EU)
+   1558        "DTN"   DTN
+   1559        "BCU"   Cboe APA (EU)
+   1560        "TRU"   TradEcho APA (EU)
+   1561        "IEI"   Informa Economics FNP
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12347,6 +12366,7 @@ BOOK_STATE  6516
       2          "L"   Locked
       3          "X"   Crossed
       4          "O"   One-Sided
+      5          "D"   Undeterminable
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12447,6 +12467,7 @@ SH_SAL_RES  6577
       4          "Y"   Short selling is restricted
       5          "A"   Short Sale Restriction Activated (Duplicated, Not To Be Used)
       6          "D"   Short Sale Restriction Deactivated (Duplicated, Not To Be Used)
+      7          "S"   Short selling is suspended
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17051,6 +17072,7 @@ OUT_PROD16 13008
      31   "MOG 95R "   Mogas 95 RON
      32   "FO180CST"   Fuel Oil 180 CST
      33   "FO380CST"   Fuel Oil 380 CST
+     34   "GO  0.1%"   GasOil 0.1% Sulphur
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18780,6 +18802,10 @@ MET_UNIT   13564
     405      "KVAH "   Kilo Volt Ampere Hours
     406      "ENVCD"   Environmental credit
     407      "DGE  "   Diesel Gallon Equivalent
+    408      "HfGAL"   Half Gallon
+    409      "12OZS"   12 Ounces
+    410      "16OZS"   16 Ounces
+    411      "2 LTR"   2 Litres
 !
 ! ACRONYM    FID
 ! -------    ---
