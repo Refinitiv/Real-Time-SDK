@@ -43,6 +43,7 @@ typedef struct
 	RsslInt32 itemRequestsPerSec;					/* Rate at which the consumer will send out item requests. See -rqps. */
 
 	RsslConnectionTypes	connectionType;				/* Type of connection. See -connType */
+	RsslConnectionTypes	encryptedConnectionType;	/* Cncrypted connection protocol type. See -encryptedConnType */
 	char				hostName[128];				/* hostName, if using rsslConnect(). See -hostname */
 	char 				portNo[32];					/* Port number. See -p */
 	char				interfaceName[128];			/* Name of interface.  See -if */

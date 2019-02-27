@@ -9,6 +9,7 @@
 #ifndef _rsslLoadInitTransport_h
 #define _rsslLoadInitTransport_h
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #if defined(_WIN32)
@@ -17,6 +18,7 @@
 #else
 #include <dlfcn.h>
 #endif
+
 #include "rtr/os.h"
 
 #if defined( WIN32 )

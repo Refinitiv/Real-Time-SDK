@@ -12,6 +12,5 @@
 #include "rtr/rsslSocketTransportImpl.h"
 
 extern RsslInt32 ipcHttpHdrComplete(char*, RsslInt32, RsslInt32);
-extern RsslInt32 ipcGetHttpAck(char *, RsslInt32);
 
 #endif /* __ripchttp_h */

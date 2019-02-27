@@ -1,12 +1,16 @@
 
 include(CMakeDependentOption)
 
-# The default value of BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES is ON 
+# The default value of BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES is OFF 
 #      if RCDEV_GSG_PACKAGE is TRUE(ON) 
 #         ELSE default value of BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES is OFF
 CMAKE_DEPENDENT_OPTION(BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES  
                                 "Build applications with prebuilt Eta and Ema libraries" ON
                                 "RCDEV_GSG_PACKAGE" OFF)
+								
+option(BUILD_INTERNAL_ESDK "Internal ESDK build" OFF)
+
+mark_as_advanced(BUILD_INTERNAL_ESDK)
 
 option(BUILD_ETA_APPLICATIONS   "Build the Eta project applications" ON)
 
@@ -39,7 +43,7 @@ CMAKE_DEPENDENT_OPTION(BUILD_32_BIT_ETA			"Build the ETA project as 32-bit" OFF
 # The default value of BUILD_ELEKTRON-SDK-BINARYPACK is ON 
 #      if this is a not a 32-bit build 
 #         ELSE default value of BUILD_ELEKTRON-SDK-BINARYPACK is OFF
-CMAKE_DEPENDENT_OPTION(BUILD_ELEKTRON-SDK-BINARYPACK "Build the Elektron-SDK-BinaryPack Distribution" ON
+CMAKE_DEPENDENT_OPTION(BUILD_ELEKTRON-SDK-BINARYPACK "Find the Elektron-SDK-BinaryPack Distribution" ON
 						"NOT BUILD_32_BIT_ETA" OFF)
 
 mark_as_advanced(BUILD_32_BIT_ETA

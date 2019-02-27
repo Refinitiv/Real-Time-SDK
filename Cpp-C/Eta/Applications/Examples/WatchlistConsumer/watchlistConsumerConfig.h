@@ -49,6 +49,7 @@ typedef struct
 typedef struct
 {
 	RsslConnectionTypes	connectionType;					/* Type of RSSL transport to use. */
+	RsslConnectionTypes encryptedConnectionType;		/* Encrypted protocol when connectionType is RSSL_CONN_TYPE_ENCRYPTED */
 	char				interface[255];					/* Address of network interface to use. */
 
 	/* Socket configuration settings, when using a socket connection. */
@@ -62,6 +63,17 @@ typedef struct
 	char				recvPort[255];					/* Receive port. */
 	char				unicastPort[255];				/* Unicast port. */
 
+	/* Proxy configuration settings */
+	char				proxyHost[255];					/* Proxy host name */
+	char				proxyPort[255];					/* Proxy port */
+	char				proxyUserName[255];				/* Proxy user name */
+	char				proxyPasswd[255];				/* Proxy password */
+	char				proxyDomain[255];				/* Proxy domain */
+
+	char				libsslName[255];
+	char				libcryptoName[255];
+	char				libcurlName[255];
+	char				sslCAStore[255];
 	/* Host-Stat message settings, when using a multicast connection. */
 	RsslBool			enableHostStatMessages;			/* Whether to configure transport to publish
 														 * host stat messages. */

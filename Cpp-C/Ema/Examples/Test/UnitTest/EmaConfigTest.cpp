@@ -24,10 +24,8 @@ public:
 
 	void SetUp() {
 		SCOPED_TRACE("EmaConfigTest SetUp");
-		if (hasRun)
+		if (hasRun == true)
 			return;
-		hasRun = true;
-		
 		EmaString workingDir;
 		ASSERT_EQ(getCurrentDir(workingDir), true)
 			<< "Error: failed to load config file from current working dir "
@@ -38,8 +36,17 @@ public:
 		SCOPED_TRACE(configPath);
 
 		SCOPED_TRACE("Starting provider1 with port 14002 and provider2 with port 14008\n");
-		provider1 = new OmmProvider(OmmIProviderConfig().port("14002"), appClient);
-		provider2 = new OmmProvider(OmmIProviderConfig().port("14008"), appClient);
+		try
+		{
+			provider1 = new OmmProvider(OmmIProviderConfig().port("14002"), appClient);
+			provider2 = new OmmProvider(OmmIProviderConfig().port("14008"), appClient);
+		}
+		catch (const OmmException& excp)
+		{
+			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+			EXPECT_TRUE(false) << "Unexpected exception in testLoadingConfigurationFromProgrammaticConfigHttp()";
+		}
+		hasRun = true;
 	}
 
 	void TearDown() {
@@ -262,7 +269,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 }
 
 // http connection supported on windows only
-#ifdef WIN_32
+#ifdef WIN32
 TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 {
 	Map outermostMap, innerMap;
@@ -286,6 +293,18 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 			.addInt("DispatchTimeoutApiThread", 60)
 			.addUInt("CatchUnhandledException", 1)
 			.addUInt("MaxDispatchCountApiThread", 300)
+			.addInt("ReconnectAttemptLimit", 1)
+			.addInt("ReconnectMinDelay", 500)
+			.addInt("ReconnectMaxDelay", 500)
+			.addAscii("XmlTraceFileName", "MyXMLTrace")
+			.addInt("XmlTraceMaxFileSize", 50000000)
+			.addUInt("XmlTraceToFile", 0)
+			.addUInt("XmlTraceToStdout", 1)
+			.addUInt("XmlTraceToMultipleFiles", 1)
+			.addUInt("XmlTraceWrite", 1)
+			.addUInt("XmlTraceRead", 1)
+			.addUInt("XmlTracePing", 1)
+			.addUInt("XmlTraceHex", 1)
 			.addUInt("MaxDispatchCountUserThread", 700).complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
@@ -307,22 +326,10 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 			.addUInt("SysRecvBufSize", 150000)
 			.addUInt("SysSendBufSize", 200000)
 			.addUInt("ConnectionPingTimeout", 30000)
-			.addInt("ReconnectAttemptLimit", 1)
-			.addInt("ReconnectMinDelay", 500)
-			.addInt("ReconnectMaxDelay", 500)
 			.addAscii("Host", "localhost")
 			.addAscii("Port", "14002")
 			.addUInt("TcpNodelay", 0)
 			.addAscii("ObjectName", "MyHttpObject")
-			.addAscii("XmlTraceFileName", "MyXMLTrace")
-			.addInt("XmlTraceMaxFileSize", 50000000)
-			.addUInt("XmlTraceToFile", 0)
-			.addUInt("XmlTraceToStdout", 1)
-			.addUInt("XmlTraceToMultipleFiles", 1)
-			.addUInt("XmlTraceWrite", 1)
-			.addUInt("XmlTraceRead", 1)
-			.addUInt("XmlTracePing", 1)
-			.addUInt("XmlTraceHex", 1)
 			.addUInt("MsgKeyInUpdates", 1).complete()).complete();
 
 		elementList.addMap("ChannelList", innerMap);
@@ -401,10 +408,10 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->sysSendBufSize == 200000) << "sysSendBufSize , 200000";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionPingTimeout == 30000) << "connectionPingTimeout , 30000";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_HTTP) << "connectionType , ChannelType::RSSL_CONN_TYPE_HTTP";
-		EXPECT_TRUE( static_cast<HttpChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "EncryptedChannelConfig::hostname , \"localhost\"";
-		EXPECT_TRUE( static_cast<HttpChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "EncryptedChannelConfig::serviceName , \"14002\"";
-		EXPECT_TRUE( static_cast<HttpChannelConfig* >( activeConfig.configChannelSet[0] )->objectName == "MyHttpObject" ) << "EncryptedChannelConfig::ObjectName , \"MyHttpObject\"";
-		EXPECT_TRUE( static_cast<HttpChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 0) << "SocketChannelConfig::tcpNodelay , 0";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "EncryptedChannelConfig::hostname , \"localhost\"";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "EncryptedChannelConfig::serviceName , \"14002\"";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->objectName == "MyHttpObject" ) << "EncryptedChannelConfig::ObjectName , \"MyHttpObject\"";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 0) << "SocketChannelConfig::tcpNodelay , 0";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerFileName == "logFile" ) << "loggerFileName = \"logFile\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
@@ -1059,7 +1066,7 @@ TEST_F(EmaConfigTest, testProgCfgChannelSetAfterChannel)
 		bool found = ommConsumerImpl.getInstanceName().find( "Consumer_3" ) >= 0 ? true : false;
 
 		SocketChannelConfig* socCfg = static_cast<SocketChannelConfig*>( activeConfig.configChannelSet[0] );
-		EncryptedChannelConfig* encCfg = static_cast<EncryptedChannelConfig*>( activeConfig.configChannelSet[1] );
+		SocketChannelConfig* encCfg = static_cast<SocketChannelConfig*>( activeConfig.configChannelSet[1] );
 		EXPECT_TRUE( found) << "ommConsumerImpl.getConsumerName() , \"Consumer_3_1\"";
 		EXPECT_TRUE( activeConfig.configChannelSet.size() == 2) << "Channel Count , 2";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->name == "Channel_2" ) << "Connection name , \"Channel_2\"";
@@ -1227,21 +1234,21 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 				EXPECT_TRUE(activeConfig.configChannelSet.size() == 2) << "Channel Count , 2";
 				EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_2") << "Connection name , \"Channel_2\"";
 				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_HTTP) << "Connection type , \"RSSL_CONN_TYPE_HTTP\"";
-				EXPECT_TRUE((static_cast<HttpChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyhost2") << "Proxy hostname , \"proxyhost2\"";
-				EXPECT_TRUE((static_cast<HttpChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "proxyport2") << "Proxy port , \"proxyport2\"";
-				EXPECT_TRUE((static_cast<HttpChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectname2") << "Object name , \"objectname2\"";
-				EXPECT_TRUE((static_cast<HttpChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost2") << "hostname , \"localhost2\"";
-				EXPECT_TRUE((static_cast<HttpChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14008") << "serviceName , \"14009\"";
-				EXPECT_TRUE((static_cast<HttpChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyhost2") << "Proxy hostname , \"proxyhost2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "proxyport2") << "Proxy port , \"proxyport2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectname2") << "Object name , \"objectname2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost2") << "hostname , \"localhost2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14008") << "serviceName , \"14009\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
 
 				EXPECT_TRUE(activeConfig.configChannelSet[1]->name == "Channel_3") << "Connection name , \"Channel_3\"";
 				EXPECT_TRUE(activeConfig.configChannelSet[1]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "Connection type , \"RSSL_CONN_TYPE_ENCRYPTED\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[1]))->proxyHostName == "proxyhost3") << "Proxy hostname , \"proxyhost3\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[1]))->proxyPort == "proxyport3") << "Proxy port , \"proxyport3\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[1]))->objectName == "objectname3") << "Object name , \"objectname3\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[1]))->hostName == "localhost3") << "hostname , \"localhost3\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[1]))->serviceName == "14009") << "serviceName , \"14009\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[1]))->tcpNodelay == 0) << "tcpNodelay , 0";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->proxyHostName == "proxyhost3") << "Proxy hostname , \"proxyhost3\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->proxyPort == "proxyport3") << "Proxy port , \"proxyport3\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->objectName == "objectname3") << "Object name , \"objectname3\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->hostName == "localhost3") << "hostname , \"localhost3\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->serviceName == "14009") << "serviceName , \"14009\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->tcpNodelay == 0) << "tcpNodelay , 0";
 			}
 			else if (testCase == 1)
 			{
@@ -1351,7 +1358,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 			{
 				innerMap.addKeyAscii("Channel_6", MapEntry::AddEnum,
 					ElementList()
-					.addEnum("ChannelType", RSSL_CONN_TYPE_ENCRYPTED)
+					.addEnum("ChannelType", RSSL_CONN_TYPE_SOCKET)
 					.addAscii("InterfaceName", "localhost")
 					.addAscii("Host", "localhost")
 					.addAscii("Port", "14009")
@@ -1433,13 +1440,13 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 			{
 				EXPECT_TRUE(activeConfig.configChannelSet.size() == 1) << "Channel Count , 1";
 				EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_6") << "Connection name , \"Channel_6\"";
-				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "Connection type , \"RSSL_CONN_TYPE_ENCRYPTED\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyHost") << "Proxy hostname , \"proxyHost\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "14032") << "Proxy port , \"14032\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectName") << "Object name , \"objectName\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";
-				EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
+				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "Connection type , \"RSSL_CONN_TYPE_SOCKET\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyHost") << "Proxy hostname , \"proxyHost\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "14032") << "Proxy port , \"14032\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectName") << "Object name , \"objectName\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
 			}
 
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerName == "Logger_1") << "Logger name , \"Logger_1\"";
@@ -1529,12 +1536,12 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv
 		EXPECT_TRUE(activeConfig.configChannelSet.size() == 1) << "Channel Count , 1";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_6") << "Connection name , \"Channel_6\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "Connection type , \"RSSL_CONN_TYPE_ENCRYPTED\"";
-		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyHost") << "Proxy hostname , \"proxyHost\"";
-		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "14032") << "Proxy port , \"14032\"";
-		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectName") << "Object name , \"objectName\"";
-		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
-		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";
-		EXPECT_TRUE((static_cast<EncryptedChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
+		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyHost") << "Proxy hostname , \"proxyHost\"";
+		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "14032") << "Proxy port , \"14032\"";
+		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectName") << "Object name , \"objectName\"";
+		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
+		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";
+		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
 
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerName == "Logger_1") << "Logger name , \"Logger_1\"";
 	}

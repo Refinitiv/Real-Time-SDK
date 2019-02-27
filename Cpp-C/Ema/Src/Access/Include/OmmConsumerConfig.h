@@ -188,6 +188,44 @@ public :
 	*/
 	OmmConsumerConfig& tunnelingLibCryptoName(const EmaString& libcryptoName);
 
+	/** Specifies the name of the lbicurl.so shared library for connecting through HTTP proxies. 
+		This is supported on Socket connections and Encrypted connections with Socket encrypted protocol.
+	@param[in] libcurlName specifies the name of the libcurl.so shared library
+	@return reference to this object
+	*/
+	OmmConsumerConfig& libcurlName(const EmaString& libcurlName);
+
+	/** Specifies the user name to authenticate. Needed for all authentication protocols.
+		@param[in] proxyUserName specifies user name used for tunneling connection.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& proxyUserName(const EmaString& proxyUserName);
+
+	/** Specifies the passwd to authenticate. Needed for all authentication protocols.
+		@param[in] proxyPasswd specifies password used for tunneling connection.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& proxyPasswd(const EmaString& proxyPasswd);
+
+	/** Specifies the domain of the user to authenticate.
+		Needed for NTLM or for Negotiate/Kerberos or for Kerberos authentication protocols.
+
+		For Negotiate/Kerberos or for Kerberos authentication protocols, proxyDomain
+		should be the same as the domain in the 'realms' and 'domain_realm' sections of
+		the Kerberos configuration file.
+
+		@param[in] proxyDomain specifies the domain used for tunneling connection.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& proxyDomain(const EmaString& proxyDomain);
+
+	/** Specifies the path to an OpenSSL Certificate Authority store.
+
+	@param[in] sslCAStore specifies the file or directory where the CA store is located.
+	@return reference to this object
+	*/
+	OmmConsumerConfig& sslCAStore(const EmaString& sslCAStore);
+
 	/** Specifies the local configuration, overriding and adding to the current content. 
 		@param[in] config specifies OmmConsumer configuration
 		@return reference to this object

@@ -5,8 +5,6 @@
  *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
-
- #ifndef WIN32
 #include "rtr/ripcsslutils.h"
 #include "rtr/ripcssljit.h"
 
@@ -73,19 +71,19 @@ static unsigned char dh512_g[] =
     0x02,
 };
 
-static DH *get_dh512(ripcCryptoApiFuncs* cryptoFuncs)
+static OPENSSL_DH *get_dh512(ripcCryptoApiFuncs* cryptoFuncs)
 {
-    DH *dh;
+  OPENSSL_DH *dh;
 
     if ((dh = (*(cryptoFuncs->dh_new))()) == NULL)
         return (NULL);
-    dh->p = (*(cryptoFuncs->bin2bn))(dh512_p, sizeof(dh512_p), NULL);
+   /* dh->p = (*(cryptoFuncs->bin2bn))(dh512_p, sizeof(dh512_p), NULL);
     dh->g = (*(cryptoFuncs->bin2bn))(dh512_g, sizeof(dh512_g), NULL);
     if ((dh->p == NULL) || (dh->g == NULL))
 	{
 		(*(cryptoFuncs->dh_free))(dh);
         return (NULL);
-	}
+	}*/
     return (dh);
 }
 static unsigned char dh1024_p[] =
@@ -107,19 +105,19 @@ static unsigned char dh1024_g[] =
     0x02,
 };
 
-static DH *get_dh1024(ripcCryptoApiFuncs* cryptoFuncs)
+static OPENSSL_DH *get_dh1024(ripcCryptoApiFuncs* cryptoFuncs)
 {
-    DH *dh;
+    OPENSSL_DH *dh;
 
     if ((dh = (*(cryptoFuncs->dh_new))()) == NULL)
         return (NULL);
-    dh->p = (*(cryptoFuncs->bin2bn))(dh1024_p, sizeof(dh1024_p), NULL);
+    /*dh->p = (*(cryptoFuncs->bin2bn))(dh1024_p, sizeof(dh1024_p), NULL);
     dh->g = (*(cryptoFuncs->bin2bn))(dh1024_g, sizeof(dh1024_g), NULL);
     if ((dh->p == NULL) || (dh->g == NULL))
 	{
 		(*(cryptoFuncs->dh_free))(dh);
         return (NULL);
-	}
+	}*/
     return (dh);
 }
 
@@ -153,19 +151,19 @@ static unsigned char dh2048_g[] =
     0x02,
 };
 
-static DH *get_dh2048(ripcCryptoApiFuncs* cryptoFuncs)
+static OPENSSL_DH *get_dh2048(ripcCryptoApiFuncs* cryptoFuncs)
 {
-    DH *dh;
+    OPENSSL_DH *dh;
 
     if ((dh = (*(cryptoFuncs->dh_new))()) == NULL)
         return (NULL);
-    dh->p = (*(cryptoFuncs->bin2bn))(dh1024_p, sizeof(dh1024_p), NULL);
+    /*dh->p = (*(cryptoFuncs->bin2bn))(dh1024_p, sizeof(dh1024_p), NULL);
     dh->g = (*(cryptoFuncs->bin2bn))(dh1024_g, sizeof(dh1024_g), NULL);
     if ((dh->p == NULL) || (dh->g == NULL))
 	{
 		(*(cryptoFuncs->dh_free))(dh);
         return (NULL);
-	}
+	}*/
     return (dh);
 }
 
@@ -224,9 +222,9 @@ static DH *get_dh8192()
 
 /* ----END GENERATED SECTION---------- */
 
-DH *ripcSSLDHGetTmpParam(int nKeyLen,  ripcSSLBIOApiFuncs* bioFuncs, ripcCryptoApiFuncs* cryptoFuncs)
+OPENSSL_DH *ripcSSLDHGetTmpParam(int nKeyLen, ripcSSLApiFuncs* sslFuncs, ripcCryptoApiFuncs* cryptoFuncs)
 {
-    DH *dh;
+    OPENSSL_DH *dh;
 
     if (nKeyLen == 512)
         dh = get_dh512(cryptoFuncs);
@@ -239,15 +237,15 @@ DH *ripcSSLDHGetTmpParam(int nKeyLen,  ripcSSLBIOApiFuncs* bioFuncs, ripcCryptoA
     return dh;
 }
 
-DH *ripcSSLDHGetParamFile( char *file, ripcSSLBIOApiFuncs* bioFuncs, ripcCryptoApiFuncs* cryptoFuncs)
+OPENSSL_DH *ripcSSLDHGetParamFile( char *file, ripcSSLApiFuncs* sslFuncs, ripcCryptoApiFuncs* cryptoFuncs)
 {
-    DH *dh = NULL;
-    BIO *bio;
+    OPENSSL_DH *dh = NULL;
+    OPENSSL_BIO *bio;
 
-    if ((bio = (*(bioFuncs->new_file))(file, "r")) == NULL)
+    if ((bio = (*(sslFuncs->BIO_new_file))(file, "r")) == NULL)
         return NULL;
     dh = (*(cryptoFuncs->read_bio_dhparams))(bio, NULL, NULL, NULL);
-    (*(bioFuncs->bio_free))(bio);
+    (*(sslFuncs->BIO_free))(bio);
     return (dh);
 }
 
@@ -327,5 +325,3 @@ unlink("dh1024.pem");
 
 =pod
 */
-
-#endif

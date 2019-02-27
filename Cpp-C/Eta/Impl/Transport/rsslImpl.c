@@ -21,6 +21,7 @@
 #include "rtr/rsslAlloc.h"
 
 #include "rtr/rwfNetwork.h"
+#include "curl/curl.h"
 
 /* for encryption/decryption helpers */
 #include "rtr/tr_sl1_64.h"

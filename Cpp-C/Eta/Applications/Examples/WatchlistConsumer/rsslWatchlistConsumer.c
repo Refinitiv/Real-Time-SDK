@@ -78,6 +78,8 @@ int main(int argc, char **argv)
 
 	RsslBool					postWithMsg = RSSL_TRUE;
 
+	RsslInitializeExOpts		initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+
 	watchlistConsumerConfigInit(argc, argv);
 
 	itemDecoderInit();
@@ -94,6 +96,10 @@ int main(int argc, char **argv)
 
 	nextPostTime = stopTime + POST_MESSAGE_FREQUENCY;
 	stopTime += watchlistConsumerConfig.runTime;
+
+	initOpts.jitOpts.libsslName = watchlistConsumerConfig.libsslName;
+	initOpts.jitOpts.libcryptoName = watchlistConsumerConfig.libcryptoName;
+	initOpts.jitOpts.libcurlName = watchlistConsumerConfig.libcurlName;
 
 	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
 	if (rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
@@ -175,9 +181,17 @@ int main(int argc, char **argv)
 	if (watchlistConsumerConfig.connectionType != RSSL_CONN_TYPE_RELIABLE_MCAST)
 	{
 		reactorConnectInfo.rsslConnectOptions.connectionType = watchlistConsumerConfig.connectionType;
+		if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && watchlistConsumerConfig.encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+			reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = watchlistConsumerConfig.encryptedConnectionType;
 		reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = watchlistConsumerConfig.hostName;
 		reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = watchlistConsumerConfig.port;
 		reactorConnectInfo.rsslConnectOptions.tcp_nodelay = RSSL_TRUE;
+		reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyHostName = watchlistConsumerConfig.proxyHost;
+		reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPort = watchlistConsumerConfig.proxyPort;
+		reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyUserName = watchlistConsumerConfig.proxyUserName;
+		reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPasswd = watchlistConsumerConfig.proxyPasswd;
+		reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyDomain = watchlistConsumerConfig.proxyDomain;
+		reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
 	}
 	else
 	{
@@ -371,9 +385,7 @@ int main(int argc, char **argv)
 	rsslUninitialize();
 
 	itemDecoderCleanup();
-
-	watchlistConsumerConfigCleanup();
-
+	
 	exit(0);
 }
 

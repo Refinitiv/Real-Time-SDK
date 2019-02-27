@@ -26,6 +26,7 @@ static void clearNIProvPerfConfig()
 
 	niProvPerfConfig.highWaterMark = 0;
 	niProvPerfConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
+	niProvPerfConfig.connectionType = RSSL_CONN_TYPE_INIT;
 	niProvPerfConfig.guaranteedOutputBuffers = 5000;
 	niProvPerfConfig.sendBufSize = 0;
 	niProvPerfConfig.recvBufSize = 0;
@@ -140,8 +141,33 @@ void initNIProvPerfConfig(int argc, char **argv)
 				niProvPerfConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
 			else if (0 == strcmp(argv[iargs], "reliableMCast"))
 				niProvPerfConfig.connectionType = RSSL_CONN_TYPE_RELIABLE_MCAST;
+			else if (0 == strcmp(argv[iargs], "encrypted"))
+				niProvPerfConfig.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
 			else
 				niProvPerfConfig.connectionType = RSSL_CONN_TYPE_INIT; /* error */
+		}
+		else if (strcmp("-encryptedConnType", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+
+			if (strcmp("socket", argv[iargs]) == 0)
+				niProvPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (strcmp("http", argv[iargs]) == 0)
+			{
+#ifdef Linux  
+				printf("Config Error: Encrypted HTTP connection type not supported on Linux.\n", argv[iargs]);
+				exitConfigError(argv);
+#else // HTTP connnections spported only through Windows WinInet 
+				niProvPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_HTTP;
+#endif
+			}
+			else
+			{
+				printf("Config Error: Unknown encrypted connection type \"%s\"\n", argv[iargs]);
+				exitConfigError(argv);
+			}
+
+			iargs++;
 		}
 		else if (0 == strcmp("-outputBufs", argv[iargs]))
 		{

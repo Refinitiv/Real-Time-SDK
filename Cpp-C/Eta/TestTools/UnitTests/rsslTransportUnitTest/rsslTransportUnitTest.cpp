@@ -26,6 +26,7 @@
 #include "rtr/rsslThread.h"
 #include "rtr/ripcutils.h"
 #include "rtr/rsslEventSignal.h"
+#include "rtr/ripcsslutils.h"
 
 
 #if defined(_WIN32)
@@ -2739,6 +2740,94 @@ TEST_F(ManyThreadConnectionTests, BlockingGlobalLockClientWriteServerRead)
 	}
 
 	rsslCloseServer(server, &err);
+}
+
+/* Testing the host name validation functions */
+
+TEST(OpenSSLHostNameValidation, HostNameValidation)
+{
+	char* pattern;
+	char* hostName;
+	RsslBool output = RSSL_TRUE;
+	RsslError err;
+
+	/* No wildcard success */
+	pattern = "www.foo.com";
+	hostName = "www.foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_TRUE);
+
+	/* No wildcard failure */
+	pattern = "www.foo.com";
+	hostName = "www.bar.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
+
+	/* Wildcard success */
+	pattern = "*.foo.com";
+	hostName = "www.foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_TRUE);
+
+	/* Wildcard success, many tokens */
+	pattern = "*.foo.bar.com";
+	hostName = "www.foo.bar.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_TRUE);
+
+	/* Wildcard failure */
+	pattern = "*.foo.com";
+	hostName = "www.bar.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
+
+	/* Wildcard failure, additional tokens */
+	pattern = "*.foo.com";
+	hostName = "www.bar.foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
+
+	/* Wildcard failure, no leftmost token */
+	pattern = "*.foo.com";
+	hostName = "foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
+
+	/* Wildcard failure, no leftmost token */
+	pattern = "*.foo.com";
+	hostName = ".foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
+
+	/* Wildcard parse failure, too broad of a wildcard */
+	pattern = "*.com";
+	hostName = "foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
+
+	/* Wildcard parse failure, partial wildcard */
+	pattern = "a*.foo.com";
+	hostName = "a.foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
+
+	/* Wildcard parse failure, partial wildcard */
+	pattern = "*a.foo.com";
+	hostName = "a.foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
+
+	/* Wildcard parse failure, partial wildcard */
+	pattern = "b*r.foo.com";
+	hostName = "bar.foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
+
+	/* Wildcard parse failure, non-first wildcard */
+	pattern = "bar.*.com";
+	hostName = "bar.foo.com";
+	output = ripcVerifyCertHost(pattern, (unsigned int)strlen(pattern), hostName, &err);
+	EXPECT_TRUE(output == RSSL_FALSE);
 }
 
 int main(int argc, char* argv[])

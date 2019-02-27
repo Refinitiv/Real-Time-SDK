@@ -125,6 +125,36 @@ OmmConsumerConfig& OmmConsumerConfig::tunnelingLibCryptoName(const EmaString& li
 	return *this;
 }
 
+OmmConsumerConfig& OmmConsumerConfig::libcurlName(const EmaString& libcurlName)
+{
+	_pImpl->libcurlName(libcurlName);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::proxyUserName(const EmaString& proxyUserName)
+{
+	_pImpl->proxyUserName(proxyUserName);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::proxyPasswd(const EmaString& proxyPasswd)
+{
+	_pImpl->proxyPasswd(proxyPasswd);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::proxyDomain(const EmaString& proxyDomain)
+{
+	_pImpl->proxyDomain(proxyDomain);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::sslCAStore(const EmaString& sslCAStore)
+{
+	_pImpl->sslCAStore(sslCAStore);
+	return *this;
+}
+
 OmmConsumerConfig& OmmConsumerConfig::config( const Data& config )
 {
 	_pImpl->config( config );

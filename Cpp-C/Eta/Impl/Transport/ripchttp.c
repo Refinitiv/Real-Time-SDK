@@ -126,64 +126,6 @@ RsslInt32 ipcHttpHdrComplete(char *data, RsslInt32 datalen, RsslInt32 startOffse
     return 0;
 }
 
-RsslInt32 ipcGetHttpAck(char *buf, RsslInt32 length)
-{
-	char    *okStr = "200 OK\r\n";
-	char	*connStr = "200 CONNECTION ESTABLISHED\r\n";
-	char	*bufPtr, *okPtr;
-	RsslInt32		isOk = 1;
-	RsslInt32		i;
-	char*			tmpBuf;
-	RsslInt32		offset;
-	
-	if( length <= 9)
-		return 0;
-
-	tmpBuf = (char*)_rsslMalloc(length);
-
-	if (tmpBuf == 0)
-		return 0;
-
-	for (i = 0; i < length; i++)
-	{
-		tmpBuf[i] = buf[i];
-	}
-
-	for (bufPtr = tmpBuf + 9, okPtr = okStr; *okPtr && *bufPtr; bufPtr++, okPtr++)
-	{
-		if (*bufPtr != *okPtr)
-		{
-			isOk = 0;
-			break;
-		}
-	}
-	/* if it wasnt OK check if its connection established */
-	if (!isOk)
-	{
-		isOk = 1;
-		for (bufPtr = tmpBuf + 9, okPtr = connStr; *okPtr && *bufPtr; bufPtr++, okPtr++)
-		{
-			if (*bufPtr != *okPtr)
-			{
-				isOk = 0;
-				break;
-			}
-		}
-	}
-	
-	if (isOk && *okPtr == '\0')
-	{
-		offset = (RsslInt32)(bufPtr - tmpBuf);
-		_rsslFree(tmpBuf);
-		return (ipcHttpHdrComplete(buf, length, offset));
-	}
-	else
-	{
-		_rsslFree(tmpBuf);
-		return(0);
-	}
-}
-
 static RsslInt32 URLdecode(char *encoded, RsslInt32 length, char *pDecode)
 {
 	char *pDecBeg;

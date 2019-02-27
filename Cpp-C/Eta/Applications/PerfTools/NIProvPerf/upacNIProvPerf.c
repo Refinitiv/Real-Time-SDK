@@ -156,11 +156,15 @@ RSSL_THREAD_DECLARE(runNIProvChannelConnection, pArg)
 	}
 	else
 	{
+		copts.connectionType = niProvPerfConfig.connectionType;
+		if (niProvPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && niProvPerfConfig.encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+		{
+			copts.encryptionOpts.encryptedProtocol = niProvPerfConfig.encryptedConnectionType;
+		}
 		copts.connectionInfo.unified.address = niProvPerfConfig.hostName;
 		copts.connectionInfo.unified.serviceName = niProvPerfConfig.portNo;
 		copts.connectionInfo.unified.interfaceName = niProvPerfConfig.interfaceName;
 		copts.tcp_nodelay = niProvPerfConfig.tcpNoDelay;
-		copts.connectionType = RSSL_CONN_TYPE_SOCKET;
 	}
 
 	/* Setup connection. */
@@ -609,11 +613,15 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 	}
 	else
 	{
+		cInfo.rsslConnectOptions.connectionType = niProvPerfConfig.connectionType;
+		if (niProvPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && niProvPerfConfig.encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+		{
+			cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = niProvPerfConfig.encryptedConnectionType;
+		}
 		cInfo.rsslConnectOptions.connectionInfo.unified.address = niProvPerfConfig.hostName;
 		cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = niProvPerfConfig.portNo;
 		cInfo.rsslConnectOptions.connectionInfo.unified.interfaceName = niProvPerfConfig.interfaceName;
 		cInfo.rsslConnectOptions.tcp_nodelay = niProvPerfConfig.tcpNoDelay;
-		cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_SOCKET;
 	}
 
 	// set NIProvider role information

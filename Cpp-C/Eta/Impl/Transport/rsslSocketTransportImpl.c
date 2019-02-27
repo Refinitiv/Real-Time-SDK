@@ -17,6 +17,8 @@
 #include "rtr/rtratomic.h"
 #include "rtr/rsslQueue.h"
 #include "lz4.h"
+ /* OpenSSL tunneling */
+#include "rtr/ripcsslutils.h"
 
 #if !defined(_WIN32)
 #include <netdb.h>
@@ -26,9 +28,6 @@
 #include <signal.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-
-/* OpenSSL tunneling */
-#include "rtr/ripcsslutils.h"
 #endif
 
 #if defined(_WIN32)
@@ -44,6 +43,8 @@
 #include <stdint.h>
 
 #include "rtr/ripchttp.h"
+#include "rtr/rsslCurlJIT.h"
+#include "curl/curl.h"
 
 
 #define FIRST_FRAG_HEADER_SIZE		10
@@ -92,7 +93,6 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 RsslRet ipcIntWrtHeader(RsslSocketChannel *rssl, RsslError *error);
 ripcSessInit ipcSessionInit(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *inPr, RsslError *error);
 RsslRet ipcShutdownSockectChannel(RsslSocketChannel* rsslSocketChannel, RsslError *error);
-RsslRet ipcShutdownSession(RsslSocketChannel* rsslSocketChannel, RsslError *error);
 RsslRet ipcSessDropRef(RsslSocketChannel *rsslSocketChannel, RsslError *error);
 RsslRet rsslSocketGetSockOpts(RsslSocketChannel *rsslSocketChannel, RsslInt32 code, RsslInt32* value, RsslError *error);
 
@@ -120,15 +120,13 @@ static RsslQueue			freeSocketChannelList;
 static RsslQueue			freeServerSocketChannelList;
 
 /* Used to tell if openSSL has been loaded */
-#ifndef _WIN32
 static RsslUInt8 openSSLInit = 0;
 static u8 libsslNameLen = 0;
 static u8 libcryptoNameLen = 0;
-#endif
 
-#ifndef WIN32
-pthread_t thread1;
-#endif
+/* Curl lib info */
+static RsslUInt8 libcurlInit = 0;
+static u8 libcurlNameLen = 0;
 
 /* This list of compression functions indexed by the
 * type of compression.
@@ -138,7 +136,7 @@ static ripcCompFuncs	compressFuncs[RSSL_COMP_MAX_TYPE + 1];
 static const RsslUInt32	RSSL_COMP_DFLT_THRESHOLD_ZLIB = 30;
 static const RsslUInt32	RSSL_COMP_DFLT_THRESHOLD_LZ4 = 300;
 
-static RsslInitializeExOpts  transOpts = RSSL_INIT_INITIALIZE_EX_OPTS; 
+static RsslInitializeExOpts  transOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 
 static ripcTransportFuncs   transFuncs[RIPC_MAX_TRANSPORTS];
 
@@ -170,6 +168,7 @@ extern RIPC_SESS_VERS ripc14WinInetVer;
 
 /************* global variables ************/
 //#define IPC_DEBUG
+
 static RsslUInt8 conndebug = 0;
 static RsslUInt8 readdebug = 0;
 static RsslUInt8 refdebug = 0;
@@ -181,7 +180,7 @@ RsslUInt8 getConndebug()
 }
 
 /***************************
- * START INLINE HELPER FUNCTIONS 
+ * START INLINE HELPER FUNCTIONS
  ***************************/
 
 RTR_C_ALWAYS_INLINE void _rsslSocketToChannel(rsslChannelImpl *chnl, RsslSocketChannel *sckt)
@@ -241,7 +240,7 @@ RTR_C_ALWAYS_INLINE void _rsslBufferMap(rsslBufferImpl *buffer, rtr_msgb_t *ripc
 	/* set this to a well known value */
 	/* and check when we use the buffer -
 	   if its different that means the buffer was overwritten */
-	buffer->integrity = 69;	
+	buffer->integrity = 69;
 
 	return;
 }
@@ -267,7 +266,7 @@ RsslRet ipcSetTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 	if (type >= RIPC_MAX_TRANSPORTS)
 		return(-1);
 
-	/* If the calling function has not assignd 
+	/* If the calling function has not assignd
 	 * its own, then the default ipc defintion will be used
 	 * */
 	transFuncs[type].bindSrvr = funcs->bindSrvr;
@@ -296,7 +295,7 @@ RsslRet ipcSetTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 
 	transFuncs[type].sessIoctl = funcs->sessIoctl;
 
-	/* If the calling function has not assignd 
+	/* If the calling function has not assignd
 	 * its own, then the default ipc defintion will be used
 	 * */
 	transFuncs[type].getSockName = (funcs->getSockName ? funcs->getSockName : transFuncs[RSSL_CONN_TYPE_SOCKET].getSockName);
@@ -319,7 +318,7 @@ RsslRet ipcSetSSLTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 	if (type >= RIPC_MAX_SSL_PROTOCOLS)
 		return(-1);
 
-	/* Each calling transport should have a definition for every 
+	/* Each calling transport should have a definition for every
 	 * function pointer. 	 * */
 	encryptedSSLTransFuncs[type].bindSrvr = funcs->bindSrvr;
 
@@ -347,7 +346,7 @@ RsslRet ipcSetSSLTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 
 	encryptedSSLTransFuncs[type].sessIoctl = funcs->sessIoctl;
 
-	/* If the calling function has not assignd 
+	/* If the calling function has not assignd
 	 * its own, then the default ipc defintion will be used
 	 * */
 	encryptedSSLTransFuncs[type].getSockName = (funcs->getSockName ? funcs->getSockName : transFuncs[RSSL_CONN_TYPE_SOCKET].getSockName);
@@ -369,6 +368,12 @@ RsslRet getSSLProtocolTransFuncs(RsslSocketChannel* rsslSocketChannel, ripcSSLPr
 {
 	if (protocolBitmap == RIPC_PROTO_SSL_NONE)
 		return RSSL_RET_FAILURE;
+	if ((protocolBitmap & RIPC_PROTO_SSL_TLS) != 0)
+	{
+		rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS;
+		rsslSocketChannel->transportFuncs = &encryptedSSLTransFuncs[RIPC_SSL_TLS];
+		return RSSL_RET_SUCCESS;
+	}
 	if ((protocolBitmap & RIPC_PROTO_SSL_TLS_V1_2) != 0)
 	{
 		rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS_V1_2;
@@ -462,7 +467,7 @@ RsslSocketChannel* newRsslSocketChannel()
 
     if (rtrUnlikely(refdebug)) printf("newRsslSocketChannel() RsslSocketChannel=0x%p\n",rsslSocketChannel);
 
-	return rsslSocketChannel;	
+	return rsslSocketChannel;
 }
 
 RsslServerSocketChannel* newRsslServerSocketChannel()
@@ -511,7 +516,7 @@ RsslServerSocketChannel* newRsslServerSocketChannel()
 *		from the ipc headers with compression enabled.
 *********************************************/
 
-rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readret, RsslInt32 *moreData, RsslInt32 *fragLength, RsslInt32 *fragId, 
+rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readret, RsslInt32 *moreData, RsslInt32 *fragLength, RsslInt32 *fragId,
 	RsslInt32* bytesRead, RsslInt32* uncompBytesRead, RsslInt32 *packing, RsslError *error)
 {
 	RsslInt32  cc;
@@ -1282,7 +1287,7 @@ rtr_msgb_t *ipcDataBuffer(RsslSocketChannel *rsslSocketChannel, RsslInt32 size, 
 
 	if (IPC_NULL_PTR(rsslSocketChannel, "ipcDataBuffer", "rsslSocketChannel", error))
 		return 0;
-	
+
 	headerLength = rsslSocketChannel->version->dataHeaderLen + rsslSocketChannel->version->footerLen;
 	neededSize += headerLength;
 
@@ -1661,7 +1666,7 @@ RsslInt32 ipcIntWrtHeader(RsslSocketChannel *rsslSocketChannel, RsslError *error
 }
 
 
-RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rsslBufferImpl, RsslInt32 wFlags, RsslInt32 *bytesWritten, 
+RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rsslBufferImpl, RsslInt32 wFlags, RsslInt32 *bytesWritten,
 	RsslInt32 *uncompBytesWritten, RsslInt32 forceFlush, RsslError *error)
 {
 	RsslRet			retval = RSSL_RET_SUCCESS;
@@ -2148,7 +2153,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 							RsslUInt8 index = 0;
 							IPC_ADD_CR_LF(footeraddr, index);
 						}
-#ifdef IPC_DEBUG						
+#ifdef IPC_DEBUG
 						if (rtrUnlikely(readdebug))
 							printf("ripc buffer len = %d\n", compLen1);
 #endif
@@ -2622,7 +2627,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 				else
 				{
 					/* figure out which priority list to put this in */
-#ifdef IPC_DEBUG						
+#ifdef IPC_DEBUG
 					if (rtrUnlikely(readdebug))
 						printf("#2 Queuing %d bytes (forceFlush=%d, queueLength=%d)\n", totalSize, forceFlush, rsslSocketChannel->priorityQueues[(*msgb)->priority].queueLength);
 #endif
@@ -3209,7 +3214,7 @@ RsslRet ipcFlushSession(RsslSocketChannel *rsslSocketChannel, RsslError *error)
 					/* if it doesnt write the entire thing or it returns a neg value we are in a bad state */
 					if (writtenLen == outLen)
 					{
-						
+
 						/* success - switch file descriptors */
 						shutdown(((RsslSocket)(intptr_t)rsslSocketChannel->tunnelStreamFd), shutdownFlag);
 
@@ -3407,10 +3412,8 @@ static ripcSessInit ipcInitClientTransport(RsslSocketChannel *rsslSocketChannel,
 
 	if (cc < 0)
 	{
-		/* This function should only be called for openSSL-based encrypted connections.
-		This isn't supported on Windows. */
-#ifndef _WIN32
-		if (rsslSocketChannel->connType != RSSL_CONN_TYPE_ENCRYPTED)
+		/* This function should only be called for openSSL-based encrypted connections. */
+		if ( rsslSocketChannel->usingWinInet)
 		{
 			return(RIPC_CONN_ERROR);
 		}
@@ -3419,24 +3422,11 @@ static ripcSessInit ipcInitClientTransport(RsslSocketChannel *rsslSocketChannel,
 			rsslSocketChannel->sslProtocolBitmap = ripcRemoveHighestSSLVersionFlag(rsslSocketChannel->sslProtocolBitmap);
 			if (rsslSocketChannel->sslProtocolBitmap == RIPC_PROTO_SSL_NONE)
 			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					"<%s:%d> Error: 0012 Server does not support configured TLS protocols.\n",
-					__FILE__, __LINE__);
-
 				return(RIPC_CONN_ERROR);
 			}
 
 			return ipcReconnectSocket(rsslSocketChannel, inProg, error);
 		}
-#else
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d>  Error: 0012 Invalid connection type.\n",
-			__FILE__, __LINE__);
-
-		return(RIPC_CONN_ERROR);
-#endif
 
 	}
 	else if (cc > 0)
@@ -5084,7 +5074,7 @@ static ripcSessInit ipcFinishSess(RsslSocketChannel *rsslSocketChannel, ripcSess
 		/* Check to see if the connect() call has completed. */
 		retval = (*(rsslSocketChannel->transportFuncs->connected))(rsslSocketChannel->stream,
 																   rsslSocketChannel->transportInfo);
-			
+
 		if (retval != 1)
 		{
 			if (retval != 0)
@@ -5204,7 +5194,7 @@ static ripcSessInit ipcFinishSess(RsslSocketChannel *rsslSocketChannel, ripcSess
 			iterator += rwfPut64((conMsg + iterator), rsslSocketChannel->G);
 
 			/* In the rare case randull returns 0, the key exchange should be set to 0 */
-			if (rsslSocketChannel->P == 0) 
+			if (rsslSocketChannel->P == 0)
 				server_send_key = rsslSocketChannel->random_key = 0;
 			else
 			{
@@ -5405,7 +5395,7 @@ static ripcSessInit ipcSendClientKey(RsslSocketChannel *rsslSocketChannel, ripcS
 		bytesSent = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo,
 			ripcHead, len, rwflags, error);
 #endif
-		
+
 #ifdef MUTEX_DEBUG
 	printf("LOCK rsslSocketChannel -- ipcSendClientKey (after transportFuncs->writeTransport)\n");
 #endif
@@ -5652,98 +5642,12 @@ RsslInt32 ipcSessSetMode(RsslSocket sock_fd, RsslInt32 blocking, RsslInt32 tcp_n
 
 static ripcSessInit ipcProxyConnecting(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *inPr, RsslError *error)
 {
-	RsslRet			retval;
 	ripcRWFlags		rwflags = RIPC_RW_WAITALL;
 	RsslInt32		len = 0;
-	char			buf[1024];
 	RsslInt32		bytesSent = 0;
-
+	
 	rwflags |= (rsslSocketChannel->blocking ? RIPC_RW_BLOCKING : 0);
-
-	if (rsslSocketChannel->blocking == 0)
-	{
-		/* Check to see if the connect() call has completed. */
-		retval = (*(rsslSocketChannel->transportFuncs->connected))(rsslSocketChannel->stream,
-																   rsslSocketChannel->transportInfo);
-		if (retval != 1)
-		{
-			if (retval != 0)
-			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					"<%s:%d> Error: 1002  ipcConnected() Client connect() failed.  System errno: (%d)\n",
-					__FILE__, __LINE__, errno);
-
-				return(RIPC_CONN_ERROR);
-			}
-			else
-			{
-				inPr->types = RIPC_INPROG_WRT_NOT;
-				return(RIPC_CONN_IN_PROGRESS);
-			}
-		}
-	}
-
-	len += snprintf(buf + len, (1024 - len), "CONNECT %s:%s HTTP/1.0\r\n", rsslSocketChannel->hostName, rsslSocketChannel->serverName);
-	len += snprintf(buf + len, (1024 - len), "User-agent: Mozilla/4.0\r\n");
-	len += snprintf(buf + len, (1024 - len), "Pragma: no-cache\r\n");
-	len += snprintf(buf + len, (1024 - len), "Proxy-Connection: Keep-Alive\r\n\r\n");
-
-	if (rtrUnlikely(conndebug))
-		printf("ipcProxyConnecting: fd "SOCKET_PRINT_TYPE" header %d \n", rsslSocketChannel->stream, len);
-
-	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
-	{
-		(*(ripcDumpOutFunc))(__FUNCTION__, buf, len, rsslSocketChannel->stream);
-	}
-
-#ifdef MUTEX_DEBUG
-	printf("UNLOCK rsslSocketChannel -- ipcProxyConnecting (before transportFuncs->writeTransport)\n");
-#endif
-	IPC_MUTEX_UNLOCK(rsslSocketChannel);
-
-#if (defined(_WINDOWS) || defined(_WIN32))
-	{
-		RsslInt32	i;
-		for (i = 0; i<10; i++)
-		{
-			/* Write to the stream directly here, since it should be a TCP connection */
-			bytesSent = (*(rsslSocketChannel->transportFuncs->writeTransport))(((void*)(intptr_t)(rsslSocketChannel->stream)), buf, len, rwflags, error);
-			if (bytesSent > 0)
-				break;
-		}
-	}
-#else
-	/* Write to the stream directly here, since it should be a TCP connection */
-	bytesSent = (*(rsslSocketChannel->transportFuncs->writeTransport))(((void*)(intptr_t)rsslSocketChannel->stream),
-		buf, len, rwflags, error);
-#endif
-
-#ifdef MUTEX_DEBUG
-	printf("LOCK rsslSocketChannel -- ipcProxyConnecting (after transportFuncs->writeTransport)\n");
-#endif
-	IPC_MUTEX_LOCK(rsslSocketChannel);
-
-	if (rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND)
-	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1003 ipcProxyConnecting() failed due to channel shutting down.\n",
-			__FILE__, __LINE__);
-
-		return(RIPC_CONN_ERROR);
-	}
-
-	if (bytesSent < 0)
-	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1002 ipcWrite() failed to write proxy connection request. System errno: (%d)\n",
-			__FILE__, __LINE__, errno);
-
-		return(RIPC_CONN_ERROR);
-	}
-
+	
 	rsslSocketChannel->intState = RIPC_INT_ST_CLIENT_WAIT_PROXY_ACK;
 
 	return(RIPC_CONN_IN_PROGRESS);
@@ -5847,8 +5751,7 @@ static ripcSessInit ipcConnecting(RsslSocketChannel *rsslSocketChannel, ripcSess
 			if (iRetVal == 0)
 			{
 #ifdef _WIN32
-				if ((rsslSocketChannel->connType > RSSL_CONN_TYPE_SOCKET) &&
-					(rsslSocketChannel->connType <= RSSL_CONN_TYPE_HTTP))
+				if (rsslSocketChannel->usingWinInet)
 				{
 					struct in_addr temp;
 
@@ -5856,7 +5759,7 @@ static ripcSessInit ipcConnecting(RsslSocketChannel *rsslSocketChannel, ripcSess
 
 					/* we already got the IP address */
 					pBuf = strIpAddr;
-					
+
 					inet_ntop(AF_INET, (void*)&temp, (PSTR)pBuf, sizeof(strIpAddr));
 
 					pBuf +=
@@ -5864,8 +5767,8 @@ static ripcSessInit ipcConnecting(RsslSocketChannel *rsslSocketChannel, ripcSess
 				}
 				else
 				{
-					if (((*(rsslSocketChannel->transportFuncs->getSockName))(rsslSocketChannel->stream, 
-					                                    (struct sockaddr*)&ipInfo, &ipLen, 
+					if (((*(rsslSocketChannel->transportFuncs->getSockName))(rsslSocketChannel->stream,
+					                                    (struct sockaddr*)&ipInfo, &ipLen,
 														rsslSocketChannel->transportInfo)) == RSSL_RET_SUCCESS)
 					{
 						pBuf = strIpAddr;
@@ -5879,7 +5782,7 @@ static ripcSessInit ipcConnecting(RsslSocketChannel *rsslSocketChannel, ripcSess
 						addrLen = 0;
 				}
 #else
-				if (((*(rsslSocketChannel->transportFuncs->getSockName))(rsslSocketChannel->stream, 
+				if (((*(rsslSocketChannel->transportFuncs->getSockName))(rsslSocketChannel->stream,
 					                                    (struct sockaddr*)&ipInfo, &ipLen,
 														rsslSocketChannel->transportInfo)) == RSSL_RET_SUCCESS)
 				{
@@ -6192,6 +6095,7 @@ static ripcSessInit ipcReconnectSocket(RsslSocketChannel *rsslSocketChannel, rip
 
 	void*				userSpecPtr = 0;
 	RsslInt32			csFlags = RIPC_INT_CS_FLAG_NONE;
+	RsslCurlJITFuncs*	curlFuncs;
 
 	if (rsslSocketChannel->blocking)
 		csFlags |= RIPC_INT_CS_FLAG_BLOCKING;
@@ -6213,34 +6117,38 @@ static ripcSessInit ipcReconnectSocket(RsslSocketChannel *rsslSocketChannel, rip
 	}
 
 	/* call shutdownTransport for old connection here */
-	(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->transportInfo);
-
-#ifndef _WIN32
-	if (rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED)
+	if (rsslSocketChannel->curlHandle)
 	{
-		/* If connecting to a proxy, this needs to stay as a standard TCP connection until the proxy negotiation is complete */
-		if ((rsslSocketChannel->proxyPort) && *(rsslSocketChannel->proxyPort) != '\0')
+		if ((curlFuncs = rsslGetCurlFuncs()) == NULL)
 		{
-			/* Socket calls here because we're talking unencrypted TCP to the proxy.  SSL/TLS connection happens later. */
-			rsslSocketChannel->transportFuncs = &(transFuncs[RSSL_CONN_TYPE_SOCKET]);
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1002 ipcReconnectOld() failed due to Curl not being initialized.\n",
+				__FILE__, __LINE__);
+
+			return(RIPC_CONN_ERROR);
 		}
-		else
+		
+        (*(curlFuncs->curl_easy_cleanup))(rsslSocketChannel->curlHandle);
+		rsslSocketChannel->curlHandle = NULL;
+        
+        if(rsslSocketChannel->curlThreadInfo.curlError) 
+            _rsslFree(rsslSocketChannel->curlThreadInfo.curlError);
+        rsslSocketChannel->curlThreadInfo.curlError = 0;
+		/* a CURL handle will only be set if this is an openSSL encrypted connection.  WinInet connections do not use curl */
+		if (rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED)
 		{
-			/* Directly connecting without HTTP proxy, so SSL/TLS connection should start as soon as the TCP channel has been established */
-			if (getSSLProtocolTransFuncs(rsslSocketChannel, rsslSocketChannel->sslProtocolBitmap) != 0)
-			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					"<%s:%d> Error: 0012 Out of available SSL/TLS connection protocol options.\n",
-					__FILE__, __LINE__);
-
-				ripcRelSocketChannel(rsslSocketChannel);
-
-				return(RIPC_CONN_ERROR);
-			}
+			((ripcSSLSession*)rsslSocketChannel->transportInfo)->socket = RIPC_INVALID_SOCKET;
+		}
+		else if (rsslSocketChannel->connType == RSSL_CONN_TYPE_SOCKET)
+		{
+			/* Set the transportInfo FD to RIPC_INVALID_SOCKET, because the curl cleanup call will close the channel for us */
+			rsslSocketChannel->transportInfo = (void*)RIPC_INVALID_SOCKET;
 		}
 	}
-#endif
+
+	(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->transportInfo);
+
 	if (rsslSocketChannel->connType == RSSL_CONN_TYPE_EXT_LINE_SOCKET)
 	{
 		userSpecPtr = (void*)&(rsslSocketChannel->numConnections);
@@ -6286,6 +6194,22 @@ static ripcSessInit ipcReconnectSocket(RsslSocketChannel *rsslSocketChannel, rip
 	}
 	else
 	{
+		if (rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED && rsslSocketChannel->usingWinInet == 0)
+		{
+			// This is where to go
+			if (getSSLProtocolTransFuncs(rsslSocketChannel, rsslSocketChannel->sslProtocolBitmap) != 0)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 0012 Out of available SSL/TLS connection protocol options.\n",
+					__FILE__, __LINE__);
+
+				sock_close(sock_fd);
+				return(RIPC_CONN_ERROR);
+			}
+
+			userSpecPtr = (void*)rsslSocketChannel;
+		}
 		/* Get the transport info */
 		rsslSocketChannel->transportInfo = (*(rsslSocketChannel->transportFuncs->newClientConnection))(
 			rsslSocketChannel->stream, &initcomplete, userSpecPtr, error);
@@ -6310,11 +6234,13 @@ static ripcSessInit ipcReconnectSocket(RsslSocketChannel *rsslSocketChannel, rip
 
 ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *inPr, RsslError *error)
 {
-	char			buf[MAX_RSSL_ERROR_TEXT + V10_MIN_CONN_HDR + 1];
-	RsslInt32		cc;
+	RsslInt32		ret;
 	RsslInt32		msgLen = 0;
 	ripcRWFlags		rwflags = RIPC_RW_NONE;
 	RsslInt32		initcomplete = 0;
+	char tempBuf[5];
+	CURLcode curlret;
+	RsslCurlJITFuncs* curlFuncs;
 
 	rwflags |= (rsslSocketChannel->blocking ? RIPC_RW_BLOCKING : 0);
 
@@ -6323,117 +6249,115 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 #endif
 	IPC_MUTEX_UNLOCK(rsslSocketChannel);
 
-	cc = (*(rsslSocketChannel->transportFuncs->readTransport))(((void*)(intptr_t)rsslSocketChannel->stream),
-		buf, (MAX_RSSL_ERROR_TEXT + V10_MIN_CONN_HDR + 1), rwflags, error);
-
-#ifdef MUTEX_DEBUG
-	printf("LOCK rsslSocketChannel -- ipcWaitProxyAck\n");
-#endif
-	IPC_MUTEX_LOCK(rsslSocketChannel);
-
-	if (rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND)
+	ret = rssl_pipe_read(&rsslSocketChannel->sessPipe, tempBuf, 1);
+	if (ret == 0 || (ret == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)))
+	{
+		/* Nothing to read, just return from here */
+		return RSSL_RET_SUCCESS; /* assume the byte isnt ready yet, return success */
+	}
+	else if (ret < 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1003 ipcWaitProxyAck() failed due to channel shutting down.\n",
+			"<%s:%d> Error: 1002 Pipe Read failed.  System errno: %i\n",
+			__FILE__, __LINE__, errno );
+		ripcRelSocketChannel(rsslSocketChannel);
+		return RSSL_RET_FAILURE;
+	}
+
+	if ((curlFuncs = rsslGetCurlFuncs()) == NULL)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1002 Curl not initialized.\n",
 			__FILE__, __LINE__);
-
-		return(RIPC_CONN_ERROR);
+		ripcRelSocketChannel(rsslSocketChannel);
+		return RSSL_RET_FAILURE;
 	}
 
-	if (cc < 0)
+	/* The CURL thread has finished, and set the thread status to either DONE or ERRROR.  If ERROR, cleanup the channel and return.  CURL should have already closed everything */
+	if (rsslSocketChannel->curlThreadInfo.curlThreadState == RSSL_CURL_ERROR)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1002 Could not read Proxy HTTP Ack.  System errno: (%d)\n",
-			__FILE__, __LINE__, errno);
-
-		return(RIPC_CONN_ERROR);
-	}
-	else if (cc == 0)
-	{
-		/* This will happen when there is no data atall to be read, and the read fails with error _IPC_WOULD_BLOCK or EINTR */
-		return (RIPC_CONN_IN_PROGRESS);
+			"%s", rsslSocketChannel->curlThreadInfo.error.text);
+		ripcRelSocketChannel(rsslSocketChannel);
+		return RSSL_RET_FAILURE;
 	}
 
-	/* Check for 200 OK */
-	if ((msgLen = ipcGetHttpAck(buf, cc)) == 0)
+	inPr->types = RIPC_INPROG_NEW_FD;
+
+	// Set the new FD and old FD on the ripcSessInProg structure
+	inPr->oldSocket = rsslSocketChannel->stream;
+	if ((curlret = (*(curlFuncs->curl_easy_getinfo))(rsslSocketChannel->curlHandle, CURLINFO_ACTIVESOCKET, (curl_socket_t*)&inPr->newSocket.stream)) != CURLE_OK)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1002 Could not read Proxy HTTP Ack received. System errno: (%d)\nText: %s\n",
-			__FILE__, __LINE__, errno, buf);
-
-		return(RIPC_CONN_ERROR);
+			"<%s:%d> Error: 1000 Curl failed. %i\n",
+			__FILE__, __LINE__, curlret);
+		ripcRelSocketChannel(rsslSocketChannel);
+		return RSSL_RET_FAILURE;
 	}
+	rsslSocketChannel->stream = inPr->newSocket.stream;
 
-	/* If we read more bytes than in the header, put them
-	* into the read buffer. This can happen in quick applications
-	* that send data as soon as the channel becomes active.
-	*/
-	if (cc == msgLen)
+	if (rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED && rsslSocketChannel->usingWinInet == 0)
 	{
-		/* this should really only happen for OpenSSL - we should restrict proxy stuff to openssl */
-		if (rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED)
+		// This is where to go
+		if (getSSLProtocolTransFuncs(rsslSocketChannel, rsslSocketChannel->sslProtocolBitmap) != 0)
 		{
-			if (getSSLProtocolTransFuncs(rsslSocketChannel, rsslSocketChannel->sslProtocolBitmap) != 0)
-			{
-				sock_close(rsslSocketChannel->stream);
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					"<%s:%d> Error: 0012 Out of available SSL/TLS connection protocol options.\n",
-					__FILE__, __LINE__);
-
-				ripcRelSocketChannel(rsslSocketChannel);
-
-				return(RIPC_CONN_ERROR);
-			}
-		}
-
-		rsslSocketChannel->transportInfo = (*(rsslSocketChannel->transportFuncs->newClientConnection))(
-			rsslSocketChannel->stream, &initcomplete, 0, error);
-
-		if (rsslSocketChannel->transportInfo == 0)
-		{
-			sock_close(rsslSocketChannel->stream);
-
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1008 Transport functions have not been properly set.\n",
+				"<%s:%d> Error: 0012 Out of available SSL/TLS connection protocol options.\n",
 				__FILE__, __LINE__);
 
 			ripcRelSocketChannel(rsslSocketChannel);
 
 			return(RIPC_CONN_ERROR);
 		}
-
-		if ((rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED) && !initcomplete)
-		{
-			rsslSocketChannel->intState = RIPC_INT_ST_CLIENT_TRANSPORT_INIT;
-		}
-
-
-		/* Technically, this should happen for any proxies used... */
-		if ((!rsslSocketChannel->connType) || ((rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED) && initcomplete))
-		{
-			/* normal ripc connection - send connect request */
-			rsslSocketChannel->intState = RIPC_INT_ST_CONNECTING;
-		}
-
-		return ipcIntSessInit(rsslSocketChannel, inPr, error);
 	}
-	else
+
+	rsslSocketChannel->transportInfo = (*(rsslSocketChannel->transportFuncs->newClientConnection))(
+		rsslSocketChannel->stream, &initcomplete, rsslSocketChannel, error);
+
+		
+	if (rsslSocketChannel->transportInfo == 0)
 	{
-		/* we should not get more bytes than this */
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		/*_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1002 Could not read Proxy HTTP Ack received. System errno: (%d)\n",
-			__FILE__, __LINE__, errno);
+			"<%s:%d> Error: 0012 Error on new client connection.\n",
+			__FILE__, __LINE__);*/
+
+		ripcRelSocketChannel(rsslSocketChannel);
 
 		return(RIPC_CONN_ERROR);
 	}
 
-	return(RIPC_CONN_IN_PROGRESS);
+	if ((rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED) && !initcomplete)
+	{
+		rsslSocketChannel->intState = RIPC_INT_ST_CLIENT_TRANSPORT_INIT;
+	}
+
+	if (rsslSocketChannel->connType == RSSL_CONN_TYPE_SOCKET)
+	{
+		// normal ripc connection - send connect request
+		rsslSocketChannel->intState = RIPC_INT_ST_CONNECTING;
+	}
+
+	if ((ret = ipcIntSessInit(rsslSocketChannel, inPr, error)) < 0)
+	{
+#ifdef MUTEX_DEBUG
+		printf("UNLOCK rsslSocketChannel -- ipcSessionInit (ipcIntSessInit < 0)\n");
+#endif
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+		return(ret);
+	}
+
+	inPr->types = RIPC_INPROG_NEW_FD;
+
+	rssl_pipe_close(&rsslSocketChannel->sessPipe);
+
+	return ret;
+
 }
 
 
@@ -6609,7 +6533,7 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 		_move_u32_swap(&versionNumber, (buf + 6 + idOffset));
 	}
 
-	if (!(opCode & IPC_CONNACK))
+ 	if (!(opCode & IPC_CONNACK))
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
@@ -7018,7 +6942,7 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 }
 
 /***************************
- * START NON-PUBLIC ABSTRACTED FUNCTIONS 
+ * START NON-PUBLIC ABSTRACTED FUNCTIONS
  ***************************/
 
 /* SocketBind impl */
@@ -7237,8 +7161,8 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 											transOpts.initConfig) < 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RIPC_ERROR_TEXT, 
-					"<%s:%d> Error: 1008 Unable to set Extended Line Socket functions (%d).", 
+			snprintf(error->text, MAX_RIPC_ERROR_TEXT,
+					"<%s:%d> Error: 1008 Unable to set Extended Line Socket functions (%d).",
 					__FILE__, __LINE__, errno);
 			if (transFuncs[rsslServerSocketChannel->connType].shutdownSrvrError)
 				transFuncs[rsslServerSocketChannel->connType].shutdownSrvrError(rsslSrvrImpl);
@@ -7293,12 +7217,12 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	rsslSrvrImpl->Server.state = rsslServerSocketChannel->state;
 	rsslSrvrImpl->transportInfo = (void*)rsslServerSocketChannel;
 	rsslSrvrImpl->Server.portNumber = net2host_u16(ipcGetServByName(rsslServerSocketChannel->serverName));
-	
+
 	/* this connection type is mainly used to determine between transport types */
 	rsslSrvrImpl->connectionType = RSSL_CONN_TYPE_SOCKET;
 
-	rsslSrvrImpl->Server.userSpecPtr = opts->userSpecPtr; 
-	/* put the server state at active */	
+	rsslSrvrImpl->Server.userSpecPtr = opts->userSpecPtr;
+	/* put the server state at active */
 	rsslSrvrImpl->Server.state = RSSL_CH_STATE_ACTIVE;
 
 	/* set isBlocking flag */
@@ -7507,42 +7431,8 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 		rsslSocketChannel->tcp_nodelay = 0;
 
 	rsslSocketChannel->numInputBufs = opts->numInputBuffers;
-	
+
 	rsslSocketChannel->encryptionProtocolFlags = opts->encryptionOpts.encryptionProtocolFlags;
-
-	/* Set Proxy options, if present */
-	/* If we are on windows and using HTTP/Encrypted we shouldnt set these because options will come in from WinInet/IE settings */
-	if(opts->proxyOpts.proxyHostName && (opts->proxyOpts.proxyHostName[0] != '\0'))
-	{
-		tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyHostName) + 1);
-		rsslSocketChannel->proxyHostName = (char*) strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyHostName, tempLen);
-		if (rsslSocketChannel->proxyHostName == 0)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					"<%s:%d> Error: 1001 Failed to allocate or copy proxyHostName. System errno: (%d)\n",
-					__FILE__, __LINE__, errno);
-
-			ripcRelSocketChannel(rsslSocketChannel);
-			return RSSL_RET_FAILURE;
-		}
-
-		if( opts->proxyOpts.proxyPort && (opts->proxyOpts.proxyPort[0] != '\0'))
-		{
-			tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyPort) + 1);
-			rsslSocketChannel->proxyPort = (char*) strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyPort, tempLen);
-			if (rsslSocketChannel->proxyPort == 0)
-			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-						"<%s:%d> Error: 1001 Failed to allocate or copy proxyPort. System errno: (%d)\n",
-						__FILE__, __LINE__, errno);
-
-				ripcRelSocketChannel(rsslSocketChannel);
-				return RSSL_RET_FAILURE;
-			}
-		}
-	}
 
 	//additional initializing
 	rsslSocketChannel->clientHostname = 0;
@@ -7662,7 +7552,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 #else
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1004 SSL Tunneling not supported in this library.\n", 
+				"<%s:%d> Error: 1004 HTTP Tunneling not supported for this platform.\n",
 				__FILE__, __LINE__);
 
 		return RSSL_RET_FAILURE;
@@ -7671,22 +7561,41 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	case RSSL_CONN_TYPE_ENCRYPTED:
 		/* We assume that if proxyHostName is empty it implies a proxy running on localhost */
 		/* if we arent on windows and tunneling is on */
-#ifdef WIN32
-		if (initRipcWinInet() <= 0)
+#ifdef _WIN32
+		if (opts->encryptionOpts.encryptedProtocol == RSSL_CONN_TYPE_HTTP)
 		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			if (initRipcWinInet() <= 0)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Error: 1008 Unable to set WinInet functions.\n.",
 					__FILE__, __LINE__);
 
+				return RSSL_RET_FAILURE;
+			}
+			rsslSocketChannel->transportFuncs = &(transFuncs[RSSL_CONN_TYPE_HTTP]);
+			rsslSocketChannel->usingWinInet = RSSL_CONN_TYPE_HTTP;
+			break;
+		}
+		else
+		{
+			/* We are not using WinInet, so clear the flag on the socketChannel */
+			rsslSocketChannel->usingWinInet = 0;
+		}
+#endif
+		if (opts->encryptionOpts.encryptedProtocol != RSSL_CONN_TYPE_SOCKET)
+		{
+			/* For Linux the only supported encrypted protocol is RSSL_CONN_TYPE_SOCKET. */
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1004 Invalid encrypted protocol type.  Only supported protocols are RSSL_CONN_TYPE_HTTP(Windows only) and RSSL_CONN_TYPE_SOCKET.\n.", 
+				__FILE__, __LINE__);
+
 			return RSSL_RET_FAILURE;
 		}
-		rsslSocketChannel->transportFuncs = &(transFuncs[RSSL_CONN_TYPE_HTTP]);
-		rsslSocketChannel->usingWinInet = RSSL_CONN_TYPE_HTTP;
-#else
 		if(openSSLInit == 0)
 		{
-			/* Initialize open ssl; if we support other non windows platforms besides Linux we may 
+			/* Initialize open ssl; if we support other non windows platforms besides Linux we may
 			 * need a different ifdef here */
 			if(ripcInitializeSSL(transOpts.jitOpts.libsslName, transOpts.jitOpts.libcryptoName) == 1)
 				openSSLInit = 1;
@@ -7700,39 +7609,58 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 				return RSSL_RET_FAILURE;
 			}
 		}
-	
-		rsslSocketChannel->sslProtocolBitmap = rsslSocketChannel->encryptionProtocolFlags;
-		
-		rsslSocketChannel->sslProtocolBitmap &= (RIPC_PROTO_SSL_TLS_V1 | RIPC_PROTO_SSL_TLS_V1_1 | RIPC_PROTO_SSL_TLS_V1_2);
+
+		if(opts->encryptionOpts.openSSLCAStore != NULL && (opts->encryptionOpts.openSSLCAStore[0] != '\0'))
+		{
+			tempLen = (RsslInt32)strlen(opts->encryptionOpts.openSSLCAStore) + 1;
+			rsslSocketChannel->sslCAStore = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->encryptionOpts.openSSLCAStore, tempLen);
+			if (rsslSocketChannel->sslCAStore == 0)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1001 Failed to allocate or copy hostName. System errno: (%d)\n",
+					__FILE__, __LINE__, errno);
+
+				ripcRelSocketChannel(rsslSocketChannel);
+				return RSSL_RET_FAILURE;
+			}
+		}
+
+		if (rsslSocketChannel->encryptionProtocolFlags == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 0012 No valid TLS encryption protocol set.\n",
+				__FILE__, __LINE__);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		rsslSocketChannel->sslProtocolBitmap = rsslSocketChannel->encryptionProtocolFlags | RIPC_PROTO_SSL_TLS;
+
+		rsslSocketChannel->sslProtocolBitmap &= ripcGetSupportedProtocolFlags();
 		if(rsslSocketChannel->sslProtocolBitmap == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					"<%s:%d> Error: 0012 No valid encryption protocol set.\n",
+					"<%s:%d> Error: 0012 OpenSSL does not support any of the configured TLS versions.\n",
 					__FILE__, __LINE__);
 
 			return RSSL_RET_FAILURE;
 		}
 		
-		/* If connecting to a proxy, this needs to stay as a standard TCP connection until the proxy negotiation is complete */
-		if(!rsslSocketChannel->proxyPort || *(rsslSocketChannel->proxyPort) == '\0')
+		if(getSSLProtocolTransFuncs(rsslSocketChannel, rsslSocketChannel->sslProtocolBitmap) != 0)
 		{
-			if(getSSLProtocolTransFuncs(rsslSocketChannel, rsslSocketChannel->sslProtocolBitmap) != 0)
-			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-						"<%s:%d> Error: 0012 Out of available SSL/TLS connection protocol options.\n",
-						__FILE__, __LINE__);
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 0012 Out of available SSL/TLS connection protocol options.\n",
+					__FILE__, __LINE__);
 
-				return RSSL_RET_FAILURE;
-			}
+			return RSSL_RET_FAILURE;
 		}
-		else
-		{
-			/* The standard socket connection is needed for negotiating a proxy connection before creating a encrypted connection.*/
-			rsslSocketChannel->transportFuncs = &(transFuncs[RSSL_CONN_TYPE_SOCKET]);
-		}
-#endif
+
+		/* Set the userSpecPtr to the current rsslSocketChannel */
+		userSpecPtr = (void*)rsslSocketChannel;
 		break;
 	default:
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
@@ -7752,15 +7680,111 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 			rsslSocketChannel->compressionBitmap[idx] |= ripccompressions[rsslSocketChannel->compression][RSSL_COMP_BYTEBIT];
 	}
 
+	/* Set Proxy options, if present */
+	if (opts->proxyOpts.proxyHostName && (opts->proxyOpts.proxyHostName[0] != '\0'))
+	{
+		tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyHostName) + 1);
+		rsslSocketChannel->proxyHostName = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyHostName, tempLen);
+		if (rsslSocketChannel->proxyHostName == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1001 Failed to allocate or copy proxyHostName. System errno: (%d)\n",
+				__FILE__, __LINE__, errno);
+
+			ripcRelSocketChannel(rsslSocketChannel);
+			return RSSL_RET_FAILURE;
+		}
+
+		if (opts->proxyOpts.proxyPort && (opts->proxyOpts.proxyPort[0] != '\0'))
+		{
+			tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyPort) + 1);
+			rsslSocketChannel->proxyPort = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyPort, tempLen);
+			if (rsslSocketChannel->proxyPort == 0)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1001 Failed to allocate or copy proxyPort. System errno: (%d)\n",
+					__FILE__, __LINE__, errno);
+
+				ripcRelSocketChannel(rsslSocketChannel);
+				return RSSL_RET_FAILURE;
+			}
+		}
+
+		if (opts->proxyOpts.proxyUserName && (opts->proxyOpts.proxyUserName[0] != '\0'))
+		{
+			tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyUserName) + 1);
+			rsslSocketChannel->curlOptProxyUser = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyUserName, tempLen);
+			if (rsslSocketChannel->curlOptProxyUser == 0)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1001 Failed to allocate or copy curlOptProxyUser. System errno: (%d)\n",
+					__FILE__, __LINE__, errno);
+
+				ripcRelSocketChannel(rsslSocketChannel);
+				return RSSL_RET_FAILURE;
+			}
+		}
+
+		if (opts->proxyOpts.proxyPasswd && (opts->proxyOpts.proxyPasswd[0] != '\0'))
+		{
+			tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyPasswd) + 1);
+			rsslSocketChannel->curlOptProxyPasswd = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyPasswd, tempLen);
+			if (rsslSocketChannel->curlOptProxyPasswd == 0)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1001 Failed to allocate or copy curlOptProxyPasswd. System errno: (%d)\n",
+					__FILE__, __LINE__, errno);
+
+				ripcRelSocketChannel(rsslSocketChannel);
+				return RSSL_RET_FAILURE;
+			}
+		}
+
+		if (opts->proxyOpts.proxyDomain && (opts->proxyOpts.proxyDomain[0] != '\0'))
+		{
+			tempLen = (RsslInt32)(strlen(opts->proxyOpts.proxyDomain) + 1);
+			rsslSocketChannel->curlOptProxyDomain = (char*)strncpy((char*)_rsslMalloc(tempLen), opts->proxyOpts.proxyDomain, tempLen);
+			if (rsslSocketChannel->curlOptProxyDomain == 0)
+			{
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1001 Failed to allocate or copy curlOptProxyDomain. System errno: (%d)\n",
+					__FILE__, __LINE__, errno);
+
+				ripcRelSocketChannel(rsslSocketChannel);
+				return RSSL_RET_FAILURE;
+			}
+		}
+
+		/* If we are not using winInet, check if libcurl has been loaded and initialized.  If it has, load it */
+		if (rsslSocketChannel->usingWinInet == 0 && rsslCurlIsInitialized() == RSSL_FALSE)
+		{
+			if (rsslInitCurlApi(transOpts.jitOpts.libcurlName, error) == NULL)
+			{
+				/* Error text has been populated in the init call */
+				ripcRelSocketChannel(rsslSocketChannel);
+				return RSSL_RET_FAILURE;
+			}
+
+			/* We called Init, so we must call Uninit when we uninitialize rssl */
+			libcurlInit = 1;
+		}
+	}
+	
 	/* normal connection */
-	if ((sock_fd=(*(rsslSocketChannel->transportFuncs->connectSocket))(
+	if ((sock_fd = (*(rsslSocketChannel->transportFuncs->connectSocket))(
 		&portnum, rsslChnlImpl->transportInfo, csFlags, &userSpecPtr, error)) <= 0)
 	{
 		ripcRelSocketChannel(rsslSocketChannel);
 		return RSSL_RET_FAILURE;
 	}
 
-	rsslSocketChannel->stream= sock_fd;
+	rsslSocketChannel->stream = sock_fd;
+	
 	rsslSocketChannel->state = RSSL_CH_STATE_INITIALIZING;
 
 	/* This is where we set the version to connect as */
@@ -7770,10 +7794,8 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	rsslSocketChannel->intState = RIPC_INT_ST_CONNECTING;
 	rsslSocketChannel->maxMsgSize = 0;
 	rsslSocketChannel->maxUserMsgSize = 0;
-
 	/* Store numInputBufs in readSize until we are connected */
 	rsslSocketChannel->readSize = opts->numInputBuffers;
-
 	rsslSocketChannel->guarBufPool = rtr_dfltcAllocPool(rsslSocketChannel->numGuarOutputBufs, rsslSocketChannel->numGuarOutputBufs, 10,
 		rsslSocketChannel->bufPool, (rsslSocketChannel->numMaxOutputBufs - rsslSocketChannel->numGuarOutputBufs), 0);
 	if (rsslSocketChannel->guarBufPool == 0)
@@ -7799,7 +7821,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 
 	rsslSocketChannel->inDecompress = opts->compressionType;
 
-	if ((rsslSocketChannel->proxyPort && rsslSocketChannel->proxyPort[0] != '\0') && (rsslSocketChannel->usingWinInet == 0))
+	if (rsslSocketChannel->proxyPort && (rsslSocketChannel->proxyPort[0] != '\0') && (rsslSocketChannel->usingWinInet == 0))
 	{
 		/* we need to send and wait for the proxy ack if we are using a proxy connection */
 		rsslSocketChannel->intState = RIPC_INT_ST_PROXY_CONNECTING;
@@ -7815,17 +7837,12 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 			sock_close(sock_fd);
 			ripcRelSocketChannel(rsslSocketChannel);
 
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1001 rsslSocketConnect() newClientConnection failed.\n",
-				__FILE__, __LINE__);
-
 			return RSSL_RET_FAILURE;
 		}
 
-		if ((!initcomplete) && 
-			((rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED) || 
-			 (rsslSocketChannel->connType == RSSL_CONN_TYPE_HTTP) || 
+		if ((!initcomplete) &&
+			((rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED) ||
+			 (rsslSocketChannel->connType == RSSL_CONN_TYPE_HTTP) ||
 			 (rsslSocketChannel->connType == RSSL_CONN_TYPE_EXT_LINE_SOCKET)))
 			rsslSocketChannel->intState = RIPC_INT_ST_CLIENT_TRANSPORT_INIT;
 	}
@@ -7845,76 +7862,76 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 		}
 	}
 
-		/* map RsslSocketChannel to RsslChannel */
-		_rsslSocketToChannel(rsslChnlImpl, rsslSocketChannel);
-	
-		rsslChnlImpl->Channel.userSpecPtr = opts->userSpecPtr;
+	/* map RsslSocketChannel to RsslChannel */
+	_rsslSocketToChannel(rsslChnlImpl, rsslSocketChannel);
 
-		if (opts->blocking) 
-		{
+	rsslChnlImpl->Channel.userSpecPtr = opts->userSpecPtr;
+
+	if (opts->blocking)
+	{
 #ifdef MUTEX_DEBUG
-	printf("LOCK rsslSocketChannel -- rsslConnect blocking\n");
+printf("LOCK rsslSocketChannel -- rsslConnect blocking\n");
 #endif
-			IPC_MUTEX_LOCK(rsslSocketChannel);
-			if (rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND)
-			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					"<%s:%d> Error: 1003 rsslSocketConnect() failed due to channel shutting down.\n",
+		IPC_MUTEX_LOCK(rsslSocketChannel);
+		if (rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1003 rsslSocketConnect() failed due to channel shutting down.\n",
+				__FILE__, __LINE__);
+
+			ipcShutdownSockectChannel(rsslSocketChannel, error);
+
+#ifdef MUTEX_DEBUG
+printf("UNLOCK rsslSocketChannel -- rsslConnect blocking\n");
+#endif
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+			return RSSL_RET_FAILURE;
+		}
+		else if (rsslSocketChannel->intState != RIPC_INT_ST_ACTIVE)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1003 rsslSocketConnect() failed because the channel is not active.\n",
 					__FILE__, __LINE__);
 
-				ipcShutdownSockectChannel(rsslSocketChannel, error);
+			ipcShutdownSockectChannel(rsslSocketChannel, error);
 
 #ifdef MUTEX_DEBUG
-	printf("UNLOCK rsslSocketChannel -- rsslConnect blocking\n");
+printf("UNLOCK rsslSocketChannel -- rsslConnect blocking\n");
 #endif
-			IPC_MUTEX_UNLOCK(rsslSocketChannel);
-				return RSSL_RET_FAILURE;
-			}
-			else if (rsslSocketChannel->intState != RIPC_INT_ST_ACTIVE)
-			{
-				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-						"<%s:%d> Error: 1003 rsslSocketConnect() failed because the channel is not active.\n",
-						__FILE__, __LINE__);
-
-				ipcShutdownSockectChannel(rsslSocketChannel, error);
-
-#ifdef MUTEX_DEBUG
-	printf("UNLOCK rsslSocketChannel -- rsslConnect blocking\n");
-#endif
-			IPC_MUTEX_UNLOCK(rsslSocketChannel);
-				return RSSL_RET_FAILURE;
-			}
-
-			rsslChnlImpl->maxMsgSize = rsslSocketChannel->maxUserMsgSize;
-			rsslChnlImpl->maxGuarMsgs = rsslSocketChannel->guarBufPool->bufpool.maxBufs; //guarOutputMsgs
-
-			if (rsslSocketChannel->version->connVersion > CONN_VERSION_12)
-				rsslChnlImpl->fragIdMax = 65535;
-			else
-				rsslChnlImpl->fragIdMax = 255;
-
-			/* if its blocking we can get ping info here */
-			rsslChnlImpl->rsslFlags = rsslSocketChannel->rsslFlags;
-			rsslChnlImpl->Channel.pingTimeout = rsslSocketChannel->pingTimeout;
-
-			rsslChnlImpl->Channel.protocolType = rsslSocketChannel->protocolType;
-			rsslChnlImpl->Channel.majorVersion = rsslSocketChannel->majorVersion;
-			rsslChnlImpl->Channel.minorVersion = rsslSocketChannel->minorVersion;
-
-			rsslChnlImpl->Channel.connectionType = rsslSocketChannel->connType;
-
-			rsslChnlImpl->Channel.clientHostname = rsslSocketChannel->clientHostname;
-			rsslChnlImpl->Channel.clientIP = rsslSocketChannel->clientIP;
-			
-			/* set shared key */
-			rsslChnlImpl->shared_key = rsslSocketChannel->shared_key;						
-#ifdef MUTEX_DEBUG
-	printf("UNLOCK rsslSocketChannel -- rsslConnect blocking\n");
-#endif
-			IPC_MUTEX_UNLOCK(rsslSocketChannel);
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+			return RSSL_RET_FAILURE;
 		}
+
+		rsslChnlImpl->maxMsgSize = rsslSocketChannel->maxUserMsgSize;
+		rsslChnlImpl->maxGuarMsgs = rsslSocketChannel->guarBufPool->bufpool.maxBufs; //guarOutputMsgs
+
+		if (rsslSocketChannel->version->connVersion > CONN_VERSION_12)
+			rsslChnlImpl->fragIdMax = 65535;
+		else
+			rsslChnlImpl->fragIdMax = 255;
+
+		/* if its blocking we can get ping info here */
+		rsslChnlImpl->rsslFlags = rsslSocketChannel->rsslFlags;
+		rsslChnlImpl->Channel.pingTimeout = rsslSocketChannel->pingTimeout;
+
+		rsslChnlImpl->Channel.protocolType = rsslSocketChannel->protocolType;
+		rsslChnlImpl->Channel.majorVersion = rsslSocketChannel->majorVersion;
+		rsslChnlImpl->Channel.minorVersion = rsslSocketChannel->minorVersion;
+
+		rsslChnlImpl->Channel.connectionType = rsslSocketChannel->connType;
+
+		rsslChnlImpl->Channel.clientHostname = rsslSocketChannel->clientHostname;
+		rsslChnlImpl->Channel.clientIP = rsslSocketChannel->clientIP;
+
+		/* set shared key */
+		rsslChnlImpl->shared_key = rsslSocketChannel->shared_key;
+#ifdef MUTEX_DEBUG
+printf("UNLOCK rsslSocketChannel -- rsslConnect blocking\n");
+#endif
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+	}
 
    	if (multiThread)
 	  (void) RSSL_MUTEX_LOCK(&ripcMutex);
@@ -8176,7 +8193,7 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 	RsslServerSocketChannel	*rsslServerSocketChannel;
 
 	rsslServerSocketChannel = (RsslServerSocketChannel*)rsslSrvrImpl->transportInfo;
-	
+
 	if (IPC_NULL_PTR(rsslServerSocketChannel, "rsslSocketAccept", "rsslServerSocketChannel", error))
 		return 0;
 
@@ -8186,7 +8203,7 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 		_rsslSetError(error, 0, RSSL_RET_FAILURE,  0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0005 rsslSocketAccept() Could not allocate memory for new channel\n", __FILE__, __LINE__);
 		return 0;
-	}	
+	}
 
 	rsslServerSocketChannel->mountNak = opts->nakMount ? 1 : 0;
 
@@ -8229,7 +8246,7 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 	if (rsslSocketChannel == 0)
 	{
 		_rsslReleaseChannel(rsslChnlImpl);
-	
+
 		return 0;
 	}
 	else
@@ -8245,7 +8262,7 @@ rsslChannelImpl* rsslSocketAccept(rsslServerImpl *rsslSrvrImpl, RsslAcceptOption
 
 		if (!opts->userSpecPtr)
 		{
-			rsslChnlImpl->Channel.userSpecPtr = rsslSrvrImpl->Server.userSpecPtr; 
+			rsslChnlImpl->Channel.userSpecPtr = rsslSrvrImpl->Server.userSpecPtr;
 		}
 		else
 		{
@@ -8351,7 +8368,7 @@ RsslRet rsslSocketInitChannel(rsslChannelImpl* rsslChnlImpl, RsslInProgInfo *inP
 		/* ipc does not own this and will not free or change it */
 		rsslSocketChannel->componentVer = rsslChnlImpl->componentVer.componentVersion.data;
 		rsslSocketChannel->componentVerLen = rsslChnlImpl->componentVer.componentVersion.length;
-	}	
+	}
 
 	/* Call ipcSessionInit */
 	retVal = ipcSessionInit(rsslSocketChannel, &ripcInProg, error);
@@ -8391,8 +8408,8 @@ RsslRet rsslSocketInitChannel(rsslChannelImpl* rsslChnlImpl, RsslInProgInfo *inP
 			rsslChnlImpl->Channel.clientIP = rsslSocketChannel->clientIP;
 
 			error->channel = &rsslChnlImpl->Channel;
-			/* possibly map state to inactive here */	
-			
+			/* possibly map state to inactive here */
+
 			retVal = RSSL_RET_CHAN_INIT_REFUSED;
 			break;
 
@@ -8501,7 +8518,7 @@ RsslRet rsslSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error)
 		_rsslFree(rsslChnlImpl->returnBuffer.data);
 	}
 
-		retVal = ipcShutdownSession(rsslSocketChannel, error);
+		retVal = ipcShutdownSockectChannel(rsslSocketChannel, error);
 
 		if (retVal < RSSL_RET_SUCCESS)
 		{
@@ -8525,7 +8542,7 @@ RsslRet rsslSocketCloseChannel(rsslChannelImpl* rsslChnlImpl, RsslError *error)
 		_rsslFree(rsslChnlImpl->componentInfo[0]);
 		_rsslFree(rsslChnlImpl->componentInfo);
 	}
-	
+
 	return retVal;
 }
 
@@ -8651,14 +8668,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 		}
 		/* we have read something */
 		/* map ripcBuffer to RsslBuffer */
-		if ((ripcFragSize == 0) && (ripcFragId == 0)) 
+		if ((ripcFragSize == 0) && (ripcFragId == 0))
 		{
 			/* message is one fragment */
 			if (ripcBuffer->length > 0)
 			{
 				/* im not the memory owner */
 				rsslChnlImpl->returnBufferOwner = 0;
-			
+
 				/* check for packing */
 				if (packing != 0)
 				{
@@ -8668,8 +8685,8 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 					rsslChnlImpl->unpackOffset = rwfGet16(bufLength, ripcBuffer->buffer);
 					rsslChnlImpl->returnBuffer.length = bufLength;
 					rsslChnlImpl->returnBuffer.data = ripcBuffer->buffer + rsslChnlImpl->unpackOffset;
-					
-					/* check if this is the only message in the packed buffer - 
+
+					/* check if this is the only message in the packed buffer -
 					  if so, just continue like normal */
 					if ((ripcBuffer->buffer + ripcBuffer->length) != (rsslChnlImpl->returnBuffer.data + rsslChnlImpl->returnBuffer.length))
 					{
@@ -8682,7 +8699,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 						rsslChnlImpl->unpackOffset += rsslChnlImpl->returnBuffer.length;
 
 						/* this has to be true in this case */
-						ripcMoreData = 1;	
+						ripcMoreData = 1;
 					}
 					else
 					{
@@ -8721,7 +8738,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				if (rsslAssemblyBuf->buffer.data)
 					rsslAssemblyBuf->buffer.length = ripcFragSize;
 			}
-		
+
 			if (!rsslAssemblyBuf || !rsslAssemblyBuf->buffer.data)
 			{
 				/* error */
@@ -8732,7 +8749,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 #endif
 				  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 				}
-				
+
 				if (rsslAssemblyBuf)
 					_rsslFree(rsslAssemblyBuf);
 
@@ -8751,7 +8768,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 			{
 				/* no more data for this - not sure why fragmentation was used in this case */
 				/* its not in the queue yet so we do not have to remove it */
-						
+
 				/* i am the owner since its a fragment */
 				rsslChnlImpl->returnBufferOwner = 1;
 
@@ -8770,7 +8787,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				/* there is more data coming - put this in the queue */
 
 				/* before we put it in the queue, check if one is there with the same frag id */
-				/* this should be rare - it means we didnt receive the entire message and we 
+				/* this should be rare - it means we didnt receive the entire message and we
 				   have looped around back to this frag id */
 				/* if this happens we should remove the old one - odds are we are never completing it
 				   and even if we did, its probably not very important anymore */
@@ -8780,7 +8797,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				hashSum = UInt32_key_hash(rsslAssemblyBuf);
 
 				rsslHashLink = rsslHashTableFind(&rsslChnlImpl->assemblyBuffers, rsslAssemblyBuf, &hashSum);
-				
+
 				if (rsslHashLink)
 				{
 					rsslTempAssemblyBuf = RSSL_HASH_LINK_TO_OBJECT(rsslAssemblyBuffer, link1, rsslHashLink);
@@ -8791,7 +8808,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 
 					if (memoryDebug)
 						printf("removing from assemblyBuffers hash\n");
-		
+
 					/* now release this memory back into the pool */
 					_rsslFree(rsslTempAssemblyBuf->buffer.data);
 					rsslTempAssemblyBuf->buffer.length = 0;
@@ -8811,12 +8828,12 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 		{	/* should be another/subsequent fragment in the current message */
 			rsslAssemblyBuffer	rsslAssemblyBufferSearch;
 			RsslHashLink		*rsslHashLink;
-			
+
 			_rsslCleanAssemblyBuffer(&rsslAssemblyBufferSearch);
-		
+
 			if (ripcBuffer->length == 0)	/* if we get a subsequent fragment with a zero size, ignore it */
 			{
-				/* we cant just blindly return ping here because there may be more data in the input buffer.  
+				/* we cant just blindly return ping here because there may be more data in the input buffer.
 				   to combat this, check if ripc said there is more data to read, we do not know whether it is a full message
 				   available or not, but if there is anything there we should tell app to read again */
 				if (ripcMoreData)
@@ -8832,7 +8849,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 
 			if (rsslHashLink)
 				rsslAssemblyBuf = RSSL_HASH_LINK_TO_OBJECT(rsslAssemblyBuffer, link1, rsslHashLink);
-			
+
 			if (!rsslHashLink || !rsslAssemblyBuf->buffer.data)
 			{
 				/* error */
@@ -8843,7 +8860,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 #endif
 				  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 				}
-				
+
 				if (rsslAssemblyBuf)
 					_rsslFree(rsslAssemblyBuf);
 
@@ -8874,7 +8891,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 
 				rsslChnlImpl->returnBuffer.length = rsslAssemblyBuf->buffer.length;
 				rsslChnlImpl->returnBuffer.data = rsslAssemblyBuf->buffer.data;
-				
+
 				/* clean up rsslAssemblyBuf */
 				_rsslFree(rsslAssemblyBuf);
 				rsslAssemblyBuf = 0;
@@ -8900,7 +8917,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 			   entire message, we return moreData but no buffer */
 			if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length ))
 				(*(rsslSocketDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
-		
+
 			if (!returnNull)
 				return &(rsslChnlImpl->returnBuffer);
 			else
@@ -8917,7 +8934,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 			{
 				if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length))
 					(*(rsslSocketDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
-	
+
 				if (!returnNull)
 				{
 					*readRet = RSSL_RET_SUCCESS;
@@ -8940,7 +8957,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 		case RSSL_RET_FAILURE:
 				/* if read fails we need to update state */
 				rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
-			
+
 				error->channel = &rsslChnlImpl->Channel;
 
 				if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
@@ -8966,7 +8983,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				}
 				*readRet = ipcReadRet;
 				return NULL;
-		
+
 			case RSSL_RET_SUCCESS:
 				/* Ripc read the first part of a ripc fragmented message */
 				/* Tell the user to read again so ripc can get the second part and reassemble it */
@@ -8985,7 +9002,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				}
 				*readRet = 1;
 				return NULL;
-		
+
 			case RSSL_RET_READ_WOULD_BLOCK:
 				if(readOutArgs != NULL)
 				{
@@ -9002,7 +9019,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 				}
 				*readRet = ipcReadRet;
 				return NULL;
-		
+
 			default: /* should never get here */
 				if (multiThread == RSSL_LOCK_GLOBAL_AND_CHANNEL)
 				{
@@ -9018,7 +9035,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 }
 
 /* rssl Socket Write */
-RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImpl, rsslBufferImpl *rsslBufImpl, RsslWriteInArgs *writeInArgs, 
+RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImpl, rsslBufferImpl *rsslBufImpl, RsslWriteInArgs *writeInArgs,
 	RsslWriteOutArgs *writeOutArgs, RsslError *error)
 {
 	RsslInt32 retVal = RSSL_RET_FAILURE;
@@ -9066,7 +9083,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 		}
 
 		(*ripcBuffer)->priority = rsslBufImpl->priority;
-		
+
 		retVal = ipcWriteSession(rsslSocketChannel, rsslBufImpl, writeFlags, (RsslInt32*)&outBytes, (RsslInt32*)&uncompOutBytes, (writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != 0, error);
 
 		totalOutBytes += outBytes;
@@ -9108,17 +9125,17 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 			}
 		}
 
-		/* chained message - this means that I allocated the memory. 
-		   I have to break it into its respective ripc messages, 
+		/* chained message - this means that I allocated the memory.
+		   I have to break it into its respective ripc messages,
 		   set the sizes accordingly, and then free the memory on a successful write */
 
-		/* even though the memcpy's arent the most efficient, 
+		/* even though the memcpy's arent the most efficient,
 		   this case should only happen on messages that are > than
 		   max message size, so this shouldnt happen very frequently. */
 		tempSize = rsslBufImpl->buffer.length - rsslBufImpl->writeCursor;
 
 		rootBuffer = ripcBuffer;
-		
+
 		/* This while loop support the WRITE_CALL_AGAIN case as well*/
 		while (tempSize > 0)
 		{
@@ -9217,7 +9234,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 
 			/* in this case, no buffers are freed */
 			error->channel = &rsslChnlImpl->Channel;
-			
+
 			return RSSL_RET_FAILURE;
 		}
 		else
@@ -9239,7 +9256,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 			}
 		}
 	}
-	else  
+	else
 	{
 		/* if its a successful write ripc should have freed its buffer so we
 			should follow suit and free the RsslBuffer here */
@@ -9264,7 +9281,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketWrite(rsslChannelImpl *rsslChnlImp
 #endif
 		  (void) RSSL_MUTEX_UNLOCK(&rsslChnlImpl->chanMutex);
 		}
-	
+
 		if (rsslBufImpl->writeCursor > 0)
 		{
 			/* if we get here, the message has been written fully so reset writeCursor and fragId */
@@ -9401,12 +9418,12 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslSocketGetBuffer(rsslChannelImpl 
 	/* else successful - now allocate rsslbuffer */
 	rsslBufImpl = _rsslNewBuffer(rsslChnlImpl);
 
-	if (rsslBufImpl == NULL) 
+	if (rsslBufImpl == NULL)
 	{
 		_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_BUFFER_NO_BUFFERS, 0);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Error: 0016 rsslSocketGetBuffer() Cannot allocate memory of size %d for buffer.\n", __FILE__, __LINE__, size);
-	
+
 		/* return buffer */
 		ipcReleaseDataBuffer(rsslSocketChannel, ipcBuf, error);
 
@@ -9419,7 +9436,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslSocketGetBuffer(rsslChannelImpl 
 
 		/* this is a chained message */
 		/* that means I need to do some memory creation to hide the fact that this is actually
-		   multiple buffers.  We also need to make sure that when writing, we copy the real 
+		   multiple buffers.  We also need to make sure that when writing, we copy the real
 		   data into the ripcBuffer */
 		rsslBufImpl->bufferInfo = ipcBuf;
 
@@ -9535,7 +9552,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketFlush(rsslChannelImpl *rsslChnlImp
 	if (retVal < RSSL_RET_SUCCESS)
 	{
 		/* if this fails, close socket */
-		rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED; 
+		rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
 
 		error->channel = &rsslChnlImpl->Channel;
 	}
@@ -9564,7 +9581,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketGetChannelInfo(rsslChannelImpl *rs
 {
 	RsslInt32		i = 0;
 	RsslInt32 		size = 0;
-	
+
 	char*		componentVersion;
 	RsslUInt32	componentVersionLength;
 
@@ -9669,7 +9686,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketGetChannelInfo(rsslChannelImpl *rs
 	else
 		info->componentInfoCount = 0;
 	info->componentInfo = rsslChnlImpl->componentInfo;
-	
+
 	if (rsslSocketGetSockOpts(rsslSocketChannel, RIPC_SYSTEM_READ_BUFFERS, &size, error) < 0)
 	{
 		error->channel = &rsslChnlImpl->Channel;
@@ -9690,7 +9707,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketGetChannelInfo(rsslChannelImpl *rs
 
 	info->tcpSendBufSize = size;
 	info->sysSendBufSize = size;
-	
+
 	if (rsslChnlImpl->rsslFlags & SERVER_TO_CLIENT)
 	{
 		info->serverToClientPings = RSSL_TRUE;
@@ -9717,7 +9734,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketGetChannelInfo(rsslChannelImpl *rs
 	info->multicastStats.unicastRcvd = 0;
 	info->multicastStats.unicastSent = 0;
 	info->multicastStats.gapsDetected = 0;
-	
+
 	return RSSL_RET_SUCCESS;
 }
 
@@ -9852,7 +9869,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslInt32) rsslSocketSrvrBufferUsage(rsslServerImpl *
 	printf("UNLOCK rsslServerSocketChannel -- rsslSocketSrvrBufferUsage (end)\n");
 #endif
 	IPC_MUTEX_UNLOCK(rsslServerSocketChannel);
-		
+
 	return retVal;
 }
 
@@ -9911,7 +9928,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslSocketSrvrIoctl(rsslServerImpl *rsslSrvr
 			}
 		}
 		break;
-		case RSSL_SERVER_PEAK_BUF_RESET: 
+		case RSSL_SERVER_PEAK_BUF_RESET:
 		{
 			if (rtr_dfltcResetPeakNumBufs(rsslServerSocketChannel->sharedBufPool) < 0)
 			{
@@ -9976,7 +9993,7 @@ RSSL_RSSL_SOCKET_FAST(RsslRet) rsslSocketIoctl(rsslChannelImpl *rsslChnlImpl, Rs
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 				"<%s:%d> Error: 1003 rsslSocketIoctl() failed due to channel shutting down.\n",
 				__FILE__, __LINE__);
-		
+
 #ifdef MUTEX_DEBUG
 	printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 #endif
@@ -10013,7 +10030,7 @@ RSSL_RSSL_SOCKET_FAST(RsslRet) rsslSocketIoctl(rsslChannelImpl *rsslChnlImpl, Rs
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Error: 1001 rsslSocketIoctl() failed, could not change the number of shared output buffers from <%d> to <%d>\n.",
 					__FILE__, __LINE__, rsslSocketChannel->guarBufPool->maxPoolBufs, iValue);
-			
+
 #ifdef MUTEX_DEBUG
 	printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 #endif
@@ -10043,7 +10060,7 @@ RSSL_RSSL_SOCKET_FAST(RsslRet) rsslSocketIoctl(rsslChannelImpl *rsslChnlImpl, Rs
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Error: 1001 rsslSocketIoctl() failed, could not change the number of output buffers from <%d> to <%d>.\n",
 					__FILE__, __LINE__, rsslSocketChannel->guarBufPool->bufpool.maxBufs, iValue);
-			
+
 #ifdef MUTEX_DEBUG
 	printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 #endif
@@ -10081,7 +10098,7 @@ RSSL_RSSL_SOCKET_FAST(RsslRet) rsslSocketIoctl(rsslChannelImpl *rsslChnlImpl, Rs
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Error: 1002 Could not set number of system read buffers to (%d). System errno: (%d)\n",
 					__FILE__, __LINE__, iValue, errno);
-		
+
 #ifdef MUTEX_DEBUG
 printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 #endif
@@ -10101,7 +10118,7 @@ printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Error: 1002 Could not set number of system write buffers to (%d). System errno: (%d)\n",
 					__FILE__, __LINE__, iValue, errno);
-		
+
 #ifdef MUTEX_DEBUG
 printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 #endif
@@ -10162,8 +10179,8 @@ printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 		break;
 
 	case RSSL_PRIORITY_FLUSH_ORDER:
-		/* cast value to char*, go through one by one to verify that they are all H, M, L 
-		   Null terminate - Make sure at least H and M are represented.  Then store in sess->flushStrategy[]; 
+		/* cast value to char*, go through one by one to verify that they are all H, M, L
+		   Null terminate - Make sure at least H and M are represented.  Then store in sess->flushStrategy[];
 		*/
 		/* if we allow more than 3, we want to change this to just use numbers starting from 0 */
 
@@ -10231,7 +10248,7 @@ printf("UNLOCK rsslSocketChannel -- rsslSocketIoctl\n");
 			rsslSocketChannel->currentOutList = 0;
 		}
 		else
-		{	
+		{
 			/* generate an error here and return failure */
 			_rsslSetError(error, (RsslChannel*)(&rsslChnlImpl->Channel), RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
@@ -10322,7 +10339,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 #ifdef MUTEX_DEBUG
 		  printf("MUTEX_INIT ripcMutex -- ipcInitialize\n");
 #endif
-             
+
 			RTR_ATOMIC_SET(gblmutexinit,1);
 			RSSL_MUTEX_INIT_ESDK(&ripcMutex);
 			poolMutex = &ripcMutex;
@@ -10412,7 +10429,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 		transOpts.jitOpts.libcryptoName = 0;
 		transOpts.initConfig = 0;
 		transOpts.initConfigSize = 0;
-	
+
 		if (initOpts->initConfig && initOpts->initConfigSize)
 		{
 			transOpts.initConfigSize = initOpts->initConfigSize;
@@ -10497,13 +10514,12 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 		ripcInitLz4Comp();
 
 		/* initialize open SSL library */
-#ifndef _WIN32
 		/* Copy the ssl and crypto lib name config */
 
 		if (initOpts->jitOpts.libsslName != 0 && initOpts->jitOpts.libcryptoName != 0)
 		{
-			libsslNameLen = strlen(initOpts->jitOpts.libsslName) + 1; // Include null character
-			libcryptoNameLen = strlen(initOpts->jitOpts.libcryptoName) + 1; // Include null character
+			libsslNameLen = (u8)strlen(initOpts->jitOpts.libsslName) + 1; // Include null character
+			libcryptoNameLen = (u8)strlen(initOpts->jitOpts.libcryptoName) + 1; // Include null character
 			transOpts.jitOpts.libsslName = (char*)malloc(libsslNameLen);
 			transOpts.jitOpts.libcryptoName = (char*)malloc(libcryptoNameLen);
 			if (transOpts.jitOpts.libsslName == 0 || transOpts.jitOpts.libcryptoName == 0)
@@ -10513,17 +10529,6 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 					"<%s:%d> Error: 1001 malloc failed.\n",
 					__FILE__, __LINE__);
 
-				if (transOpts.jitOpts.libsslName)
-				{
-					free(transOpts.jitOpts.libsslName);
-					transOpts.jitOpts.libsslName = 0;
-				}
-				if (transOpts.jitOpts.libcryptoName)
-				{
-					free(transOpts.jitOpts.libcryptoName);
-					transOpts.jitOpts.libcryptoName = 0;
-				}
-
 				ret = RSSL_RET_FAILURE;
 				goto ripcinitend;
 			}
@@ -10531,7 +10536,24 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 			snprintf(transOpts.jitOpts.libsslName, libsslNameLen, "%s", initOpts->jitOpts.libsslName);
 			snprintf(transOpts.jitOpts.libcryptoName, libcryptoNameLen, "%s", initOpts->jitOpts.libcryptoName);
 		}
-#endif
+
+		if (initOpts->jitOpts.libcurlName != 0)
+		{
+			libcurlNameLen = (u8)strlen(initOpts->jitOpts.libcurlName) + 1;  // Include null charcter
+			transOpts.jitOpts.libcurlName = (char*)malloc(libcurlNameLen);
+			if (transOpts.jitOpts.libcurlName == 0)
+			{
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: 1001 malloc failed.\n",
+					__FILE__, __LINE__);
+
+				ret = RSSL_RET_FAILURE;
+				goto ripcinitend;
+			}
+
+			snprintf(transOpts.jitOpts.libcurlName, libcurlNameLen, "%s", initOpts->jitOpts.libcurlName);
+		}
 
 		protocolNumber = 6;  /* tcp (transmission control protocol) */
 
@@ -10587,7 +10609,7 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 			if ((rsslServerSocketChannel = createRsslServerSocketChannel()) != 0)
 				rsslQueueAddLinkToBack(&freeServerSocketChannelList, &(rsslServerSocketChannel->link1));
 		}
-        
+
 		for (i = 0; i<numClients; i++)
 		{
 			if ((rsslSocketChannel = createRsslSocketChannel()) != 0)
@@ -10600,6 +10622,31 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 	++numInitCalls;
 
 ripcinitend:
+	if (ret == RSSL_RET_FAILURE)
+	{
+
+		if (transOpts.initConfig)
+		{
+			free(transOpts.initConfig);
+			transOpts.initConfig = 0;
+		}
+		if (transOpts.jitOpts.libsslName)
+		{
+			free(transOpts.jitOpts.libsslName);
+			transOpts.jitOpts.libsslName = 0;
+		}
+		if (transOpts.jitOpts.libcryptoName)
+		{
+			free(transOpts.jitOpts.libcryptoName);
+			transOpts.jitOpts.libcryptoName = 0;
+		}
+		if (transOpts.jitOpts.libcurlName)
+		{
+			free(transOpts.jitOpts.libcurlName);
+			transOpts.jitOpts.libcurlName = 0;
+		}
+	}
+
 	if (multiThread)
 	{
 #ifdef MUTEX_DEBUG
@@ -10697,7 +10744,6 @@ RsslInt32 ipcCleanup()
 			transOpts.initConfigSize = 0;
 		}
 
-#ifndef _WIN32
 		if (openSSLInit == 1)
 			openSSLInit = 0;
 
@@ -10709,7 +10755,18 @@ RsslInt32 ipcCleanup()
 			free(transOpts.jitOpts.libcryptoName);
 			transOpts.jitOpts.libcryptoName = 0;
 		}
-#endif
+
+		if (transOpts.jitOpts.libcurlName)
+		{
+			free(transOpts.jitOpts.libcurlName);
+			transOpts.jitOpts.libcurlName = 0;
+		}
+
+		if (libcurlInit == 1)
+		{
+			rsslUninitCurlApi();
+			libcurlInit = 0;
+		}
 
 		rssl_socket_shutdown();
 
@@ -10774,7 +10831,7 @@ RsslInt32 ipcShutdownServer(RsslServerSocketChannel* rsslServerSocketChannel, Rs
 }
 
 /***************************
- * START PUBLIC ABSTRACTED FUNCTIONS 
+ * START PUBLIC ABSTRACTED FUNCTIONS
  ***************************/
 
 RsslInt32 ipcSrvrDropRef(RsslServerSocketChannel *rsslServerSocketChannel, RsslError *error)
@@ -10792,7 +10849,7 @@ RsslInt32 ipcSrvrDropRef(RsslServerSocketChannel *rsslServerSocketChannel, RsslE
 	IPC_MUTEX_LOCK(rsslServerSocketChannel);
 
 	relRsslServerSocketChannel(rsslServerSocketChannel);
-	
+
 #ifdef MUTEX_DEBUG
 	printf("UNLOCK rsslServerSocketChannel -- ipcSrvrDropRef (end)\n");
 #endif
@@ -10804,7 +10861,7 @@ RsslInt32 ipcSrvrDropRef(RsslServerSocketChannel *rsslServerSocketChannel, RsslE
 	return(1);
 }
 
-RSSL_RSSL_SOCKET_FAST(RsslRet) rsslCloseSocketSrvr(rsslServerImpl *rsslSrvrImpl, RsslError *error) 
+RSSL_RSSL_SOCKET_FAST(RsslRet) rsslCloseSocketSrvr(rsslServerImpl *rsslSrvrImpl, RsslError *error)
 {
 	RsslRet retVal = RSSL_RET_SUCCESS;
 
@@ -10857,7 +10914,7 @@ RsslRet rsslSocketSetChannelFunctions()
 	funcs.channelReleaseBuffer = rsslSocketReleaseBuffer;
 	funcs.channelWrite = rsslSocketWrite;
 	funcs.initChannel = rsslSocketInitChannel;
-	
+
 	return(rsslSetTransportChannelFunc(RSSL_SOCKET_TRANSPORT,&funcs));
 }
 
@@ -10946,7 +11003,7 @@ RsslInt32 ripcSetDbgFuncs(
 
 
 /* Sets Socket debug dump functions */
-RsslRet rsslSetSocketDebugFunctions( 
+RsslRet rsslSetSocketDebugFunctions(
 		void(*dumpIpcIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslUInt64 opaque),
 		void(*dumpIpcOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslUInt64 opaque),
 		void(*dumpRsslIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
@@ -11028,12 +11085,12 @@ RsslInt32 rsslSocketGetSockOpts( RsslSocketChannel *rsslSocketChannel, RsslInt32
 
 		return RSSL_RET_FAILURE;
 	}
-	
+
 	switch (code)
 	{
 		case RIPC_SYSTEM_READ_BUFFERS:
-			
-			if (((*(rsslSocketChannel->transportFuncs->getSockOpts))(rsslSocketChannel->stream, 
+
+			if (((*(rsslSocketChannel->transportFuncs->getSockOpts))(rsslSocketChannel->stream,
 																	 RIPC_SYSTEM_READ_BUFFERS, value,
 																	 rsslSocketChannel->transportInfo,
 																	 error)) < 0)
@@ -11042,7 +11099,7 @@ RsslInt32 rsslSocketGetSockOpts( RsslSocketChannel *rsslSocketChannel, RsslInt32
 
 		case RIPC_SYSTEM_WRITE_BUFFERS:
 
-			if (((*(rsslSocketChannel->transportFuncs->getSockOpts))(rsslSocketChannel->stream, 
+			if (((*(rsslSocketChannel->transportFuncs->getSockOpts))(rsslSocketChannel->stream,
 																	 RIPC_SYSTEM_WRITE_BUFFERS, value,
 																	 rsslSocketChannel->transportInfo,
 																	 error)) < 0)
@@ -11060,93 +11117,6 @@ RsslInt32 rsslSocketGetSockOpts( RsslSocketChannel *rsslSocketChannel, RsslInt32
 	IPC_MUTEX_UNLOCK(rsslSocketChannel);
 
 	return ret;
-}
-
-/* Session should be locked before call */
-void ipcUserSessClose(RsslSocketChannel *rsslSocketChannel)
-{
-	/* When we are setting up for renegotiation a new socket
-	* is created and the old is closed. We need to keep
-	* track of both in case of an error for feedback to user.
-	*/
-	if (rsslSocketChannel->newStream != RIPC_INVALID_SOCKET)
-	{
-		if (!(rsslSocketChannel->workState & RIPC_INT_SOCK_CLOSED))
-		{
-			if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
-				sock_close(rsslSocketChannel->newStream);
-			rsslSocketChannel->newStream = RIPC_INVALID_SOCKET;
-			rsslSocketChannel->workState |= RIPC_INT_SOCK_CLOSED;
-		}
-	}
-
-	if (rsslSocketChannel->stream != RIPC_INVALID_SOCKET)
-	{
-		if (!(rsslSocketChannel->workState & RIPC_INT_SOCK_CLOSED))
-		{
-			/* If we're in a proxy connecting state, transportInfo is 0.  Send the FD instead.  Don't cast as a pointer it since it's just getting cast to a RsslSocket. */
-			if (rsslSocketChannel->intState == RIPC_INT_ST_PROXY_CONNECTING || rsslSocketChannel->intState == RIPC_INT_ST_CLIENT_WAIT_PROXY_ACK)
-				(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->transportInfo);
-			/* if we are doing tunneling, this state means we do not want to close the real fd */
-			else if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
-				(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->transportInfo);
-			rsslSocketChannel->stream = RIPC_INVALID_SOCKET;
-			rsslSocketChannel->workState |= RIPC_INT_SOCK_CLOSED;
-		}
-	}
-
-	/* if we are tunneling, these may be set */
-	if (rsslSocketChannel->tunnelStreamFd != 0)
-	{
-		if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
-			(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->tunnelStreamFd);
-		rsslSocketChannel->tunnelStreamFd = 0;
-	}
-
-	if (rsslSocketChannel->newTunnelStreamFd != 0)
-	{
-		if (rsslSocketChannel->oldTunnelStreamFd == rsslSocketChannel->newTunnelStreamFd)
-			rsslSocketChannel->oldTunnelStreamFd = 0;
-		if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
-			(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->newTunnelStreamFd);
-		rsslSocketChannel->newTunnelStreamFd = 0;
-	}
-
-	if (rsslSocketChannel->oldTunnelStreamFd != 0)
-	{
-		if (rtrUnlikely(conndebug))
-			printf("Cleanup old reconnect Stream FD: %p\n", rsslSocketChannel->oldTunnelStreamFd);
-
-		(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->oldTunnelStreamFd);
-		rsslSocketChannel->oldTunnelStreamFd = 0;
-	}
-
-	if (!(rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND))
-		rsslSocketChannel->workState |= RIPC_INT_SHTDOWN_PEND;
-
-	if (rsslSocketChannel->state != RSSL_CH_STATE_INACTIVE)
-		rsslSocketChannel->state = RSSL_CH_STATE_INACTIVE;
-}
-
-RsslInt32 ipcShutdownSession(RsslSocketChannel* rsslSocketChannel, RsslError *error)
-{
-	if (IPC_NULL_PTR(rsslSocketChannel, "ipcShutdownSession", "socket", error))
-		return RSSL_RET_FAILURE;
-
-#ifdef MUTEX_DEBUG
-	printf("LOCK rsslSocketChannel -- ipcShutdownSession (start)\n");
-#endif
-	IPC_MUTEX_LOCK(rsslSocketChannel);
-
-	/* clear up the socket struct */
-	ipcUserSessClose(rsslSocketChannel);
-
-#ifdef MUTEX_DEBUG
-	printf("UNLOCK rsslSocketChannel -- ipcShutdownSession (end)\n");
-#endif
-	IPC_MUTEX_UNLOCK(rsslSocketChannel);
-
-	return(1);
 }
 
 RsslInt32 ipcShutdownSockectChannel(RsslSocketChannel* rsslSocketChannel, RsslError *error)
@@ -11238,7 +11208,7 @@ ripcSessInit ipcSessionInit(RsslSocketChannel *rsslSocketChannel, ripcSessInProg
 		else
 		{
 			rsslSocketChannel->workState |= RIPC_INT_READ_THR;
-		
+
 			if((ret = ipcIntSessInit(rsslSocketChannel,inPr,error)) < 0)
 			{
 #ifdef MUTEX_DEBUG
@@ -11293,6 +11263,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) relRsslServerSocketChannel(RsslServerSocketChan
 RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSocketChannel)
 {
 	RsslQueueLink *pLink = 0;
+	RsslCurlJITFuncs* curlFuncs;
 	if (rtrUnlikely(refdebug)) printf("relRsslSocketChannel RsslSocketChannel=0x%p\n",rsslSocketChannel);
 
 	if (multiThread)
@@ -11317,7 +11288,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSoc
 
 		rtr_dfltcDropRef(&(rsslSocketChannel->guarBufPool->bufpool));
 		rsslSocketChannel->guarBufPool = 0;
-	}	
+	}
 
 	if (rsslSocketChannel->curInputBuf)
 	{
@@ -11398,11 +11369,53 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSoc
 		_rsslFree((void*)rsslSocketChannel->proxyPort);
 		rsslSocketChannel->proxyPort = 0;
 	}
-
+	if (rsslSocketChannel->curlOptProxyUser != 0)
+	{
+		_rsslFree((void*)rsslSocketChannel->curlOptProxyUser);
+		rsslSocketChannel->curlOptProxyUser = 0;
+	}
+	if (rsslSocketChannel->curlOptProxyPasswd != 0)
+	{
+		_rsslFree((void*)rsslSocketChannel->curlOptProxyPasswd);
+		rsslSocketChannel->curlOptProxyPasswd = 0;
+	}
+	if (rsslSocketChannel->curlOptProxyDomain != 0)
+	{
+		_rsslFree((void*)rsslSocketChannel->curlOptProxyDomain);
+		rsslSocketChannel->curlOptProxyDomain = 0;
+	}
     if (rsslSocketChannel->outComponentVer)
 	{
 		/* we created and own memory for this, free it */
 		_rsslFree((void*)rsslSocketChannel->outComponentVer);
+	}
+	if(rsslSocketChannel->sslCAStore)
+	{
+		/* we created and own memory for this, free it */
+		_rsslFree((void*)rsslSocketChannel->sslCAStore);
+	}
+
+	
+
+	if (rsslSocketChannel->curlHandle)
+	{
+		if (rsslSocketChannel->curlThreadInfo.curlThreadState == RSSL_CURL_ACTIVE)
+		{
+			// Wait for the curl thread to finish.  It should always complete
+			RSSL_THREAD_JOIN(rsslSocketChannel->curlThreadInfo.curlThreadId);
+		}
+			
+		/* If this is false, then this is an error condition, so clean out the curlHandle and continue with the shutdown */
+		if ((curlFuncs = rsslGetCurlFuncs()) != NULL)
+		{
+			(*(curlFuncs->curl_easy_cleanup))(rsslSocketChannel->curlHandle);
+            
+            if(rsslSocketChannel->curlThreadInfo.curlError)
+                _rsslFree(rsslSocketChannel->curlThreadInfo.curlError);
+            rsslSocketChannel->curlThreadInfo.curlError = 0;
+		}
+		
+		rsslSocketChannel->curlHandle = 0;
 	}
 
 	rssl_pipe_close(&rsslSocketChannel->sessPipe);
@@ -11411,9 +11424,106 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSoc
 	/* do not clear sessionID here */
 
 	rsslQueueAddLinkToFront(&freeSocketChannelList, &(rsslSocketChannel->link1));
-	
+
 	if (multiThread)
 	  (void) RSSL_MUTEX_UNLOCK(&ripcMutex);
 }
 
+/* Session should be locked before call */
+void rsslSocketChannelClose(RsslSocketChannel *rsslSocketChannel)
+{
+	/* When we are setting up for renegotiation a new socket
+	* is created and the old is closed. We need to keep
+	* track of both in case of an error for feedback to user.
+	*/
+	if (rsslSocketChannel->newStream != RIPC_INVALID_SOCKET)
+	{
+		if (!(rsslSocketChannel->workState & RIPC_INT_SOCK_CLOSED))
+		{
+			if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
+				sock_close(rsslSocketChannel->newStream);
+			rsslSocketChannel->newStream = RIPC_INVALID_SOCKET;
+			rsslSocketChannel->workState |= RIPC_INT_SOCK_CLOSED;
+		}
+	}
+
+	if (rsslSocketChannel->stream != RIPC_INVALID_SOCKET)
+	{
+		if (!(rsslSocketChannel->workState & RIPC_INT_SOCK_CLOSED))
+		{
+			/* If we're in a proxy connecting state, and transportInfo should not be setup yet.  
+				Join the CURL thread and close out the CURL channel, then close the pipe */
+			if (rsslSocketChannel->intState == RIPC_INT_ST_PROXY_CONNECTING || rsslSocketChannel->intState == RIPC_INT_ST_CLIENT_WAIT_PROXY_ACK)
+			{
+				RSSL_THREAD_JOIN(rsslSocketChannel->curlThreadInfo.curlThreadId);
+				rssl_pipe_close(&rsslSocketChannel->sessPipe);
+			}
+			
+			/* if we are doing tunneling, this state means we dont want to close the real fd */
+			if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
+			{
+				RsslCurlJITFuncs* curlFuncs;
+				if (rsslSocketChannel->curlHandle != NULL)
+				{
+					/* If the curl functions are null, the handle should already have been cleaned up, so set it to NULL here. */
+
+					if ((curlFuncs = rsslGetCurlFuncs()) != NULL)
+                    {
+						(*(curlFuncs->curl_easy_cleanup))(rsslSocketChannel->curlHandle);
+                        if(rsslSocketChannel->curlThreadInfo.curlError) 
+                            _rsslFree(rsslSocketChannel->curlThreadInfo.curlError);
+                        rsslSocketChannel->curlThreadInfo.curlError = 0;
+                    }
+					rsslSocketChannel->curlHandle = NULL;
+
+					/* a CURL handle will only be set if this is an openSSL encrypted connection.  WinInet connections do not use curl */
+					if (rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED && rsslSocketChannel->usingWinInet == 0)
+					{
+						if(rsslSocketChannel->transportInfo != NULL)
+							((ripcSSLSession*)rsslSocketChannel->transportInfo)->socket = RIPC_INVALID_SOCKET;
+					}
+					else if (rsslSocketChannel->connType == RSSL_CONN_TYPE_SOCKET)
+					{
+						/* Set the transportInfo FD to RIPC_INVALID_SOCKET, because the curl cleanup call will close the channel for us */
+						rsslSocketChannel->transportInfo = (void*)RIPC_INVALID_SOCKET;
+					}
+				}
+
+				(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->transportInfo);
+			}
+
+			rsslSocketChannel->stream = RIPC_INVALID_SOCKET;
+			rsslSocketChannel->workState |= RIPC_INT_SOCK_CLOSED;
+		}
+	}
+
+	/* if we are tunneling, these may be set, and will be handled appropriately */
+	if (rsslSocketChannel->tunnelStreamFd != 0)
+	{
+		if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
+			(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->tunnelStreamFd);
+		rsslSocketChannel->tunnelStreamFd = 0;
+	}
+
+	if (rsslSocketChannel->newTunnelStreamFd != 0)
+	{
+		if (rsslSocketChannel->oldTunnelStreamFd == rsslSocketChannel->newTunnelStreamFd)
+			rsslSocketChannel->oldTunnelStreamFd = 0;
+		if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
+			(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->newTunnelStreamFd);
+		rsslSocketChannel->newTunnelStreamFd = 0;
+	}
+
+	if (rsslSocketChannel->oldTunnelStreamFd != 0)
+	{
+		(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->oldTunnelStreamFd);
+		rsslSocketChannel->oldTunnelStreamFd = 0;
+	}
+
+	if (!(rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND))
+		rsslSocketChannel->workState |= RIPC_INT_SHTDOWN_PEND;
+
+	if (rsslSocketChannel->state != RSSL_CH_STATE_INACTIVE)
+		rsslSocketChannel->state = RSSL_CH_STATE_INACTIVE;
+}
 

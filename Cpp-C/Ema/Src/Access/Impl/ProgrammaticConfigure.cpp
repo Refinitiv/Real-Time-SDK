@@ -1040,6 +1040,11 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 													if (activeConfig.libCryptoName.length() == 0)
 														activeConfig.libCryptoName = eentry.getAscii();
 												}
+												else if (eentry.getName() == "LibcurlName")
+												{
+													if (activeConfig.libcurlName.length() == 0)
+														activeConfig.libcurlName = eentry.getAscii();
+												}
 												break;
 
 											case DataType::UIntEnum:
@@ -1592,14 +1597,14 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 {
 	const ElementList& elementListChannel = mapEntry.getElementList();
 
-	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort;
-	UInt16 channelType, compressionType;
+	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, sslCAStore;
+	UInt16 channelType, compressionType, encryptedProtocolType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-	       tcpNodelay;
+	       tcpNodelay, encryptedSslProtocolVer;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
-	UInt64 tunnelingFlags = 0;
+	UInt64 encryptionFlags = 0;
 	ReliableMcastChannelConfig tempRelMcastCfg;
 
 	while ( elementListChannel.forth() )
@@ -1627,17 +1632,22 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			else if ( channelEntry.getName() == "ObjectName" )
 			{
 				objectName = channelEntry.getAscii();
-				tunnelingFlags |= 0x02;
+				encryptionFlags |= 0x02;
 			}
 			else if (channelEntry.getName() == "ProxyPort")
 			{
 				tunnelingProxyPort = channelEntry.getAscii();
-				tunnelingFlags |= 0x04;
+				encryptionFlags |= 0x04;
 			}
 			else if (channelEntry.getName() == "ProxyHost")
 			{
 				tunnelingProxyHost = channelEntry.getAscii();
-				tunnelingFlags |= 0x08;
+				encryptionFlags |= 0x08;
+			}
+			else if (channelEntry.getName() == "OpenSSLCAStore")
+			{
+				sslCAStore = channelEntry.getAscii();
+				encryptionFlags |= 0x40;
 			}
 			else if ( channelEntry.getName() == "RecvAddress" )
 			{
@@ -1729,6 +1739,24 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					flags |= 0x20;
 				}
 			}
+			else if (channelEntry.getName() == "EncryptedProtocolType")
+			{
+				encryptedProtocolType = channelEntry.getEnum();
+
+				switch (encryptedProtocolType)
+				{
+				case RSSL_CONN_TYPE_SOCKET:
+				case RSSL_CONN_TYPE_HTTP:
+					encryptionFlags |= 0x10;
+					break;
+				default:
+					EmaString text("Invalid Encrypted Channel Type [");
+					text.append(channelType);
+					EmaConfigError* mce(new EmaConfigError(text, OmmLoggerClient::ErrorEnum));
+					emaConfigErrList.add(mce);
+					break;
+				}
+			}
 			break;
 
 		case DataType::UIntEnum:
@@ -1771,6 +1799,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			{
 				compressionThreshold = channelEntry.getUInt();
 				flags |= 0x1000000;
+			}
+			else if (channelEntry.getName() == "SecurityProtocol")
+			{
+				encryptedSslProtocolVer = channelEntry.getUInt();
+				encryptionFlags |= 0x20;
 			}
 			else if ( channelEntry.getName() == "PacketTTL" )
 			{
@@ -1848,15 +1881,9 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 	if ( flags & 0x10 )
 	{
-		if ( setByFnCalled == SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL )
+		if ( setByFnCalled & (SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL | SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL) )
 		{
 			channelType = RSSL_CONN_TYPE_SOCKET;
-			activeConfig.clearChannelSet();
-		}
-		else if ( setByFnCalled > SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL)
-		{
-			if (channelType == RSSL_CONN_TYPE_SOCKET)
-				channelType = RSSL_CONN_TYPE_ENCRYPTED;
 			activeConfig.clearChannelSet();
 		}
 
@@ -1865,33 +1892,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 		try
 		{
-			if ( channelType == RSSL_CONN_TYPE_SOCKET )
-			{
-				SocketChannelConfig* socketChannelConfig = new SocketChannelConfig( activeConfig.defaultServiceName() );
-				pCurrentChannelConfig = socketChannelConfig;
-				activeConfig.configChannelSet.push_back( pCurrentChannelConfig );
-
-				SocketChannelConfig* fileCfgSocket = NULL;
-				if ( fileCfg && fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET )
-					fileCfgSocket = static_cast<SocketChannelConfig*>( fileCfg );
-
-				if ( flags & 0x80 )
-					socketChannelConfig->tcpNodelay = tcpNodelay ? true : false;
-				else if ( fileCfgSocket )
-					socketChannelConfig->tcpNodelay = fileCfgSocket->tcpNodelay;
-
-				if ( flags & 0x02 && setByFnCalled == 0 )
-					socketChannelConfig->hostName = host;
-				else if ( fileCfgSocket )
-					socketChannelConfig->hostName = fileCfgSocket->hostName;
-
-				if ( flags & 0x04 && setByFnCalled == 0 )
-					socketChannelConfig->serviceName = port;
-				else if ( fileCfgSocket )
-					socketChannelConfig->serviceName = fileCfgSocket->serviceName;
-
-			}
-			else if ( channelType == RSSL_CONN_TYPE_RELIABLE_MCAST )
+			if ( channelType == RSSL_CONN_TYPE_RELIABLE_MCAST )
 			{
 				ReliableMcastChannelConfig* reliableMcastChannelCfg = new ReliableMcastChannelConfig();
 				pCurrentChannelConfig = reliableMcastChannelCfg;
@@ -1905,51 +1906,74 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					return;
 				}
 			}
-			else if ( channelType == RSSL_CONN_TYPE_ENCRYPTED || channelType == RSSL_CONN_TYPE_HTTP )
+			else if ( channelType == RSSL_CONN_TYPE_SOCKET || channelType == RSSL_CONN_TYPE_ENCRYPTED || channelType == RSSL_CONN_TYPE_HTTP )
 			{
-				HttpChannelConfig* httpChannelConfig = (channelType == RSSL_CONN_TYPE_ENCRYPTED) ? new EncryptedChannelConfig() : new HttpChannelConfig();
-				httpChannelConfig->connectionType = (RsslConnectionTypes) channelType;
-				pCurrentChannelConfig = httpChannelConfig;
-				activeConfig.configChannelSet.push_back( pCurrentChannelConfig );
+				SocketChannelConfig* socketChannelConfig = new SocketChannelConfig(activeConfig.defaultServiceName(), (RsslConnectionTypes)channelType);
+				pCurrentChannelConfig = socketChannelConfig;
+				activeConfig.configChannelSet.push_back(pCurrentChannelConfig);
 
-				HttpChannelConfig* fileCfgEncrypt = NULL;
-				if ( fileCfg && (fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED || fileCfg->connectionType == RSSL_CONN_TYPE_HTTP) )
-					fileCfgEncrypt = static_cast<HttpChannelConfig*>( fileCfg );
+				SocketChannelConfig* fileCfgSocket = NULL;
+				if (fileCfg && ((fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET) || (fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED) || (fileCfg->connectionType == RSSL_CONN_TYPE_HTTP)))
+					fileCfgSocket = static_cast<SocketChannelConfig*>(fileCfg);
 
-				if ( flags & 0x80 )
-					httpChannelConfig->tcpNodelay = tcpNodelay ? true : false;
-				else if ( fileCfgEncrypt )
-					httpChannelConfig->tcpNodelay = fileCfgEncrypt->tcpNodelay;
+				if (flags & 0x80)
+					socketChannelConfig->tcpNodelay = tcpNodelay ? true : false;
+				else if (fileCfgSocket)
+					socketChannelConfig->tcpNodelay = fileCfgSocket->tcpNodelay;
 
-				if ( flags & 0x02 )
-					httpChannelConfig->hostName = host;
-				else if ( fileCfgEncrypt )
-					httpChannelConfig->hostName = fileCfgEncrypt->hostName;
+				if (flags & 0x02 && !(setByFnCalled & SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL))
+					socketChannelConfig->hostName = host;
+				else if (fileCfgSocket)
+					socketChannelConfig->hostName = fileCfgSocket->hostName;
 
-				if ( flags & 0x04 )
-					httpChannelConfig->serviceName = port;
-				else if ( fileCfgEncrypt )
-					httpChannelConfig->serviceName = fileCfgEncrypt->serviceName;
+				if (flags & 0x04 && !(setByFnCalled & SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL))
+					socketChannelConfig->serviceName = port;
+				else if (fileCfgSocket)
+					socketChannelConfig->serviceName = fileCfgSocket->serviceName;
 
-				if (tunnelingFlags & 0x02 && !(setByFnCalled & TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL))
-					httpChannelConfig->objectName = objectName;
-				else if ( fileCfgEncrypt )
-					httpChannelConfig->objectName = fileCfgEncrypt->objectName;
+				if (encryptionFlags & 0x02 && !(setByFnCalled & TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL))
+					socketChannelConfig->objectName = objectName;
+				else if (fileCfgSocket)
+					socketChannelConfig->objectName = fileCfgSocket->objectName;
 
-				if (tunnelingFlags & 0x04 && !(setByFnCalled & TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL))
-					httpChannelConfig->proxyPort = tunnelingProxyPort;
-				else if (fileCfgEncrypt)
-					httpChannelConfig->proxyPort = fileCfgEncrypt->proxyPort;
+				if (encryptionFlags & 0x04 && !(setByFnCalled & PROXY_PORT_CONFIG_BY_FUNCTION_CALL))
+					socketChannelConfig->proxyPort = tunnelingProxyPort;
+				else if (fileCfgSocket)
+					socketChannelConfig->proxyPort = fileCfgSocket->proxyPort;
 
-				if (tunnelingFlags & 0x08 && !(setByFnCalled & TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL))
-					httpChannelConfig->proxyHostName = tunnelingProxyHost;
-				else if (fileCfgEncrypt)
-					httpChannelConfig->proxyHostName = fileCfgEncrypt->proxyHostName;
+				if (encryptionFlags & 0x08 && !(setByFnCalled & PROXY_HOST_CONFIG_BY_FUNCTION_CALL))
+					socketChannelConfig->proxyHostName = tunnelingProxyHost;
+				else if (fileCfgSocket)
+					socketChannelConfig->proxyHostName = fileCfgSocket->proxyHostName;
+
+				if (encryptionFlags & 0x10 )
+					socketChannelConfig->encryptedConnectionType = (RsslConnectionTypes)encryptedProtocolType;
+				else if (fileCfgSocket)
+					socketChannelConfig->encryptedConnectionType = fileCfgSocket->encryptedConnectionType;
+
+				if (encryptionFlags & 0x20)
+					socketChannelConfig->securityProtocol = (int)encryptedSslProtocolVer;
+				else if (fileCfgSocket)
+					socketChannelConfig->securityProtocol = fileCfgSocket->securityProtocol;
+
+				if (encryptionFlags & 0x40)
+					socketChannelConfig->sslCAStore = sslCAStore;
+				else if (fileCfgSocket)
+					socketChannelConfig->sslCAStore = fileCfgSocket->sslCAStore;
+
+				if ((setByFnCalled & PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
+					socketChannelConfig->proxyUserName = fileCfgSocket->proxyUserName;
+
+				if ((setByFnCalled & PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
+					socketChannelConfig->proxyPasswd = fileCfgSocket->proxyPasswd;
+
+				if ((setByFnCalled & PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
+					socketChannelConfig->proxyDomain = fileCfgSocket->proxyDomain;
 
 				//need to copy other tunneling setting from function calls.
-				if (fileCfgEncrypt && channelType == RSSL_CONN_TYPE_ENCRYPTED && fileCfgEncrypt->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+				if (fileCfgSocket && channelType == RSSL_CONN_TYPE_ENCRYPTED && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 				{
-					((EncryptedChannelConfig*)httpChannelConfig)->securityProtocol = ((EncryptedChannelConfig*)fileCfgEncrypt)->securityProtocol;
+					socketChannelConfig->securityProtocol = fileCfgSocket->securityProtocol;
 				}
 			}
 		}

@@ -291,17 +291,13 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	pRsslEnumDefRequestMsg( 0 ),
 	pDirectoryRefreshMsg( 0 ),
 	_defaultServiceName( defaultServiceName ),
-	dictionaryConfig(),
-	_tunnelingChannelCfg(0)
+	dictionaryConfig()
 {
 }
 
 ActiveConfig::~ActiveConfig()
 {
 	clearChannelSet();
-	if (_tunnelingChannelCfg)
-		delete _tunnelingChannelCfg;
-	_tunnelingChannelCfg = 0;
 }
 
 EmaString ActiveConfig::configTrace()
@@ -360,9 +356,6 @@ void ActiveConfig::clear()
 		delete pDirectoryRefreshMsg;
 	pDirectoryRefreshMsg = 0;
 
-	if (_tunnelingChannelCfg)
-		delete _tunnelingChannelCfg;
-	_tunnelingChannelCfg = 0;
 }
 
 void ActiveConfig::setObeyOpenWindow( UInt64 value )
@@ -673,12 +666,16 @@ void ServerConfig::setNumInputBuffers(UInt64 value)
 	}
 }
 
-SocketChannelConfig::SocketChannelConfig( const EmaString& defaultServiceName ) :
-	ChannelConfig( RSSL_CONN_TYPE_SOCKET ),
-	hostName( DEFAULT_HOST_NAME ),
-	serviceName( defaultServiceName ),
-	defaultServiceName( defaultServiceName ),
-	tcpNodelay( DEFAULT_TCP_NODELAY )
+SocketChannelConfig::SocketChannelConfig(const EmaString& defaultServiceName, RsslConnectionTypes connType) :
+	ChannelConfig(connType),
+	hostName(DEFAULT_HOST_NAME),
+	serviceName(defaultServiceName),
+	defaultServiceName(defaultServiceName),
+	tcpNodelay(DEFAULT_TCP_NODELAY),
+	objectName(DEFAULT_OBJECT_NAME),
+	sslCAStore(DEFAULT_SSL_CA_STORE),
+	encryptedConnectionType(RSSL_CONN_TYPE_INIT),
+	securityProtocol(RSSL_ENC_TLSV1_2)
 {
 }
 
@@ -693,6 +690,8 @@ void SocketChannelConfig::clear()
 	hostName = DEFAULT_HOST_NAME;
 	serviceName = defaultServiceName;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
+	objectName = DEFAULT_OBJECT_NAME;
+	securityProtocol = RSSL_ENC_TLSV1_2;
 }
 
 ChannelConfig::ChannelType SocketChannelConfig::getType() const
@@ -911,59 +910,4 @@ void ReliableMcastChannelConfig::clear()
 ChannelConfig::ChannelType ReliableMcastChannelConfig::getType() const
 {
 	return ChannelConfig::ReliableMcastChannelEnum;
-}
-
-EncryptedChannelConfig::EncryptedChannelConfig() :
-	HttpChannelConfig( RSSL_CONN_TYPE_ENCRYPTED ),
-	securityProtocol(RSSL_ENC_TLSV1_2)
-{
-}
-
-EncryptedChannelConfig::~EncryptedChannelConfig()
-{
-}
-
-void EncryptedChannelConfig::clear()
-{
-	ChannelConfig::clear();
-
-	hostName = DEFAULT_HOST_NAME;
-	tcpNodelay = DEFAULT_TCP_NODELAY;
-	objectName = DEFAULT_OBJECT_NAME;
-	securityProtocol = RSSL_ENC_TLSV1_2;
-}
-
-ChannelConfig::ChannelType EncryptedChannelConfig::getType() const
-{
-	return ChannelConfig::EncryptedChannelEnum;
-}
-
-HttpChannelConfig::HttpChannelConfig() :
-	ChannelConfig( RSSL_CONN_TYPE_HTTP ),
-	objectName( DEFAULT_OBJECT_NAME )
-{
-}
-
-HttpChannelConfig::HttpChannelConfig(RsslConnectionTypes connectionType) :
-ChannelConfig(connectionType),
-objectName(DEFAULT_OBJECT_NAME)
-{
-}
-
-HttpChannelConfig::~HttpChannelConfig()
-{
-}
-
-void HttpChannelConfig::clear()
-{
-	ChannelConfig::clear();
-
-	hostName = DEFAULT_HOST_NAME;
-	tcpNodelay = DEFAULT_TCP_NODELAY;
-	objectName = DEFAULT_OBJECT_NAME;
-}
-
-ChannelConfig::ChannelType HttpChannelConfig::getType() const
-{
-	return ChannelConfig::HttpChannelEnum;
 }

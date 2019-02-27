@@ -72,10 +72,21 @@ static char traceOutputFile[128];
 char authnTokenBlock[1024];
 char authnExtendedBlock[1024];
 char appIdBlock[128];
+char proxyHost[256];
+char proxyPort[256];
+char proxyUserName[128];
+char proxyPasswd[128];
+char proxyDomain[128];
 RsslBuffer userName = RSSL_INIT_BUFFER;
 RsslBuffer authnToken = RSSL_INIT_BUFFER;
 RsslBuffer authnExtended = RSSL_INIT_BUFFER;
 RsslBuffer appId = RSSL_INIT_BUFFER;
+
+static char libsslName[255];
+static char libcryptoName[255];
+static char libcurlName[255];
+
+static char sslCAStore[255];
 
 static void displayCache(ChannelCommand *pCommand);
 static void displayCacheDomain(ChannelCommand *pCommand, RsslUInt8 domainType, RsslBool privateStreams, RsslInt32 itemCount, ItemRequest items[]);
@@ -101,7 +112,10 @@ void printUsageAndExit(char *appName)
 			"\n         The domain may also be any of the private stream domains: mpps(MarketPrice PS), mbops(MarketByOrder PS), mbpps(MarketByPrice PS), ycps(YieldCurve PS)\n"
 			"\n         Example Usage: -tcp localhost:14002 DIRECT_FEED mp:TRI,mp:GOOG,mpps:FB,mbo:MSFT,mbpps:IBM,sl"
 			"\n           (for SymbolList requests, a name can be optionally specified)\n"
+			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
+			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
 			"\n -uname changes the username used when logging into the provider.\n"
+			"\n -ph specifies an HTTP Proxy host."
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
 			"\n -ax Specifies the Authentication Extended information. \n"
 			"\n -aid Specifies the Application ID.\n"
@@ -142,11 +156,42 @@ void parseCommandLine(int argc, char **argv)
 		RsslBool useTunnelStreamAuthentication = RSSL_FALSE;
 		RsslUInt8 tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
+		snprintf(proxyHost, sizeof(proxyHost), "");
+		snprintf(proxyPort, sizeof(proxyPort), "");
+		snprintf(proxyUserName, sizeof(proxyUserName), "");
+		snprintf(proxyPasswd, sizeof(proxyPasswd), "");
+		snprintf(proxyDomain, sizeof(proxyDomain), "");
+
+		snprintf(libcryptoName, sizeof(libcryptoName), "");
+		snprintf(libsslName, sizeof(libsslName), "");
+		snprintf(libcurlName, sizeof(libcurlName), "");
+		snprintf(sslCAStore, sizeof(sslCAStore), "");
+
 		i = 1;
 
 		while(i < argc)
 		{
-			if(strcmp("-uname", argv[i]) == 0)
+			if (strcmp("-libsslName", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(libsslName, 255, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-libcryptoName", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(libcryptoName, 255, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-libcurlName", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(libcurlName, 255, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-castore", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(sslCAStore, 255, "%s", argv[i - 1]);
+			}
+			else if(strcmp("-uname", argv[i]) == 0)
 			{
 				i += 2;
 				userName.length = snprintf(userNameBlock, sizeof(userNameBlock), "%s", argv[i-1]);
@@ -193,7 +238,32 @@ void parseCommandLine(int argc, char **argv)
 				setMBPSnapshotRequest();
 				setSLSnapshotRequest();
 				setYCSnapshotRequest();
-			} 
+			}
+			else if (strcmp("-ph", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyHost, sizeof(proxyHost), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-pp", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyPort, sizeof(proxyPort), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-plogin", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyUserName, sizeof(proxyUserName), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-ppasswd", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyPasswd, sizeof(proxyPasswd), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-pdomain", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyDomain, sizeof(proxyDomain), "%s", argv[i - 1]);
+			}
 			else if (strcmp("-cache", argv[i]) == 0)
 			{
 				i++;
@@ -427,6 +497,462 @@ void parseCommandLine(int argc, char **argv)
 
 				++channelCommandCount;
 			}
+			else if (strcmp("-encryptedSocket", argv[i]) == 0)
+			{
+				char *pToken, *pToken2, *pSaveToken, *pSaveToken2;
+
+				RsslUInt8 itemDomain;
+
+				if (channelCommandCount == MAX_CHAN_COMMANDS)
+				{
+					printf("Too many connections requested.\n");
+					printUsageAndExit(argv[0]);
+				}
+
+				pCommand = &chanCommands[channelCommandCount];
+				hasTunnelStreamServiceName = RSSL_FALSE;
+				useTunnelStreamAuthentication = RSSL_FALSE;
+				tunnelStreamDomainType = RSSL_DMT_SYSTEM;
+				pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+				pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
+
+				simpleTunnelMsgHandlerInit(&pCommand->simpleTunnelMsgHandler, (char*)"VAConsumer", RSSL_DMT_SYSTEM, RSSL_FALSE, RSSL_FALSE);
+
+
+				/* Syntax:
+				*  -encryptedSocket hostname:port:SERVICE_NAME mp:TRI,mp:.DJI
+				*/
+
+				i += 1;
+				if (i >= argc) printUsageAndExit(argv[0]);
+
+				/* Hostname */
+				pToken = strtok(argv[i], ":");
+				if (!pToken) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
+				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
+				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
+
+				/* Port */
+				pToken = strtok(NULL, ":");
+				if (!pToken) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
+				snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
+				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
+
+				pToken = strtok(NULL, ":");
+				if (pToken) { printf("Error: extra input after <hostname>:<port>.\n"); printUsageAndExit(argv[0]); }
+
+				i += 1;
+
+				/* Item Service Name */
+				pToken = argv[i];
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+
+				i += 1;
+				if (i < argc)
+				{
+					if (argv[i][0] != '-')
+					{
+						/* Item List */
+						pToken = strtok_r(argv[i], ",", &pSaveToken);
+
+						while (pToken)
+						{
+							ItemRequest *pItemRequest;
+							/* domain */
+							pToken2 = strtok_r(pToken, ":", &pSaveToken2);
+							if (!pToken2) { printf("Error: Missing domain.\n"); printUsageAndExit(argv[0]); }
+
+							if (0 == strcmp(pToken2, "mp"))
+							{
+								if (pCommand->marketPriceItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_PRICE;
+									pItemRequest = &pCommand->marketPriceItems[pCommand->marketPriceItemCount];
+									++pCommand->marketPriceItemCount;
+								}
+								else
+								{
+									printf("Number of Market Price items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "mbo"))
+							{
+								if (pCommand->marketByOrderItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_BY_ORDER;
+									pItemRequest = &pCommand->marketByOrderItems[pCommand->marketByOrderItemCount];
+									++pCommand->marketByOrderItemCount;
+								}
+								else
+								{
+									printf("Number of Market By Order items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "mbp"))
+							{
+								if (pCommand->marketByPriceItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_BY_PRICE;
+									pItemRequest = &pCommand->marketByPriceItems[pCommand->marketByPriceItemCount];
+									++pCommand->marketByPriceItemCount;
+								}
+								else
+								{
+									printf("Number of Market By Price items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "yc"))
+							{
+								if (pCommand->yieldCurveItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_YIELD_CURVE;
+									pItemRequest = &pCommand->yieldCurveItems[pCommand->yieldCurveItemCount];
+									++pCommand->yieldCurveItemCount;
+								}
+								else
+								{
+									printf("Number of Yield Curve items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "sl"))
+							{
+								itemDomain = RSSL_DMT_SYMBOL_LIST;
+								pItemRequest = &pCommand->symbolListRequest;
+								pCommand->sendSymbolList = RSSL_TRUE;
+							}
+							else if (0 == strcmp(pToken2, "mpps"))
+							{
+								if (pCommand->privateStreamMarketPriceItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_PRICE;
+									pItemRequest = &pCommand->marketPricePSItems[pCommand->privateStreamMarketPriceItemCount];
+									++pCommand->privateStreamMarketPriceItemCount;
+								}
+								else
+								{
+									printf("Number of Private Stream Market Price items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "mbops"))
+							{
+								if (pCommand->privateStreamMarketByOrderItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_BY_ORDER;
+									pItemRequest = &pCommand->marketByOrderPSItems[pCommand->privateStreamMarketByOrderItemCount];
+									++pCommand->privateStreamMarketByOrderItemCount;
+								}
+								else
+								{
+									printf("Number of Private Stream Market By Order items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "ycps"))
+							{
+								if (pCommand->privateStreamYieldCurveItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_YIELD_CURVE;
+									pItemRequest = &pCommand->yieldCurvePSItems[pCommand->privateStreamYieldCurveItemCount];
+									++pCommand->privateStreamYieldCurveItemCount;
+								}
+								else
+								{
+									printf("Number of Private Stream Yield Curve items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "mbpps"))
+							{
+								if (pCommand->privateStreamMarketByPriceItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_BY_PRICE;
+									pItemRequest = &pCommand->marketByPricePSItems[pCommand->privateStreamMarketByPriceItemCount];
+									++pCommand->privateStreamMarketByPriceItemCount;
+								}
+								else
+								{
+									printf("Number of Private Stream Market By Price items exceeded\n");
+								}
+							}
+							else
+							{
+								printf("Error: Unknown item domain: %s\n", pToken2);
+								printUsageAndExit(argv[0]);
+							}
+
+							if (pItemRequest)
+							{
+								pItemRequest->cacheEntryHandle = 0;
+								pItemRequest->streamId = 0;
+								pItemRequest->groupIdIndex = -1;
+							}
+
+							/* name */
+							pToken2 = strtok_r(NULL, ":", &pSaveToken2);
+							if (!pToken2)
+							{
+								if (itemDomain != RSSL_DMT_SYMBOL_LIST)
+								{
+									printf("Error: Missing item name.\n");
+									printUsageAndExit(argv[0]);
+								}
+								else
+								{
+									/* No specific name given for the symbol list request.
+									* A name will be retrieved from the directory
+									* response if available. */
+									pItemRequest->itemName.data = NULL;
+									pItemRequest->itemName.length = 0;
+								}
+							}
+							else
+							{
+								snprintf(pItemRequest->itemNameString, 128, "%s", pToken2);
+								pItemRequest->itemName.length = (RsslUInt32)strlen(pItemRequest->itemNameString);
+								pItemRequest->itemName.data = pItemRequest->itemNameString;
+
+								/* A specific name was specified for the symbol list request. */
+								if (itemDomain == RSSL_DMT_SYMBOL_LIST)
+									pCommand->userSpecSymbolList = RSSL_TRUE;
+							}
+							pToken = strtok_r(NULL, ",", &pSaveToken);
+						}
+
+						i += 1;
+					}
+				}
+
+				++channelCommandCount;
+			}
+			else if (strcmp("-encryptedHttp", argv[i]) == 0)
+			{
+				char *pToken, *pToken2, *pSaveToken, *pSaveToken2;
+
+				RsslUInt8 itemDomain;
+
+				/* HTTP is only supported with Windows WinInet connections*/
+#ifdef LINUX
+				printf("Error: Encrypted HTTP protocol is not supported on this platform.\n");
+				printUsageAndExit(argv[0]);
+#endif
+
+				if (channelCommandCount == MAX_CHAN_COMMANDS)
+				{
+					printf("Too many connections requested.\n");
+					printUsageAndExit(argv[0]);
+				}
+
+				pCommand = &chanCommands[channelCommandCount];
+				hasTunnelStreamServiceName = RSSL_FALSE;
+				useTunnelStreamAuthentication = RSSL_FALSE;
+				tunnelStreamDomainType = RSSL_DMT_SYSTEM;
+				pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+				pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
+
+				simpleTunnelMsgHandlerInit(&pCommand->simpleTunnelMsgHandler, (char*)"VAConsumer", RSSL_DMT_SYSTEM, RSSL_FALSE, RSSL_FALSE);
+
+
+				/* Syntax:
+				*  -encryptedHttp hostname:port:SERVICE_NAME mp:TRI,mp:.DJI
+				*/
+
+				i += 1;
+				if (i >= argc) printUsageAndExit(argv[0]);
+
+				/* Hostname */
+				pToken = strtok(argv[i], ":");
+				if (!pToken) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
+				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
+				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
+
+				/* Port */
+				pToken = strtok(NULL, ":");
+				if (!pToken) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
+				snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
+				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
+
+				pToken = strtok(NULL, ":");
+				if (pToken) { printf("Error: extra input after <hostname>:<port>.\n"); printUsageAndExit(argv[0]); }
+
+				i += 1;
+
+				/* Item Service Name */
+				pToken = argv[i];
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+
+				i += 1;
+				if (i < argc)
+				{
+					if (argv[i][0] != '-')
+					{
+						/* Item List */
+						pToken = strtok_r(argv[i], ",", &pSaveToken);
+
+						while (pToken)
+						{
+							ItemRequest *pItemRequest;
+							/* domain */
+							pToken2 = strtok_r(pToken, ":", &pSaveToken2);
+							if (!pToken2) { printf("Error: Missing domain.\n"); printUsageAndExit(argv[0]); }
+
+							if (0 == strcmp(pToken2, "mp"))
+							{
+								if (pCommand->marketPriceItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_PRICE;
+									pItemRequest = &pCommand->marketPriceItems[pCommand->marketPriceItemCount];
+									++pCommand->marketPriceItemCount;
+								}
+								else
+								{
+									printf("Number of Market Price items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "mbo"))
+							{
+								if (pCommand->marketByOrderItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_BY_ORDER;
+									pItemRequest = &pCommand->marketByOrderItems[pCommand->marketByOrderItemCount];
+									++pCommand->marketByOrderItemCount;
+								}
+								else
+								{
+									printf("Number of Market By Order items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "mbp"))
+							{
+								if (pCommand->marketByPriceItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_BY_PRICE;
+									pItemRequest = &pCommand->marketByPriceItems[pCommand->marketByPriceItemCount];
+									++pCommand->marketByPriceItemCount;
+								}
+								else
+								{
+									printf("Number of Market By Price items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "yc"))
+							{
+								if (pCommand->yieldCurveItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_YIELD_CURVE;
+									pItemRequest = &pCommand->yieldCurveItems[pCommand->yieldCurveItemCount];
+									++pCommand->yieldCurveItemCount;
+								}
+								else
+								{
+									printf("Number of Yield Curve items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "sl"))
+							{
+								itemDomain = RSSL_DMT_SYMBOL_LIST;
+								pItemRequest = &pCommand->symbolListRequest;
+								pCommand->sendSymbolList = RSSL_TRUE;
+							}
+							else if (0 == strcmp(pToken2, "mpps"))
+							{
+								if (pCommand->privateStreamMarketPriceItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_PRICE;
+									pItemRequest = &pCommand->marketPricePSItems[pCommand->privateStreamMarketPriceItemCount];
+									++pCommand->privateStreamMarketPriceItemCount;
+								}
+								else
+								{
+									printf("Number of Private Stream Market Price items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "mbops"))
+							{
+								if (pCommand->privateStreamMarketByOrderItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_BY_ORDER;
+									pItemRequest = &pCommand->marketByOrderPSItems[pCommand->privateStreamMarketByOrderItemCount];
+									++pCommand->privateStreamMarketByOrderItemCount;
+								}
+								else
+								{
+									printf("Number of Private Stream Market By Order items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "ycps"))
+							{
+								if (pCommand->privateStreamYieldCurveItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_YIELD_CURVE;
+									pItemRequest = &pCommand->yieldCurvePSItems[pCommand->privateStreamYieldCurveItemCount];
+									++pCommand->privateStreamYieldCurveItemCount;
+								}
+								else
+								{
+									printf("Number of Private Stream Yield Curve items exceeded\n");
+								}
+							}
+							else if (0 == strcmp(pToken2, "mbpps"))
+							{
+								if (pCommand->privateStreamMarketByPriceItemCount < CHAN_CMD_MAX_ITEMS)
+								{
+									itemDomain = RSSL_DMT_MARKET_BY_PRICE;
+									pItemRequest = &pCommand->marketByPricePSItems[pCommand->privateStreamMarketByPriceItemCount];
+									++pCommand->privateStreamMarketByPriceItemCount;
+								}
+								else
+								{
+									printf("Number of Private Stream Market By Price items exceeded\n");
+								}
+							}
+							else
+							{
+								printf("Error: Unknown item domain: %s\n", pToken2);
+								printUsageAndExit(argv[0]);
+							}
+
+							if (pItemRequest)
+							{
+								pItemRequest->cacheEntryHandle = 0;
+								pItemRequest->streamId = 0;
+								pItemRequest->groupIdIndex = -1;
+							}
+
+							/* name */
+							pToken2 = strtok_r(NULL, ":", &pSaveToken2);
+							if (!pToken2)
+							{
+								if (itemDomain != RSSL_DMT_SYMBOL_LIST)
+								{
+									printf("Error: Missing item name.\n");
+									printUsageAndExit(argv[0]);
+								}
+								else
+								{
+									/* No specific name given for the symbol list request.
+									* A name will be retrieved from the directory
+									* response if available. */
+									pItemRequest->itemName.data = NULL;
+									pItemRequest->itemName.length = 0;
+								}
+							}
+							else
+							{
+								snprintf(pItemRequest->itemNameString, 128, "%s", pToken2);
+								pItemRequest->itemName.length = (RsslUInt32)strlen(pItemRequest->itemNameString);
+								pItemRequest->itemName.data = pItemRequest->itemNameString;
+
+								/* A specific name was specified for the symbol list request. */
+								if (itemDomain == RSSL_DMT_SYMBOL_LIST)
+									pCommand->userSpecSymbolList = RSSL_TRUE;
+							}
+							pToken = strtok_r(NULL, ",", &pSaveToken);
+						}
+
+						i += 1;
+					}
+				}
+
+				++channelCommandCount;
+			}
 			else if (strcmp("-x", argv[i]) == 0)
 			{
 				i++;
@@ -582,6 +1108,17 @@ void parseCommandLine(int argc, char **argv)
 		}
 	}
 
+	/* Set proxy info for every channel. */
+	for (i = 0; i < channelCommandCount; i++)
+	{
+		ChannelCommand *pCommand = &chanCommands[i];
+		pCommand->cInfo.rsslConnectOptions.proxyOpts.proxyHostName = proxyHost;
+		pCommand->cInfo.rsslConnectOptions.proxyOpts.proxyPort = proxyPort;
+		pCommand->cInfo.rsslConnectOptions.proxyOpts.proxyUserName = proxyUserName;
+		pCommand->cInfo.rsslConnectOptions.proxyOpts.proxyPasswd = proxyPasswd;
+		pCommand->cInfo.rsslConnectOptions.proxyOpts.proxyDomain = proxyDomain;
+		pCommand->cInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = sslCAStore;
+	}
 }
 
 /* 
@@ -833,13 +1370,7 @@ int main(int argc, char **argv)
 	RsslRDMLoginRequest loginRequest;
 	RsslRDMDirectoryRequest dirRequest;
 	RsslReactorDispatchOptions dispatchOpts;
-
-	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
-	if (rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
-	{
-		printf("rsslInitialize(): failed <%s>\n", rsslErrorInfo.rsslError.text);
-		exitApp(-1);
-	}
+	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 
 	if ((ret = rsslPayloadCacheInitialize()) != RSSL_RET_SUCCESS)
 	{
@@ -852,6 +1383,18 @@ int main(int argc, char **argv)
 
 	/* Initialize parameters from config. */
 	parseCommandLine(argc, argv);
+
+	initOpts.jitOpts.libcryptoName = libcryptoName;
+	initOpts.jitOpts.libsslName = libsslName;
+	initOpts.jitOpts.libcurlName = libcurlName;
+	initOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
+
+	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
+	if (rsslInitializeEx(&initOpts, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
+	{
+		printf("rsslInitialize(): failed <%s>\n", rsslErrorInfo.rsslError.text);
+		exitApp(-1);
+	}
 
 	/* Initialize run-time */
 	initRuntime();
@@ -1044,6 +1587,7 @@ int main(int argc, char **argv)
 		{
 			printf("Error rsslReactorConnect(): %s\n", rsslErrorInfo.rsslError.text);
 		}
+
 
 		printf("\n");
 

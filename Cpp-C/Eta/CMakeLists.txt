@@ -33,10 +33,6 @@ else()
 	rcdev_update_output_dirs(POST_PREFIX)
 endif()
 
-if( CMAKE_HOST_UNIX )
-    find_package(OpenSSL REQUIRED)
-endif()
-
 add_subdirectory( Impl )
 
 # libxml2

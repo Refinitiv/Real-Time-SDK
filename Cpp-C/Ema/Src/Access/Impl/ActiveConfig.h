@@ -68,6 +68,7 @@
 #define DEFAULT_REQUEST_TIMEOUT						   15000
 #define DEFAULT_SERVICE_COUNT_HINT					   513
 #define DEFAULT_OBJECT_NAME							   EmaString( "" )
+#define DEFAULT_SSL_CA_STORE						   EmaString( "" )
 #define DEFAULT_TCP_NODELAY							   RSSL_TRUE
 #define DEFAULT_CONS_MCAST_CFGSTRING				   EmaString( "" )
 #define DEFAULT_PACKET_TTL							  5
@@ -94,9 +95,12 @@
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 #define SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL	0x02  /*!< Indicates that server listen port set though EMA interface function call from server client*/
-#define TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL 0x04  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
-#define TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL 0x08  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+#define PROXY_HOST_CONFIG_BY_FUNCTION_CALL 0x04  /*!< Indicates that tunneling proxy host set though EMA interface function calls */
+#define PROXY_PORT_CONFIG_BY_FUNCTION_CALL 0x08  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 #define TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL 0x10  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+#define PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL 0x20  /*!< Indicates that tunneling proxy host set though EMA interface function calls */
+#define PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL 0x40  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+#define PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL 0x80  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 
 namespace thomsonreuters {
 
@@ -113,8 +117,6 @@ public :
 	enum ChannelType
 	{
 		SocketChannelEnum = RSSL_CONN_TYPE_SOCKET,
-		EncryptedChannelEnum = RSSL_CONN_TYPE_ENCRYPTED,
-		HttpChannelEnum = RSSL_CONN_TYPE_HTTP,
 		ReliableMcastChannelEnum = RSSL_CONN_TYPE_RELIABLE_MCAST
 	};
 
@@ -234,17 +236,25 @@ class SocketChannelConfig : public ChannelConfig
 {
 public :
 
-	SocketChannelConfig( const EmaString& );
+	SocketChannelConfig( const EmaString&, RsslConnectionTypes connType);
 
 	virtual ~SocketChannelConfig();
 
 	void clear();
 
 	ChannelType getType() const;
-
+	RsslConnectionTypes		encryptedConnectionType;
 	EmaString		hostName;
 	EmaString		serviceName;
 	RsslBool		tcpNodelay;
+	EmaString				objectName;
+	EmaString				proxyHostName;
+	EmaString				proxyPort;
+	EmaString				proxyUserName;
+	EmaString				proxyPasswd;
+	EmaString				proxyDomain;
+	EmaString				sslCAStore;
+	int						securityProtocol;
 
 private :
 
@@ -334,42 +344,6 @@ public :
 	UInt16					userQLimit;
 };
 
-class HttpChannelConfig : public ChannelConfig
-{
-public :
-
-	HttpChannelConfig();
-	HttpChannelConfig(RsslConnectionTypes);
-
-	virtual ~HttpChannelConfig();
-
-	void clear();
-
-	ChannelType getType() const;
-
-	EmaString				hostName;
-	EmaString				serviceName;
-	EmaString				objectName;
-	RsslBool				tcpNodelay;
-	EmaString				proxyHostName;
-	EmaString				proxyPort;
-};
-
-class EncryptedChannelConfig : public HttpChannelConfig
-{
-public:
-
-	EncryptedChannelConfig();
-
-	virtual ~EncryptedChannelConfig();
-
-	void clear();
-
-	ChannelType getType() const;
-
-	int		securityProtocol;
-};
-
 struct LoggerConfig
 {
 	LoggerConfig();
@@ -428,6 +402,7 @@ public:
 	LoggerConfig			loggerConfig;
 	EmaString				libSslName;
 	EmaString				libCryptoName;
+	EmaString				libcurlName;
 	UInt32					requestTimeout;
 	EmaString				traceStr;
 };
@@ -480,18 +455,9 @@ public:
 	AdminReqMsg*			pRsslEnumDefRequestMsg;
 	AdminRefreshMsg*		pDirectoryRefreshMsg;
 
-	EncryptedChannelConfig* getTunnelingChannelCfg()
-	{
-		if (_tunnelingChannelCfg == NULL)
-			_tunnelingChannelCfg = new EncryptedChannelConfig();
-		return _tunnelingChannelCfg;
-	}
-
-
 protected:
 
 	EmaString				_defaultServiceName;
-	EncryptedChannelConfig*		_tunnelingChannelCfg;
 };
 
 class ActiveServerConfig : public BaseConfig

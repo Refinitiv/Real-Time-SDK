@@ -60,12 +60,19 @@ static char interfaceName[128];
 static char traceOutputFile[128];
 static char proxyHostname[128];
 static char proxyPort[128];
-static char libsslName[128];
-static char libcryptoName[128];
+static char proxyUserName[128];
+static char proxyPasswd[128];
+static char proxyDomain[128];
+static char libsslName[255];
+static char libcryptoName[255];
+static char libcurlName[255];
 static char authenticationToken[AUTH_TOKEN_LENGTH];
 static char authenticationExtended[AUTH_TOKEN_LENGTH];
 static char applicationId[128];
 static RsslConnectionTypes connType = RSSL_CONN_TYPE_SOCKET;
+static RsslConnectionTypes encryptedConnType = RSSL_CONN_TYPE_INIT;
+static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
+static char sslCAStore[255];
 static RsslUInt32 pingTimeoutServer = 0;
 static RsslUInt32 pingTimeoutClient = 0;
 static time_t nextReceivePingTime = 0;
@@ -101,6 +108,10 @@ static const char *defaultInterface = "";
 
 static const char *defaultProxyHost = "";
 static const char *defaultProxyPort = "";
+static const char *defaultProxyUserName = "";
+static const char *defaultProxyPasswd = "";
+static const char *defaultProxyDomain = "";
+static const char *defaultCAStore = "";
 
 /* For TREP authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
@@ -136,6 +147,11 @@ int main(int argc, char **argv)
 	setApplicationId((char *)"");
 	snprintf(proxyHostname, 128, "%s", defaultProxyHost);
 	snprintf(proxyPort, 128, "%s", defaultProxyPort);
+	snprintf(proxyUserName, 128, "%s", defaultProxyUserName);
+	snprintf(proxyPasswd, 128, "%s", defaultProxyPasswd);
+	snprintf(proxyDomain, 128, "%s", defaultProxyDomain);
+	snprintf(sslCAStore, 255, "%s", defaultCAStore);
+	tlsProtocol = RSSL_ENC_NONE;
 
     /* Check usage and retrieve operating parameters */
 	if (argc == 1) /* use default operating parameters */
@@ -161,14 +177,20 @@ int main(int argc, char **argv)
 			if(strcmp("-libsslName", argv[i]) == 0)
 			{
 				i += 2;
-				snprintf(libsslName, 128, "%s", argv[i-1]);
+				snprintf(libsslName, 255, "%s", argv[i-1]);
 				initOpts.jitOpts.libsslName = libsslName;
 			}
 			else if(strcmp("-libcryptoName", argv[i]) == 0)
 			{
 				i += 2;
-				snprintf(libcryptoName, 128, "%s", argv[i-1]);
+				snprintf(libcryptoName, 255, "%s", argv[i-1]);
 				initOpts.jitOpts.libcryptoName = libcryptoName;
+			}
+			else if (strcmp("-libcurlName", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(libcurlName, 255, "%s", argv[i - 1]);
+				initOpts.jitOpts.libcurlName = libcurlName;
 			}
 			else if(strcmp("-uname", argv[i]) == 0)
 			{
@@ -210,6 +232,41 @@ int main(int argc, char **argv)
 				i += 2;
 				snprintf(proxyPort, 128, "%s", argv[i-1]);
 			}
+			else if (strcmp("-plogin", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyUserName, 128, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-ppasswd", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyPasswd, 128, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-pdomain", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(proxyDomain, 128, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-spTLSv1", argv[i]) == 0)
+			{
+				i++;
+				tlsProtocol |= RSSL_ENC_TLSV1;
+			}
+			else if (strcmp("-spTLSv1.1", argv[i]) == 0)
+			{
+				i++;
+				tlsProtocol |= RSSL_ENC_TLSV1_1;
+			}
+			else if (strcmp("-spTLSv1.2", argv[i]) == 0)
+			{
+				i++;
+				tlsProtocol |= RSSL_ENC_TLSV1_2;
+			}
+			else if (strcmp("-castore", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(sslCAStore, 255, "%s", argv[i - 1]);
+			}
 			else if(strcmp("-s", argv[i]) == 0)
 			{
 				i += 2;
@@ -229,6 +286,19 @@ int main(int argc, char **argv)
 				else 
 				{
 					connType = (RsslConnectionTypes)atoi(argv[i]);	
+				}
+				i += 1;
+			}
+			else if (strcmp("-ec", argv[i]) == 0)
+			{
+				i += 1;
+				if (0 == strcmp(argv[i], "socket") || 0 == strcmp(argv[i], "0"))
+					encryptedConnType = RSSL_CONN_TYPE_SOCKET;
+				else if (0 == strcmp(argv[i], "http") || 0 == strcmp(argv[i], "2"))
+					encryptedConnType = RSSL_CONN_TYPE_HTTP;
+				else
+				{
+					encryptedConnType = (RsslConnectionTypes)atoi(argv[i]);
 				}
 				i += 1;
 			}
@@ -478,6 +548,7 @@ int main(int argc, char **argv)
 				time_interval.tv_usec = 0;
 
 				selRet = select(FD_SETSIZE, &useRead, &useWrt, &useExcept, &time_interval);
+
 
 				/* select has timed out, close the channel and attempt to reconnect */
 				if(selRet == 0)
@@ -822,9 +893,17 @@ static RsslChannel* connectToRsslServer(RsslConnectionTypes connType, RsslError*
 	copts.connectionInfo.unified.interfaceName = interfaceName;
 	copts.proxyOpts.proxyHostName = proxyHostname;
 	copts.proxyOpts.proxyPort = proxyPort;
+	copts.proxyOpts.proxyUserName = proxyUserName;
+	copts.proxyOpts.proxyPasswd = proxyPasswd;
+	copts.proxyOpts.proxyDomain = proxyDomain;
+	copts.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
+	copts.encryptionOpts.openSSLCAStore = sslCAStore;
 
 	copts.guaranteedOutputBuffers = 500;
 	copts.connectionType = connType;
+	if (connType == RSSL_CONN_TYPE_ENCRYPTED && encryptedConnType != RSSL_CONN_TYPE_INIT)
+		copts.encryptionOpts.encryptedProtocol = encryptedConnType;
+	
 	copts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	copts.minorVersion = RSSL_RWF_MINOR_VERSION;
 	copts.protocolType = RSSL_RWF_PROTOCOL_TYPE;

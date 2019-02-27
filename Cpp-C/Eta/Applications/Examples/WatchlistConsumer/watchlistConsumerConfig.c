@@ -57,6 +57,7 @@ void printUsageAndExit(int argc, char **argv)
 	printf("Usage: %s"
 			" or %s [-c <Connection Type> ] [-if <Interface Name>] [ -u <Login UserName> ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
 			" -c       Specifies connection type. Valid arguments are socket, http, encrypted, and reliableMCast.\n"
+			" -ec      Specifies the encrypted transport protocol. Valid arguments are socket, and http.  Http is only supported on Windows Platforms.\n"
 			" -if      Specifies the address of a specific network interface to use.\n"
 			" -mp      For each occurance, requests item using Market Price domain.\n"
 			" -mbo     For each occurance, requests item on the Market By Order domain.\n"
@@ -97,28 +98,28 @@ void printUsageAndExit(int argc, char **argv)
 typedef enum
 {
 	/* Multicast transport options. */
-	CFG_HAS_SEND_ADDR			= 0x001,
-	CFG_HAS_RECV_ADDR			= 0x002,
-	CFG_HAS_SEND_PORT			= 0x004,
-	CFG_HAS_RECV_PORT			= 0x008,
-	CFG_HAS_UNICAST_PORT		= 0x010,
+	CFG_HAS_SEND_ADDR			= 0x0001,
+	CFG_HAS_RECV_ADDR			= 0x0002,
+	CFG_HAS_SEND_PORT			= 0x0004,
+	CFG_HAS_RECV_PORT			= 0x0008,
+	CFG_HAS_UNICAST_PORT		= 0x0010,
 	CFG_REQUIRED_MCAST_OPTS = 
 		( CFG_HAS_SEND_ADDR | CFG_HAS_RECV_ADDR | CFG_HAS_SEND_PORT | CFG_HAS_RECV_PORT
 		  | CFG_HAS_UNICAST_PORT),
 	CFG_ALL_MCAST_OPTS = CFG_REQUIRED_MCAST_OPTS,
 
 	/* Host Stat Message options for multicast connections. */
-	CFG_HAS_HSM_ADDR			= 0x020,
-	CFG_HAS_HSM_PORT			= 0x040,
-	CFG_HAS_HSM_INTERFACE		= 0x080,
-	CFG_HAS_HSM_INTERVAL		= 0x100,
+	CFG_HAS_HSM_ADDR			= 0x0020,
+	CFG_HAS_HSM_PORT			= 0x0040,
+	CFG_HAS_HSM_INTERFACE		= 0x0080,
+	CFG_HAS_HSM_INTERVAL		= 0x0100,
 	CFG_REQUIRED_HSM_OPTS		= (CFG_HAS_HSM_ADDR | CFG_HAS_HSM_PORT),
 	CFG_ALL_HSM_OPTS			= 
 		(CFG_HAS_HSM_ADDR | CFG_HAS_HSM_PORT | CFG_HAS_HSM_INTERFACE | CFG_HAS_HSM_INTERVAL),
 
 	/* Socket transport options. */
-	CFG_HAS_HOSTNAME			= 0x200,
-	CFG_HAS_PORT				= 0x400,
+	CFG_HAS_HOSTNAME			= 0x0200,
+	CFG_HAS_PORT				= 0x0400,
 	CFG_ALL_SOCKET_OPTS			= (CFG_HAS_HOSTNAME | CFG_HAS_PORT)
 
 } ConfigConnOptions;
@@ -129,6 +130,9 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	int configFlags = 0;
 
 	memset(&watchlistConsumerConfig, 0, sizeof(WatchlistConsumerConfig));
+
+	watchlistConsumerConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
+	watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_INIT;
 
 	/* Set defaults. */
 	snprintf(watchlistConsumerConfig.hostName, 255, "%s", defaultHostName);
@@ -147,6 +151,17 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig.hsmPort, 255, "");
 	snprintf(watchlistConsumerConfig.hsmInterface, 255, "");
 	watchlistConsumerConfig.hsmInterval = 5;
+
+	snprintf(watchlistConsumerConfig.proxyHost, 255, "");
+	snprintf(watchlistConsumerConfig.proxyPort, 255, "");
+	snprintf(watchlistConsumerConfig.proxyUserName, 255, "");
+	snprintf(watchlistConsumerConfig.proxyPasswd, 255, "");
+	snprintf(watchlistConsumerConfig.proxyDomain, 255, "");
+
+	snprintf(watchlistConsumerConfig.libsslName, 255, "");
+	snprintf(watchlistConsumerConfig.libcryptoName, 255, "");
+	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
+	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
 
 
 	watchlistConsumerConfig.tunnelStreamDomainType = RSSL_DMT_SYSTEM;
@@ -171,6 +186,46 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 				printUsageAndExit(argc, argv);
 			}
 		}
+		else if (0 == strcmp(argv[i], "-ec"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+
+			if (0 == strcmp(argv[i], "socket"))
+				watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (0 == strcmp(argv[i], "http"))
+			{
+#ifdef LINUX
+				printf("WinInet HTTP connection not supported on this platform.\n");
+				printUsageAndExit(argc, argv);
+#endif
+				watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_HTTP;
+			}
+			else
+			{
+				printf("Unknown connection type specified: %s\n", argv[i]);
+				printUsageAndExit(argc, argv);
+			}
+		}
+		else if (strcmp("-libsslName", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(watchlistConsumerConfig.libsslName, 255, "%s", argv[i - 1]);
+		}
+		else if (strcmp("-libcryptoName", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", argv[i - 1]);
+		}
+		else if (strcmp("-libcurlName", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", argv[i - 1]);
+		}
+		else if (strcmp("-castore", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", argv[i - 1]);
+		}
 		else if (0 == strcmp(argv[i], "-h"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -182,6 +237,31 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			if (++i == argc) printUsageAndExit(argc, argv);
 			snprintf(watchlistConsumerConfig.port, 255, "%s", argv[i]);
 			configFlags |= CFG_HAS_PORT;
+		}
+		else if (0 == strcmp(argv[i], "-ph"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.proxyHost, 255, "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-pp"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.proxyPort, 255, "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-plogin"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.proxyUserName, 255, "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-ppasswd"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.proxyPasswd, 255, "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-pdomain"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.proxyDomain, 255, "%s", argv[i]);
 		}
 		else if (0 == strcmp(argv[i], "-sa"))
 		{
@@ -464,10 +544,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	}
 
 	printf("\n");
-}
-
-void watchlistConsumerConfigCleanup()
-{
 }
 
 ItemInfo *getItemInfo(RsslInt32 streamId)

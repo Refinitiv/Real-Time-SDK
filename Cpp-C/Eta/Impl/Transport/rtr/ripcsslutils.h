@@ -8,15 +8,6 @@
 
 #ifndef __ripcsslutils_h
 #define __ripcsslutils_h
-#ifndef WIN32
-
-#define USE_SOCKETS
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <openssl/ssl.h>
-#include <openssl/x509v3.h>
-#include <openssl/bn.h>
 
 #include "rtr/rsslSocketTransportImpl.h"
 #include "rtr/os.h"
@@ -25,12 +16,23 @@
 #include "rtr/ripcssljit.h"
 
 #include <sys/types.h>
+
+#define USE_SOCKETS
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+//TODO: Figure out if we need this.
+#ifdef LINUX
 #include <unistd.h>
 #include <dlfcn.h>
+#endif
 
-DH *ripcSSLDHGetTmpParam(RsslInt32 nKeyLen, ripcSSLBIOApiFuncs* bioFuncs, ripcCryptoApiFuncs* cryptoFuncs );
-DH *ripcSSLDHGetParamFile(char *file, ripcSSLBIOApiFuncs* bioFuncs, ripcCryptoApiFuncs* cryptoFuncs );
-RsslInt32 verify_callback(RsslInt32 ok, X509_STORE_CTX *store);
+OPENSSL_DH *ripcSSLDHGetTmpParam(RsslInt32 nKeyLen, ripcSSLApiFuncs* sslFuncs , ripcCryptoApiFuncs* cryptoFuncs);
+OPENSSL_DH *ripcSSLDHGetParamFile(char *file, ripcSSLApiFuncs* sslFuncs, ripcCryptoApiFuncs* cryptoFuncs );
 
 // define the cipher list - this will allow all
 // ciphers except anonymous (ADH), keys of 64 or 56 bits (LOW), 
@@ -79,8 +81,8 @@ typedef struct {
 
 /* our Server structure */
 typedef struct {
-	RsslUInt32 socket;
-	SSL_CTX *ctx;
+	RsslSocket socket;
+	OPENSSL_SSL_CTX *ctx;
 	ripcSSLConnectOpts  config;  // this is used for the case where we need to check the config off the server
 	ripcSSLKey		keys[RIPC_SSL_MAX_KEY + 1];	
 } ripcSSLServer;
@@ -97,17 +99,19 @@ typedef enum
 
 /* our client structure */
 typedef struct {
-	RsslUInt32 socket;
+	RsslSocket socket;
 	ripcSSLServer *server;  // used to keep track of which server this session came from (if its server side)
-	SSL_CTX		  *ctx;  
-	SSL			  *connection;
-	BIO			  *bio;
+	OPENSSL_SSL_CTX		  *ctx;  
+	OPENSSL_SSL			  *connection;
+	OPENSSL_BIO			  *bio;
 	char		   clientConnState;
 	ripcSSLProtocolFlags sessionProtocol;
 	ripcSSLConnectOpts  config;  // this holds the config for the clients (if this is server side, the config is copied from the servers 
 } ripcSSLSession;
 
 #define RIPC_INIT_SSL_SESSION { 0, 0, 0, 0, 0, SSL_INITIALIZING, RIPC_INIT_SSL_CONNECT_OPTS }
+
+ripcSSLProtocolFlags ripcGetSupportedProtocolFlags();
 
 /* our transport read function -
  this will read from the network using SSL and return the appropriate value to the ripc layer */
@@ -129,17 +133,19 @@ void *ripcNewSSLSocket(void *server, RsslSocket fd, RsslInt32 *initComplete, voi
 ripcSSLServer *ripcInitializeSSLServer(RsslSocket fd, char* name, RsslError  *error);
 
 /* creates and initializes new client/session structure */
-ripcSSLSession *ripcInitializeSSLSession(RsslSocket fd, RsslInt32 SSLProtocolVersion, char* name, RsslError *error);
+ripcSSLSession *ripcInitializeSSLSession(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslSocketChannel* chnl, RsslError *error);
 
 /* connects session to a server */
 void *ripcSSLConnectTLSv1(RsslSocket fd, RsslInt32 *initComplete, void* userSpecPtr, RsslError *error);
-
 
 /* connects session to a server */
 void *ripcSSLConnectTLSv11(RsslSocket fd, RsslInt32 *initComplete, void* userSpecPtr, RsslError *error);
 
 /* connects session to a server */
 void *ripcSSLConnectTLSv12(RsslSocket fd, RsslInt32 *initComplete, void* userSpecPtr, RsslError *error);
+
+/* connects session to a server */
+void *ripcSSLConnectTLS(RsslSocket fd, RsslInt32 *initComplete, void* userSpecPtr, RsslError *error);
 
 /* reconnects for proxy keep alive */
 RsslInt32 ripcSSLReconnection(void *session, RsslError *error);
@@ -168,10 +174,13 @@ RsslInt32 ripcInitSSLConnectOpts(ripcSSLConnectOpts *config, RsslError *error);
 ripcSSLServer *ripcSSLNewServer(RsslSocket fd, char* name, RsslError *error);
 
 /* server can be null if this is a client side connection */
-ripcSSLSession *ripcSSLNewSession(RsslSocket fd, char* name, ripcSSLServer *server, RsslError *error);
+ripcSSLSession *ripcSSLNewSession(RsslSocket fd, RsslSocketChannel* chnl, ripcSSLServer *server, RsslError *error);
 
 void ripcFreeSSLConnectOpts(ripcSSLConnectOpts *config);
 
+RSSL_API RsslBool ripcCompareHostNameLen(char* host1, char* host2, unsigned int length);
+
+RSSL_API RsslBool ripcVerifyCertHost(char* inputPattern, unsigned int patternLen, char* hostName, RsslError* err);
 
 /* initialize the temporary DH keys */
 RsslInt32 ripcInitKeys(ripcSSLServer *server, RsslError *error);
@@ -179,7 +188,11 @@ RsslInt32 ripcInitKeys(ripcSSLServer *server, RsslError *error);
 void ripcFreeKeys(ripcSSLServer *server);
 
 //user is either 0 for client or 1 for server - we set up a few options differently for the server
-SSL_CTX* ripcSSLSetupCTX(RsslInt32 user,  ripcSSLProtocolFlags version, ripcSSLConnectOpts *config, RsslError *error);
+OPENSSL_SSL_CTX* ripcSSLSetupCTX(RsslInt32 user,  ripcSSLProtocolFlags version, RsslSocketChannel* chnl, ripcSSLConnectOpts *config, RsslError *error);
+
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
+
 #endif  // __ripcsslutils_h
 

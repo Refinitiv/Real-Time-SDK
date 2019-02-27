@@ -1219,9 +1219,18 @@ public:
 	void proxyHostName(const EmaString&);
 	void proxyPort(const EmaString&);
 	void securityProtocol(int);
+	void proxyUserName(const EmaString&);
+	void proxyPasswd(const EmaString&);
+	void proxyDomain(const EmaString&);
 	void objectName(const EmaString&);
 	void libsslName(const EmaString&);
 	void libcryptoName(const EmaString&);
+
+	void libcurlName(const EmaString&);
+
+	void sslCAStore(const EmaString&);
+
+	void encrypedConnectionType(const RsslConnectionTypes&);
 
 	RsslRDMLoginRequest* getLoginReq();
 
@@ -1273,6 +1282,31 @@ public:
 		return _libCryptoName;
 	}
 
+	const EmaString& getUserSpecifiedLibcurlName()
+	{
+		return _libcurlName;
+	}
+
+	const EmaString& getUserSpecifiedProxyUserName()
+	{
+		return _proxyUserNameSetViaFunctionCall;
+	}
+
+	const EmaString& getUserSpecifiedProxyPasswd()
+	{
+		return _proxyPasswdSetViaFunctionCall;
+	}
+
+	const EmaString& getUserSpecifiedProxyDomain()
+	{
+		return _proxyDomainSetViaFunctionCall;
+	}
+
+	const EmaString& getUserSpecifiedSslCAStore()
+	{
+		return _sslCAStoreSetViaFunctionCall;
+	}
+
 protected:
 
 	LoginRdmReqMsg			_loginRdmReqMsg;
@@ -1287,6 +1321,10 @@ protected:
 
 	EmaString				_proxyHostnameSetViaFunctionCall;
 	EmaString				_proxyPortSetViaFunctionCall;
+	EmaString				_proxyUserNameSetViaFunctionCall;
+	EmaString				_proxyPasswdSetViaFunctionCall;
+	EmaString				_proxyDomainSetViaFunctionCall;
+	EmaString				_sslCAStoreSetViaFunctionCall;
 	int						_securityProtocolSetViaFunctionCall;
 
 	void addLoginReqMsg( RsslRequestMsg* );
@@ -1304,6 +1342,7 @@ protected:
 	EmaString		_objectName;
 	EmaString		_libSslName;
 	EmaString		_libCryptoName;
+	EmaString		_libcurlName;
 };
 
 class EmaConfigServerImpl : public EmaConfigBaseImpl

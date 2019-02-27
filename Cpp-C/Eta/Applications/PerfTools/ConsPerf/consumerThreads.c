@@ -905,13 +905,18 @@ static RsslRet connectChannel(ConsumerThread* pConsumerThread)
 	copts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
 	copts.connectionType = consPerfConfig.connectionType;
 
-	if(consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET)
+	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET || consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
 		copts.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
 	}
 
-		copts.connectionInfo.unified.address = consPerfConfig.hostName;
-		copts.connectionInfo.unified.serviceName = consPerfConfig.portNo;
+	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+	{
+		copts.encryptionOpts.encryptedProtocol = consPerfConfig.encryptedConnectionType;
+	}
+
+	copts.connectionInfo.unified.address = consPerfConfig.hostName;
+	copts.connectionInfo.unified.serviceName = consPerfConfig.portNo;
 
 	do
 	{
@@ -1030,13 +1035,18 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	cInfo.rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
 	cInfo.rsslConnectOptions.connectionType = consPerfConfig.connectionType;
 
-	if(consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET)
+	if(consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET || consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
 		cInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
 	}
 
-		cInfo.rsslConnectOptions.connectionInfo.unified.address = consPerfConfig.hostName;
-		cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = consPerfConfig.portNo;
+	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+	{
+		cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = consPerfConfig.encryptedConnectionType;
+	}
+
+	cInfo.rsslConnectOptions.connectionInfo.unified.address = consPerfConfig.hostName;
+	cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = consPerfConfig.portNo;
 
 	// set consumer role information
 	rsslClearOMMConsumerRole(&pConsumerThread->consumerRole);

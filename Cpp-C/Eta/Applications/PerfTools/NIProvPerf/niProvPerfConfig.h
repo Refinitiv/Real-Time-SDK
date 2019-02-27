@@ -24,6 +24,7 @@ typedef struct
 	RsslUInt32	runTime;							/* Time application runs befor exiting(-runTime).*/
 
 	RsslConnectionTypes	connectionType;				/* Type of connection(-connType).*/
+	RsslConnectionTypes	encryptedConnectionType;	/* Protocol used with an encrypted connection. (-encryptedConnType).*/
 	char 				portNo[32];					/* Port number(-p).*/
 	char				interfaceName[128];			/* Name of interface(-if).*/
 	char				username[128];				/* Username used when logging in. */

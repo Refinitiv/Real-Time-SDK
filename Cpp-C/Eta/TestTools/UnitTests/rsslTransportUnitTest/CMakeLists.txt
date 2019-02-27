@@ -32,6 +32,7 @@ target_include_directories(rsslTransportUnitTest
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Codec>
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
+								$<BUILD_INTERFACE:$<TARGET_PROPERTY:CURL::libcurl,INTERFACE_INCLUDE_DIRECTORIES>>
 )
 
 target_include_directories(rsslTransportUnitTest_shared
@@ -41,6 +42,7 @@ target_include_directories(rsslTransportUnitTest_shared
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Codec>
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
+								$<BUILD_INTERFACE:$<TARGET_PROPERTY:CURL::libcurl,INTERFACE_INCLUDE_DIRECTORIES>>
 )
 
 if( CMAKE_HOST_UNIX )

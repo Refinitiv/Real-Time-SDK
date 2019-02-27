@@ -148,6 +148,36 @@ OmmNiProviderConfig& OmmNiProviderConfig::tunnelingLibCryptoName(const EmaString
 	return *this;
 }
 
+OmmNiProviderConfig& OmmNiProviderConfig::libcurlName(const EmaString& libcurlName)
+{
+	_pImpl->libcurlName(libcurlName);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::proxyUserName(const EmaString& proxyUserName)
+{
+	_pImpl->proxyUserName(proxyUserName);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::proxyPasswd(const EmaString& proxyPasswd)
+{
+	_pImpl->proxyPasswd(proxyPasswd);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::proxyDomain(const EmaString& proxyDomain)
+{
+	_pImpl->proxyDomain(proxyDomain);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::sslCAStore(const EmaString& sslCAStore)
+{
+	_pImpl->sslCAStore(sslCAStore);
+	return *this;
+}
+
 OmmNiProviderConfig& OmmNiProviderConfig::config( const Data& config )
 {
 	_pImpl->config( config );

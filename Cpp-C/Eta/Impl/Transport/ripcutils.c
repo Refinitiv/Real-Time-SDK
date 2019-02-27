@@ -32,10 +32,15 @@
 #include <sys/poll.h>
 #endif
 
+ /*  debug curl - set to 0 is off, set to 1 will print debug msgs */
+unsigned char curlDebug = 0;
+
 #include "rtr/rsslSocketTransportImpl.h"
 #include "rtr/ripcflip.h"
 #include "rtr/ripcutils.h"
 #include "rtr/rtratomic.h"
+#include "rtr/rsslCurlJIT.h"
+#include "curl/curl.h"
 
 #include "rtr/rsslErrors.h"
 
@@ -44,6 +49,238 @@
 #endif /* Linux */
 
 static rtr_atomic_val rtr_SocketInits = 0;
+
+curl_socket_t rsslCurlOpenSocketCallback(void *clientp,
+	curlsocktype purpose,
+	struct curl_sockaddr *address)
+{
+	return (curl_socket_t)socket(AF_INET, SOCK_STREAM, getProtocolNumber());
+}
+
+static int rsslCurlSetSockOptCallback(void *clientp, curl_socket_t curlfd,
+	curlsocktype purpose)
+{
+	ripcSocketOption	sockopts;
+	RsslSocket sock_fd = (RsslSocket)curlfd;
+	RsslSocketChannel *pRsslSocketChannel = (RsslSocketChannel*)clientp;
+
+	sockopts.code = RIPC_SOPT_LINGER;
+	sockopts.options.linger_time = 0;
+	if (ipcSockOpts(sock_fd, &sockopts) < 0)
+	{
+		return CURL_SOCKOPT_ERROR;
+	}
+
+	sockopts.code = RIPC_SOPT_KEEPALIVE;
+	sockopts.options.turn_on = 1;
+	if (ipcSockOpts(sock_fd, &sockopts) < 0)
+	{
+		return CURL_SOCKOPT_ERROR;
+	}
+
+	/* if non-zero, set this */
+	if (pRsslSocketChannel->recvBufSize > 0)
+	{
+		sockopts.code = RIPC_SOPT_RD_BUF_SIZE;
+		sockopts.options.buffer_size = pRsslSocketChannel->recvBufSize;
+
+		if (ipcSockOpts(sock_fd, &sockopts) < 0)
+		{
+			return CURL_SOCKOPT_ERROR;
+		}
+	}
+
+	/* if non-zero set this */
+	if (pRsslSocketChannel->sendBufSize > 0)
+	{
+		sockopts.code = RIPC_SOPT_WRT_BUF_SIZE;
+		sockopts.options.buffer_size = pRsslSocketChannel->sendBufSize;
+
+		if (ipcSockOpts(sock_fd, &sockopts) < 0)
+		{
+			return CURL_SOCKOPT_ERROR;
+		}
+	}
+	return CURL_SOCKOPT_OK;
+}
+
+RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg) 
+{
+    RsslSocketChannel *rsslSocketChannel = ((RsslSocketChannel*)pArg);
+	RsslError *error = &(rsslSocketChannel->curlThreadInfo.error);
+	RsslInt32 tempLen = 0;
+	RsslInt32 portnum;
+	RsslUInt32 proxyPortNum; 
+	RsslCurlJITFuncs* curlFuncs;
+	char* curlOptProxy = NULL;
+	char* curlOptUrl = NULL;
+	char* curlOptProxyUserPwd = NULL;
+
+	CURLcode curlret;
+	if ((curlFuncs = rsslGetCurlFuncs()) == NULL)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1002 Curl not initialized.\n",
+			__FILE__, __LINE__);
+		rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_ERROR;
+		/* trigger select for error condition */
+		rssl_pipe_write(&rsslSocketChannel->sessPipe, "1", 1);
+
+        RSSL_THREAD_DETACH(&(rsslSocketChannel->curlThreadInfo.curlThreadId));
+		return RSSL_THREAD_RETURN();
+	}
+
+	rsslSocketChannel->curlHandle = (*(curlFuncs->curl_easy_init))();
+    if((rsslSocketChannel->curlThreadInfo.curlError = (char*)_rsslMalloc(CURL_ERROR_SIZE)) == NULL) 
+    {
+        _rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+        snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+            "<%s:%d> Error: 1001 Could not initialize memory for Curl Error.\n",
+            __FILE__, __LINE__);
+        rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_ERROR;
+        /* trigger select for error condition */
+        rssl_pipe_write(&rsslSocketChannel->sessPipe, "1", 1);
+        
+        RSSL_THREAD_DETACH(&(rsslSocketChannel->curlThreadInfo.curlThreadId));
+		return RSSL_THREAD_RETURN();
+    }
+
+	tempLen = (RsslInt32)strlen(rsslSocketChannel->hostName) + (RsslInt32)strlen(rsslSocketChannel->serverName) + 2; // For : and null character at the end
+
+	if ((curlOptUrl = (char*)_rsslMalloc(tempLen)) == NULL)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1001 Could not initialize memory for Curl Error.\n",
+			__FILE__, __LINE__);
+		_rsslFree(rsslSocketChannel->curlThreadInfo.curlError);
+		rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_ERROR;
+		/* trigger select for error condition */
+		rssl_pipe_write(&rsslSocketChannel->sessPipe, "1", 1);
+
+        RSSL_THREAD_DETACH(&(rsslSocketChannel->curlThreadInfo.curlThreadId));
+		return RSSL_THREAD_RETURN();
+	}
+
+	snprintf(curlOptUrl, (const size_t)tempLen, "%s:%s", rsslSocketChannel->hostName, rsslSocketChannel->serverName);
+
+	// Init Curl Port
+	portnum = net2host_u16(ipcGetServByName(rsslSocketChannel->serverName));
+
+	// Init Curl Proxy Port
+	proxyPortNum = net2host_u16(ipcGetServByName(rsslSocketChannel->proxyPort));
+
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_HTTPPROXYTUNNEL, 1L);
+
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_SSL_VERIFYHOST, 0L);
+    // Init Curl Proxy Domain/User/Password
+	if (rsslSocketChannel->curlOptProxyUser && rsslSocketChannel->curlOptProxyPasswd)
+	{
+		tempLen = (RsslInt32)(strlen(rsslSocketChannel->curlOptProxyUser)) + 2;		// username, :, and \0 character
+		tempLen += (RsslInt32)(strlen(rsslSocketChannel->curlOptProxyPasswd));	// password
+
+		if (rsslSocketChannel->curlOptProxyDomain)
+		{
+			tempLen += (RsslInt32)(strlen(rsslSocketChannel->curlOptProxyDomain)) + 2;	// domain and \\ characters
+		}
+		
+        if ((curlOptProxyUserPwd = (char*)_rsslMalloc(tempLen)) == NULL) // Accounts for null character at the end of the string
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1001 Could not initialize memory for Curl URL Host.\n",
+				__FILE__, __LINE__);
+			rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_ERROR;
+			_rsslFree(curlOptProxy);
+			_rsslFree(curlOptUrl);
+            _rsslFree(rsslSocketChannel->curlThreadInfo.curlError);
+            rsslSocketChannel->curlThreadInfo.curlError = 0;
+			/* trigger select for error condition */
+			rssl_pipe_write(&rsslSocketChannel->sessPipe, "1", 1);
+
+            RSSL_THREAD_DETACH(&(rsslSocketChannel->curlThreadInfo.curlThreadId));
+			return RSSL_THREAD_RETURN();
+		}
+
+		if (rsslSocketChannel->curlOptProxyDomain)
+        {
+			snprintf(curlOptProxyUserPwd, (size_t)tempLen, "%s\\%s:%s", rsslSocketChannel->curlOptProxyDomain, rsslSocketChannel->curlOptProxyUser, rsslSocketChannel->curlOptProxyPasswd);
+        }
+		else
+        {
+			snprintf(curlOptProxyUserPwd, (size_t)tempLen, "%s:%s", rsslSocketChannel->curlOptProxyUser, rsslSocketChannel->curlOptProxyPasswd);
+        }
+
+		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_PROXYAUTH, CURLAUTH_ANY);
+		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_PROXYUSERPWD, curlOptProxyUserPwd);
+	}
+	// Set Curl URL
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_URL, curlOptUrl);
+	// Set Curl Port
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_PORT, (long)portnum);
+	// Set Curl Proxy URL
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_PROXY, rsslSocketChannel->proxyHostName);
+	// Set Curl Proxy Port
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_PROXYPORT, (long)proxyPortNum);
+
+	// Set interface, if specified in connectopts
+	if (rsslSocketChannel->interfaceName != NULL)
+		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_INTERFACE, rsslSocketChannel->interfaceName);
+
+    // Turn off curl Signal handling to avoid multithreaded crashes
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_NOSIGNAL, 1L);
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_SHARE, curlFuncs->curlShare);
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_DEFAULT_PROTOCOL, "http");
+	/* Configure this curl session to only tunnel us through the proxy and not attempt to send any other data to the upstream
+	   server. */
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_TCP_NODELAY, (long)rsslSocketChannel->tcp_nodelay);
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_TCP_KEEPALIVE, 1L);
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_ERRORBUFFER, rsslSocketChannel->curlThreadInfo.curlError);
+
+	/* Set up socket and setsockopt callbacks */
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_SOCKOPTFUNCTION, rsslCurlSetSockOptCallback);
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_OPENSOCKETFUNCTION, rsslCurlOpenSocketCallback);
+	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_SOCKOPTDATA, rsslSocketChannel);
+	
+	if(curlDebug)
+		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_VERBOSE, 1L);
+
+    (*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_CONNECT_ONLY, 1L);
+	/* Initiate the connection through curl */
+	if ((curlret = (*(curlFuncs->curl_easy_perform))(rsslSocketChannel->curlHandle)) != CURLE_OK)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1002 Curl failed. Curl error number: %i Curl error text: %s\n",
+			__FILE__, __LINE__, curlret, rsslSocketChannel->curlThreadInfo.curlError);
+		rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_ERROR;
+		_rsslFree(curlOptProxy);
+		_rsslFree(curlOptUrl);
+        _rsslFree(rsslSocketChannel->curlThreadInfo.curlError);
+        rsslSocketChannel->curlThreadInfo.curlError = 0;
+		if(curlOptProxyUserPwd)
+			_rsslFree(curlOptProxyUserPwd);
+		/* trigger select for error condition */
+		rssl_pipe_write(&rsslSocketChannel->sessPipe, "1", 1);
+
+        RSSL_THREAD_DETACH(&(rsslSocketChannel->curlThreadInfo.curlThreadId));
+		return RSSL_THREAD_RETURN();
+	}
+
+    /* Free the allocated memory */
+	_rsslFree(curlOptProxy);
+	_rsslFree(curlOptUrl);
+	if (curlOptProxyUserPwd)
+		_rsslFree(curlOptProxyUserPwd);
+
+	/* trigger select with 1 for successfully getting libcurl fd */
+	rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_DONE;
+	rssl_pipe_write(&rsslSocketChannel->sessPipe, "1", 1);
+
+    RSSL_THREAD_DETACH(&(rsslSocketChannel->curlThreadInfo.curlThreadId));
+	return RSSL_THREAD_RETURN();
+}
 
 #ifdef _WIN32
 /************************************************************************
@@ -754,7 +991,8 @@ int ipcWrite( void *transport, char *buf, int outLen, ripcRWFlags flags, RsslErr
 
 int ipcShutdownSckt(void *transport)
 {
-	sock_close((RsslSocket)(intptr_t)transport);
+	if((RsslSocket)(intptr_t)transport != RIPC_INVALID_SOCKET)
+		sock_close((RsslSocket)(intptr_t)transport);
 	return(1);
 }
 
@@ -1113,6 +1351,105 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 	struct in_addr inaddr;
 	char localHostName[256];
 #endif
+	/* Proxy host name is resolved by CURL, and may include http or https protocols in the URI. */
+	if (pRsslSocketChannel->proxyHostName == 0 || (pRsslSocketChannel->proxyHostName[0] == '\0'))
+	{
+		if (rsslGetHostByName(pRsslSocketChannel->hostName, &addr) < 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1004 rsslGetHostByName() failed. Host name is incorrect. System errno: (%d)\n",
+				__FILE__, __LINE__, errno);
+
+			return(0);
+		}
+	}
+
+	if (pRsslSocketChannel->proxyPort != 0 && (pRsslSocketChannel->proxyPort[0] != '\0'))
+	{
+		if ((*portnum = ipcGetServByName(pRsslSocketChannel->proxyPort)) == -1)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1004 ipcGetServByName() failed. Port name/number is incorrect. System errno: (%d)\n",
+				__FILE__, __LINE__, errno);
+
+			return(0);
+		}
+	}
+	else
+	{
+		if ((*portnum = ipcGetServByName(pRsslSocketChannel->serverName)) == -1)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1004 ipcGetServByName() failed. Port name/number is incorrect. System errno: (%d)\n",
+				__FILE__, __LINE__, errno);
+
+			return(0);
+		}
+	}
+
+#ifdef IPC_DEBUG_SOCKET_NAME
+	if (gethostname(localHostName, 256))
+		printf("<%s:%d> ipcConnectSocket() hostname() returns ERROR = %d\n", __FILE__, __LINE__, errno);
+	else
+		printf("<%s:%d> ipcConnectSocket() hostname() returns localHostName = %s\n", __FILE__, __LINE__, localHostName);
+#endif
+
+	if (rsslGetHostByName(pRsslSocketChannel->interfaceName, &localAddr) < 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1004 rsslGetHostByName() failed. Interface name (%s) is incorrect. System errno: (%d)\n",
+			__FILE__, __LINE__, pRsslSocketChannel->interfaceName, errno);
+
+		return(0);
+	}
+
+
+#ifdef IPC_DEBUG_SOCKET_NAME
+	inaddr.s_addr = localAddr;
+	tmp = (char*)inet_ntoa(inaddr);
+	strncpy(localAddrStr, tmp, 129);
+	printf("<%s:%d> ipcConnectSocket() rsslGetHostByName(interfaceName=%s) returns localAddr = %s\n", __FILE__, __LINE__, pRsslSocketChannel->interfaceName
+		? pRsslSocketChannel->interfaceName : "NULL", localAddrStr);
+
+	if (pRsslSocketChannel->interfaceName && (strcmp(pRsslSocketChannel->interfaceName, "127.0.0.1") == 0))
+	{
+		printf("<%s:%d> ipcConnectSocket(interfaceName==127.0.0.1) localAddr = %s => INADDR_LOOPBACK = 127.0.0.1\n", __FILE__, __LINE__, localAddrStr);
+		localAddr = host2net_u32(INADDR_LOOPBACK);
+	}
+	else if (localAddr == host2net_u32(INADDR_LOOPBACK))
+	{
+		printf("<%s:%d> ipcConnectSocket(localAddr == INADDR_LOOPBACK) localAddr = %s => INADDR_ANY = 0.0.0.0\n", __FILE__, __LINE__, localAddrStr);
+		localAddr = host2net_u32(INADDR_ANY);
+	}
+#else
+	if (pRsslSocketChannel->interfaceName && (strcmp(pRsslSocketChannel->interfaceName, "127.0.0.1") == 0))
+		localAddr = host2net_u32(INADDR_LOOPBACK);
+	else if (localAddr == host2net_u32(INADDR_LOOPBACK))
+		localAddr = host2net_u32(INADDR_ANY);
+#endif
+
+	/* If we're configured for a proxy, create the pipe and  */
+	if (pRsslSocketChannel->proxyHostName && pRsslSocketChannel->proxyPort)
+	{
+		// Create pipe for libcurl proxy connection
+		if (!(rssl_pipe_create(&pRsslSocketChannel->sessPipe)))
+		{
+			/* some error here */
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1002 Unable to create internal pipe on connection request.\n",
+				__FILE__, __LINE__);
+
+			return(RIPC_CONN_ERROR);
+		}
+
+		RSSL_THREAD_START(&(pRsslSocketChannel->curlThreadInfo.curlThreadId), runBlockingLibcurlProxyConnection, pRsslSocketChannel);
+		return rssl_pipe_get_read_fd(&pRsslSocketChannel->sessPipe);
+	}
 
 	sock_fd = socket(AF_INET, SOCK_STREAM, getProtocolNumber());
 
@@ -1193,103 +1530,6 @@ RsslSocket ipcConnectSocket(RsslInt32 *portnum, void *opts, RsslInt32 flags, voi
 		sock_close(sock_fd);
 		return(0);
 	}
-
-	if (pRsslSocketChannel->proxyHostName != 0 && (pRsslSocketChannel->proxyHostName[0] != '\0'))
-	{
-		if (rsslGetHostByName(pRsslSocketChannel->proxyHostName, &addr) < 0)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1004 rsslGetHostByName() failed. Host name is incorrect. System errno: (%d)\n",
-				__FILE__, __LINE__, errno);
-
-			sock_close(sock_fd);
-			return(0);
-		}
-	}
-	else
-	{
-		if (rsslGetHostByName(pRsslSocketChannel->hostName, &addr) < 0)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1004 rsslGetHostByName() failed. Host name is incorrect. System errno: (%d)\n",
-				__FILE__, __LINE__, errno);
-
-			sock_close(sock_fd);
-			return(0);
-		}
-	}
-
-	if (pRsslSocketChannel->proxyPort != 0 && (pRsslSocketChannel->proxyPort[0] != '\0'))
-	{
-		if ((*portnum = ipcGetServByName(pRsslSocketChannel->proxyPort)) == -1)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1004 ipcGetServByName() failed. Port name/number is incorrect. System errno: (%d)\n",
-				__FILE__, __LINE__, errno);
-
-			sock_close(sock_fd);
-			return(0);
-		}
-	}
-	else
-	{
-		if ((*portnum = ipcGetServByName(pRsslSocketChannel->serverName)) == -1)
-		{
-			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 1004 ipcGetServByName() failed. Port name/number is incorrect. System errno: (%d)\n",
-				__FILE__, __LINE__, errno);
-
-			sock_close(sock_fd);
-			return(0);
-		}
-	}
-
-#ifdef IPC_DEBUG_SOCKET_NAME
-	if (gethostname(localHostName, 256))
-		printf("<%s:%d> ipcConnectSocket() hostname() returns ERROR = %d\n", __FILE__, __LINE__, errno);
-	else
-		printf("<%s:%d> ipcConnectSocket() hostname() returns localHostName = %s\n", __FILE__, __LINE__, localHostName);
-#endif
-
-	if (rsslGetHostByName(pRsslSocketChannel->interfaceName, &localAddr) < 0)
-	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1004 rsslGetHostByName() failed. Interface name (%s) is incorrect. System errno: (%d)\n",
-			__FILE__, __LINE__, pRsslSocketChannel->interfaceName, errno);
-
-		sock_close(sock_fd);
-		return(0);
-	}
-
-
-#ifdef IPC_DEBUG_SOCKET_NAME
-	inaddr.s_addr = localAddr;
-	tmp = (char*)inet_ntoa(inaddr);
-	strncpy(localAddrStr, tmp, 129);
-	printf("<%s:%d> ipcConnectSocket() rsslGetHostByName(interfaceName=%s) returns localAddr = %s\n", __FILE__, __LINE__, pRsslSocketChannel->interfaceName
-		? pRsslSocketChannel->interfaceName : "NULL", localAddrStr);
-
-	if (pRsslSocketChannel->interfaceName && (strcmp(pRsslSocketChannel->interfaceName, "127.0.0.1") == 0))
-	{
-		printf("<%s:%d> ipcConnectSocket(interfaceName==127.0.0.1) localAddr = %s => INADDR_LOOPBACK = 127.0.0.1\n", __FILE__, __LINE__, localAddrStr);
-		localAddr = host2net_u32(INADDR_LOOPBACK);
-	}
-	else if (localAddr == host2net_u32(INADDR_LOOPBACK))
-	{
-		printf("<%s:%d> ipcConnectSocket(localAddr == INADDR_LOOPBACK) localAddr = %s => INADDR_ANY = 0.0.0.0\n", __FILE__, __LINE__, localAddrStr);
-		localAddr = host2net_u32(INADDR_ANY);
-	}
-#else
-	if (pRsslSocketChannel->interfaceName && (strcmp(pRsslSocketChannel->interfaceName, "127.0.0.1") == 0))
-		localAddr = host2net_u32(INADDR_LOOPBACK);
-	else if (localAddr == host2net_u32(INADDR_LOOPBACK))
-		localAddr = host2net_u32(INADDR_ANY);
-#endif
 
 	if (ipcBindSocket(localAddr, localPort, sock_fd) < 0)
 	{
@@ -1561,3 +1801,5 @@ int _ipcdGetPeerName( RsslSocket fd )
 	return(iRetVal);
 }
 #endif
+
+

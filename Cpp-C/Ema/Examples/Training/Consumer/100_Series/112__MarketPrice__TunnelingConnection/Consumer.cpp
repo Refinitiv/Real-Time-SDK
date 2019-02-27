@@ -31,6 +31,9 @@ void printHelp()
 	cout << endl << "Options:\n" << " -?\tShows this usage\n"
 		<< " -ph Proxy host name \n"
 		<< " -pp Proxy port number \n"
+		<< " -plogin User name on proxy server \n"
+		<< " -ppasswd Password on proxy server \n"
+		<< " -pdomain Proxy Domain \n"
 		<< " -spTLSv1 enable use of cryptopgrahic protocol TLSv1 used with linux encrypted connections \n"
 		<< " -spTLSv1.1 enable use of cryptopgrahic protocol TLSv1.1 used with linux encrypted connections \n"
 		<< " -spTLSv1.2 enable use of cryptopgrahic protocol TLSv1.2 used with linux encrypted connections \n"
@@ -59,6 +62,18 @@ int main( int argc, char* argv[] )
 			else if (strcmp(argv[i], "-pp") == 0)
 			{
 				config.tunnelingProxyPort(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-plogin") == 0)
+			{
+				config.proxyUserName(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-ppasswd") == 0)
+			{
+				config.proxyPasswd(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-pdomain") == 0)
+			{
+				config.proxyDomain(i < (argc - 1) ? argv[++i] : NULL);
 			}
 			else if (strcmp(argv[i], "-spTLSv1") == 0)
 			{

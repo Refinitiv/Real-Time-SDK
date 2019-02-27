@@ -209,6 +209,29 @@ void initConsPerfConfig(int argc, char **argv)
 
 			iargs++;
 		}
+		else if (strcmp("-encryptedConnType", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+
+			if (strcmp("socket", argv[iargs]) == 0)
+				consPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_SOCKET;
+			else if (strcmp("http", argv[iargs]) == 0)
+			{
+#ifdef Linux  
+				printf("Config Error: Encrypted HTTP connection type not supported on Linux.\n", argv[iargs]);
+				exitConfigError(argv);
+#else // HTTP connnections spported only through Windows WinInet 
+				consPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_HTTP;
+#endif
+			}
+			else
+			{
+				printf("Config Error: Unknown encrypted connection type \"%s\"\n", argv[iargs]);
+				exitConfigError(argv);
+			}
+
+			iargs++;
+		}
 		else if(strcmp("-outputBufs", argv[iargs]) == 0)
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
@@ -509,6 +532,7 @@ void exitWithUsage()
 			"  -?                                   Shows this usage\n"
 			"\n"
 			"  -connType <type>                     Type of connection(\"socket\", \"http\", \"encrypted\")\n"
+			"  -encryptedConnType <type>            Encrypted connection protocol. Only used if the \"encrypted\" connection type is selected. \"http\" type is only supported on Windows. (\"socket\", \"http\")\n"
 			"  -h <hostname>                        Name of host to connect to\n"
 			"  -p <port number>                     Port number to connect to\n"
 			"  -if <interface name>                 Name of network interface to use\n"

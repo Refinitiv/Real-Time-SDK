@@ -12,6 +12,7 @@
 
 #include "rtr/socket.h"
 #include "rtr/rsslChanManagement.h"
+#include <sys/stat.h>
 
 #if !defined(_WIN16) && !defined(_WIN32)
 #include <sys/uio.h>
@@ -33,6 +34,18 @@ typedef WSABUF	ripcIovType;
 
 #ifndef snprintf
 #define snprintf	_snprintf
+#endif
+
+#ifndef stat
+#define stat		_stat
+#endif
+
+#ifndef S_IFDIR
+#define S_IFDIR _S_IFDIR
+#endif
+
+#ifndef S_IFREG
+#define S_IFREG _S_IFREG
 #endif
 
 #else

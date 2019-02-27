@@ -45,6 +45,7 @@ else()
                 vectorEncoder.c messageDecoders.c messageEncoders.c
                 msgs.c decodeRoutines.c dictionary.c
                 fieldListDefs.c xmlDomainDump.c xmlDump.c xmlMsgDump.c
+				fileUtil.c
                 
                 #Codec internal headers
                 rtr/decoderTools.h
@@ -69,6 +70,8 @@ else()
                 ${Eta_SOURCE_DIR}/Impl/Transport/rsslSocketTransportImpl.c
                 ${Eta_SOURCE_DIR}/Impl/Transport/rsslUniShMemTransportImpl.c
                 ${Eta_SOURCE_DIR}/Impl/Transport/shmemtrans.c
+				${Eta_SOURCE_DIR}/Impl/Util/rsslCurlJIT.c
+
                
                 
                 #Transport internal headers
@@ -120,6 +123,7 @@ else()
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslThread.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslTypes.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslVAUtils.h
+				${Eta_SOURCE_DIR}/Include/Util/rtr/rsslCurlJIT.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/application_signing.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/byteswap.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/custmem.h
@@ -150,6 +154,7 @@ else()
                 ${Eta_SOURCE_DIR}/Include/Codec/decodeRoutines.h
                 ${Eta_SOURCE_DIR}/Include/Codec/dictionary.h
                 ${Eta_SOURCE_DIR}/Include/Codec/fieldListDefs.h
+				${Eta_SOURCE_DIR}/Include/Codec/fileUtil.h
                 ${Eta_SOURCE_DIR}/Include/Codec/xmlDomainDump.h
                 ${Eta_SOURCE_DIR}/Include/Codec/xmlDump.h
                 ${Eta_SOURCE_DIR}/Include/Codec/xmlMsgDump.h
@@ -214,12 +219,16 @@ else()
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Codec>
+
                                 PRIVATE
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
-                                )
+									$<BUILD_INTERFACE:$<TARGET_PROPERTY:CURL::libcurl,INTERFACE_INCLUDE_DIRECTORIES>>
 
+                                )
+								
     add_library( librssl_shared SHARED 
                         ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} )
 
@@ -229,15 +238,20 @@ else()
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Codec>
                                 PRIVATE
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
-                                )
+									$<BUILD_INTERFACE:$<TARGET_PROPERTY:CURL::libcurl,INTERFACE_INCLUDE_DIRECTORIES>>
 
+                                )
+								
     if (CMAKE_HOST_WIN32)
         target_link_libraries( librssl wininet.lib 
                                     ws2_32.lib
+									crypt32.lib
+									cryptui.lib
 									ZLIB::ZLIB
 									LZ4::LZ4)
         target_compile_options(librssl 
@@ -248,7 +262,9 @@ else()
         target_link_libraries( librssl_shared 
                                     wininet.lib 
                                     ws2_32.lib
-									ZLIB::ZLIB 
+									crypt32.lib
+									cryptui.lib
+									ZLIB::ZLIB
 									LZ4::LZ4)
         target_compile_options( librssl_shared 
                                     INTERFACE
@@ -303,4 +319,6 @@ else()
 	rcdev_add_target(esdk librssl librssl_shared)
 
 endif()
+
+rcdev_add_target(esdk librssl librssl_shared)
 

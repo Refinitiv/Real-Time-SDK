@@ -79,6 +79,18 @@ time_t rsslProviderRuntime;
 static RsslBool xmlTrace = RSSL_FALSE;
 static char traceOutputFile[128];
 
+char proxyHost[256];
+char proxyPort[256];
+char proxyUserName[128];
+char proxyPasswd[128];
+char proxyDomain[128];
+
+static char libsslName[255];
+static char libcryptoName[255];
+static char libcurlName[255];
+
+static char sslCAStore[255];
+
 static RsslBool cacheCommandlineOption = RSSL_FALSE;
 RsslVACacheInfo cacheInfo;
 
@@ -129,11 +141,43 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
     /* Check usage and retrieve operating parameters */
 	i = 1;
 
+	snprintf(proxyHost, sizeof(proxyHost), "");
+	snprintf(proxyPort, sizeof(proxyPort), "");
+	snprintf(proxyUserName, sizeof(proxyUserName), "");
+	snprintf(proxyPasswd, sizeof(proxyPasswd), "");
+	snprintf(proxyDomain, sizeof(proxyDomain), "");
+
+	snprintf(libcryptoName, sizeof(libcryptoName), "");
+	snprintf(libsslName, sizeof(libsslName), "");
+	snprintf(libcurlName, sizeof(libcurlName), "");
+	snprintf(sslCAStore, sizeof(sslCAStore), "");
+
 	while(i < argc)
 	{
-		if(strcmp("-?", argv[i]) == 0)
+		if (strcmp("-?", argv[i]) == 0)
 		{
 			printUsageAndExit(argv[0]);
+		}
+		if (strcmp("-libsslName", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(libsslName, 255, "%s", argv[i - 1]);
+		}
+		else if (strcmp("-libcryptoName", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(libcryptoName, 255, "%s", argv[i - 1]);
+		}
+		else if (strcmp("-libcurlName", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(libcurlName, 255, "%s", argv[i - 1]);
+		}
+		else if (strcmp("-castore", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(sslCAStore, 255, "%s", argv[i - 1]);
+			pCommand->cOpts.rsslConnectOptions.encryptionOpts.openSSLCAStore = sslCAStore;
 		}
 		else if(strcmp("-uname", argv[i]) == 0)
 		{
@@ -158,6 +202,36 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 			i += 2;
 			snprintf(pCommand->applicationId.data, MAX_BUFFER_LENGTH, "%s", argv[i-1]);
 			pCommand->applicationId.length = (RsslUInt32)strlen(pCommand->applicationId.data);
+		}
+		else if (strcmp("-ph", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(proxyHost, sizeof(proxyHost), "%s", argv[i - 1]);
+			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyHostName = proxyHost;
+		}
+		else if (strcmp("-pp", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(proxyPort, sizeof(proxyPort), "%s", argv[i - 1]);
+			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyPort = proxyPort;
+		}
+		else if (strcmp("-plogin", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(proxyUserName, sizeof(proxyUserName), "%s", argv[i - 1]);
+			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyUserName = proxyUserName;
+		}
+		else if (strcmp("-ppasswd", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(proxyPasswd, sizeof(proxyPasswd), "%s", argv[i - 1]);
+			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyPasswd = proxyPasswd;
+		}
+		else if (strcmp("-pdomain", argv[i]) == 0)
+		{
+			i += 2;
+			snprintf(proxyDomain, sizeof(proxyDomain), "%s", argv[i - 1]);
+			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyDomain = proxyDomain;
 		}
 		else if(strcmp("-x", argv[i]) == 0)
 		{
@@ -257,6 +331,195 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 				
 			i++;
 		}
+		else if (strcmp("-encryptedSocket", argv[i]) == 0)
+		{
+
+			char *pToken, *pToken2, *pSaveToken, *pSaveToken2;
+
+
+			/* Syntax:
+			*  -encryptedSocket hostname:port SERVICE_NAME mp:TRI,mp:.DJI
+			*/
+			pCommand->cOpts.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+			pCommand->cOpts.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
+
+			/* Hostname */
+			if (++i >= argc) { printf("Error: -encryptedSocket: Missing hostname.\n"); printUsageAndExit(argv[0]); }
+			pToken = strtok(argv[i], ":");
+			if (!pToken) { printf("Error: -encryptedSocket: Missing hostname.\n"); printUsageAndExit(argv[0]); }
+			snprintf(pCommand->hostName.data, MAX_BUFFER_LENGTH, pToken);
+			pCommand->hostName.length = (RsslUInt32)strlen(pCommand->hostName.data);
+			pCommand->cOpts.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName.data;
+
+			/* Port */
+			pToken = strtok(NULL, ":");
+			if (!pToken) { printf("Error: -encryptedSocket: Missing serviceName.\n"); printUsageAndExit(argv[0]); }
+			snprintf(pCommand->port.data, MAX_BUFFER_LENGTH, pToken);
+			pCommand->port.length = (RsslUInt32)strlen(pCommand->port.data);
+			pCommand->cOpts.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port.data;
+
+			/* Item Service Name */
+			i++;
+			pToken = argv[i];
+			if (!pToken) { printf("Error: -encryptedSocket: Missing item service name.\n"); printUsageAndExit(argv[0]); }
+			snprintf(pCommand->serviceName.data, MAX_BUFFER_LENGTH, pToken);
+			pCommand->serviceName.length = (RsslUInt32)strlen(pCommand->serviceName.data);
+
+			/* Item List */
+			if (++i >= argc) { printf("Error: -encryptedSocket: Missing item.\n"); printUsageAndExit(argv[0]); }
+			pToken = strtok_r(argv[i], ",", &pSaveToken);
+
+			while (pToken)
+			{
+				RsslNIItemInfo *pItemInfo;
+				/* domain */
+				pToken2 = strtok_r(pToken, ":", &pSaveToken2);
+				if (!pToken2) { printf("Error: -encryptedSocket: Missing item.\n"); printUsageAndExit(argv[0]); }
+
+				if (0 == strcmp(pToken2, "mp"))
+				{
+					if (pCommand->marketPriceItemCount < CHAN_CMD_MAX_ITEMS)
+					{
+						pItemInfo = &pCommand->marketPriceItemInfo[pCommand->marketPriceItemCount];
+						pItemInfo->domainType = RSSL_DMT_MARKET_PRICE;
+						++pCommand->marketPriceItemCount;
+					}
+					else
+					{
+						printf("Number of items for Market Price domain exceeded CHAN_CMD_MAX_ITEMS (%d)\n", CHAN_CMD_MAX_ITEMS);
+						printUsageAndExit(argv[0]);
+					}
+				}
+				else if (0 == strcmp(pToken2, "mbo"))
+				{
+					if (pCommand->marketByOrderItemCount < CHAN_CMD_MAX_ITEMS)
+					{
+						pItemInfo = &pCommand->marketByOrderItemInfo[pCommand->marketByOrderItemCount];
+						pItemInfo->domainType = RSSL_DMT_MARKET_BY_ORDER;
+						++pCommand->marketByOrderItemCount;
+					}
+					else
+					{
+						printf("Number of items for Market By Order domain exceeded CHAN_CMD_MAX_ITEMS (%d)\n", CHAN_CMD_MAX_ITEMS);
+						printUsageAndExit(argv[0]);
+					}
+				}
+				else
+				{
+					printf("Unknown item domain: %s\n", pToken2);
+					printUsageAndExit(argv[0]);
+				}
+
+				/* name */
+				pToken2 = strtok_r(NULL, ":", &pSaveToken2);
+				if (!pToken2) { printf("Error: -encryptedSocket: Missing item name.\n"); printUsageAndExit(argv[0]); }
+				snprintf(pItemInfo->Itemname, 128, "%s", pToken2);
+
+				pItemInfo->isActive = RSSL_TRUE;
+
+				pItemInfo->streamId = streamId--;
+
+				pToken = strtok_r(NULL, ",", &pSaveToken);
+			}
+
+			i++;
+		}
+		else if (strcmp("-encryptedHttp", argv[i]) == 0)
+		{
+
+			char *pToken, *pToken2, *pSaveToken, *pSaveToken2;
+#ifdef LINUX
+			printf("Error: -encryptedHttp: WinInet HTTP connection not supported on Linux.\n"); 
+			printUsageAndExit(argv[0]);
+#endif
+
+			/* Syntax:
+			*  -encryptedSocket hostname:port SERVICE_NAME mp:TRI,mp:.DJI
+			*/
+			pCommand->cOpts.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+			pCommand->cOpts.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
+
+			/* Hostname */
+			if (++i >= argc) { printf("Error: -encryptedSocket: Missing hostname.\n"); printUsageAndExit(argv[0]); }
+			pToken = strtok(argv[i], ":");
+			if (!pToken) { printf("Error: -encryptedSocket: Missing hostname.\n"); printUsageAndExit(argv[0]); }
+			snprintf(pCommand->hostName.data, MAX_BUFFER_LENGTH, pToken);
+			pCommand->hostName.length = (RsslUInt32)strlen(pCommand->hostName.data);
+			pCommand->cOpts.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName.data;
+
+			/* Port */
+			pToken = strtok(NULL, ":");
+			if (!pToken) { printf("Error: -encryptedSocket: Missing serviceName.\n"); printUsageAndExit(argv[0]); }
+			snprintf(pCommand->port.data, MAX_BUFFER_LENGTH, pToken);
+			pCommand->port.length = (RsslUInt32)strlen(pCommand->port.data);
+			pCommand->cOpts.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port.data;
+
+			/* Item Service Name */
+			i++;
+			pToken = argv[i];
+			if (!pToken) { printf("Error: -encryptedSocket: Missing item service name.\n"); printUsageAndExit(argv[0]); }
+			snprintf(pCommand->serviceName.data, MAX_BUFFER_LENGTH, pToken);
+			pCommand->serviceName.length = (RsslUInt32)strlen(pCommand->serviceName.data);
+
+			/* Item List */
+			if (++i >= argc) { printf("Error: -encryptedSocket: Missing item.\n"); printUsageAndExit(argv[0]); }
+			pToken = strtok_r(argv[i], ",", &pSaveToken);
+
+			while (pToken)
+			{
+				RsslNIItemInfo *pItemInfo;
+				/* domain */
+				pToken2 = strtok_r(pToken, ":", &pSaveToken2);
+				if (!pToken2) { printf("Error: -encryptedSocket: Missing item.\n"); printUsageAndExit(argv[0]); }
+
+				if (0 == strcmp(pToken2, "mp"))
+				{
+					if (pCommand->marketPriceItemCount < CHAN_CMD_MAX_ITEMS)
+					{
+						pItemInfo = &pCommand->marketPriceItemInfo[pCommand->marketPriceItemCount];
+						pItemInfo->domainType = RSSL_DMT_MARKET_PRICE;
+						++pCommand->marketPriceItemCount;
+					}
+					else
+					{
+						printf("Number of items for Market Price domain exceeded CHAN_CMD_MAX_ITEMS (%d)\n", CHAN_CMD_MAX_ITEMS);
+						printUsageAndExit(argv[0]);
+					}
+				}
+				else if (0 == strcmp(pToken2, "mbo"))
+				{
+					if (pCommand->marketByOrderItemCount < CHAN_CMD_MAX_ITEMS)
+					{
+						pItemInfo = &pCommand->marketByOrderItemInfo[pCommand->marketByOrderItemCount];
+						pItemInfo->domainType = RSSL_DMT_MARKET_BY_ORDER;
+						++pCommand->marketByOrderItemCount;
+					}
+					else
+					{
+						printf("Number of items for Market By Order domain exceeded CHAN_CMD_MAX_ITEMS (%d)\n", CHAN_CMD_MAX_ITEMS);
+						printUsageAndExit(argv[0]);
+					}
+				}
+				else
+				{
+					printf("Unknown item domain: %s\n", pToken2);
+					printUsageAndExit(argv[0]);
+				}
+
+				/* name */
+				pToken2 = strtok_r(NULL, ":", &pSaveToken2);
+				if (!pToken2) { printf("Error: -encryptedSocket: Missing item name.\n"); printUsageAndExit(argv[0]); }
+				snprintf(pItemInfo->Itemname, 128, "%s", pToken2);
+
+				pItemInfo->isActive = RSSL_TRUE;
+
+				pItemInfo->streamId = streamId--;
+
+				pToken = strtok_r(NULL, ",", &pSaveToken);
+			}
+
+			i++;
+		}
 		else if (strcmp("-segmentedMulticast", argv[i]) == 0)
 		{
 
@@ -268,9 +531,6 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 				*/
 				 
 				pCommand->cOpts.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_RELIABLE_MCAST;
-				 
-				 
-				
 
 			/* Hostname */
 			i++;
@@ -400,7 +660,6 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 		}
 
 	}
-
 }
 
 fd_set readFds, writeFds, exceptFds;
@@ -568,17 +827,23 @@ int main(int argc, char **argv)
 	time_t currentTime = 0;
 	RsslRet ret;
 
+	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+
 	rsslInitNIChannelCommand(&chnlCommand);
 
 	handleConfig(argc, argv, &chnlCommand);
 
 	initializeCache(cacheCommandlineOption);
 	
+	initOpts.jitOpts.libcryptoName = libcryptoName;
+	initOpts.jitOpts.libsslName = libsslName;
+	initOpts.jitOpts.libcurlName = libcurlName;
+	initOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
 
 	/* Initialize run-time */
 	initRuntime();
 
-	rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErr);
+	rsslInitializeEx(&initOpts, &rsslErr);
 
 	/* Setup role */
 	rsslClearOMMNIProviderRole((RsslReactorOMMNIProviderRole*)&role);

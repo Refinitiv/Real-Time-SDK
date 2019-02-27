@@ -203,12 +203,14 @@ typedef enum
 /**
  *	@brief Just-In-Time loaded library configuration options
  */
+/* TODO: Better documentation about default behaviors */
 typedef struct {
-	char*			 libsslName;			/*!< Name of the openSSL libssl shared library.  The RSSL API will attempt to dynamically load this library for encrypted connections. */
-	char*			 libcryptoName;			/*!< Name of the openSSL libcrypto shared library.  The RSSL API will attempt to dynamically load this library for encrypted connections. */
+	char*			libsslName;				/*!< Name of the openSSL libssl shared library.  The RSSL API will attempt to dynamically load this library for encrypted connections. */
+	char*			libcryptoName;			/*!< Name of the openSSL libcrypto shared library.  The RSSL API will attempt to dynamically load this library for encrypted connections. */
+	char*			libcurlName;
 } rsslJITOpts;
 
-#define RSSL_INIT_SSL_LIB_JIT_OPTS { NULL, NULL }
+#define RSSL_INIT_SSL_LIB_JIT_OPTS { NULL, NULL, NULL }
 
 	/* Initialization  & Uninitialization*/
 /**
@@ -217,7 +219,7 @@ typedef struct {
 typedef struct
 {
 	RsslLockingTypes rsslLocking;			/*!< Lock method used for the RSSL API */
-	rsslJITOpts		 jitOpts;				/*!< openSSL JIT options */
+	rsslJITOpts		 jitOpts;				/*!< JIT libray options */
 	void*			 initConfig;			/*!< private config init */			
 	size_t			 initConfigSize;		/*!< private size of config init */			
 }RsslInitializeExOpts;
@@ -461,8 +463,11 @@ typedef struct {
 
 #define RSSL_INIT_SEQ_MCAST_OPTS { 3000, 0 }
 typedef struct {
-	char* proxyHostName;
-	char* proxyPort;
+	char* proxyHostName;				/*!<  @brief Proxy host name. */
+	char* proxyPort;					/*!<  @brief Proxy port. */
+	char* proxyUserName;				/*!<  @brief User Name for authenticated proxies. */
+	char* proxyPasswd;					/*!<  @brief Password for authenticated proxies. */
+	char* proxyDomain;					/*!<  @brief Domain for authenticated proxies. */
 } RsslProxyOpts;
 
 #define RSSL_INIT_PROXY_OPTS {0, 0}
@@ -481,11 +486,21 @@ typedef enum {
  *  see RsslConnectOptions
  */
 typedef struct {
-	RsslUInt32 encryptionProtocolFlags;
+	RsslUInt32			encryptionProtocolFlags;	/*!< @brief Bitmap flag set defining the TLS version(s) to be used by this connection.  See RsslEncryptionProtocolTypes */
+	RsslConnectionTypes encryptedProtocol;			/*!< @brief Defines the protocol used for this connection.<BR>
+														RSSL_CONN_TYPE_HTTP will use the legacy WinInet-based protocol for Windows only.<BR>
+														RSSL_CONN_TYPE_SOCKET will use the standard TCP transport protocol and OpenSSL for encryption. */
+	char*				openSSLCAStore;				/*!< Path to the CAStore.  This will be used by any OpenSSL encrypted connections for certificate validation.  <BR>
+														A NULL input will result in the following behavior:<BR>
+															Windows: RSSL will load Windows Root Certificate store.<BR>
+															Linux: Load the default CA Store path based on the OpenSSL library's default behavior. This may be distribution specific, please see vendor documentation for more information */
 } RsslEncryptionOpts;
 
-#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1 | RSSL_ENC_TLSV1_1 | RSSL_ENC_TLSV1_2}
-
+#ifdef _WIN32
+#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1 | RSSL_ENC_TLSV1_1 | RSSL_ENC_TLSV1_2, RSSL_CONN_TYPE_HTTP, NULL}
+#else
+#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1 | RSSL_ENC_TLSV1_1 | RSSL_ENC_TLSV1_2, RSSL_CONN_TYPE_SOCKET, NULL}
+#endif
 
 
 /*
@@ -644,7 +659,19 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->proxyOpts.proxyPort = 0;
 	opts->componentVersion = NULL;
 	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1 | RSSL_ENC_TLSV1_1 | RSSL_ENC_TLSV1_2;
+#ifdef _WIN32
+	opts->encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
+#else
+	opts->encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
+#endif
 	opts->extLineOptions.numConnections = 20;
+	opts->encryptionOpts.openSSLCAStore = NULL;
+	opts->proxyOpts.proxyHostName = NULL;
+	opts->proxyOpts.proxyPort = NULL;
+	opts->proxyOpts.proxyUserName = NULL;
+	opts->proxyOpts.proxyPasswd = NULL;
+	opts->proxyOpts.proxyDomain = NULL;
+	
 }
 
 /**

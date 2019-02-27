@@ -390,7 +390,7 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 	}
 	case RSSL_CONN_TYPE_HTTP:
 	{
-		HttpChannelConfig* pTempChannelCfg = static_cast<HttpChannelConfig*>( pChannelCfg );
+		SocketChannelConfig* pTempChannelCfg = static_cast<SocketChannelConfig*>( pChannelCfg );
 		strConnectionType = "RSSL_CONN_TYPE_HTTP";
 		cfgParameters.append("hostName ").append(pTempChannelCfg->hostName).append(CR)
 			.append("port ").append(pTempChannelCfg->serviceName).append(CR)
@@ -403,7 +403,8 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 	}
 	case RSSL_CONN_TYPE_ENCRYPTED:
 	{
-		EncryptedChannelConfig* pTempChannelCfg = static_cast<EncryptedChannelConfig*>( pChannelCfg );
+		/* TODO: Update for multiple encrypted types */
+		SocketChannelConfig* pTempChannelCfg = static_cast<SocketChannelConfig*>( pChannelCfg );
 		strConnectionType = "RSSL_CONN_TYPE_ENCRYPTED";
 		cfgParameters.append( "hostName " ).append( pTempChannelCfg->hostName ).append( CR )
 		.append( "port " ).append( pTempChannelCfg->serviceName ).append( CR )
@@ -551,32 +552,36 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 
 			switch ( reactorConnectInfo[i].rsslConnectOptions.connectionType )
 			{
-			case RSSL_CONN_TYPE_SOCKET:
-			{
-				reactorConnectInfo[i].rsslConnectOptions.compressionType = activeConfigChannelSet[i]->compressionType;
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.address = ( char* )static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->hostName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.serviceName = ( char* )static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->serviceName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.tcpOpts.tcp_nodelay = static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->tcpNodelay;
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.interfaceName = ( char* )activeConfigChannelSet[i]->interfaceName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.unicastServiceName = ( char* ) "";
-				break;
-			}
 			case RSSL_CONN_TYPE_ENCRYPTED:
 			{
-				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = static_cast<EncryptedChannelConfig*>(activeConfigChannelSet[i])->securityProtocol;
+				if (static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+					reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptedProtocol = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->encryptedConnectionType;
+
+				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->securityProtocol;
+				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.openSSLCAStore = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->sslCAStore.c_str());
+				connectOpt.initializationTimeout = 30;
+				
 				// Fall through to HTTP connection options
 			}
+			case RSSL_CONN_TYPE_SOCKET:
 			case RSSL_CONN_TYPE_HTTP:
 			{
 				reactorConnectInfo[i].rsslConnectOptions.compressionType = activeConfigChannelSet[i]->compressionType;
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.address = ( char* )static_cast<HttpChannelConfig*>( activeConfigChannelSet[i] )->hostName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.serviceName = ( char* )static_cast<HttpChannelConfig*>( activeConfigChannelSet[i] )->serviceName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.tcpOpts.tcp_nodelay = static_cast<HttpChannelConfig*>( activeConfigChannelSet[i] )->tcpNodelay;
-				reactorConnectInfo[i].rsslConnectOptions.objectName = ( char* ) static_cast<HttpChannelConfig*>( activeConfigChannelSet[i] )->objectName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.interfaceName = ( char* )activeConfigChannelSet[i]->interfaceName.c_str();
+				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.address = ( char* )(static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->hostName.c_str());
+				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.serviceName = ( char* )(static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->serviceName.c_str());
+				reactorConnectInfo[i].rsslConnectOptions.tcpOpts.tcp_nodelay = static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->tcpNodelay;
+				reactorConnectInfo[i].rsslConnectOptions.objectName = ( char* ) (static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->objectName.c_str());
+				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.interfaceName = ( char* )(activeConfigChannelSet[i]->interfaceName.c_str());
 				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.unicastServiceName = ( char* ) "";
-				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyHostName = ( char* )static_cast<HttpChannelConfig*>( activeConfigChannelSet[i] )->proxyHostName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyPort = (char*)static_cast<HttpChannelConfig*>( activeConfigChannelSet[i] )->proxyPort.c_str();
+				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyHostName = ( char* )(static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->proxyHostName.c_str());
+				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyPort = (char*)(static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->proxyPort.c_str());
+				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyUserName = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyUserName.c_str());
+				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyPasswd = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyPasswd.c_str());
+				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyDomain = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyDomain.c_str());
+
+				if(*(reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyHostName) != '\0' )
+					connectOpt.initializationTimeout = 30;
+
 				break;
 			}
 			case RSSL_CONN_TYPE_RELIABLE_MCAST:

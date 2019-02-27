@@ -312,46 +312,51 @@ OmmBaseImpl::~OmmBaseImpl()
 		delete _pErrorClientHandler;
 }
 
-void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
+void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 {
-	UInt64 id = OmmBaseImplMap<OmmBaseImpl>::add( this );
+	UInt64 id = OmmBaseImplMap<OmmBaseImpl>::add(this);
 
 	_activeConfig.configuredName = pConfigImpl->getConfiguredName();
 	_activeConfig.instanceName = _activeConfig.configuredName;
-	_activeConfig.instanceName.append( "_" ).append( id );
+	_activeConfig.instanceName.append("_").append(id);
 
-	const UInt32 maxUInt32( 0xFFFFFFFF );
+	const UInt32 maxUInt32(0xFFFFFFFF);
 	UInt64 tmp;
-	EmaString instanceNodeName( pConfigImpl->getInstanceNodeName() );
-	instanceNodeName.append( _activeConfig.configuredName ).append( "|" );
+	EmaString instanceNodeName(pConfigImpl->getInstanceNodeName());
+	instanceNodeName.append(_activeConfig.configuredName).append("|");
 
-	if ( pConfigImpl->get<UInt64>( instanceNodeName + "ItemCountHint", tmp ) )
-		_activeConfig.itemCountHint = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "ItemCountHint", tmp))
+		_activeConfig.itemCountHint = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	if ( pConfigImpl->get<UInt64>( instanceNodeName + "ServiceCountHint", tmp ) )
-		_activeConfig.serviceCountHint = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "ServiceCountHint", tmp))
+		_activeConfig.serviceCountHint = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	if ( pConfigImpl->get<UInt64>( instanceNodeName + "RequestTimeout", tmp ) )
-		_activeConfig.requestTimeout = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "RequestTimeout", tmp))
+		_activeConfig.requestTimeout = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	if ( pConfigImpl->get< UInt64 >( instanceNodeName + "LoginRequestTimeOut", tmp ) )
-		_activeConfig.loginRequestTimeOut = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+	if (pConfigImpl->get< UInt64 >(instanceNodeName + "LoginRequestTimeOut", tmp))
+		_activeConfig.loginRequestTimeOut = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	pConfigImpl->get<Int64>( instanceNodeName + "DispatchTimeoutApiThread", _activeConfig.dispatchTimeoutApiThread );
+	pConfigImpl->get<Int64>(instanceNodeName + "DispatchTimeoutApiThread", _activeConfig.dispatchTimeoutApiThread);
 
-	if ( pConfigImpl->get<UInt64>( instanceNodeName + "CatchUnhandledException", tmp ) )
-		_activeConfig.catchUnhandledException = static_cast<UInt32>( tmp > 0 ? true : false );
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "CatchUnhandledException", tmp))
+		_activeConfig.catchUnhandledException = static_cast<UInt32>(tmp > 0 ? true : false);
 
-	if ( pConfigImpl->get<UInt64>( instanceNodeName + "MaxDispatchCountApiThread", tmp ) )
-		_activeConfig.maxDispatchCountApiThread = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountApiThread", tmp))
+		_activeConfig.maxDispatchCountApiThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	if ( pConfigImpl->get<UInt64>( instanceNodeName + "MaxDispatchCountUserThread", tmp ) )
-		_activeConfig.maxDispatchCountUserThread = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
+		_activeConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	if ( pConfigImpl->getUserSpecifiedLibSslName().length() > 0 )
+	if (pConfigImpl->getUserSpecifiedLibSslName().length() > 0)
 	{
 		_activeConfig.libCryptoName = pConfigImpl->getUserSpecifiedLibCryptoName();
 		_activeConfig.libSslName = pConfigImpl->getUserSpecifiedLibSslName();
+	}
+
+	if (pConfigImpl->getUserSpecifiedLibcurlName().length() > 0)
+	{
+		_activeConfig.libcurlName = pConfigImpl->getUserSpecifiedLibcurlName();
 	}
 
 	Int64 tmp1;
@@ -460,6 +465,7 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 
 	EmaString channelOrChannelSet;
 	EmaString channelName;
+	bool setDefaultChannelName = false;
 
 	pConfigImpl->getChannelName( _activeConfig.configuredName, channelOrChannelSet);
 	if (channelOrChannelSet.trimWhitespace().length() > 0 )
@@ -502,15 +508,21 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 			int chanConfigByFuncCall = 0;
 			if (pConfigImpl->getUserSpecifiedHostname().length() > 0)
 				chanConfigByFuncCall = SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
-			else
-			{
-				if (pConfigImpl->getUserSpecifiedProxyHostname().length() > 0)
-					chanConfigByFuncCall |= TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
-				if (pConfigImpl->getUserSpecifiedProxyPort().length() > 0)
-					chanConfigByFuncCall |= TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
-				if (pConfigImpl->getUserSpecifiedObjectName().length() > 0)
-					chanConfigByFuncCall |= TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
-			}
+			if(pConfigImpl->getUserSpecifiedPort().userSet == true && pConfigImpl->getUserSpecifiedPort().userSpecifiedValue.length() > 0)
+				chanConfigByFuncCall |= SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL;
+			if (pConfigImpl->getUserSpecifiedProxyHostname().length() > 0)
+				chanConfigByFuncCall |= PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+			if (pConfigImpl->getUserSpecifiedProxyPort().length() > 0)
+				chanConfigByFuncCall |= PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+			if (pConfigImpl->getUserSpecifiedObjectName().length() > 0)
+				chanConfigByFuncCall |= TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
+			if (pConfigImpl->getUserSpecifiedProxyUserName().length() > 0)
+				chanConfigByFuncCall |= PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL;
+			if (pConfigImpl->getUserSpecifiedProxyPasswd().length() > 0)
+				chanConfigByFuncCall |= PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL;
+			if (pConfigImpl->getUserSpecifiedProxyDomain().length() > 0)
+				chanConfigByFuncCall |= PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL;
+
 
 			ppc->retrieveChannelConfig( channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall, fileChannelConfig );
 			if ( !( ActiveConfig::findChannelConfig( _activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg ) ) )
@@ -536,15 +548,14 @@ void OmmBaseImpl::readConfig( EmaConfigImpl* pConfigImpl )
 				int chanConfigByFuncCall = 0;
 				if (pConfigImpl->getUserSpecifiedHostname().length() > 0)
 					chanConfigByFuncCall = SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
-				else
-				{
-					if (pConfigImpl->getUserSpecifiedProxyHostname().length() > 0)
-						chanConfigByFuncCall |= TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
-					if (pConfigImpl->getUserSpecifiedProxyPort().length() > 0)
-						chanConfigByFuncCall |= TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
-					if (pConfigImpl->getUserSpecifiedObjectName().length() > 0)
-						chanConfigByFuncCall |= TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
-				}
+				if (pConfigImpl->getUserSpecifiedPort().userSet == true && pConfigImpl->getUserSpecifiedPort().userSpecifiedValue.length() > 0)
+					chanConfigByFuncCall |= SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL;
+				if (pConfigImpl->getUserSpecifiedProxyHostname().length() > 0)
+					chanConfigByFuncCall |= PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+				if (pConfigImpl->getUserSpecifiedProxyPort().length() > 0)
+					chanConfigByFuncCall |= PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+				if (pConfigImpl->getUserSpecifiedObjectName().length() > 0)
+					chanConfigByFuncCall |= TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
 
 				ppc->retrieveChannelConfig(channelName.trimWhitespace(), _activeConfig, chanConfigByFuncCall, fileChannelConfig );
 				if ( !( ActiveConfig::findChannelConfig( _activeConfig.configChannelSet, channelName.trimWhitespace(), posInProgCfg ) ) )
@@ -576,7 +587,7 @@ void OmmBaseImpl::useDefaultConfigValues( const EmaString& channelName, const Em
 	SocketChannelConfig* newChannelConfig =  0;
 	try
 	{
-		newChannelConfig = new SocketChannelConfig( getActiveConfig().defaultServiceName() );
+		newChannelConfig = new SocketChannelConfig( getActiveConfig().defaultServiceName(), RSSL_CONN_TYPE_SOCKET );
 		if ( host.length() )
 			newChannelConfig->hostName = host;
 
@@ -597,10 +608,12 @@ void OmmBaseImpl::useDefaultConfigValues( const EmaString& channelName, const Em
 ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString&  channelName, bool readLastChannel)
 {
 	ChannelConfig* newChannelConfig = NULL;
-	HttpChannelConfig* httpChannelCfg = NULL;
+	SocketChannelConfig* socketChannelCfg = NULL;
 	UInt32 maxUInt32( 0xFFFFFFFF );
 	EmaString channelNodeName( "ChannelGroup|ChannelList|Channel." );
 	channelNodeName.append( channelName ).append( "|" );
+	UInt64 tempUInt = 0;
+	Int64 tempInt = 0;
 
 	RsslConnectionTypes channelType = RSSL_CONN_TYPE_INIT;
 	if (pConfigImpl->getUserSpecifiedHostname().length() > 0)
@@ -622,59 +635,12 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 
 	switch ( channelType )
 	{
-	case RSSL_CONN_TYPE_SOCKET:
-	{
-		SocketChannelConfig* socketChannelCfg = NULL;
-		try
-		{
-		  socketChannelCfg = new SocketChannelConfig( getActiveConfig().defaultServiceName() );
-			newChannelConfig = socketChannelCfg;
-		}
-		catch ( std::bad_alloc )
-		{
-			const char* temp( "Failed to allocate memory for SocketChannelConfig. (std::bad_alloc)" );
-			throwMeeException( temp );
-			return 0;
-		}
-
-		if ( !socketChannelCfg )
-		{
-			const char* temp = "Failed to allocate memory for SocketChannelConfig. (null ptr)";
-			throwMeeException( temp );
-			return 0;
-		}
-
-		EmaString  tmp = pConfigImpl->getUserSpecifiedHostname() ;
-		if ( tmp.length() )
-			socketChannelCfg->hostName = tmp;
-		else
-			pConfigImpl->get< EmaString >( channelNodeName + "Host", socketChannelCfg->hostName );
-
-		PortSetViaFunctionCall psvfc( pConfigImpl->getUserSpecifiedPort() );
-		if ( psvfc.userSet ) {
-		  if ( psvfc.userSpecifiedValue.length() )
-		    socketChannelCfg->serviceName = psvfc.userSpecifiedValue;
-		  else
-		    socketChannelCfg->serviceName = _activeConfig.defaultServiceName();
-		}
-		else
-			pConfigImpl->get< EmaString >( channelNodeName + "Port", socketChannelCfg->serviceName );
-
-		UInt64 tempUInt = 1;
-		pConfigImpl->get<UInt64>( channelNodeName + "TcpNodelay", tempUInt );
-		if ( tempUInt )
-			socketChannelCfg->tcpNodelay = RSSL_TRUE;
-		else
-			socketChannelCfg->tcpNodelay = RSSL_FALSE;
-
-		break;
-	}
 	case RSSL_CONN_TYPE_ENCRYPTED:
 	{
 		try
 		{
-			httpChannelCfg = new EncryptedChannelConfig();
-			newChannelConfig = httpChannelCfg;
+			socketChannelCfg = new SocketChannelConfig(getActiveConfig().defaultServiceName(), channelType);
+			newChannelConfig = socketChannelCfg;
 		}
 		catch (std::bad_alloc)
 		{
@@ -685,19 +651,35 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 
 		if (pConfigImpl->getUserSpecifiedSecurityProtocol() > 0)
 		{
-			((EncryptedChannelConfig*)httpChannelCfg)->securityProtocol = pConfigImpl->getUserSpecifiedSecurityProtocol();
+			socketChannelCfg->securityProtocol = pConfigImpl->getUserSpecifiedSecurityProtocol();
 		}
+		else
+		{
+			pConfigImpl->get<UInt64>(channelNodeName + "SecurityProtocol", tempUInt);
+			socketChannelCfg->securityProtocol = (int)tempUInt;
+		}
+
+		pConfigImpl->get<RsslConnectionTypes>(channelNodeName + "EncryptedProtocolType", socketChannelCfg->encryptedConnectionType);
+
+
+		if (pConfigImpl->getUserSpecifiedSslCAStore().length() > 0)
+		{
+			socketChannelCfg->sslCAStore = pConfigImpl->getUserSpecifiedSslCAStore();
+		}
+		else
+			pConfigImpl->get<EmaString>(channelNodeName + "OpenSSLCAStore", socketChannelCfg->sslCAStore);
+
 		// Fall through to HTTP for common configurations
 	}
+	case RSSL_CONN_TYPE_SOCKET:
 	case RSSL_CONN_TYPE_HTTP:
 	{
-		if (httpChannelCfg == 0)
+		if (socketChannelCfg == 0)
 		{
 			try
 			{
-				httpChannelCfg = new EncryptedChannelConfig();
-				httpChannelCfg->connectionType = RSSL_CONN_TYPE_HTTP;
-				newChannelConfig = httpChannelCfg;
+				socketChannelCfg = new SocketChannelConfig(getActiveConfig().defaultServiceName(), channelType);
+				newChannelConfig = socketChannelCfg;
 			}
 			catch (std::bad_alloc)
 			{
@@ -707,36 +689,66 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			}
 		}
 
-		if (!pConfigImpl->get< EmaString >(channelNodeName + "Host", httpChannelCfg->hostName))
-			httpChannelCfg->hostName = DEFAULT_HOST_NAME;
-
-		if (!pConfigImpl->get< EmaString >(channelNodeName + "Port", httpChannelCfg->serviceName))
-			httpChannelCfg->serviceName = _activeConfig.defaultServiceName();
-
-		EmaString tmp = pConfigImpl->getUserSpecifiedProxyHostname();
+		EmaString  tmp = pConfigImpl->getUserSpecifiedHostname();
 		if (tmp.length())
-			httpChannelCfg->proxyHostName = tmp;
+			socketChannelCfg->hostName = tmp;
 		else
-			pConfigImpl->get< EmaString >(channelNodeName + "ProxyHost", httpChannelCfg->proxyHostName);
+			pConfigImpl->get< EmaString >(channelNodeName + "Host", socketChannelCfg->hostName);
+
+		PortSetViaFunctionCall psvfc(pConfigImpl->getUserSpecifiedPort());
+		if (psvfc.userSet) {
+			if (psvfc.userSpecifiedValue.length())
+				socketChannelCfg->serviceName = psvfc.userSpecifiedValue;
+			else
+				socketChannelCfg->serviceName = _activeConfig.defaultServiceName();
+		}
+		else
+			pConfigImpl->get< EmaString >(channelNodeName + "Port", socketChannelCfg->serviceName);
+
+		tmp = pConfigImpl->getUserSpecifiedProxyHostname();
+		if (tmp.length())
+			socketChannelCfg->proxyHostName = tmp;
+		else
+			pConfigImpl->get< EmaString >(channelNodeName + "ProxyHost", socketChannelCfg->proxyHostName);
 
 		tmp = pConfigImpl->getUserSpecifiedProxyPort();
 		if (tmp.length())
-			httpChannelCfg->proxyPort = tmp;
+			socketChannelCfg->proxyPort = tmp;
 		else
-			pConfigImpl->get< EmaString >(channelNodeName + "ProxyPort", httpChannelCfg->proxyPort);
+			pConfigImpl->get< EmaString >(channelNodeName + "ProxyPort", socketChannelCfg->proxyPort);
 
-		UInt64 tempUInt = 1;
+		if (pConfigImpl->getUserSpecifiedProxyUserName().length())
+		{
+			socketChannelCfg->proxyUserName = pConfigImpl->getUserSpecifiedProxyUserName();
+		}
+
+		if (pConfigImpl->getUserSpecifiedProxyPasswd().length())
+		{
+			socketChannelCfg->proxyPasswd = pConfigImpl->getUserSpecifiedProxyPasswd();
+		}
+
+		if (pConfigImpl->getUserSpecifiedProxyDomain().length())
+		{
+			socketChannelCfg->proxyDomain = pConfigImpl->getUserSpecifiedProxyDomain();
+		}
+
+		if (pConfigImpl->getUserSpecifiedSslCAStore().length())
+		{
+			socketChannelCfg->sslCAStore = pConfigImpl->getUserSpecifiedSslCAStore();
+		}
+
+		tempUInt = 1;
 		pConfigImpl->get<UInt64>( channelNodeName + "TcpNodelay", tempUInt );
 		if ( !tempUInt )
-			httpChannelCfg->tcpNodelay = RSSL_FALSE;
+			socketChannelCfg->tcpNodelay = RSSL_FALSE;
 		else
-			httpChannelCfg->tcpNodelay = RSSL_TRUE;
+			socketChannelCfg->tcpNodelay = RSSL_TRUE;
 
 		tmp = pConfigImpl->getUserSpecifiedObjectName();
 		if (tmp.length())
-			httpChannelCfg->objectName = tmp;
+			socketChannelCfg->objectName = tmp;
 		else
-			pConfigImpl->get<EmaString>( channelNodeName + "ObjectName", httpChannelCfg->objectName );
+			pConfigImpl->get<EmaString>( channelNodeName + "ObjectName", socketChannelCfg->objectName );
 
 		break;
 	}
@@ -782,7 +794,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 
 	pConfigImpl->get<EmaString>( channelNodeName + "InterfaceName", newChannelConfig->interfaceName );
 
-	UInt64 tempUInt = 0;
+	tempUInt = 0;
 	if ( channelType != RSSL_CONN_TYPE_RELIABLE_MCAST )
 	{
 		bool setCompressionThresholdFromConfigFile(false);
@@ -1088,6 +1100,8 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			rsslInitOpts.jitOpts.libsslName = (char*)_activeConfig.libSslName.c_str();
 		if (_activeConfig.libCryptoName.length() > 0)
 			rsslInitOpts.jitOpts.libcryptoName = (char*)_activeConfig.libCryptoName.c_str();
+		if (_activeConfig.libcurlName.length() > 0)
+			rsslInitOpts.jitOpts.libcurlName = (char*)_activeConfig.libcurlName.c_str();
 
 		RsslRet retCode = rsslInitializeEx(&rsslInitOpts, &rsslError);
 		if ( retCode != RSSL_RET_SUCCESS )
@@ -1205,16 +1219,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 				if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
 				{
 					SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
-					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-				}
-				else if ( pChannelcfg->getType() == ChannelConfig::HttpChannelEnum )
-				{
-					HttpChannelConfig* channelConfig( reinterpret_cast< HttpChannelConfig* >( pChannelcfg ) );
-					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
-				}
-				else if ( pChannelcfg->getType() == ChannelConfig::EncryptedChannelEnum )
-				{
-					EncryptedChannelConfig* channelConfig( reinterpret_cast< EncryptedChannelConfig* >( pChannelcfg ) );
 					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
 				}
 

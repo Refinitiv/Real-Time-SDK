@@ -32,6 +32,7 @@ extern "C" {
 #include "rtr/cutilsmplcbuffer.h"
 #include "rtr/rsslQueue.h"
 #include <stdio.h>
+#include "curl/curl.h"
 
 #define RSSL_RSSL_SOCKET_IMPL_FAST(ret)		ret RTR_FASTCALL
 
@@ -46,12 +47,13 @@ extern "C" {
 #define RIPC_WININET_TRANSPORT  2
 #define RIPC_EXT_LINE_SOCKET_TRANSPORT 5
 #define RIPC_MAX_TRANSPORTS     RIPC_EXT_LINE_SOCKET_TRANSPORT + 1
-#define RIPC_MAX_SSL_PROTOCOLS  3		/* TLSv1, TLSv1.1, TLSv1.2 */
+#define RIPC_MAX_SSL_PROTOCOLS  4		/* TLSv1, TLSv1.1, TLSv1.2 */
 
 typedef enum {
 	RIPC_SSL_TLS_V1 = 0,
 	RIPC_SSL_TLS_V1_1 = 1,
-	RIPC_SSL_TLS_V1_2 = 2
+	RIPC_SSL_TLS_V1_2 = 2,
+	RIPC_SSL_TLS = 3
 } ripcSSLProtocolIndex;
 
 #define IPC_MUTEX_LOCK(session) \
@@ -147,7 +149,8 @@ typedef enum {
 	RIPC_PROTO_SSL_NONE = 0,
 	RIPC_PROTO_SSL_TLS_V1 = 0x1,
 	RIPC_PROTO_SSL_TLS_V1_1 = 0x2,
-	RIPC_PROTO_SSL_TLS_V1_2 = 0x4
+	RIPC_PROTO_SSL_TLS_V1_2 = 0x4,
+	RIPC_PROTO_SSL_TLS = 0x8		// Used for OpenSSLv1.1.X
 } ripcSSLProtocolFlags;
 
 
@@ -343,29 +346,51 @@ RTR_C_INLINE void rsslClearRsslServerSocketChannel(RsslServerSocketChannel *rssl
 
 RSSL_RSSL_SOCKET_IMPL_FAST(void) relRsslServerSocketChannel(RsslServerSocketChannel* rsslServerSocketChannel);
 
+
+typedef enum
+{
+	RSSL_CURL_ERROR = -1,
+	RSSL_CURL_INACTIVE = 0,
+	RSSL_CURL_ACTIVE = 1,
+	RSSL_CURL_DONE = 2
+} RsslLibCurlStatus;
+
+
 typedef struct
 {
-	RsslQueueLink	  	link1;              /* It is used to add this type to RsslQueue */
-	char				*hostName;			/* hostName or ip address */
-	char				*serverName;		/* portName or port number */
-	char				*interfaceName;		/* local interface name to bind to */
-	char				*objectName;		/* object name, used with tunneling */
-	char				*proxyHostName;		/* hostname of the proxy */
-	char				*proxyPort;			/* proxy port number */
-	RsslBool			blocking : 1;		/* Perform blocking operations */
-	RsslBool			tcp_nodelay : 1;	/* Disable Nagle Algorithm */
-	RsslUInt32			compression;		/* Use compression defined by server, otherwise none */
-	RsslUInt32			numConnections;		/* Number of concurrent connections for an extended line connection */
-	RsslUInt32			numGuarOutputBufs;	/* Number of guaranteed output buffers */
-	RsslUInt32			numMaxOutputBufs;	/* Maximum number of output buffers */
-	RsslUInt32			numInputBufs;		/* number of input buffers used to read in data */
-	RsslUInt32			pingTimeout;		/* ping timeout */
-	RsslUInt32			rsslFlags;			/* rssl flag settings */
-	RsslUInt32			dbgFlags;			/* debug flags */
-	RsslInt32			connType;			/* Controls connection type. 0:Socket 1:ENCRYPTED 2:HTTP 3:ELSocket */
+	RsslError error;
+	RsslInt32 curlThreadState;
+	RsslThreadId curlThreadId;
+    char *curlError;
+} RsslLibcurlThreadInfo;
+
+
+typedef struct
+{
+	RsslQueueLink	  	link1;					/* It is used to add this type to RsslQueue */
+	char				*hostName;				/* hostName or ip address */
+	char				*serverName;			/* portName or port number */
+	char				*interfaceName;			/* local interface name to bind to */
+	char				*objectName;			/* object name, used with tunneling */
+	char				*proxyHostName;			/* hostname of the proxy */
+	char				*proxyPort;				/* proxy port number */
+	char				*curlOptProxyUser;		/* username used for tunneling connection */
+	char				*curlOptProxyPasswd;	/* password used for tunneling connection */
+	char				*curlOptProxyDomain;	/* domain used for tunneling connection */
+	RsslBool			blocking : 1;			/* Perform blocking operations */
+	RsslBool			tcp_nodelay : 1;		/* Disable Nagle Algorithm */
+	RsslUInt32			compression;			/* Use compression defined by server, otherwise none */
+	RsslUInt32			numConnections;			/* Number of concurrent connections for an extended line connection */
+	RsslUInt32			numGuarOutputBufs;		/* Number of guaranteed output buffers */
+	RsslUInt32			numMaxOutputBufs;		/* Maximum number of output buffers */
+	RsslUInt32			numInputBufs;			/* number of input buffers used to read in data */
+	RsslUInt32			pingTimeout;			/* ping timeout */
+	RsslUInt32			rsslFlags;				/* rssl flag settings */
+	RsslUInt32			dbgFlags;				/* debug flags */
+	RsslInt32			connType;				/* Controls connection type. 0:Socket 1:ENCRYPTED 2:HTTP 3:ELSocket */
 	RsslUInt8			majorVersion;
 	RsslUInt8			minorVersion;
-	RsslUInt8			protocolType;		/* protocol type, e.g RWF */
+	RsslUInt8			protocolType;			/* protocol type, e.g RWF */
 	rtr_bufferpool_t		*bufPool;
 	rtr_dfltcbufferpool_t	*guarBufPool;
 	RsslMutex			*mutex;
@@ -375,35 +400,38 @@ typedef struct
 	RsslUInt32 			encryptionProtocolFlags;
 
 	/* SSL/TLS Encryption information */
-	ripcSSLProtocolFlags sslProtocolBitmap;		/* Represents the protocols supported by the dynamically loaded openSSL library */
-	ripcSSLProtocolFlags sslCurrentProtocol;
+	RsslUInt32 sslProtocolBitmap;		/* Represents the protocols supported by the dynamically loaded openSSL library */
+	RsslUInt32 sslCurrentProtocol;	/* This is the current TLS protocol */
+	RsslInt32			 sslEncryptedProtocolType;	/* Encrypted protocol type.  Currently either RSSL_CONN_TYPE_SOCKET or RSSL_CONN_TYPE_HTTP */
+	char				 *sslCAStore;
+
 
 	RsslInt32			ripcVersion;
 
-	RsslSocket			newStream;			/* used for tunneling reconnection */
+	RsslSocket			newStream;				/* used for tunneling reconnection */
 
 	RsslUInt32			mountNak : 1;
 
-	RsslServerSocketChannel		*server;	/* The RsslServerSocketChannel for this channel */
-	RsslUInt32			sessionID;			/* used for tunneling connection */
-	RsslUInt8			intState;			/* internal state */
+	RsslServerSocketChannel		*server;		/* The RsslServerSocketChannel for this channel */
+	RsslUInt32			sessionID;				/* used for tunneling connection */
+	RsslUInt8			intState;				/* internal state */
 	RsslUInt8			workState;
 	RsslUInt16			inDecompress;
 	RsslCompTypes		outCompression;
 	ripcCompFuncs		*inDecompFuncs;
 	ripcCompFuncs		*outCompFuncs;
 	void				*c_stream_in;
-	void				*c_stream_out;		/* Compression stream information */
+	void				*c_stream_out;			/* Compression stream information */
 
-	RsslUInt32			httpHeaders : 1;	/* Is there http header information */
-	RsslUInt32			isJavaTunnel : 1;	/* Is this a single-channel HTTP connection (i.e. from a java client) */
-	RsslUInt32			sentControlAck : 1; /* used for tunneling connection */
+	RsslUInt32			httpHeaders : 1;		/* Is there http header information */
+	RsslUInt32			isJavaTunnel : 1;		/* Is this a single-channel HTTP connection (i.e. from a java client) */
+	RsslUInt32			sentControlAck : 1;		/* used for tunneling connection */
 
-	RsslUInt32			zlibCompLevel;		/* compression level for zlib */
+	RsslUInt32			zlibCompLevel;			/* compression level for zlib */
 	RsslUInt32			lowerCompressionThreshold;			/* dont compress any buffers smaller than this */
 	RsslUInt32			upperCompressionThreshold;			/* dont compress any buffers larger than this */
-	RsslUInt32			high_water_mark;	/* used for the upper buffer usage threshold for this channel */
-	RsslUInt32			safeLZ4 : 1;	/* limits LZ4 compression to only packets that wont span multiple buffers */
+	RsslUInt32			high_water_mark;		/* used for the upper buffer usage threshold for this channel */
+	RsslUInt32			safeLZ4 : 1;			/* limits LZ4 compression to only packets that wont span multiple buffers */
 
 	ripcTransportFuncs	*transportFuncs; /* The transport functions to use */
 
@@ -455,6 +483,8 @@ typedef struct
 	RsslUInt32			componentVerLen;	/* length of component version set by user */
 	char				*outComponentVer;	/* component version from wire - we own this memory */	
 	RsslUInt32			outComponentVerLen; /* length of component version from wire */
+	CURL*				curlHandle;
+	RsslLibcurlThreadInfo curlThreadInfo;
 
 	/* Different Transport information */
 	void				*transportInfo;		/* For normal cases, the transport is
@@ -462,6 +492,7 @@ typedef struct
 											* Sockets we use SSLRead/SSLWrite calls.
 											*/
 } RsslSocketChannel;
+
 
 RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChannel)
 {
@@ -531,6 +562,9 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->interfaceName = 0;
 	rsslSocketChannel->proxyPort = 0;
 	rsslSocketChannel->proxyHostName = 0;
+	rsslSocketChannel->curlOptProxyUser = 0;
+	rsslSocketChannel->curlOptProxyPasswd = 0;
+	rsslSocketChannel->curlOptProxyDomain = 0;
 	rsslSocketChannel->server = 0;
 	rsslSocketChannel->serverName = 0;
 	rsslSocketChannel->hostName = 0;
@@ -579,72 +613,19 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->outComponentVerLen = 0;
 	rsslSocketChannel->componentVer = 0;
 	rsslSocketChannel->componentVerLen = 0;
+	rsslSocketChannel->curlHandle = 0;
+	rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_INACTIVE;
+
+	rsslSocketChannel->sslCurrentProtocol = RSSL_ENC_NONE;
+	rsslSocketChannel->sslProtocolBitmap = RSSL_ENC_NONE;
+	rsslSocketChannel->sslEncryptedProtocolType = 0;
+	rsslSocketChannel->sslCAStore = 0;
 }
 
 RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSocketChannel);
 
 /* Session should be locked before call */
-RTR_C_INLINE void rsslSocketChannelClose(RsslSocketChannel *rsslSocketChannel)
-{
-	/* When we are setting up for renegotiation a new socket
-	 * is created and the old is closed. We need to keep
-	 * track of both in case of an error for feedback to user.
-	 */
-	if (rsslSocketChannel->newStream != RIPC_INVALID_SOCKET)
-	{
-		if (!(rsslSocketChannel->workState & RIPC_INT_SOCK_CLOSED))
-		{
-			if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
-				sock_close(rsslSocketChannel->newStream);
-			rsslSocketChannel->newStream = RIPC_INVALID_SOCKET;
-			rsslSocketChannel->workState |= RIPC_INT_SOCK_CLOSED;
-		}
-	}
-	
-	if (rsslSocketChannel->stream != RIPC_INVALID_SOCKET)
-	{
-		if (!(rsslSocketChannel->workState & RIPC_INT_SOCK_CLOSED))
-		{
-			/* If we're in a proxy connecting state, transportInfo is 0.  Send the FD instead.  Don't cast as a pointer it since it's just getting cast to a RsslSocket. */
-			if(rsslSocketChannel->intState == RIPC_INT_ST_PROXY_CONNECTING || rsslSocketChannel->intState == RIPC_INT_ST_CLIENT_WAIT_PROXY_ACK)
-				(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->transportInfo);
-			/* if we are doing tunneling, this state means we dont want to close the real fd */
-			else if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
-				(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->transportInfo);
-			rsslSocketChannel->stream = RIPC_INVALID_SOCKET;
-			rsslSocketChannel->workState |= RIPC_INT_SOCK_CLOSED;
-		}
-	}
-
-	/* if we are tunneling, these may be set */
-	if (rsslSocketChannel->tunnelStreamFd != 0)
-	{
-		if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
-			(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->tunnelStreamFd);
-		rsslSocketChannel->tunnelStreamFd = 0;
-	}
-
-	if (rsslSocketChannel->newTunnelStreamFd != 0)
-	{
-		if (rsslSocketChannel->oldTunnelStreamFd == rsslSocketChannel->newTunnelStreamFd)
-			rsslSocketChannel->oldTunnelStreamFd = 0;
-		if (rsslSocketChannel->tunnelingState != RIPC_TUNNEL_REMOVE_SESSION)
-			(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->newTunnelStreamFd);
-		rsslSocketChannel->newTunnelStreamFd = 0;
-	}
-
-	if(rsslSocketChannel->oldTunnelStreamFd != 0)
-	{
-		(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->oldTunnelStreamFd);
-		rsslSocketChannel->oldTunnelStreamFd = 0;
-	}
-
-	if (!(rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND))
-		rsslSocketChannel->workState |= RIPC_INT_SHTDOWN_PEND;
-
-	if (rsslSocketChannel->state != RSSL_CH_STATE_INACTIVE)
-		rsslSocketChannel->state = RSSL_CH_STATE_INACTIVE;
-}
+void rsslSocketChannelClose(RsslSocketChannel *rsslSocketChannel);
 
 /* Contains code necessary for binding a listening socket */
 RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, RsslError *error );
@@ -738,6 +719,8 @@ RsslRet rsslSetSocketDebugFunctions(
 	void(*dumpRsslIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
 	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
 	RsslError *error);
+
+RSSL_THREAD_DECLARE(testBlocking, threadStruct);
 
 #ifdef __cplusplus
 };

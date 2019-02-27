@@ -187,6 +187,7 @@
 		<Channel>
 			<Name value="Channel_3"/>
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_SOCKET"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="122.1.1.100"/>

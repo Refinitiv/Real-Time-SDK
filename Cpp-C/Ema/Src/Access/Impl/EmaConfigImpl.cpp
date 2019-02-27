@@ -606,6 +606,22 @@ ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent,
 			if (!strcmp(converter[i].configInput, enumValue))
 				return new XMLConfigElement<RsslConnectionTypes>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
 	}
+	else if (!strcmp(enumType, "EncryptedProtocolType"))
+	{
+		static struct
+		{
+			const char* configInput;
+			RsslConnectionTypes convertedValue;
+		} converter[] =
+		{
+			{ "RSSL_SOCKET", RSSL_CONN_TYPE_SOCKET },
+			{ "RSSL_HTTP", RSSL_CONN_TYPE_HTTP },
+		};
+
+		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
+			if (!strcmp(converter[i].configInput, enumValue))
+				return new XMLConfigElement<RsslConnectionTypes>(name, parent, ConfigElement::ConfigElementTypeEnum, converter[i].convertedValue);
+	}
 	else if (!strcmp(enumType, "ServerType"))
 	{
 		static struct
@@ -728,9 +744,14 @@ EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
 	_proxyHostnameSetViaFunctionCall(),
 	_proxyPortSetViaFunctionCall(),
 	_securityProtocolSetViaFunctionCall(OmmConsumerConfig::ENC_NONE),
+	_proxyUserNameSetViaFunctionCall(),
+	_proxyPasswdSetViaFunctionCall(),
+	_proxyDomainSetViaFunctionCall(),
 	_objectName(),
 	_libSslName(),
-	_libCryptoName()
+	_libCryptoName(),
+	_libcurlName(),
+	_sslCAStoreSetViaFunctionCall()
 {
 }
 
@@ -772,6 +793,9 @@ void EmaConfigImpl::clear()
 	_proxyHostnameSetViaFunctionCall.clear();
 	_proxyPortSetViaFunctionCall.clear();
 	_securityProtocolSetViaFunctionCall = OmmConsumerConfig::ENC_NONE;
+	_proxyUserNameSetViaFunctionCall.clear();
+	_proxyPasswdSetViaFunctionCall.clear();
+	_proxyDomainSetViaFunctionCall.clear();
 	_objectName.clear();
 	_libSslName.clear();
 	_libCryptoName.clear();
@@ -809,7 +833,6 @@ void EmaConfigImpl::instanceId( const EmaString& instanceId )
 
 void EmaConfigImpl::host( const EmaString& host )
 {
-	_portSetViaFunctionCall.userSet = true;
 	Int32 index = host.find( ":", 0 );
 	if ( index == -1 )
 	{
@@ -823,15 +846,22 @@ void EmaConfigImpl::host( const EmaString& host )
 	{
 		_hostnameSetViaFunctionCall = DEFAULT_HOST_NAME;
 
-		if ( host.length() > 1 )
-			_portSetViaFunctionCall.userSpecifiedValue = host.substr( 1, host.length() - 1 );
+		if (host.length() > 1)
+		{
+			_portSetViaFunctionCall.userSet = true;
+			_portSetViaFunctionCall.userSpecifiedValue = host.substr(1, host.length() - 1);
+		}
 	}
 
 	else
 	{
 		_hostnameSetViaFunctionCall = host.substr( 0, index );
-		if ( host.length() > static_cast<UInt32>( index + 1 ) )
-			_portSetViaFunctionCall.userSpecifiedValue = host.substr( index + 1, host.length() - index - 1 );
+		if (host.length() > static_cast<UInt32>(index + 1))
+		{
+			_portSetViaFunctionCall.userSet = true;
+			_portSetViaFunctionCall.userSpecifiedValue = host.substr(index + 1, host.length() - index - 1);
+		}
+			
 	}
 }
 
@@ -1072,6 +1102,38 @@ void EmaConfigImpl::securityProtocol(int securityProtocol)
 	_securityProtocolSetViaFunctionCall = securityProtocol;
 }
 
+void EmaConfigImpl::proxyUserName(const EmaString& proxyUserName)
+{
+	if (proxyUserName.length())
+		_proxyUserNameSetViaFunctionCall = proxyUserName;
+	else
+		_proxyUserNameSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::proxyPasswd(const EmaString& proxyPasswd)
+{
+	if (proxyPasswd.length())
+		_proxyPasswdSetViaFunctionCall = proxyPasswd;
+	else
+		_proxyPasswdSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::proxyDomain(const EmaString& proxyDomain)
+{
+	if (proxyDomain.length())
+		_proxyDomainSetViaFunctionCall = proxyDomain;
+	else
+		_proxyDomainSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::sslCAStore(const EmaString& sslCAStore)
+{
+	if (sslCAStore.length())
+		_sslCAStoreSetViaFunctionCall = sslCAStore;
+	else
+		_sslCAStoreSetViaFunctionCall = "";
+}
+
 void EmaConfigImpl::objectName(const EmaString& objectName)
 {
 	_objectName = objectName;
@@ -1085,6 +1147,11 @@ void EmaConfigImpl::libsslName(const EmaString& libsslName)
 void EmaConfigImpl::libcryptoName(const EmaString& libcryptoName)
 {
 	_libCryptoName = libcryptoName;
+}
+
+void EmaConfigImpl::libcurlName(const EmaString& libcurlName)
+{
+	_libcurlName = libcurlName;
 }
 
 EmaConfigServerImpl::EmaConfigServerImpl( const EmaString & path ) :
