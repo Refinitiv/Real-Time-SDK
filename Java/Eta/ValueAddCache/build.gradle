@@ -61,12 +61,6 @@ eclipse {
 }
 
 dependencies {
-	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.1.2'
-	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.1.2'
-	compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.1.2'
-
-	compile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
-
 	testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
 
 	compile project(':Eta:ValueAdd')
