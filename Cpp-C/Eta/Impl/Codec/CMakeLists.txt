@@ -252,7 +252,7 @@ else()
                                 )
 
     if (CMAKE_HOST_WIN32)
-		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib ZLIB::ZLIB LZ4::LZ4)
+		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib crypt32.lib cryptui.lib ZLIB::ZLIB LZ4::LZ4)
 	else()
 		target_link_libraries( librssl_tmp ZLIB::ZLIB LZ4::LZ4)
 	endif()
