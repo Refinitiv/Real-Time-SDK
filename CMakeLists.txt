@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 3.10.3)
 # guarantee of a successful build if changed.
 
 project (esdk
-		VERSION 1.2.2.0
+		VERSION 1.3.0.0
 		LANGUAGES C CXX)
 
 set(esdk_CMAKE_DIR "${esdk_SOURCE_DIR}/CMake")
@@ -19,9 +19,6 @@ include(rcdevSupport)
 include(esdkOptions)
 include(esdkInfo)
 
-if(CMAKE_HOST_UNIX)
-    configure_file(${esdk_SOURCE_DIR}/CMake/LinuxSoLink.in ${esdk_SOURCE_DIR}/LinuxSoLink @ONLY)
-endif()
 
 if(BUILD_ELEKTRON-SDK-BINARYPACK)
 	include(addExternal_elektron-sdk-binarypack)

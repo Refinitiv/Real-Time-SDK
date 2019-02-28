@@ -350,7 +350,8 @@ if( (NOT zlib_USE_INSTALLED) AND
 
 	unset(_cfg_type)
 	if (WIN32)
-		list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d")
+		list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d"
+									"-DCMAKE_C_FLAGS:STRING=/DEBUG:NONE")
 	else()
 		# Since our internal build types are Debug and Optimized, only Debug will translate
 		if (CMAKE_BUILD_TYPE MATCHES "Debug")

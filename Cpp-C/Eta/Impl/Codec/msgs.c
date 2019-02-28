@@ -18,7 +18,7 @@
 #include "rtr/encoderTools.h"
 #include "rtr/retmacros.h"
 #include "rtr/rsslhashfuncs.h"
-#include "../rsslVersion.h"
+#include "rsslVersion.h"
 
 
 #define __RSZRSSLMSG    sizeof(RsslMsg)

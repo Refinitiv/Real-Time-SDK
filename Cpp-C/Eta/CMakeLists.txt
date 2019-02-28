@@ -1,16 +1,12 @@
 
 project(Eta 
-		VERSION ${INTERNAL_API_VERSION_MAJOR}.${esdk_VERSION_MINOR}.${esdk_VERSION_PATCH}.${esdk_VERSION_TWEAK}
+		VERSION ${esdk_INTERNAL_API_VERSION_MAJOR}.${esdk_VERSION_MINOR}.${esdk_VERSION_PATCH}.${esdk_VERSION_TWEAK}
 		LANGUAGES C CXX)
 
 DEBUG_PRINT(Eta_VERSION)
 
 #Setup version file generation.
-set(m1 "n AUTO GENERATED" )
-set(m2 "NOT" )
-configure_file(${Eta_SOURCE_DIR}/Include/rsslVersion.h.in ${Eta_SOURCE_DIR}/Include/rsslVersion.h @ONLY)
-set(m1)
-set(m2)
+configure_file(Include/rsslVersion.h.in Include/rsslVersion.h @ONLY)
 
 if (NOT RCDEV_REL_${PROJECT_NAME}_LIB_DIR)
     set(RCDEV_REL_${PROJECT_NAME}_LIB_DIR ${PROJECT_NAME}/Libs)
@@ -34,12 +30,6 @@ else()
 endif()
 
 add_subdirectory( Impl )
-
-# libxml2
-# This is only in the case where prebuilt libraries are used from a binary pack
-# This will eventually be replaced by the addExternal which should wrap any 
-# libraries within a target pre-built or not
-add_subdirectory( Utils/Libxml2 )
 
 if( CMAKE_HOST_WIN32 )
 	# Reset to the original CMAKE_<XXX>_OUTPUT_DIRECTORY prefix for executables

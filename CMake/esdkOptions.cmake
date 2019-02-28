@@ -1,12 +1,7 @@
 
 include(CMakeDependentOption)
 
-# The default value of BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES is OFF 
-#      if RCDEV_GSG_PACKAGE is TRUE(ON) 
-#         ELSE default value of BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES is OFF
-CMAKE_DEPENDENT_OPTION(BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES  
-                                "Build applications with prebuilt Eta and Ema libraries" ON
-                                "RCDEV_GSG_PACKAGE" OFF)
+option(BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES "Use the prebuilt libries to build esdk applications" OFF)
 								
 option(BUILD_INTERNAL_ESDK "Internal ESDK build" OFF)
 

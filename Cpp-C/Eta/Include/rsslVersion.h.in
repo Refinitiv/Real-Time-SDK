@@ -3,9 +3,9 @@
 /*******************************************************************************
 * 
 * ATTENTION: 
-# This is a@m1@ template file and should @m2@ be edtied directly.  
+# This is an AUTO GENERATED file and should NOT be edtied directly.  
 * Any changes required should be made in the upstream template header file,
-*            ${Eta_SOURCE_DIR}/rsslVersion.h.in
+*            rsslVersion.h.in
 *
 * This file is used in both static and shared library builds
 * The rssl.rc and rsslVA.rc files include this file in shared library builds
@@ -33,9 +33,9 @@
 #define RSSL_Version			RSSL_Release_Major,RSSL_Release_Minor,RSSL_Product_Major,RSSL_Product_Minor
 #define RSSL_VersionString		MKSTR(RSSL_Release_Major) "." MKSTR(RSSL_Release_Minor) "." MKSTR(RSSL_Product_Major) "." MKSTR(RSSL_Product_Minor) " (" BLDTYPE ")"
 #define RSSL_LegalCopyRight		"(C) Copyright " RSSL_Year RSSL_CompanyName ", All Rights Reserved. "
-#define RSSL_ExternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@INTERNAL_RELEASE_TWEAK@"
+#define RSSL_ExternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@esdk_INTERNAL_RELEASE_TWEAK@"
 #define RSSL_InternalName		"eta@Eta_VERSION_MAJOR@.@Eta_VERSION_MINOR@.@Eta_VERSION_PATCH@.@Eta_VERSION_TWEAK@"
-#define RSSL_ReleaseType		"@RELEASE_TYPE@"
+#define RSSL_ReleaseType		"@esdk_RELEASE_TYPE@"
 #define RSSL_ProdName			"Elektron Transport API (ETA) C Edition"
 #define RSSL_Package			" PACKAGE " RSSL_ExternalName " " RSSL_ReleaseType
 

@@ -23,7 +23,7 @@
 #include "OmmInvalidHandleException.h"
 #include "OmmSystemException.h"
 #include "ExceptionTranslator.h"
-#include "../EmaVersion.h"
+#include "EmaVersion.h"
 
 #include "GetTime.h"
 

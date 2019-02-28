@@ -8,16 +8,33 @@ versioning compatibility.
 #]================================================================]
 unset(esdk_DEPENDS_LIST)
 
-#
 # esdk Version information
 #[====================================================================]
-set(INTERNAL_API_VERSION_MAJOR 3)
-set(INTERNAL_RELEASE_TWEAK L1)
-set(RELEASE_TYPE rrg)
+set(esdk_INTERNAL_API_VERSION_MAJOR 3)
+set(esdk_INTERNAL_RELEASE_TWEAK L1)
+set(esdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 8 )
 set( librsslVA_SO_VERSION 10 )
 set( libema_SO_VERSION 5 )
+
+# This file is included by other development repos
+# and the set to cache is not neccessary
+if (DEFINED esdk_VERSION)
+	set(esdk_VERSION ${esdk_VERSION} CACHE INTERNAL "")
+	set(esdk_VERSION_MAJOR ${esdk_VERSION_MAJOR} CACHE INTERNAL "")
+	set(esdk_VERSION_MINOR ${esdk_VERSION_MINOR} CACHE INTERNAL "")
+	set(esdk_VERSION_PATCH ${esdk_VERSION_PATCH} CACHE INTERNAL "")
+	set(esdk_VERSION_TWEAK ${esdk_VERSION_TWEAK} CACHE INTERNAL "")
+
+	set(esdk_INTERNAL_API_VERSION_MAJOR ${esdk_INTERNAL_API_VERSION_MAJOR} CACHE INTERNAL "")
+	set(esdk_INTERNAL_RELEASE_TWEAK ${esdk_INTERNAL_RELEASE_TWEAK} CACHE INTERNAL "")
+	set(esdk_RELEASE_TYPE ${esdk_RELEASE_TYPE} CACHE INTERNAL "")
+
+	set(librssl_SO_VERSION ${librssl_SO_VERSION} CACHE INTERNAL "")
+	set(librsslVA_SO_VERSION ${librsslVA_SO_VERSION} CACHE INTERNAL "")
+	set(libema_SO_VERSION ${libema_SO_VERSION} CACHE INTERNAL "")
+endif()
 
 # Build Timestamp
 string(TIMESTAMP esdk_timestamp "%a %b %d %H:%M:%S CST")
@@ -61,21 +78,12 @@ string(TIMESTAMP esdk_year %Y)
 #    googletest_version  "1.8.1"
 #
 #
-# Elektron-SDK-BinaryPack
+# Elektron-SDK-BinaryPack - default values, for latest, look 
+#                           in addExternal_elektron-sdk-binarypack.cmake
 #[====================================================================]
-if (DEFINED RCDEV_DL_SOURCE)
-    set(_download_site ${RCDEV_DL_SOURCE})
-else()
-    set(_download_site "https://github.com/thomsonreuters")
-endif()
-set(Elektron-SDK-BinaryPack_repo "${_download_site}/Elektron-SDK-BinaryPack.git")
-
-if (DEFINED RCDEV_BP_BRANCH)
-	set(Elektron-SDK-BinaryPack_tag ${RCDEV_BP_BRANCH})
-else()
-	set(Elektron-SDK-BinaryPack_tag Elektron-SDK_1.2.2.0.L1)
-endif()
-
+# set(elektron-sdk-binarypack_url "https://git.sami.int.thomsonreuters.com/EPD/Elektron-SDK-BinaryPack/repository/Elektron-SDK-BinaryPack.tar.xz")
+# set(elektron-sdk-binarypack_hash "MD5=2891965258fec4e2807967866a5aba0a")
+# set(elektron-sdk-binarypack_version "1.2.2")
 #
 # googletest - default values, for latest, look in addExternal_gtest.cmake
 #[====================================================================]
@@ -117,4 +125,6 @@ endif()
 # set(cjson_url "https://github.com/DaveGamble/cJSON/archive/v1.7.10.tar.gz")
 # set(curl_hash "MD5=f7ee1a04b7323440f1d7a58ea2c0c197")
 # set(curl_version "1.7.10")
+
+# ADD Additional CMake Statements below this point
 

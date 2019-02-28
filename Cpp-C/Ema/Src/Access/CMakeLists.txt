@@ -204,7 +204,8 @@ else()
             Impl/VectorEncoder.cpp Impl/VectorEncoder.h
             Impl/VectorEntry.cpp
             # EMA Version Files
-            EmaVersion.c EmaVersion.h
+            EmaVersion.c
+            ${CMAKE_CURRENT_BINARY_DIR}/EmaVersion.h
             # Include/
             Include/AckMsg.h
             Include/Attrib.h
@@ -340,6 +341,7 @@ else()
 								PRIVATE
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Impl>
                                     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Rdm/Impl>
 									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Domain/Login/Impl>
                                 )
@@ -359,6 +361,7 @@ else()
 								PRIVATE
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Impl>
                                     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Rdm/Impl>
 									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Domain/Login/Impl>
                                 )

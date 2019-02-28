@@ -7,8 +7,6 @@ if( CMAKE_HOST_UNIX )
 else() #  if ( CMAKE_HOST_WIN32 )
 
 	set( SYSTEM_LIBRARIES wininet.lib ws2_32.lib )
-    # all other configurartions considered optimized	
-	set_property ( GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug_MDd" )
 
 endif()
 

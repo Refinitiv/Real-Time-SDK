@@ -12,7 +12,7 @@
 #include "rtr/decoderTools.h"
 #include "rtr/encoderTools.h"
 #include "rtr/rsslIteratorUtilsInt.h"
-#include "../rsslVersion.h"
+#include "rsslVersion.h"
 
 RSSL_API RsslDataType rsslPrimitiveBaseType(RsslDataType dataType)
 {

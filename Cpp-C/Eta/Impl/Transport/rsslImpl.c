@@ -26,7 +26,7 @@
 /* for encryption/decryption helpers */
 #include "rtr/tr_sl1_64.h"
 
-#include "../rsslVersion.h"
+#include "rsslVersion.h"
 #if defined( _WIN32)
 #include <Windows.h>
 #else

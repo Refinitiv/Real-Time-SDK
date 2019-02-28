@@ -97,7 +97,7 @@ else()
         ${Eta_SOURCE_DIR}/Include/RDM/rtr/rsslRDMMsg.h
         ${Eta_SOURCE_DIR}/Include/RDM/rtr/rsslRDMMsgBase.h
         ${Eta_SOURCE_DIR}/Include/RDM/rtr/rsslRDMQueueMsg.h
-		${Eta_SOURCE_DIR}/Include/rsslVersion.h
+        ${Eta_BINARY_DIR}/Include/rsslVersion.h
     )
 
     if (CMAKE_HOST_WIN32)
@@ -114,30 +114,95 @@ else()
 		set(sharedVAVersionSrc rsslVAVersionShared.c)
 	endif()
 
-    add_library( librsslVA STATIC 
-                ${rsslVASrcFiles} ${staticVAVersionSrc} )
-    target_link_libraries(librsslVA librssl)
+	#
+	##          -- Build librssl STATIC LIBRARY --
 
-    target_include_directories(librsslVA
-                    PRIVATE
-                        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Watchlist>
-                        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Util>
-                        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/TunnelStream>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
-                    PUBLIC
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Reactor>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/RDM>
-                    )
+	set(_rsslVA_tmp_dir "${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch")
+	if (NOT EXISTS "${_rsslVA_tmp_dir}/src")
+		file(MAKE_DIRECTORY "${_rsslVA_tmp_dir}/src")
+	endif()
+	
+    add_library( librsslVA_tmp STATIC ${rsslVASrcFiles} ${staticVAVersionSrc} )
 
+    if (CMAKE_HOST_WIN32)
+		set_target_properties(librsslVA_tmp PROPERTIES 
+											ARCHIVE_OUTPUT_DIRECTORY_DEBUG_MDD
+												"${_rsslVA_tmp_dir}/lib/Debug_MDd"
+											ARCHIVE_OUTPUT_DIRECTORY_RELEASE_MD
+												"${_rsslVA_tmp_dir}/lib/Release_MD"
+								)
+		target_compile_options(librsslVA_tmp PRIVATE ${RCDEV_DEBUG_TYPE_FLAGS_STATIC})
+
+	else()
+		set_target_properties(librsslVA_tmp PROPERTIES 
+											ARCHIVE_OUTPUT_DIRECTORY
+												"${_rsslVA_tmp_dir}/lib"
+								)
+	endif()
+    target_include_directories(librsslVA_tmp
+								PRIVATE
+									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Watchlist>
+									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Util>
+									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/TunnelStream>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
+									$<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
+								PUBLIC
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Reactor>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/RDM>
+                                )
+
+	target_link_libraries( librsslVA_tmp LibXml2::LibXml2)
+
+DEBUG_PRINT(librsslVA_tmp)
+
+	file(WRITE ${_rsslVA_tmp_dir}/src/librsslVA_tmp.C "void librsslArchive() {}\n")
+    add_library(librsslVA STATIC ${_rsslVA_tmp_dir}/src/librsslVA_tmp.C)
+
+    target_include_directories(librsslVA 
+								PUBLIC
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Reactor>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/RDM>
+								)
+
+	set_target_properties(librsslVA PROPERTIES OUTPUT_NAME "librsslVA")
+
+	target_link_libraries(librsslVA librsslVA_tmp librssl)
+
+    if (CMAKE_HOST_WIN32)
+		add_custom_command(TARGET librsslVA POST_BUILD
+							COMMAND ${CMAKE_LINKER} /LIB 
+														/OUT:"$<TARGET_FILE:librsslVA>" 
+														/LTCG "$<TARGET_FILE:librsslVA_tmp>"
+															  "$<TARGET_FILE:LibXml2::LibXml2>"
+							DEPENDS	librsslVA_tmp
+							)
+	else()
+		set_target_properties( librssl PROPERTIES PREFIX "" )
+
+		file(MAKE_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch")
+		add_custom_command(TARGET librsslVA POST_BUILD
+							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslVA_tmp>
+							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
+							COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
+							WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
+							DEPENDS librsslVA_tmp
+							)
+
+	endif()
+	unset(_rsslVA_tmp_dir)
                     
+	#
+	##          -- Build librssl SHARED LIBRARY --
+
     add_library( librsslVA_shared SHARED
                     ${rsslVAWinSrcFiles} ${rsslVASrcFiles} ${sharedVAVersionSrc})
-    target_link_libraries( librsslVA_shared librssl_shared )
+
 
     target_include_directories(librsslVA_shared
                     PRIVATE
@@ -147,6 +212,7 @@ else()
                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/TunnelStream>
                         $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
                         $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
+                        $<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
                         $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
                         $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
                     PUBLIC
@@ -163,8 +229,6 @@ else()
 
     if (CMAKE_HOST_WIN32)
 
-        target_compile_options(librsslVA PRIVATE ${RCDEV_DEBUG_TYPE_FLAGS_STATIC})
-
         target_compile_options( librsslVA_shared 
                                         PRIVATE 
                                             "/D RSSL_VA_EXPORTS" 
@@ -172,9 +236,11 @@ else()
                                             ${RCDEV_TYPE_CHECK_FLAG}
                                             $<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>)
 
-        target_link_libraries( librsslVA_shared
-                                       wininet.lib
-                                       ws2_32.lib
+        target_link_libraries( librsslVA_shared 
+										librssl_shared 
+										LibXml2::LibXml2
+										wininet.lib
+										ws2_32.lib
                             )
 
          set_target_properties( librsslVA_shared 
@@ -201,9 +267,14 @@ else()
                                     VERSION ${Eta_VERSION}
                                     SOVERSION ${librsslVA_SO_VERSION}
                             )
-    endif()
 
+		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2)
+	endif()
+DEBUG_PRINT(librsslVA_tmp)
 	rcdev_add_target(esdk librsslVA librsslVA_shared)
 
 endif()
+
+DEBUG_PRINT(librsslVA)
+DEBUG_PRINT(librsslVA_shared)
 

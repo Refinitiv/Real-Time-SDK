@@ -13,7 +13,7 @@
 #include "OmmBaseImpl.h"
 #include "OmmConsumerErrorClient.h"
 #include "StreamId.h"
-#include "../EmaVersion.h"
+#include "EmaVersion.h"
 #include "ExceptionTranslator.h"
 
 #include <new>

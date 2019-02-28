@@ -1,16 +1,14 @@
 
 project(Ema
-		VERSION ${INTERNAL_API_VERSION_MAJOR}.${esdk_VERSION_MINOR}.${esdk_VERSION_PATCH}.${esdk_VERSION_TWEAK}
+		VERSION ${esdk_INTERNAL_API_VERSION_MAJOR}.${esdk_VERSION_MINOR}.${esdk_VERSION_PATCH}.${esdk_VERSION_TWEAK}
 		LANGUAGES C CXX)
 		
 #DEBUG_PRINT(Ema_VERSION)
 
 # Configure version information
-set(m1 "n AUTO GENERATED" )
-set(m2 "NOT" )
-configure_file(${Ema_SOURCE_DIR}/Src/Access/EmaVersion.h.in ${Ema_SOURCE_DIR}/Src/Access/EmaVersion.h @ONLY)
-set(m1)
-set(m2)
+# relative paths for configure_file are the _CURRENT_SOURCE_DIR for the input file
+# and _CURRENT_BINARY_DIR for the output file location
+configure_file(Src/Access/EmaVersion.h.in Src/Access/EmaVersion.h @ONLY)
 		
 if (NOT RCDEV_REL_${PROJECT_NAME}_LIB_DIR)
     set(RCDEV_REL_${PROJECT_NAME}_LIB_DIR ${PROJECT_NAME}/Libs)

@@ -6,18 +6,15 @@
 # |-----------------------------------------------------------------------------
 #
 project(EtaJNI 
-        VERSION ${INTERNAL_API_VERSION_MAJOR}.${esdk_VERSION_MINOR}.${esdk_VERSION_PATCH}.${esdk_VERSION_TWEAK}
+        VERSION ${esdk_INTERNAL_API_VERSION_MAJOR}.${esdk_VERSION_MINOR}.${esdk_VERSION_PATCH}.${esdk_VERSION_TWEAK}
         LANGUAGES C CXX)
 
 DEBUG_PRINT(Eta_VERSION)
 
 #Setup version file generation.
-set(m1 "n AUTO GENERATED" )
-set(m2 "NOT" )
-configure_file(${Eta_SOURCE_DIR}/Impl/EtaJni/Include/rsslEtaJNIVersion.h.in
-    ${Eta_SOURCE_DIR}/Impl/EtaJni/Include/rsslEtaJNIVersion.h @ONLY)
-set(m1)
-set(m2)
+# relative paths for configure_file are the _CURRENT_SOURCE_DIR for the input file
+# and _CURRENT_BINARY_DIR for the output file location
+configure_file(Include/rsslEtaJNIVersion.h.in Include/rsslEtaJNIVersion.h @ONLY)
 
 if (CMAKE_HOST_WIN32)
     set(rsslEtaJNIWinRCFiles
@@ -31,11 +28,11 @@ set ( EtaJniSrcFiles
   )
   
 set ( EtaJniHeaderFiles
-	Include/rsslEtaJNIVersion.h
 	Include/JNIChannel.h
 	Include/JNIProtocol.h
 	Include/JNIServer.h
 	Include/jni.h
+	${CMAKE_CURRENT_BINARY_DIR}/Include/rsslEtaJNIVersion.h
 )
 
 set(EtaJniLinuxHeaderFiles
@@ -61,6 +58,7 @@ if ( CMAKE_HOST_WIN32 )
 							PUBLIC
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/EtaJni/Include>
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/EtaJni/Include/win32>
+								$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/Include>
 							)
   
   target_link_libraries( libEtaJni_shared 
@@ -98,7 +96,7 @@ else()
 							PUBLIC
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/EtaJni/Include>
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/EtaJni/Include/linux>
-
+								$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/Include>
 							)
 
 endif()

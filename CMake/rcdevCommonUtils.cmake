@@ -355,6 +355,20 @@ macro(rcdev_print_current_out_dirs)
 	unset(_bin_types)
 endmacro()
 
+macro(rcdev_make_lib_archive TARGET_NAME )
+    set(options)
+    set(oneValueArgs LIBNAME LIBTYPE LANGUAGE PATHROOT)
+    set(multiValueArgs LIBHEADERS LINKDEPENDS PATHS COMPILEOPTS)
+
+    cmake_parse_arguments(_MLA "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+
+DEBUG_PRINT(::MESSAGE "TARGET_NAME=${TARGET_NAME}")
+    if ((_WPL_LIBNAME MATCHES "^(lib)(.*)$") AND (CMAKE_FIND_LIBRARY_PREFIXES MATCHES lib ))
+        set(_origional_CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES}) 
+        set(CMAKE_FIND_LIBRARY_PREFIXES "")
+    endif()
+endmacro()
+
 macro(rcdev_wrap_prebuilt_library TARGET_NAME )
     set(options)
     set(oneValueArgs LIBNAME LIBTYPE LANGUAGE PATHROOT)

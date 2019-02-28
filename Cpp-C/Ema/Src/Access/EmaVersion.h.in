@@ -3,7 +3,7 @@
 /*******************************************************************************
 * 
 * ATTENTION: 
-# This is a@m1@ template file and should @m2@ be edtied directly. 
+# This is a template file and should NOT be edtied directly. 
 * Any changes required should be made in the upstream template header file,
 *            ${Ema_SOURCE_DIR}/src/Access/EmaVersion.h.in
 *
@@ -22,7 +22,7 @@
 #define PRODVERNAME			"@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@Ema_VERSION_TWEAK@"
 #define COMPANYNAME			"Thomson Reuters, Oak Brook, IL"
 #define COPYRIGHTYEAR			"@esdk_year@"
-#define COMPONENTNAME		"ema@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@INTERNAL_RELEASE_TWEAK@"
+#define COMPONENTNAME		"ema@Ema_VERSION_MAJOR@.@Ema_VERSION_MINOR@.@Ema_VERSION_PATCH@.@esdk_INTERNAL_RELEASE_TWEAK@"
 #define DDATE				"@esdk_timestamp@ " COPYRIGHTYEAR
 
 #ifdef __EMA_STATIC_BUILD__

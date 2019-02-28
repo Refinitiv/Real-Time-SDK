@@ -9,24 +9,24 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
                           LIBNAME librssl 
                           LIBTYPE STATIC
                           LANGUAGE C
-                          LINKDEPENDS ZLIB::ZLIB LZ4::LZ4
                           PATHROOT   ${Eta_SOURCE_DIR}/Libs
                           LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
                                      ${Eta_SOURCE_DIR}/Include/Util
                                      ${Eta_SOURCE_DIR}/Include/Transport
 									 ${Eta_SOURCE_DIR}/Impl/Util/Include
+									 ${Eta_BINARY_DIR}/Include
                         )
 
     rcdev_wrap_prebuilt_library(librssl_shared 
                           LIBNAME librssl 
                           LIBTYPE SHARED
                           LANGUAGE C
-                          LINKDEPENDS ZLIB::ZLIB LZ4::LZ4
                           PATHROOT   ${Eta_SOURCE_DIR}/Libs
                           LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
                                      ${Eta_SOURCE_DIR}/Include/Util
                                      ${Eta_SOURCE_DIR}/Include/Transport
 									 ${Eta_SOURCE_DIR}/Impl/Util/Include
+									 ${Eta_BINARY_DIR}/Include
 						  COMPILEOPTS ${librssl_shared_compile_opts}
                         )
 else()
@@ -150,7 +150,6 @@ else()
                 
 
                 # Etac external Includes
-                ${Eta_SOURCE_DIR}/Include/rsslVersion.h
                 ${Eta_SOURCE_DIR}/Include/Codec/decodeRoutines.h
                 ${Eta_SOURCE_DIR}/Include/Codec/dictionary.h
                 ${Eta_SOURCE_DIR}/Include/Codec/fieldListDefs.h
@@ -195,6 +194,7 @@ else()
                 ${Eta_SOURCE_DIR}/Include/Codec/rtr/rsslUpdateMsg.h
                 ${Eta_SOURCE_DIR}/Include/Codec/rtr/rsslVector.h
                 ${Eta_SOURCE_DIR}/Include/Transport/rtr/rsslTransport.h
+                ${Eta_BINARY_DIR}/Include/rsslVersion.h
                 )
     if (CMAKE_HOST_WIN32)
         set(rsslWinInetSrcFiles 
@@ -210,25 +210,97 @@ else()
 		set(sharedVersionSrc	rsslVersionShared.c)
     endif()
 
-    add_library( librssl STATIC 
+	#
+	##          -- Build librssl STATIC LIBRARY --
+
+	set(_rssl_tmp_dir "${CMAKE_CURRENT_BINARY_DIR}/librssl_tmp.arch")
+	if (NOT EXISTS "${_rssl_tmp_dir}/src")
+		file(MAKE_DIRECTORY "${_rssl_tmp_dir}/src")
+	endif()
+	
+    add_library( librssl_tmp STATIC 
                         ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} )
 
-    target_include_directories(librssl
+    if (CMAKE_HOST_WIN32)
+		set_target_properties(librssl_tmp PROPERTIES 
+											ARCHIVE_OUTPUT_DIRECTORY_DEBUG_MDD
+												"${_rssl_tmp_dir}/lib/Debug_MDd"
+											ARCHIVE_OUTPUT_DIRECTORY_RELEASE_MD
+												"${_rssl_tmp_dir}/lib/Release_MD"
+								)
+		target_compile_options(librssl_tmp PRIVATE ${RCDEV_DEBUG_TYPE_FLAGS_STATIC})
+
+	else()
+		set_target_properties(librssl_tmp PROPERTIES 
+											ARCHIVE_OUTPUT_DIRECTORY
+												"${_rssl_tmp_dir}/lib"
+								)
+	endif()
+    target_include_directories(librssl_tmp
                                 PUBLIC
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Codec>
-
+									$<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
                                 PRIVATE
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
 									$<BUILD_INTERFACE:$<TARGET_PROPERTY:CURL::libcurl,INTERFACE_INCLUDE_DIRECTORIES>>
-
                                 )
-								
+
+    if (CMAKE_HOST_WIN32)
+		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib ZLIB::ZLIB LZ4::LZ4)
+	else()
+		target_link_libraries( librssl_tmp ZLIB::ZLIB LZ4::LZ4)
+	endif()
+
+
+	file(WRITE ${_rssl_tmp_dir}/src/librssl_tmp.C "void librsslArchive() {}\n")
+    add_library(librssl STATIC ${_rssl_tmp_dir}/src/librssl_tmp.C)
+
+    target_include_directories(librssl PUBLIC
+                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
+                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
+                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
+									$<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
+								)
+
+	set_target_properties(librssl PROPERTIES OUTPUT_NAME "librssl")
+
+	target_link_libraries(librssl librssl_tmp)
+
+    if (CMAKE_HOST_WIN32)
+		add_custom_command(TARGET librssl POST_BUILD
+							COMMAND ${CMAKE_LINKER} /LIB 
+													/OUT:"$<TARGET_FILE:librssl>" 
+													/LTCG "$<TARGET_FILE:librssl_tmp>"
+														  "$<TARGET_FILE:ZLIB::ZLIB>"
+														  "$<TARGET_FILE:LZ4::LZ4>"
+							DEPENDS	librssl_tmp
+							)
+	else()
+        set_target_properties( librssl PROPERTIES PREFIX "" )
+
+		file(MAKE_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/librssl_tmp.arch")
+		add_custom_command(TARGET librssl POST_BUILD
+							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librssl_tmp>
+							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:ZLIB::ZLIB>
+							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LZ4::LZ4>
+							COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librssl> *.o
+							WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librssl_tmp.arch
+							DEPENDS librssl_tmp
+							)
+
+	endif()
+	unset(_rssl_tmp_dir)
+
+	#
+	##          -- Build librssl SHARED LIBRARY --
+
     add_library( librssl_shared SHARED 
                         ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} )
 
@@ -239,33 +311,23 @@ else()
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Codec>
+									$<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
                                 PRIVATE
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
                                     $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
 									$<BUILD_INTERFACE:$<TARGET_PROPERTY:CURL::libcurl,INTERFACE_INCLUDE_DIRECTORIES>>
-
                                 )
 								
     if (CMAKE_HOST_WIN32)
-        target_link_libraries( librssl wininet.lib 
-                                    ws2_32.lib
-									crypt32.lib
-									cryptui.lib
-									ZLIB::ZLIB
-									LZ4::LZ4)
-        target_compile_options(librssl 
-                                PRIVATE 
-                                    ${RCDEV_DEBUG_TYPE_FLAGS_STATIC}
-                                )
-                                
         target_link_libraries( librssl_shared 
                                     wininet.lib 
                                     ws2_32.lib
 									crypt32.lib
 									cryptui.lib
-									ZLIB::ZLIB
-									LZ4::LZ4)
+									ZLIB::ZLIB 
+									LZ4::LZ4
+								)
         target_compile_options( librssl_shared 
                                     INTERFACE
                                         "/D RSSL_IMPORTS"
@@ -294,13 +356,7 @@ else()
 
                             )
      
-    else()
-        set_target_properties( librssl librssl_shared 
-                                PROPERTIES 
-                                    PREFIX "" 
-                                    OUTPUT_NAME librssl 
-                            )
-                            
+	else()
         set_target_properties( librssl_shared 
                                 PROPERTIES 
                                     PREFIX "" 
@@ -311,14 +367,16 @@ else()
                                         ${librssl_SO_VERSION} 
                             )
 
-		target_link_libraries( librssl ZLIB::ZLIB LZ4::LZ4)
 		target_link_libraries( librssl_shared ZLIB::ZLIB LZ4::LZ4)
 
     endif()
 
+	DEBUG_PRINT(librssl_tmp)
+
 	rcdev_add_target(esdk librssl librssl_shared)
+
 
 endif()
 
-rcdev_add_target(esdk librssl librssl_shared)
-
+DEBUG_PRINT(librssl)
+DEBUG_PRINT(librssl_shared)

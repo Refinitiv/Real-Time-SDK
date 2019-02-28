@@ -1326,6 +1326,7 @@ protected:
 	EmaString				_proxyDomainSetViaFunctionCall;
 	EmaString				_sslCAStoreSetViaFunctionCall;
 	int						_securityProtocolSetViaFunctionCall;
+	RsslConnectionTypes		_encryptedConnectionType;
 
 	void addLoginReqMsg( RsslRequestMsg* );
 

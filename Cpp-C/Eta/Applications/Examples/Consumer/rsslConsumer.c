@@ -536,6 +536,7 @@ int main(int argc, char **argv)
 			if (rsslConsumerChannel != NULL && rsslConsumerChannel->state == RSSL_CH_STATE_ACTIVE)
 				shouldRecoverConnection = RSSL_FALSE;
 
+			int first = 1;
 			/* Wait for channel to become active.  This finalizes the three-way handshake. */
 			while (rsslConsumerChannel != NULL && rsslConsumerChannel->state != RSSL_CH_STATE_ACTIVE)
 			{
@@ -547,7 +548,13 @@ int main(int argc, char **argv)
 				time_interval.tv_sec = 60;
 				time_interval.tv_usec = 0;
 
-				selRet = select(FD_SETSIZE, &useRead, &useWrt, &useExcept, &time_interval);
+				if (first == 1) {
+					selRet = select(FD_SETSIZE, &useRead, NULL, &useExcept, &time_interval);
+					first = 0;
+				}
+				else {
+					selRet = select(FD_SETSIZE, &useRead, &useWrt, &useExcept, &time_interval);
+				}
 
 
 				/* select has timed out, close the channel and attempt to reconnect */
