@@ -7836,8 +7836,6 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 
 			return RSSL_RET_FAILURE;
 		}
-//TODO: remove
-        printf("INIT: %i\n", initcomplete);
 
 		if ((!initcomplete) &&
 			((rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED) ||
