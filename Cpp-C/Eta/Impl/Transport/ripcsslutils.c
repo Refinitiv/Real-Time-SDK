@@ -730,27 +730,24 @@ ripcSSLProtocolFlags ripcGetSupportedSSLVersion()
 
 ripcSSLProtocolFlags ripcRemoveHighestSSLVersionFlag(ripcSSLProtocolFlags protoFlags)
 {
-	if (openSSLAPI == RSSL_OPENSSL_V1_1)
-	{
-		return RIPC_PROTO_SSL_NONE;
-	}
-
+	ripcSSLProtocolFlags tmp = protoFlags;
 	if((protoFlags & RIPC_PROTO_SSL_TLS_V1_2) != 0)
 	{
-		return (protoFlags & (~RIPC_PROTO_SSL_TLS_V1_2));
+		tmp = protoFlags & (~RIPC_PROTO_SSL_TLS_V1_2);
+	}
+	else if((protoFlags & RIPC_PROTO_SSL_TLS_V1_1) != 0)
+	{
+		tmp = protoFlags & (~RIPC_PROTO_SSL_TLS_V1_1);
+	}
+	else if((protoFlags & RIPC_PROTO_SSL_TLS_V1) != 0)
+	{
+		tmp = protoFlags & (~RIPC_PROTO_SSL_TLS_V1);
 	}
 
-	if((protoFlags & RIPC_PROTO_SSL_TLS_V1_1) != 0)
-	{
-		return (protoFlags & (~RIPC_PROTO_SSL_TLS_V1_1));
-		}
-
-	if((protoFlags & RIPC_PROTO_SSL_TLS_V1) != 0)
-	{
-		return (protoFlags & (~RIPC_PROTO_SSL_TLS_V1));
-	}
-
-	return RIPC_PROTO_SSL_NONE;
+	if (tmp == RIPC_PROTO_SSL_TLS)
+		return RIPC_PROTO_SSL_NONE;
+	else
+		return tmp;
 }
 
 /* case insensitive string comparison.  Inputs are assumed to not be null, 
