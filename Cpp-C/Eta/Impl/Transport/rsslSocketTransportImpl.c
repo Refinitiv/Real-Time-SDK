@@ -7257,7 +7257,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	RIPC_SESS_VERS	*version;
 	RsslInt32	csFlags = RIPC_INT_CS_FLAG_NONE;
 	void*	userSpecPtr = 0;
-	RsslInt32	initcomplete;
+	RsslInt32	initcomplete = 0;
 
 	if( !(opts->hostName) && !(opts->connectionInfo.unified.address) )
 	{

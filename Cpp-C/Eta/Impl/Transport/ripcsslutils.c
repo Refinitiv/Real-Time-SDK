@@ -1892,6 +1892,7 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 		if ((retVal == -1) && ((error->sysError == RSSL_SSL_ERROR_WANT_READ) || (error->sysError == RSSL_SSL_ERROR_WANT_WRITE)))
 		{
 			/* This is not an error condition, ssl_connect has started, and further triggers will be either on a read or write. */
+			*initComplete = 0;
 			return sess;
 		}
 		else
