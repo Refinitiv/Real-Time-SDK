@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_EVENTS_INT_H
@@ -22,7 +22,8 @@ typedef enum
 	RSSL_RCIMPL_ET_INIT = 0,		/* Unknown event. */
 	RSSL_RCIMPL_ET_REACTOR = -1,	/* Reactor-related event */
 	RSSL_RCIMPL_ET_FLUSH = -2,		/* Flushing needs to start or has finished */
-	RSSL_RCIMPL_ET_TIMER = -3		/* A timer event. */
+	RSSL_RCIMPL_ET_TIMER = -3,		/* A timer event. */
+	RSSL_RCIMPL_ET_TOKEN_MGNT = -4	/* Token management event on Login stream */
 } RsslReactorEventImplType;
 
 typedef struct
@@ -111,11 +112,38 @@ RTR_C_INLINE void rsslClearReactorEvent(RsslReactorStateEvent *pEvent)
 	pEvent->base.eventType = RSSL_RCIMPL_ET_REACTOR;
 }
 
+typedef enum
+{
+	RSSL_RCIMPL_TKET_INIT = 0,
+	RSSL_RCIMPL_TKET_REISSUE = -1,
+	RSSL_RCIMPL_TKET_REISSUE_NO_REFRESH = -2,
+	RSSL_RCIMPL_TKET_RESP_FAILURE = -3,
+	RSSL_RCIMPL_TKET_SUBMIT_LOGIN_MSG = -4,
+	RSSL_RCIMPL_TKET_CHANNEL_WARNING = -5
+} RsslReactorTokenMgntEventType;
+
+typedef struct
+{
+	RsslReactorEventImplBase base;
+	RsslReactorTokenMgntEventType reactorTokenMgntEventType;	
+	RsslReactorChannel *pReactorChannel;
+	RsslReactorAuthTokenEvent reactorAuthTokenEvent;
+	RsslReactorAuthTokenEventCallback *pAuthTokenEventCallback;
+	RsslErrorInfo errorInfo;
+} RsslReactorTokenMgntEvent;
+
+RTR_C_INLINE void rsslClearReactorTokenMgntEvent(RsslReactorTokenMgntEvent *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorTokenMgntEvent));
+	pEvent->base.eventType = RSSL_RCIMPL_ET_TOKEN_MGNT; 
+}
+
 typedef union 
 {
 	RsslReactorEventImplBase			base;
 	RsslReactorChannelEventImpl			channelEventImpl;
 	RsslReactorFlushEvent				flushEvent;
+	RsslReactorTokenMgntEvent			tokenMgntEvent;
 	RsslReactorStateEvent				reactorEvent;
 	RsslReactorTimerEvent				timerEvent;
 } RsslReactorEventImpl;

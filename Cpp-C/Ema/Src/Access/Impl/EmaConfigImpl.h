@@ -1205,6 +1205,10 @@ public:
 	void applicationName( const EmaString& );
 	void instanceId( const EmaString& );
 
+	void clientId( const EmaString& );
+	void tokenServiceUrl( const EmaString& );
+	void serviceDiscoveryUrl( const EmaString& );
+
 	void addAdminMsg( const ReqMsg& );
 
 	void addAdminMsg( const RefreshMsg& );
@@ -1307,6 +1311,21 @@ public:
 		return _sslCAStoreSetViaFunctionCall;
 	}
 
+	const EmaString& getUserSpecifiedClientId()
+	{
+		return _clientId;
+	}
+
+	const EmaString& getUserSpecifiedTokenServiceUrl()
+	{
+		return _tokenServiceUrl;
+	}
+
+	const EmaString& getUserSpecifiedServiceDiscoveryUrl()
+	{
+		return _serviceDiscoveryUrl;
+	}
+
 protected:
 
 	LoginRdmReqMsg			_loginRdmReqMsg;
@@ -1343,6 +1362,9 @@ protected:
 	EmaString		_objectName;
 	EmaString		_libSslName;
 	EmaString		_libCryptoName;
+	EmaString		_clientId;
+	EmaString		_tokenServiceUrl;
+	EmaString		_serviceDiscoveryUrl;
 	EmaString		_libcurlName;
 };
 

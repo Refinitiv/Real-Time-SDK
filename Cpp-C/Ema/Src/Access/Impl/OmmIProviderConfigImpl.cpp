@@ -37,20 +37,27 @@ void OmmIProviderConfigImpl::clear()
 
 void OmmIProviderConfigImpl::providerName( const EmaString& providerName )
 {
-	_configSessionName.append(providerName);
+	// Keep the session name to check laster after all configuration methods is called
+	_configSessionName.set(providerName);
+}
 
-	if (_pProgrammaticConfigure && _pProgrammaticConfigure->specifyIProviderName(providerName))
+void OmmIProviderConfigImpl::validateSpecifiedSessionName()
+{
+	if (_configSessionName.empty())
+		return;
+
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->specifyIProviderName(_configSessionName))
 		return;
 
 	EmaString item("IProviderGroup|IProviderList|IProvider.");
-	item.append(providerName).append("|Name");
+	item.append(_configSessionName).append("|Name");
 	EmaString name;
 	if (get(item, name))
 	{
-		if (!set("IProviderGroup|DefaultIProvider", providerName))
+		if (!set("IProviderGroup|DefaultIProvider", _configSessionName))
 		{
 			EmaString mergeString("<EmaConfig><IProviderGroup><DefaultIProvider value=\"");
-			mergeString.append(providerName).append("\"/></IProviderGroup></EmaConfig>");
+			mergeString.append(_configSessionName).append("\"/></IProviderGroup></EmaConfig>");
 			xmlDocPtr xmlDoc = xmlReadMemory(mergeString.c_str(), mergeString.length(), NULL, "notnamed.xml", XML_PARSE_HUGE);
 			if (xmlDoc == NULL)
 				return;
@@ -68,13 +75,13 @@ void OmmIProviderConfigImpl::providerName( const EmaString& providerName )
 	}
 	else
 	{
-		if (providerName == DEFAULT_IPROV_NAME)
+		if (_configSessionName == DEFAULT_IPROV_NAME)
 		{
-			XMLnode* niProviderList(_pEmaConfig->find< XMLnode >("IProviderGroup|IProviderList"));
-			if (niProviderList)
+			XMLnode* iProviderList(_pEmaConfig->find< XMLnode >("IProviderGroup|IProviderList"));
+			if (iProviderList)
 			{
 				EmaList< XMLnode::NameString* > theNames;
-				niProviderList->getNames(theNames);
+				iProviderList->getNames(theNames);
 				if (theNames.empty())
 					return;
 			}
@@ -82,9 +89,9 @@ void OmmIProviderConfigImpl::providerName( const EmaString& providerName )
 				return;
 		}
 
-		_configSessionName.clear();
 		EmaString errorMsg("OmmIProviderConfigImpl::providerName parameter [");
-		errorMsg.append(providerName).append("] is a non-existent provider name");
+		errorMsg.append(_configSessionName).append("] is a non-existent provider name");
+		_configSessionName.clear();
 		throwIceException(errorMsg);
 	}
 }

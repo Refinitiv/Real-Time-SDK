@@ -280,7 +280,6 @@ endfunction()
 End of work around for WIN32 zlib library naming issue
 #]=============================================================================================]
 
-
 include(rcdevExternalUtils)
 
 if(NOT zlib_url)

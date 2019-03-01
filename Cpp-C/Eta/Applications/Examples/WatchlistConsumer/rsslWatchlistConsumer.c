@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 /*
@@ -60,23 +60,24 @@ static RsslBool canSendLoginReissue;
 
 int main(int argc, char **argv)
 {
-	RsslReactor					*pReactor;
+	RsslReactor							*pReactor;
 
-	RsslRet						ret;
-	RsslCreateReactorOptions	reactorOpts;
-	RsslReactorConnectOptions	reactorConnectOpts;
-	RsslReactorConnectInfo		reactorConnectInfo;
-	RsslErrorInfo				rsslErrorInfo;
+	RsslRet								ret;
+	RsslCreateReactorOptions			reactorOpts;
+	RsslReactorConnectOptions			reactorConnectOpts;
+	RsslReactorConnectInfo				reactorConnectInfo;
+	RsslErrorInfo						rsslErrorInfo;
+	RsslReactorServiceDiscoveryOptions	serviceDiscoveryOpts;
 
-	RsslReactorOMMConsumerRole	consumerRole;
-	RsslRDMLoginRequest			loginRequest;
-	RsslRDMDirectoryRequest		dirRequest;
+	RsslReactorOMMConsumerRole			consumerRole;
+	RsslRDMLoginRequest					loginRequest;
+	RsslRDMDirectoryRequest				dirRequest;
 
-	time_t						stopTime;
-	time_t						currentTime;
-	time_t						nextPostTime;
+	time_t								stopTime;
+	time_t								currentTime;
+	time_t								nextPostTime;
 
-	RsslBool					postWithMsg = RSSL_TRUE;
+	RsslBool							postWithMsg = RSSL_TRUE;
 
 	RsslInitializeExOpts		initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 
@@ -118,10 +119,26 @@ int main(int argc, char **argv)
 		exit(-1);
 	}
 
+
+	rsslClearReactorServiceDiscoveryOptions(&serviceDiscoveryOpts);
 	/* Set login userName if specified. Otherwise, rsslInitDefaultRDMLoginRequest()
 	 * will set it to the user's system login name. */
 	if (watchlistConsumerConfig.userName.length)
+	{
 		loginRequest.userName = watchlistConsumerConfig.userName;
+		
+		if(watchlistConsumerConfig.queryEndpoint) 
+			serviceDiscoveryOpts.userName = loginRequest.userName;
+	}
+
+	/* Set login password if specified. */
+	if (watchlistConsumerConfig.password.length)
+	{
+		loginRequest.password = watchlistConsumerConfig.password;
+
+		if(watchlistConsumerConfig.queryEndpoint) 
+			serviceDiscoveryOpts.password = loginRequest.password;
+	}
 	
 	/* If the authentication Token is specified, set it and authenticationExtended(if present) to the loginRequest */
 	if (watchlistConsumerConfig.authenticationToken.length)
@@ -164,7 +181,10 @@ int main(int argc, char **argv)
 	consumerRole.directoryMsgCallback = directoryMsgCallback;
 	consumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
 
-
+	if (watchlistConsumerConfig.clientId.data)
+	{
+		consumerRole.clientId = watchlistConsumerConfig.clientId;
+	}
 
 	/* Create Reactor. */
 	rsslClearCreateReactorOptions(&reactorOpts);
@@ -174,10 +194,41 @@ int main(int argc, char **argv)
 		exit(-1);
 	}
 
-	/* Setup connection options. */
 	rsslClearReactorConnectOptions(&reactorConnectOpts);
 	rsslClearReactorConnectInfo(&reactorConnectInfo);
 
+	if(watchlistConsumerConfig.location.length == 0) // Use the default location from the Reactor if not specified
+	{
+		watchlistConsumerConfig.location.length =
+                (RsslUInt32)snprintf(watchlistConsumerConfig._locationMem, 255, "%s", reactorConnectInfo.location.data);
+            watchlistConsumerConfig.location.data = watchlistConsumerConfig._locationMem;					
+	}
+
+	if (watchlistConsumerConfig.queryEndpoint)
+	{
+		if (watchlistConsumerConfig.clientId.length)
+			serviceDiscoveryOpts.clientId = watchlistConsumerConfig.clientId;
+
+		if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+		{
+			serviceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
+		}
+		else
+		{
+			printf("Error: Invalid connection type %d for querying EDP service discovery", watchlistConsumerConfig.connectionType);
+			exit(-1);
+		}
+
+		serviceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
+
+		if(rsslReactorQueryServiceDiscovery(pReactor, &serviceDiscoveryOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			printf("Error: %s\n", rsslErrorInfo.rsslError.text);
+			exit(-1);
+		}
+	}
+
+	/* Setup connection options. */
 	if (watchlistConsumerConfig.connectionType != RSSL_CONN_TYPE_RELIABLE_MCAST)
 	{
 		reactorConnectInfo.rsslConnectOptions.connectionType = watchlistConsumerConfig.connectionType;
@@ -191,6 +242,8 @@ int main(int argc, char **argv)
 		reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyUserName = watchlistConsumerConfig.proxyUserName;
 		reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPasswd = watchlistConsumerConfig.proxyPasswd;
 		reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyDomain = watchlistConsumerConfig.proxyDomain;
+		reactorConnectInfo.enableSessionManagement = watchlistConsumerConfig.enableSessionMgnt;
+		reactorConnectInfo.location = watchlistConsumerConfig.location;
 		reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
 	}
 	else
@@ -752,7 +805,7 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReacto
 			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_AUTHN_TT_REISSUE)
 			{
 				loginReissueTime = pLoginRefresh->authenticationTTReissue;
-				canSendLoginReissue = RSSL_TRUE;
+				canSendLoginReissue = watchlistConsumerConfig.enableSessionMgnt ? RSSL_FALSE : RSSL_TRUE;
 			}
 
 			break;
@@ -1235,4 +1288,25 @@ static void initTunnelStreamMessaging()
 	simpleTunnelMsgHandlerInit(&simpleTunnelMsgHandler, (char*)"WatchlistConsumer", 
 			watchlistConsumerConfig.tunnelStreamDomainType,
 			watchlistConsumerConfig.useAuthentication, RSSL_FALSE);
+}
+
+RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslReactorServiceEndpointEvent *pEndPointEvent)
+{
+	RsslUInt32 index;
+	RsslReactorServiceEndpointInfo *pServiceEndpointInfo;
+	for(index = 0; index < pEndPointEvent->serviceEndpointInfoCount; index++)
+	{
+		pServiceEndpointInfo = &pEndPointEvent->serviceEndpointInfoList[index];
+		if(pServiceEndpointInfo->locationCount == 2) // Get an endpoint that provides auto failover for the specified location
+		{
+			if (strncmp(watchlistConsumerConfig.location.data, pServiceEndpointInfo->locationList[0].data, watchlistConsumerConfig.location.length) == 0 )
+			{
+				snprintf(watchlistConsumerConfig.hostName, 255, "%s", pServiceEndpointInfo->endPoint.data);	
+				snprintf(watchlistConsumerConfig.port, 255, "%s", pServiceEndpointInfo->port.data);	
+				break;
+			}
+		}
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
 }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2018. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -114,6 +114,25 @@ public :
 		@return reference to this object
 	*/
 	OmmConsumerConfig& applicationId( const EmaString& applicationId );
+
+	/** Specifies an unique identifier defined for making an athentication request to the token service
+		@param[in] clientId specifies an unique identifier.
+		@return reference to this object
+		\remark EMA uses the username as Client ID if not specified
+	*/
+	OmmConsumerConfig& clientId( const EmaString& clientId );
+
+	/** Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
+		@param[in] tokenServiceUrl specifies an URL for token service.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& tokenServiceUrl( const EmaString& tokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/beta1/token" );
+
+	/** Specifies an URL to override the default for the EDP service discovery to get global endpoints
+		@param[in] serviceDiscoveryUrl specifies an URL for EDP service discovery.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& serviceDiscoveryUrl( const EmaString& serviceDiscoveryUrl = "https://api.refinitiv.com/streaming/pricing/v1" );
 
 	/** Specifies a hostname and port.  Overrides prior value.
 		\remark Implies usage of TCP IP channel or RSSL_CONN_TYPE_SOCKET.
@@ -244,6 +263,7 @@ public :
 private :
 
 	friend class OmmConsumerImpl;
+	friend class OmmConsumer;
 
 	OmmConsumerConfigImpl* getConfigImpl() const;
 

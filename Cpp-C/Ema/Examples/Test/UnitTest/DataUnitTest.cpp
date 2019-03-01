@@ -1275,10 +1275,34 @@ TEST(DataUnitTest, testDoNothing)
   OmmConsumerConfig config;
 }
 
+EmaString g_userName;
+EmaString g_password;
+
 int main(int argc, char** argv) {
+  int i = 1;
+
+  for(; i < argc; i++)
+  {
+	if( strcmp("-uname", argv[i]) == 0 )
+	{
+		i += 2;
+		g_userName.set(argv[i - 1]);
+	}
+
+	if ( ( i + 1 < argc ) && (strcmp("-passwd", argv[i]) == 0) )
+	{
+		i += 2;
+		g_password.set(argv[i - 1]);
+	}
+  }
 
   ::testing::AddGlobalTestEnvironment(new MyEnvironment);
   ::testing::InitGoogleTest(&argc, argv);
+
+  /* Skipping the test cases for the EmaConfigTest.testLoadingConfigurationFromProgrammaticConfigForSessionManagement when a login credential isn't available */
+  if( (g_userName.length() == 0) || (g_password.length() == 0))
+  	testing::GTEST_FLAG(filter) = "-EmaConfigTest.testLoadingConfigurationFromProgrammaticConfigForSessionManagement";
+
   int retVal(RUN_ALL_TESTS());
   return retVal;
 }

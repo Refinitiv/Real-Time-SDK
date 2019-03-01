@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 /*
@@ -59,6 +59,7 @@ static time_t cacheTime = 0;
 static time_t cacheInterval = 0;
 static RsslBool onPostEnabled = RSSL_FALSE, offPostEnabled = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
+static RsslBool enableSessionMgnt = RSSL_FALSE;
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -68,6 +69,8 @@ fd_set readFds, exceptFds;
 static RsslReactor *pReactor = NULL;
 
 char userNameBlock[128];
+char passwordBlock[128];
+char clientIdBlock[128];
 static char traceOutputFile[128];
 char authnTokenBlock[1024];
 char authnExtendedBlock[1024];
@@ -78,6 +81,8 @@ char proxyUserName[128];
 char proxyPasswd[128];
 char proxyDomain[128];
 RsslBuffer userName = RSSL_INIT_BUFFER;
+RsslBuffer password = RSSL_INIT_BUFFER;
+RsslBuffer clientId = RSSL_INIT_BUFFER;
 RsslBuffer authnToken = RSSL_INIT_BUFFER;
 RsslBuffer authnExtended = RSSL_INIT_BUFFER;
 RsslBuffer appId = RSSL_INIT_BUFFER;
@@ -101,8 +106,8 @@ static char _bufferArray[6144];
 void printUsageAndExit(char *appName)
 {
 	
-	printf("Usage: %s or\n%s  [-tcp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime]\n"
-			"\n -tcp specifies a connection to open and a list of items to request:\n"
+	printf("Usage: %s or\n%s  [-tcp|-encrypted|-encryptedSocket|-encryptedHttp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-passwd <LoginPassword>] [ -clientId <Client ID> ] [-sessionMgnt] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime]\n"
+			"\n -tcp specifies a socket connection while -encrypted specifies a encrypted connection to open and a list of items to request:\n"
 			"\n     hostname:        Hostname of provider to connect to"
 			"\n     port:            Port of provider to connect to"
 			"\n     service:         Name of service to request items from on this connection"
@@ -114,8 +119,11 @@ void printUsageAndExit(char *appName)
 			"\n           (for SymbolList requests, a name can be optionally specified)\n"
 			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
 			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
-			"\n -uname changes the username used when logging into the provider.\n"
 			"\n -ph specifies an HTTP Proxy host."
+			"\n -pp specifies an HTTP Proxy port."
+			"\n -uname changes the username used when logging into the provider.\n"
+			"\n -passwd changes the password used when logging into the provider.\n"
+			"\n -sessionMgnt Enables session management in the Reactor.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
 			"\n -ax Specifies the Authentication Extended information. \n"
 			"\n -aid Specifies the Application ID.\n"
@@ -161,6 +169,14 @@ void parseCommandLine(int argc, char **argv)
 		snprintf(proxyUserName, sizeof(proxyUserName), "");
 		snprintf(proxyPasswd, sizeof(proxyPasswd), "");
 		snprintf(proxyDomain, sizeof(proxyDomain), "");
+		for (i = 1; i < argc; i++)
+		{
+			if (strcmp("-sessionMgnt", argv[i]) == 0)
+			{
+				enableSessionMgnt = RSSL_TRUE;
+				break;
+			}
+		}
 
 		snprintf(libcryptoName, sizeof(libcryptoName), "");
 		snprintf(libsslName, sizeof(libsslName), "");
@@ -196,6 +212,18 @@ void parseCommandLine(int argc, char **argv)
 				i += 2;
 				userName.length = snprintf(userNameBlock, sizeof(userNameBlock), "%s", argv[i-1]);
 				userName.data = userNameBlock;
+			}
+			else if (strcmp("-clientId", argv[i]) == 0)
+			{
+				i += 2;
+				clientId.length = snprintf(clientIdBlock, sizeof(clientIdBlock), "%s", argv[i - 1]);
+				clientId.data = clientIdBlock;
+			}
+			if (strcmp("-passwd", argv[i]) == 0)
+			{
+				i += 2;
+				password.length = snprintf(passwordBlock, sizeof(passwordBlock), "%s", argv[i - 1]);
+				password.data = passwordBlock;
 			}
 			else if(strcmp("-at", argv[i]) == 0)
 			{
@@ -274,7 +302,8 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				cacheInterval = atoi(argv[i-1]);
 			}
-			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0))
+			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || (strcmp("-encrypted", argv[i]) == 0) 
+				|| (strcmp("-encryptedHttp", argv[i]) == 0) || (strcmp("-encryptedSocket", argv[i]) == 0))
 			{
 				char *pToken, *pToken2, *pSaveToken, *pSaveToken2;
 
@@ -291,8 +320,33 @@ void parseCommandLine(int argc, char **argv)
 				useTunnelStreamAuthentication = RSSL_FALSE;
 				tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
+				if (strstr(argv[i], "-encrypted") != 0)
+				{
+					pCommand->cInfo.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+				}
+				
+				if (strcmp("-encryptedHttp", argv[i]) == 0)
+				{
+					/* HTTP is only supported with Windows WinInet connections*/
+#ifdef LINUX
+					printf("Error: Encrypted HTTP protocol is not supported on this platform.\n");
+					printUsageAndExit(argv[0]);
+#endif
+					pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
+				}
+				else if (strcmp("-encryptedSocket", argv[i]) == 0)
+				{
+					pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
+				}
+
 				simpleTunnelMsgHandlerInit(&pCommand->simpleTunnelMsgHandler, (char*)"VAConsumer", RSSL_DMT_SYSTEM, RSSL_FALSE, RSSL_FALSE);
 
+				/* Check whether the session management is enable */
+				if (enableSessionMgnt)
+				{
+					pCommand->cInfo.enableSessionManagement = enableSessionMgnt;
+					pCommand->cInfo.pAuthTokenEventCallback = authTokenEventCallback;
+				}
 
 				/* Syntax:
 				 *  -tcp hostname:port:SERVICE_NAME mp:TRI,mp:.DJI
@@ -301,22 +355,26 @@ void parseCommandLine(int argc, char **argv)
 				i += 1;
 				if (i >= argc) printUsageAndExit(argv[0]);
 
-				/* Hostname */
-				pToken = strtok(argv[i], ":");
-				if (!pToken) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
-				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
+				/* Checks wheter the host:port was specified */
+				if (strstr(argv[i], ":"))
+				{
+					/* Hostname */
+					pToken = strtok(argv[i], ":");
+					if (!pToken && !enableSessionMgnt) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
+					snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
+					pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
 
-				/* Port */
-				pToken = strtok(NULL, ":");
-				if (!pToken) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
-				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
+					/* Port */
+					pToken = strtok(NULL, ":");
+					if (!pToken && !enableSessionMgnt) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
+					snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
+					pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
 
-				pToken = strtok(NULL, ":");
-				if (pToken) { printf("Error: extra input after <hostname>:<port>.\n"); printUsageAndExit(argv[0]); }
+					pToken = strtok(NULL, ":");
+					if (pToken) { printf("Error: extra input after <hostname>:<port>.\n"); printUsageAndExit(argv[0]); }
 
-				i += 1;
+					i += 1;
+				}
 
 				/* Item Service Name */
 				pToken = argv[i];
@@ -1015,6 +1073,10 @@ void parseCommandLine(int argc, char **argv)
 			{
 				printUsageAndExit(argv[0]);
 			}
+			else if (strcmp("-sessionMgnt", argv[i]) == 0)
+			{
+				i++; // Do nothing as the parameter is already handled
+			}
 			else
 			{
 				printf("Unknown option: %s\n", argv[i]);
@@ -1140,6 +1202,41 @@ void closeConnection(RsslReactor *pReactor, RsslReactorChannel *pChannel, Channe
 	}
 
 	pCommand->reactorChannelReady = RSSL_FALSE;
+}
+
+RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorAuthTokenEvent *pAuthTokenEvent)
+{
+	RsslRet ret;
+	ChannelCommand *pCommand = (ChannelCommand*)pReactorChannel->userSpecPtr;
+
+	if (pAuthTokenEvent->pError)
+	{
+		printf("Retrieve an access token failed. Text: %s", pAuthTokenEvent->pError->rsslError.text);
+	}
+	else if (pCommand->canSendLoginReissue && pAuthTokenEvent->pReactorAuthTokenInfo)
+	{
+		RsslReactorSubmitMsgOptions submitMsgOpts;
+		RsslErrorInfo rsslErrorInfo;
+
+		rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+
+		/* Update the access token */
+		pCommand->pRole->ommConsumerRole.pLoginRequest->userName = pAuthTokenEvent->pReactorAuthTokenInfo->accessToken;
+		pCommand->pRole->ommConsumerRole.pLoginRequest->flags |= (RDM_LG_RQF_HAS_USERNAME_TYPE | RDM_LG_RQF_NO_REFRESH);
+		pCommand->pRole->ommConsumerRole.pLoginRequest->userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+
+		submitMsgOpts.pRDMMsg = (RsslRDMMsg*)pCommand->pRole->ommConsumerRole.pLoginRequest;
+		if ((ret = rsslReactorSubmitMsg(pReactor, pReactorChannel, &submitMsgOpts, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+		{
+			printf("Login reissue failed:  %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+		}
+		else
+		{
+			printf("Login reissue sent\n");
+		}
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
 }
 
 /* 
@@ -1409,7 +1506,11 @@ int main(int argc, char **argv)
 	/* If a username was specified, change username on login request. */
 	if (userName.length)
 		loginRequest.userName = userName;
-	
+
+	/* If a password was specified, change password on login request. */
+	if (password.length)
+		loginRequest.password = password;
+
 	/* If an authentication Token was specified, set it on the login request and set the user name type to RDM_LOGIN_USER_AUTHN_TOKEN */
 	if (authnToken.length)
 	{
@@ -1449,6 +1550,10 @@ int main(int argc, char **argv)
 	/* Set the messages to send when the channel is up */
 	consumerRole.pLoginRequest = &loginRequest;
 	consumerRole.pDirectoryRequest = &dirRequest;
+
+	/* If a client ID was specified */
+	if (clientId.length)
+		consumerRole.clientId = clientId;
 
 	printf("Connections:\n");
 
@@ -1546,7 +1651,7 @@ int main(int argc, char **argv)
 		pInfo->rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 		pInfo->rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 		pInfo->rsslConnectOptions.userSpecPtr = &chanCommands[i];
-		pInfo->initializationTimeout = 5;
+		pInfo->initializationTimeout = 30;
 		pOpts->reactorConnectionList = pInfo;
 		pOpts->connectionCount = 1;
 		pOpts->reconnectAttemptLimit = -1;
@@ -1640,7 +1745,7 @@ int main(int argc, char **argv)
 					printf("time() failed.\n");
 				}
 
-				if (chanCommands[i].canSendLoginReissue == RSSL_TRUE &&
+				if ((!chanCommands[i].cInfo.enableSessionManagement) && chanCommands[i].canSendLoginReissue == RSSL_TRUE &&
 					currentTime >= (RsslInt)(chanCommands[i].loginReissueTime))
 				{
 					RsslReactorSubmitMsgOptions submitMsgOpts;
@@ -2044,8 +2149,8 @@ static RsslRet decodeEntryFromCache(ChannelCommand *pCommand, RsslPayloadEntryHa
 	}
 	else
 	{
-		majorVersion = pCommand->cOpts.rsslConnectOptions.majorVersion;
-		minorVersion = pCommand->cOpts.rsslConnectOptions.minorVersion;
+		majorVersion = pCommand->cInfo.rsslConnectOptions.majorVersion;
+		minorVersion = pCommand->cInfo.rsslConnectOptions.minorVersion;
 	}
 
 	rsslClearLocalFieldSetDefDb(&localFieldSetDefDb);

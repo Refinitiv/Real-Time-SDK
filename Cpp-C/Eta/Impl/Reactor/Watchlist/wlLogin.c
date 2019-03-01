@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 #include "rtr/wlLogin.h"
@@ -129,7 +129,7 @@ void wlLoginStreamDestroy(WlLoginStream *pLoginStream)
 
 void wlLoginSetNextUserToken(WlLogin *pLogin, WlBase *pBase)
 {
-	WlLoginRequest *pLoginRequest = pLogin->pRequest;
+	WlLoginRequest *pLoginRequest = pLogin->pRequest[pLogin->index];
 	WlLoginStream *pLoginStream = pLogin->pStream;
 
 
@@ -180,7 +180,7 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 
 	if (pLogin->pStream)
 	{
-		WlLoginRequest *pLoginRequest = pLogin->pRequest;
+		WlLoginRequest *pLoginRequest = pLogin->pRequest[pLogin->index];
 		RsslRDMLoginRequest *pLoginReqMsg = pLoginRequest->pLoginReqMsg;
 
 		assert(pLoginRequest);
@@ -249,7 +249,7 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 				}
 
 				/* Adjust attributes according to watchlist support. */
-				if (pLogin->pRequest)
+				if (pLogin->pRequest[pLogin->index])
 				{
 					pLoginRefresh->flags |= RDM_LG_RFF_HAS_SINGLE_OPEN;
 					if (pLoginReqMsg->flags
@@ -372,16 +372,16 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 			RsslRDMLoginRequest *pLoginReqMsg = &pLoginMsg->request;
 			RsslBool newUserToken = RSSL_FALSE;
 
-			if (pLogin->pRequest) 
+			if (pLogin->pRequest[pLogin->index]) 
 			{
 				RsslBool pendingRequest = RSSL_FALSE;
-				WlLoginRequest *pLoginRequest = (WlLoginRequest*)pLogin->pRequest;
+				WlLoginRequest *pLoginRequest = (WlLoginRequest*)pLogin->pRequest[pLogin->index];
 
 				RsslRDMLoginRequest *pOrigLoginReqMsg = 
-					pLogin->pRequest->pLoginReqMsg;
+					pLogin->pRequest[pLogin->index]->pLoginReqMsg;
 
 				if (pLoginMsg->rdmMsgBase.streamId != 
-						pLogin->pRequest->base.streamId)
+					pLogin->pRequest[pLogin->index]->base.streamId)
 				{
 					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
 							__FILE__, __LINE__, "Only one login stream allowed.");
@@ -571,7 +571,7 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 					if (pLoginRequest->pCurrentToken)
 					{
 						/* If a next token is present, or the stream state is either in a PENDING_REQUEST or PENDING_RESPONSE, set the pNewToken */
-						if (pLoginRequest->pNextToken || pLogin->pRequest->base.pStream->requestState == WL_STRS_PENDING_RESPONSE || pLogin->pRequest->base.pStream->requestState == WL_STRS_PENDING_REQUEST)
+						if (pLoginRequest->pNextToken || pLogin->pRequest[pLogin->index]->base.pStream->requestState == WL_STRS_PENDING_RESPONSE || pLogin->pRequest[pLogin->index]->base.pStream->requestState == WL_STRS_PENDING_REQUEST)
 						{
 							/* If a pending next token is present, free it and set the new token to the next pending token */
 							if(pLoginRequest->pNextToken != NULL)
@@ -643,7 +643,7 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 				else
 					pOrigLoginReqMsg->flags &= ~RDM_LG_RQF_NO_REFRESH;
 
-				pStream = pLogin->pRequest->base.pStream;
+				pStream = pLogin->pRequest[pLogin->index]->base.pStream;
 				assert(pStream);
 
 				if (pendingRequest)
@@ -652,7 +652,7 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 				return RSSL_RET_SUCCESS;
 			}
 
-			if (!(pLogin->pRequest = wlLoginRequestCreate(&pLoginMsg->request, 
+			if (!(pLogin->pRequest[pLogin->index] = wlLoginRequestCreate(&pLoginMsg->request, 
 					pUserSpec, pErrorInfo)))
 				return pErrorInfo->rsslError.rsslErrorId;
 
@@ -678,19 +678,27 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 				if (!(pLogin->pStream = wlLoginStreamCreate(pBase, pLogin, pErrorInfo)))
 					return pErrorInfo->rsslError.rsslErrorId;
 
-				pLogin->pRequest->base.pStream 
+				pLogin->pRequest[pLogin->index]->base.pStream
 					= &pLogin->pStream->base;
 			}
 			else
+			{
+				/* Set WlStreamBase as it is shared by multiple WlLoginRequest */
+				if (pLogin->pRequest[pLogin->index]->base.pStream == 0)
+				{
+					pLogin->pRequest[pLogin->index]->base.pStream = &pLogin->pStream->base;
+				}
+
 				wlSetStreamMsgPending(pBase,
-						&pLogin->pStream->base);
+					&pLogin->pStream->base);
+			}
 
 			return RSSL_RET_SUCCESS;
 		}
 
 		case RDM_LG_MT_CLOSE:
 		{
-			WlLoginRequest *pLoginRequest = (WlLoginRequest*)pLogin->pRequest;
+			WlLoginRequest *pLoginRequest = (WlLoginRequest*)pLogin->pRequest[pLogin->index];
 			if (!pLogin->pStream)
 			{
 				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
@@ -700,7 +708,7 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 			}
 
 			if (pLoginMsg->rdmMsgBase.streamId != 
-					pLogin->pRequest->base.streamId)
+				pLogin->pRequest[pLogin->index]->base.streamId)
 			{
 				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
 						__FILE__, __LINE__, "Stream ID does not match login stream.");
@@ -718,7 +726,7 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 		}
 		case RDM_LG_MT_CONSUMER_CONNECTION_STATUS:
 		{
-			WlLoginRequest *pLoginRequest = (WlLoginRequest*)pLogin->pRequest;
+			WlLoginRequest *pLoginRequest = (WlLoginRequest*)pLogin->pRequest[pLogin->index];
 			if (!pLoginRequest || !pLogin->pStream)
 			{
 				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT,
@@ -735,7 +743,7 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 				return RSSL_RET_INVALID_ARGUMENT;
 			}
 
-			if (pLoginMsg->rdmMsgBase.streamId != pLogin->pRequest->base.streamId)
+			if (pLoginMsg->rdmMsgBase.streamId != pLogin->pRequest[pLogin->index]->base.streamId)
 			{
 				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT,
 					__FILE__, __LINE__, "Stream ID does not match login stream.");
@@ -779,7 +787,7 @@ RsslRet wlLoginChannelDown(WlLogin *pLogin, WlBase *pBase, RsslErrorInfo *pError
 		/* No action. */
 		assert(loginAction == WL_LGPA_NONE);
 
-		loginMsg.rdmMsgBase.streamId = pLogin->pRequest->base.streamId;
+		loginMsg.rdmMsgBase.streamId = pLogin->pRequest[pLogin->index]->base.streamId;
 		wlMsgEventClear(&msgEvent);
 		msgEvent.pRsslMsg = (RsslMsg*)&statusMsg;
 		msgEvent.pRdmMsg = (RsslRDMMsg*)&loginMsg;

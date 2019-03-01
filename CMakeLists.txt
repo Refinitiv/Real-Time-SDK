@@ -33,6 +33,7 @@ include(addExternal_zlib)
 include(addExternal_lz4)
 include(addExternal_libxml2)
 include(addExternal_curl)
+include(addExternal_cjson)
 
 #
 # Set up default build paths if not already defined

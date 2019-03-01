@@ -576,6 +576,28 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		EmaString channelName( "Channel" );
 		useDefaultConfigValues( channelName, pConfigImpl->getUserSpecifiedHostname(), pConfigImpl->getUserSpecifiedPort().userSpecifiedValue );
 	}
+	else
+	{
+		// Only assigns the default hostname and port for the encrypted connections when the session management feature is disable
+		ChannelConfig* pChannelConfig;
+		SocketChannelConfig* pSocketChannelConfig;
+		for (UInt32 index = 0; index < _activeConfig.configChannelSet.size(); index++)
+		{
+			pChannelConfig = _activeConfig.configChannelSet[index];
+			if (pChannelConfig->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+			{
+				pSocketChannelConfig = (SocketChannelConfig*)pChannelConfig;
+				if (pSocketChannelConfig->enableSessionMgnt == false)
+				{
+					if (pSocketChannelConfig->hostName.length() == 0)
+						pSocketChannelConfig->hostName = DEFAULT_HOST_NAME;
+
+					if (pSocketChannelConfig->serviceName.length() == 0)
+						pSocketChannelConfig->serviceName = _activeConfig.defaultServiceName();
+				}
+			}
+		}
+	}
 
 	_activeConfig.pRsslRDMLoginReq = pConfigImpl->getLoginReq();
 
@@ -587,7 +609,7 @@ void OmmBaseImpl::useDefaultConfigValues( const EmaString& channelName, const Em
 	SocketChannelConfig* newChannelConfig =  0;
 	try
 	{
-		newChannelConfig = new SocketChannelConfig( getActiveConfig().defaultServiceName(), RSSL_CONN_TYPE_SOCKET );
+		newChannelConfig = new SocketChannelConfig(DEFAULT_HOST_NAME, getActiveConfig().defaultServiceName(), RSSL_CONN_TYPE_SOCKET );
 		if ( host.length() )
 			newChannelConfig->hostName = host;
 
@@ -639,7 +661,10 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 	{
 		try
 		{
-			socketChannelCfg = new SocketChannelConfig(getActiveConfig().defaultServiceName(), channelType);
+			/*	Both host and port is set as empty string by default to support the Reactor's session management
+				to query them from EDP-RT service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
+			*/
+			socketChannelCfg = new SocketChannelConfig("","", channelType);
 			newChannelConfig = socketChannelCfg;
 		}
 		catch (std::bad_alloc)
@@ -655,8 +680,8 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		}
 		else
 		{
-			pConfigImpl->get<UInt64>(channelNodeName + "SecurityProtocol", tempUInt);
-			socketChannelCfg->securityProtocol = (int)tempUInt;
+			if ( pConfigImpl->get<UInt64>(channelNodeName + "SecurityProtocol", tempUInt) )
+				socketChannelCfg->securityProtocol = (int)tempUInt;
 		}
 
 		pConfigImpl->get<RsslConnectionTypes>(channelNodeName + "EncryptedProtocolType", socketChannelCfg->encryptedConnectionType);
@@ -669,6 +694,16 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		else
 			pConfigImpl->get<EmaString>(channelNodeName + "OpenSSLCAStore", socketChannelCfg->sslCAStore);
 
+		if (!pConfigImpl->get< EmaString >(channelNodeName + "Location", socketChannelCfg->location))
+			socketChannelCfg->location = DEFAULT_EDP_RT_LOCATION;
+
+		UInt64 tempUInt = 0;
+		pConfigImpl->get<UInt64>(channelNodeName + "EnableSessionManagement", tempUInt);
+		if (!tempUInt)
+			socketChannelCfg->enableSessionMgnt = RSSL_FALSE;
+		else
+			socketChannelCfg->enableSessionMgnt = RSSL_TRUE;
+
 		// Fall through to HTTP for common configurations
 	}
 	case RSSL_CONN_TYPE_SOCKET:
@@ -678,7 +713,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		{
 			try
 			{
-				socketChannelCfg = new SocketChannelConfig(getActiveConfig().defaultServiceName(), channelType);
+				socketChannelCfg = new SocketChannelConfig(DEFAULT_HOST_NAME, getActiveConfig().defaultServiceName(), channelType);
 				newChannelConfig = socketChannelCfg;
 			}
 			catch (std::bad_alloc)
@@ -1130,6 +1165,20 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		rsslClearCreateReactorOptions( &reactorOpts );
 
+		// Overrides the default service discovery URL if specified by user
+		if ( configImpl->getUserSpecifiedServiceDiscoveryUrl().length() > 0 )
+		{
+			reactorOpts.serviceDiscoveryURL.length = configImpl->getUserSpecifiedServiceDiscoveryUrl().length();
+			reactorOpts.serviceDiscoveryURL.data = (char*)configImpl->getUserSpecifiedServiceDiscoveryUrl().c_str();
+		}
+
+		// Overrides the default token service URL if specified by user
+		if ( configImpl->getUserSpecifiedServiceDiscoveryUrl().length() > 0 )
+		{
+			reactorOpts.tokenServiceURL.length = configImpl->getUserSpecifiedTokenServiceUrl().length();
+			reactorOpts.tokenServiceURL.data = (char*)configImpl->getUserSpecifiedTokenServiceUrl().c_str();
+		}
+
 		reactorOpts.userSpecPtr = ( void* )this;
 
 		_pRsslReactor = rsslCreateReactor( &reactorOpts, &rsslErrorInfo );
@@ -1196,7 +1245,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		_pChannelCallbackClient = ChannelCallbackClient::create( *this, _pRsslReactor );
-		_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest() );
+		_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest(), configImpl->getUserSpecifiedClientId() );
 
 		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * 1000;
 		_eventTimedOut = false;

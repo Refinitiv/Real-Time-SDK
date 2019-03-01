@@ -235,7 +235,6 @@ if((NOT libxml2_USE_INSTALLED) AND
 			unset(_cfg_type)
 			unset(_crt)
 			unset(_libdir)
-	
 		else()
 	
 			# check for any defined flags
@@ -265,13 +264,11 @@ if((NOT libxml2_USE_INSTALLED) AND
 			set( _EPA_INSTALL_COMMAND "INSTALL_COMMAND"
 											"${CMAKE_MAKE_PROGRAM} install"
 							)
-	
 			# If there isn't a binary directory defined then make sure
 			# the option 'BUILD_IN_SOURCE' is enabled
 			if (NOT DEFINED _EPA_BINARY_DIR)
 				set( _EPA_ADDITIONAL_ARGS "BUILD_IN_SOURCE 1" )
 			endif()
-	
 			# Add log defiitions if selected to be enabled and append them to the
 			# additional args variable
 			if(libxml2_LOG_BUILD)

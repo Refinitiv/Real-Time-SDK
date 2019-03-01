@@ -159,6 +159,7 @@ BaseConfig::BaseConfig() :
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
 	loggerConfig(),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
+	parameterConfigGroup(1), // This variable is set for handling deprecation cases.
 	libSslName(),
 	libCryptoName(),
 	traceStr()
@@ -666,16 +667,19 @@ void ServerConfig::setNumInputBuffers(UInt64 value)
 	}
 }
 
-SocketChannelConfig::SocketChannelConfig(const EmaString& defaultServiceName, RsslConnectionTypes connType) :
+SocketChannelConfig::SocketChannelConfig(const EmaString& defaultHostName, const EmaString& defaultServiceName, RsslConnectionTypes connType) :
 	ChannelConfig(connType),
-	hostName(DEFAULT_HOST_NAME),
+	hostName(defaultHostName),
 	serviceName(defaultServiceName),
+	defaultHostName(defaultHostName),
 	defaultServiceName(defaultServiceName),
 	tcpNodelay(DEFAULT_TCP_NODELAY),
 	objectName(DEFAULT_OBJECT_NAME),
 	sslCAStore(DEFAULT_SSL_CA_STORE),
 	encryptedConnectionType(RSSL_CONN_TYPE_INIT),
-	securityProtocol(RSSL_ENC_TLSV1_2)
+	securityProtocol(RSSL_ENC_TLSV1_2),
+	enableSessionMgnt(RSSL_FALSE),
+	location(DEFAULT_EDP_RT_LOCATION)
 {
 }
 
@@ -687,11 +691,13 @@ void SocketChannelConfig::clear()
 {
 	ChannelConfig::clear();
 
-	hostName = DEFAULT_HOST_NAME;
+	hostName = defaultHostName;
 	serviceName = defaultServiceName;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
 	objectName = DEFAULT_OBJECT_NAME;
 	securityProtocol = RSSL_ENC_TLSV1_2;
+	enableSessionMgnt = RSSL_FALSE;
+	location = DEFAULT_EDP_RT_LOCATION;
 }
 
 ChannelConfig::ChannelType SocketChannelConfig::getType() const

@@ -66,6 +66,8 @@ else()
         TunnelStream/rtr/tunnelStreamReturnCodes.h
         TunnelStream/rtr/tunnelSubstream.h
         Util/rtr/rsslReactorUtils.h
+        Util/rsslRestClientImpl.c
+        Util/rtr/rsslRestClientImpl.h
         Watchlist/rtr/rsslWatchlist.h
         Watchlist/rtr/rsslWatchlistImpl.h
         Watchlist/rtr/wlBase.h
@@ -146,6 +148,7 @@ else()
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Util>
 									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/TunnelStream>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
+									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
@@ -156,7 +159,7 @@ else()
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/RDM>
                                 )
 
-	target_link_libraries( librsslVA_tmp LibXml2::LibXml2)
+	target_link_libraries( librsslVA_tmp LibXml2::LibXml2 CJSON::CJSON)
 
 DEBUG_PRINT(librsslVA_tmp)
 
@@ -180,6 +183,7 @@ DEBUG_PRINT(librsslVA_tmp)
 														/OUT:"$<TARGET_FILE:librsslVA>" 
 														/LTCG "$<TARGET_FILE:librsslVA_tmp>"
 															  "$<TARGET_FILE:LibXml2::LibXml2>"
+															  "$<TARGET_FILE:CJSON::CJSON>"
 							DEPENDS	librsslVA_tmp
 							)
 	else()
@@ -189,6 +193,7 @@ DEBUG_PRINT(librsslVA_tmp)
 		add_custom_command(TARGET librsslVA POST_BUILD
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslVA_tmp>
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
+							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CJSON::CJSON>
 							COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
 							WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
 							DEPENDS librsslVA_tmp
@@ -211,6 +216,7 @@ DEBUG_PRINT(librsslVA_tmp)
                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Util>
                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/TunnelStream>
                         $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
+                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
                         $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
                         $<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
                         $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
@@ -239,6 +245,7 @@ DEBUG_PRINT(librsslVA_tmp)
         target_link_libraries( librsslVA_shared 
 										librssl_shared 
 										LibXml2::LibXml2
+										CJSON::CJSON
 										wininet.lib
 										ws2_32.lib
                             )
@@ -268,7 +275,7 @@ DEBUG_PRINT(librsslVA_tmp)
                                     SOVERSION ${librsslVA_SO_VERSION}
                             )
 
-		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2)
+		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2 CJSON::CJSON)
 	endif()
 DEBUG_PRINT(librsslVA_tmp)
 	rcdev_add_target(esdk librsslVA librsslVA_shared)

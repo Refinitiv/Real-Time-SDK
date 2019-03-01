@@ -831,6 +831,21 @@ void EmaConfigImpl::instanceId( const EmaString& instanceId )
 	_loginRdmReqMsg.instanceId( instanceId );
 }
 
+void EmaConfigImpl::clientId( const EmaString& clientId )
+{
+	_clientId = clientId;
+}
+
+void EmaConfigImpl::tokenServiceUrl( const EmaString& tokenServiceUrl )
+{
+	_tokenServiceUrl = tokenServiceUrl;
+}
+
+void EmaConfigImpl::serviceDiscoveryUrl( const EmaString& serviceDiscoveryUrl )
+{
+	_serviceDiscoveryUrl = serviceDiscoveryUrl;
+}
+
 void EmaConfigImpl::host( const EmaString& host )
 {
 	Int32 index = host.find( ":", 0 );

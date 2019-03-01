@@ -2,10 +2,11 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 #include "rtr/rsslWatchlistImpl.h"
+#include "rtr/rsslReactorImpl.h"
 #include <assert.h>
 
 static RsslRet wlWriteBuffer(RsslWatchlistImpl *pWatchlistImpl, RsslBuffer *pWriteBuffer,
@@ -57,7 +58,19 @@ RsslWatchlist *rsslWatchlistCreate(RsslWatchlistCreateOptions *pCreateOptions,
 		return NULL;
 	}
 
-	pWatchlistImpl->login.pRequest = NULL;
+	pWatchlistImpl->login.pRequest = (WlLoginRequest**)(malloc(pCreateOptions->loginRequestCount*sizeof(WlLoginRequest*)));
+
+	if (pWatchlistImpl->login.pRequest == 0)
+	{
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Memory allocation failed.");
+		rsslWatchlistDestroy((RsslWatchlist*)pWatchlistImpl);
+		return NULL;
+	}
+
+	memset(pWatchlistImpl->login.pRequest, 0, pCreateOptions->loginRequestCount*sizeof(WlLoginRequest*));
+	pWatchlistImpl->login.count = pCreateOptions->loginRequestCount;
+	pWatchlistImpl->login.index = 0;
 	pWatchlistImpl->login.pStream = NULL;
 
 	pWatchlistImpl->directory.pStream = NULL;
@@ -125,7 +138,15 @@ void rsslWatchlistDestroy(RsslWatchlist *pWatchlist)
 	RsslUInt32 i;
 
 	if (pWatchlistImpl->login.pRequest)
-		wlLoginRequestDestroy(&pWatchlistImpl->base, pWatchlistImpl->login.pRequest);
+	{
+		for (i = 0; i < pWatchlistImpl->login.count; i++)
+		{
+			if (pWatchlistImpl->login.pRequest[i])
+				wlLoginRequestDestroy(&pWatchlistImpl->base, pWatchlistImpl->login.pRequest[i]);
+		}
+
+		free(pWatchlistImpl->login.pRequest);
+	}
 
 	if (pWatchlistImpl->login.pStream)
 		wlLoginStreamDestroy(pWatchlistImpl->login.pStream);
@@ -211,10 +232,15 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 		RsslErrorInfo *pErrorInfo)
 {
 	RsslWatchlistImpl *pWatchlistImpl = (RsslWatchlistImpl*)pWatchlist;
+	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl*)pWatchlist->pUserSpec;
 	RsslRet ret;
 	RsslQueueLink *pLink;
 
 	pWatchlistImpl->base.currentTime = currentTime;
+
+	/* Update the login index when the channel supports the session management */
+	if ( pReactorChannelImpl->supportSessionMgnt )
+		pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
 
 	while (pLink = rsslQueueRemoveFirstLink(&pWatchlistImpl->base.newRequests))
 	{
@@ -367,7 +393,7 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 					if (pWatchlistImpl->login.pStream)
 					{
 						WlLoginStream *pStream = pWatchlistImpl->login.pStream;
-						assert(pWatchlistImpl->login.pRequest);
+						assert(pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]);
 						wlSetStreamMsgPending(&pWatchlistImpl->base,
 								&pWatchlistImpl->login.pStream->base);
 					}
@@ -573,11 +599,11 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 				if (!(pWatchlistImpl->login.pStream = wlLoginStreamCreate(
 								&pWatchlistImpl->base, &pWatchlistImpl->login, pErrorInfo)))
 					return pErrorInfo->rsslError.rsslErrorId;
-				pWatchlistImpl->login.pRequest->base.pStream = &pWatchlistImpl->login.pStream->base;
+				pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]->base.pStream = &pWatchlistImpl->login.pStream->base;
 
 				msgEvent.pRsslMsg = NULL;
 				msgEvent.pRdmMsg = (RsslRDMMsg*)&loginMsg;
-				loginMsg.rdmMsgBase.streamId = pWatchlistImpl->login.pRequest->base.streamId;
+				loginMsg.rdmMsgBase.streamId = pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]->base.streamId;
 				if ((ret = (*pWatchlistImpl->base.config.msgCallback)
 							((RsslWatchlist*)&pWatchlistImpl->base.watchlist, &msgEvent, pErrorInfo)) 
 						!= RSSL_RET_SUCCESS)
@@ -1228,7 +1254,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 			RsslRDMLoginMsg loginMsg;
 			WlLoginProviderAction loginAction;
 			RsslWatchlistStreamInfo streamInfo;
-			WlLoginRequest *pLoginRequest = pWatchlistImpl->login.pRequest;
+			WlLoginRequest *pLoginRequest = pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index];
 
 			if (msgEvent.pRsslMsg->msgBase.domainType != RSSL_DMT_LOGIN)
 			{
@@ -1358,7 +1384,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 					pLoginStream = pWatchlistImpl->login.pStream;
 					wlLoginStreamClose(&pWatchlistImpl->base, &pWatchlistImpl->login, RSSL_FALSE);
 
-					pWatchlistImpl->login.pRequest = NULL;
+					pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index] = NULL;
 
 					/* Forward processed message to application. */
 					msgEvent.pRsslMsg->msgBase.streamId = 
@@ -2789,6 +2815,7 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 	WlRequest *pRequest = NULL;
 	RsslHashLink *pRequestLink = NULL;
 	RsslWatchlistImpl *pWatchlistImpl = (RsslWatchlistImpl*)pWatchlist;
+	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl*)pWatchlist->pUserSpec;
 
 	if (pOptions->pRsslMsg)
 	{
@@ -3049,11 +3076,11 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 
 							streamId = pItemStream->base.streamId;
 						}
-						else if (pWatchlistImpl->login.pRequest
+						else if (pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]
 								&& pOptions->pRsslMsg->msgBase.streamId 
-								== pWatchlistImpl->login.pRequest->base.streamId)
+								== pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]->base.streamId)
 						{
-							pRequest = (WlRequest*)pWatchlistImpl->login.pRequest;
+							pRequest = (WlRequest*)pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index];
 
 							/* Off-stream post */
 							if (!pWatchlistImpl->login.pStream 
@@ -3152,7 +3179,11 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 				RsslRDMLoginMsg *pLoginMsg = (RsslRDMLoginMsg*)pRdmMsg;
 				WlLoginConsumerAction loginAction;
 
-					if ((ret = wlLoginProcessConsumerMsg(&pWatchlistImpl->login, &pWatchlistImpl->base,
+				/* Update the login index when the channel supports the session management */
+				if(pReactorChannelImpl->supportSessionMgnt)
+					pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
+
+				if ((ret = wlLoginProcessConsumerMsg(&pWatchlistImpl->login, &pWatchlistImpl->base,
 						(RsslRDMLoginMsg*)pRdmMsg, pOptions->pUserSpec, &loginAction, pErrorInfo)) != RSSL_RET_SUCCESS)
 						return ret;
 
@@ -3263,7 +3294,7 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 
 					case WL_LGCA_CLOSE:
 					{
-						WlLoginRequest *pLoginRequest = (WlLoginRequest*)pWatchlistImpl->login.pRequest;
+						WlLoginRequest *pLoginRequest = (WlLoginRequest*)pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index];
 						RsslQueueLink *pLink;
 
 						while(pLink = rsslQueuePeekFront(&pWatchlistImpl->base.requestedServices))
@@ -3886,7 +3917,7 @@ static RsslRet wlStreamSubmitMsg(RsslWatchlistImpl *pWatchlistImpl,
 			{
 				RsslRDMLoginRequest loginRequest;
 
-				loginRequest = *pWatchlistImpl->login.pRequest->pLoginReqMsg;
+				loginRequest = *pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]->pLoginReqMsg;
 				loginRequest.rdmMsgBase.streamId = pStream->base.streamId;
 
 				if (!pWatchlistImpl->base.config.supportOptimizedPauseResume)
@@ -3906,12 +3937,12 @@ static RsslRet wlStreamSubmitMsg(RsslWatchlistImpl *pWatchlistImpl,
 					wlUnsetStreamMsgPending(&pWatchlistImpl->base, &pStream->base);
 
 					/* If this was a pause message, unset the pause flag */
-					if (pWatchlistImpl->login.pRequest->pLoginReqMsg->flags & RDM_LG_RQF_PAUSE_ALL)
-						pWatchlistImpl->login.pRequest->pLoginReqMsg->flags &= ~RDM_LG_RQF_PAUSE_ALL;
+					if (pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]->pLoginReqMsg->flags & RDM_LG_RQF_PAUSE_ALL)
+						pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]->pLoginReqMsg->flags &= ~RDM_LG_RQF_PAUSE_ALL;
 
 
-					if (pWatchlistImpl->login.pRequest->pCurrentToken
-							&& !pWatchlistImpl->login.pRequest->pCurrentToken->needRefresh)
+					if (pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]->pCurrentToken
+							&& !pWatchlistImpl->login.pRequest[pWatchlistImpl->login.index]->pCurrentToken->needRefresh)
 						wlLoginSetNextUserToken(&pWatchlistImpl->login,
 								&pWatchlistImpl->base);
 

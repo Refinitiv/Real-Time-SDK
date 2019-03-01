@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_IMPL_H
@@ -20,6 +20,8 @@
 #include "rtr/rsslThread.h"
 #include "rtr/rsslReactorUtils.h"
 #include "rtr/tunnelManager.h"
+#include "rtr/rsslRestClientImpl.h"
+#include "rtr/rtratomic.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -44,6 +46,45 @@ typedef enum
 	RSSL_RC_CHST_READY = 5,
 	RSSL_RC_CHST_RECONNECTING = 6
 } RsslReactorChannelSetupState;
+
+/* RsslReactorChannelInfoImplState
+* - Represents states for token management and requesting service discovery */
+typedef enum
+{
+	RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE = -5,
+	RSSL_RC_CHINFO_IMPL_ST_MEM_ALLOCATION_FAILURE = -4,
+	RSSL_RC_CHINFO_IMPL_ST_PARSE_RESP_FAILURE = -3,
+	RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE = -2,
+	RSSL_RC_CHINFO_IMPL_ST_BUFFER_TOO_SMALL = -1,
+	RSSL_RC_CHINFO_IMPL_ST_INIT = 0,
+	RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN = 1,
+	RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN = 2,
+	RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY = 3, 
+	RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT = 4, 
+} RsslReactorChannelInfoImplState;
+
+/* RsslReactorConnectInfoImpl
+* - Handles a channel information including token management */
+typedef struct
+{
+	RsslReactorConnectInfo base;
+	
+	/* This is original login request information */
+	RsslBuffer				userName;
+	RsslUInt32				flags;
+	RsslUInt8				userNameType;
+	RsslBuffer				clientId;
+
+	RsslReactorChannelInfoImplState	reactorChannelInfoImplState; /* Keeping track the state of this session */
+	RsslReactorTokenMgntEventType	reactorTokenMgntEventType; /* Specify an event type for sending to the Reactor */
+
+} RsslReactorConnectInfoImpl;
+
+RTR_C_INLINE void rsslClearReactorConnectInfoImpl(RsslReactorConnectInfoImpl* pReactorConnectInfoImpl)
+{
+	memset(pReactorConnectInfoImpl, 0, sizeof(RsslReactorConnectInfoImpl));
+	rsslClearReactorConnectInfo(&pReactorConnectInfoImpl->base);
+}
 
 /* RsslReactorChannelImpl 
  * - Handles a channel associated with the RsslReactor */
@@ -97,8 +138,20 @@ typedef struct
 	
 	RsslInt32 connectionListCount;
 	RsslInt32 connectionListIter;
-	RsslReactorConnectInfo *connectionOptList;
+	RsslReactorConnectInfoImpl *connectionOptList;
 	TunnelManager *pTunnelManager;
+
+	/* Support session managemnt and EDP-RT service discovery. */
+	RsslBool supportSessionMgnt;
+	RsslReactorAuthTokenInfo	tokenInformation;
+	RsslBuffer				tokenInformationBuffer;
+	RsslInt					nextExpiresTime; /* the next expires time in millisecond */
+	RsslBool				resendFromFailure; /* Indicates to resend the request after a response failure */
+	rtr_atomic_val			sendTokenRequest;
+	RsslBuffer				rsslAccessTokenRespBuffer;
+	RsslBuffer				rsslServiceDiscoveryRespBuffer;
+	RsslBuffer				rsslPostDataBodyBuf;
+
 } RsslReactorChannelImpl;
 
 RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pInfo)
@@ -109,60 +162,83 @@ RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, Rss
 	pInfo->lastRequestedExpireTime = RCIMPL_TIMER_UNSET;
 }
 
-RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pReactorChannel, RsslReactorConnectOptions *pOpts)
+RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pReactorChannel, RsslReactorConnectOptions *pOpts, 
+															RsslBool *enableSessionMgnt)
 {
 	RsslConnectOptions *destOpts, *sourceOpts;
 	RsslUInt32 i, j;
 
 	if(pOpts->connectionCount != 0)
 	{
-		pReactorChannel->connectionOptList = (RsslReactorConnectInfo*)malloc(pOpts->connectionCount*sizeof(RsslReactorConnectInfo));
+		pReactorChannel->connectionOptList = (RsslReactorConnectInfoImpl*)malloc(pOpts->connectionCount*sizeof(RsslReactorConnectInfoImpl));
 
 		if(!pReactorChannel->connectionOptList)
 		{
 			return RSSL_RET_FAILURE;
 		}
 
+		(*enableSessionMgnt) = RSSL_FALSE;
 		for(i = 0; i < pOpts->connectionCount; i++)
 		{
-			destOpts = &pReactorChannel->connectionOptList[i].rsslConnectOptions;
+			rsslClearReactorConnectInfoImpl(&pReactorChannel->connectionOptList[i]);
+
+			pReactorChannel->connectionOptList[i].base.location.length = (RsslUInt32)strlen(pOpts->reactorConnectionList[i].location.data);
+			pReactorChannel->connectionOptList[i].base.location.data = (char*)malloc(pReactorChannel->connectionOptList[i].base.location.length + 1);
+			if (pReactorChannel->connectionOptList[i].base.location.data == 0)
+			{
+				free(pReactorChannel->connectionOptList);
+				return RSSL_RET_FAILURE;
+			}
+
+			memset(pReactorChannel->connectionOptList[i].base.location.data, 0, pReactorChannel->connectionOptList[i].base.location.length + 1);
+			strncpy(pReactorChannel->connectionOptList[i].base.location.data, pOpts->reactorConnectionList[i].location.data, 
+							pReactorChannel->connectionOptList[i].base.location.length);
+
+			pReactorChannel->connectionOptList[i].base.initializationTimeout = pOpts->reactorConnectionList[i].initializationTimeout;
+			pReactorChannel->connectionOptList[i].base.enableSessionManagement = pOpts->reactorConnectionList[i].enableSessionManagement;
+			pReactorChannel->connectionOptList[i].base.pAuthTokenEventCallback = pOpts->reactorConnectionList[i].pAuthTokenEventCallback;
+
+			if (!(*enableSessionMgnt))
+				(*enableSessionMgnt) = pReactorChannel->connectionOptList[i].base.enableSessionManagement;
+
+			destOpts = &pReactorChannel->connectionOptList[i].base.rsslConnectOptions;
 			sourceOpts = &pOpts->reactorConnectionList[i].rsslConnectOptions;
 
 			if(rsslDeepCopyConnectOpts(destOpts, sourceOpts) != RSSL_RET_SUCCESS)
 			{
 				for(j = 0; j <= i; j++)
 				{
-					rsslFreeConnectOpts(&pReactorChannel->connectionOptList[j].rsslConnectOptions);
+					rsslFreeConnectOpts(&pReactorChannel->connectionOptList[j].base.rsslConnectOptions);
 				}
 				free(pReactorChannel->connectionOptList);
 				return RSSL_RET_FAILURE;
 			}
-
-			pReactorChannel->connectionOptList[i].initializationTimeout = pOpts->reactorConnectionList[i].initializationTimeout;
 		}
 		pReactorChannel->connectionListCount = pOpts->connectionCount;
 	}
 	else
 	{
-		pReactorChannel->connectionOptList = (RsslReactorConnectInfo*)malloc(sizeof(RsslReactorConnectInfo));
+		pReactorChannel->connectionOptList = (RsslReactorConnectInfoImpl*)malloc(sizeof(RsslReactorConnectInfoImpl));
 
 		if(!pReactorChannel->connectionOptList)
 		{
 			return RSSL_RET_FAILURE;
 		}
 
-		if(rsslDeepCopyConnectOpts(&(pReactorChannel->connectionOptList->rsslConnectOptions), &pOpts->rsslConnectOptions) != RSSL_RET_SUCCESS)
+		rsslClearReactorConnectInfoImpl(pReactorChannel->connectionOptList);
+
+		if(rsslDeepCopyConnectOpts(&(pReactorChannel->connectionOptList->base.rsslConnectOptions), &pOpts->rsslConnectOptions) != RSSL_RET_SUCCESS)
 		{
-			rsslFreeConnectOpts(&pReactorChannel->connectionOptList->rsslConnectOptions);
+			rsslFreeConnectOpts(&pReactorChannel->connectionOptList->base.rsslConnectOptions);
 
 			free(pReactorChannel->connectionOptList);
 			return RSSL_RET_FAILURE;
 		}
 
-		pReactorChannel->connectionOptList->initializationTimeout = pOpts->initializationTimeout;
+		pReactorChannel->connectionOptList->base.initializationTimeout = pOpts->initializationTimeout;
+		pReactorChannel->connectionOptList->base.enableSessionManagement = RSSL_FALSE;
 		pReactorChannel->connectionListCount = 1;
 	}
-
 
 	return RSSL_RET_SUCCESS;
 }
@@ -175,9 +251,19 @@ RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pRea
 	{
 		for(i = 0; i < pReactorChannel->connectionListCount; i++)
 		{
-			rsslFreeConnectOpts(&pReactorChannel->connectionOptList[i].rsslConnectOptions);
+			/* Cleaning memory relating to the session management */
+			if (pReactorChannel->connectionOptList[i].base.enableSessionManagement)
+			{
+				free(pReactorChannel->connectionOptList[i].base.location.data);
+			}
+
+			rsslFreeConnectOpts(&pReactorChannel->connectionOptList[i].base.rsslConnectOptions);
 		}
 
+		free(pReactorChannel->rsslPostDataBodyBuf.data);
+		free(pReactorChannel->rsslServiceDiscoveryRespBuffer.data);
+		free(pReactorChannel->rsslAccessTokenRespBuffer.data);
+		free(pReactorChannel->tokenInformationBuffer.data);
 		free(pReactorChannel->connectionOptList);
 		pReactorChannel->connectionOptList = NULL;
 	}
@@ -249,6 +335,7 @@ typedef struct
 	RsslQueue activeChannels;			/* Channels currently active */
 	RsslQueue inactiveChannels;			/* Channels that have failed in some way */
 	RsslQueue reconnectingChannels;
+	RsslQueue disposableRestHandles; /* Rest handles that needs to be cleanup */
 
 	RsslNotifier *pNotifier; /* Notifier for workerQueue and channels */
 	RsslNotifierEvent *pQueueNotifierEvent;	/* Notification for workerQueue */
@@ -315,12 +402,36 @@ struct _RsslReactorImpl
 	RsslReactorState state;
 
 	RsslInt64 ticksPerMsec;
+
+	/* For EDP token management and service discovery */
+	RsslBuffer			serviceDiscoveryURL;
+	RsslBuffer			tokenServiceURL;
+	RsslBuffer			accessTokenRespBuffer;
+	RsslBuffer			tokenInformationBuffer;
+	RsslBuffer			serviceDiscoveryRespBuffer;
+	RsslBuffer			argumentsAndHeaders;
+	RsslRestClient*			pRestClient;
+	RsslBool			registeredRsslRestClientEventFd;
+	RsslNotifierEvent *pWorkerNotifierEvent; /* This is used for RsslRestClient to receive notification */
+	RsslBuffer			restServiceEndpointRespBuf; /* This is memory allocation for RsslRestServiceEndpointResp */
+	RsslRestServiceEndpointResp	restServiceEndpointResp; /* This is used for querying service discovery by users */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
 {
 	memset(pReactorImpl, 0, sizeof(RsslReactorImpl));
 }
+
+void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);
+
+RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pClientID,
+	RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
+
+RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
+																RsslReactorDiscoveryDataFormatProtocol dataFormat, RsslBuffer *pTokenType, RsslBuffer *pAccessToken,
+																RsslBuffer *pArgsAndHeaderBuf, void *pUserSpecPtr, RsslErrorInfo* pError);
+
+RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReactorChannelImpl, RsslBool *queryConnectInfo, RsslErrorInfo* pError);
 
 /* Setup and start the worker thread (Should be called from rsslCreateReactor) */
 RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, RsslErrorInfo *pError);

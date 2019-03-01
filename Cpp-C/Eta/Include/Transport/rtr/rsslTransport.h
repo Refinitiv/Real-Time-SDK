@@ -470,7 +470,7 @@ typedef struct {
 	char* proxyDomain;					/*!<  @brief Domain for authenticated proxies. */
 } RsslProxyOpts;
 
-#define RSSL_INIT_PROXY_OPTS {0, 0}
+#define RSSL_INIT_PROXY_OPTS {0, 0, 0, 0, 0}
 
 typedef enum {
 	RSSL_ENC_NONE    = 0x00,			/*!< @brief (0x00) No encryption. */

@@ -1145,7 +1145,6 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 								}
 							}
 						}
-
 					}
 				}
 			}
@@ -1597,10 +1596,10 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 {
 	const ElementList& elementListChannel = mapEntry.getElementList();
 
-	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, sslCAStore;
+	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, location, sslCAStore;
 	UInt16 channelType, compressionType, encryptedProtocolType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-	       tcpNodelay, encryptedSslProtocolVer;
+	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
@@ -1628,6 +1627,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			{
 				interfaceName = channelEntry.getAscii();
 				flags |= 0x80000;
+			}
+			else if (channelEntry.getName() == "Location")
+			{
+				location = channelEntry.getAscii();
+				flags |= 0x2000000;
 			}
 			else if ( channelEntry.getName() == "ObjectName" )
 			{
@@ -1800,6 +1804,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				compressionThreshold = channelEntry.getUInt();
 				flags |= 0x1000000;
 			}
+			else if (channelEntry.getName() == "EnableSessionManagement")
+			{
+				enableSessionMgnt = channelEntry.getUInt();
+				flags |= 0x4000000;
+			}
 			else if (channelEntry.getName() == "SecurityProtocol")
 			{
 				encryptedSslProtocolVer = channelEntry.getUInt();
@@ -1906,9 +1915,22 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					return;
 				}
 			}
-			else if ( channelType == RSSL_CONN_TYPE_SOCKET || channelType == RSSL_CONN_TYPE_ENCRYPTED || channelType == RSSL_CONN_TYPE_HTTP )
+			else if (channelType == RSSL_CONN_TYPE_SOCKET || channelType == RSSL_CONN_TYPE_ENCRYPTED || channelType == RSSL_CONN_TYPE_HTTP)
 			{
-				SocketChannelConfig* socketChannelConfig = new SocketChannelConfig(activeConfig.defaultServiceName(), (RsslConnectionTypes)channelType);
+				SocketChannelConfig* socketChannelConfig;
+
+				if (channelType == RSSL_CONN_TYPE_ENCRYPTED)
+				{
+					/*	Both host and port is set as empty string by default to support the Reactor's session management
+						to query them from EDP-RT service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
+					*/
+					socketChannelConfig = new SocketChannelConfig("", "", (RsslConnectionTypes)channelType);
+				}
+				else
+				{
+					socketChannelConfig = new SocketChannelConfig(DEFAULT_HOST_NAME, activeConfig.defaultServiceName(), (RsslConnectionTypes)channelType);
+				}
+
 				pCurrentChannelConfig = socketChannelConfig;
 				activeConfig.configChannelSet.push_back(pCurrentChannelConfig);
 
@@ -1946,7 +1968,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				else if (fileCfgSocket)
 					socketChannelConfig->proxyHostName = fileCfgSocket->proxyHostName;
 
-				if (encryptionFlags & 0x10 )
+				if (encryptionFlags & 0x10)
 					socketChannelConfig->encryptedConnectionType = (RsslConnectionTypes)encryptedProtocolType;
 				else if (fileCfgSocket)
 					socketChannelConfig->encryptedConnectionType = fileCfgSocket->encryptedConnectionType;
@@ -1970,10 +1992,23 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				if ((setByFnCalled & PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
 					socketChannelConfig->proxyDomain = fileCfgSocket->proxyDomain;
 
-				//need to copy other tunneling setting from function calls.
-				if (fileCfgSocket && channelType == RSSL_CONN_TYPE_ENCRYPTED && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+				if (channelType == RSSL_CONN_TYPE_ENCRYPTED)
 				{
-					socketChannelConfig->securityProtocol = fileCfgSocket->securityProtocol;
+					if (flags & 0x2000000)
+						socketChannelConfig->location = location;
+					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+						socketChannelConfig->location = fileCfgSocket->location;
+
+					if (flags & 0x4000000)
+						socketChannelConfig->enableSessionMgnt = (RsslBool)enableSessionMgnt;
+					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+						socketChannelConfig->enableSessionMgnt = fileCfgSocket->enableSessionMgnt;
+
+					//need to copy other tunneling setting from function calls.
+					if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+					{
+						socketChannelConfig->securityProtocol = fileCfgSocket->securityProtocol;
+					}
 				}
 			}
 		}

@@ -150,6 +150,7 @@ public :
 private:
 
 	friend class OmmIProviderImpl;
+	friend class OmmProvider;
 
 	OmmIProviderConfigImpl*		_pImpl;
 

@@ -283,6 +283,7 @@ public :
 private:
 
 	friend class OmmNiProviderImpl;
+	friend class OmmProvider;
 
 	OmmNiProviderConfigImpl*		_pImpl;
 

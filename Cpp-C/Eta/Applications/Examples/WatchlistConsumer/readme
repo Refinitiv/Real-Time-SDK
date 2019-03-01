@@ -68,9 +68,9 @@ WatchlistConsumer
 or
 
 WatchlistConsumer or WatchlistConsumer [ -c <Connection Type> ] 
-  [ -if <Interface Name> ] [ -u <Login UserName> ] [-s <ServiceName>] 
-  [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] 
-  [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] 
+  [ -if <Interface Name> ] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ]
+  [ -sessionMgnt ] [ -l <Location Name> ] [ -query ] [ -s <ServiceName>] [ -mp <MarketPrice ItemName> ]
+  [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] 
   [ -sl <SymbolList ItemName> ] [ -sld <SymbolList ItemName> ] [ -view ] [ -runTime <TimeToRun> ]
   [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>]
 
@@ -91,6 +91,19 @@ The -c option specifies the connection type. Valid arguments are socket, http, e
 reliableMCast.  When using a socket, http, or encrypted connection, use the -h and -p options
 to configure the address and port for connecting. When using a reliableMcast connection,
 use the -sa, -ra, -sp, -rp, and -up options to configure the multicast network.
+
+The -clientId option specifies an unique ID for authenticating with the EDP token service.
+The login username is used instead if this option is not specified. 
+
+Specifying the -sessionMgnt option enables session management in the Reactor to perform
+authentication token management and query EDP-RT service discovery(if -query is not specified)
+on be half of users.
+
+The -l option specifies a location name that is used to get an endpoint from the
+EDP service discovery information. Defaults to "us-east".
+
+Specifying the -query option to query the EDP service discovery to get an endpoint
+according to the specified connection type and location name.
 
 The user can specify multiple instances of -mp, -mbo, -mbp, -yc, -sl and -sld,
 where each occurrence is associated with a single item. For example, 
