@@ -731,7 +731,8 @@ ripcSSLProtocolFlags ripcGetSupportedSSLVersion()
 ripcSSLProtocolFlags ripcRemoveHighestSSLVersionFlag(ripcSSLProtocolFlags protoFlags)
 {
 	ripcSSLProtocolFlags tmp = protoFlags;
-	if((protoFlags & RIPC_PROTO_SSL_TLS_V1_2) != 0)
+    
+    if((protoFlags & RIPC_PROTO_SSL_TLS_V1_2) != 0)
 	{
 		tmp = protoFlags & (~RIPC_PROTO_SSL_TLS_V1_2);
 	}
