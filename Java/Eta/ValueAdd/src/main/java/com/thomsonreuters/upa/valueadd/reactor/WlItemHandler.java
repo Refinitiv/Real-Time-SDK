@@ -1,10 +1,12 @@
 package com.thomsonreuters.upa.valueadd.reactor;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.thomsonreuters.upa.codec.AckMsg;
@@ -21,6 +23,7 @@ import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.DecodeIterator;
 import com.thomsonreuters.upa.codec.ElementEntry;
 import com.thomsonreuters.upa.codec.ElementList;
+import com.thomsonreuters.upa.codec.EncodeIterator;
 import com.thomsonreuters.upa.codec.GenericMsg;
 import com.thomsonreuters.upa.codec.GenericMsgFlags;
 import com.thomsonreuters.upa.codec.Int;
@@ -595,11 +598,13 @@ class WlItemHandler implements WlHandler
     	boolean foundBatch = false;
     	int originalStreamId = requestMsg.streamId();
     	int currentStreamId = requestMsg.streamId();
-    	RequestMsg tempRequestMsg = (RequestMsg)CodecFactory.createMsg();
-    	requestMsg.copy(tempRequestMsg, CopyMsgFlags.ALL_FLAGS);
+    	Buffer itemName = CodecFactory.createBuffer();
+    	Buffer encodedDataBody = null;
+    	ArrayDeque<String> itemNames = new ArrayDeque<String>();
+    	int retDecodeVal = CodecReturnCodes.SUCCESS;
     	
     	// Make sure requestMsg does not have item name set on MsgKey
-    	if (tempRequestMsg.msgKey().checkHasName())
+    	if (requestMsg.msgKey().checkHasName())
     	{
             return _watchlist.reactor().populateErrorInfo(errorInfo,
             		ReactorReturnCodes.FAILURE,
@@ -607,22 +612,26 @@ class WlItemHandler implements WlHandler
                     "Requested batch has name in message key.");
     	}
     	
-		if (tempRequestMsg.domainType() == DomainTypes.SYMBOL_LIST)
+		if (requestMsg.domainType() == DomainTypes.SYMBOL_LIST)
 		{
 			if (( ret = extractSymbolListFromMsg(wlRequest, requestMsg, errorInfo)) < ReactorReturnCodes.SUCCESS)
 				return ret;
 		}
 		
 		_dIterBatch.clear();
-		_dIterBatch.setBufferAndRWFVersion(tempRequestMsg.encodedDataBody(), _watchlist.reactorChannel().majorVersion(),
+		_dIterBatch.setBufferAndRWFVersion(requestMsg.encodedDataBody(), _watchlist.reactorChannel().majorVersion(),
     			_watchlist.reactorChannel().minorVersion());
 		
 	    wlRequest.streamInfo().serviceName(submitOptions.serviceName());
 	    wlRequest.streamInfo().userSpecObject(submitOptions.requestMsgOptions().userSpecObj());
+	    
+    	WlInteger wlInteger = ReactorFactory.createWlInteger();
+        wlInteger.value(requestMsg.streamId());
+    	_watchlist.streamIdtoWlRequestTable().put(wlInteger, wlRequest);
 
-    	if (tempRequestMsg.containerType() == DataTypes.ELEMENT_LIST)
+    	if (requestMsg.containerType() == DataTypes.ELEMENT_LIST)
     	{
-        	if ((ret = elementList.decode(_dIterBatch, null)) <= CodecReturnCodes.FAILURE)
+        	if ((retDecodeVal = elementList.decode(_dIterBatch, null)) <= CodecReturnCodes.FAILURE)
         	{
                 return _watchlist.reactor().populateErrorInfo(errorInfo,
                         ReactorReturnCodes.FAILURE,
@@ -630,23 +639,148 @@ class WlItemHandler implements WlHandler
                         "ElementList.decode() failure.");
         	}
         	
+        	int entryCount = 0;
+        	int itemListDataSize = 0;
+        	
         	// check element list for itemList
-    		while ((ret = elementEntry.decode(_dIterBatch)) != CodecReturnCodes.END_OF_CONTAINER)
+    		while ((retDecodeVal = elementEntry.decode(_dIterBatch)) != CodecReturnCodes.END_OF_CONTAINER)
     		{
-    			if (ret <= CodecReturnCodes.FAILURE)
+    			if (retDecodeVal <= CodecReturnCodes.FAILURE)
     			{
     	            return _watchlist.reactor().populateErrorInfo(errorInfo,
     	            		ReactorReturnCodes.FAILURE,
     	                    "WlItemHandler.handleBatchRequest",
     	                    "ElementEntry.decode() failure.");
     			}
-    			Buffer itemListName = CodecFactory.createBuffer();
-    			itemListName.data(":ItemList");
-    			if (elementEntry.name().toString().contains(itemListName.toString()))
+    			
+    			entryCount++;
+    			
+    			if (elementEntry.name().toString().contains(ElementNames.BATCH_ITEM_LIST.toString()))
 				{
+    				itemListDataSize = ElementNames.BATCH_ITEM_LIST.length();
+    				itemListDataSize += elementEntry.encodedData().length();
+    				
 					foundBatch = true;
-					break;
+					
+					if ((retDecodeVal = batchArray.decode(_dIterBatch)) <= CodecReturnCodes.FAILURE)
+					{
+			            return _watchlist.reactor().populateErrorInfo(errorInfo,
+			            		ReactorReturnCodes.FAILURE,
+			                    "WlItemHandler.handleBatchRequest",
+			                    "Array.decode() failure.");
+					}
+					
+					while ((retDecodeVal = batchArrayEntry.decode(_dIterBatch)) != CodecReturnCodes.END_OF_CONTAINER)
+					{
+						if ((retDecodeVal = itemName.decode(_dIterBatch)) == CodecReturnCodes.SUCCESS)
+						{
+							itemNames.add(itemName.toString());
+						}
+						else
+						{
+							return _watchlist.reactor().populateErrorInfo(errorInfo,
+				            		ReactorReturnCodes.FAILURE,
+				                    "WlItemHandler.handleBatchRequest",
+				                    "Invalid BLANK_DATA while decoding :ItemList -- " + CodecReturnCodes.toString(ret));
+						}
+					}
 				}
+    			
+    			// Found the batch item list and others entry
+    			if(foundBatch && (entryCount > 1))
+    			{
+    				// Encodes a separate ElementList for Element names which is not itemList:
+    	    			Buffer encodedBuffer = CodecFactory.createBuffer();
+    	    			encodedBuffer.data(ByteBuffer.allocate(requestMsg.encodedDataBody().length() - itemListDataSize));
+    	    	        EncodeIterator encodeIter = CodecFactory.createEncodeIterator();
+    	    	        ElementEntry elementEntryEnc = CodecFactory.createElementEntry();
+    	    	        ElementList elementListEnc = CodecFactory.createElementList();
+    	    	        DecodeIterator decodeIter = CodecFactory.createDecodeIterator();
+    	    	        
+    	    	        encodeIter.clear();
+    	    	        encodeIter.setBufferAndRWFVersion(encodedBuffer, _watchlist.reactorChannel().majorVersion(), _watchlist.reactorChannel().minorVersion());
+    	    	        
+    	    	        elementListEnc.clear();
+    	    	        
+    	    	        // Copies attributes from the original ElementList
+    	    	        elementListEnc.flags(elementList.flags());
+    	    	        if (elementList.checkHasInfo())
+    	    	        	elementListEnc.elementListNum(elementList.elementListNum());
+    	    	        
+    	    	        if (elementList.checkHasSetData())
+    	    	        	elementListEnc.encodedSetData(elementList.encodedSetData());
+    	    	        
+    	    	        if(elementList.checkHasSetId())
+    	    	        	elementListEnc.setId(elementList.setId());
+    	    	        
+    	    	        if ((ret = elementListEnc.encodeInit(encodeIter, null, 0)) <= CodecReturnCodes.FAILURE)
+    	    	        {
+    	    	        	return _watchlist.reactor().populateErrorInfo(errorInfo,
+    	                            ReactorReturnCodes.FAILURE,
+    	                            "WlItemHandler.handleBatchRequest",
+    	                            "ElementList.encodeInit() failure.");
+    	    	        }
+    	    	        
+    	    	        decodeIter.clear();
+    	    	        decodeIter.setBufferAndRWFVersion(requestMsg.encodedDataBody(), _watchlist.reactorChannel().majorVersion(),
+    	    	    			_watchlist.reactorChannel().minorVersion());
+    	    			
+    	    			if ((ret = elementList.decode(decodeIter, null)) <= CodecReturnCodes.FAILURE)
+    	            	{
+    	                    return _watchlist.reactor().populateErrorInfo(errorInfo,
+    	                            ReactorReturnCodes.FAILURE,
+    	                            "WlItemHandler.handleBatchRequest",
+    	                            "ElementList.decode() failure.");
+    	            	}
+    	            	
+    	        		while ((ret = elementEntry.decode(decodeIter)) != CodecReturnCodes.END_OF_CONTAINER)
+    	        		{
+    	        			if (ret <= CodecReturnCodes.FAILURE)
+    	        			{
+    	        	            return _watchlist.reactor().populateErrorInfo(errorInfo,
+    	        	            		ReactorReturnCodes.FAILURE,
+    	        	                    "WlItemHandler.handleBatchRequest",
+    	        	                    "ElementEntry.decode() failure.");
+    	        			}
+    	        			
+    	        			if (!elementEntry.name().toString().contains(ElementNames.BATCH_ITEM_LIST.toString()))
+    	    				{
+    	        				elementEntryEnc.clear();
+    	        				elementEntryEnc.name(elementEntry.name());
+    	        				elementEntryEnc.dataType(elementEntry.dataType());
+    	        				elementEntryEnc.encodedData(elementEntry.encodedData());
+    	        				
+    	        				ret = elementEntryEnc.encode(encodeIter);
+    	        				if (ret <= CodecReturnCodes.FAILURE)
+    	            			{
+    	            	            return _watchlist.reactor().populateErrorInfo(errorInfo,
+    	            	            		ReactorReturnCodes.FAILURE,
+    	            	                    "WlItemHandler.handleBatchRequest",
+    	            	                    "ElementEntry.encode() failure.");
+    	            			}
+    	    				}
+    	        		}
+    	        		
+    	        		if ((ret = elementListEnc.encodeComplete(encodeIter, true)) <= CodecReturnCodes.FAILURE)
+    	    	        {
+    	    	        	return _watchlist.reactor().populateErrorInfo(errorInfo,
+    	                            ReactorReturnCodes.FAILURE,
+    	                            "WlItemHandler.handleBatchRequest",
+    	                            "ElementList.encodeComplete() failure.");
+    	    	        }
+    	        		
+    	        		encodedDataBody = encodeIter.buffer();
+    	    		
+    	    		break; // Breaks from the ElementList of the request message
+    			}
+    		}
+    		
+    		if(!foundBatch)
+    		{
+    			return _watchlist.reactor().populateErrorInfo(errorInfo,
+                        ReactorReturnCodes.FAILURE,
+                        "WlItemHandler.handleBatchRequest",
+                        ":ItemList not found.");
     		}
     	}
     	else
@@ -657,154 +791,134 @@ class WlItemHandler implements WlHandler
                     "Unexpected container type or decoding error.");
     	}
     	
-    	WlInteger wlInteger = ReactorFactory.createWlInteger();
-        wlInteger.value(requestMsg.streamId());
-    	_watchlist.streamIdtoWlRequestTable().put(wlInteger, wlRequest);
-	
-
-    	
 		// found itemList, thus a batch. Make individual item requests from array of requests
-		if (foundBatch)
-		{	
-			/* Start at stream ID after batch request. */
-			currentStreamId++;
-			
-			_tempWlInteger.value(currentStreamId);
+		/* Start at stream ID after batch request. */
+		currentStreamId++;
+		
+		_tempWlInteger.value(currentStreamId);
+		if (_watchlist.streamIdtoWlRequestTable().get(_tempWlInteger) != null)
+		{
+            return _watchlist.reactor().populateErrorInfo(errorInfo,
+            		ReactorReturnCodes.FAILURE,
+                    "WlItemHandler.handleBatchRequest",
+                    "Item in batch has same ID as existing stream.");
+		}
+		
+		HashMap<Integer, WlRequest> wlRequestList = new HashMap<Integer, WlRequest>(itemNames.size());
+		HashMap<Integer, RequestMsg> requestMsgList = new HashMap<Integer, RequestMsg>(itemNames.size());
+		int possibleStreamId = currentStreamId;
+		
+		while(!itemNames.isEmpty()) 
+		{
+			itemName.data(itemNames.remove());
+
+			_tempWlInteger.value(possibleStreamId);
 			if (_watchlist.streamIdtoWlRequestTable().get(_tempWlInteger) != null)
 			{
+				while (!wlRequestList.isEmpty())
+				{
+	            	WlRequest removeWlRequest = wlRequestList.remove(currentStreamId);
+	            	repoolWlRequest(removeWlRequest);
+	            	requestMsgList.remove(currentStreamId);
+	            	currentStreamId++;
+				}
 	            return _watchlist.reactor().populateErrorInfo(errorInfo,
 	            		ReactorReturnCodes.FAILURE,
 	                    "WlItemHandler.handleBatchRequest",
 	                    "Item in batch has same ID as existing stream.");
 			}
 			
-			if ((ret = batchArray.decode(_dIterBatch)) <= CodecReturnCodes.FAILURE)
-			{
-	            return _watchlist.reactor().populateErrorInfo(errorInfo,
-	            		ReactorReturnCodes.FAILURE,
-	                    "WlItemHandler.handleBatchRequest",
-	                    "Array.decode() failure.");
-			}
-			
-			HashMap<Integer, WlRequest> wlRequestList = new HashMap<Integer, WlRequest>();
-			HashMap<Integer, RequestMsg> requestMsgList = new HashMap<Integer, RequestMsg>();
-			int possibleStreamId = currentStreamId;
-			int retDecodeVal = CodecReturnCodes.SUCCESS;
-			
-			while ((retDecodeVal = batchArrayEntry.decode(_dIterBatch)) != CodecReturnCodes.END_OF_CONTAINER)
-			{
-				if ((retDecodeVal = tempRequestMsg.msgKey().name().decode(_dIterBatch)) == CodecReturnCodes.SUCCESS)
-				{
-					_tempWlInteger.value(possibleStreamId);
-					if (_watchlist.streamIdtoWlRequestTable().get(_tempWlInteger) != null)
-					{
-						while (!wlRequestList.isEmpty())
-						{
-			            	WlRequest removeWlRequest = wlRequestList.remove(currentStreamId);
-			            	repoolWlRequest(removeWlRequest);
-			            	requestMsgList.remove(currentStreamId);
-			            	currentStreamId++;
-						}
-			            return _watchlist.reactor().populateErrorInfo(errorInfo,
-			            		ReactorReturnCodes.FAILURE,
-			                    "WlItemHandler.handleBatchRequest",
-			                    "Item in batch has same ID as existing stream.");
-					}
-					
-					WlRequest newWlRequest = ReactorFactory.createWlRequest();
-					RequestMsg newRequestMsg = (RequestMsg) CodecFactory.createMsg();
+			WlRequest newWlRequest = ReactorFactory.createWlRequest();
+			RequestMsg newRequestMsg = (RequestMsg) CodecFactory.createMsg();
 
-	            	// Create item list request and new watchlist request based off old watchlist request
-	            	newWlRequest.handler(wlRequest.handler());
-	            	newWlRequest.stream(wlRequest.stream());
-	            	
+        	// Create item list request and new watchlist request based off old watchlist request
+        	newWlRequest.handler(wlRequest.handler());
+        	newWlRequest.stream(wlRequest.stream());
+        	
 
-	            	// Remove batch flag
-	            	tempRequestMsg.copy(newRequestMsg, CopyMsgFlags.ALL_FLAGS);
-	            	newRequestMsg.flags(newRequestMsg.flags() & ~RequestMsgFlags.HAS_BATCH);
-	            	newRequestMsg.streamId(possibleStreamId);
-	            	
-	            	newRequestMsg.msgClass(MsgClasses.REQUEST);
-	            	
-	            	// Set msgKey item name
-	            	newRequestMsg.applyMsgKeyInUpdates();
-	            	newRequestMsg.msgKey().applyHasName();
-            		newRequestMsg.msgKey().name(batchArrayEntry.encodedData());
+        	// Remove batch flag and do not copy the encoded data body from the batch request
+        	requestMsg.copy(newRequestMsg, CopyMsgFlags.ALL_FLAGS & (~CopyMsgFlags.DATA_BODY));
+        	newRequestMsg.flags(newRequestMsg.flags() & ~RequestMsgFlags.HAS_BATCH);
+        	newRequestMsg.streamId(possibleStreamId);
+        	
+        	newRequestMsg.msgClass(MsgClasses.REQUEST);
+        	
+        	// Set msgKey item name
+        	newRequestMsg.applyMsgKeyInUpdates();
+        	newRequestMsg.msgKey().applyHasName();
+    		newRequestMsg.msgKey().name(itemName);
+    		
+    		// Set encoded data body which does not have the :ItemList entry name
+    		if ( encodedDataBody != null ) 
+    		{
+    			newRequestMsg.encodedDataBody(encodedDataBody);
+    		}
+    		else
+    		{
+    			// Unset the container type when there is no encoded databody
+    			newRequestMsg.containerType(DataTypes.NO_DATA);
+    		}
 
-	            	newRequestMsg.copy(newWlRequest.requestMsg(), CopyMsgFlags.ALL_FLAGS);
-	            	
-	            	wlRequestList.put(possibleStreamId, newWlRequest);
-	            	requestMsgList.put(possibleStreamId, newRequestMsg);
-            	
-                    possibleStreamId++;
-				}
-				else
-				{
-		            return _watchlist.reactor().populateErrorInfo(errorInfo,
-		            		ReactorReturnCodes.FAILURE,
-		                    "WlItemHandler.handleBatchRequest",
-		                    "Invalid BLANK_DATA while decoding :ItemList -- " + CodecReturnCodes.toString(ret));
-				}
-			}
-			
-			while (!wlRequestList.isEmpty())
-			{
-	            
-            	// Add watchlist request to request table
-                wlInteger = ReactorFactory.createWlInteger();
-                wlInteger.value(currentStreamId);
-                _watchlist.streamIdtoWlRequestTable().put(wlInteger, wlRequestList.get(currentStreamId));
-                
-            	ret = handleRequest(wlRequestList.get(currentStreamId), requestMsgList.get(currentStreamId), submitOptions, true, errorInfo);
-            	if (ret <= ReactorReturnCodes.FAILURE)
-            	{
-		            return ret;
-            	}
-            	
-            	wlRequestList.remove(currentStreamId);
-            	requestMsgList.remove(currentStreamId);
-            	
-                currentStreamId++;
-			}
-			
-			if (retDecodeVal == CodecReturnCodes.END_OF_CONTAINER)
-			{
-				/* Requests created. Make a request for the batch stream so it can be acknowledged. */
-    			StatusMsg statusMsg = _statusMsgPool.poll();
-    			if (statusMsg == null)
-    			{
-    				statusMsg = (StatusMsg)CodecFactory.createMsg();
-    			}
-	            
-    			statusMsg.clear();
-    			
-	            statusMsg.domainType(tempRequestMsg.domainType());
-    			statusMsg.msgClass(MsgClasses.STATUS);
-    			statusMsg.streamId(originalStreamId);
-    			statusMsg.applyHasState();
-    		    statusMsg.state().streamState(StreamStates.CLOSED);
-	    		statusMsg.state().dataState(DataStates.OK);
-	    		Buffer statusText = CodecFactory.createBuffer();
-	    		statusText.data("Stream closed for batch");
-	    		statusMsg.state().text(statusText);
-
-	    		_statusMsgDispatchList.add(statusMsg);
-	    		
-	            if (_statusMsgDispatchList.size() == 1)
-	            {
-	                // trigger dispatch only for first add to list
-	                _watchlist.reactor().sendWatchlistDispatchNowEvent(_watchlist.reactorChannel());
-	            }
-	            
-			}
+        	if ((ret = newRequestMsg.copy(newWlRequest.requestMsg(), CopyMsgFlags.ALL_FLAGS)) <= CodecReturnCodes.FAILURE)
+        	{
+        		return _watchlist.reactor().populateErrorInfo(errorInfo,
+                        ReactorReturnCodes.FAILURE,
+                        "WlItemHandler.handleBatchRequest",
+                        "RequestMsg.copy() failure.");
+        	}
+        	
+        	wlRequestList.put(possibleStreamId, newWlRequest);
+        	requestMsgList.put(possibleStreamId, newRequestMsg);
+    	
+            possibleStreamId++;
 		}
-		else
+		
+		while (!wlRequestList.isEmpty())
 		{
-            return _watchlist.reactor().populateErrorInfo(errorInfo,
-                    ReactorReturnCodes.FAILURE,
-                    "WlItemHandler.handleBatchRequest",
-                    ":ItemList not found.");
+            
+        	// Add watchlist request to request table
+            wlInteger = ReactorFactory.createWlInteger();
+            wlInteger.value(currentStreamId);
+            _watchlist.streamIdtoWlRequestTable().put(wlInteger, wlRequestList.get(currentStreamId));
+            
+        	ret = handleRequest(wlRequestList.get(currentStreamId), requestMsgList.get(currentStreamId), submitOptions, true, errorInfo);
+        	if (ret <= ReactorReturnCodes.FAILURE)
+        	{
+	            return ret;
+        	}
+        	
+        	wlRequestList.remove(currentStreamId);
+        	requestMsgList.remove(currentStreamId);
+        	
+            currentStreamId++;
 		}
+		
+		/* Requests created. Make a request for the batch stream so it can be acknowledged. */
+		StatusMsg statusMsg = _statusMsgPool.poll();
+		if (statusMsg == null)
+		{
+			statusMsg = (StatusMsg)CodecFactory.createMsg();
+		}
+        
+		statusMsg.clear();
+		
+        statusMsg.domainType(requestMsg.domainType());
+		statusMsg.msgClass(MsgClasses.STATUS);
+		statusMsg.streamId(originalStreamId);
+		statusMsg.applyHasState();
+	    statusMsg.state().streamState(StreamStates.CLOSED);
+		statusMsg.state().dataState(DataStates.OK);
+		Buffer statusText = CodecFactory.createBuffer();
+		statusText.data("Stream closed for batch");
+		statusMsg.state().text(statusText);
+
+		_statusMsgDispatchList.add(statusMsg);
+		
+        if (_statusMsgDispatchList.size() == 1)
+        {
+            // trigger dispatch only for first add to list
+            _watchlist.reactor().sendWatchlistDispatchNowEvent(_watchlist.reactorChannel());
+        }
 
     	return ret;
     }
@@ -3274,8 +3388,8 @@ class WlItemHandler implements WlHandler
 			if (ret != CodecReturnCodes.SUCCESS)
 			{
 				_watchlist.reactor().populateErrorInfo(errorInfo,
-						ReactorReturnCodes.FAILURE, "ItemHandler.extractSymbolListFromMsg",
-						"DecodeMapEntry() failed: < " + CodecReturnCodes.toString(ret) + ">");
+						ReactorReturnCodes.FAILURE, "ItemHandler.extractViewFromMsg",
+						"ElementEntry.decode() failed: < " + CodecReturnCodes.toString(ret) + ">");
 				return ret;
 			}
 			else

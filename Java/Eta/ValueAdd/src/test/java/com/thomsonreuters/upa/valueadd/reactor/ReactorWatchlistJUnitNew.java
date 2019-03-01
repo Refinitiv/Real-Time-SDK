@@ -2982,7 +2982,7 @@ public class ReactorWatchlistJUnitNew
         requestMsg.applyStreaming();
         requestMsg.applyHasBatch();
 
-        encodeBatch(consumer.reactorChannel(), requestMsg);
+        encodeBatchWithView(consumer.reactorChannel(), requestMsg, null);
         
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -3018,6 +3018,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(receivedRequestMsg.msgKey().checkHasName());
         assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
         assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRequestMsg.containerType());
         
         providerStreamId = receivedRequestMsg.streamId();
         
@@ -3068,6 +3069,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(receivedRequestMsg.msgKey().checkHasName());
         assertTrue(receivedRequestMsg.msgKey().name().toString().equals("IBM.N"));
         assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRequestMsg.containerType());
         
         providerStreamId = receivedRequestMsg.streamId();
         
@@ -3232,7 +3234,7 @@ public class ReactorWatchlistJUnitNew
         requestMsg.applyStreaming();
         requestMsg.applyHasBatch();
 
-        encodeBatch(consumer.reactorChannel(), requestMsg);
+        encodeBatchWithView(consumer.reactorChannel(), requestMsg, null);
         
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -3428,7 +3430,7 @@ public class ReactorWatchlistJUnitNew
         requestMsg.applyStreaming();
         requestMsg.applyHasBatch();
 
-        encodeBatch(consumer.reactorChannel(), requestMsg);
+        encodeBatchWithView(consumer.reactorChannel(), requestMsg, null);
         
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -3705,7 +3707,7 @@ public class ReactorWatchlistJUnitNew
         requestMsg.applyStreaming();
         requestMsg.applyHasBatch();
 
-        encodeBatch(consumer.reactorChannel(), requestMsg);
+        encodeBatchWithView(consumer.reactorChannel(), requestMsg, null);
         
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -3721,7 +3723,7 @@ public class ReactorWatchlistJUnitNew
         requestMsg.applyStreaming();
         requestMsg.applyHasBatch();
 
-        encodeBatch(consumer.reactorChannel(), requestMsg);
+        encodeBatchWithView(consumer.reactorChannel(), requestMsg, null);
         
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -4041,7 +4043,7 @@ public class ReactorWatchlistJUnitNew
         requestMsg.applyStreaming();
         requestMsg.applyHasBatch();
 
-        encodeBatch(consumer.reactorChannel(), requestMsg);
+        encodeBatchWithView(consumer.reactorChannel(), requestMsg, null);
         
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -4109,7 +4111,7 @@ public class ReactorWatchlistJUnitNew
         requestMsg.msgKey().applyHasServiceId();
         requestMsg.msgKey().serviceId(10);
 
-        encodeBatch(consumer.reactorChannel(), requestMsg);
+        encodeBatchWithView(consumer.reactorChannel(), requestMsg, null);
         
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -4179,7 +4181,7 @@ public class ReactorWatchlistJUnitNew
         itemName.data("BAD");
         requestMsg.msgKey().name(itemName);
 
-        encodeBatch(consumer.reactorChannel(), requestMsg);
+        encodeBatchWithView(consumer.reactorChannel(), requestMsg, null);
         
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -4257,7 +4259,7 @@ public class ReactorWatchlistJUnitNew
 		requestMsg.applyStreaming();
         requestMsg.applyHasBatch();
 
-        encodeBatchWithSymbolList(consumer.reactorChannel(), requestMsg);
+        encodeBatchWithSymbolList(consumer.reactorChannel(), requestMsg, true);
         
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
@@ -4378,8 +4380,403 @@ public class ReactorWatchlistJUnitNew
 
         TestReactorComponent.closeSession(consumer, provider);
     }
+    
+    @Test
+    public void batchRequestSymbolListTestNoBehaviors()
+    {
+        /* Test a batch request/refresh exchange that has a symbolList, with the watchlist enabled. */
+        
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        Msg msg = CodecFactory.createMsg();
+        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg receivedRefreshMsg;
+        StatusMsg receivedStatusMsg;
+        int providerStreamId;
+                
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+                
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+        
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
 
-	private void encodeBatch(ReactorChannel rc, RequestMsg msg) {
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        provider.bind(opts);
+        TestReactor.openSession(consumer, provider, opts);
+        
+        /* Consumer sends request. */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(5);
+		requestMsg.domainType(DomainTypes.SYMBOL_LIST);	       
+		requestMsg.containerType(DataTypes.ELEMENT_LIST);	       
+		requestMsg.applyHasQos();
+		requestMsg.qos().rate(QosRates.TICK_BY_TICK);
+		requestMsg.qos().timeliness(QosTimeliness.REALTIME);
+		requestMsg.applyHasPriority();
+		requestMsg.priority().priorityClass(1);
+		requestMsg.priority().count(1);	      
+		requestMsg.applyStreaming();
+        requestMsg.applyHasBatch();
+
+        encodeBatchWithSymbolList(consumer.reactorChannel(), requestMsg, false);
+        
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+        
+        // Received status message with closed batch stream
+        receivedStatusMsg = (StatusMsg)msgEvent.msg();
+        assertEquals(DomainTypes.SYMBOL_LIST, receivedStatusMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedStatusMsg.containerType());
+        assertEquals(StreamStates.CLOSED, receivedStatusMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedStatusMsg.state().dataState());
+        assertEquals("Stream closed for batch", receivedStatusMsg.state().text().toString());
+        
+        /* Provider receives request. */
+        providerReactor.dispatch(2);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertFalse(receivedRequestMsg.checkNoRefresh());
+        assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasName());
+        assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.SYMBOL_LIST, receivedRequestMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRequestMsg.containerType());
+        
+        providerStreamId = receivedRequestMsg.streamId();
+        
+        /* Provider sends refresh .*/
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.SYMBOL_LIST);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI.N");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        
+        assertTrue(provider.submit(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS /* Don't call dispatch, need to process other request */);
+        
+        /* Consumer receives refresh. */
+        consumerReactor.dispatch(1);
+        
+        // Received Refresh for TRI.N
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+        
+        // Received refresh message for TRI.N
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals("TRI.N", receivedRefreshMsg.msgKey().name().toString());
+        assertEquals(DomainTypes.SYMBOL_LIST, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        
+        // Provider processes request for IBM.N
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertFalse(receivedRequestMsg.checkNoRefresh());
+        assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasName());
+        assertTrue(receivedRequestMsg.msgKey().name().toString().equals("IBM.N"));
+        assertEquals(DomainTypes.SYMBOL_LIST, receivedRequestMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRequestMsg.containerType());
+        
+        providerStreamId = receivedRequestMsg.streamId();
+        
+        /* Provider sends refresh .*/
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.SYMBOL_LIST);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.NO_DATA);
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("IBM.N");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        
+        // Consumer receives refresh for IBM.N
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+        
+        // Received refresh message for IBM.N
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals("IBM.N", receivedRefreshMsg.msgKey().name().toString());
+        assertEquals(DomainTypes.SYMBOL_LIST, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+
+        TestReactorComponent.closeSession(consumer, provider);
+    }
+    
+    @Test
+    public void batchRequestWithViewTest()
+    {
+        /* Test a simple batch view request/refresh exchange with the watchlist enabled. */
+        
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        Msg msg = CodecFactory.createMsg();
+        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg receivedRefreshMsg;
+        StatusMsg receivedStatusMsg;
+        int providerStreamId;
+                
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+                
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+        
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        provider.bind(opts);
+        TestReactor.openSession(consumer, provider, opts);
+        
+        /* Consumer sends request. */
+        requestMsg.clear();
+        requestMsg.msgClass(MsgClasses.REQUEST);
+        requestMsg.streamId(5);
+        requestMsg.domainType(DomainTypes.MARKET_PRICE);
+        requestMsg.containerType(DataTypes.ELEMENT_LIST);
+        requestMsg.applyStreaming();
+        requestMsg.applyHasBatch();
+        requestMsg.applyHasView();
+        
+        List<Integer> viewFieldList = new ArrayList<Integer>();
+		viewFieldList.add(6);
+		viewFieldList.add(12);
+		viewFieldList.add(13);
+
+        encodeBatchWithView(consumer.reactorChannel(), requestMsg, viewFieldList);
+        
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submit(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        
+        // Received status message with closed batch stream
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+        assertEquals("DEFAULT_SERVICE", msgEvent.streamInfo()._serviceName);
+        
+        receivedStatusMsg = (StatusMsg)msgEvent.msg();
+        assertEquals(DomainTypes.MARKET_PRICE, receivedStatusMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedStatusMsg.containerType());
+        assertEquals(StreamStates.CLOSED, receivedStatusMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedStatusMsg.state().dataState());
+        assertEquals("Stream closed for batch", receivedStatusMsg.state().text().toString());
+        
+        List<Integer> decodedViewFieldList = new ArrayList<Integer>();
+        
+        /* Provider receives request. */
+        providerReactor.dispatch(2);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertFalse(receivedRequestMsg.checkNoRefresh());
+        assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasName());
+        assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+        
+        // Checks whether the provider receives the view request
+        decodeViewDataForFieldId(consumer.reactorChannel(), receivedRequestMsg, decodedViewFieldList);
+        assertTrue(viewFieldList.equals(decodedViewFieldList));
+        
+        providerStreamId = receivedRequestMsg.streamId();
+        
+        /* Provider sends refresh .*/
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.FIELD_LIST);
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("TRI.N");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        
+        // Encodes Fieldlist as payload for the view
+        encodeViewDataForFieldId(provider.reactorChannel(), refreshMsg, decodedViewFieldList);
+        
+        assertTrue(provider.submit(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        
+        /* Consumer receives refresh. */
+        consumerReactor.dispatch(1);
+        
+        // Received Refresh for TRI.N
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+        
+        // Received refresh message with item TRI.N
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals("TRI.N", receivedRefreshMsg.msgKey().name().toString());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.FIELD_LIST, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertTrue(receivedRefreshMsg.encodedDataBody().equals(refreshMsg.encodedDataBody()));
+        
+        // Provider processes request for IBM.N
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
+        
+        receivedRequestMsg = (RequestMsg)msgEvent.msg();
+        assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
+        assertTrue(receivedRequestMsg.checkStreaming());
+        assertFalse(receivedRequestMsg.checkNoRefresh());
+        assertEquals(Provider.defaultService().serviceId(), receivedRequestMsg.msgKey().serviceId());
+        assertTrue(receivedRequestMsg.msgKey().checkHasName());
+        assertTrue(receivedRequestMsg.msgKey().name().toString().equals("IBM.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
+      
+        // Checks whether the provider receives the view request
+        decodeViewDataForFieldId(consumer.reactorChannel(), receivedRequestMsg, decodedViewFieldList);
+        assertTrue(viewFieldList.equals(decodedViewFieldList));
+        
+        providerStreamId = receivedRequestMsg.streamId();
+        
+        /* Provider sends refresh .*/
+        refreshMsg.clear();
+        refreshMsg.msgClass(MsgClasses.REFRESH);
+        refreshMsg.domainType(DomainTypes.MARKET_PRICE);
+        refreshMsg.streamId(providerStreamId);
+        refreshMsg.containerType(DataTypes.FIELD_LIST);
+        refreshMsg.applyHasMsgKey();
+        refreshMsg.msgKey().applyHasServiceId();
+        refreshMsg.msgKey().serviceId(Provider.defaultService().serviceId());
+        refreshMsg.msgKey().applyHasName();
+        refreshMsg.msgKey().name().data("IBM.N");
+        refreshMsg.state().streamState(StreamStates.OPEN);
+        refreshMsg.state().dataState(DataStates.OK);
+        
+        // Encodes Fieldlist as payload for the view
+        encodeViewDataForFieldId(provider.reactorChannel(), refreshMsg, decodedViewFieldList);
+        
+        assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
+        
+        // Consumer receives refresh for IBM.N
+        consumerReactor.dispatch(1);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent)event.reactorEvent();
+        assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+        
+        // Received refresh message with item IBM.N
+        receivedRefreshMsg = (RefreshMsg)msgEvent.msg();
+        assertEquals("IBM.N", receivedRefreshMsg.msgKey().name().toString());
+        assertEquals(DomainTypes.MARKET_PRICE, receivedRefreshMsg.domainType());
+        assertEquals(DataTypes.FIELD_LIST, receivedRefreshMsg.containerType());
+        assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
+        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
+        assertTrue(receivedRefreshMsg.encodedDataBody().equals(refreshMsg.encodedDataBody()));
+
+        TestReactorComponent.closeSession(consumer, provider);
+    }
+
+	private void encodeBatchWithView(ReactorChannel rc, RequestMsg msg, List<Integer> fieldIdList) {
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(1024));
         EncodeIterator encodeIter = CodecFactory.createEncodeIterator();
@@ -4419,14 +4816,172 @@ public class ReactorWatchlistJUnitNew
         assertEquals(CodecReturnCodes.SUCCESS, elementArray.encodeComplete(encodeIter, true));
 
         assertEquals(CodecReturnCodes.SUCCESS, eEntry.encodeComplete(encodeIter, true));
+        
+        if(fieldIdList != null)
+        {
+        	UInt tempUInt = CodecFactory.createUInt();
+        	Int tempInt = CodecFactory.createInt();
+        	
+        	// encode view request
+        	eEntry.clear();
+        	eEntry.name(ElementNames.VIEW_TYPE);
+        	eEntry.dataType(DataTypes.UINT);
+
+     		tempUInt.value(ViewTypes.FIELD_ID_LIST);
+      
+             assertEquals(CodecReturnCodes.SUCCESS, eEntry.encode(encodeIter, tempUInt));
+     		
+             eEntry.clear();
+             eEntry.name(ElementNames.VIEW_DATA);
+             eEntry.dataType(DataTypes.ARRAY);
+             assertEquals(CodecReturnCodes.SUCCESS, eEntry.encodeInit(encodeIter, 0));
+             elementArray.clear();
+             elementArray.primitiveType(DataTypes.INT);
+             elementArray.itemLength(0);
+
+             assertEquals(CodecReturnCodes.SUCCESS, elementArray.encodeInit(encodeIter));
+
+             for (Integer viewField : fieldIdList)
+             {
+            	ae.clear();
+             	tempInt.value(viewField);
+             	assertEquals(CodecReturnCodes.SUCCESS, ae.encode(encodeIter, tempInt));
+             }
+             assertEquals(CodecReturnCodes.SUCCESS, elementArray.encodeComplete(encodeIter, true));
+             assertEquals(CodecReturnCodes.SUCCESS, eEntry.encodeComplete(encodeIter, true));
+        }
         
         assertEquals(CodecReturnCodes.SUCCESS, eList.encodeComplete(encodeIter, true));
 
         msg.encodedDataBody(buf);
 	}
 	
+	private void decodeViewDataForFieldId(ReactorChannel reactorChannel, Msg msg, List<Integer> viewFieldIdList)
+	{
+		DecodeIterator decodeIt = CodecFactory.createDecodeIterator();
+		ElementList elementList = CodecFactory.createElementList();
+		ElementEntry elementEntry = CodecFactory.createElementEntry();
+		UInt viewType = CodecFactory.createUInt();
+		Int fieldId = CodecFactory.createInt();
+		Array viewArray = CodecFactory.createArray();
+		ArrayEntry viewEntry = CodecFactory.createArrayEntry();
+		Buffer viewData = CodecFactory.createBuffer();
+		int ret;
+		
+		viewFieldIdList.clear();
+		assertEquals(DataTypes.ELEMENT_LIST, msg.containerType());
+		
+		decodeIt.clear();
+		decodeIt.setBufferAndRWFVersion(msg.encodedDataBody(), reactorChannel.majorVersion(), reactorChannel.minorVersion());
+	
+		elementList.clear();
+		assertTrue((ret = elementList.decode(decodeIt, null)) == CodecReturnCodes.SUCCESS);
+		
+		elementEntry.clear();
+		// Decoding the list of Field IDs
+		while ((ret = elementEntry.decode(decodeIt)) != CodecReturnCodes.END_OF_CONTAINER)
+		{
+			assertFalse(ret < CodecReturnCodes.SUCCESS);
+			
+			if (elementEntry.name().equals(ElementNames.VIEW_TYPE) || elementEntry.name().equals(ElementNames.VIEW_DATA))
+			{
+				switch(elementEntry.dataType())
+				{
+					case DataTypes.UINT:
+					{
+						assertTrue(viewType.decode(decodeIt) == CodecReturnCodes.SUCCESS);
+						break;
+					}
+					case DataTypes.ARRAY:
+					{
+						viewData = elementEntry.encodedData();
+						break;
+					}
+				}
+			}
+		}
+		
+		decodeIt.clear();
+		decodeIt.setBufferAndRWFVersion(viewData, reactorChannel.majorVersion(), 
+				reactorChannel.minorVersion());
+		
+		// Support only as a list of Field IDs
+		assertTrue(viewType.toBigInteger().intValue() == ViewTypes.FIELD_ID_LIST);
+	    viewArray.clear();
+		assertTrue(viewArray.decode(decodeIt) == CodecReturnCodes.SUCCESS);
+	    assertTrue(viewArray.primitiveType() == DataTypes.INT);						
+		while ((ret = viewEntry.decode(decodeIt)) != CodecReturnCodes.END_OF_CONTAINER)
+		{
+		    assertFalse(ret < CodecReturnCodes.SUCCESS);							
+			if ((ret = fieldId.decode(decodeIt)) == CodecReturnCodes.SUCCESS)
+			{
+			    assertFalse(fieldId.toLong() < Short.MIN_VALUE || fieldId.toLong() > Short.MAX_VALUE);
+			    viewFieldIdList.add((int)fieldId.toLong());
+			}					
+		}// while
+	}
+	
+	// Support encoding for Real data type of the 6, 12, 13, 19, 21, 22, 25, 30, 31 and 1465 fids.
+	private void encodeViewDataForFieldId(ReactorChannel reactorChannel, Msg msg, List<Integer> viewFieldIdList)
+	{
+		EncodeIterator encodeIt = CodecFactory.createEncodeIterator();
+        FieldList fieldList = CodecFactory.createFieldList();
+        FieldEntry fieldEntry = CodecFactory.createFieldEntry();
+        Buffer buffer = CodecFactory.createBuffer();
+        Real real = CodecFactory.createReal();
+        
+        if(viewFieldIdList.size() > 0)
+        {
+        	ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+        	buffer.data(byteBuffer);
+        	encodeIt.clear();
+        	assertTrue(encodeIt.setBufferAndRWFVersion(buffer, reactorChannel.majorVersion(), 
+        			reactorChannel.minorVersion()) == CodecReturnCodes.SUCCESS);
+        	
+        	fieldList.clear();
+        	fieldList.applyHasStandardData();
+        	int ret = fieldList.encodeInit(encodeIt, null, 0);
+        	
+        	assertFalse(ret < CodecReturnCodes.SUCCESS);
+        	
+        	Iterator<Integer> it = viewFieldIdList.iterator();
+        	while(it.hasNext())
+        	{
+        		Integer fid = it.next();
+        		fieldEntry.clear();
+        		switch(fid.intValue())
+        		{
+        			case 6:
+        			case 12:
+        			case 13:
+        			case 19:
+        			case 21:
+        			case 22:
+        			case 25:
+        			case 30:
+        			case 31:
+        			case 1465:
+        			{
+        				fieldEntry.fieldId(fid.intValue());
+        				fieldEntry.dataType(DataTypes.REAL);
+        				real.clear();
+        				real.value(fid.intValue(), RealHints.EXPONENT1);
+        				assertTrue(fieldEntry.encode(encodeIt, real) == CodecReturnCodes.SUCCESS);
+        				break;
+        			}
+        			default:
+        				assertFalse(true); // Support only the above fields
+        		}
+        	}
+        	
+        	assertTrue(fieldList.encodeComplete(encodeIt, true) == CodecReturnCodes.SUCCESS);
+        	msg.containerType(DataTypes.FIELD_LIST);
+        	msg.encodedDataBody(buffer);
+        }
+	}
+	
 
-	private void encodeBatchWithSymbolList(ReactorChannel rc, RequestMsg msg) {
+	private void encodeBatchWithSymbolList(ReactorChannel rc, RequestMsg msg, boolean hasBehaviors) {
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(1024));
         EncodeIterator encodeIter = CodecFactory.createEncodeIterator();
@@ -4467,33 +5022,36 @@ public class ReactorWatchlistJUnitNew
         
         assertEquals(CodecReturnCodes.SUCCESS, eEntry.encodeComplete(encodeIter, true));
         
-		ElementList behaviorList = CodecFactory.createElementList();
-		ElementEntry dataStreamEntry = CodecFactory.createElementEntry();	
-		UInt tempUInt = CodecFactory.createUInt();
+        if(hasBehaviors)
+        {
+        	ElementList behaviorList = CodecFactory.createElementList();
+        	ElementEntry dataStreamEntry = CodecFactory.createElementEntry();	
+        	UInt tempUInt = CodecFactory.createUInt();
 		
-		eEntry.clear();
-		eEntry.name().data(":SymbolListBehaviors");
-		eEntry.dataType(DataTypes.ELEMENT_LIST);
+        	eEntry.clear();
+        	eEntry.name().data(":SymbolListBehaviors");
+        	eEntry.dataType(DataTypes.ELEMENT_LIST);
 		
-		assertEquals(ReactorReturnCodes.SUCCESS, eEntry.encodeInit(encodeIter, 0));
+        	assertEquals(ReactorReturnCodes.SUCCESS, eEntry.encodeInit(encodeIter, 0));
 
-		behaviorList.clear();
-		behaviorList.applyHasStandardData();
+        	behaviorList.clear();
+        	behaviorList.applyHasStandardData();
 
-		assertEquals(ReactorReturnCodes.SUCCESS, behaviorList.encodeInit(encodeIter, null, 0));
+        	assertEquals(ReactorReturnCodes.SUCCESS, behaviorList.encodeInit(encodeIter, null, 0));
 	       
-		dataStreamEntry.clear();
-		dataStreamEntry.name().data(":DataStreams");
-		dataStreamEntry.dataType(DataTypes.UINT);
-		tempUInt.value(SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_STREAMS);
-		assertEquals(ReactorReturnCodes.SUCCESS, dataStreamEntry.encode(encodeIter, tempUInt));
+        	dataStreamEntry.clear();
+        	dataStreamEntry.name().data(":DataStreams");
+        	dataStreamEntry.dataType(DataTypes.UINT);
+        	tempUInt.value(SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_STREAMS);
+        	assertEquals(ReactorReturnCodes.SUCCESS, dataStreamEntry.encode(encodeIter, tempUInt));
 
-		assertEquals(ReactorReturnCodes.SUCCESS, behaviorList.encodeComplete(encodeIter, true));
+        	assertEquals(ReactorReturnCodes.SUCCESS, behaviorList.encodeComplete(encodeIter, true));
 
-        assertEquals(CodecReturnCodes.SUCCESS, eEntry.encodeComplete(encodeIter, true));
-        
+        	assertEquals(CodecReturnCodes.SUCCESS, eEntry.encodeComplete(encodeIter, true));
+        }
+
         assertEquals(CodecReturnCodes.SUCCESS, eList.encodeComplete(encodeIter, true));
-        
+       
         msg.encodedDataBody(buf);
 	}
 
@@ -20403,7 +20961,6 @@ public class ReactorWatchlistJUnitNew
 		public int defaultMsgCallback(ReactorMsgEvent event)
 		{	
 			int ret;
-			Msg msg = event.msg();
 			_dIter.clear();
 			_elementList.clear();
 			_elementEntry.clear();
@@ -20419,60 +20976,8 @@ public class ReactorWatchlistJUnitNew
 				++_numRequestMessage;
 				RequestMsg requestMsg = (RequestMsg)event.msg();
 				
-				// Decoding the list of FIDs in the request message.
-				if(msg.containerType() == DataTypes.ELEMENT_LIST && msg.encodedDataBody().data() != null)
-				{
-					_dIter.clear();
-					_dIter.setBufferAndRWFVersion(msg.encodedDataBody(), event.reactorChannel().majorVersion(), event.reactorChannel().minorVersion());
-				
-					_elementList.clear();
-					ret = _elementList.decode(_dIter, null);
-					
-					assertTrue(ret == CodecReturnCodes.SUCCESS);
-					
-					_elementEntry.clear();
-					// Decoding the list of Field IDs
-					while ((ret = _elementEntry.decode(_dIter)) != CodecReturnCodes.END_OF_CONTAINER)
-					{
-						assertTrue(ret == CodecReturnCodes.SUCCESS);
-						
-						if (_elementEntry.name().equals(ElementNames.VIEW_TYPE) || _elementEntry.name().equals(ElementNames.VIEW_DATA))
-						{
-							switch(_elementEntry.dataType())
-							{
-								case DataTypes.UINT:
-								{
-									assertTrue(_viewType.decode(_dIter) == CodecReturnCodes.SUCCESS);
-									break;
-								}
-								case DataTypes.ARRAY:
-								{
-									_viewData = _elementEntry.encodedData();
-									break;
-								}
-							}
-						}
-					}
-					
-					_dIter.clear();
-					_dIter.setBufferAndRWFVersion(_viewData, event.reactorChannel().majorVersion(), 
-							event.reactorChannel().minorVersion());
-					
-					// Support only as a list of Field IDs
-					assertTrue(_viewType.toBigInteger().intValue() == ViewTypes.FIELD_ID_LIST);
-				    _viewArray.clear();
-					assertTrue(_viewArray.decode(_dIter) == CodecReturnCodes.SUCCESS);
-				    assertTrue(_viewArray.primitiveType() == DataTypes.INT);						
-					while ((ret = _viewArrayEntry.decode(_dIter)) != CodecReturnCodes.END_OF_CONTAINER)
-					{
-					    assertFalse(ret < CodecReturnCodes.SUCCESS);							
-						if ((ret = _fieldId.decode(_dIter)) == CodecReturnCodes.SUCCESS)
-						{
-						    assertFalse(_fieldId.toLong() < Short.MIN_VALUE || _fieldId.toLong() > Short.MAX_VALUE);
-							_viewFieldIdList.add((int)_fieldId.toLong());
-						}					
-					}// while
-				} // End checking the pay load type
+				if (requestMsg.checkHasView())
+					decodeViewDataForFieldId(event.reactorChannel(), requestMsg, _viewFieldIdList);
 				
 				boolean applyRefreshComplete = _multipart ? false : true;
 				

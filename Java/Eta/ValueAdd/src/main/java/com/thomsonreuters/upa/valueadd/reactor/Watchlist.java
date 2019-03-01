@@ -155,7 +155,12 @@ class Watchlist extends VaNode
             {
                 // save submitted request
                 wlRequest.requestMsg().clear();
-                msg.copy(wlRequest.requestMsg(), CopyMsgFlags.ALL_FLAGS);
+                
+                // Don't need to copy the entire payload for the batch request as the items has been requested individually
+                if (((RequestMsg)msg).checkHasBatch())
+                	msg.copy(wlRequest.requestMsg(), CopyMsgFlags.ALL_FLAGS & (~CopyMsgFlags.DATA_BODY));
+                else
+                	msg.copy(wlRequest.requestMsg(), CopyMsgFlags.ALL_FLAGS);
 
                 // add to watchlist request table if new request
                 if (!isReissue)
