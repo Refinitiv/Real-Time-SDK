@@ -370,13 +370,13 @@ RsslRet getSSLProtocolTransFuncs(RsslSocketChannel* rsslSocketChannel, ripcSSLPr
 		return RSSL_RET_FAILURE;
 	if ((protocolBitmap & RIPC_PROTO_SSL_TLS) != 0)
 	{
-		rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS;
+        rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS;
 		rsslSocketChannel->transportFuncs = &encryptedSSLTransFuncs[RIPC_SSL_TLS];
 		return RSSL_RET_SUCCESS;
 	}
 	if ((protocolBitmap & RIPC_PROTO_SSL_TLS_V1_2) != 0)
 	{
-		rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS_V1_2;
+        rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS_V1_2;
 		rsslSocketChannel->transportFuncs = &encryptedSSLTransFuncs[RIPC_SSL_TLS_V1_2];
 		return RSSL_RET_SUCCESS;
 	}
@@ -6453,14 +6453,14 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 			break;
 		case CONN_VERSION_11:
 			/* only re-connect with older header for non-tunneled connections */
-			if (rsslSocketChannel->connType == RSSL_CONN_TYPE_SOCKET)	/* tunneling doesnt exist in version 10 */
+			if (rsslSocketChannel->connType == RSSL_CONN_TYPE_SOCKET || (rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED && rsslSocketChannel->usingWinInet == 0))	/* tunneling doesnt exist in version 10 */
 			{
 				return (ipcReconnectOld(rsslSocketChannel, inPr, error));
 			}
 			else
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+                snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 					"<%s:%d> Error: 1002 Could not read IPC Mount Ack.  Connection attempt has failed. System errno: (%d)\n",
 					__FILE__, __LINE__, errno);
 
@@ -7577,11 +7577,6 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 			rsslSocketChannel->usingWinInet = RSSL_CONN_TYPE_HTTP;
 			break;
 		}
-		else
-		{
-			/* We are not using WinInet, so clear the flag on the socketChannel */
-			rsslSocketChannel->usingWinInet = 0;
-		}
 #endif
 		if (opts->encryptionOpts.encryptedProtocol != RSSL_CONN_TYPE_SOCKET)
 		{
@@ -7593,6 +7588,8 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 
 			return RSSL_RET_FAILURE;
 		}
+		/* We are not using WinInet, so clear the flag on the socketChannel */
+		rsslSocketChannel->usingWinInet = 0;
 		if(openSSLInit == 0)
 		{
 			/* Initialize open ssl; if we support other non windows platforms besides Linux we may
@@ -7839,6 +7836,8 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 
 			return RSSL_RET_FAILURE;
 		}
+//TODO: remove
+        printf("INIT: %i\n", initcomplete);
 
 		if ((!initcomplete) &&
 			((rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED) ||
