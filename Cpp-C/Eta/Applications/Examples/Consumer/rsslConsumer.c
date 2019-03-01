@@ -520,6 +520,7 @@ int main(int argc, char **argv)
 		/* this is the connection recovery loop */
 		while(shouldRecoverConnection)
 		{
+			int first = 0;
 			/* Connect to RSSL server */
 			printf("\nAttempting to connect to server %s:%s...\n", srvrHostname, srvrPortNo);
 			if ((rsslConsumerChannel = connectToRsslServer(connType, &error)) == NULL)
@@ -536,7 +537,7 @@ int main(int argc, char **argv)
 			if (rsslConsumerChannel != NULL && rsslConsumerChannel->state == RSSL_CH_STATE_ACTIVE)
 				shouldRecoverConnection = RSSL_FALSE;
 
-			int first = 1;
+			first = 1;
 			/* Wait for channel to become active.  This finalizes the three-way handshake. */
 			while (rsslConsumerChannel != NULL && rsslConsumerChannel->state != RSSL_CH_STATE_ACTIVE)
 			{

@@ -73,7 +73,7 @@ macro(rcdev_init_ep_add _ep_name)
 	endif()
 
 	if(RCDEV_EXTERNAL_INSTALL_PREFIX)
-		set(_install_dir "${RCDEV_EXTERNAL_INSTALL_PREFIX}/install")
+		set(_install_dir "${RCDEV_EXTERNAL_INSTALL_PREFIX}")
 	else()
 		set(_install_dir "${CMAKE_CURRENT_BINARY_DIR}/install")
 	endif()
