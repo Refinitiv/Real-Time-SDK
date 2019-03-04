@@ -41,6 +41,7 @@
 
 static char rsslOrigin[]    = RSSL_LegalCopyRight;
 static char rsslVersion[]   = " VERSION " RSSL_InternalName;
+static char rsslWhat[]      = "@(#)rsslVersion.h" RSSL_InternalName;
 static char rsslWhere[]     = "s.rsslVersion.h";
 static char rsslPackage[]   = RSSL_Package;
 static char rsslDeltaDate[] = " @esdk_timestamp@ " RSSL_Year;
