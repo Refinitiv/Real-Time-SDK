@@ -399,7 +399,7 @@ class TunnelItem<T> extends Item<T> {
 		if (tunnelStreamRequest.hasServiceName())
 		{
 			directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceName());
-			if (directory == null && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
+			if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Service name of  ").append("tunnelStreamRequest.getServiceName()")
@@ -421,7 +421,7 @@ class TunnelItem<T> extends Item<T> {
 		} else if (tunnelStreamRequest.hasServiceId())
 		{
 			directory = _baseImpl.directoryCallbackClient().directory(tunnelStreamRequest.serviceId());
-			if (directory == null && !_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
+			if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				temp.append("Service id of  ").append(tunnelStreamRequest.serviceId()).append(" is not found.");
@@ -1777,6 +1777,10 @@ TunnelStreamStatusEventCallback
 
 		if(_eventImpl._item.directory() != null)
 			_refreshMsg.service(_eventImpl._item.directory().serviceName());
+		else if (_eventImpl._item.type() == Item.ItemType.SINGLE_ITEM)
+		{
+			_refreshMsg.service(((SingleItem<T>)_eventImpl._item)._serviceName);
+		}
 		else
 			_refreshMsg.service(null);
 		
@@ -1824,6 +1828,10 @@ TunnelStreamStatusEventCallback
 
 		if(_eventImpl._item.directory() != null)
 			_updateMsg.service(_eventImpl._item.directory().serviceName());
+		else if (_eventImpl._item.type() == Item.ItemType.SINGLE_ITEM)
+		{
+			_updateMsg.service(((SingleItem<T>)_eventImpl._item)._serviceName);
+		}
 		else
 			_updateMsg.service(null);
 
@@ -1861,6 +1869,10 @@ TunnelStreamStatusEventCallback
 		
 		if (_eventImpl._item.directory() != null)
 			_statusMsg.service(_eventImpl._item.directory().serviceName());
+		else if (_eventImpl._item.type() == Item.ItemType.SINGLE_ITEM)
+		{
+			_statusMsg.service(((SingleItem<T>)_eventImpl._item)._serviceName);
+		}
 		else
 			_statusMsg.service(null);
 
@@ -2744,6 +2756,7 @@ class SingleItem<T> extends Item<T>
 	private static final String 	CLIENT_NAME = "SingleItem";
 	
 	protected Directory	_directory;
+	protected String _serviceName;
 	protected OmmBaseImpl<T>			_baseImpl;
 
 	SingleItem() {}
@@ -2782,7 +2795,7 @@ class SingleItem<T> extends Item<T>
 		if (reqMsg.hasServiceName())
 		{
 			directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceName());
-			if (directory == null && !_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
+			if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
 			{
 				/* EMA is generating the status down response because the service is not valid */
 				StringBuilder temp = _baseImpl.strBuilder();
@@ -2816,7 +2829,7 @@ class SingleItem<T> extends Item<T>
 				return true;
 			}
 
-			if (directory == null && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
+			if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
 			{
 				StringBuilder temp = _baseImpl.strBuilder();
 				
@@ -2836,6 +2849,8 @@ class SingleItem<T> extends Item<T>
 		}
 
 		_directory = directory;
+		
+		_serviceName = reqMsg.hasServiceName() ? reqMsg.serviceName() : null;
 
 		return rsslSubmit(((ReqMsgImpl)reqMsg).rsslMsg());
 	}
@@ -2907,10 +2922,12 @@ class SingleItem<T> extends Item<T>
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.RequestMsg rsslRequestMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
-		rsslSubmitOptions.serviceName(null);
 		
 		if (!rsslRequestMsg.msgKey().checkHasServiceId() && _directory != null)
 			rsslSubmitOptions.serviceName(_directory.serviceName());
+		
+		if (_directory == null)
+			rsslSubmitOptions.serviceName(_serviceName);
 
 		if (!rsslRequestMsg.checkHasQos())
 		{
@@ -3260,7 +3277,6 @@ class SingleItem<T> extends Item<T>
 	boolean rsslSubmit(com.thomsonreuters.upa.codec.StatusMsg rsslStatusMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();
-		rsslSubmitOptions.serviceName(null);
 		rsslSubmitOptions.requestMsgOptions().clear();
 		
 		rsslStatusMsg.streamId(_streamId);

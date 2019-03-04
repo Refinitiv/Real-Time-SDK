@@ -223,7 +223,32 @@ Series300Consumer331-ConsFunc-001
     Also, alters consumer to not send out item requests.
 
 Series300Consumer331-ConsFunc-003
-    Alters consumer to request directory with interestAfterRefresh(false)
+	Alters consumer to request directory with interestAfterRefresh(false)
+
+Series300Consumer331-RegisterOption-001
+	Alters consumer to accept these options: -m <0-15>
+        Explanation of -m: Each value passed as a argument to this option will run a different test.
+        Below is a list of tests:
+	-m 0: Requests directory without service name specified or filter specified
+        -m 1: Requests directory with service name of DIRECT_FEED specified and no filter specified
+	-m 2: Requests directory with service name of DF415 specified and no filter specified
+	-m 3: Requests directory without service name and with filter 0 specified
+	-m 4: Requests directory without service name and with filter SERVICE_INFO_FILTER specified
+	-m 5: Requests directory without service name and with filter SERVICE_STATE_FILTER specified
+	-m 6: Requests directory without service name and with filter SERVICE_GROUP_FILTER specified
+	-m 7: Requests directory without service name and with filter SERVICE_LOAD_FILTER specified
+	-m 8: Requests directory without service name and with filter SERVICE_DATA_FILTER specified
+	-m 9: Requests directory without service name and with filter SERVICE_LINK_FILTER specified
+	-m 10: Requests directory with service id of 8090 specified and no filter specified
+	-m 11: Requests directory with service id of 8090 specified and with filter 0 specified
+	-m 12: Requests directory with service id of 8090 specified and with filter 29 specified
+	-m 13: Requests directory with service name of DIRECT_FEED specified, name of IBM.N 
+	       specified, and no filter specified
+	-m 14: Requests directory with service name of DF415 specified, name of JPY= specified, and 
+	       no filter specified
+	-m 15: Requests directory with service id of 8090 specified, name of JPY= specified, and no 
+	       filter specified
+
 
 Series300Consumer331-RegisterOption-001
     Alters consumer to accept these options: -m <0-15>
