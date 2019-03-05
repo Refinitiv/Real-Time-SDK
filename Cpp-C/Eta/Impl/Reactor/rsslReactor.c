@@ -4506,9 +4506,8 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 
 		if (*queryConnectInfo)
 		{
-			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
-
 			RsslReactorDiscoveryTransportProtocol transport = RSSL_RD_TP_INIT;
+			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
 			switch (pReactorConnectInfoImpl->base.rsslConnectOptions.connectionType)
 			{

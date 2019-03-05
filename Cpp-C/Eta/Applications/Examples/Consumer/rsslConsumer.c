@@ -520,7 +520,6 @@ int main(int argc, char **argv)
 		/* this is the connection recovery loop */
 		while(shouldRecoverConnection)
 		{
-			int first = 0;
 			/* Connect to RSSL server */
 			printf("\nAttempting to connect to server %s:%s...\n", srvrHostname, srvrPortNo);
 			if ((rsslConsumerChannel = connectToRsslServer(connType, &error)) == NULL)
@@ -537,7 +536,6 @@ int main(int argc, char **argv)
 			if (rsslConsumerChannel != NULL && rsslConsumerChannel->state == RSSL_CH_STATE_ACTIVE)
 				shouldRecoverConnection = RSSL_FALSE;
 
-			first = 1;
 			/* Wait for channel to become active.  This finalizes the three-way handshake. */
 			while (rsslConsumerChannel != NULL && rsslConsumerChannel->state != RSSL_CH_STATE_ACTIVE)
 			{
@@ -549,13 +547,8 @@ int main(int argc, char **argv)
 				time_interval.tv_sec = 60;
 				time_interval.tv_usec = 0;
 
-				if (first == 1) {
-					selRet = select(FD_SETSIZE, &useRead, NULL, &useExcept, &time_interval);
-					first = 0;
-				}
-				else {
-					selRet = select(FD_SETSIZE, &useRead, &useWrt, &useExcept, &time_interval);
-				}
+				selRet = select(FD_SETSIZE, &useRead, &useWrt, &useExcept, &time_interval);
+
 
 
 
@@ -603,7 +596,6 @@ int main(int argc, char **argv)
 								else
 								{
 									printf("\nChannel "SOCKET_PRINT_TYPE" In Progress...\n", rsslConsumerChannel->socketId);
-									//Sleep(1000);
 								}
 								break;
 							case RSSL_RET_SUCCESS:

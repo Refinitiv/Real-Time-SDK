@@ -645,6 +645,7 @@ size_t rssl_rest_write_header_callback_with_dynamic_size(char *ptr, size_t size,
 	}
 	else
 	{
+		RsslUInt32 neededHeaderSize = (restBufferImplTemp->bufferLength - restBufferImplTemp->remaningLength) + (handleImpl->numOfHeaders * sizeof(RsslRestHeader));
 		// Reset the content lenght as it represents the compressed data length
 		if (handleImpl->hasContentEncoding)
 		{
@@ -652,7 +653,6 @@ size_t rssl_rest_write_header_callback_with_dynamic_size(char *ptr, size_t size,
 		}
 
 		// Reallocated the memory to ensure that the library can store the entire response.
-		RsslUInt32 neededHeaderSize = (restBufferImplTemp->bufferLength - restBufferImplTemp->remaningLength) + (handleImpl->numOfHeaders * sizeof(RsslRestHeader));
 		if (restBufferImpl->bufferLength < (neededHeaderSize + handleImpl->contentLength) )
 		{
 			if(restBufferImpl->isOwnedByRestClient)
