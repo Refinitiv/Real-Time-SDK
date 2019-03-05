@@ -263,6 +263,8 @@ if(NOT CJSON_FOUND)
 
 	endif()
 
+	rcdev_add_external_target(CJSON::CJSON)
+
 endif()
 
 DEBUG_PRINT(CJSON_ROOT)

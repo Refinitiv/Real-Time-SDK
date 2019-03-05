@@ -229,6 +229,8 @@ if(NOT TARGET GTest::GTest)
 	endif()
 	#]==================================================]
 
+	rcdev_add_external_target(GTest::GTest GTest::Main)
+
 endif()
 DEBUG_PRINT(GTEST_LIBRARY)
 DEBUG_PRINT(GTEST_INCLUDE_DIRS)

@@ -493,6 +493,9 @@ if ((NOT ZLIB_FOUND) OR
 				"  This may cause unexpected behavior and/or build results"
 				)
 	endif()
+
+	rcdev_add_external_target(ZLIB::ZLIB)
+
 endif()
 
 DEBUG_PRINT(ZLIB_FOUND)
