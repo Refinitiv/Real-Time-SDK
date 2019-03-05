@@ -159,7 +159,7 @@ else()
 									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/RDM>
                                 )
 
-	target_link_libraries( librsslVA_tmp LibXml2::LibXml2 CJSON::CJSON)
+	target_link_libraries( librsslVA_tmp LibXml2::LibXml2 CJSON::CJSON librssl)
 
 DEBUG_PRINT(librsslVA_tmp)
 
@@ -175,7 +175,7 @@ DEBUG_PRINT(librsslVA_tmp)
 
 	set_target_properties(librsslVA PROPERTIES OUTPUT_NAME "librsslVA")
 
-	target_link_libraries(librsslVA librsslVA_tmp librssl)
+	target_link_libraries(librsslVA librsslVA_tmp)
 
     if (CMAKE_HOST_WIN32)
 		add_custom_command(TARGET librsslVA POST_BUILD
