@@ -252,6 +252,8 @@ if ((NOT CURL_FOUND) OR
 				)
 	endif()
 
+	rcdev_add_external_target(CURL::libcurl)
+		
 endif()
 
 DEBUG_PRINT(CURL_FOUND)

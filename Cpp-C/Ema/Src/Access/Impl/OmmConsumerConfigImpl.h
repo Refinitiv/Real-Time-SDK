@@ -34,6 +34,8 @@ public:
 
 	void consumerName( const EmaString& );
 
+	void validateSpecifiedSessionName();
+
 	EmaString getConfiguredName();
 
 	void operationModel( OmmConsumerConfig::OperationModel );

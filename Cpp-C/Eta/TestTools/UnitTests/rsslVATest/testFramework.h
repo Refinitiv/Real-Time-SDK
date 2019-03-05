@@ -15,6 +15,9 @@
 #include "rtr/rsslIterators.h"
 #include "rtr/rsslMemoryBuffer.h"
 
+extern RsslBuffer g_userName;
+extern RsslBuffer g_password;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

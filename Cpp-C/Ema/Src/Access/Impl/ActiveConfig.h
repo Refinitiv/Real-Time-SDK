@@ -36,6 +36,7 @@
 #define DEFAULT_DICTIONARY_TYPE							Dictionary::FileDictionaryEnum
 #define DEFAULT_DIRECTORY_REQUEST_TIMEOUT				45000
 #define DEFAULT_DISPATCH_TIMEOUT_API_THREAD				-1
+#define DEFAULT_EDP_RT_LOCATION							EmaString( "us-east" )
 #define DEFAULT_GUARANTEED_OUTPUT_BUFFERS				100
 #define DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS		5000
 #define DEFAULT_NUM_INPUT_BUFFERS					    10
@@ -236,7 +237,7 @@ class SocketChannelConfig : public ChannelConfig
 {
 public :
 
-	SocketChannelConfig( const EmaString&, RsslConnectionTypes connType);
+	SocketChannelConfig( const EmaString& defaultHostName, const EmaString& defaultServiceName, RsslConnectionTypes connType);
 
 	virtual ~SocketChannelConfig();
 
@@ -255,10 +256,13 @@ public :
 	EmaString				proxyDomain;
 	EmaString				sslCAStore;
 	int						securityProtocol;
+	EmaString				location;
+	RsslBool				enableSessionMgnt;
 
 private :
 
 	EmaString		defaultServiceName;
+	EmaString		defaultHostName;
 };
 
 class SocketServerConfig : public ServerConfig

@@ -30,6 +30,8 @@ public:
 
 	void providerName( const EmaString& );
 
+	void validateSpecifiedSessionName();
+
 	EmaString getConfiguredName();
 
 	void operationModel( OmmNiProviderConfig::OperationModel );

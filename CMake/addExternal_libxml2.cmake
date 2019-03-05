@@ -386,6 +386,8 @@ if ((NOT LibXml2_FOUND) OR
 				)
 	endif()
 
+	rcdev_add_external_target(LibXml2::LibXml2)
+
 endif()
 
 DEBUG_PRINT(LibXml2_FOUND)

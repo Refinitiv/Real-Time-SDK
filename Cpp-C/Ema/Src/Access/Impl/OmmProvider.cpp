@@ -11,6 +11,8 @@
 #include "OmmNiProviderImpl.h"
 #include "OmmIProviderImpl.h"
 #include "OmmNiProviderConfig.h"
+#include "OmmIProviderConfig.h"
+#include "OmmNiProviderConfigImpl.h"
 #include "OmmIProviderConfigImpl.h"
 #include "ExceptionTranslator.h"
 
@@ -26,6 +28,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config ) :
 	{
 		try
 		{
+			static_cast<const OmmNiProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmNiProviderImpl( this, static_cast<const OmmNiProviderConfig&>( config ) );
 		}
 		catch ( std::bad_alloc ) {}
@@ -43,6 +46,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 	{
 		try
 		{
+			static_cast<const OmmNiProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmNiProviderImpl(this, static_cast<const OmmNiProviderConfig&>(config), client, closure);
 		}
 		catch (std::bad_alloc) {}
@@ -54,6 +58,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 	{
 		try
 		{
+			static_cast<const OmmIProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmIProviderImpl( this, static_cast<const OmmIProviderConfig&>(config), client, closure);
 		}
 		catch (std::bad_alloc) {}
@@ -73,6 +78,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderErrorClien
 	{
 		try
 		{
+			static_cast<const OmmNiProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmNiProviderImpl( this, static_cast<const OmmNiProviderConfig&>( config ), errorClient);
 		}
 		catch ( std::bad_alloc ) {}
@@ -90,6 +96,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 	{
 		try
 		{
+			static_cast<const OmmNiProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmNiProviderImpl(this, static_cast<const OmmNiProviderConfig&>(config), client, errorClient, closure);
 		}
 		catch (std::bad_alloc) {}
@@ -101,6 +108,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 	{
 		try
 		{
+			static_cast<const OmmIProviderConfig&>(config)._pImpl->validateSpecifiedSessionName();
 			_pImpl = new OmmIProviderImpl( this, static_cast<const OmmIProviderConfig&>(config), client, errorClient, closure);
 		}
 		catch (std::bad_alloc) {}

@@ -31,6 +31,16 @@ typedef struct
 	CURLcode (*curl_global_init)(long);
 	void (*curl_global_cleanup)(void);
 	CURLcode (*curl_easy_getinfo)(CURL*, CURLINFO, ...);
+	const char* (*curl_easy_strerror)(CURLcode);
+	struct curl_slist* (*curl_slist_append)(struct curl_slist *, const char *);
+	void (*curl_slist_free_all)(struct curl_slist *);
+	CURLM* (*curl_multi_init)(void);
+	CURLMcode (*curl_multi_add_handle)(CURLM *multi_handle, CURL *curl_handle);
+	CURLMcode (*curl_multi_remove_handle)(CURLM *multi_handle, CURL *curl_handle);
+	CURLMcode (*curl_multi_perform)(CURLM *multi_handle, int *running_handles);
+	CURLMsg* (*curl_multi_info_read)(CURLM *multi_handle, int *msgs_in_queue);
+	CURLMcode (*curl_multi_cleanup)(CURLM *multi_handle);
+	const char* (*curl_multi_strerror)(CURLMcode);
     CURLSH* (*curl_share_init)();
     CURLSHcode (*curl_share_setopt)(CURLSH*, CURLSHoption, ...);
     CURLSHcode (*curl_share_cleanup)(CURLSH*);
@@ -39,13 +49,13 @@ typedef struct
 
 } RsslCurlJITFuncs;
 
-#define INIT_RSSL_CURL_API_FUNCS {0,0,0,0,0,0,0}
+#define INIT_RSSL_CURL_API_FUNCS {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 
-RsslCurlJITFuncs* rsslInitCurlApi(char* curlLibName, RsslError *error);
-RsslRet rsslUninitCurlApi();
+RSSL_API RsslCurlJITFuncs* rsslInitCurlApi(char* curlLibName, RsslError *error);
+RSSL_API RsslRet rsslUninitCurlApi();
 
-RsslBool rsslCurlIsInitialized();
-RsslCurlJITFuncs* rsslGetCurlFuncs();
+RSSL_API RsslBool rsslCurlIsInitialized();
+RSSL_API RsslCurlJITFuncs* rsslGetCurlFuncs();
 
 
 #endif

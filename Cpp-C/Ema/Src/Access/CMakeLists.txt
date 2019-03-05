@@ -111,11 +111,11 @@ else()
             Impl/OmmAscii.cpp Impl/OmmAsciiDecoder.cpp Impl/OmmAsciiDecoder.h
             Impl/OmmBaseImpl.cpp Impl/OmmBaseImpl.h Impl/OmmBaseImplMap.h
             Impl/OmmBuffer.cpp Impl/OmmBufferDecoder.cpp Impl/OmmBufferDecoder.h
-			Impl/OmmCommonImpl.cpp
+            Impl/OmmCommonImpl.cpp
             Impl/OmmConsumer.cpp Impl/OmmConsumerActiveConfig.cpp Impl/OmmConsumerActiveConfig.h
             Impl/OmmConsumerClient.cpp
             Impl/OmmConsumerConfig.cpp Impl/OmmConsumerConfigImpl.cpp Impl/OmmConsumerConfigImpl.h
-			Impl/OmmConsumerErrorClient.cpp
+            Impl/OmmConsumerErrorClient.cpp
             Impl/OmmConsumerEvent.cpp Impl/OmmConsumerImpl.cpp Impl/OmmConsumerImpl.h
             Impl/OmmDate.cpp Impl/OmmDateDecoder.cpp Impl/OmmDateDecoder.h
             Impl/OmmDateTime.cpp Impl/OmmDateTimeDecoder.cpp Impl/OmmDateTimeDecoder.h
@@ -153,8 +153,8 @@ else()
             Impl/OmmOutOfRangeExceptionImpl.cpp Impl/OmmOutOfRangeExceptionImpl.h
             Impl/OmmProvider.cpp Impl/OmmProviderClient.cpp
             Impl/OmmProviderConfig.cpp 
-			Impl/OmmProviderErrorClient.cpp
-			Impl/OmmProviderEvent.cpp
+            Impl/OmmProviderErrorClient.cpp
+            Impl/OmmProviderEvent.cpp
             Impl/OmmProviderImpl.cpp Impl/OmmProviderImpl.h
             Impl/OmmQos.cpp Impl/OmmQosDecoder.cpp Impl/OmmQosDecoder.h
             Impl/OmmReal.cpp Impl/OmmRealDecoder.cpp Impl/OmmRealDecoder.h
@@ -186,6 +186,13 @@ else()
             Impl/Series.cpp Impl/SeriesDecoder.cpp Impl/SeriesDecoder.h
             Impl/SeriesEncoder.cpp Impl/SeriesEncoder.h
             Impl/SeriesEntry.cpp
+            Impl/ServiceEndpointDiscovery.cpp
+            Impl/ServiceEndpointDiscoveryImpl.cpp Impl/ServiceEndpointDiscoveryImpl.h
+            Impl/ServiceEndpointDiscoveryClient.cpp
+            Impl/ServiceEndpointDiscoveryEvent.cpp
+            Impl/ServiceEndpointDiscoveryInfo.cpp
+            Impl/ServiceEndpointDiscoveryOption.cpp
+            Impl/ServiceEndpointDiscoveryResp.cpp    
             Impl/ServerChannelHandler.cpp Impl/ServerChannelHandler.h
             Impl/StaticDecoder.cpp Impl/StaticDecoder.h
             Impl/StatusMsg.cpp Impl/StatusMsgDecoder.cpp Impl/StatusMsgDecoder.h
@@ -279,6 +286,12 @@ else()
             Include/RmtesBuffer.h
             Include/Series.h
             Include/SeriesEntry.h
+            Include/ServiceEndpointDiscovery.h
+            Include/ServiceEndpointDiscoveryClient.h
+            Include/ServiceEndpointDiscoveryEvent.h
+            Include/ServiceEndpointDiscoveryInfo.h
+            Include/ServiceEndpointDiscoveryOption.h
+            Include/ServiceEndpointDiscoveryResp.h
             Include/StatusMsg.h
             Include/SummaryData.h
             Include/TunnelStreamRequest.h

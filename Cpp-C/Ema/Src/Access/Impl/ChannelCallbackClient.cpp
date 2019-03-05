@@ -472,7 +472,7 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 	}
 }
 
-void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslRDMDirectoryRequest* dirRequest )
+void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslRDMDirectoryRequest* dirRequest, const EmaString& clientId )
 {
 	RsslReactorChannelRole role;
 	_ommBaseImpl.setRsslReactorChannelRole( role );
@@ -514,7 +514,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	connectOpt.reconnectAttemptLimit = activeConfig.reconnectAttemptLimit;
 	connectOpt.reconnectMinDelay = activeConfig.reconnectMinDelay;
 	connectOpt.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
-	connectOpt.initializationTimeout = 5;
+	connectOpt.initializationTimeout = 10;
 
 	EmaString channelParams;
 	EmaString temp( "Attempt to connect using " );
@@ -559,6 +559,9 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 
 				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->securityProtocol;
 				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.openSSLCAStore = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->sslCAStore.c_str());
+				reactorConnectInfo[i].enableSessionManagement = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->enableSessionMgnt;
+				reactorConnectInfo[i].location.length = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.length();
+				reactorConnectInfo[i].location.data = (char*)static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.c_str();
 				connectOpt.initializationTimeout = 30;
 				
 				// Fall through to HTTP connection options
@@ -650,6 +653,13 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 		RsslErrorInfo rsslErrorInfo;
 		clearRsslErrorInfo( &rsslErrorInfo );
 
+		// Passes the client ID if specified by the user
+		if (clientId.length() > 0 && role.base.roleType == RSSL_RC_RT_OMM_CONSUMER)
+		{
+			role.ommConsumerRole.clientId.data = (char*)clientId.c_str();
+			role.ommConsumerRole.clientId.length = clientId.length();
+		}
+
 		if ( RSSL_RET_SUCCESS != rsslReactorConnect( _pRsslReactor, &connectOpt, ( RsslReactorChannelRole* )&role, &rsslErrorInfo ) )
 		{
 
@@ -671,8 +681,8 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				Channel* pChannel = ( Channel* )reactorConnectInfo[i].rsslConnectOptions.userSpecPtr;
 				if ( pChannel )
 				{
+					// The ChannelList::removeChannel() method also destroys the Channel object as well.
 					_channelList.removeChannel( pChannel );
-					Channel::destroy( pChannel );
 				}
 			}
 

@@ -71,6 +71,24 @@ OmmConsumerConfig& OmmConsumerConfig::applicationId( const EmaString& applicatio
 	return *this;
 }
 
+OmmConsumerConfig& OmmConsumerConfig::clientId(const EmaString& clientId)
+{
+	_pImpl->clientId( clientId );
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::tokenServiceUrl(const EmaString& tokenServiceUrl)
+{
+	_pImpl->tokenServiceUrl( tokenServiceUrl );
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::serviceDiscoveryUrl(const EmaString& serviceDiscoveryUrl)
+{
+	_pImpl->serviceDiscoveryUrl( serviceDiscoveryUrl );
+	return *this;
+}
+
 OmmConsumerConfig& OmmConsumerConfig::host( const EmaString& host )
 {
 	_pImpl->host( host );

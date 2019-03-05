@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_H
@@ -67,6 +67,18 @@ typedef RsslReactorCallbackRet RsslDefaultMsgCallback(RsslReactor*, RsslReactorC
 typedef RsslReactorCallbackRet RsslReactorChannelEventCallback(RsslReactor*, RsslReactorChannel*, RsslReactorChannelEvent*);
 
 /**
+ * @brief Signature of a Authentication Token Event Callback function.
+ * @see RsslReactorAuthTokenEvent
+ */
+typedef RsslReactorCallbackRet RsslReactorAuthTokenEventCallback(RsslReactor*, RsslReactorChannel*, RsslReactorAuthTokenEvent*);
+
+/**
+ * @brief Signature of a Service Endpoint Event Callback function.
+ * @see RsslReactorServiceEndpointEvent
+ */
+typedef RsslReactorCallbackRet RsslReactorServiceEndpointEventCallback(RsslReactor*, RsslReactorServiceEndpointEvent*);
+
+/**
  * @brief Enumerated types indicating the role of a connection.
  * @see RsslReactorChannelRoleBase, RsslReactorOMMConsumerRole, RsslReactorOMMProviderRole, RsslReactorOMMNIProviderRole
  */
@@ -120,6 +132,8 @@ typedef struct
 {
 	RsslReactorChannelRoleBase		base;					/*!< The Base Reactor Channel Role structure. */
 	RsslRDMLoginRequest				*pLoginRequest;			/*!< A Login Request to be sent during the setup of a Consumer-Provider session. Optional. */
+	RsslBuffer						clientId;				/*!< Specifies an unique ID defined for an application making a request to the EDP token service.
+															 * The RsslRDMLoginRequest.userName variable is used if this member is not set. Optional. */
 	RsslRDMLoginMsgCallback			*loginMsgCallback;		/*!< A callback function for processing RsslRDMLoginMsgs received. If not present, the received message will be passed to the defaultMsgCallback. */
 	RsslRDMDirectoryRequest			*pDirectoryRequest;		/*!< A Directory Request to be sent during the setup of a Consumer-Provider session. Optional. Requires pLoginRequest to be set.*/
 	RsslRDMDirectoryMsgCallback		*directoryMsgCallback;	/*!< A callback function for processing RsslRDMDirectoryMsgs received. If not present, the received message will be passed to the defaultMsgCallback. */
@@ -223,6 +237,10 @@ RTR_C_INLINE void rsslClearReactorChannelRole(RsslReactorChannelRole *pRole)
 typedef struct {
 	RsslInt32	dispatchDecodeMemoryBufferSize;	/*!< Size of the memory buffer(in bytes) that the RsslReactor will use when decoding RsslRDMMsgs to pass to callback functions. */
 	void		*userSpecPtr; 					/*!< user-specified pointer which will be set on the Reactor. */
+	RsslBuffer	serviceDiscoveryURL;			/*!< Specifies a URL for the EDP-RT service discovery. The service discovery is used when the connection arguments is not specified
+												 * in the RsslReactorConnectInfo.rsslConnectOptions */
+	RsslBuffer	tokenServiceURL;				/*!< Specifies a URL of the token service to get an access token and a refresh token. This is used for querying EDP-RT service
+												 * discovery and subscribing data from EDP-RT. */
 	int			port;							/*!< @deprecated DEPRECATED: This parameter no longer has any effect. It was a port used for creating the eventFd descriptor on the RsslReactor. It was never used on Linux or Solaris platforms. */
 } RsslCreateReactorOptions;
 
@@ -235,6 +253,10 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	memset(pReactorOpts, 0, sizeof(RsslCreateReactorOptions));
 	pReactorOpts->dispatchDecodeMemoryBufferSize = 65536;
 	pReactorOpts->port = 55000;
+	pReactorOpts->serviceDiscoveryURL.data = (char *)"https://api.refinitiv.com/streaming/pricing/v1";
+	pReactorOpts->serviceDiscoveryURL.length = 46;
+	pReactorOpts->tokenServiceURL.data = (char *)"https://api.refinitiv.com/auth/oauth2/beta1/token";
+	pReactorOpts->tokenServiceURL.length = 49;
 }
 
 /**
@@ -256,17 +278,97 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
  */
 RSSL_VA_API RsslRet rsslDestroyReactor(RsslReactor *pReactor, RsslErrorInfo *pError);
 
+/**
+ * @brief Enumerated types indicating the transport query parameter.
+ * @see RsslReactorServiceDiscoveryOptions
+ */
+typedef enum
+{
+	RSSL_RD_TP_INIT = 0,	/*!< (0) Unknown transport protocol */
+	RSSL_RD_TP_TCP = 1,	/*!< (1) TCP transport protocol */
+	RSSL_RD_TP_WEBSOCKET = 2,	/*!< (2) Websocket transport protocol */
+} RsslReactorDiscoveryTransportProtocol;
+
+/**
+ * @brief Enumerated types indicating the dataformat query parameter.
+ * @see RsslReactorServiceDiscoveryOptions
+ */
+typedef enum
+{
+	RSSL_RD_DP_INIT = 0,	/*!< (0) Unknown data format */
+	RSSL_RD_DP_RWF = 1,	/*!< (1) Rwf data format protocol */
+	RSSL_RD_DP_JSON2 = 2,	/*!< (2) tr_json2 data format protocol */
+} RsslReactorDiscoveryDataFormatProtocol;
+
+/**
+ * @brief Configuraion options for querying EDP-RT service discovery to get service endpoints.
+ * @see rsslReactorQueryServiceDiscovery
+ */
 typedef struct
 {
-	RsslConnectOptions	rsslConnectOptions;		/*!< Options for creating the connection. */
-	RsslUInt32			initializationTimeout;	/*!< Time(in seconds) to wait for successful initialization of a channel. 
-												 * If initialization does not complete in time, a RsslReactorChannelEvent will be sent indicating that the channel is down. */
+	RsslBuffer                              userName; /* !< Specifies a user name for authorization with the token service. */
+	RsslBuffer                              password; /* !< Specifies a password for authorization with the token service. */
+	RsslBuffer                              clientId; /*!< Specifies an unique ID defined for an application making a request to the token service.
+														 * The userName variable is used if this member is not set. */
+	RsslReactorDiscoveryTransportProtocol   transport;  /*!< This is an optional parameter to specify the desired transport protocol to get
+														 * service endpoints from the service discovery. */
+	RsslReactorDiscoveryDataFormatProtocol  dataFormat; /*!< This is an optional parameter to specify the desired data format protocol to get
+														 * service endpoints from the service discovery. */
+	RsslReactorServiceEndpointEventCallback *pServiceEndpointEventCallback; /*!< Callback function that receives RsslReactorServiceEndpointEvents. Applications can use service
+																			 * endpoint information from the callback to get an endpoint and establish a connection to the service */
+
+	void                                    *userSpecPtr; 					/*!< user-specified pointer which will be set on the RsslReactorServiceEndpointEvent. */
+
+	RsslBuffer                              proxyHostName; /*!< specifies a proxy server hostname. */
+	RsslBuffer                              proxyPort;     /*!< specifies a proxy server port. */
+	RsslBuffer                              proxyUserName; /*!< specifies a username to perform authorization with a proxy server. */
+	RsslBuffer                              proxyPasswd;   /*!< specifies a password to perform authorization with a proxy server. */
+	RsslBuffer                              proxyDomain;   /*!< specifies a proxy domain of the user to authenticate.
+															Needed for NTLM or for Negotiate/Kerberos or for Kerberos authentication protocols. */
+
+} RsslReactorServiceDiscoveryOptions;
+
+/**
+ * @brief Clears an RsslReactorServiceDiscoveryOptions object.
+ * @see RsslReactorServiceDiscoveryOptions
+ */
+RTR_C_INLINE void rsslClearReactorServiceDiscoveryOptions(RsslReactorServiceDiscoveryOptions *pOpts)
+{
+	memset(pOpts, 0, sizeof(RsslReactorServiceDiscoveryOptions));
+}
+
+/**
+ * @brief Queries EDP-RT service discovery to get service endpoint information.
+ * @param pReactor The reactor that will handle the request.
+ * @param pOpts The RsslReactorServiceDiscoveryOptions to configure options and specify the RsslReactorServiceEndpointEventCallback to receive service endpoint information.
+ * @param pError Error structure to be populated in the event of failure.
+ */
+RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, RsslReactorServiceDiscoveryOptions* pOpts, RsslErrorInfo *pError);
+
+typedef struct
+{
+	RsslConnectOptions	rsslConnectOptions;		 /*!< Options for creating the connection. */
+	RsslUInt32			initializationTimeout;	 /*!< Time(in seconds) to wait for successful initialization of a channel. 
+												  * If initialization does not complete in time, a RsslReactorChannelEvent will be sent indicating that the channel is down. */
+	RsslBool            enableSessionManagement; /*!< Indicates RsslReactor to request the authentication token and query an endpoint from EDP-RT service discovery if both host
+												  * and port are not specified by users. The watchlist must be enable for the Reactor to send and reissue the token via the login
+												  * request to keep the connection alive on behalf of users.*/
+	RsslBuffer          location;                /*!< Specifies a location to get a service endpoint to establish a connection with service provider. 
+												  * Defaults to "us-east" if not specified. The Reactor always uses a endpoint which provides two availability zones 
+												  * for the location. */
+	RsslReactorAuthTokenEventCallback *pAuthTokenEventCallback; /*!< Callback function that receives RsslReactorAuthTokenEvents. The token is requested 
+	                                                             * by the Reactor for Consumer(disabling watchlist) and NiProvider applications to send login request and
+																 * reissue with the token */
 } RsslReactorConnectInfo;
 
 RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
 {
 	rsslClearConnectOpts(&pInfo->rsslConnectOptions);
 	pInfo->initializationTimeout = 60;
+	pInfo->enableSessionManagement = RSSL_FALSE;
+	pInfo->location.data = (char *)"us-east";
+	pInfo->location.length = 7;
+	pInfo->pAuthTokenEventCallback = NULL;
 }
 
 /**

@@ -20307,7 +20307,7 @@ public class ReactorWatchlistJUnitNew
         /* Consumer receives directory update for streams 2, 5, 15, 20 and 25. */
         /* Consumer does not receive directory update for stream 10 because update does not have INFO. */
         consumerReactor.dispatch(5);        
-        
+
         // Stream 2
         event = consumerReactor.pollEvent();
         assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
@@ -20318,6 +20318,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(receivedUpdateMsg.checkHasMsgKey());
         assertEquals(DomainTypes.SOURCE, receivedUpdateMsg.domainType());
         assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
+
         assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD, receivedUpdateMsg.msgKey().filter()); // make sure filter is 10 (Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD) since filter 0 is functionaly equivalent to 63 (ALL FILTERS except SEQ_MCAST)
 
         // Stream 5
@@ -20376,7 +20377,7 @@ public class ReactorWatchlistJUnitNew
         
         /* Consumer receives directory update for streams 2, 5, 15, 20 and 25. */
         /* Consumer does not receive directory update for stream 10 because update does not have INFO. */
-        
+
         // Stream 2
         consumerReactor.dispatch(5);
         event = consumerReactor.pollEvent();
@@ -20388,6 +20389,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(receivedUpdateMsg.checkHasMsgKey());
         assertEquals(DomainTypes.SOURCE, receivedUpdateMsg.domainType());
         assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
+
         assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD, receivedUpdateMsg.msgKey().filter()); // make sure filter is 10 (Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD) since filter 0 is functionaly equivalent to 63 (ALL FILTERS except SEQ_MCAST)
 
         // Stream 5
@@ -20400,6 +20402,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(receivedUpdateMsg.checkHasMsgKey());
         assertEquals(DomainTypes.SOURCE, receivedUpdateMsg.domainType());
         assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
+
         assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD, receivedUpdateMsg.msgKey().filter()); // make sure filter is 10 (Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD) since filter 0 is functionaly equivalent to 63 (ALL FILTERS except SEQ_MCAST)
 
         // Stream 15
@@ -20413,6 +20416,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DomainTypes.SOURCE, receivedUpdateMsg.domainType());
         assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
         assertEquals(Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.msgKey().filter()); // make sure filter is STATE
+
 
         // Stream 20
         event = consumerReactor.pollEvent();

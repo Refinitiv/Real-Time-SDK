@@ -31,6 +31,10 @@ Elektron-SDK-BinaryPack
 Elektron-SDK-BinaryPack-build
 googletest
 googletest-build
+curl
+curl-build
+cjson
+cjson-build
 
 ## Visual Studio
 

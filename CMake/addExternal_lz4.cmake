@@ -237,6 +237,8 @@ if ((NOT LZ4_FOUND) OR
 
 	endif()
 
+	rcdev_add_external_target(LZ4::LZ4)
+
 endif()
 
 DEBUG_PRINT(LZ4_ROOT)

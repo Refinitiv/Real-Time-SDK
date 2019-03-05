@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_EVENTS_H
@@ -157,6 +157,93 @@ RTR_C_INLINE void rsslClearRDMDictionaryMsgEvent(RsslRDMDictionaryMsgEvent *pEve
 	pEvent->pRDMDictionaryMsg = NULL;
 }
 
+/**
+* @brief Represents authentication token information
+*/
+typedef struct
+{
+	RsslBuffer		accessToken;	/*!<represents access token is used to invoke REST data API calls. */
+	RsslBuffer		refreshToken;	/*!<represents refresh token is used for getting next access token. */
+	RsslInt			expiresIn;		/*!<represents access token validity time in seconds. */
+	RsslBuffer		tokenType;		/*!<represents a token type for specifying in the Authorization header */
+	RsslBuffer		scope;			/*!<represents a list of all the scopes this token can be used with. */
+} RsslReactorAuthTokenInfo;
+
+/**
+ * @brief Clears an RsslReactorAuthTokenInfo.
+ * @see RsslReactorAuthTokenInfo
+ */
+RTR_C_INLINE void rsslClearReactorAuthTokenInfo(RsslReactorAuthTokenInfo *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorAuthTokenInfo));
+	pEvent->expiresIn = -1;
+}
+
+/**
+ * @brief An token information event that has occurred on an RsslReactorChannel.
+ * @see RsslReactorChannel, RsslReactorAuthTokenInfo
+ */
+typedef struct
+{
+	RsslReactorChannel			*pReactorChannel;	/*!< The channel associated with this event. */
+	RsslReactorAuthTokenInfo	*pReactorAuthTokenInfo; /*!< The token information associated with this event. */
+	RsslErrorInfo				*pError; 			/*!< Contains information about the error that occurred with the token information. */
+} RsslReactorAuthTokenEvent;
+
+/**
+ * @brief Clears an RsslReactorAuthTokenEvent.
+ * @see RsslReactorAuthTokenEvent
+ */
+RTR_C_INLINE void rsslClearReactorAuthTokenEvent(RsslReactorAuthTokenEvent *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorAuthTokenEvent));
+}
+
+/**
+* @brief Represents Service Endpoint information
+*/
+typedef struct
+{
+	RsslBuffer      *dataFormatList; /*!< A list of data formats. The list indicates the data format used by transport.*/
+	RsslUInt32      dataFormatCount; /*!< The number of data formats in dataFormatList. */
+	RsslBuffer      endPoint;        /*!< A domain name of the service access endpoint. */
+	RsslBuffer      *locationList;   /*!< A list of locations. The list indicates the location of the service. */
+	RsslUInt32      locationCount;   /*!< The number of locations in locationList. */
+	RsslBuffer      port;            /*!< A port number used to establish connection. */
+	RsslBuffer      provider;        /*!< A public cloud provider. */
+	RsslBuffer      transport;       /*!< A transport type used to access service. */
+} RsslReactorServiceEndpointInfo;
+
+/**
+ * @brief Clears an RsslReactorServiceEndpointInfo.
+ * @see RsslReactorServiceEndpointInfo
+ */
+RTR_C_INLINE void rsslClearReactorServiceEndpointInfo(RsslReactorServiceEndpointInfo *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorServiceEndpointInfo));
+}
+
+/**
+ * @brief A service endpoint information event that has occurred.
+ * @see RsslReactorServiceEndpointInfo
+ */
+typedef struct
+{
+	RsslReactorServiceEndpointInfo *serviceEndpointInfoList; /*!< The list of service endpoints associated with this event. */
+	RsslUInt32                     serviceEndpointInfoCount; /*!< The number of service endpoint information in serviceEndpointInfoList. */
+	void                           *userSpecPtr;        /*!< A user-specified pointer associated with this RsslReactorServiceEndpointEvent. */
+	RsslErrorInfo                  *pErrorInfo;             /*!< Contains information about the error that occurred with EDP token service and service discovery 
+                                                             * which provides information about the error and its location in the source code. */
+} RsslReactorServiceEndpointEvent;
+
+/**
+ * @brief Clears an RsslReactorServiceEndpointEvent.
+ * @see RsslReactorServiceEndpointEvent
+ */
+RTR_C_INLINE void rsslClearReactorServiceEndpointEvent(RsslReactorServiceEndpointEvent *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorServiceEndpointEvent));
+}
 
 /**
  *	@}

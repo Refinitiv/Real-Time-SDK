@@ -81,7 +81,7 @@ VAConsumer
 
 or
 
-VAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain]
+VAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-passwd <LoginPassword>]  [-sessionMgnt] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain]
 
 
 -tcp specifies creating a channel on the given host and port, a service to request items from, and the list of items to request.
@@ -93,6 +93,9 @@ The domain may also be any of the private stream domains: mpps(MarketPrice PS), 
 
 Symbol list requests may optionally specify a name, e.g. "sl:_UPA_ITEM_LIST." If a name is not
 specified, the consumer will use the ItemList from the directory response.
+
+Specifying the -sessionMgnt option enables session management in the Reactor to perform
+authentication token management and query EDP-RT service discovery on be half of users.
 
 Specifying the -view option will result in a dynamic view being requested with any
 MarketPrice items.  If the provider does not indicate support for dynamic views, this

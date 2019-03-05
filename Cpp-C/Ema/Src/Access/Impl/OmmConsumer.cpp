@@ -8,6 +8,7 @@
 
 #include "OmmConsumer.h"
 #include "OmmConsumerConfig.h"
+#include "OmmConsumerConfigImpl.h"
 #include "OmmConsumerImpl.h"
 #include "ExceptionTranslator.h"
 
@@ -18,6 +19,7 @@ OmmConsumer::OmmConsumer( const OmmConsumerConfig& config ) :
 {
 	try
 	{
+		config._pImpl->validateSpecifiedSessionName();
 		_pImpl = new OmmConsumerImpl( config );
 	}
 	catch ( std::bad_alloc ) {}
@@ -31,6 +33,7 @@ OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& cli
 {
 	try
 	{
+		config._pImpl->validateSpecifiedSessionName();
 		_pImpl = new OmmConsumerImpl(config, client, closure);
 	}
 	catch (std::bad_alloc) {}
@@ -44,6 +47,7 @@ OmmConsumer::OmmConsumer( const OmmConsumerConfig& config, OmmConsumerErrorClien
 {
 	try
 	{
+		config._pImpl->validateSpecifiedSessionName();
 		_pImpl = new OmmConsumerImpl( config, client );
 	}
 	catch ( std::bad_alloc ) {}
@@ -57,6 +61,7 @@ OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& adm
 {
 	try
 	{
+		config._pImpl->validateSpecifiedSessionName();
 		_pImpl = new OmmConsumerImpl(config, adminClient, errorClient, closure);
 	}
 	catch (std::bad_alloc) {}

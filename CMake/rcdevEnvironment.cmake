@@ -46,6 +46,29 @@ set( RCDEV_LIST_NODE_MULTIVALUE	DEPENDS			  # Source repo direct dependencies
 								)
 
 #############################################################
+#  Add an externslly genersted  target object to the projects
+#    list of external added targets and will be available 
+#  input ARGS  - any args are assumed to be properly namespaced
+#                tatget objects
+#      i.e.  rcdev_add_external_target(ZLIB::ZLIB LZ4::LZ4)
+#############################################################
+macro(rcdev_add_external_target)
+	set(_rtl "${RCDEV_REPO_EXTERNAL_TARGET_LIST}")
+	foreach(_t ${ARGN})
+		if ((TARGET ${_t}) AND
+			(NOT ("${_t}" IN_LIST _rtl)) )
+			if (RCDEV_TRACE_TARGETS)
+				message ("\t   Adding")
+				DEBUG_PRINT("${_t}")
+			endif()
+			list(APPEND _rtl "${_t}")
+		endif()
+	endforeach()
+	set(RCDEV_REPO_EXTERNAL_TARGET_LIST	"${_rtl}" CACHE INTERNAL "")
+	unset(_rtl)
+endmacro()
+
+#############################################################
 #  Add target object to the projects list of added targets and 
 #    will be made available to the wrapped find_package
 #  input _t_nspace  - the namespace value for the target object

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -83,6 +83,7 @@ typedef struct
 	RsslUInt16			hsmInterval;					/* HSM publishing interval (seconds). */
 
 	RsslBuffer			userName;						/* Username to use when logging in. */
+	RsslBuffer			password;						/* Password to use when logging in. */
 	RsslBuffer			serviceName;					/* Service name to use when requesting items. */
 	RsslBuffer			authenticationToken;			/* Authentication token used for logging in */
 	RsslBuffer			authenticationExtended;			/* Extended Authentication information used for logging in */
@@ -105,12 +106,20 @@ typedef struct
 	RsslBool			useAuthentication;				/* Whether to use authentication when
 														 * opening a tunnel stream. */
 
+	RsslBool			enableSessionMgnt;				/* Enables the session management to keep the session alive */
+	RsslBuffer			clientId;						/* Unique ID defined for application making request to EDP token service */  
+	RsslBuffer			location;						/* Location to get an endpoint from EDP Service discovery */
+	RsslBool			queryEndpoint;					/* Queries the EDP service discovery in application for the specified connection type and location. */	
+
 	char			_userNameMem[255];
+	char			_passwordMem[255];
 	char			_serviceNameMem[255];
 	char			_tunnelStreamServiceNameMem[255];
 	char 			_authenticationTokenMem[1024];
 	char			_authenticationExtendedMem[1024];
 	char 			_appIdMem[255];
+	char 			_clientIdMem[255];
+	char 			_locationMem[255];
 } WatchlistConsumerConfig;
 extern WatchlistConsumerConfig watchlistConsumerConfig;
 
@@ -150,7 +159,7 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslRe
 
  static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslMsgEvent* pMsgEvent);
 
-
+ static RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslReactorServiceEndpointEvent *pEndPointEvent); 
 #ifdef __cplusplus
 }
 #endif

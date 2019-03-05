@@ -784,7 +784,7 @@ class DirectoryItem<T> extends SingleItem<T>
 		{
 			directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceName());
 
-			if (directory == null && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
+			if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
 			{
 				/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
 				_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);
@@ -806,7 +806,7 @@ class DirectoryItem<T> extends SingleItem<T>
 			{
 				directory = _baseImpl.directoryCallbackClient().directory(reqMsg.serviceId());
 
-				if (directory == null && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() && _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0)
+				if (directory == null && (!_baseImpl.loginCallbackClient().loginRefreshMsg().attrib().checkHasSingleOpen() || _baseImpl.loginCallbackClient().loginRefreshMsg().attrib().singleOpen() == 0))
 				{
 					/* This ensures that the user will get a valid handle.  The callback should clean it up after. */
 					_baseImpl._itemCallbackClient.addToItemMap(LongIdGenerator.nextLongId(), this);

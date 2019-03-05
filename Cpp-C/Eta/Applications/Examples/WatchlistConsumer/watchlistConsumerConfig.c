@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2015. All rights reserved.
+ * Copyright Thomson Reuters 2018. All rights reserved.
 */
 
 /*
@@ -55,23 +55,27 @@ static void addItem(char *itemName, RsslUInt8 domainType, RsslBool symbolListDat
 void printUsageAndExit(int argc, char **argv)
 {
 	printf("Usage: %s"
-			" or %s [-c <Connection Type> ] [-if <Interface Name>] [ -u <Login UserName> ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
-			" -c       Specifies connection type. Valid arguments are socket, http, encrypted, and reliableMCast.\n"
-			" -ec      Specifies the encrypted transport protocol. Valid arguments are socket, and http.  Http is only supported on Windows Platforms.\n"
-			" -if      Specifies the address of a specific network interface to use.\n"
-			" -mp      For each occurance, requests item using Market Price domain.\n"
-			" -mbo     For each occurance, requests item on the Market By Order domain.\n"
-			" -mbp     For each occurance, requests item on the Market By Price domain.\n"
-			" -yc      For each occurance, requests item on the Yield Curve domain.\n"
-			" -sl      For each occurance, requests item on the Symbol List domain.\n"
-			" -sld     For each occurance, requests item on the Symbol List domain and data streams for items on that list.\n"
-			" -post    Specifies that the application should attempt to send post messages on the first requested Market Price item (i.e., on-stream)\n"
-			" -offpost Specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n"
-			" -x       Enables tracing of messages sent to and received from the channel.\n"
-			" -runTime Adjusts the running time of the application.\n"
-			" -at	   Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
-			" -ax      Specifies the Authentication Extended information.\n"
-			" -aid	   Specifies the Application ID.\n"
+		" or %s [-c <Connection Type> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
+			" -c           Specifies connection type. Valid arguments are socket, http, encrypted, and reliableMCast.\n"
+			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, and http.  Http is only supported on Windows Platforms.\n"
+			" -if          Specifies the address of a specific network interface to use.\n"
+			" -clientId    Specifies an unique ID for application making the request to EDP token service.\n"
+			" -sessionMgnt Enables session management in the Reactor.\n"
+			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.\n"
+			" -query       Quries EDP service discovery to get an endpoint according the specified connection type and location.\n"
+			" -mp          For each occurance, requests item using Market Price domain.\n"
+			" -mbo         For each occurance, requests item on the Market By Order domain.\n"
+			" -mbp         For each occurance, requests item on the Market By Price domain.\n"
+			" -yc          For each occurance, requests item on the Yield Curve domain.\n"
+			" -sl          For each occurance, requests item on the Symbol List domain.\n"
+			" -sld         For each occurance, requests item on the Symbol List domain and data streams for items on that list.\n"
+			" -post        Specifies that the application should attempt to send post messages on the first requested Market Price item (i.e., on-stream)\n"
+			" -offpost     Specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n"
+			" -x           Enables tracing of messages sent to and received from the channel.\n"
+			" -runTime     Adjusts the running time of the application.\n"
+			" -at	       Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
+			" -ax          Specifies the Authentication Extended information.\n"
+			" -aid	       Specifies the Application ID.\n"
 			"\n"
 			" Connection options for socket, http, and encrypted connection types:\n"
 			"   [ -h <Server Hostname> ] [ -p <Port> ]\n"
@@ -135,8 +139,6 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_INIT;
 
 	/* Set defaults. */
-	snprintf(watchlistConsumerConfig.hostName, 255, "%s", defaultHostName);
-	snprintf(watchlistConsumerConfig.port, 255, "%s", defaultPort);
 	snprintf(watchlistConsumerConfig.interface, 255, "");
 
 	watchlistConsumerConfig.serviceName = defaultServiceName;
@@ -336,6 +338,13 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 				(RsslUInt32)snprintf(watchlistConsumerConfig._userNameMem, 255, "%s", argv[i]);
 			watchlistConsumerConfig.userName.data = watchlistConsumerConfig._userNameMem;
 		}
+		else if (0 == strcmp(argv[i], "-passwd"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.password.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._passwordMem, 255, "%s", argv[i]);
+			watchlistConsumerConfig.password.data = watchlistConsumerConfig._passwordMem;
+		}
 		else if (0 == strcmp(argv[i], "-at"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -428,12 +437,42 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			xmlTrace = RSSL_TRUE;
 		}
+		else if (strcmp("-sessionMgnt", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.enableSessionMgnt = RSSL_TRUE;
+		}
+		else if (0 == strcmp(argv[i], "-clientId"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.clientId.length = 
+				(RsslUInt32)snprintf(watchlistConsumerConfig._clientIdMem, 255, "%s", argv[i]);
+			watchlistConsumerConfig.clientId.data = watchlistConsumerConfig._clientIdMem;
+		}
+		else if (0 == strcmp(argv[i], "-l"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.location.length = 
+				(RsslUInt32)snprintf(watchlistConsumerConfig._locationMem, 255, "%s", argv[i]);
+			watchlistConsumerConfig.location.data = watchlistConsumerConfig._locationMem;
+		}
+		else if (strcmp("-query", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.queryEndpoint = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Config Error: Unknown option %s\n", argv[i]);
 			printUsageAndExit(argc, argv);
 		}
+	}
 
+	if (!watchlistConsumerConfig.enableSessionMgnt)
+	{
+		if (strlen(watchlistConsumerConfig.hostName) == 0)
+			snprintf(watchlistConsumerConfig.hostName, 255, "%s", defaultHostName);
+
+		if (strlen(watchlistConsumerConfig.port) == 0)
+			snprintf(watchlistConsumerConfig.port, 255, "%s", defaultPort);
 	}
 
 	if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST)

@@ -118,5 +118,11 @@
 #include "Rdm/Include/EnumTypeTable.h"
 #include "Rdm/Include/DictionaryUtility.h"
 
+#include "Access/Include/ServiceEndpointDiscovery.h"
+#include "Access/Include/ServiceEndpointDiscoveryClient.h"
+#include "Access/Include/ServiceEndpointDiscoveryEvent.h"
+#include "Access/Include/ServiceEndpointDiscoveryInfo.h"
+#include "Access/Include/ServiceEndpointDiscoveryOption.h"
+#include "Access/Include/ServiceEndpointDiscoveryResp.h"
 
 #endif // __thomsonreuters_ema_Ema_h

@@ -342,6 +342,8 @@
 			<Port value="15008"/>
 			<TcpNodelay value="0"/>
 			<ObjectName value="HttpObjectName"/>
+			<Location value="eu-west"/>
+			<EnableSessionManagement value="1"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_3"/>

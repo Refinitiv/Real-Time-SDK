@@ -38,55 +38,62 @@ void OmmNiProviderConfigImpl::clear()
 
 void OmmNiProviderConfigImpl::providerName( const EmaString& providerName )
 {
-	_configSessionName.append(providerName);
+	// Keep the session name to check laster after all configuration methods is called
+	_configSessionName.set(providerName);
+}
 
-	if ( _pProgrammaticConfigure && _pProgrammaticConfigure->specifyNiProviderName( providerName ) )
+void OmmNiProviderConfigImpl::validateSpecifiedSessionName()
+{
+	if (_configSessionName.empty())
 		return;
 
-	EmaString item( "NiProviderGroup|NiProviderList|NiProvider." );
-	item.append( providerName ).append( "|Name" );
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->specifyNiProviderName(_configSessionName))
+		return;
+
+	EmaString item("NiProviderGroup|NiProviderList|NiProvider.");
+	item.append(_configSessionName).append("|Name");
 	EmaString name;
-	if ( get( item, name ) )
+	if (get(item, name))
 	{
-		if ( ! set( "NiProviderGroup|DefaultNiProvider", providerName ) )
+		if (!set("NiProviderGroup|DefaultNiProvider", _configSessionName))
 		{
-			EmaString mergeString( "<EmaConfig><NiProviderGroup><DefaultNiProvider value=\"" );
-			mergeString.append( providerName ).append( "\"/></NiProviderGroup></EmaConfig>" );
-			xmlDocPtr xmlDoc = xmlReadMemory( mergeString.c_str(), mergeString.length(), NULL, "notnamed.xml", XML_PARSE_HUGE );
-			if ( xmlDoc == NULL )
+			EmaString mergeString("<EmaConfig><NiProviderGroup><DefaultNiProvider value=\"");
+			mergeString.append(_configSessionName).append("\"/></NiProviderGroup></EmaConfig>");
+			xmlDocPtr xmlDoc = xmlReadMemory(mergeString.c_str(), mergeString.length(), NULL, "notnamed.xml", XML_PARSE_HUGE);
+			if (xmlDoc == NULL)
 				return;
-			xmlNodePtr _xmlNodePtr = xmlDocGetRootElement( xmlDoc );
-			if ( _xmlNodePtr == NULL )
+			xmlNodePtr _xmlNodePtr = xmlDocGetRootElement(xmlDoc);
+			if (_xmlNodePtr == NULL)
 				return;
-			if ( xmlStrcmp( _xmlNodePtr->name, ( const xmlChar* ) "EmaConfig" ) )
+			if (xmlStrcmp(_xmlNodePtr->name, (const xmlChar*) "EmaConfig"))
 				return;
-			XMLnode* tmp( new XMLnode( "EmaConfig", 0, 0 ) );
-			processXMLnodePtr( tmp, _xmlNodePtr );
-			_pEmaConfig->merge( tmp );
-			xmlFreeDoc( xmlDoc );
+			XMLnode* tmp(new XMLnode("EmaConfig", 0, 0));
+			processXMLnodePtr(tmp, _xmlNodePtr);
+			_pEmaConfig->merge(tmp);
+			xmlFreeDoc(xmlDoc);
 			delete tmp;
 		}
 	}
 	else
 	{
-		if ( providerName == DEFAULT_NIPROV_NAME )
+		if (_configSessionName == DEFAULT_NIPROV_NAME)
 		{
-			XMLnode* niProviderList( _pEmaConfig->find< XMLnode >( "NiProviderGroup|NiProviderList" ) );
-			if ( niProviderList )
+			XMLnode* niProviderList(_pEmaConfig->find< XMLnode >("NiProviderGroup|NiProviderList"));
+			if (niProviderList)
 			{
 				EmaList< XMLnode::NameString* > theNames;
-				niProviderList->getNames( theNames );
-				if ( theNames.empty() )
+				niProviderList->getNames(theNames);
+				if (theNames.empty())
 					return;
 			}
 			else
 				return;
 		}
 
+		EmaString errorMsg("OmmNiProviderConfigImpl::providerName parameter [");
+		errorMsg.append(_configSessionName).append("] is a non-existent provider name");
 		_configSessionName.clear();
-		EmaString errorMsg( "OmmNiProviderConfigImpl::providerName parameter [" );
-		errorMsg.append( providerName ).append( "] is a non-existent provider name" );
-		throwIceException( errorMsg );
+		throwIceException(errorMsg);
 	}
 }
 

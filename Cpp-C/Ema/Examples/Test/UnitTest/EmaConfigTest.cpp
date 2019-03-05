@@ -214,6 +214,10 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE( debugResult && retrievedValue == "HttpObjectName" ) << "extracting ObjectName from EmaConfig.xml";
 	debugResult = config.get<UInt64>( "ChannelGroup|ChannelList|Channel.Channel_2|CompressionThreshold", uintValue );
 	EXPECT_TRUE( debugResult && uintValue == 4096) << "extracting CompressionThreshold from EmaConfig.xml";
+	debugResult = config.get<EmaString>("ChannelGroup|ChannelList|Channel.Channel_2|Location", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "eu-west") << "extracting Location from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|EnableSessionManagement", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting TcpNodelay from EmaConfig.xml";
 
 	// Checks all values from Logger_1
 	debugResult = config.get<EmaString>( "LoggerGroup|LoggerList|Logger|Name", retrievedValue );
@@ -586,6 +590,79 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./RDMFieldDictionary" ) << "rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == "./enumtype.def" ) << "enumtypeDefFileName , \"./enumtype.def\"";
+	}
+	catch (const OmmException& excp)
+	{
+		std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+		EXPECT_TRUE(false) << "Unexpected exception in testLoadingConfigurationFromProgrammaticConfig()";
+	}
+}
+
+TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionManagement)
+{
+	Map outermostMap, innerMap;
+	ElementList elementList;
+	try
+	{
+		elementList.addAscii("DefaultConsumer", "Consumer_1");
+
+		innerMap.addKeyAscii("Consumer_1", MapEntry::AddEnum, ElementList()
+			.addAscii("Channel", "Channel_1")
+			.addAscii("Dictionary", "Dictionary_1").complete())
+			.complete();
+
+		elementList.addMap("ConsumerList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("ConsumerGroup", MapEntry::AddEnum, elementList);
+
+		elementList.clear();
+
+		innerMap.addKeyAscii("Channel_1", MapEntry::AddEnum, ElementList()
+			.addEnum("ChannelType", 1)
+			.addAscii("Location", "eu-west")
+			.addUInt("EnableSessionManagement", 1)
+			.complete())
+			.complete();
+
+		elementList.addMap("ChannelList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("ChannelGroup", MapEntry::AddEnum, elementList);
+
+		elementList.clear();
+
+		innerMap.addKeyAscii("Dictionary_1", MapEntry::AddEnum,
+			ElementList()
+			.addEnum("DictionaryType", 0)
+			.addAscii("RdmFieldDictionaryFileName", "./RDMFieldDictionary")
+			.addAscii("EnumTypeDefFileName", "./enumtype.def").complete()).complete();
+
+		elementList.addMap("DictionaryList", innerMap);
+
+		elementList.complete();
+
+		outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+
+		outermostMap.complete();
+
+		SCOPED_TRACE("Must load data dictionary files from current working location\n");
+		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).username(g_userName).password(g_password));
+
+		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
+		bool found = ommConsumerImpl.getInstanceName().find("Consumer_1") >= 0 ? true : false;
+		EXPECT_TRUE(found) << "ommConsumerImpl.getConsumerName() , \"Consumer_1_1\"";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1") << "Connection name , \"Channel_1\"";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->location == "eu-west") << "EncryptedChannelConfig::location , \"eu-west\"";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->enableSessionMgnt == 1) << "EncryptedChannelConfig::enableSessionMgnt , 1";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == "./enumtype.def") << "enumtypeDefFileName , \"./enumtype.def\"";
 	}
 	catch (const OmmException& excp)
 	{

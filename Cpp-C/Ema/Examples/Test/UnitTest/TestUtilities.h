@@ -43,6 +43,9 @@ class EmaBuffer;
 
 }
 
+extern thomsonreuters::ema::access::EmaString g_userName;
+extern thomsonreuters::ema::access::EmaString g_password;
+
 void encodeFieldList( RsslBuffer& rsslBuf, thomsonreuters::ema::access::EmaString& inText );
 void encodeNonRWFData( RsslBuffer* rsslBuf, RsslBuffer* value );
 bool loadDictionaryFromFile( RsslDataDictionary* pDictionary );

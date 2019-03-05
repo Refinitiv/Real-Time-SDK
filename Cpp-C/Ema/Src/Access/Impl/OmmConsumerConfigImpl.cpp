@@ -43,55 +43,62 @@ OmmConsumerConfigImpl::~OmmConsumerConfigImpl()
 
 void OmmConsumerConfigImpl::consumerName( const EmaString& consumerName )
 {
-	_configSessionName.append(consumerName);
+	// Keep the session name to check laster after all configuration methods is called	
+	_configSessionName.set(consumerName);
+}
 
-	if ( _pProgrammaticConfigure && _pProgrammaticConfigure->specifyConsumerName( consumerName ) )
+void OmmConsumerConfigImpl::validateSpecifiedSessionName()
+{
+	if (_configSessionName.empty())
 		return;
 
-	EmaString item( "ConsumerGroup|ConsumerList|Consumer." );
-	item.append( consumerName ).append( "|Name" );
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->specifyConsumerName(_configSessionName))
+		return;
+
+	EmaString item("ConsumerGroup|ConsumerList|Consumer.");
+	item.append(_configSessionName).append("|Name");
 	EmaString name;
-	if ( get( item, name ) )
+	if (get(item, name))
 	{
-		if ( ! set( "ConsumerGroup|DefaultConsumer", consumerName ) )
+		if (!set("ConsumerGroup|DefaultConsumer", _configSessionName))
 		{
-			EmaString mergeString( "<EmaConfig><ConsumerGroup><DefaultConsumer value=\"" );
-			mergeString.append( consumerName ).append( "\"/></ConsumerGroup></EmaConfig>" );
-			xmlDocPtr xmlDoc = xmlReadMemory( mergeString.c_str(), mergeString.length(), NULL, "notnamed.xml", XML_PARSE_HUGE );
-			if ( xmlDoc == NULL )
+			EmaString mergeString("<EmaConfig><ConsumerGroup><DefaultConsumer value=\"");
+			mergeString.append(_configSessionName).append("\"/></ConsumerGroup></EmaConfig>");
+			xmlDocPtr xmlDoc = xmlReadMemory(mergeString.c_str(), mergeString.length(), NULL, "notnamed.xml", XML_PARSE_HUGE);
+			if (xmlDoc == NULL)
 				return;
-			xmlNodePtr _xmlNodePtr = xmlDocGetRootElement( xmlDoc );
-			if ( _xmlNodePtr == NULL )
+			xmlNodePtr _xmlNodePtr = xmlDocGetRootElement(xmlDoc);
+			if (_xmlNodePtr == NULL)
 				return;
-			if ( xmlStrcmp( _xmlNodePtr->name, ( const xmlChar* ) "EmaConfig" ) )
+			if (xmlStrcmp(_xmlNodePtr->name, (const xmlChar*) "EmaConfig"))
 				return;
-			XMLnode* tmp( new XMLnode( "EmaConfig", 0, 0 ) );
-			processXMLnodePtr( tmp, _xmlNodePtr );
-			_pEmaConfig->merge( tmp );
-			xmlFreeDoc( xmlDoc );
+			XMLnode* tmp(new XMLnode("EmaConfig", 0, 0));
+			processXMLnodePtr(tmp, _xmlNodePtr);
+			_pEmaConfig->merge(tmp);
+			xmlFreeDoc(xmlDoc);
 			delete tmp;
 		}
 	}
 	else
 	{
-		if ( consumerName == DEFAULT_CONS_NAME)
+		if (_configSessionName == DEFAULT_CONS_NAME)
 		{
-			XMLnode* consumerList( _pEmaConfig->find< XMLnode >( "ConsumerGroup|ConsumerList" ) );
-			if ( consumerList )
+			XMLnode* consumerList(_pEmaConfig->find< XMLnode >("ConsumerGroup|ConsumerList"));
+			if (consumerList)
 			{
 				EmaList< XMLnode::NameString* > theNames;
-				consumerList->getNames( theNames );
-				if ( theNames.empty() )
+				consumerList->getNames(theNames);
+				if (theNames.empty())
 					return;
 			}
 			else
 				return;
 		}
 
+		EmaString errorMsg("OmmConsumerConfigImpl::consumerName parameter [");
+		errorMsg.append(_configSessionName).append("] is a non-existent consumer name");
 		_configSessionName.clear();
-		EmaString errorMsg( "OmmConsumerConfigImpl::consumerName parameter [" );
-		errorMsg.append( consumerName ).append( "] is a non-existent consumer name" );
-		throwIceException( errorMsg );
+		throwIceException(errorMsg);
 	}
 }
 
