@@ -219,6 +219,29 @@ function(get_lsb_release_info _relid _relnum)
 
 endfunction()
 
+# Because of some legacy static path definitions, some paths
+# have GCC and/or OL6 in place of GNU and/or RHEL6.  So in order to support
+# old past haunts, hints will be added in case past wrongs
+# are corrected
+function(rcdev_get_normalized_platform_suffix suffix)
+	set(_sfx)
+	if (WIN32)
+		rcdev_get_platform_suffix(_sfx)
+	else()
+		if ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "ORACLE" ) AND 
+			(RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 6 ))
+			rcdev_get_platform_suffix(_sfx "gcc" "rhel")
+		elseif ( ((RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "CENTOS") OR
+				 (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND
+				 (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 7 ) )
+			rcdev_get_platform_suffix(_sfx "gcc" "centOS")
+		else()
+			rcdev_get_platform_suffix(_sfx "gcc" )
+		endif()
+	endif()
+	set(${suffix} "${_sfx}" PARENT_SCOPE)		
+endfunction()
+
 function(rcdev_get_platform_suffix suffix)
 
 	set(_abbrev ${RCDEV_HOST_SYSTEM_NAME_ABREV})

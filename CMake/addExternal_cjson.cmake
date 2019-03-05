@@ -118,8 +118,8 @@ if( (NOT cjson_USE_INSTALLED) AND
 	# single build type platforms, like Linux, the current config typed is built and installed
 	if (WIN32)
 		set( _EPA_INSTALL_COMMAND 
-					"INSTALL_COMMAND    ${CMAKE_COMMAND}   --build .  --target install  --config Release "
-					"        COMMAND    ${CMAKE_COMMAND}   --build .  --target install  --config Debug ")
+					"INSTALL_COMMAND    \"${CMAKE_COMMAND}\"   --build .  --target install  --config Release "
+					"        COMMAND    \"${CMAKE_COMMAND}\"   --build .  --target install  --config Debug ")
 	else()
 		set( _EPA_INSTALL_COMMAND 
 					"INSTALL_COMMAND    ${CMAKE_COMMAND}   --build .  --target install  --config ${_cfg_type} ")
