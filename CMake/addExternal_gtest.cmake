@@ -45,7 +45,11 @@ if( (NOT gtest_USE_INSTALLED) AND
 
 	list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${gtest_download}")
 	if (DEFINED _dl_filename)
-		list(APPEND _DL_METHOD "DOWNLOAD_NAME  gtest-${_dl_filename}" )
+		if(NOT (${_dl_filename} MATCHES "^gtest"))
+			list(APPEND _DL_METHOD "DOWNLOAD_NAME  gtest-${_dl_filename}" )
+		else()
+			list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
+		endif()
 	endif()
 
 	# check for any defined flags
@@ -132,7 +136,13 @@ if( (NOT gtest_USE_INSTALLED) AND
 	endif()
 
 	if(NOT GTEST_ROOT)
-		set(GTEST_ROOT "${gtest_install}" CACHE INTERNAL "")
+		set(GTEST_ROOT "${gtest_install}" CACHE PATH "")
+	endif()
+
+	# In some configurations the gtestConfig cmake modules will return a value '/include'
+	# for the INTERFACE_DIRECTORY. So setting GTEST_INCLUDE here in an attempt to avoid this
+	if (EXISTS "${gtest_install}/include/gtest/gtest.h")
+		set(GTEST_INCLUDE_DIR "${gtest_install}/include")
 	endif()
 
 	unset(_shared_arg)

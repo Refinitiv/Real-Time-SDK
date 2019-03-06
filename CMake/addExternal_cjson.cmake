@@ -47,7 +47,11 @@ if( (NOT cjson_USE_INSTALLED) AND
 	list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${cjson_download}")
 
 	if (DEFINED _dl_filename)
-		list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
+		if(NOT (${_dl_filename} MATCHES "^cjson"))
+			list(APPEND _DL_METHOD "DOWNLOAD_NAME cjson-${_dl_filename}" )
+		else()
+			list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
+		endif()
 	endif()
 
 	# the top CMake entry point is not in the top source_dir location
