@@ -127,6 +127,7 @@ else() # if ( CMAKE_HOST_WIN32 )
 		if(NOT EXISTS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/350k.xml)
 			add_custom_command(
 				TARGET TransportPerf POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}
 				COMMAND ${CMAKE_COMMAND} -E copy
 						 ${EtaExamples_SOURCE_DIR}/PerfTools/Common/350k.xml
 						 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/350k.xml
@@ -137,6 +138,7 @@ else() # if ( CMAKE_HOST_WIN32 )
 		if(NOT EXISTS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/350k.xml)
 			add_custom_command(
 				TARGET TransportPerf POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}
 				COMMAND ${CMAKE_COMMAND} -E copy
 						 ${EtaExamples_SOURCE_DIR}/PerfTools/Common/350k.xml
 						 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/350k.xml
@@ -149,6 +151,7 @@ else() # if ( CMAKE_HOST_WIN32 )
 		if(NOT EXISTS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/350k.xml)
 			add_custom_command(
 				TARGET TransportPerf_shared POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared
 				COMMAND ${CMAKE_COMMAND} -E copy
 						 ${EtaExamples_SOURCE_DIR}/PerfTools/Common/350k.xml
 						 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/350k.xml
@@ -159,6 +162,7 @@ else() # if ( CMAKE_HOST_WIN32 )
 		if(NOT EXISTS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/350k.xml)
 			add_custom_command(
 			TARGET TransportPerf_shared POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared
 				COMMAND ${CMAKE_COMMAND} -E copy
 						 ${EtaExamples_SOURCE_DIR}/PerfTools/Common/350k.xml
 						 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/350k.xml

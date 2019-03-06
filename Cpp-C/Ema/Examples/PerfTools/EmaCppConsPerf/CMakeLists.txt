@@ -124,6 +124,7 @@ else() # if ( CMAKE_HOST_WIN32 )
 		if(NOT EXISTS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/350k.xml)
 			add_custom_command(
 				TARGET EmaCppConsPerf POST_BUILD
+				COMMAND ${CMAKE_COMMAND} make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD} 
 				COMMAND ${CMAKE_COMMAND} -E copy
 						 ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/350k.xml
 						 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/350k.xml
@@ -134,6 +135,7 @@ else() # if ( CMAKE_HOST_WIN32 )
 		if(NOT EXISTS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/350k.xml)
 			add_custom_command(
 				TARGET EmaCppConsPerf POST_BUILD
+				COMMAND ${CMAKE_COMMAND} make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD} 
 				COMMAND ${CMAKE_COMMAND} -E copy
 						 ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/350k.xml
 						 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/350k.xml
@@ -146,6 +148,7 @@ else() # if ( CMAKE_HOST_WIN32 )
 		if(NOT EXISTS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/350k.xml)
 			add_custom_command(
 				TARGET EmaCppConsPerf_shared POST_BUILD
+				COMMAND ${CMAKE_COMMAND} make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared 
 				COMMAND ${CMAKE_COMMAND} -E copy
 						 ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/350k.xml
 						 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/350k.xml
@@ -156,6 +159,7 @@ else() # if ( CMAKE_HOST_WIN32 )
 		if(NOT EXISTS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/350k.xml)
 			add_custom_command(
 			TARGET EmaCppConsPerf_shared POST_BUILD
+				COMMAND ${CMAKE_COMMAND} make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared 
 				COMMAND ${CMAKE_COMMAND} -E copy
 						 ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/350k.xml
 						 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/350k.xml
