@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -31,7 +31,10 @@ void printHelp()
 	cout << endl << "Options:\n" << " -?\tShows this usage\n"
 		<< " -ph Proxy host name \n"
 		<< " -pp Proxy port number \n"
-		//APIQA
+		<< " -plogin User name on proxy server \n"
+		<< " -ppasswd Password on proxy server \n"
+		<< " -pdomain Proxy Domain \n"
+			//APIQA
 		<< " -objectname ObjectName \n"
 		<< " -spTLSv1 enable use of cryptopgrahic protocol TLSv1 used with linux encrypted connections \n"
 		<< " -spTLSv1.1 enable use of cryptopgrahic protocol TLSv1.1 used with linux encrypted connections \n"
@@ -49,7 +52,7 @@ int main( int argc, char* argv[] )
 
 		for (int i = 0; i < argc; i++)
 		{
-			if (argv[i] == "-?")
+			if (strcmp(argv[i], "-?") == 0)
 			{
 				printHelp();
 				return false;
@@ -61,6 +64,18 @@ int main( int argc, char* argv[] )
 			else if (strcmp(argv[i], "-pp") == 0)
 			{
 				config.tunnelingProxyPort(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-plogin") == 0)
+			{
+				config.proxyUserName(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-ppasswd") == 0)
+			{
+				config.proxyPasswd(i < (argc - 1) ? argv[++i] : NULL);
+			}
+			else if (strcmp(argv[i], "-pdomain") == 0)
+			{
+				config.proxyDomain(i < (argc - 1) ? argv[++i] : NULL);
 			}
 			else if (strcmp(argv[i], "-spTLSv1") == 0)
 			{
@@ -83,9 +98,9 @@ int main( int argc, char* argv[] )
 				config.tunnelingLibCryptoName(i < (argc - 1) ? argv[++i] : NULL);
 			}
 			//APIQA
-			else if (strcmp(argv[i], "-objectname") == 0)
+			else if (strcmp(argv[i], "-objectname") == 0) 
 			{
-			    config.tunnelingObjectName(i < (argc - 1) ? argv[++i] : NULL);
+				config.tunnelingObjectName(i < (argc - 1) ? argv[++i] : NULL);
 			}
 			//END APIQA
 		}

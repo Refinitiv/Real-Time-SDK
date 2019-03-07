@@ -60,6 +60,8 @@ void createProgramaticConfig(Map& configMap)
                 .addAscii("ObjectName", "P_ObjectName")
                 .addAscii("ProxyHost", "proxyHostToConnectTo")
                 .addAscii("ProxyPort", "proxyPortToConnectTo")
+                .addAscii("OpenSSLCAStore", "ELBCASTORE")
+                .addEnum("EncryptedProtocolType", 1)
                 .addUInt("TcpNodelay", 1).complete()).complete();
 
         elementList.addMap("ChannelList", innerMap);
@@ -105,6 +107,9 @@ void printHelp()
 	cout << endl << "Options:\n" << " -?\tShows this usage\n"
 		<< " -ph Proxy host name \n"
 		<< " -pp Proxy port number \n"
+        << " -plogin User name on proxy server \n"
+        << " -ppasswd Password on proxy server \n"
+        << " -pdomain Proxy Domain \n"
 		<< " -spTLSv1 enable use of cryptopgrahic protocol TLSv1 used with linux encrypted connections \n"
 		<< " -spTLSv1.1 enable use of cryptopgrahic protocol TLSv1.1 used with linux encrypted connections \n"
 		<< " -spTLSv1.2 enable use of cryptopgrahic protocol TLSv1.2 used with linux encrypted connections \n"
@@ -134,6 +139,18 @@ int main( int argc, char* argv[] )
 			{
 				config.tunnelingProxyPort(i < (argc - 1) ? argv[++i] : NULL);
 			}
+            else if (strcmp(argv[i], "-plogin") == 0)
+            {
+                config.proxyUserName(i < (argc - 1) ? argv[++i] : NULL);
+            }
+            else if (strcmp(argv[i], "-ppasswd") == 0)
+            {
+                config.proxyPasswd(i < (argc - 1) ? argv[++i] : NULL);
+            }
+            else if (strcmp(argv[i], "-pdomain") == 0)
+            {
+                config.proxyDomain(i < (argc - 1) ? argv[++i] : NULL);
+            }
 			else if (strcmp(argv[i], "-spTLSv1") == 0)
 			{
 				securityProtocol |= OmmConsumerConfig::ENC_TLSV1;
