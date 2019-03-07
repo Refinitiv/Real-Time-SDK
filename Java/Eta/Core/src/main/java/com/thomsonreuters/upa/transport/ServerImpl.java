@@ -316,7 +316,7 @@ class ServerImpl extends UpaNode implements Server
 
                 if (channel._providerSessionId == null)
                 {
-                    channel._providerSessionId = new Integer(_sessionId);
+                    channel._providerSessionId = Integer.valueOf(_sessionId);
                     _sessionId++;
                 }
             }

@@ -723,9 +723,9 @@ class ConfigManager
 		switch(rate)
 		{
 		case"Rate::JustInTimeConflated":
-			return new Long(OmmQos.Rate.JUST_IN_TIME_CONFLATED);
+			return Long.valueOf(OmmQos.Rate.JUST_IN_TIME_CONFLATED);
 		case "Rate::TickByTick":
-			return new Long(OmmQos.Rate.TICK_BY_TICK);
+			return Long.valueOf(OmmQos.Rate.TICK_BY_TICK);
 		default:
 			try
 			{
@@ -743,9 +743,9 @@ class ConfigManager
 		switch(timeliness)
 		{
 		case"Timeliness::RealTime":
-			return new Long(OmmQos.Timeliness.REALTIME);
+			return Long.valueOf(OmmQos.Timeliness.REALTIME);
 		case "Timeliness::InexactDelayed":
-			return new Long(OmmQos.Timeliness.INEXACT_DELAYED);
+			return Long.valueOf(OmmQos.Timeliness.INEXACT_DELAYED);
 		default:	
 			try
 			{
@@ -1117,7 +1117,7 @@ class ConfigManager
 		 Object value() 
 		{
 			if( intObject == null )
-				intObject = new Integer(intValue);
+				intObject = Integer.valueOf(intValue);
 			
 			return intObject;
 		}
@@ -1163,7 +1163,7 @@ class ConfigManager
 		 Object value() 
 		{
 			if( longObject == null )
-				longObject = new Long(longValue);
+				longObject = Long.valueOf(longValue);
 			
 			return longObject;
 		}

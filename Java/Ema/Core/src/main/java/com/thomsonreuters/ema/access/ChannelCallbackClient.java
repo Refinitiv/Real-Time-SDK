@@ -138,7 +138,6 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	private ReactorConnectOptions 		_rsslReactorConnOptions = ReactorFactory.createReactorConnectOptions();
 	private ReactorRole 				_rsslReactorRole = null;
 	private boolean						_bInitialChannelReadyEventReceived;
-    Package 							_package = Package.getPackage("com.thomsonreuters.ema.access");
 	String 								_productVersion;
 	
 	ChannelCallbackClient(OmmBaseImpl<T> baseImpl, Reactor rsslReactor)
@@ -155,7 +154,15 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 																		Severity.TRACE).toString());
 		}
 
-        _productVersion = _package.getImplementationVersion();
+		for (Package thisPackage : Package.getPackages())
+		{
+			if (thisPackage.getName().equals("com.thomsonreuters.ema.access"))
+			{
+		        _productVersion = thisPackage.getImplementationVersion();				
+				break;
+			}
+		}
+
         if (_productVersion == null)
         	_productVersion = "EMA Java Edition";
 	}

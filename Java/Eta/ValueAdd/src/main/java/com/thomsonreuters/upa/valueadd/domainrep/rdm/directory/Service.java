@@ -4417,7 +4417,7 @@ public interface Service
         RDMAddressPortInfo()
         {
             address = CodecFactory.createBuffer();
-            port = new Long(0);
+            port = Long.valueOf(0);
         }
         
         /**
@@ -4467,7 +4467,7 @@ public interface Service
         void clear()
         {
             address = CodecFactory.createBuffer();
-            port = new Long(0);
+            port = Long.valueOf(0);
         }
     }
     

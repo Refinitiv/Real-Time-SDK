@@ -301,7 +301,16 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_bindOptions.sysRecvBufSize(_activeServerConfig.serverConfig.sysSendBufSize);
 			_bindOptions.compressionType(_activeServerConfig.serverConfig.compressionType);
 			
-			String productVersion =  Package.getPackage("com.thomsonreuters.ema.access").getImplementationVersion();
+			String productVersion = null;
+			for (Package myPackage : Package.getPackages())
+			{
+				if (myPackage.getName().equals("com.thomsonreuters.ema.access"))
+				{
+					productVersion = myPackage.getImplementationVersion();
+					break;
+				}
+			}
+			
 	        if ( productVersion == null)
 	        	productVersion = "EMA Java Edition";
 	        
