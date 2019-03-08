@@ -208,9 +208,14 @@ if ((NOT LZ4_FOUND) OR
 		endif()
 	endif()
 
+	if (NOT LZ4_LIBRARY)
+		find_library(LZ4_LIBRARY NAMES lz4 lz4d NAMES_PER_DIR
+								 PATHS ${LZ4_ROOT} NO_DEFAULT_PATH 
+								 PATH_SUFFIXES lib lib64 )
+	endif()
+
 	if ((NOT TARGET LZ4::LZ4) AND (DEFINED LZ4_LIBRARY))
 
-		set(APPEND LZ4_LIBRARIES "Release" "${LZ4_LIBRARY_RELEASE}")
 		add_library(LZ4::LZ4 UNKNOWN IMPORTED)
 		set_target_properties(LZ4::LZ4 PROPERTIES
 										INTERFACE_INCLUDE_DIRECTORIES "${LZ4_INCLUDE_DIRS}")
@@ -218,6 +223,7 @@ if ((NOT LZ4_FOUND) OR
 		set_property(TARGET LZ4::LZ4 APPEND PROPERTY IMPORTED_LOCATION "${LZ4_LIBRARY}")
 		if (WIN32)
 			if (LZ4_LIBRARY_RELEASE)
+				#set(APPEND LZ4_LIBRARIES "Release" "${LZ4_LIBRARY_RELEASE}")
 				set_property(TARGET LZ4::LZ4 APPEND PROPERTY 
 											 IMPORTED_CONFIGURATIONS RELEASE)
 				set_target_properties(LZ4::LZ4 PROPERTIES 
@@ -230,8 +236,15 @@ if ((NOT LZ4_FOUND) OR
 				set_target_properties(LZ4::LZ4 PROPERTIES 
 												IMPORTED_LOCATION_DEBUG "${LZ4_LIBRARY_DEBUG}")
 			endif()
+
+			if ((NOT LZ4_LIBRARY_RELEASE) AND (NOT LZ4_LIBRARY_DEBUG))
+				set_property(TARGET LZ4::LZ4 APPEND PROPERTY 
+											IMPORTED_LOCATION "${LZ4_LIBRARY}")
+			endif()
+
 			# Will Map Release => Release_MD, Debug => Debug_Mdd
 			rcdev_map_imported_ep_types(LZ4::LZ4)
+
 		endif()
 
 		set(LZ4_FOUND true)
@@ -247,5 +260,4 @@ DEBUG_PRINT(LZ4::LZ4)
 DEBUG_PRINT(LZ4_FOUND)
 DEBUG_PRINT(LZ4_LIBRARY)
 DEBUG_PRINT(LZ4_INCLUDE_DIRS)
-DEBUG_PRINT(LZ4_LIBRARY-NOTFOUND)
 
