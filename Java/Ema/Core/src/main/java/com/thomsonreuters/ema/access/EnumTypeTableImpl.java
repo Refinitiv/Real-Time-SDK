@@ -112,7 +112,7 @@ class EnumTypeTableImpl extends VaNode implements EnumTypeTable {
 		
 		for(int index = 0; index < rsslEnumTypeTable.fidReferenceCount(); index++)
 		{
-			fidsList.add(new Integer(rsslEnumTypeTable.fidReferences()[index]));
+			fidsList.add(Integer.valueOf(rsslEnumTypeTable.fidReferences()[index]));
 		}
 		
 		return fidsList;

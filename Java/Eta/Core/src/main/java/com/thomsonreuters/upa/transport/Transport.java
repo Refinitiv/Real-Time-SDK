@@ -20,15 +20,21 @@ public class Transport
     static boolean _globalLocking;
     static Lock _globalLock;
     static ReentrantLock _initLock; // lock used during initialize() and uninitialize()
-    static private Package _package = Package.getPackage("com.thomsonreuters.upa.transport");
     static private LibraryVersionInfoImpl _libVersionInfo = new LibraryVersionInfoImpl();
     static ByteBuffer _defaultComponentVersionBuffer;
     
     static
     {
-        _libVersionInfo.productDate(_package.getImplementationVendor());
-        _libVersionInfo.productInternalVersion(_package.getImplementationVersion());
-        _libVersionInfo.productVersion(_package.getSpecificationVersion());
+		for (Package thisPacakge : Package.getPackages())
+		{
+			if (thisPacakge.getName().equals("com.thomsonreuters.upa.transport"))
+			{
+		        _libVersionInfo.productDate(thisPacakge.getImplementationVendor());
+		        _libVersionInfo.productInternalVersion(thisPacakge.getImplementationVersion());
+		        _libVersionInfo.productVersion(thisPacakge.getSpecificationVersion());				
+				break;
+			}
+		}
         
         if (_libVersionInfo.productInternalVersion() == null)
         {
