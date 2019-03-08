@@ -21,7 +21,7 @@ endif()
 # If the option for using the system installed 
 #  package is not defined
 if( (NOT gtest_USE_INSTALLED) AND 
-	(NOT GTest::GTest) )
+	(NOT TARGET GTest::GTest) )
 	set(_EPA_NAME "gtest")
 
     # Initialize the directory variables for the external project
