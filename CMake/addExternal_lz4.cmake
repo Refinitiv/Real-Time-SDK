@@ -81,7 +81,8 @@ if((NOT lz4_USE_INSTALLED) AND
 		# Since our internal build types are Debug and Optimized, only Debug will translate
 		if (CMAKE_BUILD_TYPE MATCHES "Debug")
 			set(_cfg_type "${CMAKE_BUILD_TYPE}")
-			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
+			list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d" 
+										"-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
 		else()
 			set(_cfg_type "Release")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
@@ -193,7 +194,7 @@ if ((NOT LZ4_FOUND) OR
 			unset(LZ4_LIBRARY_RELEASE CACHE)
 		endif()
 
-		find_library(LZ4_LIBRARY_DEBUG NAMES lz4d NAMES_PER_DIR
+		find_library(LZ4_LIBRARY_DEBUG NAMES lz4d lz4 NAMES_PER_DIR
 								 PATHS ${LZ4_ROOT} NO_DEFAULT_PATH 
 								 PATH_SUFFIXES lib lib64 )
 

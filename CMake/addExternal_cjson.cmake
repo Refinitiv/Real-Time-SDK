@@ -21,7 +21,7 @@ endif()
 # If the option for using the system installed 
 #  package is not defined
 if( (NOT cjson_USE_INSTALLED) AND 
-	(NOT CJSON_FOUND) )
+	(NOT TARGET CJSON::CJSON) )
 	# An external project for cjson
 	set(_EPA_NAME "cjson")
 
@@ -91,7 +91,8 @@ if( (NOT cjson_USE_INSTALLED) AND
 	else()
 		if (CMAKE_BUILD_TYPE MATCHES "Debug")
 			set(_cfg_type "${CMAKE_BUILD_TYPE}")
-			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
+			list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d" 
+										"-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
 		else()
 			set(_cfg_type "Release")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
@@ -196,7 +197,8 @@ endif()
 # Find the package, for either the system installed version or the one
 # just added with the external project template.  Since cjson does not have
 # a find_package CMake module, we need to define the target ourselves
-if(NOT CJSON_FOUND)
+if ((NOT CJSON_FOUND) OR
+	(NOT TARGET CJSON::CJSON))
 	if (NOT CJSON_INCLUDE_DIR)
 		if (EXISTS "${CJSON_ROOT}/include/cjson/cJSON.h")
 			set(CJSON_INCLUDE_DIR "${CJSON_ROOT}/include" CACHE PATH "")
@@ -216,7 +218,7 @@ if(NOT CJSON_FOUND)
 			unset(CJSON_LIBRARY_RELEASE CACHE)
 		endif()
 
-		find_library(CJSON_LIBRARY_DEBUG NAMES cjsond NAMES_PER_DIR
+		find_library(CJSON_LIBRARY_DEBUG NAMES cjson cjsond NAMES_PER_DIR
 								PATHS ${CJSON_ROOT} NO_DEFAULT_PATH 
 								PATH_SUFFIXES lib lib64 )
 
