@@ -1756,6 +1756,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				default:
 					EmaString text("Invalid Encrypted Channel Type [");
 					text.append(channelType);
+					text.append("] ");
 					EmaConfigError* mce(new EmaConfigError(text, OmmLoggerClient::ErrorEnum));
 					emaConfigErrList.add(mce);
 					break;
