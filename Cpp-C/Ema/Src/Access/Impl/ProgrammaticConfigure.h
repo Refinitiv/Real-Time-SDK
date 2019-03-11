@@ -66,7 +66,8 @@ public:
 		TcpNodelayFlagEnum =			0x0200,
 		ConnMinPingTimeoutFlagEnum =	0x0400,
 		ConnPingTimeoutFlagEnum =		0x0800,
-		CompressThresHoldFlagEnum =		0x1000
+		CompressThresHoldFlagEnum =		0x1000,
+		InitializationTimeoutFlagEnum = 0x2000
 	};
 
 

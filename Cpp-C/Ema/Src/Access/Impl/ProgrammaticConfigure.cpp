@@ -1599,7 +1599,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, location, sslCAStore;
 	UInt16 channelType, compressionType, encryptedProtocolType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer;
+	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
@@ -1804,6 +1804,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				compressionThreshold = channelEntry.getUInt();
 				flags |= 0x1000000;
 			}
+			else if (channelEntry.getName() == "InitializationTimeout")
+			{
+				initializationTimeout = channelEntry.getUInt();
+				flags |= 0x2000000;
+			}
 			else if (channelEntry.getName() == "EnableSessionManagement")
 			{
 				enableSessionMgnt = channelEntry.getUInt();
@@ -1925,6 +1930,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 						to query them from EDP-RT service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
 					*/
 					socketChannelConfig = new SocketChannelConfig("", "", (RsslConnectionTypes)channelType);
+					socketChannelConfig->initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT_ENCRYPTED_CON;
 				}
 				else
 				{
@@ -2081,6 +2087,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			pCurrentChannelConfig->connectionPingTimeout = connectionPingTimeout > MAX_UNSIGNED_INT32  ? MAX_UNSIGNED_INT32 : ( UInt32 )connectionPingTimeout;
 		else if ( useFileCfg )
 			pCurrentChannelConfig->connectionPingTimeout = fileCfg->connectionPingTimeout;
+
+		if (flags & 0x2000000)
+			pCurrentChannelConfig->initializationTimeout = initializationTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)initializationTimeout;
+		else if (useFileCfg)
+			pCurrentChannelConfig->initializationTimeout = fileCfg->initializationTimeout;
 	}
 }
 
@@ -2093,7 +2104,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 	EmaString name, interfaceName, port;
 	UInt16 serverType, compressionType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionMinPingTimeout, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-		tcpNodelay;
+		tcpNodelay, initializationTimeout;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
@@ -2208,6 +2219,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				compressionThreshold = serverEntry.getUInt();
 				flags |= CompressThresHoldFlagEnum;
 			}
+			else if (serverEntry.getName() == "InitializationTimeout")
+			{
+				initializationTimeout = serverEntry.getUInt();
+				flags |= InitializationTimeoutFlagEnum;
+			}
 			break;
 		}
 	}
@@ -2281,6 +2297,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				pCurrentServerConfig->connectionPingTimeout = connectionPingTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)connectionPingTimeout;
 			else if (fileCfgSocket)
 				pCurrentServerConfig->connectionPingTimeout = fileCfg->connectionPingTimeout;
+
+			if (flags & InitializationTimeoutFlagEnum)
+				pCurrentServerConfig->initializationTimeout = initializationTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)initializationTimeout;
+			else if (fileCfgSocket)
+				pCurrentServerConfig->initializationTimeout = fileCfg->initializationTimeout;
 		}
 		catch (std::bad_alloc)
 		{

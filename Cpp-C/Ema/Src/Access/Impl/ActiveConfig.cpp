@@ -579,6 +579,7 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
 	compressionThreshold( DEFAULT_COMPRESSION_THRESHOLD ),
 	connectionType( type ),
 	connectionPingTimeout( DEFAULT_CONNECTION_PINGTIMEOUT ),
+	initializationTimeout( DEFAULT_INITIALIZATION_TIMEOUT ),
 	guaranteedOutputBuffers( DEFAULT_GUARANTEED_OUTPUT_BUFFERS ),
 	numInputBuffers( DEFAULT_NUM_INPUT_BUFFERS ),
 	sysSendBufSize( DEFAULT_SYS_SEND_BUFFER_SIZE ),
@@ -595,6 +596,7 @@ void ChannelConfig::clear()
 	compressionType = DEFAULT_COMPRESSION_TYPE;
 	compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD;
 	connectionPingTimeout = DEFAULT_CONNECTION_PINGTIMEOUT;
+	initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT;
 	guaranteedOutputBuffers = DEFAULT_GUARANTEED_OUTPUT_BUFFERS;
 	numInputBuffers = DEFAULT_NUM_INPUT_BUFFERS;
 	sysSendBufSize = DEFAULT_SYS_SEND_BUFFER_SIZE;
@@ -633,6 +635,7 @@ ServerConfig::ServerConfig( RsslConnectionTypes type ) :
 	connectionType(type),
 	connectionPingTimeout(DEFAULT_CONNECTION_PINGTIMEOUT),
 	connectionMinPingTimeout(DEFAULT_CONNECTION_MINPINGTIMEOUT),
+	initializationTimeout(DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT),
 	guaranteedOutputBuffers(DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS),
 	numInputBuffers(DEFAULT_NUM_INPUT_BUFFERS),
 	sysSendBufSize(DEFAULT_PROVIDER_SYS_SEND_BUFFER_SIZE),

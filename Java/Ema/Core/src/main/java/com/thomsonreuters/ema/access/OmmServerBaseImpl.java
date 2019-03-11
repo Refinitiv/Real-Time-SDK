@@ -742,6 +742,14 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
                 else
                 	newServerConfig.connectionMinPingTimeout = ce.intLongValue() < 0 ? ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT : ce.intLongValue();
             }
+            
+            if( (ce = attributes.getPrimitiveValue(ConfigManager.ServerInitTimeout)) != null)
+			{
+				if ( ce.intLongValue()  > maxInt )
+					newServerConfig.initializationTimeout = maxInt;
+				else
+					newServerConfig.initializationTimeout = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT : ce.intLongValue();
+			}
 		}
 		
 		return newServerConfig;
@@ -1009,6 +1017,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 								ClientSession clientSession = ServerPool.getClientSession(this);
 								reactorAcceptOptions.acceptOptions().userSpecObject(clientSession);
 								reactorAcceptOptions.acceptOptions().nakMount(false);
+								reactorAcceptOptions.initTimeout(_activeServerConfig.serverConfig.initializationTimeout);
 								
 								if (_rsslReactor.accept(_server, reactorAcceptOptions, _providerRole, _rsslErrorInfo) == ReactorReturnCodes.FAILURE)
 		                        {

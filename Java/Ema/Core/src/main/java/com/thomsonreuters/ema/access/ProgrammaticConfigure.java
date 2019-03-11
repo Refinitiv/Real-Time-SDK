@@ -63,6 +63,7 @@ class ProgrammaticConfigure
 		final static int COMPRESSION_THRESHOLD_FLAG =			0x800;
 		final static int COMPRESSION_TYPE_FLAG =				0x1000;
 		final static int DIRECTWRITE_FLAG =						0x2000;
+		final static int INIT_TIMEOUT_FLAG =					0x4000;
 	}
 	
 	/** @class ServerEntryFlag
@@ -84,6 +85,7 @@ class ProgrammaticConfigure
 		final static int COMPRESSION_THRESHOLD_FLAG =		0X0800;
 		final static int COMPRESSION_TYPE_FLAG =			0x1000;
 		final static int DIRECTWRITE_FLAG =					0x2000;
+		final static int INIT_TIMEOUT_FLAG =				0x4000;
 	}
 
 	/** @class TunnelingEntryFlag
@@ -1168,6 +1170,7 @@ class ProgrammaticConfigure
 		long sysRecvBufSize= 0;
 		long highWaterMark= 0;
 		long tcpNodelay = 0, directWrite = 0;
+		long initializationTimeout = 0;
 	
 		for (ElementEntry channelEntry : mapEntry.elementList())
 		{
@@ -1287,6 +1290,11 @@ class ProgrammaticConfigure
 				{
 					compressionThreshold = channelEntry.intValue();
 					flags |= ChannelEntryFlag.COMPRESSION_THRESHOLD_FLAG;
+				}
+				else if ( channelEntry.name().equals("InitializationTimeout"))
+				{
+					initializationTimeout = channelEntry.intValue();
+					flags |= ChannelEntryFlag.INIT_TIMEOUT_FLAG;
 				}
 				break;
 			default:
@@ -1457,6 +1465,11 @@ class ProgrammaticConfigure
 				currentChannelConfig.connectionPingTimeout = convertToInt(connectionPingTimeout);
 			else if ( useFileCfg )
 				currentChannelConfig.connectionPingTimeout = fileCfg.connectionPingTimeout;
+			
+			if ( (flags & ChannelEntryFlag.INIT_TIMEOUT_FLAG) != 0 && initializationTimeout >= 0)
+				currentChannelConfig.initializationTimeout = convertToInt(initializationTimeout);
+			else if ( useFileCfg )
+				currentChannelConfig.initializationTimeout = fileCfg.initializationTimeout;
 		}
 	}
 	
@@ -1475,6 +1488,7 @@ class ProgrammaticConfigure
 		long highWaterMark= 0;
 		long tcpNodelay = 0;
 		long directWrite = 0;
+		long initializationTimeout = 0;
 		
 		for (ElementEntry serverEntry : mapEntry.elementList())
 		{
@@ -1579,6 +1593,11 @@ class ProgrammaticConfigure
 					directWrite = serverEntry.intValue();
 					flags |= ServerEntryFlag.DIRECTWRITE_FLAG;
 				}
+				else if (serverEntry.name().equals("InitializationTimeout"))
+				{
+					initializationTimeout = serverEntry.intValue();
+					flags |= ServerEntryFlag.INIT_TIMEOUT_FLAG;
+				}
 				break;
 			default:
 				break;
@@ -1658,6 +1677,11 @@ class ProgrammaticConfigure
 				currentServerConfig.connectionPingTimeout = convertToInt(connectionPingTimeout);
 			else if ( fileCfg != null )
 				currentServerConfig.connectionPingTimeout = fileCfg.connectionPingTimeout;
+			
+			if ((flags & ServerEntryFlag.INIT_TIMEOUT_FLAG) != 0 && initializationTimeout >= 0)
+				currentServerConfig.initializationTimeout = convertToInt(initializationTimeout);
+			else if ( fileCfg != null )
+				currentServerConfig.initializationTimeout = fileCfg.initializationTimeout;
 		}
 	}
 	
