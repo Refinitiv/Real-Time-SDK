@@ -1301,7 +1301,7 @@ int main(int argc, char** argv) {
 
   /* Skipping the test cases for the EmaConfigTest.testLoadingConfigurationFromProgrammaticConfigForSessionManagement when a login credential isn't available */
   if( (g_userName.length() == 0) || (g_password.length() == 0))
-  	testing::GTEST_FLAG(filter) = "-EmaConfigTest.testLoadingConfigurationFromProgrammaticConfigForSessionManagement";
+  	testing::GTEST_FLAG(filter) += "-EmaConfigTest.testLoadingConfigurationFromProgrammaticConfigForSessionManagement";
 
   int retVal(RUN_ALL_TESTS());
   return retVal;

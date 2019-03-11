@@ -138,7 +138,6 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	private ReactorConnectOptions 		_rsslReactorConnOptions = ReactorFactory.createReactorConnectOptions();
 	private ReactorRole 				_rsslReactorRole = null;
 	private boolean						_bInitialChannelReadyEventReceived;
-    Package 							_package = Package.getPackage("com.thomsonreuters.ema.access");
 	String 								_productVersion;
 	
 	ChannelCallbackClient(OmmBaseImpl<T> baseImpl, Reactor rsslReactor)
@@ -155,7 +154,15 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 																		Severity.TRACE).toString());
 		}
 
-        _productVersion = _package.getImplementationVersion();
+		for (Package thisPackage : Package.getPackages())
+		{
+			if (thisPackage.getName().equals("com.thomsonreuters.ema.access"))
+			{
+		        _productVersion = thisPackage.getImplementationVersion();				
+				break;
+			}
+		}
+
         if (_productVersion == null)
         	_productVersion = "EMA Java Edition";
 	}
@@ -649,7 +656,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			.append( "numInputBuffers " ).append( channelCfg.numInputBuffers ).append( OmmLoggerClient.CR )
 			.append( "sysRecvBufSize " ).append( channelCfg.sysRecvBufSize ).append( OmmLoggerClient.CR )
 			.append( "sysSendBufSize " ).append( channelCfg.sysSendBufSize ).append( OmmLoggerClient.CR )
-			.append( "connectionPingTimeout " ).append( channelCfg.connectionPingTimeout ).append( " msec" ).append( OmmLoggerClient.CR );
+			.append( "connectionPingTimeout " ).append( channelCfg.connectionPingTimeout ).append( " msec" ).append( OmmLoggerClient.CR )
+			.append( "initializationTimeout " ).append( channelCfg.initializationTimeout ).append( " sec" ).append( OmmLoggerClient.CR );
 		}
 		
 		return tempBlder.toString();
@@ -696,13 +704,13 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				{
 					connectOptions = _rsslReactorConnOptions.connectionList().get(i).connectOptions();
 					connectOptions.userSpecObject(channelInfo);
-					_rsslReactorConnOptions.connectionList().get(i).initTimeout(5);
+					_rsslReactorConnOptions.connectionList().get(i).initTimeout(channelConfig.initializationTimeout);
 				}
 				else
 				{
 					
 					ReactorConnectInfo newReactConnInfo = ReactorFactory.createReactorConnectInfo();
-					newReactConnInfo.initTimeout(5);
+					newReactConnInfo.initTimeout(channelConfig.initializationTimeout);
 					connectOptions = newReactConnInfo.connectOptions();
 					connectOptions.userSpecObject(channelInfo);
 					_rsslReactorConnOptions.connectionList().add(newReactConnInfo);					

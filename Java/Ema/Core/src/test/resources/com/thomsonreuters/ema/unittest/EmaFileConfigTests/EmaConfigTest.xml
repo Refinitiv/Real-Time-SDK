@@ -271,6 +271,7 @@
 			<Port value="15008"/>
 			<TcpNodelay value="0"/>
 			<ObjectName value="HttpObjectName"/>
+			<InitializationTimeout value="55"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_3"/>
@@ -382,6 +383,7 @@
             <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
             <TcpNodelay value="1"/>
             <Port value="14005"/>
+			<InitializationTimeout value="44"/>
         </Server>
     </ServerList>
 </ServerGroup>

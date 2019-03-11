@@ -468,7 +468,8 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 		.append( "reconnectAttemptLimit " ).append( activeConfig.reconnectAttemptLimit ).append( CR )
 		.append( "reconnectMinDelay " ).append( activeConfig.reconnectMinDelay ).append( " msec" ).append( CR )
 		.append( "reconnectMaxDelay " ).append( activeConfig.reconnectMaxDelay ).append( " msec" ).append( CR )
-		.append( "connectionPingTimeout " ).append( pChannelCfg->connectionPingTimeout ).append( " msec" ).append( CR );
+		.append( "connectionPingTimeout " ).append( pChannelCfg->connectionPingTimeout ).append( " msec" ).append( CR )
+		.append( "initializationTimeout " ).append( pChannelCfg->initializationTimeout ).append(" sec").append(CR);
 	}
 }
 
@@ -514,7 +515,6 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	connectOpt.reconnectAttemptLimit = activeConfig.reconnectAttemptLimit;
 	connectOpt.reconnectMinDelay = activeConfig.reconnectMinDelay;
 	connectOpt.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
-	connectOpt.initializationTimeout = 10;
 
 	EmaString channelParams;
 	EmaString temp( "Attempt to connect using " );
@@ -549,6 +549,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			reactorConnectInfo[i].rsslConnectOptions.sysSendBufSize = activeConfigChannelSet[i]->sysSendBufSize;
 			reactorConnectInfo[i].rsslConnectOptions.numInputBuffers = activeConfigChannelSet[i]->numInputBuffers;
 			reactorConnectInfo[i].rsslConnectOptions.componentVersion = ( char* ) componentVersionInfo.c_str();
+			reactorConnectInfo[i].initializationTimeout = activeConfigChannelSet[i]->initializationTimeout;
 
 			switch ( reactorConnectInfo[i].rsslConnectOptions.connectionType )
 			{
@@ -562,7 +563,6 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				reactorConnectInfo[i].enableSessionManagement = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->enableSessionMgnt;
 				reactorConnectInfo[i].location.length = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.length();
 				reactorConnectInfo[i].location.data = (char*)static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.c_str();
-				connectOpt.initializationTimeout = 30;
 				
 				// Fall through to HTTP connection options
 			}
@@ -581,9 +581,6 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyUserName = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyUserName.c_str());
 				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyPasswd = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyPasswd.c_str());
 				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyDomain = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyDomain.c_str());
-
-				if(*(reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyHostName) != '\0' )
-					connectOpt.initializationTimeout = 30;
 
 				break;
 			}

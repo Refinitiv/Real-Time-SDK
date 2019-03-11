@@ -411,6 +411,10 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 		newServerConfig->connectionMinPingTimeout = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
 
 	tempUInt = 0;
+	if (pConfigServerImpl->get<UInt64>(serverNodeName + "InitializationTimeout", tempUInt))
+		newServerConfig->initializationTimeout = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+
+	tempUInt = 0;
 	if (pConfigServerImpl->get<UInt64>(serverNodeName + "SysRecvBufSize", tempUInt))
 		newServerConfig->sysRecvBufSize = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
 
@@ -1132,6 +1136,7 @@ Int64 OmmServerBaseImpl::rsslReactorDispatchLoop(Int64 timeOut, UInt32 count, bo
 			ClientSession* clientSession = ClientSession::create(this);
 
 			_reactorAcceptOptions.rsslAcceptOptions.userSpecPtr = clientSession;
+			_reactorAcceptOptions.initializationTimeout = _activeServerConfig.pServerConfig->initializationTimeout;
 
 			if (rsslReactorAccept(_pRsslReactor, _pRsslServer, &_reactorAcceptOptions, (RsslReactorChannelRole*)&_providerRole, &_reactorDispatchErrorInfo) != RSSL_RET_SUCCESS)
 			{
@@ -1183,6 +1188,8 @@ Int64 OmmServerBaseImpl::rsslReactorDispatchLoop(Int64 timeOut, UInt32 count, bo
 				ClientSession* clientSession = ClientSession::create(this);
 
 				_reactorAcceptOptions.rsslAcceptOptions.userSpecPtr = clientSession;
+
+				_reactorAcceptOptions.initializationTimeout = _activeServerConfig.pServerConfig->initializationTimeout;
 
 				if (rsslReactorAccept(_pRsslReactor, _pRsslServer, &_reactorAcceptOptions, (RsslReactorChannelRole*)&_providerRole, &_reactorDispatchErrorInfo) != RSSL_RET_SUCCESS)
 				{

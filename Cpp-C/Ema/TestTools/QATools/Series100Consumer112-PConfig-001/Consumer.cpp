@@ -61,7 +61,7 @@ void createProgramaticConfig(Map& configMap)
                 .addAscii("ProxyHost", "proxyHostToConnectTo")
                 .addAscii("ProxyPort", "proxyPortToConnectTo")
                 .addAscii("OpenSSLCAStore", "ELBCASTORE")
-                .addEnum("EncryptedProtocolType", 1)
+                .addEnum("EncryptedProtocolType", 2)
                 .addUInt("TcpNodelay", 1).complete()).complete();
 
         elementList.addMap("ChannelList", innerMap);
