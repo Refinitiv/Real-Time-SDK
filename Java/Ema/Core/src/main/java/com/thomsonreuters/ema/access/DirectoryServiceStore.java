@@ -593,8 +593,8 @@ abstract class DirectoryServiceStore
 		    	{
 			    	for(int index = 0; index < node.children().size() ; index++ )
 					{
-			    		timeliness = new Long(OmmQos.Timeliness.REALTIME);
-				    	rate = new Long(OmmQos.Rate.TICK_BY_TICK);
+			    		timeliness = Long.valueOf(OmmQos.Timeliness.REALTIME);
+				    	rate = Long.valueOf(OmmQos.Rate.TICK_BY_TICK);
 			    		
 						XMLnode childNode = node.children().get(index);
 						
@@ -613,7 +613,7 @@ abstract class DirectoryServiceStore
 								.append("|InfoFilter|QoS|QoSEntry|Timeliness]. Will use default Timeliness if not config programmatically.")
 								.append(" Suspect Timeliness value is ").append(element.asciiValue()).create(Severity.WARNING);
 								
-								timeliness = new Long(OmmQos.Timeliness.REALTIME);
+								timeliness = Long.valueOf(OmmQos.Timeliness.REALTIME);
 							}
 							else if ( timeliness > Integer.MAX_VALUE )
 							{
@@ -622,7 +622,7 @@ abstract class DirectoryServiceStore
 								.append("|InfoFilter|QoS|QoSEntry|Timeliness] is greater than allowed maximum. Will use maximum Timeliness.")
 								.append(" Suspect Timeliness value is ").append(element.asciiValue()).create(Severity.WARNING);
 								
-								timeliness = new Long(OmmQos.Timeliness.INEXACT_DELAYED);
+								timeliness = Long.valueOf(OmmQos.Timeliness.INEXACT_DELAYED);
 							}
 						}
 						else
@@ -645,7 +645,7 @@ abstract class DirectoryServiceStore
 								.append("|InfoFilter|QoS|QoSEntry|Rate]. Will use default Rate if not config programmatically.")
 								.append(" Suspect Rate value is ").append(element.asciiValue()).create(Severity.WARNING);
 								
-								rate = new Long(OmmQos.Rate.TICK_BY_TICK);
+								rate = Long.valueOf(OmmQos.Rate.TICK_BY_TICK);
 							}
 							else if ( rate > Integer.MAX_VALUE )
 							{
@@ -654,7 +654,7 @@ abstract class DirectoryServiceStore
 								.append("|InfoFilter|QoS|QoSEntry|Rate] is greater than allowed maximum. Will use maximum Rate.")
 								.append(" Suspect Rate value is ").append(element.asciiValue()).create(Severity.WARNING);
 								
-								rate = new Long(OmmQos.Rate.JUST_IN_TIME_CONFLATED);
+								rate = Long.valueOf(OmmQos.Rate.JUST_IN_TIME_CONFLATED);
 							}
 						}
 						else

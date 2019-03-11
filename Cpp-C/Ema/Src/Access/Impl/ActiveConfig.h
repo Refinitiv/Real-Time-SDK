@@ -49,6 +49,9 @@
 #define DEFAULT_HOST_NAME							    EmaString( "localhost" )
 #define DEFAULT_CHANNEL_SET_NAME					    EmaString( "" )
 #define DEFAULT_INCLUDE_DATE_IN_LOGGER_OUTPUT		    false
+#define DEFAULT_INITIALIZATION_TIMEOUT				    5
+#define DEFAULT_INITIALIZATION_TIMEOUT_ENCRYPTED_CON	10
+#define DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT		    60
 #define DEFAULT_INTERFACE_NAME						    EmaString( "" )
 #define DEFAULT_ITEM_COUNT_HINT						    100000
 #define DEFAULT_LOGGER_SEVERITY						    OmmLoggerClient::SuccessEnum
@@ -138,6 +141,7 @@ public :
 	UInt32					compressionThreshold;
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
+	UInt32					initializationTimeout;
 	UInt32					guaranteedOutputBuffers;
 	UInt32					numInputBuffers;
 	UInt32					sysRecvBufSize;
@@ -177,6 +181,7 @@ public:
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
 	UInt32					connectionMinPingTimeout;
+	UInt32					initializationTimeout;
 	UInt32					guaranteedOutputBuffers;
 	UInt32					numInputBuffers;
 	UInt32					sysRecvBufSize;

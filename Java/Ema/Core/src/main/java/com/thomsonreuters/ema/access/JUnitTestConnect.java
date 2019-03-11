@@ -78,6 +78,7 @@ public class JUnitTestConnect
 	// Channel Parameters:
 	public static final int ChannelName  = ConfigManager.ChannelName;
 	public static final int ChannelType  = ConfigManager.ChannelType;
+	public static final int ChannelInitTimeout = ConfigManager.ChannelInitTimeout;
 	
 	// Channel: Multicast
 	public static final int ChannelDisconnectOnGap  = ConfigManager.ChannelDisconnectOnGap; 
@@ -174,6 +175,7 @@ public class JUnitTestConnect
 	public static final int Server = ConfigManager.Server;
 	public static final int ServerName = ConfigManager.ServerName;
 	public static final int ServerType = ConfigManager.ServerType;
+	public static final int ServerInitTimeout = ConfigManager.ServerInitTimeout;
 	
 	// Server: Socket
 	public static final int ServerCompressionThreshold = ConfigManager.ServerCompressionThreshold;
@@ -970,6 +972,8 @@ public class JUnitTestConnect
 				return chanConfig.compressionThreshold;
 			else if (configParam == ConnectionPingTimeout)
 				return chanConfig.connectionPingTimeout;
+			else if (configParam == ChannelInitTimeout)
+				return chanConfig.initializationTimeout;
 		}
 		else if (type == ConfigGroupTypeDictionary)
 		{
@@ -1206,6 +1210,8 @@ public class JUnitTestConnect
 				return chanConfig.compressionThreshold;
 			else if (configParam == ConnectionPingTimeout)
 				return chanConfig.connectionPingTimeout;
+			else if (configParam == ChannelInitTimeout)
+				return chanConfig.initializationTimeout;
 		}
 		
 		throw new IllegalArgumentException("Invalid Input");  
@@ -1383,6 +1389,8 @@ public class JUnitTestConnect
 				return activeConfig.serverConfig.connectionPingTimeout;
 			else if (configParam == ConnectionMinPingTimeout)
 				return activeConfig.serverConfig.connectionMinPingTimeout;
+			else if (configParam == ServerInitTimeout)
+				return activeConfig.serverConfig.initializationTimeout;
 		}
 		
 		throw new IllegalArgumentException("Invalid Input");   

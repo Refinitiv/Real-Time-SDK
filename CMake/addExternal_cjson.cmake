@@ -21,7 +21,7 @@ endif()
 # If the option for using the system installed 
 #  package is not defined
 if( (NOT cjson_USE_INSTALLED) AND 
-	(NOT CJSON_FOUND) )
+	(NOT TARGET CJSON::CJSON) )
 	# An external project for cjson
 	set(_EPA_NAME "cjson")
 
@@ -47,7 +47,11 @@ if( (NOT cjson_USE_INSTALLED) AND
 	list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${cjson_download}")
 
 	if (DEFINED _dl_filename)
-		list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
+		if(NOT (${_dl_filename} MATCHES "^cjson"))
+			list(APPEND _DL_METHOD "DOWNLOAD_NAME cjson-${_dl_filename}" )
+		else()
+			list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
+		endif()
 	endif()
 
 	# the top CMake entry point is not in the top source_dir location
@@ -87,7 +91,8 @@ if( (NOT cjson_USE_INSTALLED) AND
 	else()
 		if (CMAKE_BUILD_TYPE MATCHES "Debug")
 			set(_cfg_type "${CMAKE_BUILD_TYPE}")
-			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
+			list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d" 
+										"-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
 		else()
 			set(_cfg_type "Release")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
@@ -192,7 +197,8 @@ endif()
 # Find the package, for either the system installed version or the one
 # just added with the external project template.  Since cjson does not have
 # a find_package CMake module, we need to define the target ourselves
-if(NOT CJSON_FOUND)
+if ((NOT CJSON_FOUND) OR
+	(NOT TARGET CJSON::CJSON))
 	if (NOT CJSON_INCLUDE_DIR)
 		if (EXISTS "${CJSON_ROOT}/include/cjson/cJSON.h")
 			set(CJSON_INCLUDE_DIR "${CJSON_ROOT}/include" CACHE PATH "")
@@ -212,7 +218,7 @@ if(NOT CJSON_FOUND)
 			unset(CJSON_LIBRARY_RELEASE CACHE)
 		endif()
 
-		find_library(CJSON_LIBRARY_DEBUG NAMES cjsond NAMES_PER_DIR
+		find_library(CJSON_LIBRARY_DEBUG NAMES cjsond cjson NAMES_PER_DIR
 								PATHS ${CJSON_ROOT} NO_DEFAULT_PATH 
 								PATH_SUFFIXES lib lib64 )
 
@@ -226,38 +232,44 @@ if(NOT CJSON_FOUND)
 		endif()
 	endif()
 
-	DEBUG_PRINT(::ALL CJSON)
+	if (NOT CJSON_LIBRARY)
+		find_library(CJSON_LIBRARY NAMES cjson cjsond NAMES_PER_DIR
+								PATHS ${CJSON_ROOT} NO_DEFAULT_PATH 
+								PATH_SUFFIXES lib lib64 )
+	endif()
 
 	if ((NOT TARGET CJSON::CJSON) AND (DEFINED CJSON_LIBRARY))
 
-		set(APPEND CJSON_LIBRARIES "Release" "${CJSON_LIBRARY_RELEASE}")
 		add_library(CJSON::CJSON UNKNOWN IMPORTED)
 		set_target_properties(CJSON::CJSON PROPERTIES
 										INTERFACE_INCLUDE_DIRECTORIES "${CJSON_INCLUDE_DIRS}")
 
 		set_property(TARGET CJSON::CJSON APPEND PROPERTY IMPORTED_LOCATION "${CJSON_LIBRARY}")
-		if (CJSON_LIBRARY_RELEASE)
-			set_property(TARGET CJSON::CJSON APPEND PROPERTY 
-										 IMPORTED_CONFIGURATIONS RELEASE)
-			set_target_properties(CJSON::CJSON PROPERTIES 
-											IMPORTED_LOCATION_RELEASE "${CJSON_LIBRARY_RELEASE}")
-		endif()
+		if (WIN32)
+			if (CJSON_LIBRARY_RELEASE)
+				#set(APPEND CJSON_LIBRARIES "Release" "${CJSON_LIBRARY_RELEASE}")
+				set_property(TARGET CJSON::CJSON APPEND PROPERTY 
+											 IMPORTED_CONFIGURATIONS RELEASE)
+				set_target_properties(CJSON::CJSON PROPERTIES 
+												IMPORTED_LOCATION_RELEASE "${CJSON_LIBRARY_RELEASE}")
+			endif()
 
-		if (CJSON_LIBRARY_DEBUG)
-			set_property(TARGET CJSON::CJSON APPEND PROPERTY 
-										 IMPORTED_CONFIGURATIONS DEBUG)
-			set_target_properties(CJSON::CJSON PROPERTIES 
-											IMPORTED_LOCATION_DEBUG "${CJSON_LIBRARY_DEBUG}")
-		endif()
+			if (CJSON_LIBRARY_DEBUG)
+				set_property(TARGET CJSON::CJSON APPEND PROPERTY 
+											 IMPORTED_CONFIGURATIONS DEBUG)
+				set_target_properties(CJSON::CJSON PROPERTIES 
+												IMPORTED_LOCATION_DEBUG "${CJSON_LIBRARY_DEBUG}")
+			endif()
 
-		if ((NOT CJSON_LIBRARY_RELEASE) AND (NOT CJSON_LIBRARY_DEBUG))
-			set_property(TARGET CJSON::CJSON APPEND PROPERTY 
-										IMPORTED_LOCATION "${CJSON_LIBRARY}")
-		endif()
+			if ((NOT CJSON_LIBRARY_RELEASE) AND (NOT CJSON_LIBRARY_DEBUG))
+				set_property(TARGET CJSON::CJSON APPEND PROPERTY 
+											IMPORTED_LOCATION "${CJSON_LIBRARY}")
+			endif()
 
-		# Will Map Release => Release_MD, Debug => Debug_Mdd and
-		# on UNIX Release => Optimized
-		rcdev_map_imported_ep_types(CJSON::CJSON)
+			# Will Map Release => Release_MD, Debug => Debug_Mdd and
+			rcdev_map_imported_ep_types(CJSON::CJSON)
+
+		endif()
 
 		set(CJSON_FOUND true)
 
@@ -274,4 +286,3 @@ DEBUG_PRINT(CJSON_LIBRARIES)
 DEBUG_PRINT(CJSON_INCLUDE_DIRS)
 DEBUG_PRINT(CJSON_VERSION_STRING)
 DEBUG_PRINT(CJSON_LIBRARY)
-DEBUG_PRINT(CJSON_LIBRARY-NOTFOUND)

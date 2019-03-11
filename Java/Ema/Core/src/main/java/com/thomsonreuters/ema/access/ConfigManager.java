@@ -109,6 +109,7 @@ class ConfigManager
 	public static final int Channel = 102;
 	public static final int ChannelName = 103;
 	public static final int ChannelType = 104;
+	public static final int ChannelInitTimeout = 105;
 	
 	// Channel: Socket, HTTP, Encrypted
 	public static final int ChannelCompressionThreshold = 200;
@@ -235,6 +236,7 @@ class ConfigManager
 	public static final int Server = 902;
 	public static final int ServerName = 903;
 	public static final int ServerType = 904;
+	public static final int ServerInitTimeout = 905;
 	
 	// Server: Socket
 	public static final int ServerCompressionThreshold = 1000;
@@ -302,6 +304,7 @@ class ConfigManager
 		ChannelTagDict.add( "Channel",Channel );
 		ChannelTagDict.add( "Name",ChannelName );
 		ChannelTagDict.add( "ChannelType",ChannelType );
+		ChannelTagDict.add( "InitializationTimeout", ChannelInitTimeout );
 		ChannelTagDict.add( "ConnectionPingTimeout",ConnectionPingTimeout );
 		ChannelTagDict.add( "GuaranteedOutputBuffers",GuaranteedOutputBuffers );
 		ChannelTagDict.add( "InterfaceName",InterfaceName );
@@ -481,6 +484,7 @@ class ConfigManager
 		ServerTagDict.add( "TcpNodelay",ServerTcpNodelay );
 		ServerTagDict.add( "DirectWrite",ServerDirectSocketWrite );
 		ServerTagDict.add( "ConnectionMinPingTimeout", ConnectionMinPingTimeout);
+		ServerTagDict.add( "InitializationTimeout", ServerInitTimeout );
 		
 		CONSUMER_GROUP = ConfigManager.acquire().new Branch();
 		CONSUMER_GROUP.add(ConfigManager.ConsumerGroup,ConfigManager.ConsumerTagDict);
@@ -633,6 +637,7 @@ class ConfigManager
 		"GuaranteedOutputBuffers",
 		"HsmInterval",
 		"IncludeDateInLoggerOutput",
+		"InitializationTimeout",
 		"ItemCountHint",
 		"IsSource",
 		"LoginRequestTimeOut",
@@ -723,9 +728,9 @@ class ConfigManager
 		switch(rate)
 		{
 		case"Rate::JustInTimeConflated":
-			return new Long(OmmQos.Rate.JUST_IN_TIME_CONFLATED);
+			return Long.valueOf(OmmQos.Rate.JUST_IN_TIME_CONFLATED);
 		case "Rate::TickByTick":
-			return new Long(OmmQos.Rate.TICK_BY_TICK);
+			return Long.valueOf(OmmQos.Rate.TICK_BY_TICK);
 		default:
 			try
 			{
@@ -743,9 +748,9 @@ class ConfigManager
 		switch(timeliness)
 		{
 		case"Timeliness::RealTime":
-			return new Long(OmmQos.Timeliness.REALTIME);
+			return Long.valueOf(OmmQos.Timeliness.REALTIME);
 		case "Timeliness::InexactDelayed":
-			return new Long(OmmQos.Timeliness.INEXACT_DELAYED);
+			return Long.valueOf(OmmQos.Timeliness.INEXACT_DELAYED);
 		default:	
 			try
 			{
@@ -1117,7 +1122,7 @@ class ConfigManager
 		 Object value() 
 		{
 			if( intObject == null )
-				intObject = new Integer(intValue);
+				intObject = Integer.valueOf(intValue);
 			
 			return intObject;
 		}
@@ -1163,7 +1168,7 @@ class ConfigManager
 		 Object value() 
 		{
 			if( longObject == null )
-				longObject = new Long(longValue);
+				longObject = Long.valueOf(longValue);
 			
 			return longObject;
 		}

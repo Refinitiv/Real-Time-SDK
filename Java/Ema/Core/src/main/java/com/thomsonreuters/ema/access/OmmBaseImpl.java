@@ -1049,6 +1049,14 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				else
 					currentChannelConfig.highWaterMark = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_HIGH_WATER_MARK : ce.intLongValue();
 			}
+			
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ChannelInitTimeout)) != null)
+			{
+				if ( ce.intLongValue()  > maxInt )
+					currentChannelConfig.initializationTimeout = maxInt;
+				else
+					currentChannelConfig.initializationTimeout = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_INITIALIZATION_TIMEOUT : ce.intLongValue();
+			}
 		}
 		
 		return currentChannelConfig;

@@ -106,6 +106,7 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"HighWaterMark",
 	"HsmInterval",
 	"IncludeDateInLoggerOutput",
+	"InitializationTimeout",
 	"ItemCountHint",
 	"IsSource",
 	"LoginRequestTimeOut",

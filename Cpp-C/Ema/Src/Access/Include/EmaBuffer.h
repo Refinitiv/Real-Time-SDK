@@ -138,8 +138,13 @@ public :
 	*/
 	UInt32 length() const;
 
+	/** Returns an alphanumeric null-terminated hexadecimal string representation.
+	@return const char pointer used for printing out content of the internal buffer to screen
+	*/
+	const char* asRawHexString() const;
+
 	/** Returns an alphanumeric null-terminated hexadecimal string representation via conversion to operator const char*.
-		@return const char pointer used for printing out content of the internal buffer to screen
+	@return const char pointer used for printing out content of the internal buffer to screen
 	*/
 	operator const char* () const;
 

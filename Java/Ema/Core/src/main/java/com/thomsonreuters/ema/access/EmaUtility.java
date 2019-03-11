@@ -19,6 +19,7 @@ public class EmaUtility
 {
 	/**
 	 * Represent as a String all the bytes (in hex format) in a ByteBuffer.
+	 * The lines of hex are appended with respective string representations.
 	 * 
 	 * @param buffer ByteBuffer used
 	 * @return String representation of the ByteBuffer
@@ -88,6 +89,56 @@ public class EmaUtility
             all.append(currentLine.toString()); 
             all.append("  ");
             all.append(asString.toString());
+        }
+
+        return all.toString();
+	}
+
+	/**
+	 * Represent as a String all the bytes (in hex format) in a ByteBuffer.
+	 * The lines of hex are not appended with respective string representations.
+	 * 
+	 * @param buffer ByteBuffer used
+	 * @return String representation of the ByteBuffer as only hex
+	 */
+	public static String asRawHexString(ByteBuffer buffer)
+	{
+		final int charsPerLine = 16;
+        StringBuilder currentLine = new StringBuilder();
+        StringBuilder all = new StringBuilder();
+
+        boolean processedFirst = false;
+        int currentChar = 0;
+        int length = buffer.limit();
+        int	eobyte= 0;
+
+        for (int i = buffer.position(); i < length; i++)
+        {
+            if (!(currentChar < charsPerLine))
+            {
+                all.append(currentLine.toString() + "\n");
+
+                currentLine.setLength(0);
+                currentChar = 0;
+            	eobyte = 0;
+            }
+
+            byte b = buffer.get(i);
+            currentLine.append(eobyte%2 != 0 && i != length - 1 && currentChar != charsPerLine - 1 ? String.format("%02X ", b) : String.format("%02X", b)); 
+            eobyte ^= 1;
+                
+            ++currentChar;
+        }
+
+        if (currentLine.length() > 0)
+        {
+            if (processedFirst)
+            {
+                all.append("\n");
+                eobyte = 0;
+            }
+
+            all.append(currentLine.toString());
         }
 
         return all.toString();

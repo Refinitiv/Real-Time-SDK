@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2019. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -218,6 +218,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && retrievedValue == "eu-west") << "extracting Location from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|EnableSessionManagement", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting TcpNodelay from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|InitializationTimeout", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 55) << "extracting InitializationTimeout from EmaConfig.xml";
 
 	// Checks all values from Logger_1
 	debugResult = config.get<EmaString>( "LoggerGroup|LoggerList|Logger|Name", retrievedValue );
@@ -333,6 +335,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 			.addAscii("Host", "localhost")
 			.addAscii("Port", "14002")
 			.addUInt("TcpNodelay", 0)
+			.addUInt("InitializationTimeout", 96)
 			.addAscii("ObjectName", "MyHttpObject")
 			.addUInt("MsgKeyInUpdates", 1).complete()).complete();
 
@@ -416,6 +419,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigHttp)
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "EncryptedChannelConfig::serviceName , \"14002\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->objectName == "MyHttpObject" ) << "EncryptedChannelConfig::ObjectName , \"MyHttpObject\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 0) << "SocketChannelConfig::tcpNodelay , 0";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->initializationTimeout == 96) << "SocketChannelConfig::initializationTimeout , 96";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerFileName == "logFile" ) << "loggerFileName = \"logFile\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
@@ -495,6 +499,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 			.addAscii("Host", "localhost")
 			.addAscii("Port", "14002")
 			.addUInt("TcpNodelay", 0)
+			.addUInt("InitializationTimeout", 56)
 			.complete())
 			.addKeyAscii("Channel_2", MapEntry::AddEnum, ElementList()
 				.addEnum("ChannelType", 2)
@@ -584,6 +589,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->tcpNodelay == 0) << "SocketChannelConfig::tcpNodelay , 0";
+		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->initializationTimeout == 56) << "SocketChannelConfig::initializationTimeout , 56";
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile" ) << "loggerFileName = \"logFile\"";
 		EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
@@ -624,6 +630,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 			.addEnum("ChannelType", 1)
 			.addAscii("Location", "eu-west")
 			.addUInt("EnableSessionManagement", 1)
+			.addEnum("EncryptedProtocolType", 0)
 			.complete())
 			.complete();
 
@@ -814,6 +821,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addAscii("Host", "localhost")
 			.addAscii("Port", "14002")
 			.addUInt("TcpNodelay", 1)
+			.addUInt("InitializationTimeout", 77) // Overried the 55 value defined in the config file
 			.complete()).complete();
 
 		elementList.addMap("ChannelList", innerMap).complete();
@@ -898,7 +906,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ChannelType::RSSL_SOCKET";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
-		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 1) << "SocketChannelConfig::tcpNodelay , 00";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 1) << "SocketChannelConfig::tcpNodelay , 1";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->initializationTimeout == 77) << "SocketChannelConfig::initializationTimeout , 77";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerFileName == "ConfigDB2_logFile" ) << "loggerFileName = \"ConfigDB2_logFile\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::NoLogMsgEnum) << "minLoggerSeverity = OmmLoggerClient::NoLogMsgEnum";
@@ -1702,6 +1711,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 				.addAscii("InterfaceName", "localhost")
 				.addAscii("Port", "14010")
 				.addUInt("TcpNodelay", 0)
+				.addUInt("InitializationTimeout", 66)
 				.complete())
 				.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
 					.addEnum("ServerType", 1)
@@ -1909,6 +1919,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->getType() == 0) << "SocketServerConfig::getType , 0";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serviceName == "14010") << "SocketServerConfig::serviceName , \"14002\"";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->tcpNodelay == 0) << "SocketServerConfig::tcpNodelay , 0";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->initializationTimeout == 66) << "SocketServerConfig::initializationTimeout , 66";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile") << "loggerFileName = \"logFile\"";
 			EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
@@ -2534,6 +2545,7 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 				.addUInt("ConnectionMinPingTimeout", 4000)
 				.addAscii("Port", "8003")
 				.addUInt("TcpNodelay", 0)
+				.addUInt("InitializationTimeout", 77)
 				.complete())
 				.complete();
 
@@ -2683,8 +2695,9 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.pServerConfig->connectionPingTimeout == 70000) << "connectionPingTimeout , 70000";
 			EXPECT_TRUE(activeConfig.pServerConfig->connectionMinPingTimeout == 4000) << "connectionMinPingTimeout , 4000";
 			EXPECT_TRUE(activeConfig.pServerConfig->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ServerType::RSSL_SOCKET";
-			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serviceName == "8003") << "SocketChannelConfig::hostName , \"8003\"";
-			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->tcpNodelay == 0) << "SocketChannelConfig::tcpNodelay , 0";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serviceName == "8003") << "SocketServerConfig::hostName , \"8003\"";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->tcpNodelay == 0) << "SocketServerConfig::tcpNodelay , 0";
+			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->initializationTimeout == 77) << "SocketServerConfig::initializationTimeout , 77";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "ConfigDB2_logFile") << "loggerFileName = \"ConfigDB2_logFile\"";
 			EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::NoLogMsgEnum) << "minLoggerSeverity = OmmLoggerClient::NoLogMsgEnum";

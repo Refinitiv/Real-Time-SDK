@@ -96,6 +96,8 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_COMPRESSION_TYPE					= CompressionTypes.NONE;
 	final static int DEFAULT_CONNECTION_TYPE					= ConnectionTypes.SOCKET;
 	final static int DEFAULT_CONNECTION_PINGTIMEOUT				= 30000;
+	final static int DEFAULT_INITIALIZATION_TIMEOUT				= 5;
+	final static int DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT		= 60;
 	final static int DEFAULT_DICTIONARY_REQUEST_TIMEOUT			= 45000;
 	final static int DEFAULT_DIRECTORY_REQUEST_TIMEOUT			= 45000;
 	final static int DEFAULT_GUARANTEED_OUTPUT_BUFFERS			= 100;
@@ -362,6 +364,7 @@ class ChannelConfig
 	int					sysSendBufSize;
 	int 				highWaterMark;
 	ChannelInfo			channelInfo;
+	int					initializationTimeout;
 
 	ChannelConfig() 
 	{
@@ -379,7 +382,8 @@ class ChannelConfig
 		sysSendBufSize = ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE;
 		sysRecvBufSize = ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE;
 		highWaterMark = ActiveConfig.DEFAULT_HIGH_WATER_MARK;
-		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;	
+		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;
+		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_TIMEOUT;
 	}
 	
 	void guaranteedOutputBuffers(long value) 
@@ -407,7 +411,8 @@ class ServerConfig
 	int					sysRecvBufSize;
 	int					sysSendBufSize;
 	int 				highWaterMark;
-	int                connectionMinPingTimeout;
+	int					connectionMinPingTimeout;
+	int					initializationTimeout;
 	
 	ServerConfig()
 	{
@@ -428,6 +433,7 @@ class ServerConfig
 		
 		connectionPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_PINGTIMEOUT;
 		connectionMinPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT;
+		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT;
 	}
 	
 	void guaranteedOutputBuffers(long value) 

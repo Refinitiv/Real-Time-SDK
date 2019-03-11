@@ -1616,7 +1616,7 @@ RSSL_API RsslUInt32 rsslCalculateHexDumpOutputSize(const RsslBuffer *bufferToHex
 
 
 /**
- * @brief Will convert buffer's contents to a formatted hex dump
+ * @brief Will convert buffer's contents to a formatted hex dump with appended string representation
  *
  * Typical use:<BR>
  * User populates bufferToHexDump with content they want to encrypt.
@@ -1632,6 +1632,24 @@ RSSL_API RsslUInt32 rsslCalculateHexDumpOutputSize(const RsslBuffer *bufferToHex
  * @return RsslRet RsslRet return value indicating success or failure type.
  */
 RSSL_API RsslRet rsslBufferToHexDump(const RsslBuffer* bufferToHexDump, RsslBuffer* hexDumpOutput, RsslUInt32 valuesPerLine, RsslError *error);
+
+/**
+* @brief Will convert buffer's contents to a formatted hex dump without appened string representation
+*
+* Typical use:<BR>
+* User populates bufferToHexDump with content they want to encrypt.
+* User calculates necessary size for hex dump output buffer by calling rsslCalculateHexDumpOutputSize()
+* User will then typically get or create a buffer of this
+* size.  Once buffer is obtained, bufferToHexDump and the buffer for the hex dump formatted
+* output can be passed to rsslBufferToHexDump(), which will dump the formatted hex.
+*
+* @param bufferToHexDump RsslBuffer populated with content the user wants to dump as formatted hex.  buffer->length should represent the number of bytes contained in buffer->data and buffer->data should hold unencrypted content.
+* @param hexDumpOutput RsslBuffer with appropriate space to dump formatted hex into.  buffer->length should represent the number of bytes available in buffer->data.
+* @param valuesPerLine Numeric value indicating how many hex values to represent per line in the formatted hex dump output.
+* @param error RsslError, to be populated in event of an error
+* @return RsslRet RsslRet return value indicating success or failure type.
+*/
+RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslBuffer* hexDumpOutput, RsslUInt32 valuesPerLine, RsslError *error);
 
 /**
 * @brief RSSL debug flags used for setting RsslDebugFlags Flags for the RSSL_DEBUG_FLAGS IOCtl code

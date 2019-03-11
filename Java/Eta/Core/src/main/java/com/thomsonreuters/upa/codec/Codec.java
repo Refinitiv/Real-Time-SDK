@@ -12,14 +12,20 @@ public class Codec
 {
     /** The RWF protocol type. */
     static public final int RWF_PROTOCOL_TYPE = 0;
-    static private Package _package = Package.getPackage("com.thomsonreuters.upa.codec");
     static private LibraryVersionInfoImpl _libVersionInfo = new LibraryVersionInfoImpl();
 
     static
     {
-        _libVersionInfo.productDate(_package.getImplementationVendor());
-        _libVersionInfo.productInternalVersion(_package.getImplementationVersion());
-        _libVersionInfo.productVersion(_package.getSpecificationVersion());
+		for (Package thisPackage : Package.getPackages())
+		{
+			if (thisPackage.getName().equals("com.thomsonreuters.upa.codec"))
+			{
+		        _libVersionInfo.productDate(thisPackage.getImplementationVendor());
+		        _libVersionInfo.productInternalVersion(thisPackage.getImplementationVersion());
+		        _libVersionInfo.productVersion(thisPackage.getSpecificationVersion());				
+				break;
+			}
+		}    	
     }
 
     /**

@@ -81,7 +81,8 @@ if((NOT lz4_USE_INSTALLED) AND
 		# Since our internal build types are Debug and Optimized, only Debug will translate
 		if (CMAKE_BUILD_TYPE MATCHES "Debug")
 			set(_cfg_type "${CMAKE_BUILD_TYPE}")
-			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
+			list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d" 
+										"-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}")
 		else()
 			set(_cfg_type "Release")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
@@ -193,7 +194,7 @@ if ((NOT LZ4_FOUND) OR
 			unset(LZ4_LIBRARY_RELEASE CACHE)
 		endif()
 
-		find_library(LZ4_LIBRARY_DEBUG NAMES lz4d NAMES_PER_DIR
+		find_library(LZ4_LIBRARY_DEBUG NAMES lz4d lz4 NAMES_PER_DIR
 								 PATHS ${LZ4_ROOT} NO_DEFAULT_PATH 
 								 PATH_SUFFIXES lib lib64 )
 
@@ -207,9 +208,14 @@ if ((NOT LZ4_FOUND) OR
 		endif()
 	endif()
 
+	if (NOT LZ4_LIBRARY)
+		find_library(LZ4_LIBRARY NAMES lz4 lz4d NAMES_PER_DIR
+								 PATHS ${LZ4_ROOT} NO_DEFAULT_PATH 
+								 PATH_SUFFIXES lib lib64 )
+	endif()
+
 	if ((NOT TARGET LZ4::LZ4) AND (DEFINED LZ4_LIBRARY))
 
-		set(APPEND LZ4_LIBRARIES "Release" "${LZ4_LIBRARY_RELEASE}")
 		add_library(LZ4::LZ4 UNKNOWN IMPORTED)
 		set_target_properties(LZ4::LZ4 PROPERTIES
 										INTERFACE_INCLUDE_DIRECTORIES "${LZ4_INCLUDE_DIRS}")
@@ -217,6 +223,7 @@ if ((NOT LZ4_FOUND) OR
 		set_property(TARGET LZ4::LZ4 APPEND PROPERTY IMPORTED_LOCATION "${LZ4_LIBRARY}")
 		if (WIN32)
 			if (LZ4_LIBRARY_RELEASE)
+				#set(APPEND LZ4_LIBRARIES "Release" "${LZ4_LIBRARY_RELEASE}")
 				set_property(TARGET LZ4::LZ4 APPEND PROPERTY 
 											 IMPORTED_CONFIGURATIONS RELEASE)
 				set_target_properties(LZ4::LZ4 PROPERTIES 
@@ -229,8 +236,15 @@ if ((NOT LZ4_FOUND) OR
 				set_target_properties(LZ4::LZ4 PROPERTIES 
 												IMPORTED_LOCATION_DEBUG "${LZ4_LIBRARY_DEBUG}")
 			endif()
+
+			if ((NOT LZ4_LIBRARY_RELEASE) AND (NOT LZ4_LIBRARY_DEBUG))
+				set_property(TARGET LZ4::LZ4 APPEND PROPERTY 
+											IMPORTED_LOCATION "${LZ4_LIBRARY}")
+			endif()
+
 			# Will Map Release => Release_MD, Debug => Debug_Mdd
 			rcdev_map_imported_ep_types(LZ4::LZ4)
+
 		endif()
 
 		set(LZ4_FOUND true)
@@ -246,5 +260,4 @@ DEBUG_PRINT(LZ4::LZ4)
 DEBUG_PRINT(LZ4_FOUND)
 DEBUG_PRINT(LZ4_LIBRARY)
 DEBUG_PRINT(LZ4_INCLUDE_DIRS)
-DEBUG_PRINT(LZ4_LIBRARY-NOTFOUND)
 
