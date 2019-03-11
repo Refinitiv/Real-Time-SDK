@@ -97,6 +97,60 @@ public :
 		return _pBuffer;
 	}
 
+	const char* getRawHexString(char* pBuffer, UInt32 length)
+	{
+		if (_bDirty)
+		{
+			const UInt32 valuesPerLine = 16;
+
+			RsslBuffer buffer;
+			buffer.length = length;
+			buffer.data = pBuffer;
+
+			UInt32 hexSize = rsslCalculateHexDumpOutputSize(&buffer, valuesPerLine);
+
+			RsslError error;
+			RsslRet retVal;
+			while (true)
+			{
+				if (hexSize > _allocatedLength)
+				{
+					free(_pBuffer);
+					_allocatedLength = hexSize;
+					_pBuffer = (char*)malloc(hexSize);
+
+					if (!_pBuffer)
+					{
+						const char* temp = "Failed to allocate memory in EmaBuffer::operator const char*().";
+						throwMeeException(temp);
+						return 0;
+					}
+				}
+
+				RsslBuffer output;
+				output.length = hexSize;
+				output.data = _pBuffer;
+
+				retVal = rsslBufferToRawHexDump(&buffer, &output, valuesPerLine, &error);
+				if (retVal == RSSL_RET_SUCCESS)
+					break;
+				else if (retVal == RSSL_RET_BUFFER_TOO_SMALL)
+					hexSize *= 2;
+				else
+				{
+					EMA_ASSERT(retVal == RSSL_RET_SUCCESS, "rsslBufferToRawHexDump return not SUCCESS or BUFFER_TOO_SMALL");
+					break;
+				}
+
+				_currentLength = output.length;
+			}
+
+			_bDirty = false;
+		}
+
+		return _pBuffer;
+	}
+
 	void markDirty()
 	{
 		_bDirty = true;
@@ -272,6 +326,24 @@ EmaBuffer::operator const char* () const
 	}
 
 	return _pCastingOperatorContext->getHexString( _pBuffer, _length );
+}
+
+const char* EmaBuffer::asRawHexString() const
+{
+	if (!_pCastingOperatorContext)
+	{
+		try {
+			_pCastingOperatorContext = new CastingOperatorContext;
+		}
+		catch (std::bad_alloc)
+		{
+			const char* temp = "Failed to allocate memory in EmaBuffer::operator const char* () const.";
+			throwMeeException(temp);
+			return 0;
+		}
+	}
+
+	return _pCastingOperatorContext->getRawHexString(_pBuffer, _length);
 }
 
 EmaBuffer& EmaBuffer::append( const EmaBuffer & other )
