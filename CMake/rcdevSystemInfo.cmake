@@ -223,6 +223,25 @@ endfunction()
 # have GCC and/or OL6 in place of GNU and/or RHEL6.  So in order to support
 # old past haunts, hints will be added in case past wrongs
 # are corrected
+macro(rcdev_normalize_compiler)
+	unset(_compilerVer)
+	if (   RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "ORACLE"
+		OR RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHAT"
+		OR RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "CENTOS")
+		if (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 5)
+			set(_compilerVer "412")
+		elseif (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 6)
+			set(_compilerVer "444")
+		elseif(RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 7)
+			set(_compilerVer "482")
+		endif()
+	endif()
+	if(_compilerVer)
+		set(RCDEV_HOST_COMPILER_VER ${_compilerVer})
+		unset(_compilerVer)
+	endif()
+endmacro()
+
 function(rcdev_get_normalized_platform_suffix suffix)
 	set(_sfx)
 	if (WIN32)

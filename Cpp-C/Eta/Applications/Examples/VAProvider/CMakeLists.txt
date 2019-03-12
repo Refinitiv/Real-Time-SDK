@@ -32,7 +32,7 @@ if (BUILD_ELEKTRON-SDK-BINARYPACK OR BUILD_INTERNAL_ESDK)
 							)
 	target_link_libraries( VAProvider 
                             librsslVA  
-								Elektron-SDK-BinaryPack::rsslVACache_static 
+								Elektron-SDK-BinaryPack::rsslVACache
                             ${SYSTEM_LIBRARIES} 
 						)
 
