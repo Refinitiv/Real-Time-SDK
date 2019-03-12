@@ -665,6 +665,7 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 				to query them from EDP-RT service discovery when the SocketChannelConfig.enableSessionMgnt is set to true.
 			*/
 			socketChannelCfg = new SocketChannelConfig("","", channelType);
+			socketChannelCfg->initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT_ENCRYPTED_CON;
 			newChannelConfig = socketChannelCfg;
 		}
 		catch (std::bad_alloc)
@@ -857,6 +858,10 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 	tempUInt = 0;
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "ConnectionPingTimeout", tempUInt ) )
 		newChannelConfig->connectionPingTimeout = tempUInt > maxUInt32 ? maxUInt32 : ( UInt32 )tempUInt;
+
+	tempUInt = 0;
+	if (pConfigImpl->get<UInt64>(channelNodeName + "InitializationTimeout", tempUInt))
+		newChannelConfig->initializationTimeout = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
 
 	tempUInt = 0;
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "SysRecvBufSize", tempUInt ) )

@@ -2418,7 +2418,7 @@ static char * rssl_startNewLineBuffer(
 	char	*strbuf,
 	int		cursor,
 	int		vperline,
-	RsslInt *oBufLen )
+	RsslInt *oBufLen)
 {
 	/* We have pre-checked input buffer size to ensure that there is enough space in the buffer. */
 	short totCursor = (vperline * 2) + (vperline / 2);
@@ -2455,7 +2455,7 @@ RSSL_API RsslRet rsslBufferToHexDump(const RsslBuffer* bufferToHexDump, RsslBuff
 	RsslInt32				curbyte = 0;
 	RsslInt32				eobyte = 0;
 	RsslUInt32	bufferNeeded;
-	
+
 	/* null checks */
 	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump, "rsslBufferToHexDump", "bufferToHexDump", error)))
 		return RSSL_RET_FAILURE;
@@ -2522,11 +2522,128 @@ RSSL_API RsslRet rsslBufferToHexDump(const RsslBuffer* bufferToHexDump, RsslBuff
 		curbyte = 0;
 		eobyte = 0;
 	}
+
+	if (outputLen < 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_BUFFER_TOO_SMALL, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBufferToHexDump() Error: 0020 Cannot fit formatted hex dump output into output buffer of size (%d).\n", __FILE__, __LINE__, hexDumpOutput->length);
+		return RSSL_RET_BUFFER_TOO_SMALL;
+	}
+	else
+	{
+		/* outputLen is the remaining unused amount in the buffer, and the previous check covers any potential underflow condition.
+		Since outputLen starts out as hexDumpOutput->length, it will always be less than hexDumOutput->length */
+		hexDumpOutput->length = hexDumpOutput->length - (RsslUInt32)outputLen;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+
+static char * rssl_startNewLineRawBuffer(
+	char	*oBufPtr,
+	char	*hexbuf,
+	int		cursor,
+	int		vperline,
+	RsslInt *oBufLen )
+{
+	/* We have pre-checked input buffer size to ensure that there is enough space in the buffer. */
+	short totCursor = (vperline * 2) + (vperline / 2);
+	short curCursor = (cursor * 2) + (cursor / 2);
+	int temp;
+
+	temp = snprintf(oBufPtr, (size_t)*oBufLen, "%s\n", hexbuf);
+	oBufPtr += temp;
+	*oBufLen -= (RsslInt64)temp;
+
+	while (curCursor++ < totCursor)
+	{
+		temp = snprintf(oBufPtr, (size_t)*oBufLen, " ");
+		oBufPtr += temp;
+		*oBufLen -= (RsslInt64)temp;
+	}
+
+	return (oBufPtr);
+}
+
+RSSL_API RsslRet rsslBufferToRawHexDump(const RsslBuffer* bufferToHexDump, RsslBuffer* hexDumpOutput, RsslUInt32 valuesPerLine, RsslError *error)
+{
+	RsslInt64		outputLen;
+	char			buf[RSSL_HEXDUMP_LINE_LEN];
+	char			*hexPtr;
+	char			*oBufPtr;
+	char			*iBufCursor = bufferToHexDump->data;
+	unsigned char	byte;
+	RsslUInt32				position = 0;
+	RsslInt32				curbyte = 0;
+	RsslInt32				eobyte = 0;
+	RsslUInt32	bufferNeeded;
+	
+	/* null checks */
+	if (rtrUnlikely(RSSL_NULL_PTR(bufferToHexDump, "rsslBufferToRawHexDump", "bufferToHexDump", error)))
+		return RSSL_RET_FAILURE;
+
+	if (rtrUnlikely(RSSL_NULL_PTR(hexDumpOutput, "rsslBufferToRawHexDump", "hexDumpOutput", error)))
+		return RSSL_RET_FAILURE;
+
+	if (valuesPerLine == 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBufferToRawHexDump() Error: 0002 Invalid argument value of 0 for valuesPerLine.\n", __FILE__, __LINE__);
+		return RSSL_RET_FAILURE;
+	}
+
+	/* Max is 70 due to length of buf */
+	if (valuesPerLine > 70)
+		valuesPerLine = 70;
+	else if (valuesPerLine & 0x01)
+		valuesPerLine--;
+
+	bufferNeeded = rsslCalculateHexDumpOutputSize(bufferToHexDump, valuesPerLine);
+
+	/* Check to make sure it will fit. */
+	if (bufferNeeded > hexDumpOutput->length)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBufferToRawHexDump() Error: 0020 Cannot fit formatted hex dump output into output buffer of size(%d)\n", __FILE__, __LINE__, hexDumpOutput->length);
+		return RSSL_RET_BUFFER_TOO_SMALL;
+	}
+	*hexDumpOutput->data = '\0';
+	oBufPtr = hexDumpOutput->data;
+	outputLen = hexDumpOutput->length;
+
+
+	hexPtr = buf;
+	while (position < bufferToHexDump->length)
+	{
+		byte = *iBufCursor++;
+		hexPtr += snprintf(hexPtr, (size_t)(RSSL_HEXDUMP_LINE_LEN - (hexPtr - buf)), (eobyte & 1 ? "%2.2x " : "%2.2x"), byte);
+		eobyte ^= 1;
+		position++;
+		curbyte++;
+
+		if ((position % valuesPerLine) == 0)
+		{
+			oBufPtr = rssl_startNewLineRawBuffer(oBufPtr, buf, curbyte, valuesPerLine, &outputLen);
+			hexPtr = buf;
+			curbyte = 0;
+			eobyte = 0;
+		}
+		fflush(stdout);
+	}
+	if ((position % valuesPerLine) != 0)
+	{
+		oBufPtr = rssl_startNewLineRawBuffer(oBufPtr, buf, curbyte, valuesPerLine, &outputLen);
+		hexPtr = buf;
+		position = 0;
+		curbyte = 0;
+		eobyte = 0;
+	}
 	
 	if (outputLen < 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_BUFFER_TOO_SMALL, 0);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBufferToHexDump() Error: 0020 Cannot fit formatted hex dump output into output buffer of size (%d).\n", __FILE__, __LINE__, hexDumpOutput->length);			
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBufferToRawHexDump() Error: 0020 Cannot fit formatted hex dump output into output buffer of size (%d).\n", __FILE__, __LINE__, hexDumpOutput->length);			
 		return RSSL_RET_BUFFER_TOO_SMALL;
 	}
 	else

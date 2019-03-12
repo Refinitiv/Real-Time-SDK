@@ -1082,7 +1082,6 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 	pReactorChannel->reactorChannel.pRsslChannel = NULL;
 	pReactorChannel->reactorChannel.pRsslServer = NULL;
 	pReactorChannel->reactorChannel.userSpecPtr = pOpts->rsslConnectOptions.userSpecPtr;
-	pReactorChannel->initializationTimeout = pOpts->initializationTimeout;
 	pReactorChannel->pWatchlist = pWatchlist;
 	pReactorChannel->readRet = 0;
 

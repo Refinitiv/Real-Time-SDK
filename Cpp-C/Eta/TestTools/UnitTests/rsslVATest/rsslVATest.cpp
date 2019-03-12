@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
 	/* Skipping the test cases for ReactorSessionMgntTest when a user credential isn't available */
 	if( (g_userName.length == 0) || (g_password.length == 0))
-		testing::GTEST_FLAG(filter) = "-ReactorSessionMgntTest.*";
+		testing::GTEST_FLAG(filter) += "-ReactorSessionMgntTest.*";
 
 	int ret = RUN_ALL_TESTS();
 	

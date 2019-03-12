@@ -206,6 +206,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("TcpNodelay == 0", boolValue == false);
 		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName);
 		TestUtilities.checkResult("ObjectName == HttpObjectName", strValue.contentEquals("HttpObjectName"));
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelInitTimeout);
+		TestUtilities.checkResult("InitializationTimeout == 55", intLongValue == 55);
 
 		// Check Channel_3 configuration.
 		ConsChannelVal = "Channel_3";
@@ -581,6 +583,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14002"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("TcpNodelay", 0));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DirectWrite", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("InitializationTimeout", 66));
 			
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -702,6 +705,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("Host == localhost", chanHost.contentEquals("localhost"));
 			String chanPort = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Port, 0);
 			TestUtilities.checkResult("Port == 14002", chanPort.contentEquals("14002"));
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelInitTimeout, 0);
+			TestUtilities.checkResult("InitializationTimeout == 66", intLongValue == 66);
 			
 			// Check Dictionary_1 configuration.
 			ConsDictionary = "Dictionary_1";
@@ -959,6 +964,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("TcpNodelay", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("HighWaterMark", 5000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DirectWrite", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("InitializationTimeout", 77));
 			
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_2", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -1084,6 +1090,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("Host == localhost1", chanHost.contentEquals("localhost1"));
 			String chanPort = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Port, 0);
 			TestUtilities.checkResult("Port == 14012", chanPort.contentEquals("14012"));
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelInitTimeout, 0);
+			TestUtilities.checkResult("InitializationTimeout == 77", intLongValue == 77);
 			
 			// Check Dictionary_2 configuration.
 			ConsDictionary = "Dictionary_2";
@@ -1697,6 +1705,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12758));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ConnectionPingTimeout", 70000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("TcpNodelay", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("InitializationTimeout", 99));
 			
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_6", MapEntry.MapAction.ADD, innerElementList));
 			
@@ -1779,6 +1788,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("ProxyPort == 14032", chanPort.contentEquals("14032"));
 			String chanObj = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName, 0);
 			TestUtilities.checkResult("ObjectName == objectName", chanObj.contentEquals("objectName"));
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelInitTimeout, 0);
+			TestUtilities.checkResult("InitializationTimeout == 99", intLongValue == 99);
 			
 			niProv = null;
 		}
@@ -2326,6 +2337,7 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("TcpNodelay", 0));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DirectWrite", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("HighWaterMark", 5000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("InitializationTimeout", 100));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Server_1", MapEntry.MapAction.ADD, innerElementList)); 
 			innerElementList.clear();
 
@@ -2557,7 +2569,8 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			TestUtilities.checkResult("HighWaterMark == 5000", intLongValue == 5000);
 			String chanPort = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.Port);
 			TestUtilities.checkResult("Port == 14010", chanPort.contentEquals("14010"));
-			
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerInitTimeout);
+			TestUtilities.checkResult("InitializationTimeout value == 100", intLongValue == 100 );
 			
 			//retrieve directory
 			strValue = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.DirectoryName);

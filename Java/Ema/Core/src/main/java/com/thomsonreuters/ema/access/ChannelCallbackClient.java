@@ -656,7 +656,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			.append( "numInputBuffers " ).append( channelCfg.numInputBuffers ).append( OmmLoggerClient.CR )
 			.append( "sysRecvBufSize " ).append( channelCfg.sysRecvBufSize ).append( OmmLoggerClient.CR )
 			.append( "sysSendBufSize " ).append( channelCfg.sysSendBufSize ).append( OmmLoggerClient.CR )
-			.append( "connectionPingTimeout " ).append( channelCfg.connectionPingTimeout ).append( " msec" ).append( OmmLoggerClient.CR );
+			.append( "connectionPingTimeout " ).append( channelCfg.connectionPingTimeout ).append( " msec" ).append( OmmLoggerClient.CR )
+			.append( "initializationTimeout " ).append( channelCfg.initializationTimeout ).append( " sec" ).append( OmmLoggerClient.CR );
 		}
 		
 		return tempBlder.toString();
@@ -703,13 +704,13 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				{
 					connectOptions = _rsslReactorConnOptions.connectionList().get(i).connectOptions();
 					connectOptions.userSpecObject(channelInfo);
-					_rsslReactorConnOptions.connectionList().get(i).initTimeout(5);
+					_rsslReactorConnOptions.connectionList().get(i).initTimeout(channelConfig.initializationTimeout);
 				}
 				else
 				{
 					
 					ReactorConnectInfo newReactConnInfo = ReactorFactory.createReactorConnectInfo();
-					newReactConnInfo.initTimeout(5);
+					newReactConnInfo.initTimeout(channelConfig.initializationTimeout);
 					connectOptions = newReactConnInfo.connectOptions();
 					connectOptions.userSpecObject(channelInfo);
 					_rsslReactorConnOptions.connectionList().add(newReactConnInfo);					
