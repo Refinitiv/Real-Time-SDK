@@ -31,61 +31,76 @@ else()
 endif()
 
 if (BUILD_ETA_PERFTOOLS)
-	if ( CMAKE_HOST_UNIX )
-			add_custom_command(
-					OUTPUT	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/350k.xml
-							${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/MsgData.xml
-							${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/350k.xml
-							${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/MsgData.xml
-
-					COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/350k.xml
-							 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/350k.xml
-					COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/MsgData.xml
-							 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/MsgData.xml
-					COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/350k.xml
-							 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/350k.xml
-					COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/MsgData.xml
-							 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/MsgData.xml
-
-					DEPENDS	 PerfTools/Common/350k.xml PerfTools/Common/MsgData.xml
-					)
-	else() # if ( CMAKE_HOST_WIN32 )
-		add_custom_command(
-				OUTPUT	${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/350k.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/MsgData.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/350k.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/MsgData.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/350k.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/MsgData.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/350k.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/MsgData.xml
-
-				COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/350k.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/350k.xml
-				COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/MsgData.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/MsgData.xml
-				COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/350k.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/350k.xml
-				COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/MsgData.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/MsgData.xml
-
-				COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/350k.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/350k.xml
-				COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/MsgData.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/MsgData.xml
-				COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/350k.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/350k.xml
-				COMMAND ${CMAKE_COMMAND} -E copy PerfTools/Common/MsgData.xml
-						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/MsgData.xml
-
-				DEPENDS	 PerfTools/Common/350k.xml PerfTools/Common/MsgData.xml
-				)
-	endif()
-
     add_subdirectory( PerfTools/ConsPerf )
     add_subdirectory( PerfTools/NIProvPerf )
     add_subdirectory( PerfTools/ProvPerf )
     add_subdirectory( PerfTools/TransportPerf )
+
+	if ( CMAKE_HOST_UNIX )
+		set(_output_files	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/350k.xml
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/MsgData.xml
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/350k.xml
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/MsgData.xml
+						)
+
+		add_custom_command(
+					OUTPUT ${_output_files}
+
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/350k.xml
+							 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/350k.xml
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/MsgData.xml
+							 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/MsgData.xml
+
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/350k.xml
+							 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/350k.xml
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/MsgData.xml
+							 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/MsgData.xml
+
+					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+					COMMENT "Copying 350k.xml and MsgData.xml for Eta perf tools .... "
+					)
+
+	else() # if ( CMAKE_HOST_WIN32 )
+		set(_output_files	${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/350k.xml
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/MsgData.xml
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/350k.xml
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/MsgData.xml
+
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/350k.xml
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shsred/MsgData.xml
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/350k.xml
+							${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shsred/MsgData.xml
+					)
+
+		add_custom_command(
+				OUTPUT	${_output_files}
+
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/350k.xml
+						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/350k.xml
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/MsgData.xml
+						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/MsgData.xml
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/350k.xml
+						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/350k.xml
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/MsgData.xml
+						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/MsgData.xml
+
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/350k.xml
+						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/350k.xml
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/MsgData.xml
+						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/MsgData.xml
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/350k.xml
+						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/350k.xml
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different PerfTools/Common/MsgData.xml
+						${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/MsgData.xml
+
+				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+				COMMENT "Copying 350k.xml and MsgData.xml for Eta perf tools .... "
+
+				)
+	endif()
+	add_custom_target(EtaPerftoolsXMLfiles ALL DEPENDS ${_output_files})
+	unset(_output_files)
+
 else()
     message(STATUS 
             "Skipping Eta PerfTools Build: BUILD_ETA_PERFTOOLS:${BUILD_ETA_PERFTOOLS}")
