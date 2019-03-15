@@ -1740,11 +1740,6 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 				serviceName = reqMsgImpl.serviceName();
 				_specifiedServiceInReq = true;
 			}
-			else
-			{
-				_serviceId = reqMsgImpl.serviceId();
-				_specifiedServiceInReq = true;
-			}
 		}
 		else if ( reqMsgImpl.hasServiceId() )
 		{

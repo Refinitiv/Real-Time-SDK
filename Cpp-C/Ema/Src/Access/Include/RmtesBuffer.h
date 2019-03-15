@@ -35,18 +35,21 @@
 
 #include "Access/Include/Common.h"
 
+
+
 namespace thomsonreuters{
 
 namespace ema {
 
 namespace access {
-
+class EmaUnitTestConnect;
 class EmaBuffer;
 class EmaString;
 class EmaBufferU16;
 class RmtesBufferImpl;
 
 class OmmRmtesDecoder;
+
 
 class EMA_ACCESS_API RmtesBuffer
 {
@@ -148,6 +151,7 @@ public :
 private :
 
 	friend class OmmRmtesDecoder;
+	friend class EmaUnitTestConnect;
 
 	RmtesBufferImpl*	_pImpl;
 	UInt64				_space[22];
