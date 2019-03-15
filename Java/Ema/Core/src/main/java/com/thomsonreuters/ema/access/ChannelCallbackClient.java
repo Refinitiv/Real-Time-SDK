@@ -17,6 +17,7 @@ import java.util.List;
 
 import com.thomsonreuters.ema.access.OmmBaseImpl.OmmImplState;
 import com.thomsonreuters.ema.access.OmmLoggerClient.Severity;
+import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
@@ -756,9 +757,15 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 						connectOptions.tcpOpts().tcpNoDelay(((SocketChannelConfig) channelConfig).tcpNodelay);
 					break;
 					}
-				case com.thomsonreuters.upa.transport.ConnectionTypes.HTTP:
 				case com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED:
+				case com.thomsonreuters.upa.transport.ConnectionTypes.HTTP:
 					{
+						if(connectOptions.connectionType() == com.thomsonreuters.upa.transport.ConnectionTypes.ENCRYPTED)
+						{
+							_rsslReactorConnOptions.connectionList().get(i).enableSessionManagement(((EncryptedChannelConfig)channelConfig).enableSessionMgnt);
+							_rsslReactorConnOptions.connectionList().get(i).location(((EncryptedChannelConfig)channelConfig).location);
+						}
+
 						connectOptions.unifiedNetworkInfo().address(((HttpChannelConfig) channelConfig).hostName);
 						try
 						{
@@ -860,7 +867,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		}
 	}
 	
-	void initializeConsumerRole(LoginRequest loginReq, DirectoryRequest dirReq)
+	void initializeConsumerRole(LoginRequest loginReq, DirectoryRequest dirReq, Buffer clientId)
 	{
         ConsumerRole consumerRole = ReactorFactory.createConsumerRole();
 		
@@ -874,6 +881,9 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		consumerRole.directoryMsgCallback(_baseImpl.directoryCallbackClient());
 		consumerRole.channelEventCallback(_baseImpl.channelCallbackClient());
 		consumerRole.defaultMsgCallback(_baseImpl.itemCallbackClient());
+		
+		if(clientId.length() != 0)
+			consumerRole.clientId(clientId);
 		
 		ConsumerWatchlistOptions watchlistOptions = consumerRole.watchlistOptions();
 		watchlistOptions.channelOpenCallback(this);
@@ -967,7 +977,11 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
                 	   localHostName = localIPaddress;
                    }
             	 rsslOptions.credentialsInfo().HTTPproxyLocalHostname(localHostName);     		        		        		
-            }    
+            }
+            else
+            {
+            	rsslOptions.credentialsInfo().HTTPproxyLocalHostname(channelConfig.httpProxyLocalHostName);
+            }
         	    	
             if (channelConfig.httpProxyKRB5ConfigFile != null)
             {

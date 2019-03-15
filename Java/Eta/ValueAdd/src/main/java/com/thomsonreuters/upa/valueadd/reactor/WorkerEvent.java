@@ -6,6 +6,7 @@ class WorkerEvent extends ReactorEvent
 	WorkerEventTypes _eventType;
 	long _timeout;
 	TunnelStream _tunnelStream;
+	RestClient _restClient;
 
 	WorkerEventTypes eventType()
     {

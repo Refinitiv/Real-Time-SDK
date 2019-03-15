@@ -1138,6 +1138,20 @@ class WlLoginHandler implements WlHandler
 		}
 	}
 
+	void authenticationTimer(String authToken, ReactorErrorInfo errorInfo)
+	{
+		if (_loginRequest != null) 
+		{
+			_loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+			_loginRequest.userName().data(authToken);
+
+			// TODO try to just send the message look at he authentication code
+
+			channelUp(errorInfo);
+		}
+	}
+	
+	
 	/* Handles channel up event. */
 	void channelUp(ReactorErrorInfo errorInfo) 
 	{

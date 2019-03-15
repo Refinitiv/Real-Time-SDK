@@ -91,26 +91,35 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	@Override
 	public OmmIProviderConfig providerName(String providerName)
 	{
+		// Keep the session name to check later after all configuration methods is called.
 		_configSessionName = providerName;
+	
+		return this;
+	}
+	
+	void validateSpecifiedSessionName()
+	{
+		if(_configSessionName == null || _configSessionName.isEmpty())
+			return;
 		
-		if ( _programmaticConfigure != null && _programmaticConfigure.specifyIProviderName( providerName ) )
-			return this;
+		if ( _programmaticConfigure != null && _programmaticConfigure.specifyIProviderName( _configSessionName ) )
+			return;
 		
-		String name = (String) xmlConfig().getIProviderAttributeValue(providerName,ConfigManager.IProviderName);
+		String name = (String) xmlConfig().getIProviderAttributeValue(_configSessionName,ConfigManager.IProviderName);
 
 		if ( name == null ) 
 		{
-			if ( providerName.equals(ActiveConfig.DEFAULT_IPROV_NAME) )
+			if ( _configSessionName.equals(ActiveConfig.DEFAULT_IPROV_NAME) )
 			{
 				boolean bFoundChild = xmlConfig().isNiProviderChildAvailable();
 				if( bFoundChild == false )
-					return this;
+					return;
 			}
 
-			_configSessionName = null;
 			configStrBuilder().append( "OmmIProviderConfigImpl::providerName parameter [" )
-									.append( providerName )
+									.append( _configSessionName )
 									.append( "] is an non-existent iprovider name" );
+			_configSessionName = null;
 			throw ( oommICExcept().message( _configStrBuilder.toString()));
 		}
  		else //if ( name != null ) 
@@ -118,12 +127,10 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
  			boolean bSetAttributeValue = xmlConfig().setDefaultIProvider(name);
 			if ( bSetAttributeValue == false )
 			{
-				xmlConfig().appendAttributeValue(ConfigManager.IPROVIDER_GROUP, "DefaultIProvider", ConfigManager.DefaultIProvider,providerName);
+				xmlConfig().appendAttributeValue(ConfigManager.IPROVIDER_GROUP, "DefaultIProvider", ConfigManager.DefaultIProvider,_configSessionName);
 				xmlConfig().verifyAndGetDefaultIProvider();
 			}
 		}
-	
-		return this;
 	}
 	
 	@Override

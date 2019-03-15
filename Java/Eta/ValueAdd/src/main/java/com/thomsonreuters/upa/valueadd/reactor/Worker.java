@@ -127,15 +127,44 @@ class Worker implements Runnable
                     WorkerEvent event = (WorkerEvent)_timerEventQueue.next();
                     if (System.nanoTime() >= event.timeout())
                     {
-                        WorkerEventTypes eventType = WorkerEventTypes.TUNNEL_STREAM_DISPATCH_TIMEOUT;
-                        if (event.eventType() == WorkerEventTypes.START_WATCHLIST_TIMER)
-                        {
-                            eventType = WorkerEventTypes.WATCHLIST_TIMEOUT;
-                        }
-                        sendWorkerEvent(event.reactorChannel(), eventType, event.tunnelStream(),
-                                        ReactorReturnCodes.SUCCESS, null, null);
-                        _timerEventQueue.remove(event);
-						event.returnToPool();
+                    	if (event.eventType() == WorkerEventTypes.TOKEN_MGNT)
+                    	{
+                    		ReactorChannel reactorChannel = event.reactorChannel();
+                    		if (
+                    		reactorChannel.channel() != null && reactorChannel.channel().state() == ChannelState.ACTIVE
+                            		&& reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING
+                            		&& reactorChannel.state() != ReactorChannel.State.DOWN
+                            		&& reactorChannel.state() != ReactorChannel.State.CLOSED 
+                            		&& reactorChannel.state() != ReactorChannel.State.EDP_RT 
+                            		&& reactorChannel.state() != ReactorChannel.State.EDP_RT_DONE
+                            		&& reactorChannel.state() != ReactorChannel.State.EDP_RT_FAILED )
+                    		{
+                    			// request new refresh auth token
+	                        	event._restClient.requestRefreshAuthToken( reactorChannel , event.errorInfo() );                            
+                    		}
+	                            
+	                            // Update the timer, do not remove it
+	                            reactorChannel.calculateNextAuthTokenRequestTime(0);           	
+	                        	event.timeout(reactorChannel.nextAuthTokenRequestTime());	                            
+	                        // Update the timer, do not remove it
+	                        reactorChannel.calculateNextAuthTokenRequestTime(0);           	
+	                        event.timeout(reactorChannel.nextAuthTokenRequestTime());                            
+	                    } 
+                    	else
+                    	{
+	                        WorkerEventTypes eventType = WorkerEventTypes.TUNNEL_STREAM_DISPATCH_TIMEOUT;
+	                        if (event.eventType() == WorkerEventTypes.START_WATCHLIST_TIMER)
+	                        {
+	                            eventType = WorkerEventTypes.WATCHLIST_TIMEOUT;
+	                        }
+	                        
+	                        sendWorkerEvent(event.reactorChannel(), eventType, event.tunnelStream(),
+	                                        ReactorReturnCodes.SUCCESS, null, null);
+	                        
+	                        _timerEventQueue.remove(event);
+							event.returnToPool();	                        
+                    	}
+
                     }
                 }
 
@@ -167,7 +196,10 @@ class Worker implements Runnable
 	                    if (reactorChannel.channel() != null && reactorChannel.channel().state() == ChannelState.ACTIVE
                     		&& reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING
                     		&& reactorChannel.state() != ReactorChannel.State.DOWN
-                    		&& reactorChannel.state() != ReactorChannel.State.CLOSED)                    	                    		                    	
+                            && reactorChannel.state() != ReactorChannel.State.CLOSED                    		
+                    		&& reactorChannel.state() != ReactorChannel.State.EDP_RT 
+                    		&& reactorChannel.state() != ReactorChannel.State.EDP_RT_DONE
+                    		&& reactorChannel.state() != ReactorChannel.State.EDP_RT_FAILED )
 	                    {
 	                    	if (reactorChannel.pingHandler().handlePings(reactorChannel.channel(), _error)
 	                    			< TransportReturnCodes.SUCCESS)
@@ -177,10 +209,13 @@ class Worker implements Runnable
 	                                            ReactorReturnCodes.FAILURE, "Worker.run()",
 	                                            "Ping error for channel: " + _error.text());
 	                    	}
+	                    	
+
 	                    }
                     }
                 }
 
+                
                 // handle connection recovery (only for client connections)
                 _reconnectingChannelQueue.rewind();
                 while (_reconnectingChannelQueue.hasNext())
@@ -191,10 +226,23 @@ class Worker implements Runnable
                         if (reactorChannel.nextRecoveryTime() > System.currentTimeMillis())
                             continue;
 
-                        // connect
-                        Channel channel = reactorChannel.reconnect(_error);
-
-                        if (channel == null)
+                        Channel channel = null;
+                        
+                        if (reactorChannel.state() != State.EDP_RT &&
+                        	reactorChannel.state() != State.EDP_RT_DONE &&
+                        	reactorChannel.state() != State.EDP_RT_FAILED)
+                        {
+                        	channel = reactorChannel.reconnect(_error);
+                        }
+                        
+                        if (reactorChannel.state() == State.EDP_RT || 
+                        	reactorChannel.state() == State.EDP_RT_DONE ||
+                        	reactorChannel.state() == State.EDP_RT_FAILED)
+                        {
+                        	channel = reactorChannel.reconnectEDP(_error);
+                        }
+                        
+                    	if (channel == null && reactorChannel.state() != State.EDP_RT)
                         {
                             // Reconnect attempt failed -- send channel down event.
                             _reconnectingChannelQueue.remove(reactorChannel);
@@ -204,12 +252,14 @@ class Worker implements Runnable
                             continue;
                         }
 
-                        reactorChannel.selectableChannelFromChannel(channel);
-                        reactorChannel.state(State.INITIALIZING);
-                        _reconnectingChannelQueue.remove(reactorChannel);
+                    	if (reactorChannel.state() != State.EDP_RT)
+                    	{
+                    		reactorChannel.selectableChannelFromChannel(channel);
+                    		reactorChannel.state(State.INITIALIZING);
+                    		_reconnectingChannelQueue.remove(reactorChannel);
 
-                        processChannelInit(reactorChannel);
-
+                    		processChannelInit(reactorChannel);   
+                    	}                       	
                     }
                 }
             }
@@ -265,10 +315,17 @@ class Worker implements Runnable
             case FD_CHANGE:
                 processChannelFDChange(reactorChannel);
                 break;
+            case TOKEN_MGNT:
+            	// Setup a timer for token management 
+                reactorChannel.calculateNextAuthTokenRequestTime(((ReactorAuthTokenEvent) event)._reactorAuthTokenInfo.expiresIn());          	
+            	event.timeout(reactorChannel.nextAuthTokenRequestTime());
+            	_timerEventQueue.add(event);
+                return;
             case START_DISPATCH_TIMER:
             case START_WATCHLIST_TIMER:
                 _timerEventQueue.add(event);
                 return;
+
             default:
                 System.out.println("Worker.processWorkerEvent(): received unexpected eventType=" + eventType);
                 break;
@@ -296,13 +353,29 @@ class Worker implements Runnable
             // the channel was already closed. Send this as a failure.
             if (reactorChannel.state() != State.CLOSED)
                 reactorChannel.state(State.CLOSED);
-       
+
             sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
                             ReactorReturnCodes.FAILURE, "Worker.processChannelInit", "Exception="
                                     + e.getLocalizedMessage());
         }
     }
 
+	private void cancelAuthTokenTimer(ReactorChannel reactorChannel)
+	{
+        // cancel the AUTH TOKEN timer
+        _timerEventQueue.rewind();
+        while (_timerEventQueue.hasNext())
+        {    	
+        	WorkerEvent event = (WorkerEvent)_timerEventQueue.next();
+        	if (event.eventType() == WorkerEventTypes.TOKEN_MGNT && 
+        		event.reactorChannel() == reactorChannel)
+        	{      		
+        		_timerEventQueue.remove(event);
+        		event.returnToPool();
+        	}
+        }
+	}
+	
     private void processChannelClose(ReactorChannel reactorChannel)
     {
         if (reactorChannel == null)
@@ -314,9 +387,14 @@ class Worker implements Runnable
             reactorChannel.selectableChannelFromChannel(null);
             reactorChannel.flushRequested(false);
         }
+        
+        cancelAuthTokenTimer(reactorChannel);  
+
         if (_activeChannelQueue.remove(reactorChannel) == false)
             if (_initChannelQueue.remove(reactorChannel) == false)
+            {
                 _reconnectingChannelQueue.remove(reactorChannel);
+            }
     }
 
     private void processChannelFlush(ReactorChannel reactorChannel)

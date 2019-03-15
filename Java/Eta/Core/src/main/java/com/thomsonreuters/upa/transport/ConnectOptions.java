@@ -23,6 +23,8 @@ public interface ConnectOptions
      */
     public String componentVersion();
 	
+     
+    
     /**
      * Type of connection to establish. Must be in the range of
      * {@link ConnectionTypes#SOCKET} - {@link ConnectionTypes#RELIABLE_MCAST}.
@@ -129,6 +131,7 @@ public interface ConnectOptions
      * @return the locking
      */
     public boolean channelWriteLocking();
+
 
     /**
      * If set to true, blocking I/O will be used for this {@link Channel}. When

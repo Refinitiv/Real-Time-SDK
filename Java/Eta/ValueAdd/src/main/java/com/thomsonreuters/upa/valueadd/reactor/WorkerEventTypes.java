@@ -39,7 +39,11 @@ enum WorkerEventTypes
     // sent from Reactor to Worker
     START_WATCHLIST_TIMER,
     // sent from Worker to Reactor
-    WATCHLIST_TIMEOUT;
+    WATCHLIST_TIMEOUT,
+    // sent from Worker to Reactor
+    TOKEN_MGNT;
+    
+    
     
     /* Returns a String representation of the specified WorkerEventTypes type. */
     static String toString(WorkerEventTypes type)
@@ -82,6 +86,8 @@ enum WorkerEventTypes
                 return "ReactorChannelEventTypes.START_WATCHLIST_TIMER";
             case WATCHLIST_TIMEOUT:
                 return "ReactorChannelEventTypes.WATCHLIST_TIMEOUT";
+            case TOKEN_MGNT:
+                return "ReactorChannelEventTypes.TOKEN_MGNT";                
             default:
                 return "ReactorChannelEventTypes " + type + " - undefined.";
         }

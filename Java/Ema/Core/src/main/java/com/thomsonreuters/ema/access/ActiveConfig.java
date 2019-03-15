@@ -100,7 +100,9 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT		= 60;
 	final static int DEFAULT_DICTIONARY_REQUEST_TIMEOUT			= 45000;
 	final static int DEFAULT_DIRECTORY_REQUEST_TIMEOUT			= 45000;
+	final static boolean DEFAULT_ENABLE_SESSION_MGNT			= false;
 	final static int DEFAULT_GUARANTEED_OUTPUT_BUFFERS			= 100;
+	final static String DEFAULT_REGION_LOCATION					= "us-east";
 	final static int DEFAULT_NUM_INPUT_BUFFERS					= 10;
 	final static int DEFAULT_SYS_SEND_BUFFER_SIZE				= 0;
 	final static int DEFAULT_SYS_RECEIVE_BUFFER_SIZE			= 0;
@@ -606,6 +608,8 @@ class EncryptedChannelConfig extends HttpChannelConfig
 	String 				SecurityProtocol;		
 	String				KeyManagerAlgorithm;
 	String				TrustManagerAlgorithm;
+	String				location;
+	boolean				enableSessionMgnt;
 	
 	EncryptedChannelConfig()
 	{
@@ -617,8 +621,13 @@ class EncryptedChannelConfig extends HttpChannelConfig
 	{
 		super.clear();
 		
+		// Override the default value for hostname and port as
+		// the Reactor can query them from EDP-RT service discovery if not specified.
+		hostName = "";
+		serviceName = "";
 		rsslConnectionType = ConnectionTypes.ENCRYPTED;
-		
+		location = ActiveConfig.DEFAULT_REGION_LOCATION;
+		enableSessionMgnt = ActiveConfig.DEFAULT_ENABLE_SESSION_MGNT;
 	}
 }
 

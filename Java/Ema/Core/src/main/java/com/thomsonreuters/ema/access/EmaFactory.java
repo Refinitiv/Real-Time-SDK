@@ -161,6 +161,7 @@ public class EmaFactory
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config)
 	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
 		return new OmmConsumerImpl(config);
 	}
 	
@@ -172,6 +173,7 @@ public class EmaFactory
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient client)
 	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
 		return new OmmConsumerImpl(config, client);
 	}
 	
@@ -184,6 +186,7 @@ public class EmaFactory
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient client, Object closure)
 	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
 		return new OmmConsumerImpl(config, client, closure);
 	}
 	
@@ -197,6 +200,7 @@ public class EmaFactory
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerErrorClient client)
 	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
 		return new OmmConsumerImpl(config, client);
 	}
 	
@@ -210,6 +214,7 @@ public class EmaFactory
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient errorClient)
 	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
 		return new OmmConsumerImpl(config, adminClient, errorClient);
 	}
 	
@@ -224,6 +229,7 @@ public class EmaFactory
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient errorClient, Object closure)
 	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
 		return new OmmConsumerImpl(config, adminClient, errorClient, closure);
 	}
 	
@@ -257,11 +263,19 @@ public class EmaFactory
 	 */
 	public static OmmProvider createOmmProvider(OmmProviderConfig config)
 	{
-		return new OmmNiProviderImpl(config);
+		if(config.providerRole() == ProviderRole.NON_INTERACTIVE)
+		{
+			((OmmNiProviderConfigImpl)config).validateSpecifiedSessionName();
+			return new OmmNiProviderImpl(config);
+		}
+		else
+		{
+			throw new OmmInvalidUsageExceptionImpl().message("The createOmmProvider(OmmProviderConfig) method supports Non-Interactive provider role only.");
+		}
 	}
 	
 	/**
-	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Interactive provider role.<br>
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Interactive or Non-Interactive provider role.<br>
 	 * Enables exception throwing as means of error reporting.
 	 * 
 	 * @param config OmmProviderConfig providing configuration
@@ -271,13 +285,19 @@ public class EmaFactory
 	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client)
 	{
 		if(config.providerRole() == ProviderRole.INTERACTIVE)
+		{
+			((OmmIProviderConfigImpl)config).validateSpecifiedSessionName();
 			return new OmmIProviderImpl(config, client, null);
+		}
 		else
+		{
+			((OmmNiProviderConfigImpl)config).validateSpecifiedSessionName();
 			return new OmmNiProviderImpl(config, client, null);
+		}
 	}
 	
 	/**
-	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Interactive provider role.<br>
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Interactive or Non-Interactive provider role.<br>
 	 * Enables exception throwing as means of error reporting.
 	 * 
 	 * @param config OmmProviderConfig providing configuration
@@ -288,13 +308,19 @@ public class EmaFactory
 	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client, Object closure)
 	{
 		if(config.providerRole() == ProviderRole.INTERACTIVE)
+		{
+			((OmmIProviderConfigImpl)config).validateSpecifiedSessionName();
 			return new OmmIProviderImpl(config, client, closure);
+		}
 		else
+		{
+			((OmmNiProviderConfigImpl)config).validateSpecifiedSessionName();
 			return new OmmNiProviderImpl(config, client, closure);
+		}
 	}
 	
 	/**
-	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Non-Interactive provider role..
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Non-Interactive provider role.
 	 * 
 	 * @param config OmmProviderConfig providing configuration
 	 * @param errorClient OmmProviderErrorClient that provides callback interfaces to be used for error reporting
@@ -303,11 +329,24 @@ public class EmaFactory
 	 */
 	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderErrorClient errorClient)
 	{
-		return new OmmNiProviderImpl(config, errorClient);
+		if(config.providerRole() == ProviderRole.NON_INTERACTIVE)
+		{
+			((OmmNiProviderConfigImpl)config).validateSpecifiedSessionName();
+			return new OmmNiProviderImpl(config, errorClient);
+		}
+		else
+		{
+			if(errorClient != null)
+			{
+				errorClient.onInvalidUsage("The createOmmProvider(OmmProviderConfig, OmmProviderErrorClient)) method supports Non-Interactive provider role only.");
+			}
+			
+			return null;
+		}
 	}
 	
 	/**
-	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider}.
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Interactive or Non-Interactive provider role.
 	 * 
 	 * @param config OmmProviderConfig providing configuration
 	 * @param client OmmProviderClient providing provider client
@@ -317,11 +356,20 @@ public class EmaFactory
 	 */
 	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client, OmmProviderErrorClient errorClient)
 	{
-		return new OmmIProviderImpl(config, client, errorClient, null);
+		if(config.providerRole() == ProviderRole.INTERACTIVE)
+		{
+			((OmmIProviderConfigImpl)config).validateSpecifiedSessionName();
+			return new OmmIProviderImpl(config, client, errorClient, null);
+		}
+		else
+		{
+			((OmmNiProviderConfigImpl)config).validateSpecifiedSessionName();
+			return new OmmNiProviderImpl(config, client, errorClient, null);
+		}
 	}
 	
 	/**
-	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider}.
+	 * Creates a {@link com.thomsonreuters.ema.access.OmmProvider} for Interactive or Non-Interactive provider role.
 	 * 
 	 * @param config OmmProviderConfig providing configuration
 	 * @param client OmmProviderClient providing provider client
@@ -332,7 +380,16 @@ public class EmaFactory
 	 */
 	public static OmmProvider createOmmProvider(OmmProviderConfig config, OmmProviderClient client, OmmProviderErrorClient errorClient, Object closure)
 	{
-		return new OmmIProviderImpl(config, client, errorClient, closure);
+		if(config.providerRole() == ProviderRole.INTERACTIVE)
+		{
+			((OmmIProviderConfigImpl)config).validateSpecifiedSessionName();
+			return new OmmIProviderImpl(config, client, errorClient, closure);
+		}
+		else
+		{
+			((OmmNiProviderConfigImpl)config).validateSpecifiedSessionName();
+			return new OmmNiProviderImpl(config, client, errorClient, closure);
+		}
 	}
 	
 	/**
@@ -536,7 +593,42 @@ public class EmaFactory
 	public static TunnelStreamRequest createTunnelStreamRequest()
 	{
 		return new TunnelStreamRequestImpl();
-	}	
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.ServiceEndpointDiscovery} using the default URLs.
+	 * 
+	 * <p>The token service URL defaults to https://api.refinitiv.com/auth/oauth2/beta1/token<br>
+	 * The EDP-RT service discovery URL defaults to https://api.refinitiv.com/streaming/pricing/v1</p>
+	 * 
+	 * @return {@link com.thomsonreuters.ema.access.ServiceEndpointDiscovery}
+	 */
+	public static ServiceEndpointDiscovery createServiceEndpointDiscovery()
+	{
+		return new ServiceEndpointDiscoveryImpl();
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.ServiceEndpointDiscovery} with overriding the default URLs.
+	 * 
+	 * @param tokenServiceUrl specifies the token service URL to override the default value.
+	 * @param serviceDiscoveryUrl specifies the service discovery URL to override the default value.
+	 * @return {@link com.thomsonreuters.ema.access.ServiceEndpointDiscovery}
+	 */
+	public static ServiceEndpointDiscovery createServiceEndpointDiscovery(String tokenServiceUrl, String serviceDiscoveryUrl)
+	{
+		return new ServiceEndpointDiscoveryImpl(tokenServiceUrl, serviceDiscoveryUrl);
+	}
+	
+	/**
+	 * Creates a {@link com.thomsonreuters.ema.access.ServiceEndpointDiscoveryOption} to specify query options to get endpoints.
+	 * 
+	 * @return {@link com.thomsonreuters.ema.access.ServiceEndpointDiscoveryOption}
+	 */
+	public static ServiceEndpointDiscoveryOption createServiceEndpointDiscoveryOption()
+	{
+		return new ServiceEndpointDiscoveryOptionImpl();
+	}
 	
 	/**
 	 * Domain is a nested class of EmaFactory that creates Admin Domain-specific message objects.

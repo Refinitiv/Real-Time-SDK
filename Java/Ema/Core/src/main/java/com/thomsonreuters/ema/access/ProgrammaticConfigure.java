@@ -64,6 +64,8 @@ class ProgrammaticConfigure
 		final static int COMPRESSION_TYPE_FLAG =				0x1000;
 		final static int DIRECTWRITE_FLAG =						0x2000;
 		final static int INIT_TIMEOUT_FLAG =					0x4000;
+		final static int ENABLE_SESSION_MGNT_FLAG =				0x8000; // Enable the reactor to refresh the token and reissue login request.
+		final static int LOCATION_FLAG = 						0x10000; // Specify a location to get an endpoint for establishing a connection.
 	}
 	
 	/** @class ServerEntryFlag
@@ -1160,7 +1162,7 @@ class ProgrammaticConfigure
 	@SuppressWarnings("static-access")
 	void retrieveChannelInfo( MapEntry mapEntry, String channelName, ActiveConfig activeConfig, int setByFnCalled, ChannelConfig fileCfg)
 	{
-		String interfaceName = null, host = null, port = null, objectName = null, tunnelingProxyHost = null, tunnelingProxyPort = null;
+		String interfaceName = null, host = null, port = null, objectName = null, tunnelingProxyHost = null, tunnelingProxyPort = null, location = null;
 		int flags = 0, channelType = 0, compressionType = 0, tunnelingFlags = 0;
 		long guaranteedOutputBuffers= 0;
 		long compressionThreshold= 0;
@@ -1169,8 +1171,8 @@ class ProgrammaticConfigure
 		long sysSendBufSize= 0;
 		long sysRecvBufSize= 0;
 		long highWaterMark= 0;
-		long tcpNodelay = 0, directWrite = 0;
 		long initializationTimeout = 0;
+		long tcpNodelay = 0, directWrite = 0, enableSessionMgnt = 0;
 	
 		for (ElementEntry channelEntry : mapEntry.elementList())
 		{
@@ -1243,6 +1245,11 @@ class ProgrammaticConfigure
 						break;
 					}
 				}
+				else if ( channelEntry.name().equals("Location"))
+				{
+					location = channelEntry.ascii().ascii();
+					flags |= ChannelEntryFlag.LOCATION_FLAG;
+				}
 				break;
 	
 			case DataTypes.INT:
@@ -1295,6 +1302,10 @@ class ProgrammaticConfigure
 				{
 					initializationTimeout = channelEntry.intValue();
 					flags |= ChannelEntryFlag.INIT_TIMEOUT_FLAG;
+				else if ( channelEntry.name().equals("EnableSessionManagement"))
+				{
+					enableSessionMgnt = channelEntry.intValue();
+					flags |= ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG;
 				}
 				break;
 			default:
@@ -1375,6 +1386,23 @@ class ProgrammaticConfigure
 					httpChannelConfig.serviceName = port;
 				else if ( fileCfgEncrypt != null )
 					httpChannelConfig.serviceName = fileCfgEncrypt.serviceName;
+				
+				if (channelType == ConnectionTypes.ENCRYPTED)
+				{
+					if ( (flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0 )
+						((EncryptedChannelConfig)httpChannelConfig).enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
+					else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
+					{
+						((EncryptedChannelConfig)httpChannelConfig).enableSessionMgnt = ((EncryptedChannelConfig)fileCfgEncrypt).enableSessionMgnt;
+					}
+					
+					if ( (flags & ChannelEntryFlag.LOCATION_FLAG) != 0 )
+						((EncryptedChannelConfig)httpChannelConfig).location = location;
+					else if ( ( fileCfgEncrypt != null ) && (fileCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED) )
+					{
+						((EncryptedChannelConfig)httpChannelConfig).location = ((EncryptedChannelConfig)fileCfgEncrypt).location;
+					}
+				}
 
 				if ( (tunnelingFlags & TunnelingEntryFlag.OBJECTNAME_FLAG) != 0 && (setByFnCalled & ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL) == 0 )
 					httpChannelConfig.objectName = objectName;

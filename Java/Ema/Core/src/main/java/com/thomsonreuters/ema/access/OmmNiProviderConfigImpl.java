@@ -91,26 +91,34 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 	@Override
 	public OmmNiProviderConfig providerName(String providerName) {
 		
+		// Keep the session name to check later after all configuration methods is called.
 		_configSessionName = providerName;
+		return this;
+	}
+	
+	void validateSpecifiedSessionName()
+	{
+		if(_configSessionName == null || _configSessionName.isEmpty())
+			return;
 		
-		if ( _programmaticConfigure != null && _programmaticConfigure.specifyNiProviderName( providerName ) )
-			return this;
+		if ( _programmaticConfigure != null && _programmaticConfigure.specifyNiProviderName( _configSessionName ) )
+			return;
 
-		String name = (String) xmlConfig().getNiProviderAttributeValue(providerName,ConfigManager.NiProviderName);
+		String name = (String) xmlConfig().getNiProviderAttributeValue(_configSessionName,ConfigManager.NiProviderName);
 
 		if ( name == null ) 
 		{
-			if ( providerName.equals(ActiveConfig.DEFAULT_NIPROV_NAME) )
+			if ( _configSessionName.equals(ActiveConfig.DEFAULT_NIPROV_NAME) )
 			{
 				boolean bFoundChild = xmlConfig().isNiProviderChildAvailable();
 				if( bFoundChild == false )
-					return this;
+					return;
 			}
 
-			_configSessionName = null;
 			configStrBuilder().append( "OmmNiProviderConfigImpl::providerName parameter [" )
-									.append( providerName )
+									.append( _configSessionName )
 									.append( "] is an non-existent niprovider name" );
+			_configSessionName = null;
 			throw ( oommICExcept().message( _configStrBuilder.toString()));
 		}
  		else //if ( name != null ) 
@@ -118,12 +126,10 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
  			boolean bSetAttributeValue = xmlConfig().setDefaultNiProvider(name);
 			if ( bSetAttributeValue == false )
 			{
-				xmlConfig().appendAttributeValue(ConfigManager.NIPROVIDER_GROUP, "DefaultNiProvider", ConfigManager.DefaultNiProvider,providerName);
+				xmlConfig().appendAttributeValue(ConfigManager.NIPROVIDER_GROUP, "DefaultNiProvider", ConfigManager.DefaultNiProvider,_configSessionName);
 				xmlConfig().verifyAndGetDefaultNiProvider();
 			}
 		}
-	
-		return this;
 	}
 
 	@Override

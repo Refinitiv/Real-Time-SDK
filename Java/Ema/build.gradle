@@ -20,6 +20,7 @@ dependencies {
         compile project(':Eta:AnsiPage')
         compile project(':Eta:Applications:Shared')
         compile project(':Eta:Applications:PerfTools')
+        compile project(':Eta:Applications:Examples')
 }
 
 shadowJar {

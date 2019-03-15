@@ -29,9 +29,11 @@ import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.ClassesOfService;
 import com.thomsonreuters.upa.rdm.DomainTypes;
+import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.ConnectOptions;
+import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.InitArgs;
 import com.thomsonreuters.upa.transport.ReadArgs;
 import com.thomsonreuters.upa.transport.Server;
@@ -67,6 +69,7 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.queue.QueueMsg;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.State;
@@ -123,6 +126,15 @@ public class Reactor
 	private StringBuilder _xmlString = new StringBuilder(1500);
     private HashMap<Msg, TransportBuffer> _submitMsgMap = new HashMap<Msg, TransportBuffer>();
     private HashMap<MsgBase, TransportBuffer> _submitRdmMsgMap = new HashMap<MsgBase, TransportBuffer>();
+    
+    // REST client support
+    RestClient _restClient;
+    
+	RestReactorOptions _restReactorOptions;
+	RestConnectOptions _restConnectOptions;
+	RestReactorSubmitOptions _restSubmitOptions;
+	RestAuthOptions _restAuthOptions;
+	LoginRequest _loginRequestForEDP;
     
     // tunnel stream support
     private TunnelStreamStateInfo _tunnelStreamStateInfo;
@@ -476,7 +488,9 @@ public class Reactor
     public int connect(ReactorConnectOptions reactorConnectOptions, ReactorRole role, ReactorErrorInfo errorInfo)
     {
         _reactorLock.lock();
-
+        
+        boolean sendAuthTokenEvent = false;
+        
         try
         {
             if (errorInfo == null)
@@ -569,20 +583,51 @@ public class Reactor
                                          "ReactorConnectOptions.connectOptions.blocking must be false, aborting.");
             }
 
+            if (reactorConnectOptions.connectionList().get(0).enableSessionManagement())
+            {
+            	if (sessionManagementConfigValidationAndStartup(reactorConnectOptions.connectionList().get(0), role, null, true, errorInfo) != ReactorReturnCodes.SUCCESS)
+                {
+                	return errorInfo.code();
+                }
+
+            	sendAuthTokenEvent = true;
+	        }
+    
             // create a ReactorChannel and add it to the initChannelQueue.
             ReactorChannel reactorChannel = ReactorFactory.createReactorChannel();
+
+            reactorChannel.reactor(this);            
             reactorChannel.state(State.INITIALIZING);
-            reactorChannel.role(role);
-            reactorChannel.reactor(this);
             reactorChannel.userSpecObj(reactorConnectOptions.connectionList().get(0).connectOptions().userSpecObject());
             reactorChannel.initializationTimeout(reactorConnectOptions.connectionList().get(0).initTimeout());
-            reactorChannel.reactorConnectOptions(reactorConnectOptions);
+            reactorChannel.reactorConnectOptions(reactorConnectOptions);            
+            if (reactorConnectOptions.connectionList().get(0).enableSessionManagement())
+            {
+	            if (reactorChannel.verifyAndCopyServiceDiscoveryData(((ConsumerRole)role).rdmLoginRequest(), errorInfo) != ReactorReturnCodes.SUCCESS)
+	            {
+	            	return errorInfo.code();
+	            }
+            }
+            reactorChannel.role(role);
+
             _reactorChannelQueue.pushBack(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK);
             
             // enable channel read/write locking for reactor since it's multi-threaded with worker thread
-            ConnectOptions connectOptions = reactorConnectOptions.connectionList().get(0).connectOptions();
+            ConnectOptions connectOptions = reactorChannel.getReactorConnectInfo().connectOptions();//reactorConnectOptions.connectionList().get(0).connectOptions();
             connectOptions.channelReadLocking(true);
             connectOptions.channelWriteLocking(true);
+            
+            if (sendAuthTokenEvent)
+            {
+				sendAuthTokenEventCallback(reactorChannel, _restClient.reactorAuthTokenInfo(), errorInfo);
+				if (!sendAuthTokenWorkerEvent(reactorChannel, _restClient.reactorAuthTokenInfo()))
+				{
+	                return populateErrorInfo(errorInfo,
+                            ReactorReturnCodes.FAILURE,
+                            "Reactor.connect",
+                            "sendAuthTokenWorkerEvent() failed");
+				}
+            }
             
             // create watchlist if enabled
             if (role.type() == ReactorRoleTypes.CONSUMER &&
@@ -600,6 +645,32 @@ public class Reactor
                 }
             }
 
+            if(_restClient == null && reactorConnectOptions.connectionList().size() > 1)
+            {
+            	for (int i = 1; i < reactorConnectOptions.connectionList().size(); i++)
+            	{
+            		if (reactorConnectOptions.connectionList().get(i).enableSessionManagement())
+            		{
+            		    try
+            	        {
+            		    	setupRestClient(true);
+            		    	
+            		    	_restConnectOptions.connect(false);
+
+            		    	createRestClient(errorInfo);    	
+            	        }
+            	        catch(Exception e)
+            	        {
+            	            return populateErrorInfo(errorInfo,
+            	                    ReactorReturnCodes.FAILURE,
+            	                    "Reactor.initRestClient",
+            	                    "failed to initialize the RESTClient, exception="
+            	                            + e.getLocalizedMessage());
+            	        }             			
+            		}
+            	}
+            }
+            
             // call Transport.connect to create a new Channel
             Channel channel = Transport.connect(connectOptions,
                                                 errorInfo.error());
@@ -647,7 +718,387 @@ public class Reactor
 
         return ReactorReturnCodes.SUCCESS;
     }
+    
+    int sessionManagementConfigValidationAndStartup(ReactorConnectInfo reactorConnectInfo, ReactorRole role, ReactorChannel reactorChannel, boolean blocking, ReactorErrorInfo errorInfo)
+    {
+    	// save login information
+    	LoginRequest loginRequest = null;
 
+    	if (_loginRequestForEDP == null)
+    	{
+    		_loginRequestForEDP = (LoginRequest)LoginMsgFactory.createMsg();
+    		_loginRequestForEDP.rdmMsgType(LoginMsgType.REQUEST);
+
+    		if (role.type() == ReactorRoleTypes.CONSUMER)
+    		{
+    			loginRequest = ((ConsumerRole)role).rdmLoginRequest();  		
+    		}
+    		else if(role.type() == ReactorRoleTypes.NIPROVIDER)
+    		{
+    			loginRequest = ((NIProviderRole)role).rdmLoginRequest();
+    		}
+    	
+    		if (loginRequest == null)
+    		{
+    			_loginRequestForEDP = null;    			
+                populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE, "Reactor.connect", 
+                    	"Reactor.connect(): RDMLoginRequest not set, need user name and password for : " + 
+                    	"for session managment.");                	
+    			return ReactorReturnCodes.INVALID_USAGE;
+    		}
+    		loginRequest.copy(_loginRequestForEDP);
+    	}
+    	
+    	switch (reactorConnectInfo.connectOptions().connectionType())
+    	{
+    		case ConnectionTypes.ENCRYPTED:
+    			break;
+    		default:
+    			_loginRequestForEDP = null;
+                populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.connect", 
+                	"Reactor.connect(): Invalid connection type: " + 
+                	reactorConnectInfo.connectOptions().connectionType() + 
+                	" for requesting EDP-RT service discovery.");                	
+            return ReactorReturnCodes.PARAMETER_INVALID;
+    	}
+
+    	if (_restClient == null)
+    	{
+        	initRestClient(reactorConnectInfo, role, blocking, errorInfo);
+            	
+            // check if connected 
+            if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
+            {
+            	_loginRequestForEDP = null;
+            	return errorInfo.code();
+            }
+            
+        	_restClient.reactorChannel(reactorChannel);
+    	}
+    	else
+    	{
+        	_restConnectOptions.clear();
+        	_restConnectOptions.blocking(blocking);
+
+	    	populateRestConnectOptions(reactorConnectInfo, role);             	
+        	
+        	_restReactorOptions.connectionOptions(_restConnectOptions);
+        	_restClient.reactorChannel(reactorChannel);
+        	if (blocking)
+        		_restClient.connectBlocking(null, errorInfo);
+        	else
+        		_restClient.connect(errorInfo);
+    	}   	
+    
+        return ReactorReturnCodes.SUCCESS;
+    }
+    
+
+    
+    private int sendQueryServiceDiscoveryEvent(ReactorServiceEndpointEventCallback callback, ReactorErrorInfo errorInfo)
+    {
+		ReactorServiceEndpointEvent reactorServiceEndpointEvent = ReactorFactory.createReactorServiceEndpointEvent();
+		
+		if (_restClient != null && _restConnectOptions != null)
+		{
+			reactorServiceEndpointEvent._reactorServiceEndpointInfoList = _restClient.reactorServiceEndpointInfo();
+			reactorServiceEndpointEvent._userSpecObject = _restConnectOptions.userSpecObject();
+		}
+		reactorServiceEndpointEvent._errorInfo = errorInfo;
+		
+		if (callback != null)
+			callback.reactorServiceEndpointEventCallback(reactorServiceEndpointEvent);
+		
+        reactorServiceEndpointEvent.returnToPool();
+        return errorInfo.code();
+    }
+    
+    /**
+     * Queries EDP-RT service discovery to get service endpoint information.
+     * 
+     * @param options The {@link ReactorServiceDiscoveryOptions} to configure options and specify the 
+     * 		ReactorServiceEndpointEventCallback to receive service endpoint information. 
+     * @param errorInfo error structure to be populated in the event of failure
+     * 
+     * @return {@link ReactorReturnCodes} indicating success or failure
+     */
+    public int queryServiceDiscovery(ReactorServiceDiscoveryOptions options, ReactorErrorInfo errorInfo)
+    {	
+    	if (options == null)
+    	{		
+        	populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
+        			"Reactor.queryServiceDiscovery(): options cannot be null, aborting.");
+				
+    		return sendQueryServiceDiscoveryEvent(null, errorInfo);
+    	}
+
+    	if (errorInfo == null)
+        { 
+        	return ReactorReturnCodes.PARAMETER_INVALID;
+        }
+        
+        if (options.reactorServiceEndpointEventCallback() == null)
+        {
+        	populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
+        			"Reactor.queryServiceDiscovery(): ReactorServiceEndpointEventCallback cannot be null, aborting.");
+        	
+    		return sendQueryServiceDiscoveryEvent(options.reactorServiceEndpointEventCallback(), errorInfo);        	
+        }
+        
+        switch (options.transport())
+        {
+        case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_INIT:
+        case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP:
+        case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_WEBSOCKET:
+        	break;
+        	default:
+
+            	populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_OUT_OF_RANGE, "Reactor.queryServiceDiscovery", 
+            			"Reactor.queryServiceDiscovery(): Invalid transport protocol type " + options.transport());
+            	
+            	return ReactorReturnCodes.PARAMETER_OUT_OF_RANGE;
+        }
+        
+        switch (options.dataFormat())
+        {
+        case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_INIT:
+        case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_JSON2:
+        case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_RWF:
+        	break;
+        	default:
+
+            	populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_OUT_OF_RANGE, "Reactor.queryServiceDiscovery", 
+            			"Reactor.queryServiceDiscovery(): Invalid dataformat protocol type " + options.dataFormat());
+            	
+            	return ReactorReturnCodes.PARAMETER_OUT_OF_RANGE;
+        }                	
+
+    	if (_restClient == null)
+    		initRestClient(options, errorInfo);
+    	else
+    		_restClient.connectBlocking(options, errorInfo);
+
+		ReactorServiceEndpointEvent reactorServiceEndpointEvent = ReactorFactory.createReactorServiceEndpointEvent();
+		
+		reactorServiceEndpointEvent._reactorServiceEndpointInfoList = _restClient.reactorServiceEndpointInfo();
+		reactorServiceEndpointEvent._userSpecObject = _restConnectOptions.userSpecObject();
+    	
+		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
+    		reactorServiceEndpointEvent._errorInfo = errorInfo;
+
+		options.reactorServiceEndpointEventCallback().reactorServiceEndpointEventCallback(reactorServiceEndpointEvent);
+        reactorServiceEndpointEvent.returnToPool();				
+		
+    	return ReactorReturnCodes.SUCCESS;
+    }
+
+    private void setupRestClient(boolean blocking)
+    {
+    	_restReactorOptions = new RestReactorOptions();
+    	_restConnectOptions = new RestConnectOptions();
+    	_restSubmitOptions = new RestReactorSubmitOptions();
+    	_restAuthOptions = new RestAuthOptions();    	
+
+    	_restConnectOptions.blocking(blocking);
+    	_restReactorOptions.connectionOptions(_restConnectOptions);
+    	_restReactorOptions.connectTimeout(5000);
+    	_restReactorOptions.soTimeout(10000);
+    	
+    	_restConnectOptions.tokenServiceURL(_reactorOptions.tokenServiceURL().toString());
+    	_restConnectOptions.serviceDiscoveryURL(_reactorOptions.serviceDiscoveryURL().toString());
+    }
+    
+    private void createRestClient(ReactorErrorInfo errorInfo)
+    {
+    	_restClient = new RestClient(_restReactorOptions, _restConnectOptions, _restSubmitOptions, _restAuthOptions, errorInfo)
+    	{
+   			public void onNewAuthToken(ReactorChannel reactorChannel, ReactorAuthTokenInfo authTokenInfo, ReactorErrorInfo errorInfo)
+   			{
+   				// send login reissue if initial login already sent. 
+   	        	if (reactorChannel != null)
+            	{
+   	        		// only send reissue if watchlist enabled
+   	        		if (reactorChannel.watchlist() != null)
+   	        			loginReissue(reactorChannel, authTokenInfo.accessToken(), errorInfo);
+
+            		sendAuthTokenEventCallback(reactorChannel, authTokenInfo, errorInfo);      	
+   	        	}
+    		}
+   			public void onError(ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
+   			{
+   				populateErrorInfo(errorInfo,
+   	                    ReactorReturnCodes.FAILURE,
+   	                    "RestClient.onError",
+   	                    "RestClient return an error");
+   			}
+    	};    	
+    }
+    
+    private int initRestClient(ReactorServiceDiscoveryOptions options, ReactorErrorInfo errorInfo)
+    {
+	    try
+        {
+	    	setupRestClient(true);
+	    	
+        	_restConnectOptions.userName(options.userName());
+        	_restConnectOptions.password(options.password());
+        	_restConnectOptions.dataFormat(options.dataFormat());
+        	_restConnectOptions.transport(options.transport());
+        		
+        	if (options.clientId().length() == 0)
+        		_restConnectOptions.clientId(options.userName());
+        	else
+        		_restConnectOptions.clientId(options.clientId());
+        	
+	    	_restConnectOptions.userSpecObject(options.userSpecObject());
+	    	
+        	if(options.proxyHostName().length() > 0)
+        		_restConnectOptions.proxyHost(options.proxyHostName().toString());
+        	
+        	if(options.proxyPort().length() > 0)
+        	{
+        		int port = -1;
+        		try
+        		{
+        			port = Integer.parseInt(options.proxyPort().toString());
+        			_restConnectOptions.proxyPort(port);
+        		}
+        		catch(NumberFormatException e){}
+        	}
+        	
+        	if(options.proxyUserName().length() > 0)
+        		_restConnectOptions.proxyUserName(options.proxyUserName().toString());
+        	
+        	if(options.proxyPassword().length() > 0)
+        		_restConnectOptions.proxyPassword(options.proxyPassword().toString());
+        	
+        	if(options.proxyDomain().length() > 0)
+        		_restConnectOptions.proxyDomain(options.proxyDomain().toString());
+        	
+        	if(options.proxyLocalHostName().length() > 0)
+        		_restConnectOptions.proxyLocalHostName(options.proxyLocalHostName().toString());
+        	
+        	if(options.proxyKRB5ConfigFile().length() > 0)
+        		_restConnectOptions.proxyKRB5ConfigFile(options.proxyKRB5ConfigFile().toString());
+	    	
+	    	createRestClient(errorInfo);
+        	
+        	// check if connected 
+        	if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
+        	{
+        		return errorInfo.code();
+        	}
+        }
+        catch(Exception e)
+        {
+            return populateErrorInfo(errorInfo,
+                    ReactorReturnCodes.FAILURE,
+                    "Reactor.initRestClient",
+                    "failed to initialize the RESTClient, exception="
+                            + e.getLocalizedMessage());
+        }  
+	    
+	    return ReactorReturnCodes.SUCCESS; 	
+    }
+    
+    private int populateRestConnectOptions(ReactorConnectInfo reactorConnectInfo, ReactorRole role)
+    {
+    	if (role.type() == ReactorRoleTypes.CONSUMER)
+    	{
+    		_restConnectOptions.userName(_loginRequestForEDP.userName());
+    		_restConnectOptions.password(_loginRequestForEDP.password());
+    		
+    		if (((ConsumerRole)role)._clientId.length() == 0)
+    			_restConnectOptions.clientId(_loginRequestForEDP.userName());
+    		else
+    			_restConnectOptions.clientId(((ConsumerRole)role)._clientId);
+    	}
+    	else if(role.type() == ReactorRoleTypes.NIPROVIDER)
+    	{
+    		_restConnectOptions.userName(_loginRequestForEDP.userName());
+    		_restConnectOptions.password(_loginRequestForEDP.password());                		
+    	}      	
+    	
+    	if (!reactorConnectInfo.location().equals(""))
+    		_restConnectOptions.location(reactorConnectInfo.location());
+    	
+    	_restConnectOptions.proxyHost(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyHostName());
+    	_restConnectOptions.proxyPort(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyPort());
+    	_restConnectOptions.proxyUserName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyUsername());
+    	_restConnectOptions.proxyPassword(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyPasswd());
+    	_restConnectOptions.proxyDomain(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyDomain());
+    	_restConnectOptions.proxyLocalHostName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyLocalHostname());
+    	_restConnectOptions.proxyKRB5ConfigFile(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyKRB5configFile());
+    	
+    	return ReactorReturnCodes.SUCCESS;
+    }
+    
+    private int initRestClient(ReactorConnectInfo reactorConnectInfo, ReactorRole role, boolean blocking, ReactorErrorInfo errorInfo)
+    {
+	    try
+        {
+	    	setupRestClient(blocking);
+	    	
+	    	populateRestConnectOptions(reactorConnectInfo, role);
+	    	
+	    	createRestClient(errorInfo);    	
+        }
+        catch(Exception e)
+        {
+            return populateErrorInfo(errorInfo,
+                    ReactorReturnCodes.FAILURE,
+                    "Reactor.initRestClient",
+                    "failed to initialize the RESTClient, exception="
+                            + e.getLocalizedMessage());
+        }  
+	    
+	    return ReactorReturnCodes.SUCCESS;    	
+    }
+    
+    void loginReissue(ReactorChannel reactorChannel, String authToken, ReactorErrorInfo errorInfo)
+    {
+		if (reactorChannel.state() == State.CLOSED || reactorChannel.state() == State.DOWN)
+			return;
+
+		LoginRequest loginRequest = null;		
+		
+        switch (reactorChannel.role().type())
+        {
+            case ReactorRoleTypes.CONSUMER:
+                loginRequest = ((ConsumerRole)reactorChannel.role()).rdmLoginRequest();
+                break;
+            case ReactorRoleTypes.NIPROVIDER:
+                loginRequest = ((NIProviderRole)reactorChannel.role()).rdmLoginRequest();
+                break;
+            default:
+                break;
+        }
+       
+        if (loginRequest != null)
+        {
+            loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+            loginRequest.userName().data(authToken);        	
+        	loginRequest.applyNoRefresh();
+        	// Do not send the password
+        	loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.HAS_PASSWORD);
+            encodeAndWriteLoginRequest(loginRequest, reactorChannel, errorInfo);
+        }          
+    }
+    
+    boolean sendAuthTokenWorkerEvent(ReactorChannel reactorChannel, ReactorAuthTokenInfo authTokenInfo)
+    {
+    	boolean retVal = true;
+    	
+        ReactorAuthTokenEvent event = ReactorFactory.createReactorAuthTokenEvent();
+        event.eventType(WorkerEventTypes.TOKEN_MGNT);
+        event.reactorChannel(reactorChannel);
+        event._reactorAuthTokenInfo = authTokenInfo;
+        event._restClient = _restClient;
+        retVal = _workerQueue.write(event);
+        
+        return retVal;
+    }    
+    
     boolean sendWorkerEvent(WorkerEventTypes eventType, ReactorChannel reactorChannel)
     {
     	boolean retVal = true;
@@ -723,6 +1174,42 @@ public class Reactor
 
         return retval;
     }
+	
+	int sendAuthTokenEventCallback(ReactorChannel reactorChannel, ReactorAuthTokenInfo authTokenInfo, ReactorErrorInfo errorInfo)
+	{
+        int retval;
+        ReactorAuthTokenEventCallback callback = reactorChannel.reactorAuthTokenEventCallback();
+
+        if (callback != null)
+        {
+    		ReactorAuthTokenEvent reactorAuthTokenEvent = ReactorFactory.createReactorAuthTokenEvent();
+    		reactorAuthTokenEvent.reactorChannel(reactorChannel);
+    		reactorAuthTokenEvent.reactorAuthTokenInfo(authTokenInfo);
+    		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
+    		{
+    			reactorAuthTokenEvent._errorInfo = errorInfo;
+    		}
+    		
+            retval = callback.reactorAuthTokenEventCallback(reactorAuthTokenEvent);
+            reactorAuthTokenEvent.returnToPool();            
+    		
+            if (retval != ReactorCallbackReturnCodes.SUCCESS)
+            {
+                // retval is not a valid ReactorReturnCodes.
+                populateErrorInfo(errorInfo, retval, "Reactor.sendAuthTokenEventCallback", "retval of "
+                        + retval + " is not a valid ReactorCallbackReturnCodes. This caused the Reactor to shutdown.");
+                shutdown(errorInfo);
+                return ReactorReturnCodes.FAILURE;
+            }        	
+        }
+        else
+        {
+            // callback is undefined, raise it to defaultMsgCallback.
+            retval = ReactorCallbackReturnCodes.RAISE;
+        }
+
+        return retval;
+	}
 
     // returns ReactorCallbackReturnCodes and populates errorInfo if needed.
     int sendAndHandleChannelEventCallback(String location, int eventType, ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)

@@ -92,6 +92,30 @@ public interface OmmConsumerConfig
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig applicationId(String applicationId);
+	
+	/**
+	 * Specifies an unique identifier defined for making an authentication request to the token service.
+	 * <p>EMA uses the user name as Client ID if not specified.</p>
+	 * @param clientId specifies an unique identifier.
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig clientId(String clientId);
+	
+	/**
+	 * Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
+	 * <p>Defaults to "https://api.refinitiv.com/auth/oauth2/beta1/token".</p>
+	 * @param tokenServiceUrl specifies an URL for token service.
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig tokenServiceUrl(String tokenServiceUrl);
+	
+	/**
+	 * Specifies an URL to override the default for the EDP service discovery to get global endpoints.
+	 * <p>Defaults to "https://api.refinitiv.com/streaming/pricing/v1".</p>
+	 * @param serviceDiscoveryUrl specifies an URL for EDP service discovery.
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig serviceDiscoveryUrl(String serviceDiscoveryUrl);
 
 	/**
 	 * Specifies a hostname and port. Overrides prior value.

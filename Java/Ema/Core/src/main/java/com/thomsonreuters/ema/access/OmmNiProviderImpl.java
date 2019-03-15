@@ -1327,7 +1327,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	}
 
 	@Override
-	void handleAdminDomains() {
+	void handleAdminDomains(EmaConfigImpl config) {
 		
 		_loginCallbackClient = new LoginCallbackClientProvider(this);
 		_loginCallbackClient.initialize();
