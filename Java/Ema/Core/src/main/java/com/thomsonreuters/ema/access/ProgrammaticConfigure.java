@@ -1302,6 +1302,7 @@ class ProgrammaticConfigure
 				{
 					initializationTimeout = channelEntry.intValue();
 					flags |= ChannelEntryFlag.INIT_TIMEOUT_FLAG;
+				}
 				else if ( channelEntry.name().equals("EnableSessionManagement"))
 				{
 					enableSessionMgnt = channelEntry.intValue();
