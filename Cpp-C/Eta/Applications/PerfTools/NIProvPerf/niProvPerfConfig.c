@@ -26,7 +26,7 @@ static void clearNIProvPerfConfig()
 
 	niProvPerfConfig.highWaterMark = 0;
 	niProvPerfConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
-	niProvPerfConfig.connectionType = RSSL_CONN_TYPE_INIT;
+	niProvPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_INIT;
 	niProvPerfConfig.guaranteedOutputBuffers = 5000;
 	niProvPerfConfig.sendBufSize = 0;
 	niProvPerfConfig.recvBufSize = 0;
