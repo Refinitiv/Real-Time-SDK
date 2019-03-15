@@ -17,6 +17,11 @@ EmaString clientId;
 EmaString host;
 EmaString port;
 EmaString location("us-east");
+EmaString proxyHostName;
+EmaString proxyPort;
+EmaString proxyUserName;
+EmaString proxyPasswd;
+EmaString proxyDomain;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
 {
@@ -98,7 +103,13 @@ void printHelp()
 		<< " -username user name to perform authorization with the token service." << endl
 		<< " -password password to perform authorization with the token service." << endl
 		<< " -location location to get an endpoint from EDP-RT service discovery. Defaults to \"us-east\"" << endl
-		<< " -clientId client ID to perform authorization with the token service. The user name is used if not specified." << endl;
+		<< " -clientId client ID to perform authorization with the token service. The user name is used if not specified." << endl
+		<< "\nOptional options for establishing a connection and sending requests through a proxy server:" << endl
+		<< " -ph Proxy host name." << endl
+		<< " -pp Proxy port number." << endl
+		<< " -plogin User name on proxy server." << endl
+		<< " -ppasswd Password on proxy server." << endl
+		<< " -pdomain Proxy Domain." << endl;
 }
 
 int main( int argc, char* argv[] )
@@ -132,6 +143,26 @@ int main( int argc, char* argv[] )
 			{
 				if ( i < ( argc - 1 ) ) clientId.set( argv[++i] );
 			}
+			else if ( strcmp( argv[i], "-ph" ) == 0 )
+			{
+				if ( i < ( argc - 1 ) ) proxyHostName.set( argv[++i] );
+			}
+			else if ( strcmp( argv[i], "-pp") == 0 )
+			{
+				if ( i < ( argc - 1 ) ) proxyPort.set( argv[++i] );
+			}
+			else if ( strcmp( argv[i], "-plogin" ) == 0 )
+			{
+				if ( i < ( argc - 1 ) ) proxyUserName.set( argv[++i] );
+			}
+			else if ( strcmp( argv[i], "-ppasswd" ) == 0 )
+			{
+				if ( i < ( argc - 1 ) ) proxyPasswd.set( argv[++i] );
+			}
+			else if (strcmp(argv[i], "-pdomain" ) == 0)
+			{
+				if ( i < ( argc - 1 ) ) proxyDomain.set( argv[++i] );
+			}
 		}
 
 		if ( !userName.length() || !password.length() )
@@ -143,7 +174,9 @@ int main( int argc, char* argv[] )
 
 		// Query endpoints from EDP-RT service discovery for the TCP protocol
 		serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
-			.clientId( clientId ).transprot( ServiceEndpointDiscoveryOption::TcpEnum ), client );
+			.clientId( clientId ).transprot( ServiceEndpointDiscoveryOption::TcpEnum )
+			.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
+			.proxyDomain( proxyDomain ), client );
 
 		if ( !host.length() || !port.length() )
 		{
@@ -154,7 +187,8 @@ int main( int argc, char* argv[] )
 		createProgramaticConfig( configDb );
 
 		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_1" ).username( userName ).password( password )
-			.clientId( clientId ).config( configDb ) );
+			.clientId( clientId ).config( configDb ).tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
+			.proxyUserName( proxyUserName ).proxyPasswd( proxyPasswd ).proxyDomain( proxyDomain ) );
 
 		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( "IBM.N" ), client );
 		sleep( 900000 );			// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()

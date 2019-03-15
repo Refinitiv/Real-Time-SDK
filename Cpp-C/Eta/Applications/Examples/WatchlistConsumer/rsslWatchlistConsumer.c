@@ -219,6 +219,36 @@ int main(int argc, char **argv)
 			exit(-1);
 		}
 
+		if (watchlistConsumerConfig.proxyHost[0] != '\0')
+		{
+			serviceDiscoveryOpts.proxyHostName.data = watchlistConsumerConfig.proxyHost;
+			serviceDiscoveryOpts.proxyHostName.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyHostName.data);
+		}
+
+		if (watchlistConsumerConfig.proxyPort[0] != '\0')
+		{
+			serviceDiscoveryOpts.proxyPort.data = watchlistConsumerConfig.proxyPort;
+			serviceDiscoveryOpts.proxyPort.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyPort.data);
+		}
+
+		if (watchlistConsumerConfig.proxyUserName[0] != '\0')
+		{
+			serviceDiscoveryOpts.proxyUserName.data = watchlistConsumerConfig.proxyUserName;
+			serviceDiscoveryOpts.proxyUserName.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyUserName.data);
+		}
+
+		if (watchlistConsumerConfig.proxyPasswd[0] != '\0')
+		{
+			serviceDiscoveryOpts.proxyPasswd.data = watchlistConsumerConfig.proxyPasswd;
+			serviceDiscoveryOpts.proxyPasswd.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyPasswd.data);
+		}
+		if (watchlistConsumerConfig.proxyDomain[0] != '\0')
+
+		{
+			serviceDiscoveryOpts.proxyDomain.data = watchlistConsumerConfig.proxyDomain;
+			serviceDiscoveryOpts.proxyDomain.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyDomain.data);
+		}
+
 		serviceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
 		if(rsslReactorQueryServiceDiscovery(pReactor, &serviceDiscoveryOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)

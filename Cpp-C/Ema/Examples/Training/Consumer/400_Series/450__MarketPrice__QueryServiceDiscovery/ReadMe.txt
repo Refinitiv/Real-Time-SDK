@@ -27,6 +27,11 @@ including:
 -clientId client ID to perform authorization with the token service.
 -location location to get an endpoint from EDP-RT service discovery. Now, it is either
  "us-east" by default or "eu-west".
+-ph Proxy host name.
+-pp Proxy port number.
+-plogin User name on proxy server.
+-ppasswd Password on proxy server.
+-pdomain Proxy Domain.
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods

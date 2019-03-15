@@ -31,7 +31,13 @@ void printHelp()
 	cout << endl << "Options:\n" << " -?\tShows this usage" << endl
 		<< " -username user name to perform authorization with the token service." << endl
 		<< " -password password to perform authorization with the token service." << endl
-		<< " -clientId client ID to perform authorization with the token service. The user name is used if not specified." << endl;
+		<< " -clientId client ID to perform authorization with the token service. The user name is used if not specified." << endl
+		<< "\nOptional options for establishing a connection and sending requests through a proxy server:" << endl
+		<< " -ph Proxy host name." << endl
+		<< " -pp Proxy port number." << endl
+		<< " -plogin User name on proxy server." << endl
+		<< " -ppasswd Password on proxy server." << endl
+		<< " -pdomain Proxy Domain." << endl;
 }
 
 int main( int argc, char* argv[] )
@@ -68,6 +74,26 @@ int main( int argc, char* argv[] )
 			else if ( strcmp( argv[i], "-clientId" ) == 0 )
 			{
 				config.clientId( i < (argc - 1) ? argv[++i] : NULL );
+			}
+			else if ( strcmp( argv[i], "-ph" ) == 0 )
+			{
+				config.tunnelingProxyHostName( i < ( argc - 1 ) ? argv[++i] : NULL );
+			}
+			else if ( strcmp( argv[i], "-pp" ) == 0 )
+			{
+				config.tunnelingProxyPort( i < ( argc - 1 ) ? argv[++i] : NULL );
+			}
+			else if ( strcmp( argv[i], "-plogin" ) == 0 )
+			{
+				config.proxyUserName( i < (argc - 1 ) ? argv[++i] : NULL );
+			}
+			else if ( strcmp( argv[i], "-ppasswd" ) == 0 )
+			{
+				config.proxyPasswd( i < ( argc - 1 ) ? argv[++i] : NULL );
+			}
+			else if ( strcmp( argv[i], "-pdomain" ) == 0)
+			{
+				config.proxyDomain( i < (argc - 1 ) ? argv[++i] : NULL );
 			}
 		}
 

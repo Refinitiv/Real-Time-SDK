@@ -328,6 +328,16 @@ struct curl_slist * _rsslRestExtractHeaderInfo(CURL* curl, RsslRestRequestArgs* 
 	struct curl_slist *pHeaderList = 0;
 	RsslBool          specifiedAcceptEncoding = RSSL_FALSE;
 	header.data = (char*)malloc(RSSL_REST_DEFAULT_MAX_HEADER_LENGTH);
+
+	if (header.data == 0)
+	{
+		_rsslRestClearError(pError);
+		pError->rsslErrorId = RSSL_RET_FAILURE;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: _rsslRestExtractHeaderInfo() failed with text: failed to allocate memory.", __FILE__, __LINE__);
+		return pHeaderList;
+	}
+
 	originPtr = header.data;
 	header.length = RSSL_REST_DEFAULT_MAX_HEADER_LENGTH;
 
@@ -1068,6 +1078,7 @@ CURLcode commonCurlOptions(CURL* curl, RsslRestRequestArgs* requestArgs)
 	RsslError rsslError;
 	RsslBuffer* userNameEncodedUrl;
 	RsslBuffer* passwordEncodedUrl;
+	size_t addtionalSize = 2;
 
 	if (requestArgs->networkArgs.proxyArgs.proxyUserName.length && requestArgs->networkArgs.proxyArgs.proxyPassword.length)
 	{
@@ -1083,12 +1094,12 @@ CURLcode commonCurlOptions(CURL* curl, RsslRestRequestArgs* requestArgs)
 			return CURLE_OUT_OF_MEMORY;
 		}
 
-		userPassLength = userNameEncodedUrl->length + 2; /* add additional memory for : and \0 */
+		userPassLength = ((size_t)userNameEncodedUrl->length) + addtionalSize; /* add additional memory for : and \0 */
 		userPassLength += passwordEncodedUrl->length;
 
 		if (requestArgs->networkArgs.proxyArgs.proxyDomain.length)
 		{
-			userPassLength += requestArgs->networkArgs.proxyArgs.proxyDomain.length + 2; /* add additional memory for \\ */
+			userPassLength += ((size_t)requestArgs->networkArgs.proxyArgs.proxyDomain.length) + addtionalSize; /* add additional memory for \\ */
 		}
 
 		if ((proxyUserAndPasswd = (char*)malloc(userPassLength)) == NULL) // Accounts for null character at the end of the string
@@ -1614,11 +1625,18 @@ void _rsslAllocateAndConvertBufferForUrlData(RsslBuffer* inputBuffer, RsslUInt32
 	if (!(*buffer))
 	{
 		(*buffer) = (RsslBuffer*)malloc(sizeof(RsslBuffer));
+		if ((*buffer) == 0)
+		{
+			pError->rsslErrorId = RSSL_RET_FAILURE;
+			return;
+		}
+
 		(*buffer)->length = inputBuffer->length + (inputBuffer->length * 2) + 1;
 		(*buffer)->data = (char*)malloc((*buffer)->length);
                 
 		if ((*buffer)->data == 0)
 		{
+			free((*buffer));
 			pError->rsslErrorId = RSSL_RET_FAILURE;
 			return;
 		}
@@ -1812,6 +1830,9 @@ RsslBuffer* rsslRestEncodeUrlData(RsslBuffer* inputBuffer, RsslError* pError)
 
 				break;
 		}
+
+		if (pError->rsslErrorId == RSSL_RET_FAILURE)
+			return inputBuffer;
 	}
 
 	if (allocatedBuffer)

@@ -2042,11 +2042,13 @@ RsslRet rsslUninitialize()
 		RTR_ATOMIC_SET(initialized,0);
 		_rsslCleanUp();
 		rsslUnloadTransport();
-		multiThread = 0;
 
 		/* uninitialize various transports */
 		rsslSocketUninitialize();
 		rsslUniShMemUninitialize();
+
+		/* Unset the flag here as it is needed by rsslSocketUninitialize()*/
+		multiThread = 0;
 	}
 	
 	return RSSL_RET_SUCCESS;

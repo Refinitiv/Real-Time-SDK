@@ -303,9 +303,11 @@ RTR_C_ALWAYS_INLINE rsslBufferImpl *_rsslCreateBuffer(rsslChannelImpl *chnl)
 	rsslBufferImpl *buffer = (rsslBufferImpl*)_rsslMalloc(sizeof(rsslBufferImpl));
 
 	if (buffer)
+	{
 		_rsslCleanBuffer(buffer);
 
-	rsslInitQueueLink(&(buffer->link1));
+		rsslInitQueueLink(&(buffer->link1));
+	}
 
 	return buffer;
 }

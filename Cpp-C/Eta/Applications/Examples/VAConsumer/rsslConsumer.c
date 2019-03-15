@@ -119,8 +119,6 @@ void printUsageAndExit(char *appName)
 			"\n           (for SymbolList requests, a name can be optionally specified)\n"
 			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
 			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
-			"\n -ph specifies an HTTP Proxy host."
-			"\n -pp specifies an HTTP Proxy port."
 			"\n -uname changes the username used when logging into the provider.\n"
 			"\n -passwd changes the password used when logging into the provider.\n"
 			"\n -sessionMgnt Enables session management in the Reactor.\n"
@@ -137,6 +135,9 @@ void printUsageAndExit(char *appName)
 			"\n -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
 			"\n -tsServiceName specifies the name of the service to use for tunnel streams (if not specified, the service name specified in -c/-tcp is used)\n"
 			"\n -x provides an XML trace of messages\n"
+			"\n"
+			" Options for establishing connection(s) and sending requests through a proxy server:\n"
+			"   [ -ph <proxy host> ] [ -pp <proxy port> ] [ -plogin <proxy username> ] [ -ppasswd <proxy password> ] [ -pdomain <proxy domain> ] \n"
 			"\n -runtime adjusts the running time of the application.\n"
 			, appName, appName);
 
@@ -219,7 +220,7 @@ void parseCommandLine(int argc, char **argv)
 				clientId.length = snprintf(clientIdBlock, sizeof(clientIdBlock), "%s", argv[i - 1]);
 				clientId.data = clientIdBlock;
 			}
-			if (strcmp("-passwd", argv[i]) == 0)
+			else if (strcmp("-passwd", argv[i]) == 0)
 			{
 				i += 2;
 				password.length = snprintf(passwordBlock, sizeof(passwordBlock), "%s", argv[i - 1]);

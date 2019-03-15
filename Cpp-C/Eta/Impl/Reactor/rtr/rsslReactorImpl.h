@@ -183,7 +183,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 			rsslClearReactorConnectInfoImpl(&pReactorChannel->connectionOptList[i]);
 
 			pReactorChannel->connectionOptList[i].base.location.length = (RsslUInt32)strlen(pOpts->reactorConnectionList[i].location.data);
-			pReactorChannel->connectionOptList[i].base.location.data = (char*)malloc(pReactorChannel->connectionOptList[i].base.location.length + 1);
+			pReactorChannel->connectionOptList[i].base.location.data = (char*)malloc((size_t)pReactorChannel->connectionOptList[i].base.location.length + (size_t)1);
 			if (pReactorChannel->connectionOptList[i].base.location.data == 0)
 			{
 				free(pReactorChannel->connectionOptList);

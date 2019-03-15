@@ -22,7 +22,12 @@ Detailed Description
 including:
 -username user name to perform authorization with the token service.
 -password password to perform authorization with the token service.
--clientId client ID to perform authorization with the token service. 
+-clientId client ID to perform authorization with the token service.
+-ph Proxy host name.
+-pp Proxy port number.
+-plogin User name on proxy server.
+-ppasswd Password on proxy server.
+-pdomain Proxy Domain.
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods
