@@ -57,7 +57,7 @@ task cloneBinaryPack {
             if (!dir.exists()) {
                 println "Cloning Elektron-SDK-BinaryPack from GitHub, please wait."
                 def grgit = Grgit.clone(dir: dir, uri: 'https://github.com/thomsonreuters/Elektron-SDK-BinaryPack.git')
-                grgit.checkout(branch: 'Elektron-SDK_1.3.0.0.L1', createBranch: false)
+                grgit.checkout(branch: 'Elektron-SDK_1.2.2.0.L1', createBranch: false)
                 println "Done cloning Elektron-SDK-BinaryPack from GitHub."
             }
         }
