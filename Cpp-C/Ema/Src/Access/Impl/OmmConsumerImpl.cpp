@@ -198,7 +198,7 @@ void OmmConsumerImpl::loadDirectory()
 	try {
 		pWatcher = new TimeOut( *this, timeOutLengthInMicroSeconds, &OmmBaseImpl::terminateIf, reinterpret_cast< void* >( this ), true );
 	}
-	catch ( std::bad_alloc ) {
+	catch ( std::bad_alloc& ) {
 		throwMeeException( "Failed to allocate memory in OmmConsumerImpl::downloadDirectory()." );
 		return;
 	}

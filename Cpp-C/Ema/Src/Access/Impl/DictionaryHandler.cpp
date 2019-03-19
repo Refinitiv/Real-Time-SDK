@@ -1191,7 +1191,7 @@ DictionaryHandler* DictionaryHandler::create(OmmServerBaseImpl* ommServerBaseImp
 	{
 		dictionaryHandler = new DictionaryHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!dictionaryHandler)
 		ommServerBaseImpl->handleMee("Failed to allocate memory in DictionaryHandler::create()");

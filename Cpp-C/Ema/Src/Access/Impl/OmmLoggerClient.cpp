@@ -46,7 +46,7 @@ OmmLoggerClient* OmmLoggerClient::create( LoggerType loggerType, bool includeDat
 	try {
 		pClient = new OmmLoggerClient( loggerType, includeDate, severity, fileName );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pClient )
 	{
