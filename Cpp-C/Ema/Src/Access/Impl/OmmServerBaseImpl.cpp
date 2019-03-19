@@ -100,7 +100,7 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	{
 		_pErrorClientHandler = new ErrorClientHandler(client);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		client.onMemoryExhaustion("Failed to allocate memory in OmmServerBaseImpl( ActiveConfig& , OmmProviderErrorClient& )");
 	}
@@ -303,7 +303,7 @@ void OmmServerBaseImpl::useDefaultConfigValues(const EmaString& serverName, cons
 		}
 		_activeServerConfig.pServerConfig = newServerConfig;
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		const char* temp("Failed to allocate memory for SocketServerConfig.");
 		throwMeeException(temp);
@@ -335,7 +335,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 				socketServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
 				newServerConfig = socketServerConfig;
 			}
-			catch (std::bad_alloc) {}
+			catch (std::bad_alloc&) {}
 
 			if ( !socketServerConfig )
 			{
@@ -1586,7 +1586,7 @@ void OmmServerBaseImpl::addItemGroup(ItemInfo* itemInfo, const EmaBuffer& groupI
 			itemInfo->getClientSession()->getServiceGroupToItemInfoHash().insert(itemInfo->getServiceId(), pGroupIdToInfo);
 		}
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in OmmServerBaseImpl::addItemGroup()");
 	}
@@ -1690,7 +1690,7 @@ void OmmServerBaseImpl::mergeToGroupId(ClientSession* clientSession, UInt64 serv
 			}
 		}
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in OmmServerBaseImpl::mergeToGroupId()");
 	}

@@ -702,7 +702,7 @@ MarketItemHandler* MarketItemHandler::create(OmmServerBaseImpl* ommServerBaseImp
 	{
 		marketItemHandler = new MarketItemHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!marketItemHandler)
 		ommServerBaseImpl->handleMee("Failed to allocate memory in MarketItemHandler::create()");

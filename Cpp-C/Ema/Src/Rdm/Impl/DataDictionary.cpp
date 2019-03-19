@@ -22,7 +22,7 @@ _pImpl(0)
 	{
 		_pImpl = new DataDictionaryImpl(true);
 	}
-	catch (std::bad_alloc) 
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory for DataDictionaryImpl in DataDictionary::DataDictionary().");
 	}
@@ -35,7 +35,7 @@ _pImpl(0)
 	{
 		_pImpl = new DataDictionaryImpl(ownRsslDataDictionary);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory for DataDictionaryImpl in DataDictionary::DataDictionary(bool).");
 	}
@@ -48,7 +48,7 @@ _pImpl(0)
 	{
 		_pImpl = new DataDictionaryImpl(*dataDictionary._pImpl);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory for DataDictionaryImpl in DataDictionary::DataDictionary(const DataDictionary&).");
 	}

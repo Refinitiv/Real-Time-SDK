@@ -42,7 +42,7 @@ void EncodeIterator::clear(UInt32 allocatedSize)
 		try {
 			_rsslEncBuffer1.data = new char[ _allocatedSize ];
 		}
-		catch ( std::bad_alloc )
+		catch ( std::bad_alloc& )
 		{
 			rsslClearBuffer( &_rsslEncBuffer1 );
 
@@ -149,7 +149,7 @@ void EncodeIterator::reallocate()
 
 		_allocatedSize = newSize;
 	}
-	catch ( std::bad_alloc )
+	catch ( std::bad_alloc& )
 	{
 		const char* temp = "Failed to allocate memory for encode iterator buffer in EncodeIterator::reallocate().";
 		throwMeeException( temp );
@@ -191,7 +191,7 @@ void EncodeIterator::reallocate( UInt32 size )
 			throwIueException( temp );
 		}
 	}
-	catch ( std::bad_alloc )
+	catch ( std::bad_alloc& )
 	{
 		const char* temp = "Failed to allocate memory for encode iterator buffer in EncodeIterator::reallocate().";
 		throwMeeException( temp );

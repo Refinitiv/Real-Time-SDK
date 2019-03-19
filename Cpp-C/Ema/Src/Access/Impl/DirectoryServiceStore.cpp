@@ -493,7 +493,7 @@ void LinkFilter::addLink(const Link& link)
 
 		_linkList.push_back(pLink);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in LinkFilter::addLink()");
 	}
@@ -630,7 +630,7 @@ Service* DirectoryCache::addService(const Service& service)
 		_serviceHash.insert(service.serviceId, pService);
 		return pService;
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in DirectoryCache::addService()");
 	}
@@ -2162,7 +2162,7 @@ bool DirectoryServiceStore::decodeSourceDirectoryKeyUInt(RsslMap& rsslMap, RsslD
 						{
 							pServiceName = new EmaString(serviceNameBuffer.data, serviceNameBuffer.length);
 						}
-						catch (std::bad_alloc)
+						catch (std::bad_alloc&)
 						{
 							errorText.set("Failed to allocate memory in DirectoryServiceStore::decodeSourceDirectoryKeyUInt()");
 							return false;
@@ -2248,7 +2248,7 @@ bool DirectoryServiceStore::encodeService(const Service* service, RsslRDMService
 		{
 			rsslRDMService.info.capabilitiesList = new UInt64[rsslRDMService.info.capabilitiesCount];
 		}
-		catch (std::bad_alloc)
+		catch (std::bad_alloc&)
 		{
 			return false;
 		}
@@ -2266,7 +2266,7 @@ bool DirectoryServiceStore::encodeService(const Service* service, RsslRDMService
 				{
 					rsslRDMService.info.dictionariesProvidedList = new RsslBuffer[rsslRDMService.info.dictionariesProvidedCount];
 				}
-				catch (std::bad_alloc)
+				catch (std::bad_alloc&)
 				{
 					return false;
 				}
@@ -2292,7 +2292,7 @@ bool DirectoryServiceStore::encodeService(const Service* service, RsslRDMService
 				{
 					rsslRDMService.info.dictionariesUsedList = new RsslBuffer[rsslRDMService.info.dictionariesUsedCount];
 				}
-				catch (std::bad_alloc)
+				catch (std::bad_alloc&)
 				{
 					return false;
 				}
@@ -2317,7 +2317,7 @@ bool DirectoryServiceStore::encodeService(const Service* service, RsslRDMService
 				{
 					rsslRDMService.info.qosList = new RsslQos[rsslRDMService.info.qosCount];
 				}
-				catch (std::bad_alloc)
+				catch (std::bad_alloc&)
 				{
 					return false;
 				}
@@ -2375,7 +2375,7 @@ bool DirectoryServiceStore::encodeService(const Service* service, RsslRDMService
 			{
 				rsslRDMService.linkInfo.linkList = new RsslRDMServiceLink[rsslRDMService.linkInfo.linkCount];
 			}
-			catch (std::bad_alloc)
+			catch (std::bad_alloc&)
 			{
 				return false;
 			}
@@ -2472,7 +2472,7 @@ bool DirectoryServiceStore::encodeDirectoryRefreshMsg(const DirectoryCache& dire
 	{
 		directoryRefresh.serviceList = new RsslRDMService[directoryRefresh.serviceCount];
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		return false;
 	}
@@ -2652,7 +2652,7 @@ bool DirectoryServiceStore::encodeDirectoryMsg(const RsslRDMDirectoryMsg& direct
 				}
 			}
 		}
-		catch (std::bad_alloc)
+		catch (std::bad_alloc&)
 		{
 			throwMeeException("Failed to allocate memory in DirectoryServiceStore::encodeDirectoryMsg()");
 			return false;
@@ -2744,7 +2744,7 @@ bool DirectoryServiceStore::encodeDirectoryMsg(const RsslRDMDirectoryMsg& direct
 				}
 			}
 		}
-		catch (std::bad_alloc)
+		catch (std::bad_alloc&)
 		{
 			throwMeeException("Failed to allocate memory in DirectoryServiceStore::encodeDirectoryMsg()");
 			return false;

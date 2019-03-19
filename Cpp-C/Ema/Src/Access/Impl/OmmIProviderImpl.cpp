@@ -172,7 +172,7 @@ void OmmIProviderImpl::readCustomConfig(EmaConfigServerImpl* pConfigImpl)
 			_ommIProviderDirectoryStore.loadConfigDirectory(pConfigImpl, _storeUserSubmitted);
 		}
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in OmmIProviderImpl::readCustomConfig()");
 	}

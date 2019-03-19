@@ -30,7 +30,7 @@ Channel* Channel::create( OmmBaseImpl& ommBaseImpl, const EmaString& name , Rssl
 	{
 		pChannel = new Channel( name, pRsslReactor );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pChannel )
 	{
@@ -332,7 +332,7 @@ ChannelCallbackClient* ChannelCallbackClient::create( OmmBaseImpl& ommBaseImpl, 
 	{
 		pClient = new ChannelCallbackClient( ommBaseImpl, pRsslReactor );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pClient )
 	{
@@ -494,7 +494,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	{
 		reactorConnectInfo = new RsslReactorConnectInfo[activeConfigChannelSet.size()];
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !reactorConnectInfo )
 	{

@@ -20,7 +20,7 @@ Login::LoginRefresh::LoginRefresh()
 	{
 		_pLoginRefreshImpl = new LoginRefreshImpl();
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!_pLoginRefreshImpl)
 		throwMeeException("Failed to allocate memory for LoginRefreshImpl in Login::LoginRefresh::LoginRefresh().");
@@ -32,7 +32,7 @@ Login::LoginRefresh::LoginRefresh(const LoginRefresh& other)
 	{
 		_pLoginRefreshImpl = new LoginRefreshImpl(*other._pLoginRefreshImpl);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!_pLoginRefreshImpl)
 		throwMeeException("Failed to allocate memory for LoginRefreshImpl in Login::LoginRefresh::LoginRefresh(const LoginRefresh&).");
@@ -44,7 +44,7 @@ Login::LoginRefresh::LoginRefresh(const RefreshMsg& refreshMsg)
 	{
 	    _pLoginRefreshImpl = new LoginRefreshImpl(refreshMsg);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!_pLoginRefreshImpl)
 		throwMeeException("Failed to allocate memory for LoginRefreshImpl in Login::LoginRefresh::LoginRefresh(const ElementList&).");

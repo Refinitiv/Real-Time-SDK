@@ -37,7 +37,7 @@ O* Factory< O >::create()
 	try {
 		return new O;
 	}
-	catch ( std::bad_alloc )
+	catch ( std::bad_alloc& )
 	{
 		const char* temp = "Failed to create object in Factory< O >::create(). Out of memory.";
 		throwMeeException( temp );

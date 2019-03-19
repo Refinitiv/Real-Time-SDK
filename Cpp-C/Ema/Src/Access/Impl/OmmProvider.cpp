@@ -28,7 +28,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config ) :
 		{
 			_pImpl = new OmmNiProviderImpl( this, static_cast<const OmmNiProviderConfig&>( config ) );
 		}
-		catch ( std::bad_alloc ) {}
+		catch ( std::bad_alloc& ) {}
 
 		if ( !_pImpl )
 			throwMeeException( "Failed to allocate memory in OmmProvider( const OmmProviderConfig& )." );
@@ -45,7 +45,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 		{
 			_pImpl = new OmmNiProviderImpl(this, static_cast<const OmmNiProviderConfig&>(config), client, closure);
 		}
-		catch (std::bad_alloc) {}
+		catch (std::bad_alloc&) {}
 
 		if (!_pImpl)
 			throwMeeException("Failed to allocate memory in OmmNiProvider( const OmmProviderConfig&, OmmProviderClient& client ).");
@@ -56,7 +56,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 		{
 			_pImpl = new OmmIProviderImpl( this, static_cast<const OmmIProviderConfig&>(config), client, closure);
 		}
-		catch (std::bad_alloc) {}
+		catch (std::bad_alloc&) {}
 
 		if (!_pImpl)
 			throwMeeException("Failed to allocate memory in OmmProvider( const OmmProviderConfig&, OmmProviderClient& client ).");
@@ -75,7 +75,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderErrorClien
 		{
 			_pImpl = new OmmNiProviderImpl( this, static_cast<const OmmNiProviderConfig&>( config ), errorClient);
 		}
-		catch ( std::bad_alloc ) {}
+		catch ( std::bad_alloc& ) {}
 
 		if ( !_pImpl )
 			errorClient.onMemoryExhaustion( "Failed to allocate memory in OmmProvider( const OmmProviderConfig& , OmmProviderErrorClient& )." );
@@ -92,7 +92,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 		{
 			_pImpl = new OmmNiProviderImpl(this, static_cast<const OmmNiProviderConfig&>(config), client, errorClient, closure);
 		}
-		catch (std::bad_alloc) {}
+		catch (std::bad_alloc&) {}
 
 		if (!_pImpl)
 			errorClient.onMemoryExhaustion("Failed to allocate memory in OmmNiProvider( const OmmProviderConfig& , OmmProviderErrorClient& ).");
@@ -103,7 +103,7 @@ OmmProvider::OmmProvider( const OmmProviderConfig& config, OmmProviderClient& cl
 		{
 			_pImpl = new OmmIProviderImpl( this, static_cast<const OmmIProviderConfig&>(config), client, errorClient, closure);
 		}
-		catch (std::bad_alloc) {}
+		catch (std::bad_alloc&) {}
 
 		if (!_pImpl)
 			errorClient.onMemoryExhaustion("Failed to allocate memory in OmmProvider( const OmmProviderConfig& , OmmProviderErrorClient& ).");

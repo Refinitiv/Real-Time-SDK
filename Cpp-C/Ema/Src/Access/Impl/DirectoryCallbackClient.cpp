@@ -354,7 +354,7 @@ Directory* Directory::create( OmmCommonImpl& ommCommonImpl )
 	{
 		pDirectory = new Directory();
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pDirectory )
 		ommCommonImpl.handleMee("Failed to create Directory.");
@@ -521,7 +521,7 @@ DirectoryCallbackClient* DirectoryCallbackClient::create( OmmBaseImpl& ommBaseIm
 	{
 		pClient = new DirectoryCallbackClient( ommBaseImpl );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pClient )
 	{
@@ -1310,7 +1310,7 @@ DirectoryItem* DirectoryItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClien
 	{
 		pItem = new DirectoryItem( ommBaseImpl, ommConsClient, closure, channel );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pItem )
 		ommBaseImpl.handleMee( "Failed to create DirectoryItem" );

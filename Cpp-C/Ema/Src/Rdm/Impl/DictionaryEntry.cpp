@@ -21,7 +21,7 @@ DictionaryEntry::DictionaryEntry()
 	{
 		_pImpl = new DictionaryEntryImpl();
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in DictionaryEntry::DictionaryEntry()");
 	}

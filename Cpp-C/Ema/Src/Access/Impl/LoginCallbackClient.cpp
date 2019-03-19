@@ -33,7 +33,7 @@ Login* Login::create( OmmBaseImpl& ommBaseImpl )
 	{
 		pLogin = new Login();
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pLogin )
 		ommBaseImpl.handleMee( "Failed to create Login." );
@@ -739,7 +739,7 @@ LoginCallbackClient* LoginCallbackClient::create( OmmBaseImpl& ommBaseImpl )
 	{
 		pClient = new LoginCallbackClient( ommBaseImpl );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pClient )
 		ommBaseImpl.handleMee( "Failed to create LoginCallbackClient" );
@@ -1584,7 +1584,7 @@ LoginItem* LoginItem::create( OmmBaseImpl& ommBaseImpl, OmmConsumerClient& ommCo
 	{
 		pItem = new LoginItem( ommBaseImpl, ommConsClient, closure, loginList );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pItem )
 		ommBaseImpl.handleMee( "Failed to create LoginItem" );
@@ -1867,7 +1867,7 @@ NiProviderLoginItem* NiProviderLoginItem::create( OmmBaseImpl& ommBaseImpl, OmmP
 	{
 		pItem = new NiProviderLoginItem( ommBaseImpl, ommProvClient, closure, loginList );
 	}
-	catch ( std::bad_alloc ) {}
+	catch ( std::bad_alloc& ) {}
 
 	if ( !pItem )
 		ommBaseImpl.handleMee( "Failed to create NiProviderLoginItem" );

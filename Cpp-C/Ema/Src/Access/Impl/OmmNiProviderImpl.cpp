@@ -246,7 +246,7 @@ void OmmNiProviderImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 			_ommNiProviderDirectoryStore.loadConfigDirectory(pConfigImpl);
 		}
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in OmmNiProviderImpl::readCustomConfig()");
 	}
@@ -390,7 +390,7 @@ void OmmNiProviderImpl::loadDirectory()
 		{
 			_activeConfig.pDirectoryRefreshMsg = new AdminRefreshMsg( 0 );
 		}
-		catch ( std::bad_alloc )
+		catch ( std::bad_alloc& )
 		{
 			DirectoryServiceStore::freeMemory(directoryRefresh, &rsslMsgBuffer);
 			handleMee( "Failed to allocate memory in OmmNiProviderImpl::loadDirectory()" );
@@ -823,7 +823,7 @@ UInt64 OmmNiProviderImpl::registerClient( const ReqMsg& reqMsg, OmmProviderClien
 			_streamInfoList.push_back(pStreamInfoPtr);
 			
 		}
-		catch ( std::bad_alloc )
+		catch ( std::bad_alloc& )
 		{
 			_pItemCallbackClient->unregister( handle );
 			_userLock.unlock();
@@ -974,7 +974,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 					_streamInfoList.push_back(pTemp);
 					bHandleAdded = true;
 				}
-				catch (std::bad_alloc)
+				catch (std::bad_alloc&)
 				{
 					returnProviderStreamId(submitMsgOpts.pRsslMsg->msgBase.streamId);
 					_userLock.unlock();
@@ -1057,7 +1057,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
 			}
-			catch ( std::bad_alloc )
+			catch ( std::bad_alloc& )
 			{
 				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
@@ -1090,7 +1090,7 @@ void OmmNiProviderImpl::submit( const RefreshMsg& msg, UInt64 handle )
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
 			}
-			catch ( std::bad_alloc )
+			catch ( std::bad_alloc& )
 			{
 				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
@@ -1251,7 +1251,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 					_streamInfoList.push_back( pTemp );
 					bHandleAdded = true;
 				}
-				catch ( std::bad_alloc )
+				catch ( std::bad_alloc& )
 				{
 					returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 					_userLock.unlock();
@@ -1338,7 +1338,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
 			}
-			catch ( std::bad_alloc )
+			catch ( std::bad_alloc& )
 			{
 				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
@@ -1369,7 +1369,7 @@ void OmmNiProviderImpl::submit( const UpdateMsg& msg, UInt64 handle )
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
 			}
-			catch ( std::bad_alloc )
+			catch ( std::bad_alloc& )
 			{
 				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
@@ -1495,7 +1495,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 					_streamInfoList.push_back( pTemp );
 					bHandleAdded = true;
 				}
-				catch ( std::bad_alloc )
+				catch ( std::bad_alloc& )
 				{
 					returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 					_userLock.unlock();
@@ -1568,7 +1568,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
 			}
-			catch ( std::bad_alloc )
+			catch ( std::bad_alloc& )
 			{
 				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
@@ -1600,7 +1600,7 @@ void OmmNiProviderImpl::submit( const StatusMsg& msg, UInt64 handle )
 				_streamInfoList.push_back( pTemp );
 				bHandleAdded = true;
 			}
-			catch ( std::bad_alloc )
+			catch ( std::bad_alloc& )
 			{
 				returnProviderStreamId( submitMsgOpts.pRsslMsg->msgBase.streamId );
 				_userLock.unlock();
@@ -1844,7 +1844,7 @@ void OmmNiProviderImpl::returnProviderStreamId(Int32 streamId)
 		StreamId* sId = new StreamId(streamId);
 		_reusedProviderStreamIds.push_back(sId);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory in OmmNiProviderImpl::returnProviderStreamId()");
 	}

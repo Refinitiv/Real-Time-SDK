@@ -20,7 +20,7 @@ Login::LoginReq::LoginReq()
 	{
 	     _pLoginReqImpl = new LoginReqImpl();
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 	
     if (!_pLoginReqImpl)
          throwMeeException("Failed to allocate memory for LoginReqImpl in Login::LoginReq::LoginReq().");
@@ -32,7 +32,7 @@ Login::LoginReq::LoginReq(const LoginReq& LoginReq)
 	{
 	    _pLoginReqImpl = new LoginReqImpl(*LoginReq._pLoginReqImpl);
     }
-    catch (std::bad_alloc) {}
+    catch (std::bad_alloc&) {}
 
     if (!_pLoginReqImpl)
          throwMeeException("Failed to allocate memory for LoginReqImpl in Login::LoginReq::LoginReq(const LoginReq&).");
@@ -44,7 +44,7 @@ Login::LoginReq::LoginReq(const ReqMsg& reqMsg)
 	{
 		_pLoginReqImpl = new LoginReqImpl(reqMsg);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!_pLoginReqImpl)
 		throwMeeException("Failed to allocate memory for LoginReqImpl in Login::LoginReq::LoginReq(const ElementList&).");

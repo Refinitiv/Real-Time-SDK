@@ -472,7 +472,7 @@ TunnelStreamRequest::TunnelStreamRequest( const TunnelStreamRequest& other ) :
 	{
 		try {
 			_pImpl = new TunnelStreamLoginReqMsgImpl( *other._pImpl );
-		} catch ( std::bad_alloc ) {}
+		} catch ( std::bad_alloc& ) {}
 
 		if ( !_pImpl )
 		{
@@ -510,7 +510,7 @@ TunnelStreamRequest& TunnelStreamRequest::operator=( const TunnelStreamRequest& 
 		{
 			try {
 				_pImpl = new TunnelStreamLoginReqMsgImpl( *other._pImpl );
-			} catch ( std::bad_alloc ) {}
+			} catch ( std::bad_alloc& ) {}
 
 			if ( !_pImpl )
 			{
@@ -625,7 +625,7 @@ TunnelStreamRequest& TunnelStreamRequest::loginReqMsg( const ReqMsg& loginReqMsg
 	{
 		try {
 			_pImpl = new TunnelStreamLoginReqMsgImpl();
-		} catch ( std::bad_alloc ) {}
+		} catch ( std::bad_alloc& ) {}
 
 		if ( !_pImpl )
 		{

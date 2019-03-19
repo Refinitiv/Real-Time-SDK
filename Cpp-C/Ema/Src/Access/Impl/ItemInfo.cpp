@@ -46,7 +46,7 @@ ItemInfo* ItemInfo::create(OmmServerBaseImpl& ommServerBaseimpl)
 	try {
 		pItemInfo = new ItemInfo(ommServerBaseimpl);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!pItemInfo)
 		ommServerBaseimpl.handleMee("Failed to create ItemInfo");

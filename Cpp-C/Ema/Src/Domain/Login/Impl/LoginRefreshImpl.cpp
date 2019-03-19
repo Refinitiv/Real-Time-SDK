@@ -1015,7 +1015,7 @@ void LoginRefreshImpl::encode(RefreshMsg& refreshMsg) const
 		{
 			_pElementList = new ElementList();
 		}
-		catch (std::bad_alloc) {}
+		catch (std::bad_alloc&) {}
 
 		if (!_pElementList)
 			throwMeeException("Failed to allocate memory for ElementList in LoginRefreshImpl::encode().");

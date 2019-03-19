@@ -498,7 +498,7 @@ LoginHandler* LoginHandler::create(OmmServerBaseImpl* ommServerBaseImpl)
 	{
 		loginHandler = new LoginHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!loginHandler)
 	{

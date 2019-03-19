@@ -382,7 +382,7 @@ DirectoryHandler* DirectoryHandler::create(OmmServerBaseImpl* ommServerBaseImpl)
 	{
 		directoryHandler = new DirectoryHandler(ommServerBaseImpl);
 	}
-	catch (std::bad_alloc) {}
+	catch (std::bad_alloc&) {}
 
 	if (!directoryHandler)
 		ommServerBaseImpl->handleMee("Failed to allocate memory in DirectoryHandler::create()");
