@@ -718,7 +718,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
     	            	        
     	        itemsRequested = false;
     	        chnlInfo.hasServiceInfo = false;
-    	        chnlInfo.hasQServiceInfo = false;
+    	        chnlInfo.hasTunnelStreamServiceInfo = false;
                 break;
     		}
     		case ReactorChannelEventTypes.CHANNEL_DOWN:
@@ -1011,14 +1011,14 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 		                if (service.info().serviceName().toString().equals(qServiceName))
 		                {
 		                    // save serviceInfo associated with requested service name
-		                    if (service.copy(chnlInfo.qServiceInfo) < CodecReturnCodes.SUCCESS)
+		                    if (service.copy(chnlInfo.tsServiceInfo) < CodecReturnCodes.SUCCESS)
 		                    {
 		                        System.out.println("Service.copy() failure");
 		                        uninitialize();
 		                        System.exit(ReactorReturnCodes.FAILURE);                    
 		                    }
 		                    
-		                    chnlInfo.hasQServiceInfo = true;
+		                    chnlInfo.hasTunnelStreamServiceInfo = true;
 		                }
 			        }
 				}
@@ -1042,9 +1042,9 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			    		chnlInfo.serviceInfo.action(MapEntryActions.DELETE);
 			    	}
 			            
-			    	if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId() ) 
+			    	if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.tsServiceInfo.serviceId() ) 
 			    	{
-			    		chnlInfo.qServiceInfo.action(MapEntryActions.DELETE);
+			    		chnlInfo.tsServiceInfo.action(MapEntryActions.DELETE);
 			    	}
 			            
 			    	boolean updateServiceInfo = false;
@@ -1058,7 +1058,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			    			updateServiceInfo = true;
 			    		}
 			    		if (service.info().serviceName().toString().equals(qServiceName) ||
-			    				service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+			    				service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
 			    		{
 			    		}
 			    	}
@@ -1068,7 +1068,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			    		{
 			    			updateServiceInfo = true;
 			    		}
-			    		if (service.serviceId() == chnlInfo.qServiceInfo.serviceId())
+			    		if (service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
 			    		{
 			    		}
 			    	}
@@ -1311,9 +1311,9 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 
     public boolean isRequestedQServiceUp(ChannelInfo chnlInfo)
     {
-        return  chnlInfo.hasQServiceInfo &&
-            chnlInfo.qServiceInfo.checkHasState() && (!chnlInfo.qServiceInfo.state().checkHasAcceptingRequests() ||
-                chnlInfo.qServiceInfo.state().acceptingRequests() == 1) && chnlInfo.qServiceInfo.state().serviceState() == 1;
+        return  chnlInfo.hasTunnelStreamServiceInfo &&
+            chnlInfo.tsServiceInfo.checkHasState() && (!chnlInfo.tsServiceInfo.state().checkHasAcceptingRequests() ||
+                chnlInfo.tsServiceInfo.state().acceptingRequests() == 1) && chnlInfo.tsServiceInfo.state().serviceState() == 1;
     }
 
     private void checkAndInitPostingSupport(ChannelInfo chnlInfo)

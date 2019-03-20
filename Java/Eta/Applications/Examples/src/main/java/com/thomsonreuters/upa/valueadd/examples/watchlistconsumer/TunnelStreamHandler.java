@@ -62,12 +62,12 @@ public class TunnelStreamHandler implements TunnelStreamStatusEventCallback, Tun
         
         if (!_tunnelServiceSupported)
         {
-            System.out.println("ReactorChannel.openTunnelStream() failed: service " + chnlInfo.qServiceInfo.serviceId() 
+            System.out.println("ReactorChannel.openTunnelStream() failed: service " + chnlInfo.tsServiceInfo.serviceId() 
             		+ " not supported");
             return -1;
         }
 
-        _serviceId = chnlInfo.qServiceInfo.serviceId();
+        _serviceId = chnlInfo.tsServiceInfo.serviceId();
         
         _tunnelStreamOpenOptions.clear();
         _tunnelStreamOpenOptions.name("BasicTunnelStream");
