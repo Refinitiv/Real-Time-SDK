@@ -248,10 +248,6 @@ Series300Consumer331-RegisterOption-001
 	       no filter specified
 	-m 15: Requests directory with service id of 8090 specified, name of JPY= specified, and no 
 	       filter specified
-<<<<<<< HEAD
-=======
-
->>>>>>> ESDK-1713_Merge
 
 Module:  Series300Consumer332
 ---------------------------

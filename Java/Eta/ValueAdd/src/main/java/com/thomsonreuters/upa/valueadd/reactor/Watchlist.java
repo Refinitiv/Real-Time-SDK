@@ -447,18 +447,11 @@ class Watchlist extends VaNode
     }
 
     /* Handles channel up event. */
-    void channelUp(boolean sendLoginRequest, ReactorErrorInfo errorInfo)
+    void channelUp(ReactorErrorInfo errorInfo)
     {
-        _loginHandler.channelUp(sendLoginRequest, errorInfo);
+        _loginHandler.channelUp(errorInfo);
         _directoryHandler.channelUp(errorInfo);
         _itemHandler.channelUp(errorInfo);
-    }
-    
-    void authenticationTimer(String authToken, ReactorErrorInfo errorInfo)
-    {
-    	// update the auth token and send it 
-        _loginHandler.authenticationTimer(authToken, errorInfo);
-
     }
     
     /* Starts a watchlist timer. */

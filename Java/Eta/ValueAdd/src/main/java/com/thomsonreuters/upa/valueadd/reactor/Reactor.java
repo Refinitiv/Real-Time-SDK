@@ -835,75 +835,75 @@ public class Reactor
      */
     public int queryServiceDiscovery(ReactorServiceDiscoveryOptions options, ReactorErrorInfo errorInfo)
     {	
-        _reactorLock.lock();
-        
-    	if (options == null)
-    	{		
-        	populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
-        			"Reactor.queryServiceDiscovery(): options cannot be null, aborting.");
-				
-    		return sendQueryServiceDiscoveryEvent(null, errorInfo);
+    	_reactorLock.lock();
+
+    	try {
+
+    		if (options == null)
+    		{		
+    			populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
+    					"Reactor.queryServiceDiscovery(): options cannot be null, aborting.");
+    			return sendQueryServiceDiscoveryEvent(null, errorInfo);
+    		}
+
+    		if (errorInfo == null)
+    		{  		
+    			return ReactorReturnCodes.PARAMETER_INVALID;
+    		}
+
+    		if (options.reactorServiceEndpointEventCallback() == null)
+    		{
+    			populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
+    					"Reactor.queryServiceDiscovery(): ReactorServiceEndpointEventCallback cannot be null, aborting.");       	
+    			return sendQueryServiceDiscoveryEvent(options.reactorServiceEndpointEventCallback(), errorInfo);        	
+    		}
+
+    		switch (options.transport())
+    		{
+    		case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_INIT:
+    		case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP:
+    		case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_WEBSOCKET:
+    			break;
+    		default:
+
+    			populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_OUT_OF_RANGE, "Reactor.queryServiceDiscovery", 
+    					"Reactor.queryServiceDiscovery(): Invalid transport protocol type " + options.transport());
+    			return ReactorReturnCodes.PARAMETER_OUT_OF_RANGE;
+    		}
+
+    		switch (options.dataFormat())
+    		{
+    		case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_INIT:
+    		case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_JSON2:
+    		case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_RWF:
+    			break;
+    		default:
+
+    			populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_OUT_OF_RANGE, "Reactor.queryServiceDiscovery", 
+    					"Reactor.queryServiceDiscovery(): Invalid dataformat protocol type " + options.dataFormat());         	
+    			return ReactorReturnCodes.PARAMETER_OUT_OF_RANGE;
+    		}
+
+    		if (_restClient == null)
+    			initRestClient(options, errorInfo);
+    		else
+    			_restClient.connectBlocking(options, errorInfo);
+
+    		ReactorServiceEndpointEvent reactorServiceEndpointEvent = ReactorFactory.createReactorServiceEndpointEvent();
+
+    		reactorServiceEndpointEvent._reactorServiceEndpointInfoList = _restClient.reactorServiceEndpointInfo();
+    		reactorServiceEndpointEvent._userSpecObject = _restConnectOptions.userSpecObject();
+
+    		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
+    			reactorServiceEndpointEvent._errorInfo = errorInfo;
+
+    		options.reactorServiceEndpointEventCallback().reactorServiceEndpointEventCallback(reactorServiceEndpointEvent);
+    		reactorServiceEndpointEvent.returnToPool();				
     	}
-
-    	if (errorInfo == null)
-        { 
-        	return ReactorReturnCodes.PARAMETER_INVALID;
-        }
-        
-        if (options.reactorServiceEndpointEventCallback() == null)
-        {
-        	populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.queryServiceDiscovery", 
-        			"Reactor.queryServiceDiscovery(): ReactorServiceEndpointEventCallback cannot be null, aborting.");
-        	
-    		return sendQueryServiceDiscoveryEvent(options.reactorServiceEndpointEventCallback(), errorInfo);        	
-        }
-        
-        switch (options.transport())
-        {
-        case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_INIT:
-        case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP:
-        case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_WEBSOCKET:
-        	break;
-        	default:
-
-            	populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_OUT_OF_RANGE, "Reactor.queryServiceDiscovery", 
-            			"Reactor.queryServiceDiscovery(): Invalid transport protocol type " + options.transport());
-            	
-            	return ReactorReturnCodes.PARAMETER_OUT_OF_RANGE;
-        }
-        
-        switch (options.dataFormat())
-        {
-        case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_INIT:
-        case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_JSON2:
-        case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_RWF:
-        	break;
-        	default:
-
-            	populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_OUT_OF_RANGE, "Reactor.queryServiceDiscovery", 
-            			"Reactor.queryServiceDiscovery(): Invalid dataformat protocol type " + options.dataFormat());
-            	
-            	return ReactorReturnCodes.PARAMETER_OUT_OF_RANGE;
-        }                	
-
-    	if (_restClient == null)
-    		initRestClient(options, errorInfo);
-    	else
-    		_restClient.connectBlocking(options, errorInfo);
-    	
-    	ReactorServiceEndpointEvent reactorServiceEndpointEvent = ReactorFactory.createReactorServiceEndpointEvent();
-	
-    	reactorServiceEndpointEvent._reactorServiceEndpointInfoList = _restClient.reactorServiceEndpointInfo();
-    	reactorServiceEndpointEvent._userSpecObject = _restConnectOptions.userSpecObject();
-    	
-    	if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
-    		reactorServiceEndpointEvent._errorInfo = errorInfo;
-
-		options.reactorServiceEndpointEventCallback().reactorServiceEndpointEventCallback(reactorServiceEndpointEvent);
-        reactorServiceEndpointEvent.returnToPool();				
-		
-        _reactorLock.unlock();        
-        
+    	finally
+    	{
+    		_reactorLock.unlock();        
+    	}
     	return ReactorReturnCodes.SUCCESS;
     }
 
@@ -2687,14 +2687,7 @@ public class Reactor
                 }
                 else // watchlist enabled
                 {
-                	if (reactorChannel.enableSessionManagement())
-                	{
- //               		loginReissue(reactorChannel, reactorChannel._reactorAuthTokenInfo.accessToken(), errorInfo);
-                		reactorChannel.watchlist().channelUp(false, errorInfo);
-                	}
-                	else
-                    // send watchlist CHANNEL_UP event
-                		reactorChannel.watchlist().channelUp(false, errorInfo);
+                	reactorChannel.watchlist().channelUp(errorInfo);
                 }
             }
             else

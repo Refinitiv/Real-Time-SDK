@@ -9,6 +9,7 @@ package com.thomsonreuters.upa.valueadd.reactor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -28,13 +29,14 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.dictionary.DictionaryMsgFac
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
 
 
 
 public class ReactorWatchlistEDPJunit
 {
-	final int AUTH_TOKEN_EXPIRATION = 30;
+	final int AUTH_TOKEN_EXPIRATION = 300;
 	ReactorAuthTokenInfo _tokenInfo = null;	
 
 	abstract class ReactorServiceEndpointEventCallbackTest implements ReactorServiceEndpointEventCallback
@@ -386,7 +388,7 @@ public class ReactorWatchlistEDPJunit
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 		rcOpts.connectionList().get(0).location("eu");
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);
 
 		// check that user specified connection info was not overwritten
@@ -431,22 +433,35 @@ public class ReactorWatchlistEDPJunit
 			if (count > howLongToWait)
 				break;
 		}
-		System.out.println("");
-		assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
-		assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
-		ReactorAuthTokenEvent authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
-		System.out.println(authTokenEvent.reactorAuthTokenInfo());			
+		System.out.println("");		
 
 		if (success)
 		{
+			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
+			ReactorAuthTokenEvent authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
+			System.out.println(authTokenEvent.reactorAuthTokenInfo());				
+			
 			_tokenInfo = authTokenEvent.reactorAuthTokenInfo();
 			assertEquals(_tokenInfo.expiresIn(), AUTH_TOKEN_EXPIRATION);   	
 			return ((_tokenInfo.expiresIn() / 5) * 4);
 		}
 		else
 		{
+			ReactorChannelEvent chnlEvent = null;				
+			assertNotNull("Did not receive CHANNEL_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals("Expected ReactorChannelEventTypes.WARNING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.WARNING, chnlEvent.eventType());				
+			
+			event = consumerReactor.pollEvent();			
+			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
+			ReactorAuthTokenEvent authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
+			System.out.println(authTokenEvent.reactorAuthTokenInfo());			
+			
 			System.out.println(authTokenEvent.errorInfo().toString());
-			assertTrue(authTokenEvent.errorInfo().toString().contains("{\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" }"));			
+			assertTrue(authTokenEvent.errorInfo().toString().contains("{\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" }"));		
 		}
 		return -1;
 	}
@@ -491,7 +506,7 @@ public class ReactorWatchlistEDPJunit
 		assertNotNull(errorInfo);  
 		rcOpts.connectionList().get(0).connectOptions().connectionType(ConnectionTypes.ENCRYPTED);			
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);			
 
 		consumerReactor.close();		
@@ -538,7 +553,7 @@ public class ReactorWatchlistEDPJunit
 		consumerRole.rdmLoginRequest().password().data(System.getProperty("edpPassword"));
 		rcOpts.connectionList().get(0).location("eu");
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS); 
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS); 
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);		
 
 		errorInfo = ReactorFactory.createReactorErrorInfo();
@@ -627,7 +642,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);   			
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called once
 		assertTrue("callback was not called", callback._count == 1);
 
@@ -645,7 +660,7 @@ public class ReactorWatchlistEDPJunit
 		rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);
 
 		consumerReactor.close();
@@ -717,7 +732,7 @@ public class ReactorWatchlistEDPJunit
 		ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
 		// check that user specified connection info was not overwritten
 		assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == null);
@@ -770,7 +785,7 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectConnectionListTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
-		sendEDPQueryServiceDiscoveryReqest();		
+		unlockAccount();
 		ReactorErrorInfo errorInfo = null;		 
 
 		TestReactorEvent event;
@@ -812,9 +827,10 @@ public class ReactorWatchlistEDPJunit
 		rcOpts.connectionList().add(connectInfo);
 		rcOpts.connectionList().add(connectInfoSecond);
 
-		rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);					
+		rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);				
+//		consumerRole.watchlistOptions().requestTimeout(300);		
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
 		for (int j = 0; j < 5; j++)
 		{
@@ -920,7 +936,7 @@ public class ReactorWatchlistEDPJunit
 		assumeTrue(checkCredentials());
 		
 		// send correct password to get unlocked.
-		sendEDPQueryServiceDiscoveryReqest();			
+		unlockAccount();			
 		
 		{
 
@@ -977,7 +993,7 @@ public class ReactorWatchlistEDPJunit
 		rcOpts.connectionList().get(2).reactorAuthTokenEventCallback(consumer);	
 		rcOpts.reconnectAttemptLimit(4);
 		
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		
 		for (int j = 0; j < 15; j++)
 		{
@@ -1009,8 +1025,14 @@ public class ReactorWatchlistEDPJunit
 		assertNotNull("Did not receive CHANNEL_EVENT", event);
 		assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 		chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-		assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());			
-
+		assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());		
+		
+		event = consumerReactor.pollEvent();		
+		assertNotNull("Did not receive CHANNEL_EVENT", event);
+		assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+		chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+		assertEquals("Expected ReactorChannelEventTypes.WARNING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.WARNING, chnlEvent.eventType());			
+		
 		event = consumerReactor.pollEvent();		
 		assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
 		assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
@@ -1021,6 +1043,12 @@ public class ReactorWatchlistEDPJunit
 		assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 		chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 		assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+
+		event = consumerReactor.pollEvent();		
+		assertNotNull("Did not receive CHANNEL_EVENT", event);
+		assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+		chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+		assertEquals("Expected ReactorChannelEventTypes.WARNING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.WARNING, chnlEvent.eventType());				
 		
 		event = consumerReactor.pollEvent();		
 		assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
@@ -1041,8 +1069,20 @@ public class ReactorWatchlistEDPJunit
 		assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());			
 
 		event = consumerReactor.pollEvent();		
+		assertNotNull("Did not receive CHANNEL_EVENT", event);
+		assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+		chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+		assertEquals("Expected ReactorChannelEventTypes.WARNING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.WARNING, chnlEvent.eventType());				
+		
+		event = consumerReactor.pollEvent();		
 		assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
-		assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
+		assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());		
+		
+		event = consumerReactor.pollEvent();		
+		assertNotNull("Did not receive CHANNEL_EVENT", event);
+		assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+		chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+		assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN, chnlEvent.eventType());			
 		
 		for (int j = 0; j < 15; j++)
 		{
@@ -1055,11 +1095,14 @@ public class ReactorWatchlistEDPJunit
 			consumer.testReactor().dispatch(-1);
 		}			
 		
+		event = consumerReactor.pollEvent();		
+		assertNull("No more event", event);	
+		
 		consumerReactor.close();
 		}		
 		
 		// send correct password to get unlocked.
-		sendEDPQueryServiceDiscoveryReqest();		
+		unlockAccount();		
 
 	}	
 	
@@ -1071,7 +1114,7 @@ public class ReactorWatchlistEDPJunit
 		
 		// request service discovery with valid user name / password to prevent being locked out 
 		// from EDP Gateway because of too many invalid requests.
-		sendEDPQueryServiceDiscoveryReqest();
+		unlockAccount();
 		
 		ReactorErrorInfo errorInfo = null;		 
 
@@ -1115,7 +1158,7 @@ public class ReactorWatchlistEDPJunit
 		rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);					
 		consumerRole.rdmLoginRequest().password().data("FAKE");
 		
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
 		for (int j = 0; j < 5; j++)
 		{
@@ -1154,7 +1197,7 @@ public class ReactorWatchlistEDPJunit
 		    System.out.println(i);
 			verifyAuthTokenEvent(consumerReactor, 30, false);
 
-			for (int j = 0; j < 5; j++)
+			for (int j = 0; j < 15; j++)
 			{
 				try {
 					Thread.sleep(800);
@@ -1192,7 +1235,7 @@ public class ReactorWatchlistEDPJunit
 
 		// request service discovery with valid user name / password to prevent being locked out 
 		// from EDP Gateway because of too many invalid requests.
-		sendEDPQueryServiceDiscoveryReqest();
+		unlockAccount();
 		
 		ReactorErrorInfo errorInfo = null;		 
 
@@ -1239,7 +1282,7 @@ public class ReactorWatchlistEDPJunit
 		
 		rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);					
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
 		for (int j = 0; j < 5; j++)
 		{
@@ -1313,6 +1356,7 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlagTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
 		ReactorErrorInfo errorInfo = null;		 
 
 		TestReactorEvent event;
@@ -1337,7 +1381,7 @@ public class ReactorWatchlistEDPJunit
 		ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);				
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);				
 
 		// check that user specified connection info was not overwritten
 		assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == null);
@@ -1361,7 +1405,7 @@ public class ReactorWatchlistEDPJunit
 			e.printStackTrace();
 		}
 
-		consumer.testReactor().dispatch(4, 3000);	        
+		consumer.testReactor().dispatch(4, 8000);	        
 
 		event = consumerReactor.pollEvent();
 		assertNotNull("Did not receive CHANNEL_EVENT", event);
@@ -1399,6 +1443,9 @@ public class ReactorWatchlistEDPJunit
 		/* Test a to see if address and service name will be overwritten by service discovery when user sets them to 
 		 * empty strings prior to connection */
 		assumeTrue(checkCredentials());
+		
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;	
 
 		/* Create reactor. */
@@ -1423,7 +1470,7 @@ public class ReactorWatchlistEDPJunit
 		rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("");
 		rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName("");			
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
 		// check that user specified connection info was not overwritten
 		assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals(""));
@@ -1439,6 +1486,8 @@ public class ReactorWatchlistEDPJunit
 		/* Test a to see if address and service name will NOT be overwritten by service discovery when user sets them to 
 		 * some string */
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;	
 
 		/* Create reactor. */
@@ -1463,7 +1512,7 @@ public class ReactorWatchlistEDPJunit
 		rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("FAKE");
 		rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName("FAKE");			
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
 		// check if the connection info came from EDP
 		assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals("FAKE"));
@@ -1477,6 +1526,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;		 
 
 		TestReactorEvent event;
@@ -1502,7 +1553,7 @@ public class ReactorWatchlistEDPJunit
 		ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);	
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);	
 
 		// check that user specified connection info was not overwritten
 		assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == null);
@@ -1555,6 +1606,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledConnectionListTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();		
+		
 		ReactorErrorInfo errorInfo = null;		 
 
 		TestReactorEvent event;
@@ -1598,7 +1651,7 @@ public class ReactorWatchlistEDPJunit
 
 		rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);				
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		
 		consumer.testReactor().dispatch(-1, 8000);			
 
@@ -1627,7 +1680,7 @@ public class ReactorWatchlistEDPJunit
 
 
 		try {
-			Thread.sleep(3 * 1000);
+			Thread.sleep(10 * 1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1640,7 +1693,13 @@ public class ReactorWatchlistEDPJunit
 		assertEquals("Expected ReactorChannelEventTypes.CHANNEL_UP, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_UP, chnlEvent.eventType());	        
 		
 		
-
+		try {
+			Thread.sleep(10 * 1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+		
 
 		event = consumerReactor.pollEvent();
 		assertNotNull("Did not receive LOGIN_MSG", event);
@@ -1670,6 +1729,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectWatchlistDisabledErrorNoRDMLoginTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;		
 
 		/* Create reactor. */
@@ -1727,7 +1788,7 @@ public class ReactorWatchlistEDPJunit
 			
 			if (loginReissue)
 			{
-				verifyAuthTokenEvent(consumerReactor, 10, true);				
+				verifyAuthTokenEvent(consumerReactor, 1000, true);				
 			}
 			else // no watchlist, so we need to send the login reissue on behalf of the consumer
 			{
@@ -1747,6 +1808,8 @@ public class ReactorWatchlistEDPJunit
 	            
 	            ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
 	            submitOptions.clear();
+	        	loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.HAS_PASSWORD);
+	        	loginRequest.applyNoRefresh();
 	            assertEquals(ReactorReturnCodes.SUCCESS, consumer.reactorChannel().submit(loginRequest, submitOptions, errorInfo));	
 	            
 	            if (refreshFlag)
@@ -1774,6 +1837,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectUserSpecifiedClientIdTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;
 
 		/* Create reactor. */
@@ -1801,7 +1866,7 @@ public class ReactorWatchlistEDPJunit
 		ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);
 
 		TestReactorEvent event = null;
@@ -1822,6 +1887,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectErrorInvalidClientIdTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;	
 
 		/* Create reactor. */
@@ -1859,7 +1926,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);			
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);			
 
 		TestReactorEvent event = null;
@@ -1884,7 +1951,7 @@ public class ReactorWatchlistEDPJunit
 		
 		// request service discovery with valid user name / password to prevent being locked out 
 		// from EDP Gateway because of too many invalid requests.
-		sendEDPQueryServiceDiscoveryReqest();		
+		unlockAccount();		
 		
 		ReactorErrorInfo errorInfo = null;		
 
@@ -1926,7 +1993,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);			
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);
 
 		TestReactorEvent event = null;
@@ -1948,6 +2015,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectErrorInvalidTokenServiceURLTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;
 
 		ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
@@ -1989,6 +2058,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectUserSpecifiedTokenServiceUrlTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;
 
 		ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
@@ -2020,7 +2091,7 @@ public class ReactorWatchlistEDPJunit
 		ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);			
 
 		consumerReactor.close();		
@@ -2031,6 +2102,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectUserSpecifiedServiceDiscoveryUrlTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;
 
 		ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
@@ -2062,7 +2135,7 @@ public class ReactorWatchlistEDPJunit
 		ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);			
 
 		consumerReactor.close();
@@ -2073,6 +2146,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPConnectErrorInvalidServiceDiscoveryURLTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;
 
 		ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
@@ -2114,6 +2189,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorInvalidDataFormatAndTransportTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 		{
@@ -2179,6 +2256,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorCallbackMissingTest <<<<<<<<<<\n");			
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 
@@ -2210,6 +2289,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorErrorInfoMissingTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 
@@ -2237,6 +2318,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorServiceDiscoveryOptionsMissingTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = null;
 
@@ -2267,6 +2350,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorMismatchOfTypesTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 		{
@@ -2310,7 +2395,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);     
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called once
 		assertTrue("callback was not called", callback._count == 1);
 
@@ -2318,7 +2403,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);  
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called twice
 		assertTrue("callback was not called", callback._count == 2);
 		
@@ -2330,6 +2415,8 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryJSONTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
+		
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 		{
@@ -2377,7 +2464,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);     
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called once
 		assertTrue("callback was not called", callback._count == 1);
 
@@ -2385,7 +2472,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);  
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called twice
 		assertTrue("callback was not called", callback._count == 2);			
 
@@ -2397,7 +2484,7 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorPasswordTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
-		sendEDPQueryServiceDiscoveryReqest();	
+		unlockAccount();	
 		
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
@@ -2440,7 +2527,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);     
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called once
 		assertTrue("callback was not called", callback._count == 1);
 		
@@ -2448,7 +2535,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);  
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
 		// verify that callback was called twice
 		assertTrue("callback was not called", callback._count == 2);
 		
@@ -2460,7 +2547,7 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
-		sendEDPQueryServiceDiscoveryReqest();		
+		unlockAccount();		
 		
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
@@ -2506,7 +2593,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);     
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called once
 		assertTrue("callback was not called", callback._count == 1);
 		
@@ -2514,7 +2601,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);  
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
 		// verify that callback was called twice
 		assertTrue("callback was not called", callback._count == 2);
 		
@@ -2527,7 +2614,7 @@ public class ReactorWatchlistEDPJunit
 		ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 		
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);		
 
 		// check that user specified connection info was not overwritten
@@ -2542,6 +2629,7 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 		{
@@ -2586,7 +2674,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);     
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called once
 		assertTrue("callback was not called", callback._count == 1);
 		
@@ -2594,7 +2682,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);  
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
 		// verify that callback was called twice
 		assertTrue("callback was not called", callback._count == 2);
 		
@@ -2607,7 +2695,7 @@ public class ReactorWatchlistEDPJunit
 		ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 		
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);		
 
 		// check that user specified connection info was not overwritten
@@ -2623,6 +2711,7 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 		{
@@ -2672,7 +2761,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);     
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that the callback was called once
 		assertTrue(callback._count == 1);
 
@@ -2680,7 +2769,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
 		// verify that the callback was called twice
 		assertTrue(callback._count == 2);
 
@@ -2693,7 +2782,7 @@ public class ReactorWatchlistEDPJunit
 		ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 		rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 		assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);
 
 		// check that user specified connection info was not overwritten
@@ -2708,6 +2797,7 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryNoDataFormatProtocolTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
+		unlockAccount();
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 		{
@@ -2774,6 +2864,7 @@ public class ReactorWatchlistEDPJunit
 	{
 		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryNoTransportProtocolTest <<<<<<<<<<\n");
 		assumeTrue(checkCredentials());
+		unlockAccount();
 		ReactorErrorInfo errorInfo = null;		 
 		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 		{
@@ -2820,7 +2911,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);     
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called once
 		assertTrue("callback was not called", callback._count == 1);			
 
@@ -2828,11 +2919,63 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);  
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
 		// verify that callback was called twice
 		assertTrue("callback was not called", callback._count == 2);
 
 		consumerReactor.close();		
+	}
+	
+	private void unlockAccount()
+	{
+		ReactorErrorInfo errorInfo = null;		 
+		ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
+		{
+			Buffer buf = CodecFactory.createBuffer();
+			buf.data(System.getProperty("edpUserName"));
+			reactorServiceDiscoveryOptions.userName(buf);
+		}
+		{
+			Buffer buf = CodecFactory.createBuffer();
+			buf.data(System.getProperty("edpPassword"));
+			reactorServiceDiscoveryOptions.password(buf);
+		}  	
+
+		reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP);
+		reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_RWF);
+
+		ReactorServiceEndpointEventCallbackTest callback = new ReactorServiceEndpointEventCallbackTest()
+		{
+			@Override
+			public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event) {
+				System.out.println(event.errorInfo().toString());
+				return 0;
+			}     				
+		};
+
+		reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);		
+		
+		/* Create reactor. */
+		TestReactor consumerReactor = new TestReactor();
+
+		/* Create consumer. */
+		Consumer consumer = new Consumer(consumerReactor);
+
+		setupConsumer(consumer, true);
+
+		errorInfo = ReactorFactory.createReactorErrorInfo();
+		errorInfo.clear();    
+
+		System.out.println("UNLOCK ACCOUNT: " + consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo));
+		
+		consumerReactor.close();
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 	
 	private void sendEDPQueryServiceDiscoveryReqest()
@@ -2885,7 +3028,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo.clear();
 		assertNotNull(errorInfo);     
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);
 		// verify that callback was called once
 		assertTrue("callback was not called", callback._count == 1);
 
@@ -2893,7 +3036,7 @@ public class ReactorWatchlistEDPJunit
 		errorInfo = ReactorFactory.createReactorErrorInfo();
 		assertNotNull(errorInfo);  
 
-		assertTrue("Expected SUCCESS, received: " + errorInfo.code() + " msg: " + errorInfo.error().text(), consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
+		assertTrue("Expected SUCCESS", consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) == ReactorReturnCodes.SUCCESS);    
 		// verify that callback was called once
 		assertTrue("callback was not called", callback._count == 2);
 

@@ -81,7 +81,7 @@ class WlLoginHandler implements WlHandler
 			ReactorErrorInfo errorInfo) 
 	{
 		int ret;
-System.out.println("----------------submit request");
+
 		// check for different login stream id
 		// user is allowed to open a different stream if login stream is closed
 		if (_loginRequest != null
@@ -208,7 +208,7 @@ System.out.println("----------------submit request");
 	public int submitMsg(WlRequest wlRequest, Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo) 
 	{
 		int ret;
-System.out.println("CLOSE HERE submitMsg");
+
 		switch (msg.msgClass()) 
 		{
 		case MsgClasses.CLOSE:
@@ -798,7 +798,6 @@ System.out.println("CLOSE HERE submitMsg");
 	/* Reads a refresh message. */
 	int readRefreshMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
 	{
-		System.out.println("readRefreshMsg=======================");
 		int ret;
 		
 		// make sure refresh complete flag is set
@@ -1145,24 +1144,9 @@ System.out.println("CLOSE HERE submitMsg");
 			}
 		}
 	}
-
-	//TODO remove this code SEB 
-	void authenticationTimer(String authToken, ReactorErrorInfo errorInfo)
-	{
-		if (_loginRequest != null) 
-		{
-			_loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
-			_loginRequest.userName().data(authToken);
-
-			// TODO try to just send the message look at he authentication code
-
-			channelUp(false, errorInfo);
-		}
-	}
-	
 	
 	/* Handles channel up event. */
-	void channelUp(boolean sendLogin, ReactorErrorInfo errorInfo) 
+	void channelUp(ReactorErrorInfo errorInfo) 
 	{
 		boolean newStream = false;
 		boolean newRequest = false;
@@ -1175,9 +1159,7 @@ System.out.println("CLOSE HERE submitMsg");
 			_stream.channelUp();
 		}
 
-		LoginRequest loginRequest = null;	
-		
-		System.out.println("WATCLIST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
+		LoginRequest loginRequest = null;
 		
 		if (_watchlist.reactorChannel().enableSessionManagement())
 		{
@@ -1233,9 +1215,6 @@ System.out.println("CLOSE HERE submitMsg");
 				_stream.streamId(_loginRequest.streamId());
 				_stream.domainType(_loginRequest.domainType());
 			}
-			
-
-
 		}
 		_loginRequest.rdmMsgType(LoginMsgType.REQUEST);
 		loginRequest = _loginRequest;		
@@ -1316,7 +1295,6 @@ System.out.println("CLOSE HERE submitMsg");
 			loginRequest = _loginRequest;
 		}
 			
-		System.out.println("+++++++++++++++++++++++++++ TIMEOUT +++++++++++++++++++++++++" + _loginRequest + "\n" + _loginRequestForEDP);
 		int streamId = (loginRequest != null ? loginRequest.streamId() : 0);
 
 		// call back user with login status of OPEN/SUSPECT
