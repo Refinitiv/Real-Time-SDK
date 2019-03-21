@@ -32,6 +32,8 @@ class ConnectOptionsImpl implements ConnectOptions
     private int _sysRecvBufSize;
     private SeqMCastOptsImpl _seqMCastOpts = new SeqMCastOptsImpl();
 
+
+    
     ConnectOptionsImpl()
     {
         _compressionType = Ripc.CompressionTypes.NONE;
@@ -42,6 +44,7 @@ class ConnectOptionsImpl implements ConnectOptions
         _mcastOpts.packetTTL(5);
         _seqMCastOpts.maxMsgSize(3000);
         _seqMCastOpts.instanceId(0);
+
     }
 	
     @Override
@@ -89,7 +92,7 @@ class ConnectOptionsImpl implements ConnectOptions
             destOptsImpl._componentVersion = new String(_componentVersion);
         else
             destOptsImpl._componentVersion = null;
-
+        
         destOptsImpl._connectionType = _connectionType;
         destOptsImpl._compressionType = _compressionType;
         destOptsImpl._blocking = _blocking;
@@ -113,6 +116,7 @@ class ConnectOptionsImpl implements ConnectOptions
         destOptsImpl._sysSendBufSize = _sysSendBufSize;
         destOptsImpl._sysRecvBufSize = _sysRecvBufSize;
         _seqMCastOpts.copy(destOptsImpl._seqMCastOpts);
+
 
         return TransportReturnCodes.SUCCESS;
     }
@@ -147,11 +151,12 @@ class ConnectOptionsImpl implements ConnectOptions
         _componentVersion = componentVersion;
     }
 
+    @Override
     public String componentVersion()
     {
         return _componentVersion;
-    }
-
+    }       
+    
     @Override
     public void connectionType(int connectionType)
     {
@@ -355,8 +360,8 @@ class ConnectOptionsImpl implements ConnectOptions
     public boolean channelWriteLocking()
     {
         return _writeLocking;
-    }
-
+    }   
+    
     @Override
     public void sysSendBufSize(int sysSendBufSize)
     {

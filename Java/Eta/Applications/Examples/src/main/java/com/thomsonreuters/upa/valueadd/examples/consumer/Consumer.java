@@ -48,12 +48,15 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
+import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.examples.common.CacheInfo;
 import com.thomsonreuters.upa.valueadd.examples.common.ConnectionArg;
 import com.thomsonreuters.upa.valueadd.examples.common.ItemArg;
 import com.thomsonreuters.upa.valueadd.examples.consumer.StreamIdWatchList.StreamIdKey;
 import com.thomsonreuters.upa.valueadd.examples.consumer.StreamIdWatchList.WatchListEntry;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorAuthTokenEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorAuthTokenEventCallback;
 import com.thomsonreuters.upa.valueadd.reactor.ConsumerCallback;
 import com.thomsonreuters.upa.valueadd.reactor.DictionaryDownloadModes;
 import com.thomsonreuters.upa.valueadd.reactor.RDMDictionaryMsgEvent;
@@ -160,6 +163,12 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * </li>
  * <li>-uname changes the username used when logging into the provider
  *
+ * <li>-passwd changes the password used when logging into the provider
+ * 
+ * <li>-clientId (optional) specifies an unique ID for application making the request to EDP token service
+ * 
+ * <li>-sessionMgnt enables the session management in the Reactor
+ *
  * <li>-view specifies each request using a basic dynamic view
  *
  * <li>-post specifies that the application should attempt to send post messages on the first requested Market Price item
@@ -206,7 +215,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * 
  * </ul>
  */
-public class Consumer implements ConsumerCallback
+public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 {
     private final String FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
     private final String ENUM_TABLE_FILE_NAME = "enumtype.def";
@@ -290,7 +299,8 @@ public class Consumer implements ConsumerCallback
         }
 
     	// add default connections to arguments if none specified
-        if (consumerCmdLineParser.connectionList().size() == 0)
+        if (consumerCmdLineParser.connectionList().size() == 0 && 
+        	!consumerCmdLineParser.enableSessionMgnt())
         {
         	// first connection - localhost:14002 DIRECT_FEED mp:TRI.N
         	List<ItemArg> itemList = new ArrayList<ItemArg>();
@@ -505,6 +515,41 @@ public class Consumer implements ConsumerCallback
 		}		
 	}
 
+    @Override
+	public int reactorAuthTokenEventCallback(ReactorAuthTokenEvent event)
+	{
+    	if (event.errorInfo().code() != ReactorReturnCodes.SUCCESS)
+    	{
+    		System.out.println("Retrive an access token failed. Text: " + event.errorInfo().toString());
+    	}
+    	else
+    	{
+    		ChannelInfo chnlInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+
+    		if (chnlInfo.reactorChannel != null)
+    		{
+    			LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+    			loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+    			loginRequest.userName().data(event.reactorAuthTokenInfo().accessToken());
+            	// Do not send the password
+            	loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.HAS_PASSWORD);    			
+    			loginRequest.applyNoRefresh();
+    			
+    			submitOptions.clear();
+
+    			if (chnlInfo.reactorChannel.submit(loginRequest, submitOptions, errorInfo) != CodecReturnCodes.SUCCESS)
+    			{
+    				System.out.println("Login reissue failed. Error: " + errorInfo.error().text());
+    			}
+    			else
+    			{
+    				System.out.println("Login reissue sent");
+    			}
+    		}
+    	}
+    	return ReactorCallbackReturnCodes.SUCCESS;
+	}  	
+	
     @Override
 	public int reactorChannelEventCallback(ReactorChannelEvent event)
 	{
@@ -950,8 +995,8 @@ public class Consumer implements ConsumerCallback
 		}
 		
 		return ReactorCallbackReturnCodes.SUCCESS;
-	}
-	
+	} 
+    
 	private void processServiceRefresh(DirectoryRefresh directoryRefresh, ChannelInfo chnlInfo)
 	{
         String serviceName = chnlInfo.connectionArg.service();
@@ -1327,6 +1372,16 @@ public class Consumer implements ConsumerCallback
             LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
             loginRequest.userName().data(consumerCmdLineParser.userName());
         }
+        if (consumerCmdLineParser.passwd() != null)
+        {
+            LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+            loginRequest.password().data(consumerCmdLineParser.passwd());
+            loginRequest.applyHasPassword();
+        }
+        if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().equals(""))
+        {
+        	chnlInfo.consumerRole.clientId().data(consumerCmdLineParser.clientId());
+        }
         
         // use command line authentication token and extended authentication information if specified
         if (consumerCmdLineParser.authenticationToken() != null && !consumerCmdLineParser.authenticationToken().equals(""))
@@ -1405,8 +1460,17 @@ public class Consumer implements ConsumerCallback
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().connectionType(chnlInfo.connectionArg.connectionType());
+        
+        if (consumerCmdLineParser.enableSessionMgnt())
+        {
+         	chnlInfo.connectOptions.connectionList().get(0).enableSessionManagement(true);
+         	// register for authentication callback
+         	chnlInfo.connectOptions.connectionList().get(0).reactorAuthTokenEventCallback(this);
+        }
+
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
+
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().userSpecObject(chnlInfo);
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().guaranteedOutputBuffers(1000);
         // add backup connection if specified
@@ -1421,8 +1485,19 @@ public class Consumer implements ConsumerCallback
             chnlInfo.connectOptions.connectionList().get(1).connectOptions().unifiedNetworkInfo().address(consumerCmdLineParser.backupHostname());
             chnlInfo.connectOptions.connectionList().get(1).connectOptions().userSpecObject(chnlInfo);
             chnlInfo.connectOptions.connectionList().get(1).connectOptions().guaranteedOutputBuffers(1000);
+            
+            if (consumerCmdLineParser.enableSessionMgnt())
+            {
+             	chnlInfo.connectOptions.connectionList().get(1).enableSessionManagement(true);
+             	// register for authentication callback
+             	chnlInfo.connectOptions.connectionList().get(1).reactorAuthTokenEventCallback(this);
+
+             	ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(1).connectOptions();
+             	cOpt.connectionType(ConnectionTypes.ENCRYPTED);
+             	cOpt.tunnelingInfo().tunnelingType("encrypted");
+             	setEncryptedConfiguration(cOpt);
+            }            
         }
-        
 
         // handler encrypted or http connection 
         chnlInfo.shouldEnableEncrypted = consumerCmdLineParser.enableEncrypted();

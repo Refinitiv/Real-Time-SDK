@@ -141,6 +141,16 @@ public class EmaFileConfigJunitTests extends TestCase
 		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_5");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
+		
+		// Check values of Consumer_7
+		System.out.println("\nRetrieving Consumer_7 configuration values "); 
+
+		ConsChannelVal = JUnitTestConnect.configGetChannelName(testConfig, "Consumer_7");
+		TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
+		TestUtilities.checkResult("Channel value == Channel_6", ConsChannelVal.contentEquals("Channel_6") );
+		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_7");
+		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
+		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
 	
 		// Check Channel configuration:
 		// Check Channel_1 configuration.
@@ -284,7 +294,24 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("SysSendBufSize == 550000", intLongValue == 550000);
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ConnectionPingTimeout);
 		TestUtilities.checkResult("ConnectionPingTimeout == 3555", intLongValue == 3555);
-	
+		
+		// Check Channel_6 configuration.
+		ConsChannelVal = "Channel_6";
+		System.out.println("\nRetrieving Channel_6 configuration values "); 
+		channelConnType = JUnitTestConnect.configGetChannelType(testConfig, ConsChannelVal);
+		TestUtilities.checkResult("channelConnType == ChannelType::RSSL_ENCRYPTED", channelConnType == ChannelTypeEncrypted);
+				
+		chanHost = JUnitTestConnect.configGetChanHost(testConfig, ConsChannelVal);
+		TestUtilities.checkResult("Host == 122.1.1.200", chanHost.contentEquals("122.1.1.200"));
+		chanPort = JUnitTestConnect.configGetChanPort(testConfig, ConsChannelVal);
+		TestUtilities.checkResult("Port == 14010", chanPort.contentEquals("14010"));
+		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName);
+		TestUtilities.checkResult("ObjectName == EncrpyptedObjectName2", strValue.contentEquals("EncrpyptedObjectName2"));
+		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Location);
+		TestUtilities.checkResult("Location == us-east", strValue.contentEquals("us-east"));
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.EnableSessionMgnt);
+		TestUtilities.checkResult("EnableSessionManagement == 1", boolValue == true);
+		
 		// Check Dictionary_1 configuration.
 		ConsDictionary = "Dictionary_1";
 		System.out.println("\nRetrieving Dictionary_1 configuration values ");
@@ -780,6 +807,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14002"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("TcpNodelay", 0));
 			innerElementList.add(EmaFactory.createElementEntry().ascii("ObjectName", "MyHttpObject"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Location", "eu-west"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("EnableSessionManagement", 1));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -890,7 +919,11 @@ public class EmaFileConfigJunitTests extends TestCase
 			String chanPort = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Port, 0);
 			TestUtilities.checkResult("Port == 14002", chanPort.contentEquals("14002"));
 			String objectName = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName, 0);
-			TestUtilities.checkResult("Host == MyHttpObject", objectName.contentEquals("MyHttpObject"));
+			TestUtilities.checkResult("ObjectName == MyHttpObject", objectName.contentEquals("MyHttpObject"));
+			String location = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Location, 0);
+			TestUtilities.checkResult("Location == eu-west", location.contentEquals("eu-west"));
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.EnableSessionMgnt, 0);
+			TestUtilities.checkResult("EnableSessionManagement == 0", boolValue == true);
 			
 			// Check Dictionary_1 configuration.
 			ConsDictionary = "Dictionary_1";

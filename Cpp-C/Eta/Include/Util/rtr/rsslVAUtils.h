@@ -161,6 +161,46 @@ RTR_C_INLINE RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslC
 		strncpy(destOpts->proxyOpts.proxyPort, sourceOpts->proxyOpts.proxyPort, tempLen);
 	}
 
+	if (sourceOpts->proxyOpts.proxyUserName != 0)
+	{
+		tempLen = (strlen(sourceOpts->proxyOpts.proxyUserName) + 1) * sizeof(char);
+		destOpts->proxyOpts.proxyUserName = (char*)malloc(tempLen);
+
+		if (destOpts->proxyOpts.proxyUserName == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->proxyOpts.proxyUserName, sourceOpts->proxyOpts.proxyUserName, tempLen);
+	}
+
+	if (sourceOpts->proxyOpts.proxyPasswd != 0)
+	{
+		tempLen = (strlen(sourceOpts->proxyOpts.proxyPasswd) + 1) * sizeof(char);
+		destOpts->proxyOpts.proxyPasswd = (char*)malloc(tempLen);
+
+		if (destOpts->proxyOpts.proxyPasswd == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->proxyOpts.proxyPasswd, sourceOpts->proxyOpts.proxyPasswd, tempLen);
+	}
+
+	if (sourceOpts->proxyOpts.proxyDomain != 0)
+	{
+		tempLen = (strlen(sourceOpts->proxyOpts.proxyDomain) + 1) * sizeof(char);
+		destOpts->proxyOpts.proxyDomain = (char*)malloc(tempLen);
+
+		if (destOpts->proxyOpts.proxyDomain == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destOpts->proxyOpts.proxyDomain, sourceOpts->proxyOpts.proxyDomain, tempLen);
+	}
+
+
 	if (sourceOpts->componentVersion != 0)
 	{
 		tempLen = (strlen(sourceOpts->componentVersion)+1)*sizeof(char);

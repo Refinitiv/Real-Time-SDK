@@ -37,6 +37,7 @@ class WlLoginHandler implements WlHandler
 	EncodeIterator _eIter = CodecFactory.createEncodeIterator();
 	DecodeIterator _dIter = CodecFactory.createDecodeIterator();
 	LoginRequest _loginRequest;
+	LoginRequest _loginRequestForEDP;	
 	LoginRequest _tempLoginRequest;
 	ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
 	ReactorSubmitOptions _submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -80,7 +81,7 @@ class WlLoginHandler implements WlHandler
 			ReactorErrorInfo errorInfo) 
 	{
 		int ret;
-
+System.out.println("----------------submit request");
 		// check for different login stream id
 		// user is allowed to open a different stream if login stream is closed
 		if (_loginRequest != null
@@ -207,7 +208,7 @@ class WlLoginHandler implements WlHandler
 	public int submitMsg(WlRequest wlRequest, Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo) 
 	{
 		int ret;
-
+System.out.println("CLOSE HERE submitMsg");
 		switch (msg.msgClass()) 
 		{
 		case MsgClasses.CLOSE:
@@ -690,8 +691,14 @@ class WlLoginHandler implements WlHandler
 	public int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
 	{
 		assert (_stream == wlStream);
+		if (_watchlist.reactorChannel().enableSessionManagement())
+		{
+			assert (msg.streamId() == _loginRequestForEDP.streamId());
+		}	
+		else
+		{
 		assert (msg.streamId() == _loginRequest.streamId());
-
+		}
 		int ret = ReactorReturnCodes.SUCCESS;
 		int ret1, ret2;
 
@@ -791,6 +798,7 @@ class WlLoginHandler implements WlHandler
 	/* Reads a refresh message. */
 	int readRefreshMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
 	{
+		System.out.println("readRefreshMsg=======================");
 		int ret;
 		
 		// make sure refresh complete flag is set
@@ -1138,8 +1146,23 @@ class WlLoginHandler implements WlHandler
 		}
 	}
 
+	//TODO remove this code SEB 
+	void authenticationTimer(String authToken, ReactorErrorInfo errorInfo)
+	{
+		if (_loginRequest != null) 
+		{
+			_loginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+			_loginRequest.userName().data(authToken);
+
+			// TODO try to just send the message look at he authentication code
+
+			channelUp(false, errorInfo);
+		}
+	}
+	
+	
 	/* Handles channel up event. */
-	void channelUp(ReactorErrorInfo errorInfo) 
+	void channelUp(boolean sendLogin, ReactorErrorInfo errorInfo) 
 	{
 		boolean newStream = false;
 		boolean newRequest = false;
@@ -1152,12 +1175,46 @@ class WlLoginHandler implements WlHandler
 			_stream.channelUp();
 		}
 
+		LoginRequest loginRequest = null;	
+		
+		System.out.println("WATCLIST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
+		
+		if (_watchlist.reactorChannel().enableSessionManagement())
+		{
+			if (_loginRequestForEDP == null
+					&& _watchlist.role().rdmLoginRequest() != null) 
+			{
+				newRequest = true;
+				_loginRequestForEDP = (LoginRequest) LoginMsgFactory.createMsg();
+				_loginRequestForEDP.rdmMsgType(LoginMsgType.REQUEST);
+
+				_watchlist.reactorChannel()._loginRequestForEDP.copy(_loginRequestForEDP);
+
+				// create login stream if not created yet
+				if (_stream == null) 
+				{
+					newStream = true;
+
+					_loginRequestForEDP.streamId(_loginStreamId);
+
+					// create stream
+					_stream = ReactorFactory.createWlStream();
+					_stream.handler(this);
+					_stream.watchlist(_watchlist);
+					_stream.streamId(_loginRequestForEDP.streamId());
+					_stream.domainType(_loginRequestForEDP.domainType());
+				}
+				
+			}
+			loginRequest = _loginRequestForEDP;
+		}
+		else
+		{
 		// create login request if not created yet and role has one
 		if (_loginRequest == null
 				&& _watchlist.role().rdmLoginRequest() != null) 
 		{
 			newRequest = true;
-
 			_loginRequest = (LoginRequest) LoginMsgFactory.createMsg();
 			_loginRequest.rdmMsgType(LoginMsgType.REQUEST);
 			_watchlist.role().rdmLoginRequest().copy(_loginRequest);
@@ -1176,21 +1233,29 @@ class WlLoginHandler implements WlHandler
 				_stream.streamId(_loginRequest.streamId());
 				_stream.domainType(_loginRequest.domainType());
 			}
+			
+
 
 		}
+		_loginRequest.rdmMsgType(LoginMsgType.REQUEST);
+		loginRequest = _loginRequest;		
+		}
+		
+
+		
 		// send login request via stream
-		if (_loginRequest != null && _stream != null) 
+		if (loginRequest != null && _stream != null) 
 		{
-			if (_loginRequest.checkPause())
+			if (loginRequest.checkPause())
 			{
-				_loginRequest.flags(_loginRequest.flags() & ~LoginRequestFlags.PAUSE_ALL);
+				loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.PAUSE_ALL);
 			}
-			if (_loginRequest.checkNoRefresh())
+			if (loginRequest.checkNoRefresh())
 			{
-				_loginRequest.flags(_loginRequest.flags() & ~LoginRequestFlags.NO_REFRESH);
+				loginRequest.flags(loginRequest.flags() & ~LoginRequestFlags.NO_REFRESH);
 			}
 			_tempMsg.clear();
-			_watchlist.convertRDMToCodecMsg(_loginRequest, _tempMsg);
+			_watchlist.convertRDMToCodecMsg(loginRequest, _tempMsg);
 
 			if (_stream.sendMsg(_tempMsg, _submitOptions, errorInfo) >= ReactorReturnCodes.SUCCESS)
 			{
@@ -1199,12 +1264,12 @@ class WlLoginHandler implements WlHandler
 					// add to watchlist request table
 					WlRequest wlRequest = ReactorFactory.createWlRequest();
 					_tempMsg.clear();
-					_watchlist.convertRDMToCodecMsg(_loginRequest, _tempMsg);
+					_watchlist.convertRDMToCodecMsg(loginRequest, _tempMsg);
 					wlRequest.requestMsg().clear();
 					_tempMsg.copy(wlRequest.requestMsg(), CopyMsgFlags.ALL_FLAGS);
 					wlRequest.handler(this);
 					WlInteger wlInteger = ReactorFactory.createWlInteger();
-					wlInteger.value(_loginRequest.streamId());
+					wlInteger.value(loginRequest.streamId());
 					wlRequest.tableKey(wlInteger);
 					_watchlist.streamIdtoWlRequestTable().put(wlInteger, wlRequest);
 				}
@@ -1213,7 +1278,7 @@ class WlLoginHandler implements WlHandler
 				{
 					// add stream to watchlist table
 					WlInteger wlInteger = ReactorFactory.createWlInteger();
-					wlInteger.value(_loginRequest.streamId());
+					wlInteger.value(loginRequest.streamId());
 					_stream.tableKey(wlInteger);
 					_watchlist.streamIdtoWlStreamTable()
 							.put(wlInteger, _stream);
@@ -1241,7 +1306,18 @@ class WlLoginHandler implements WlHandler
 	@Override
 	public int requestTimeout(WlStream wlStream, ReactorErrorInfo errorInfo) 
 	{
-		int streamId = (_loginRequest != null ? _loginRequest.streamId() : 0);
+		LoginRequest loginRequest = null;
+		if (_watchlist.reactorChannel().enableSessionManagement())
+		{
+			loginRequest = _loginRequestForEDP;
+		}
+		else
+		{
+			loginRequest = _loginRequest;
+		}
+			
+		System.out.println("+++++++++++++++++++++++++++ TIMEOUT +++++++++++++++++++++++++" + _loginRequest + "\n" + _loginRequestForEDP);
+		int streamId = (loginRequest != null ? loginRequest.streamId() : 0);
 
 		// call back user with login status of OPEN/SUSPECT
 		_statusMsg.streamId(streamId);
@@ -1264,7 +1340,7 @@ class WlLoginHandler implements WlHandler
 
 		// re-send login request
 		_tempMsg.clear();
-		_watchlist.convertRDMToCodecMsg(_loginRequest, _tempMsg);
+		_watchlist.convertRDMToCodecMsg(loginRequest, _tempMsg);
 		return wlStream.sendMsg(_tempMsg, _submitOptions, errorInfo);
 	}
 

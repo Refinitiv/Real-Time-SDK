@@ -418,7 +418,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	}
 
 	@Override
-	void handleAdminDomains() {
+	void handleAdminDomains(EmaConfigImpl config) {
 		
 		_loginCallbackClient = new LoginCallbackClientConsumer(this);;
 		_loginCallbackClient.initialize();
@@ -440,7 +440,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		}
 
 		_channelCallbackClient = new ChannelCallbackClient<>(this,_rsslReactor);
-		_channelCallbackClient.initializeConsumerRole(_loginCallbackClient.rsslLoginRequest(), _directoryCallbackClient.rsslDirectoryRequest());
+		_channelCallbackClient.initializeConsumerRole(_loginCallbackClient.rsslLoginRequest(), _directoryCallbackClient.rsslDirectoryRequest(), config.clientId());
 
 		handleLoginReqTimeout();
 		loadDirectory();

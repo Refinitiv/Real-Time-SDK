@@ -1446,6 +1446,7 @@ class WlDirectoryHandler implements WlHandler
     @Override
     public int requestTimeout(WlStream wlStream, ReactorErrorInfo errorInfo)
     {
+    	System.out.println("+++++++++++++++++++ requestTimeout DIRECTORY");
         // fanout status to user
         fanoutStatus();
         

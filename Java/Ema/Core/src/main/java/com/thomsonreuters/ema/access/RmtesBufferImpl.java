@@ -121,7 +121,7 @@ class RmtesBufferImpl implements RmtesBuffer
 		ByteBuffer cacheByteBuffer = _rsslRmtesCacheBuffer.byteData();
 		int cacheBufferPreAllocateLen = _rsslRmtesCacheBuffer.allocatedLength();
 		
-		if (((RmtesBufferImpl)source)._applyToCache)
+		if (((RmtesBufferImpl)source)._applyToCache && !((RmtesBufferImpl)source)._toStringSet)
 		{
 			int sourceBufferLen = ((RmtesBufferImpl)source)._rsslRmtesCacheBuffer.length();
 			if (cacheByteBuffer == null || cacheBufferPreAllocateLen < sourceBufferLen)

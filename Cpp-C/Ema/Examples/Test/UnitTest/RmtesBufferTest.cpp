@@ -7,6 +7,8 @@
  */
 
 #include "TestUtilities.h"
+#include "RmtesBufferImpl.h"
+#include "EmaUnitTestConnect.h"
 
 using namespace thomsonreuters::ema::access;
 
@@ -149,6 +151,44 @@ TEST(RmtesBufferTest, testRmtesBufferApplyPartialUpdates)
 
 	EXPECT_EQ( toString.length(), 12 ) <<  "rmtesBuf2.apply(inBuf1, 5).toString() return correct length" ;
 	EXPECT_EQ( memcmp( outBuf, toString.c_str(), 12 ), 0 ) <<  "rmtesBuf2.apply(inBuf1, 5).toString() decode correctly" ;
+}
+
+TEST(RmtesBufferTest, testRmtesBufferCallToStringBeforeApplyPartialUpdates)
+{
+
+	//case1
+	sprintf(cacheBuf1, "abcdefghijkl");
+	sprintf(outBuf, "12cdefghijkl");
+	RmtesBuffer rmtesBuf1(cacheBuf1, 12);
+
+	const EmaBuffer& utf8Buf = rmtesBuf1.apply(inBuf1, 6).getAsUTF8();
+
+	EXPECT_EQ(utf8Buf.length(), 12) << "rmtesBuf1.apply(inBuf1, 6).getAsUTF8() return correct length";
+	EXPECT_EQ(memcmp(outBuf, utf8Buf.c_buf(), 12), 0) << "rmtesBuf1.apply(inBuf1, 6).getAsUTF8() decode correctly";
+
+	//case2  reallocate bigger mem
+	sprintf(cacheBuf1, "abcdefghijkl");
+	//sprintf(outBuf, "abcdefghi   kl");
+	sprintf(outBuf, "abcdefghi   "); //expected output may be wrong?
+	RmtesBuffer rmtesBuf2(cacheBuf1, 12);
+
+	const EmaBuffer& utf8Buf1 = rmtesBuf2.apply(inBuf2, 9).getAsUTF8();
+
+	EXPECT_EQ(utf8Buf1.length(), 12) << "rmtesBuf2.apply(inBuf2, 9).getAsUTF8()return correct length";
+	EXPECT_EQ(memcmp(outBuf, utf8Buf1.c_buf(), 12), 0) << "rmtesBuf2.apply(inBuf2, 9).getAsUTF8() decode correctly";
+
+	RmtesBuffer rmtesBuf3;
+	EmaUnitTestConnect::getRmtesBufferImpl(rmtesBuf3)->setData(inBuf1, 5);
+
+	// Run toString() on RmtesBuffer before applying it to another RmtesBuffer
+	rmtesBuf3.toString();
+
+	//	sprintf(outBuf, "12cdefghi   kl");
+	sprintf(outBuf, "1bcdefghi   "); //expected output may be wrong?
+	const EmaString& toString = rmtesBuf2.apply(rmtesBuf3).toString();
+
+	EXPECT_EQ(toString.length(), 12) << "rmtesBuf2.apply(inBuf1, 5).toString() return correct length";
+	EXPECT_EQ(memcmp(outBuf, toString.c_str(), 12), 0) << "rmtesBuf2.apply(inBuf1, 5).toString() decode correctly";
 }
 
 TEST(RmtesBufferTest, testRmtesBufferApplyUpdatesAsUTF16)

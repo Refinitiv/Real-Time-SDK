@@ -121,6 +121,8 @@ class ConfigManager
 	public static final int ChannelDirectSocketWrite = 206;
 	public static final int ChannelProxyHost = 207;
 	public static final int ChannelProxyPort = 208;
+	public static final int ChannelEnableSessionMgnt = 209;
+	public static final int ChannelLocation = 210;
 	
 	// Channel: Multicast
 	public static final int ChannelDisconnectOnGap = 300;
@@ -323,6 +325,8 @@ class ConfigManager
 		ChannelTagDict.add( "DirectWrite",ChannelDirectSocketWrite );
 		ChannelTagDict.add( "ProxyHost",ChannelProxyHost );
 		ChannelTagDict.add( "ProxyPort",ChannelProxyPort );
+		ChannelTagDict.add( "EnableSessionManagement",ChannelEnableSessionMgnt );
+		ChannelTagDict.add( "Location",ChannelLocation );
 		
 		// ConnectionTypes.MCAST
 		ChannelTagDict.add( "DisconnectOnGap",ChannelDisconnectOnGap );
@@ -576,6 +580,7 @@ class ConfigManager
 			"HsmPort",
 			"InterfaceName",
 			"ItemList",
+			"Location",
 			"Logger",
 			"Name",
 			"ObjectName",
@@ -632,6 +637,7 @@ class ConfigManager
 		"DictionaryRequestTimeOut",
 		"DirectoryRequestTimeOut",
 		"DisconnectOnGap",
+		"EnableSessionManagement",
 		"EnumTypeFragmentSize",
 		"FieldDictionaryFragmentSize",
 		"GuaranteedOutputBuffers",

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2019. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -72,6 +72,27 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		applicationNameInt(applicationName);
 		return this;
 	}
+	
+	@Override
+	public OmmConsumerConfig clientId(String clientId)
+	{
+		clientIdInt(clientId);
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig tokenServiceUrl(String tokenServiceUrl)
+	{
+		tokenServiceUrlInt(tokenServiceUrl);
+		return this;
+	}
+
+	@Override
+	public OmmConsumerConfig serviceDiscoveryUrl(String serviceDiscoveryUrl)
+	{
+		serviceDiscoveryUrlInt(serviceDiscoveryUrl);
+		return this;
+	}
 
 	@Override
 	public OmmConsumerConfig host(String host)
@@ -90,26 +111,34 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	@Override
 	public OmmConsumerConfig consumerName(String consumerName)
 	{
+		// Keep the session name to check later after all configuration methods is called.
 		_configSessionName = consumerName;
+		return this;
+	}
+	
+	void validateSpecifiedSessionName()
+	{
+		if(_configSessionName == null || _configSessionName.isEmpty())
+			return;
 		
-		if ( _programmaticConfigure != null && _programmaticConfigure.specifyConsumerName( consumerName ) )
-			return this;
+		if ( _programmaticConfigure != null && _programmaticConfigure.specifyConsumerName( _configSessionName ) )
+			return;
 
-		String name = (String) xmlConfig().getConsumerAttributeValue(consumerName,ConfigManager.ConsumerName);
+		String name = (String) xmlConfig().getConsumerAttributeValue(_configSessionName, ConfigManager.ConsumerName);
 
 		if ( name == null ) 
 		{
-			if ( consumerName.equals(ActiveConfig.DEFAULT_CONS_NAME) )
+			if ( _configSessionName.equals(ActiveConfig.DEFAULT_CONS_NAME) )
 			{
 				boolean bFoundChild = xmlConfig().isConsumerChildAvailable();
 				if( bFoundChild == false )
-					return this;
+					return;
 			}
 
-			_configSessionName = null;
 			configStrBuilder().append( "OmmConsumerConfigImpl::consumerName parameter [" )
-									.append( consumerName )
+									.append( _configSessionName )
 									.append( "] is an non-existent consumer name" );
+			_configSessionName = null;
 			throw ( oommICExcept().message( _configStrBuilder.toString()));
 		}
  		else //if ( name != null ) 
@@ -117,12 +146,10 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
  			boolean bSetAttributeValue = xmlConfig().setDefaultConsumer(name);
 			if ( bSetAttributeValue == false )
 			{
-				xmlConfig().appendAttributeValue(ConfigManager.CONSUMER_GROUP, "DefaultConsumer", ConfigManager.DefaultConsumer,consumerName);
+				xmlConfig().appendAttributeValue(ConfigManager.CONSUMER_GROUP, "DefaultConsumer", ConfigManager.DefaultConsumer,_configSessionName);
 				xmlConfig().verifyAndGetDefaultConsumer();
 			}
 		}
-	
-		return this;
 	}
 	
 	@Override

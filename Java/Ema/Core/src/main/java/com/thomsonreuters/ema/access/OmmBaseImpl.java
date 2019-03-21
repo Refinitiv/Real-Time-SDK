@@ -156,7 +156,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	
 	abstract Object getAttributeValue(EmaConfigImpl config, int AttributeKey);
 	
-	abstract void handleAdminDomains();
+	abstract void handleAdminDomains(EmaConfigImpl config);
 	
 	OmmBaseImpl()
 	{
@@ -213,6 +213,18 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				_rsslReactorOpts.enableXmlTracing();
 
 			_rsslReactorOpts.userSpecObj(this);
+			
+			// Overrides the default service discovery URL if specified by user
+			if(config.serviceDiscoveryUrl().length() != 0)
+			{
+				_rsslReactorOpts.serviceDiscoveryURL(config.serviceDiscoveryUrl());
+			}
+			
+			// Overrides the default token service URL if specified by user
+			if(config.tokenServiceUrl().length() != 0)
+			{
+				_rsslReactorOpts.tokenServiceURL(config.tokenServiceUrl());
+			}
 
 			_rsslReactor = ReactorFactory.createReactor(_rsslReactorOpts, _rsslErrorInfo);
 			if (ReactorReturnCodes.SUCCESS != _rsslErrorInfo.code())
@@ -255,7 +267,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				throw (ommIUExcept().message(temp));
 			}
 
-			handleAdminDomains();
+			handleAdminDomains(config);
 
 			if (_activeConfig.userDispatch == OperationModel.API_DISPATCH)
 			{
@@ -845,6 +857,25 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				}
 			}
 		}
+		
+		// Only assigns the default hostname and port for the encrypted connections when the session management feature is disable
+		EncryptedChannelConfig encryptedChannelConfig;
+		for(int i = 0; i < _activeConfig.channelConfigSet.size(); i++)
+		{
+			if(_activeConfig.channelConfigSet.get(i).rsslConnectionType ==  ConnectionTypes.ENCRYPTED)
+			{
+				encryptedChannelConfig = (EncryptedChannelConfig)_activeConfig.channelConfigSet.get(i);
+				
+				if (encryptedChannelConfig.enableSessionMgnt == false)
+				{
+					if(encryptedChannelConfig.hostName == null || encryptedChannelConfig.hostName.isEmpty())
+						encryptedChannelConfig.hostName = ActiveConfig.DEFAULT_HOST_NAME;
+					
+					if(encryptedChannelConfig.serviceName == null || encryptedChannelConfig.serviceName.isEmpty())
+						encryptedChannelConfig.serviceName = ActiveConfig.defaultServiceName;
+				}
+			}
+		}
 
 		_activeConfig.userDispatch = config.operationModel();
 		_activeConfig.rsslRDMLoginRequest = config.loginReq();
@@ -916,6 +947,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			if (connectionType == ConnectionTypes.ENCRYPTED)
 			{
 				tunnelingChannelCfg = new EncryptedChannelConfig();
+				
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelEnableSessionMgnt)) != null)
+					((EncryptedChannelConfig)tunnelingChannelCfg).enableSessionMgnt = ce.intLongValue() == 0 ? false : true;
+				
+				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelLocation)) != null)
+					((EncryptedChannelConfig)tunnelingChannelCfg).location = ce.asciiValue();
 			}
 			else				
 				tunnelingChannelCfg = new HttpChannelConfig();

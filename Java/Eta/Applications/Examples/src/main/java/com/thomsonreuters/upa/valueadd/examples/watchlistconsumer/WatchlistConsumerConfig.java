@@ -387,6 +387,11 @@ public class WatchlistConsumerConfig
 	{
 		return CommandLine.value("u");			
 	}
+	
+	String password()
+	{
+		return CommandLine.value("passwd");
+	}
 
 	boolean enableView()
 	{
@@ -428,10 +433,30 @@ public class WatchlistConsumerConfig
 		return CommandLine.booleanValue("x");
 	}
 
+	boolean enableSessionManagement()
+	{
+		return CommandLine.booleanValue("sessionMgnt");
+	}	
+	
 	boolean enableEncrypted()
 	{
 		return enableEncrypted;
 	}
+	
+	String clientId()
+	{
+		return CommandLine.value("clientId");
+	}	
+	
+	String location()
+	{
+		return CommandLine.value("l");
+	}
+	
+	boolean queryEndpoint() 
+	{	
+		return CommandLine.booleanValue("query");
+	}		
 	
 	boolean enableHttp()
 	{
@@ -557,6 +582,7 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("if", (String)null, "Interface name");
         CommandLine.addOption("s", defaultServiceName, "Service name");
         CommandLine.addOption("u", "Login user name. Default is system user name.");
+        CommandLine.addOption("passwd", "Password for the user name.");        
         CommandLine.addOption("c", "Socket", "Specifies the connection type that the connection should use. Possible values are: 'Socket', 'http', 'encrypted'");
 
         CommandLine.addOption("runTime", defaultRuntime, "Program runtime in seconds");
@@ -570,7 +596,7 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("pdomain", "", "Proxy server domain");
         CommandLine.addOption("krbfile", "", "KRB File location and name");
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
-        CommandLine.addOption("keypasswd", "", "Keystore password");        
+        CommandLine.addOption("keypasswd", "", "Keystore password");
         
         CommandLine.addOption("tunnel", "", "(optional) enables consumer to open tunnel stream and send basic text messages");
         CommandLine.addOption("tsServiceName", "", "(optional) specifies the service name for tunnel stream messages (if not specified, the service name specified in -c/-tcp is used");
@@ -580,6 +606,12 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
         CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
         CommandLine.addOption("aid", "", "Specifies the Application ID.");
-    }	
+        
+        CommandLine.addOption("sessionMgnt", "(optional) Enable Session Management in the reactor.");
+        CommandLine.addOption("l", "(optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.");
+        CommandLine.addOption("query", "", "(optional) Queries EDP service discovery to get an endpoint according to a specified connection type and location.");
+        CommandLine.addOption("clientId", "(optional) Specifies an unique ID for application making the request to EDP token service.");
+
+    }
 }
 

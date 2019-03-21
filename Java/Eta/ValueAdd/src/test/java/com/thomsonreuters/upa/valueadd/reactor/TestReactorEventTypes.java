@@ -19,4 +19,6 @@ public enum TestReactorEventTypes {
 	TUNNEL_STREAM_MSG,         /** TunnelStreamMsgEvent */
 	TUNNEL_STREAM_QUEUE_MSG,   /** TunnelStreamQueueMsgEvent */
 	TUNNEL_STREAM_REQUEST,     /** TunnelStreamRequestEvent */
+	AUTH_TOKEN_EVENT,
+	SERVICE_DISC_ENDPOINT
 }

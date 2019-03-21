@@ -9,6 +9,10 @@ import com.thomsonreuters.upa.transport.TransportFactory;
  */
 public class ReactorConnectInfo
 {
+    private boolean _enableSessionManagement;
+    private String _location;
+    private ReactorAuthTokenEventCallback _reactorAuthTokenEventCallback;
+	
     ConnectOptions _connectOptions = null;
     int DEFAULT_TIMEOUT = 60;
     int _initTimeout = DEFAULT_TIMEOUT;
@@ -16,6 +20,9 @@ public class ReactorConnectInfo
     ReactorConnectInfo()
     {
         _connectOptions = TransportFactory.createConnectOptions();
+        _enableSessionManagement = false;
+        _location = "us-east";
+        _reactorAuthTokenEventCallback = null;        
     }
 
     /**
@@ -71,6 +78,9 @@ public class ReactorConnectInfo
     public void clear()
     {
         _connectOptions.clear();
+        _enableSessionManagement = false;
+        _location = "us-east";
+        _reactorAuthTokenEventCallback = null;
         _initTimeout = DEFAULT_TIMEOUT;
     }
 
@@ -89,8 +99,91 @@ public class ReactorConnectInfo
             return ReactorReturnCodes.FAILURE;
         
         _connectOptions.copy(destInfo._connectOptions);
+        destInfo._enableSessionManagement = _enableSessionManagement;   	
+        destInfo._location = _location;
+        destInfo._reactorAuthTokenEventCallback = _reactorAuthTokenEventCallback;
+        
         destInfo._initTimeout = _initTimeout;
         return ReactorReturnCodes.SUCCESS;
     }
+    
+    /**
+     * Specifies a Callback function that receives ReactorAuthTokenEvents. The token is requested 
+     * by the Reactor for Consumer(disabling watchlist) and NiProvider applications to send login request and
+	 * reissue with the token.
+     * 
+     * @param callback the auth token event callback.
+     * 
+     * @return {@link ReactorReturnCodes#SUCCESS} if the callback is not
+     *         null, otherwise {@link ReactorReturnCodes#PARAMETER_INVALID}.
+     *         
+     * @see ReactorAuthTokenEventCallback
+     * @see ReactorAuthTokenEvent         
+     */
+    public int reactorAuthTokenEventCallback(ReactorAuthTokenEventCallback callback)
+    {
+        if (callback == null)
+            return ReactorReturnCodes.PARAMETER_INVALID;
 
+        _reactorAuthTokenEventCallback = callback;
+        return ReactorReturnCodes.SUCCESS;
+    }
+    
+    /** A callback function for processing AuthTokenEvents received. If not present,
+     * the received message will be passed to the defaultMsgCallback.
+     * 
+     * @return the reactorAuthTokenEventCallback
+     * @see ReactorAuthTokenEventCallback
+     * @see ReactorAuthTokenEvent
+     */
+    public ReactorAuthTokenEventCallback reactorAuthTokenEventCallback()
+    {
+        return _reactorAuthTokenEventCallback;
+    }        
+    
+    /**
+     * If set to true, enable to get access token and refresh it 
+     * on behalf of users to keep session active.
+     * 
+     * @param enableSessionManagement enables session management
+     */
+    public void enableSessionManagement(boolean enableSessionManagement) 
+    {
+    	_enableSessionManagement = enableSessionManagement;
+    }
+
+    /**
+     * If true, the channel will get access token and refresh it 
+     * on behalf of users to keep session active.
+     * 
+     * @return the enableSessionManagement
+     */
+    public boolean enableSessionManagement()
+    {
+    	return _enableSessionManagement;
+    }
+    
+     /**
+     * Specifies the location to get a service endpoint to establish a connection with service provider.
+     * Defaults to "us-east if not specified. The Reactor always uses the endpoint which provides
+     * two available zones for the location.
+     * 
+     * @param location specifies the location endpoint
+     */
+    public void location(String location)
+    {
+    	_location = location;
+    }
+
+    /**
+     * Specifies the location to get a service endpoint to establish a connection with service provider.
+     * Defaults to "us-east if not specified. The Reactor always uses the endpoint which provides
+     * two available zones for the location.
+     * 
+     * @return the location of the endpoint
+     */
+    public String location()
+    {
+    	return _location;
+    }
 }

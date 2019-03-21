@@ -127,6 +127,10 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
     
     private static String 						_defaultAppName = "ema";
     private HttpChannelConfig 				    _tunnelingChannelCfg;
+    
+    private Buffer								_clientId = CodecFactory.createBuffer();
+    private Buffer								_tokenServiceUrl = CodecFactory.createBuffer();
+    private Buffer								_serviceDiscoveryUrl = CodecFactory.createBuffer();
 
 	EmaConfigImpl()
 	{
@@ -220,6 +224,21 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 		_rsslLoginReq.applyHasAttrib();
 		_rsslLoginReq.attrib().applicationId().data(applicationId);
 		_rsslLoginReq.attrib().applyHasApplicationId();
+	}
+	
+	protected void clientIdInt(String clientId)
+	{
+		_clientId.data(clientId);
+	}
+	
+	protected void tokenServiceUrlInt(String tokenServiceUrl)
+	{
+		_tokenServiceUrl.data(tokenServiceUrl);
+	}
+	
+	protected void serviceDiscoveryUrlInt(String serviceDiscoveryUrl)
+	{
+		_serviceDiscoveryUrl.data(serviceDiscoveryUrl);
 	}
 	
 	protected void applicationNameInt(String applicationName)
@@ -813,6 +832,21 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 			_tunnelingChannelCfg = new EncryptedChannelConfig() ;
 		
 		return _tunnelingChannelCfg;
+	}
+	
+	Buffer clientId()
+	{
+		return _clientId;
+	}
+	
+	Buffer tokenServiceUrl()
+	{
+		return _tokenServiceUrl;
+	}
+	
+	Buffer serviceDiscoveryUrl()
+	{
+		return _serviceDiscoveryUrl;
 	}
 }
 
