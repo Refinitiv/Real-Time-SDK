@@ -501,7 +501,7 @@ static void handleRuntime()
 			if (clientSessions[i].clientChannel != NULL)
 			{
 				/* If any tunnel streams are still open, wait for them to close before quitting. */
-				for (j = 0; j < MAX_CLIENT_SESSIONS; j++)
+				for (j = 0; j < MAX_TUNNEL_STREAMS; j++)
 				{
 					if (clientSessions[i].simpleTunnelMsgHandler[j].tunnelStreamHandler.pTunnelStream != NULL)
 				{
@@ -584,7 +584,7 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 				removeClientSessionForChannel(pReactor, pReactorChannel);
 				return RSSL_RC_CRET_SUCCESS;
 			}
-                       // APIQA
+			// APIQA
 			if (pRsslMsg->msgBase.domainType == RSSL_DMT_MARKET_PRICE) {
 				fprintf(stderr, "----------APIQA: Sending a generic message on the LOGIN domain \n\n");
 				sendGenericMessageLogin(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
@@ -593,7 +593,7 @@ RsslReactorCallbackRet defaultMsgCallback(RsslReactor *pReactor, RsslReactorChan
 				fprintf(stderr, "----------APIQA: Sending a generic message on the MP domain \n\n");
 				sendGenericMessageMP(pReactor, pReactorChannel, pRsslMsg->msgBase.msgKey.serviceId);
 			}
-                       // APIQA
+			// APIQA
 			break;
 		default:
 			switch(pRsslMsg->msgBase.msgClass)

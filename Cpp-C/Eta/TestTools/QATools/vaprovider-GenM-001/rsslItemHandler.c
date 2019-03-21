@@ -713,8 +713,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 			RsslBuffer *sendBuf;
 			RsslEncodeIterator encodeIter = RSSL_INIT_ENCODE_ITERATOR;
 
-			// update below line as fix ESDK-1439 if ((sendBuf = rsslReactorGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error)) == NULL)
-			if ((sendBuf = rsslGetBuffer(itemRequestInfoList[i].Chnl, MAX_MSG_SIZE, RSSL_FALSE, &error)) == NULL)
+			if ((sendBuf = rsslReactorGetBuffer(chnl, MAX_MSG_SIZE, RSSL_FALSE, &error)) == NULL)
 			{
 				printf("\n rsslReactorGetBuffer() Failed (rsslErrorId = %d)\n", error.rsslError.rsslErrorId);
 				return RSSL_RET_FAILURE;
@@ -1993,10 +1992,10 @@ static RsslBool isStreamInUse(RsslReactorChannel* pReactorChannel, RsslMsg* msg,
 }
 // APIQA - BEGIN
 /*
- * Send generic message on the LOGIN domain
- * pReactorChannel - The channel to send request reject status message to
- * serviceId - The service id of the request
- */
+* Send generic message on the LOGIN domain
+* pReactorChannel - The channel to send request reject status message to
+* serviceId - The service id of the request
+*/
 RsslRet sendGenericMessageLogin(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 serviceId)
 {
 	RsslErrorInfo rsslErrorInfo;
@@ -2102,10 +2101,10 @@ RsslRet sendGenericMessageLogin(RsslReactor *pReactor, RsslReactorChannel* pReac
 
 
 /*
- * Send generic message on the SOURCE directory domain
- * pReactorChannel - The channel to send request reject status message to
- * serviceId - The service id of the request
- */
+* Send generic message on the SOURCE directory domain
+* pReactorChannel - The channel to send request reject status message to
+* serviceId - The service id of the request
+*/
 RsslRet sendGenericMessageSource(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 serviceId)
 {
 	RsslErrorInfo rsslErrorInfo;
@@ -2211,66 +2210,66 @@ RsslRet sendGenericMessageSource(RsslReactor *pReactor, RsslReactorChannel* pRea
 }
 
 /*
- * Send generic message on the MP domain
- * pReactorChannel - The channel to send request reject status message to
- * serviceId - The service id of the request
- */
+* Send generic message on the MP domain
+* pReactorChannel - The channel to send request reject status message to
+* serviceId - The service id of the request
+*/
 RsslRet sendGenericMessageMP(RsslReactor *pReactor, RsslReactorChannel* pReactorChannel, RsslInt32 serviceId)
 {
-    RsslErrorInfo rsslErrorInfo;
-    RsslRet ret = 0;
-    RsslGenericMsg genericMsg = RSSL_INIT_GENERIC_MSG;
-    RsslEncodeIterator encodeIter;
-    char nameBuf[MAX_ITEM_INFO_STRLEN];
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet ret = 0;
+	RsslGenericMsg genericMsg = RSSL_INIT_GENERIC_MSG;
+	RsslEncodeIterator encodeIter;
+	char nameBuf[MAX_ITEM_INFO_STRLEN];
 
-    RsslBuffer* msgBuf = 0;
+	RsslBuffer* msgBuf = 0;
 
-    /* get a buffer for the item request reject status */
-    msgBuf = rsslReactorGetBuffer(pReactorChannel, MAX_MSG_SIZE, RSSL_FALSE, &rsslErrorInfo);
+	/* get a buffer for the item request reject status */
+	msgBuf = rsslReactorGetBuffer(pReactorChannel, MAX_MSG_SIZE, RSSL_FALSE, &rsslErrorInfo);
 
-    if (msgBuf != NULL)
-    {
-        /* encode generic msg login */
-        genericMsg.msgBase.msgClass = RSSL_MC_GENERIC;
-        genericMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
-        genericMsg.msgBase.streamId = 3;
-        genericMsg.msgBase.containerType = RSSL_DT_NO_DATA;
-        genericMsg.flags |= RSSL_GNMF_HAS_MSG_KEY;
-        snprintf(nameBuf, MAX_ITEM_INFO_STRLEN, "%s", "GenMsg on MP StreamId 1 and on MP domain");
-        genericMsg.msgBase.msgKey.name.data = nameBuf;
-        genericMsg.msgBase.msgKey.name.length = (RsslUInt32)strlen(nameBuf);
-        genericMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
+	if (msgBuf != NULL)
+	{
+		/* encode generic msg login */
+		genericMsg.msgBase.msgClass = RSSL_MC_GENERIC;
+		genericMsg.msgBase.domainType = RSSL_DMT_MARKET_PRICE;
+		genericMsg.msgBase.streamId = 3;
+		genericMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+		genericMsg.flags |= RSSL_GNMF_HAS_MSG_KEY;
+		snprintf(nameBuf, MAX_ITEM_INFO_STRLEN, "%s", "GenMsg on MP StreamId 1 and on MP domain");
+		genericMsg.msgBase.msgKey.name.data = nameBuf;
+		genericMsg.msgBase.msgKey.name.length = (RsslUInt32)strlen(nameBuf);
+		genericMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
 
-        rsslClearEncodeIterator(&encodeIter);
-        if((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) < RSSL_RET_SUCCESS)
-        {
-            rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
-            fprintf(stderr, "\nsendGenericMessageMP: rsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
-            return ret;
-        }
-        rsslSetEncodeIteratorRWFVersion(&encodeIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
-        if ((ret = rsslEncodeMsg(&encodeIter, (RsslMsg*)&genericMsg)) < RSSL_RET_SUCCESS)
-        {
-            rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
-            fprintf(stderr, "\nsendGenericMessageMP: rsslEncodeMsg() failed with return code: %d\n", ret);
-            return ret;
-        }
+		rsslClearEncodeIterator(&encodeIter);
+		if ((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) < RSSL_RET_SUCCESS)
+		{
+			rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
+			fprintf(stderr, "\nsendGenericMessageMP: rsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
+			return ret;
+		}
+		rsslSetEncodeIteratorRWFVersion(&encodeIter, pReactorChannel->majorVersion, pReactorChannel->minorVersion);
+		if ((ret = rsslEncodeMsg(&encodeIter, (RsslMsg*)&genericMsg)) < RSSL_RET_SUCCESS)
+		{
+			rsslReactorReleaseBuffer(pReactorChannel, msgBuf, &rsslErrorInfo);
+			fprintf(stderr, "\nsendGenericMessageMP: rsslEncodeMsg() failed with return code: %d\n", ret);
+			return ret;
+		}
 
-        msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+		msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
 
-        /* send generic message login */
-        if (sendMessage(pReactor, pReactorChannel, msgBuf) != RSSL_RET_SUCCESS)
-        {
-            fprintf(stderr, "\n\n-------------APIQ: Error submitting generic message on MP domain streamId=%d.\n", 3);
-            return RSSL_RET_FAILURE;
-        }
-    }
-    else
-    {
-        fprintf(stderr, "sendGenericMessageMP: rsslReactorGetBuffer(): Failed <%s>\n", rsslErrorInfo.rsslError.text);
-        return RSSL_RET_FAILURE;
-    }
+		/* send generic message login */
+		if (sendMessage(pReactor, pReactorChannel, msgBuf) != RSSL_RET_SUCCESS)
+		{
+			fprintf(stderr, "\n\n-------------APIQ: Error submitting generic message on MP domain streamId=%d.\n", 3);
+			return RSSL_RET_FAILURE;
+		}
+	}
+	else
+	{
+		fprintf(stderr, "sendGenericMessageMP: rsslReactorGetBuffer(): Failed <%s>\n", rsslErrorInfo.rsslError.text);
+		return RSSL_RET_FAILURE;
+	}
 
-    return RSSL_RET_SUCCESS;
+	return RSSL_RET_SUCCESS;
 }
 // APIQA  - END
