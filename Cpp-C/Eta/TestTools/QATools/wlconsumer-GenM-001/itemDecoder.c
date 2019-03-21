@@ -113,12 +113,12 @@ RsslRet decodeDataBody(RsslReactorChannel *pChannel, RsslMsg *pRsslMsg)
 
 		case RSSL_DMT_SYMBOL_LIST:
 			return decodeSymbolListDataBody(pChannel, pRsslMsg);
-        //APIQA
+			//APIQA
 		case RSSL_DMT_LOGIN:
 			return decodeGenericMsgDataBody(pChannel, pRsslMsg);
 		case RSSL_DMT_SOURCE:
 			return decodeGenericMsgDataBody(pChannel, pRsslMsg);
-		//END APIQA
+			//END APIQA
 		default:
 			printf("Received message with unhandled domain %u\n\n",
 					pRsslMsg->msgBase.domainType);
@@ -846,10 +846,9 @@ RsslRet decodeSymbolListDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *p
 
 	return RSSL_RET_SUCCESS;
 }
-
 //APIQA
 /* Decodes a GenericMsg payload.
- * GenericMsg from provider contain ElementList with one ElementEntry  */
+* GenericMsg from provider contain ElementList with one ElementEntry  */
 RsslRet decodeGenericMsgDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *pRsslMsg)
 {
 	RsslDecodeIterator dIter;
@@ -867,7 +866,7 @@ RsslRet decodeGenericMsgDataBody(RsslReactorChannel *pReactorChannel, RsslMsg *p
 
 	rsslClearDecodeIterator(&dIter);
 	rsslSetDecodeIteratorRWFVersion(&dIter, pReactorChannel->pRsslChannel->majorVersion,
-			pReactorChannel->pRsslChannel->minorVersion);
+		pReactorChannel->pRsslChannel->minorVersion);
 	rsslSetDecodeIteratorBuffer(&dIter, &pRsslMsg->msgBase.encDataBody);
 
 	if ((ret = rsslDecodeElementList(&dIter, &eList, &eSet)) != RSSL_RET_SUCCESS)
