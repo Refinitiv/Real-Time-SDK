@@ -820,8 +820,8 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
         }
         
         return ReactorCallbackReturnCodes.SUCCESS;
-    }
-
+    }   
+    
 	/**
 	 * Loads xml file containing item messages to send and add item information
 	 * to be published to item watch list.

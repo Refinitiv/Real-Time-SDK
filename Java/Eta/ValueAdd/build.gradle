@@ -65,7 +65,11 @@ eclipse {
 }
 
 dependencies {
-	testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+        compile group: 'org.json', name: 'json', version: '20180130'
+        compile group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.10'
+
+	// did not change it to compileTest because Eclipse complains about it
+	compile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
 
 	compile project(':Eta:Core')
 
@@ -148,7 +152,7 @@ artifacts {
 test {
         // set to true to see the junit stdoutput
         testLogging.showStandardStreams = false
-//        maxParallelForks = Runtime.runtime.availableProcessors()
         maxParallelForks = 1
+//        maxParallelForks = Runtime.runtime.availableProcessors()
 }
 

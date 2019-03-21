@@ -72,13 +72,14 @@ typedef struct {
 	RsslQueueLink	queueLink;	// This is usd to keep in the buffer pool
 	char*			pStartPos;
 	char*			pCurrentPos;
-	RsslUInt32		remaningLength;
+	RsslUInt32		remainingLength;
 	RsslUInt32		bufferLength;
 	RsslBool		isOwnedByRestClient; // whether the memory is allocated by RsslRestClient
 } RsslRestBufferImpl;
 
 typedef struct {
 	RsslRestResponse*	pRestResponse;
+	RsslUInt32			headerLength;
 	RsslRestBufferImpl	restBufferImpl;
 }RsslRestResponseImpl;
 
@@ -157,6 +158,7 @@ void _rsslClearRestBufferImpl(RsslRestBufferImpl* rsslRestBufferImpl)
 void _rsslClearRestResponseImpl(RsslRestResponseImpl* rsslRestResponseImpl)
 {
 	rsslRestResponseImpl->pRestResponse = 0;
+	rsslRestResponseImpl->headerLength = 0;
 	_rsslClearRestBufferImpl(&rsslRestResponseImpl->restBufferImpl);
 }
 
@@ -201,19 +203,19 @@ void _rsslRestSetToRsslRestBufferImpl(RsslBuffer* memoryBuffer, RsslRestBufferIm
 	restBufferImpl->pStartPos = memoryBuffer->data;
 	restBufferImpl->bufferLength = memoryBuffer->length;
 	restBufferImpl->pCurrentPos = memoryBuffer->data;
-	restBufferImpl->remaningLength = memoryBuffer->length;
+	restBufferImpl->remainingLength = memoryBuffer->length;
 }
 
 RsslRet _rsslRestGetBuffer(RsslBuffer* destBuffer, RsslUInt32 requiredSize, RsslRestBufferImpl* restBufferImpl)
 {
-	if (requiredSize > restBufferImpl->remaningLength)
+	if (requiredSize > restBufferImpl->remainingLength)
 	{
 		return RSSL_RET_BUFFER_TOO_SMALL;
 	}
 
 	destBuffer->data = restBufferImpl->pCurrentPos;
 	restBufferImpl->pCurrentPos += requiredSize;
-	restBufferImpl->remaningLength -= requiredSize;
+	restBufferImpl->remainingLength -= requiredSize;
 
 	return RSSL_RET_SUCCESS;
 }
@@ -222,11 +224,12 @@ RsslRestBufferImpl* _rsslRestCreateBufferImpl(size_t bufferSize)
 {
 	RsslRestBufferImpl* pRestBufferImpl = (RsslRestBufferImpl*)malloc(sizeof(RsslRestBufferImpl));
 
-	_rsslClearRestBufferImpl(pRestBufferImpl);
-
 	if (pRestBufferImpl)
 	{
 		RsslBuffer tempBuffer;
+
+		_rsslClearRestBufferImpl(pRestBufferImpl);
+
 		tempBuffer.length = (RsslUInt32)bufferSize;
 		tempBuffer.data = (char*)malloc(bufferSize);
 
@@ -305,7 +308,7 @@ void _returnRsslRestBufferImplToPool(RsslRestClientImpl* rsslRestClientImpl, Rss
 	{
 		// Reset RsslRestBufferImpl to original state
 		rsslRestBufferImpl->pCurrentPos = rsslRestBufferImpl->pStartPos;
-		rsslRestBufferImpl->remaningLength = rsslRestBufferImpl->bufferLength;
+		rsslRestBufferImpl->remainingLength = rsslRestBufferImpl->bufferLength;
 		rsslInitQueueLink(&rsslRestBufferImpl->queueLink);
 
 		rsslQueueAddLinkToBack(&rsslRestClientImpl->headerBufferPool, &rsslRestBufferImpl->queueLink);
@@ -382,6 +385,24 @@ struct curl_slist * _rsslRestExtractHeaderInfo(CURL* curl, RsslRestRequestArgs* 
 	return pHeaderList;
 }
 
+void notifyResponseCallback(RsslRestHandleImpl* handleImpl)
+{
+	RsslRestResponseImpl* restResponseImpl = (RsslRestResponseImpl*)(&handleImpl->rsslRestResponseImpl);
+	RsslRestResponseEvent rsslRestResponseEvent;
+	RsslRestResponse*     restResponse = restResponseImpl->pRestResponse;
+
+	rsslClearRestResponseEvent(&rsslRestResponseEvent);
+	rsslRestResponseEvent.handle = &handleImpl->rsslRestHandle;
+	rsslRestResponseEvent.closure = handleImpl->userPtr;
+	rsslRestResponseEvent.userMemory = handleImpl->pUserMemory;
+
+	// Notify only when there is no error
+	if ( (handleImpl->pRsslRestReponseCallback) && (handleImpl->rsslError.rsslErrorId == RSSL_RET_SUCCESS) )
+	{
+		(*handleImpl->pRsslRestReponseCallback)(restResponse, &rsslRestResponseEvent);
+	}
+}
+
 size_t rssl_rest_write_databody_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	RsslRestHandleImpl*   handleImpl = (RsslRestHandleImpl*)userdata;
@@ -389,19 +410,40 @@ size_t rssl_rest_write_databody_callback(char *ptr, size_t size, size_t nmemb, v
 	RsslRestBufferImpl*   restBufferImpl = &restResponseImpl->restBufferImpl;
 	RsslRestResponse*     restResponse = restResponseImpl->pRestResponse;
 	RsslRestResponseEvent rsslRestResponseEvent;
+	RsslUInt32			  prevDataBodyLength = 0;
+	RsslBuffer			  writeDataBody;
+	RsslBuffer*			  pDataBodyTemp = 0;
 	size_t retValue = size * nmemb;
+
+	// Do not write data body portion if there is an error when writing the header portion.
+	if (handleImpl->rsslError.rsslErrorId != RSSL_RET_SUCCESS)
+		return retValue;
 
 	rsslClearRestResponseEvent(&rsslRestResponseEvent);
 	rsslRestResponseEvent.handle = &handleImpl->rsslRestHandle;
 	rsslRestResponseEvent.closure = handleImpl->userPtr;
 	rsslRestResponseEvent.userMemory = handleImpl->pUserMemory;
 
-	restResponse->dataBody.length = (RsslUInt32)retValue;
+	rsslClearBuffer(&writeDataBody);
 
-	if (handleImpl->pRsslRestClientImpl->dynamicBufferSize && (restResponse->dataBody.length + 1 > restBufferImpl->remaningLength) )
+	if (restResponse->dataBody.length == 0)
+	{
+		prevDataBodyLength = 0;
+		restResponse->dataBody.length = (RsslUInt32)retValue;
+		pDataBodyTemp = &restResponse->dataBody;
+	}
+	else
+	{
+		prevDataBodyLength = restResponse->dataBody.length;
+		restResponse->dataBody.length += (RsslUInt32)retValue;
+		writeDataBody.length = (RsslUInt32)retValue;
+		pDataBodyTemp = &writeDataBody;
+	}
+
+	if (handleImpl->pRsslRestClientImpl->dynamicBufferSize && (restResponse->dataBody.length > restBufferImpl->remainingLength) )
 	{
 		RsslBuffer rsslBuffer;
-		rsslBuffer.length = (restBufferImpl->bufferLength - restBufferImpl->remaningLength + restResponse->dataBody.length + 1) 
+		rsslBuffer.length = (restResponseImpl->headerLength + restResponse->dataBody.length)
 			+ RSSL_REST_PADDING_BUF_SIZE;
 
 		rsslBuffer.data = (char*)malloc(rsslBuffer.length);
@@ -463,8 +505,6 @@ size_t rssl_rest_write_databody_callback(char *ptr, size_t size, size_t nmemb, v
 				}
 			}
 
-			if (oldOrigin) free(oldOrigin); // free the old memory
-
 			while ((pLink = rsslQueueRemoveLastLink(&tempQueue)))
 			{
 				pNewRestHeader = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHeader, queueLink, pLink);
@@ -473,10 +513,25 @@ size_t rssl_rest_write_databody_callback(char *ptr, size_t size, size_t nmemb, v
 					rsslQueueAddLinkToBack(&restResponse->headers, &pNewRestHeader->queueLink);
 				}
 			}
+
+			// Copy the previous data body portion if any
+			if (prevDataBodyLength != 0)
+			{
+				RsslBuffer dataBodyTemp;
+				dataBodyTemp.length = prevDataBodyLength;
+				_rsslRestGetBuffer(&dataBodyTemp, dataBodyTemp.length, restBufferImpl);
+				strncpy(dataBodyTemp.data, restResponse->dataBody.data, prevDataBodyLength);
+
+				// Assign databody portion to new memory location
+				restResponse->dataBody.data = dataBodyTemp.data;
+				restResponse->dataBody.length = dataBodyTemp.length;
+			}
+
+			if (oldOrigin) free(oldOrigin); // free the old memory
 		}
 	}
 
-	if (_rsslRestGetBuffer(&restResponse->dataBody, restResponse->dataBody.length + 1, restBufferImpl) == RSSL_RET_BUFFER_TOO_SMALL)
+	if (_rsslRestGetBuffer(pDataBodyTemp, pDataBodyTemp->length, restBufferImpl) == RSSL_RET_BUFFER_TOO_SMALL)
 	{
 		_rsslRestClearError(&handleImpl->rsslError);
 		handleImpl->rsslError.rsslErrorId = RSSL_RET_BUFFER_TOO_SMALL;
@@ -490,19 +545,13 @@ size_t rssl_rest_write_databody_callback(char *ptr, size_t size, size_t nmemb, v
 		return retValue;
 	}
 
-	restResponse->dataBody.data[restResponse->dataBody.length] = '\0';
-	strncpy(restResponse->dataBody.data, ptr, restResponse->dataBody.length);
+	strncpy(pDataBodyTemp->data, ptr, pDataBodyTemp->length);
 	restResponse->isMemReallocated = restBufferImpl->isOwnedByRestClient;
 	
 	if (restResponse->isMemReallocated)
 	{
 		restResponse->reallocatedMem.data = restBufferImpl->pStartPos;
 		restResponse->reallocatedMem.length = restBufferImpl->bufferLength;
-	}
-
-	if (handleImpl->pRsslRestReponseCallback)
-	{
-		(*handleImpl->pRsslRestReponseCallback)(restResponse, &rsslRestResponseEvent);
 	}
 
 	return retValue;
@@ -620,7 +669,7 @@ size_t rssl_rest_write_header_callback_with_dynamic_size(char *ptr, size_t size,
 			if (newRsslBuffer.data == 0)
 				goto Fail;
 
-			dataLength = (restBufferImplTemp->bufferLength - restBufferImplTemp->remaningLength);
+			dataLength = (restBufferImplTemp->bufferLength - restBufferImplTemp->remainingLength);
 
 			strncpy(newRsslBuffer.data, restBufferImplTemp->pStartPos, dataLength);
 			free(restBufferImplTemp->pStartPos);
@@ -628,7 +677,7 @@ size_t rssl_rest_write_header_callback_with_dynamic_size(char *ptr, size_t size,
 			restBufferImplTemp->pStartPos = newRsslBuffer.data;
 			restBufferImplTemp->bufferLength = newRsslBuffer.length;
 			restBufferImplTemp->pCurrentPos = restBufferImplTemp->pStartPos + dataLength;
-			restBufferImplTemp->remaningLength = restBufferImplTemp->bufferLength - dataLength;
+			restBufferImplTemp->remainingLength = restBufferImplTemp->bufferLength - dataLength;
 		}
 
 	} while (ret == RSSL_RET_BUFFER_TOO_SMALL);
@@ -655,7 +704,8 @@ size_t rssl_rest_write_header_callback_with_dynamic_size(char *ptr, size_t size,
 	}
 	else
 	{
-		RsslUInt32 neededHeaderSize = (restBufferImplTemp->bufferLength - restBufferImplTemp->remaningLength) + (handleImpl->numOfHeaders * sizeof(RsslRestHeader));
+		restResponseImpl->headerLength = (restBufferImplTemp->bufferLength - restBufferImplTemp->remainingLength) + (handleImpl->numOfHeaders * sizeof(RsslRestHeader));
+
 		// Reset the content lenght as it represents the compressed data length
 		if (handleImpl->hasContentEncoding)
 		{
@@ -663,18 +713,18 @@ size_t rssl_rest_write_header_callback_with_dynamic_size(char *ptr, size_t size,
 		}
 
 		// Reallocated the memory to ensure that the library can store the entire response.
-		if (restBufferImpl->bufferLength < (neededHeaderSize + handleImpl->contentLength) )
+		if (restBufferImpl->bufferLength < (restResponseImpl->headerLength + handleImpl->contentLength) )
 		{
 			if(restBufferImpl->isOwnedByRestClient)
 				free(restBufferImpl->pStartPos);
 
 			if (handleImpl->contentLength != 0)
 			{
-				rsslBuffer.length = neededHeaderSize + handleImpl->contentLength + RSSL_REST_PADDING_BUF_SIZE;
+				rsslBuffer.length = restResponseImpl->headerLength + handleImpl->contentLength + RSSL_REST_PADDING_BUF_SIZE;
 			}
 			else
 			{
-				rsslBuffer.length = (restBufferImpl->bufferLength * 2) > (neededHeaderSize * 5) ? (restBufferImpl->bufferLength * 2) : (neededHeaderSize * 5);
+				rsslBuffer.length = (restBufferImpl->bufferLength * 2) > (restResponseImpl->headerLength * 5) ? (restBufferImpl->bufferLength * 2) : (restResponseImpl->headerLength * 5);
 				rsslBuffer.length += RSSL_REST_PADDING_BUF_SIZE;
 			}
 			
@@ -727,6 +777,7 @@ size_t rssl_rest_write_header_callback(char *ptr, size_t size, size_t nmemb, voi
 
 	if ( (strncmp(ptr, "\r\n", 2) == 0) || ( handleImpl->rsslError.rsslErrorId != RSSL_RET_SUCCESS ) )
 	{
+		restResponseImpl->headerLength = restBufferImpl->bufferLength - restBufferImpl->remainingLength;
 		return totalSize;
 	}
 
@@ -1011,6 +1062,9 @@ RsslInt64 rsslRestClientDispatch(RsslRestClient* RsslRestClient)
 	CURLMcode mcode;
 	struct CURLMsg *pCurlMsg = NULL;
 	int msginqueue = 0;
+	RsslHashLink *pRsslHashLink = NULL;
+	RsslRestHandleImpl *pRestHandleImpl = NULL;
+	CURL *pHandle = NULL;
 
 	mcode = (*(rssl_rest_CurlJITFuncs->curl_multi_perform))(rsslRestClientImpl->pCURLM, &still_running);
 	
@@ -1023,20 +1077,23 @@ RsslInt64 rsslRestClientDispatch(RsslRestClient* RsslRestClient)
 	do {
 		pCurlMsg = (*(rssl_rest_CurlJITFuncs->curl_multi_info_read))(rsslRestClientImpl->pCURLM, &msginqueue);
 		if (pCurlMsg && (pCurlMsg->msg == CURLMSG_DONE)) {
+
+			pHandle = pCurlMsg->easy_handle;
+
+			pRsslHashLink = rsslHashTableFind(&rsslRestClientImpl->restHandleImplTable, (void*)pHandle, NULL);
 			
-			if (pCurlMsg->data.result != CURLE_OK)
+			if (pRsslHashLink)
 			{
-				RsslHashLink *pRsslHashLink = NULL;
-				RsslRestHandleImpl *pRestHandleImpl = NULL;
-				RsslRestResponseEvent rsslRestResponseEvent;
-				CURL *pHandle = pCurlMsg->easy_handle;
+				pRestHandleImpl = RSSL_HASH_LINK_TO_OBJECT(RsslRestHandleImpl, hashLink, pRsslHashLink);
 
-				/* Fires the RsslRestErrorCallback event when an error occurs */
-				pRsslHashLink = rsslHashTableFind(&rsslRestClientImpl->restHandleImplTable, (void*)pHandle, NULL);
-
-				if (pRsslHashLink)
+				if (pCurlMsg->data.result == CURLE_OK)
 				{
-					pRestHandleImpl = RSSL_HASH_LINK_TO_OBJECT(RsslRestHandleImpl, hashLink, pRsslHashLink);
+					notifyResponseCallback(pRestHandleImpl);
+				}
+				else
+				{
+					/* Fires the RsslRestErrorCallback event when an error occurs */
+					RsslRestResponseEvent rsslRestResponseEvent;
 
 					_rsslRestClearError(&pRestHandleImpl->rsslError);
 					pRestHandleImpl->rsslError.rsslErrorId = RSSL_RET_FAILURE;
@@ -1049,7 +1106,6 @@ RsslInt64 rsslRestClientDispatch(RsslRestClient* RsslRestClient)
 
 					if (pRestHandleImpl->pRsslRestErrorCallback)
 						(*pRestHandleImpl->pRsslRestErrorCallback)(&pRestHandleImpl->rsslError, &rsslRestResponseEvent);
-
 				}
 			}
 		}

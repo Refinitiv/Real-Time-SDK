@@ -26,13 +26,14 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
 
 public class ReactorRolesJunit
 {
-    class ConsumerCallbackHandler implements ConsumerCallback
+    class ConsumerCallbackHandler implements ConsumerCallback, ReactorAuthTokenEventCallback
     {
     	int _reactorChannelEventCallbackCount;
     	int _defaultMsgCallbackCount;
     	int _rdmLoginMsgCallbackCount;
     	int _rdmDirectoryMsgCallbackCount;
     	int _rdmDictionaryMsgCallbackCount;
+    	int _authTokenEventCallbackCount;
     	    	
 		@Override
 		public int reactorChannelEventCallback(ReactorChannelEvent event)
@@ -68,6 +69,13 @@ public class ReactorRolesJunit
 			_rdmDictionaryMsgCallbackCount++;
 			return ReactorCallbackReturnCodes.SUCCESS;
 		}
+		
+		@Override
+		public int reactorAuthTokenEventCallback(ReactorAuthTokenEvent event)
+		{
+			_authTokenEventCallbackCount++;
+			return ReactorCallbackReturnCodes.SUCCESS;
+		}		
     }
 
     class ProviderCallbackHandler implements ProviderCallback
@@ -114,11 +122,12 @@ public class ReactorRolesJunit
 		}    	
     }
     
-    class NIProviderCallbackHandler implements NIProviderCallback
+    class NIProviderCallbackHandler implements NIProviderCallback, ReactorAuthTokenEventCallback
     {
     	int _reactorChannelEventCallbackCount;
     	int _defaultMsgCallbackCount;
     	int _rdmLoginMsgCallbackCount;
+    	int _authTokenEventCallbackCount;
 
     	@Override
 		public int reactorChannelEventCallback(ReactorChannelEvent event) {
@@ -137,6 +146,12 @@ public class ReactorRolesJunit
 			_rdmLoginMsgCallbackCount++;
 			return ReactorCallbackReturnCodes.SUCCESS;
 		}
+		
+	    @Override
+	    public int reactorAuthTokenEventCallback(ReactorAuthTokenEvent event)
+	    {   _authTokenEventCallbackCount++;
+	        return ReactorCallbackReturnCodes.SUCCESS;
+	    }		
     }
     
     @Test

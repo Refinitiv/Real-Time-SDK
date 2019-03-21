@@ -48,6 +48,8 @@ public :
 
 	void clear();
 
+	void setData(const char* buf, UInt32 length);
+
 private :
 	
 	void reallocateRmtesCacheBuffer( const char* errorText ); 

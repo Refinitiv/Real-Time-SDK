@@ -19,6 +19,7 @@ import com.thomsonreuters.upa.codec.CloseMsg;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
+import com.thomsonreuters.upa.codec.DataDictionary;
 import com.thomsonreuters.upa.codec.DataStates;
 import com.thomsonreuters.upa.codec.DataTypes;
 import com.thomsonreuters.upa.codec.EncodeIterator;
@@ -70,7 +71,12 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorFactory;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorMsgEvent;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorOptions;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorReturnCodes;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceDiscoveryOptions;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorDiscoveryTransportProtocol;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceEndpointEvent;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceEndpointEventCallback;
+import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceEndpointInfo;
 
 /**
  * <p>
@@ -184,19 +190,23 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  * <li>-krbfile Proxy KRB file. 
  * <li>-keyfile keystore file for encryption.
  * <li>-keypasswd keystore password for encryption.
+ * <li>-qSourceName (optional) specifies the source name for queue messages (if specified, configures consumer to receive queue messages)"
+ * <li>-qDestName (optional) specifies the destination name for queue messages (if specified, configures consumer to send queue messages to this name, multiple instances may be specified)"
  * <li>-tunnel (optional) enables consumer to open tunnel stream and send basic text messages
- * <li>-tsServiceName (optional) specifies the service name for tunnel stream messages (if not specified, the service name specified in -c/-tcp is used)"
- * <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams.
- * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams.
+ * <li>-tsServiceName (optional) specifies the service name for queue messages (if not specified, the service name specified in -c/-tcp is used)"
+ * <li>-tsAuth (optional) specifies that consumer will request authentication when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
+ * <li>-tsDomain (optional) specifies the domain that consumer will use when opening the tunnel stream. This applies to basic tunnel streams and those opened for queue messaging.
  * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
  * <li>-ax Specifies the Authentication Extended information.
  * <li>-aid Specifies the Application ID.
  * </ul>
- */
-public class WatchlistConsumer implements ConsumerCallback
+ */ 
+public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpointEventCallback
 {
     private final String FIELD_DICTIONARY_DOWNLOAD_NAME = "RWFFld";
     private final String ENUM_TABLE_DOWNLOAD_NAME = "RWFEnum";
+    private final String FIX_FIELD_DICTIONARY_FILE_NAME = "FDMFixFieldDictionary";
+    private final String FIX_ENUM_TABLE_FILE_NAME = "FDMenumtypes.def";
     
     private Reactor reactor;
     private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
@@ -208,12 +218,16 @@ public class WatchlistConsumer implements ConsumerCallback
     private long runtime;        
     private Error error;    // error information
     
+    private DataDictionary fixdictionary;
+    
     private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+    ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = 
+    		ReactorFactory.createReactorServiceDiscoveryOptions();
     
 	ArrayList<ChannelInfo> chnlInfoList = new ArrayList<ChannelInfo>();
 
     private TunnelStreamHandler tunnelStreamHandler;
-    private String tsServiceName;
+    private String qServiceName;
    
 	long cacheTime;
 	long cacheInterval;
@@ -244,9 +258,13 @@ public class WatchlistConsumer implements ConsumerCallback
     private CloseMsg closeMsg = (CloseMsg)CodecFactory.createMsg();
     private ItemRequest itemRequest;
     Buffer payload;
+    
+    boolean flag = false;
         
     public WatchlistConsumer()
     {
+        fixdictionary = CodecFactory.createDataDictionary();
+        
         error = TransportFactory.createError();
       
         dispatchOptions.maxMessages(1);
@@ -300,7 +318,7 @@ public class WatchlistConsumer implements ConsumerCallback
         {
         	reactorOptions.enableXmlTracing();
         }
-         
+        
 		// create reactor
 	    reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 	    if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
@@ -308,7 +326,6 @@ public class WatchlistConsumer implements ConsumerCallback
         	System.out.println("createReactor() failed: " + errorInfo.toString());
         	System.exit(ReactorReturnCodes.FAILURE);	    	
 	    }
-	    
         // register selector with reactor's reactorChannel.
         try
         {
@@ -326,23 +343,23 @@ public class WatchlistConsumer implements ConsumerCallback
          * for each connection specified */
         for (ConnectionArg connectionArg : watchlistConsumerConfig.connectionList())
         {
-        	// create channel info
+		// create channel info
         	ChannelInfo chnlInfo = new ChannelInfo();
         	chnlInfo.connectionArg = connectionArg;
-        	
+	
         	// initialize channel info
         	initChannelInfo(chnlInfo);
-	
+
 	        // connect channel
-	        int ret;
+        	int ret;
 	        if ((ret = reactor.connect(chnlInfo.connectOptions, chnlInfo.consumerRole, errorInfo)) < ReactorReturnCodes.SUCCESS)
 	        {
 	        	System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
 	        	System.exit(ReactorReturnCodes.FAILURE);
 	        }
-	        
-	        // add to ChannelInfo list
-	        chnlInfoList.add(chnlInfo);
+
+                // add to ChannelInfo list
+                chnlInfoList.add(chnlInfo);
         }              
     }
     
@@ -420,6 +437,7 @@ public class WatchlistConsumer implements ConsumerCallback
 	        if (!closeHandled)
 	        {
 	        	handlePosting();
+	        	handleQueueMessaging();
 	        	handleTunnelStream();
 	        	
 		        // send login reissue if login reissue time has passed
@@ -441,12 +459,13 @@ public class WatchlistConsumer implements ConsumerCallback
 						chnlInfo.canSendLoginReissue = false;
 	        		}
 	        	}
-	        }
-
+	        }	        
+	 
 	        if(closeHandled && tunnelStreamHandler != null && tunnelStreamHandler._chnlInfo != null &&
 	           !tunnelStreamHandler._chnlInfo.isTunnelStreamUp) 
 	        	break;
-	        if(closeHandled && tunnelStreamHandler == null)
+	        
+	        if(closeHandled && tunnelStreamHandler == null) 
 	        	break;
 		}		
 	}
@@ -699,7 +718,7 @@ public class WatchlistConsumer implements ConsumerCallback
     	            	        
     	        itemsRequested = false;
     	        chnlInfo.hasServiceInfo = false;
-    	        chnlInfo.hasTunnelStreamServiceInfo = false;
+    	        chnlInfo.hasQServiceInfo = false;
                 break;
     		}
     		case ReactorChannelEventTypes.CHANNEL_DOWN:
@@ -929,7 +948,7 @@ public class WatchlistConsumer implements ConsumerCallback
 				if (chnlInfo.loginRefresh.checkHasAuthenticationTTReissue())
 				{
 					chnlInfo.loginReissueTime = chnlInfo.loginRefresh.authenticationTTReissue() * 1000;
-					chnlInfo.canSendLoginReissue = true;
+					chnlInfo.canSendLoginReissue = watchlistConsumerConfig.enableSessionManagement() ? false : true;
 				}
 				
 				break;
@@ -989,17 +1008,17 @@ public class WatchlistConsumer implements ConsumerCallback
 			                	}
 								chnlInfo.hasServiceInfo = true;
 						}
-		                if (service.info().serviceName().toString().equals(tsServiceName))
+		                if (service.info().serviceName().toString().equals(qServiceName))
 		                {
 		                    // save serviceInfo associated with requested service name
-		                    if (service.copy(chnlInfo.tsServiceInfo) < CodecReturnCodes.SUCCESS)
+		                    if (service.copy(chnlInfo.qServiceInfo) < CodecReturnCodes.SUCCESS)
 		                    {
 		                        System.out.println("Service.copy() failure");
 		                        uninitialize();
 		                        System.exit(ReactorReturnCodes.FAILURE);                    
 		                    }
 		                    
-		                    chnlInfo.hasTunnelStreamServiceInfo = true;
+		                    chnlInfo.hasQServiceInfo = true;
 		                }
 			        }
 				}
@@ -1008,7 +1027,6 @@ public class WatchlistConsumer implements ConsumerCallback
 				DirectoryUpdate directoryUpdate = (DirectoryUpdate)event.rdmDirectoryMsg();
 
 			    serviceName = chnlInfo.connectionArg.service();
-			    String tsServiceName = chnlInfo.connectionArg.tsService();
 			    System.out.println("Received Source Directory Update");
 			    System.out.println(directoryUpdate.toString());
 			    
@@ -1024,12 +1042,12 @@ public class WatchlistConsumer implements ConsumerCallback
 			    		chnlInfo.serviceInfo.action(MapEntryActions.DELETE);
 			    	}
 			            
-			    	if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.tsServiceInfo.serviceId() ) 
+			    	if (service.action() == MapEntryActions.DELETE && service.serviceId() == chnlInfo.qServiceInfo.serviceId() ) 
 			    	{
-			    		chnlInfo.tsServiceInfo.action(MapEntryActions.DELETE);
+			    		chnlInfo.qServiceInfo.action(MapEntryActions.DELETE);
 			    	}
 			            
-			    	boolean updateServiceInfo = false, updateTSServiceInfo = false;
+			    	boolean updateServiceInfo = false;
 			    	if(service.info().serviceName().toString() != null)
 			    	{
 			    		System.out.println("Received serviceName: " + service.info().serviceName() + "\n");
@@ -1039,10 +1057,9 @@ public class WatchlistConsumer implements ConsumerCallback
 			    		{
 			    			updateServiceInfo = true;
 			    		}
-			    		if (service.info().serviceName().toString().equals(tsServiceName) ||
-			    				service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
+			    		if (service.info().serviceName().toString().equals(qServiceName) ||
+			    				service.serviceId() == chnlInfo.qServiceInfo.serviceId())
 			    		{
-			    			updateTSServiceInfo = true;
 			    		}
 			    	}
 			    	else
@@ -1051,9 +1068,8 @@ public class WatchlistConsumer implements ConsumerCallback
 			    		{
 			    			updateServiceInfo = true;
 			    		}
-			    		if (service.serviceId() == chnlInfo.tsServiceInfo.serviceId())
+			    		if (service.serviceId() == chnlInfo.qServiceInfo.serviceId())
 			    		{
-			    			updateTSServiceInfo = true;
 			    		}
 			    	}
 			            
@@ -1067,18 +1083,6 @@ public class WatchlistConsumer implements ConsumerCallback
 			    			System.exit(ReactorReturnCodes.FAILURE);                    
 			    		}
 			    		chnlInfo.hasServiceInfo = true;
-			    	}
-			    	if (updateTSServiceInfo)
-			    	{
-			    		// update serviceInfo associated with requested service name
-			    		if (service.copy(chnlInfo.tsServiceInfo) < CodecReturnCodes.SUCCESS)
-			    		{
-			    			System.out.println("Service.copy() failure");
-			    			uninitialize();
-			    			System.exit(ReactorReturnCodes.FAILURE);                    
-			    		}
-
-			    		chnlInfo.hasTunnelStreamServiceInfo = true;                
 			    	}
 			    }
 				
@@ -1128,7 +1132,7 @@ public class WatchlistConsumer implements ConsumerCallback
 				System.out.println(" Service in use for tunnel streams does not support them: \n"						 
 						+ chnlInfo.connectionArg.tsService());
 			}
-            else if (isRequestedTunnelStreamServiceUp(chnlInfo))
+            else if (isRequestedQServiceUp(chnlInfo))
             {
                 if (tunnelStreamHandler.openStream(chnlInfo, errorInfo) != ReactorReturnCodes.SUCCESS)
                 {
@@ -1266,8 +1270,37 @@ public class WatchlistConsumer implements ConsumerCallback
 		System.out.println("");
 		
 		return ReactorCallbackReturnCodes.SUCCESS;
-	}
-	
+	}   
+    
+    @Override
+	public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event)
+	{
+    	if ( event.errorInfo().code() == ReactorReturnCodes.SUCCESS)
+    	{
+	    	List<ReactorServiceEndpointInfo> serviceEndpointInfoList = event.serviceEndpointInfo();
+	    	
+	    	for (int i = 0; i < serviceEndpointInfoList.size(); i++)
+	    	{
+	    		ReactorServiceEndpointInfo info = serviceEndpointInfoList.get(i);
+	    		if (info.locationList().size() == 2) // Get an endpoint that provides auto failover for the specified location
+	    		{
+	    			if (watchlistConsumerConfig.location() != null && info.locationList().get(0).startsWith(watchlistConsumerConfig.location()))
+					{  				
+						watchlistConsumerConfig.connectionList().get(0).hostname(info.endPoint());
+						watchlistConsumerConfig.connectionList().get(0).port(info.port());
+						break;
+					}
+	    		}
+	    	}
+    	}
+	    else
+	    {
+	    	System.out.println("Error requesting Service Discovery Endpoint Information: " + event.errorInfo().toString());
+	    	System.exit(ReactorReturnCodes.FAILURE);
+	    }
+    	
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}     
 
     public boolean isRequestedServiceUp(ChannelInfo chnlInfo)
     {
@@ -1276,11 +1309,11 @@ public class WatchlistConsumer implements ConsumerCallback
                 chnlInfo.serviceInfo.state().acceptingRequests() == 1) && chnlInfo.serviceInfo.state().serviceState() == 1;
     }
 
-    public boolean isRequestedTunnelStreamServiceUp(ChannelInfo chnlInfo)
+    public boolean isRequestedQServiceUp(ChannelInfo chnlInfo)
     {
-        return  chnlInfo.hasTunnelStreamServiceInfo &&
-            chnlInfo.tsServiceInfo.checkHasState() && (!chnlInfo.tsServiceInfo.state().checkHasAcceptingRequests() ||
-                chnlInfo.tsServiceInfo.state().acceptingRequests() == 1) && chnlInfo.tsServiceInfo.state().serviceState() == 1;
+        return  chnlInfo.hasQServiceInfo &&
+            chnlInfo.qServiceInfo.checkHasState() && (!chnlInfo.qServiceInfo.state().checkHasAcceptingRequests() ||
+                chnlInfo.qServiceInfo.state().acceptingRequests() == 1) && chnlInfo.qServiceInfo.state().serviceState() == 1;
     }
 
     private void checkAndInitPostingSupport(ChannelInfo chnlInfo)
@@ -1374,6 +1407,20 @@ public class WatchlistConsumer implements ConsumerCallback
     	}
     }
 
+    private void handleQueueMessaging()
+    {
+        for (ChannelInfo chnlInfo : chnlInfoList)
+        {
+            if (chnlInfo.loginRefresh == null ||
+                chnlInfo.serviceInfo == null ||
+                chnlInfo.reactorChannel == null ||
+                chnlInfo.reactorChannel.state() != ReactorChannel.State.READY)
+            {
+                continue;
+            }
+        }
+    }
+
     private void handleTunnelStream()
     {
         for (ChannelInfo chnlInfo : chnlInfoList)
@@ -1417,10 +1464,68 @@ public class WatchlistConsumer implements ConsumerCallback
         chnlInfo.consumerRole.initDefaultRDMDirectoryRequest();
         
 		// use command line login user name if specified
-        if (watchlistConsumerConfig.userName() != null && !watchlistConsumerConfig.userName().equals(""))
+        if (watchlistConsumerConfig.userName() != null && !watchlistConsumerConfig.userName().isEmpty())
         {
             chnlInfo.consumerRole.rdmLoginRequest().userName().data(watchlistConsumerConfig.userName());
-        }        
+            reactorServiceDiscoveryOptions.userName().data(watchlistConsumerConfig.userName());
+        }
+        
+        if (watchlistConsumerConfig.password() != null && !watchlistConsumerConfig.password().isEmpty())
+        {
+            chnlInfo.consumerRole.rdmLoginRequest().password().data(watchlistConsumerConfig.password());
+            chnlInfo.consumerRole.rdmLoginRequest().applyHasPassword();
+            reactorServiceDiscoveryOptions.password().data(watchlistConsumerConfig.password());
+        }
+        
+        if (watchlistConsumerConfig.clientId() != null && !watchlistConsumerConfig.clientId().isEmpty())
+        {
+        	chnlInfo.consumerRole.clientId().data(watchlistConsumerConfig.clientId());
+        	reactorServiceDiscoveryOptions.clientId().data(watchlistConsumerConfig.clientId());
+        }
+        
+        if (watchlistConsumerConfig.proxyHostname() != null && !watchlistConsumerConfig.proxyHostname().isEmpty())
+        {
+        	reactorServiceDiscoveryOptions.proxyHostName().data(watchlistConsumerConfig.proxyHostname());
+        }
+        
+        if (watchlistConsumerConfig.proxyPort() != null && !watchlistConsumerConfig.proxyPort().isEmpty())
+        {
+        	reactorServiceDiscoveryOptions.proxyPort().data(watchlistConsumerConfig.proxyPort());
+        }
+        
+        if (watchlistConsumerConfig.proxyUsername() != null && !watchlistConsumerConfig.proxyUsername().isEmpty())
+        {
+        	reactorServiceDiscoveryOptions.proxyUserName().data(watchlistConsumerConfig.proxyUsername());
+        }
+        
+        if (watchlistConsumerConfig.proxyPassword() != null && !watchlistConsumerConfig.proxyPassword().isEmpty())
+        {
+        	reactorServiceDiscoveryOptions.proxyPassword().data(watchlistConsumerConfig.proxyPassword());
+        }
+        
+        if (watchlistConsumerConfig.proxyDomain() != null && !watchlistConsumerConfig.proxyDomain().isEmpty())
+        {
+        	reactorServiceDiscoveryOptions.proxyDomain().data(watchlistConsumerConfig.proxyDomain());
+        }
+        
+        if (watchlistConsumerConfig.krbFile() != null && !watchlistConsumerConfig.krbFile().isEmpty())
+        {
+        	reactorServiceDiscoveryOptions.proxyKRB5ConfigFile().data(watchlistConsumerConfig.krbFile());
+        }
+        
+        String localIPaddress = "localhost";
+        String localHostName;
+        try
+        {
+            localIPaddress = InetAddress.getLocalHost().getHostAddress();
+            localHostName = InetAddress.getLocalHost().getHostName();
+        }
+        catch (UnknownHostException e)
+        {
+            localHostName = localIPaddress;
+        }
+        
+        reactorServiceDiscoveryOptions.proxyLocalHostName().data(localHostName);
         
         // use command line authentication token and extended authentication information if specified
         if (watchlistConsumerConfig.authenticationToken() != null && !watchlistConsumerConfig.authenticationToken().equals(""))
@@ -1490,12 +1595,11 @@ public class WatchlistConsumer implements ConsumerCallback
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().connectionType(chnlInfo.connectionArg.connectionType());
-        chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
-        chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
-        chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().interfaceName(chnlInfo.connectionArg.interfaceName());
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().userSpecObject(chnlInfo);
         chnlInfo.connectOptions.connectionList().get(0).connectOptions().guaranteedOutputBuffers(1000);
         
+        chnlInfo.connectOptions.connectionList().get(0).enableSessionManagement(watchlistConsumerConfig.enableSessionManagement());
+
         // handler encrypted or http connection 
         chnlInfo.shouldEnableEncrypted = watchlistConsumerConfig.enableEncrypted();
         chnlInfo.shouldEnableHttp = watchlistConsumerConfig.enableHttp(); 
@@ -1514,15 +1618,58 @@ public class WatchlistConsumer implements ConsumerCallback
             cOpt.tunnelingInfo().tunnelingType("http"); 
             setHTTPConfiguration(cOpt);
         } 
-
-        // handle basic tunnel stream configuration
-        if (chnlInfo.connectionArg.tunnel() && tunnelStreamHandler == null)
+                
+        if (watchlistConsumerConfig.queryEndpoint())
         {
-            tsServiceName = chnlInfo.connectionArg.tsService();
-            tunnelStreamHandler = new TunnelStreamHandler(chnlInfo.connectionArg.tunnelAuth(), chnlInfo.connectionArg.tunnelDomain());
+        	if (watchlistConsumerConfig.enableEncrypted())
+            	reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
+        	else
+        	{
+        		System.out.println("Error: Invalid connection type for " + 
+        				watchlistConsumerConfig.connectionList().get(0).connectionType() + 
+        				" querying EDP service discovery, only encrypted supported" );
+                System.exit(ReactorReturnCodes.FAILURE);        		
+        	}
+        		
+        	reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(this);
+
+        	if (reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
+        	{
+        		System.out.println("Error: " + errorInfo.code());
+        	}
         }
+        else if (!watchlistConsumerConfig.enableSessionManagement())
+        {
+        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
+        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
+        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().interfaceName(chnlInfo.connectionArg.interfaceName());
+        }
+        
+    	if (watchlistConsumerConfig.location() != null)
+    		chnlInfo.connectOptions.connectionList().get(0).location(watchlistConsumerConfig.location());
 	}
 	
+	// load FIX dictionary to support FIX Protocol
+	public void loadFixDictionary()
+	{      
+        fixdictionary.clear();
+        if (fixdictionary.loadFieldDictionary(FIX_FIELD_DICTIONARY_FILE_NAME, error) < 0)
+        {
+            System.out.println("\nUnable to load FIX field dictionary. \n\tText: "
+                        + error.text() + "\n");
+            uninitialize();
+            System.exit(ReactorReturnCodes.FAILURE);
+        }
+
+        if (fixdictionary.loadEnumTypeDictionary(FIX_ENUM_TABLE_FILE_NAME, error) < 0)
+        {
+            System.out.println("\nUnable to load FIX enum dictionary. \n\tText: "
+                        + error.text() + "\n");
+            uninitialize();
+            System.exit(ReactorReturnCodes.FAILURE);
+        }	    
+	}    
+
     private void closeItemStreams(ChannelInfo chnlInfo)
     {
         // have offstream posting post close status
@@ -1746,7 +1893,7 @@ public class WatchlistConsumer implements ConsumerCallback
     {		
         WatchlistConsumer consumer = new WatchlistConsumer();
         consumer.init(args);
-        consumer.run(); 
+        consumer.run();     
         consumer.uninitialize();
         System.exit(0);
     }

@@ -30,6 +30,7 @@ class NIProviderCmdLineParser implements CommandLineParser
 	private String authenticationToken;
 	private String authenticationExtended;
 	private String applicationId;
+	private boolean enableSessionManagement = false;
 	
 	@Override
 	public boolean parseArgs(String[] args)
@@ -150,6 +151,11 @@ class NIProviderCmdLineParser implements CommandLineParser
     				applicationId = args[++argsCount];
     				++argsCount;
     			}
+    			else if ("-sm".equals(args[argsCount]))
+    			{
+    				enableSessionManagement = true;
+    				++argsCount;
+    			}
     			else // unrecognized command line argument
     			{
     				System.out.println("\nUnrecognized command line argument...\n");
@@ -255,6 +261,11 @@ class NIProviderCmdLineParser implements CommandLineParser
 	{
 		return applicationId;
 	}
+	
+	boolean enableSessionManagement()
+	{
+		return enableSessionManagement;
+	}	
 
 	@Override
 	public void printUsage()
@@ -289,7 +300,8 @@ class NIProviderCmdLineParser implements CommandLineParser
 				"\n -runtime adjusts the running time of the application" +
 				"\n -at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN" +
 				"\n -ax Specifies the Authentication Extended information" +
-				"\n -aid Specifies the Application ID");
+				"\n -aid Specifies the Application ID" +
+				"\n -sm (optional) Enable Session Management");
 	}
 }
 

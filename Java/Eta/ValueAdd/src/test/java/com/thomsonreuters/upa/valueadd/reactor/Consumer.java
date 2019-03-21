@@ -33,7 +33,7 @@ import com.thomsonreuters.upa.valueadd.reactor.TunnelStreamMsg.TunnelStreamAck;
 
 
 /** Represents a consumer component. */
-public class Consumer extends TestReactorComponent implements ConsumerCallback, TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback, TunnelStreamQueueMsgCallback
+public class Consumer extends TestReactorComponent implements ReactorAuthTokenEventCallback, ReactorServiceEndpointEventCallback, ConsumerCallback, TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback, TunnelStreamQueueMsgCallback
 {
     AckRangeList _ackRangeList = new AckRangeList();
     AckRangeList _nakRangeList = new AckRangeList();
@@ -43,7 +43,13 @@ public class Consumer extends TestReactorComponent implements ConsumerCallback, 
         super(testReactor);
         _reactorRole = ReactorFactory.createConsumerRole();
     }
-
+    
+    @Override
+    public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event)
+    {
+    	return _testReactor.handleServiceEndpointEvent(event);
+    }
+    
     @Override
     public int reactorChannelEventCallback(ReactorChannelEvent event)
     {
@@ -62,6 +68,12 @@ public class Consumer extends TestReactorComponent implements ConsumerCallback, 
         return _testReactor.handleLoginMsgEvent(event);
     }
 
+    @Override
+    public int reactorAuthTokenEventCallback(ReactorAuthTokenEvent event)
+    {
+        return _testReactor.handleAuthTokenEvent(event);
+    }    
+    
     @Override
     public int rdmDirectoryMsgCallback(RDMDirectoryMsgEvent event)
     {

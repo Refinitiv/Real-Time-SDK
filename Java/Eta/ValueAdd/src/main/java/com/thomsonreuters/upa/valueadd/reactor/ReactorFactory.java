@@ -13,6 +13,9 @@ public class ReactorFactory
     static VaPool _rdmDictionaryMsgEventPool = new VaPool(true);
     static VaPool _reactorMsgEventPool = new VaPool(true);
     static VaPool _reactorChannelEventPool = new VaPool(true);
+    static VaPool _reactorAuthTokenEventPool = new VaPool(true);
+    static VaPool _reactorServiceEndpointEventPool = new VaPool(true);
+    static VaPool _reactorServiceDiscoveryOptionsPool = new VaPool(true);
     static VaPool _queueMsgEventPool = new VaPool(true);
     static VaPool _tunnelStreamMsgEventPool = new VaPool(true);
     static VaPool _tunnelStreamStatusEventPool = new VaPool(true);
@@ -256,6 +259,18 @@ public class ReactorFactory
     }
 
     /**
+     * Creates {@link ReactorServiceDiscoveryOptions}.
+    *
+    * @return {@link ReactorServiceDiscoveryOptions} object
+    * 
+    * @see ReactorServiceDiscoveryOptions
+    */
+    public static ReactorServiceDiscoveryOptions createReactorServiceDiscoveryOptions()
+    {
+        return new ReactorServiceDiscoveryOptions();
+    }     
+    
+    /**
      * Creates a new Reactor object.
      *
      * @return the tunnel stream auth info
@@ -385,7 +400,48 @@ public class ReactorFactory
         return reactorChannelEvent;
     }
     
+    /**
+     * Creates a new Reactor object.
+    *
+    * @return the reactor channel event
+    */
+    static ReactorAuthTokenEvent createReactorAuthTokenEvent()
+    {
+    	ReactorAuthTokenEvent reactorAuthTokenEvent = (ReactorAuthTokenEvent)_reactorAuthTokenEventPool.poll();
+        if(reactorAuthTokenEvent == null)
+        {
+        	reactorAuthTokenEvent = new ReactorAuthTokenEvent();
+            _reactorAuthTokenEventPool.updatePool(reactorAuthTokenEvent);
+        }
+        else
+        {
+        	reactorAuthTokenEvent.clear();
+        }
+        return reactorAuthTokenEvent;
+    }
 
+    /**
+     * Creates a new Reactor object.
+    *
+    * @return the reactor channel event
+    */
+    static ReactorServiceEndpointEvent createReactorServiceEndpointEvent()
+    {
+    	ReactorServiceEndpointEvent reactorServiceEndpointEvent = (ReactorServiceEndpointEvent)_reactorServiceEndpointEventPool.poll();
+        if(reactorServiceEndpointEvent == null)
+        {
+        	reactorServiceEndpointEvent = new ReactorServiceEndpointEvent();
+            _reactorServiceEndpointEventPool.updatePool(reactorServiceEndpointEvent);
+        }
+        else
+        {
+        	reactorServiceEndpointEvent.clear();
+        }
+        return reactorServiceEndpointEvent;
+    }    
+    
+    
+    
     /**
      * Creates a new Reactor object.
      *

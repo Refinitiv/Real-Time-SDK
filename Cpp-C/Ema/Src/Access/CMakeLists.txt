@@ -67,7 +67,8 @@ else()
             Impl/EmaPool.cpp Impl/EmaPool.h
             Impl/EmaStaticCombined.cpp
             Impl/EmaString.cpp Impl/EmaStringInt.cpp Impl/EmaStringInt.h
-            Impl/EncodeIterator.cpp Impl/EncodeIterator.h
+            Impl/EmaUnitTestConnect.h
+	    Impl/EncodeIterator.cpp Impl/EncodeIterator.h
             Impl/Encoder.cpp Impl/Encoder.h
             Impl/ErrorClientHandler.cpp Impl/ErrorClientHandler.h
             Impl/ExceptionTranslator.cpp Impl/ExceptionTranslator.h

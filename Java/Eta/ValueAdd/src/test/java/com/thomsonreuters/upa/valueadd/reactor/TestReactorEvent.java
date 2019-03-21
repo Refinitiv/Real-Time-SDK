@@ -77,6 +77,22 @@ public class TestReactorEvent
         switch(type)
         {
         
+        case AUTH_TOKEN_EVENT:
+        {
+        	_event = new ReactorAuthTokenEvent();
+        	
+        	((ReactorAuthTokenEvent)_event)._reactorAuthTokenInfo = ((ReactorAuthTokenEvent)event).reactorAuthTokenInfo();
+        	break;
+        }
+        
+        case SERVICE_DISC_ENDPOINT:
+        {
+        	_event = new ReactorServiceEndpointEvent();
+
+        	((ReactorServiceEndpointEvent)_event)._reactorServiceEndpointInfoList = ((ReactorServiceEndpointEvent)event).serviceEndpointInfo();
+        	break;
+        }
+        
         case CHANNEL_EVENT:
         {
             _event = new ReactorChannelEvent();

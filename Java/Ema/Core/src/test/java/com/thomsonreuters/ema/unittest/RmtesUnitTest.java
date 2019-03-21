@@ -343,6 +343,77 @@ public class RmtesUnitTest  extends TestCase
 	}
 	
 	@Test
+	public void testRmtesBuffer_callToStringBeforeApplyPartialUpdates()
+	{
+		TestUtilities.printTestHead("testRmtesBuffer_callToStringBeforeApplyPartialUpdates", "test running toString RmtesBuffer function call before apply" );
+
+		String cacheStr = "abcdefghijkl";
+		inputByteBuf.put(cacheStr.getBytes());
+		inputByteBuf.flip();
+		JUnitTestConnect.setRsslData(inputRmtesBuf, inputByteBuf);
+
+		targetCharBuf.clear();
+		targetCharBuf.put(cacheStr);
+		targetCharBuf.flip();
+
+		// case1
+		RmtesBuffer outputRmtesBuf = EmaFactory.createRmtesBuffer();
+		CharBuffer outputCharBuffer = outputRmtesBuf.apply(inputRmtesBuf).asUTF16();
+		assertEquals(outputCharBuffer.length(), 12);
+		assertEquals(outputCharBuffer.toString().compareTo(cacheStr), 0);
+		assertEquals(outputCharBuffer.compareTo(targetCharBuf), 0);
+
+		// apply partial
+		StringBuilder str = new StringBuilder();
+		inputByteBuf1.put(str.append(inPartialBuf1).toString().getBytes());
+		inputByteBuf1.flip();
+		JUnitTestConnect.setRsslData(inputRmtesBuf1, inputByteBuf1);
+
+		outputCharBuffer = outputRmtesBuf.apply(inputRmtesBuf1).asUTF16();
+
+		String targetString = "12cdefghijkl";
+
+		targetCharBuf.clear();
+		targetCharBuf.put(targetString);
+		targetCharBuf.flip();
+
+		assertEquals(outputCharBuffer.length(), 12);
+		assertEquals(outputCharBuffer.toString().compareTo(targetString), 0);
+		assertEquals(outputCharBuffer.compareTo(targetCharBuf), 0);
+
+		clearBuffer();
+
+		// case2
+		JUnitTestConnect.setRsslData(inputRmtesBuf, inputByteBuf);
+		outputRmtesBuf.clear();
+		outputCharBuffer = outputRmtesBuf.apply(inputRmtesBuf).asUTF16();
+
+		// apply partial
+		str.setLength(0);
+		inputByteBuf1.clear();
+		inputByteBuf1.put(str.append(inPartialBuf2).toString().getBytes());
+		inputByteBuf1.flip();
+		JUnitTestConnect.setRsslData(inputRmtesBuf1, inputByteBuf1);
+
+		// Run toString() on RmtesBuffer before applying it to another RmtesBuffer
+		inputRmtesBuf1.toString();
+		
+		outputCharBuffer = outputRmtesBuf.apply(inputRmtesBuf1).asUTF16();
+
+		targetString = "abcdefghi   ";
+
+		targetCharBuf.clear();
+		targetCharBuf.put(targetString);
+		targetCharBuf.flip();
+
+		assertEquals(outputCharBuffer.length(), 12);
+		assertEquals(outputCharBuffer.toString().compareTo(targetString), 0);
+		assertEquals(outputCharBuffer.compareTo(targetCharBuf), 0);
+
+		clearBuffer();
+	}
+	
+	@Test
 	public void testRmtesBuffer_asUTF8Test()
 	 {
 		TestUtilities.printTestHead("testRmtesBuffer_asUTF8Test", "test RmtesBuffer function call" );

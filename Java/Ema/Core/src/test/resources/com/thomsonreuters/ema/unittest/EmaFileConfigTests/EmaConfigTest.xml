@@ -89,6 +89,14 @@
 			<Dictionary value="Dictionary_3"/>
 		</Consumer>
 		<Consumer>
+			<Name value="Consumer_7"/>
+
+			<Channel value="Channel_6"/>
+			
+			<!-- dictionary is optional: defaulted to "ChannelDictionary" -->
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+		<Consumer>
 			<Name value="Check_Multiple_Occurrences"/>
 			<Dictionary value="Dictionary_1"/>
 			<Channel value="C1"/>
@@ -336,6 +344,15 @@
 			<Port value="14009"/>
 			<TcpNodelay value="1"/>
 			<ObjectName value="EncrpyptedObjectName"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_6"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<Host value="122.1.1.200"/>
+			<Port value="14010"/>
+			<ObjectName value="EncrpyptedObjectName2"/>
+			<Location value="us-east"/>
+			<EnableSessionManagement value="1"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_10"/>

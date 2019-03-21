@@ -2140,7 +2140,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         
         return ReactorCallbackReturnCodes.SUCCESS;
     }
-
+    
     @Override
     public int rdmDictionaryMsgCallback(RDMDictionaryMsgEvent event)
     {
@@ -2153,7 +2153,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         processDictionaryResp(msg, _dIter);
         
         return ReactorCallbackReturnCodes.SUCCESS;
-    }
+    }    
     
     private boolean isRequestedServiceUp()
     {

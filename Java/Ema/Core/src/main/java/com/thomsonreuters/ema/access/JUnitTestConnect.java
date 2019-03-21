@@ -58,7 +58,9 @@ public class JUnitTestConnect
 	public static final int ProxyPort  = ConfigManager.ChannelProxyPort;
 	public static final int Port  = ConfigManager.ChannelPort; 
 	public static final int TcpNodelay  = ConfigManager.ChannelTcpNodelay;
-	public static final int DirectWrite  = ConfigManager.ChannelDirectSocketWrite; 
+	public static final int DirectWrite  = ConfigManager.ChannelDirectSocketWrite;
+	public static final int EnableSessionMgnt = ConfigManager.ChannelEnableSessionMgnt;
+	public static final int Location = ConfigManager.ChannelLocation;
 	
 	// Consumer Parameters:
 	public static final int ConsumerDefaultConsumerName  = ConfigManager.DefaultConsumer; 	
@@ -889,6 +891,11 @@ public class JUnitTestConnect
 				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
 					return ((SocketChannelConfig)chanConfig).directWrite;
 			}
+			else if (configParam == EnableSessionMgnt)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((EncryptedChannelConfig)chanConfig).enableSessionMgnt;
+			}
 		}
 		
 		throw new IllegalArgumentException("Invalid Input");  
@@ -1059,6 +1066,11 @@ public class JUnitTestConnect
 			{
 				if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 					return ((HttpChannelConfig)chanConfig).httpProxyPort;
+			}
+			else if (configParam == Location)
+			{
+				if (chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+					return ((EncryptedChannelConfig)chanConfig).location;
 			}
 		}
 		else if (type == ConfigGroupTypeDictionary)

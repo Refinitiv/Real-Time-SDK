@@ -61,6 +61,7 @@ public class TestReactor {
 	/** Selector used when dispatching. */
 	Selector _selector;
 	
+	public int _countAuthTokenEventCallbackCalls = 0;
 
     /** Controls whether reactor does XML tracing. */
     private static boolean _enableReactorXmlTracing = false;
@@ -86,6 +87,24 @@ public class TestReactor {
 		}
 	}
 	
+	/** Creates a TestReactor. */
+	public TestReactor(ReactorOptions reactorOptions)
+	{
+		
+		_eventQueue = new LinkedList<TestReactorEvent>();
+		_componentList = new LinkedList<TestReactorComponent>();
+		_errorInfo = ReactorFactory.createReactorErrorInfo();
+        if (_enableReactorXmlTracing)
+            reactorOptions.enableXmlTracing();
+		_reactor = ReactorFactory.createReactor(reactorOptions, _errorInfo);
+		
+		try {
+			_selector = Selector.open();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("Caught I/O exception");
+		}
+	}	
 	
     /** Enables XML tracing on created reactors (convenience function for test debugging). */
     public static void enableReactorXmlTracing()
@@ -205,6 +224,12 @@ public class TestReactor {
         	assertEquals(expectedEventCount, _eventQueue.size());
     }
 	
+	public int handleServiceEndpointEvent(ReactorServiceEndpointEvent event)
+	{
+		_eventQueue.add(new TestReactorEvent(TestReactorEventTypes.SERVICE_DISC_ENDPOINT, event));
+		return ReactorReturnCodes.SUCCESS;
+	}
+	
     /** Stores the received channel event, and updates the relevant component's channel information. */ 
 	public int handleChannelEvent(ReactorChannelEvent event)
 	{
@@ -257,6 +282,14 @@ public class TestReactor {
 		_eventQueue.add(new TestReactorEvent(TestReactorEventTypes.LOGIN_MSG, event));
 		return ReactorReturnCodes.SUCCESS;
 	}
+	
+	/** Stores a auth token event. */
+	public int handleAuthTokenEvent(ReactorAuthTokenEvent event)
+	{
+		_eventQueue.add(new TestReactorEvent(TestReactorEventTypes.AUTH_TOKEN_EVENT, event));
+		_countAuthTokenEventCallbackCalls++;
+		return ReactorReturnCodes.SUCCESS;
+	}	
 	
 	/** Stores a directory message event. */
 	public int handleDirectoryMsgEvent(RDMDirectoryMsgEvent event)
@@ -490,7 +523,6 @@ public class TestReactor {
 		RDMDirectoryMsgEvent directoryMsgEvent;
 		ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
 		ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-		
 
         if (!recoveringChannel)
             consumer.testReactor().connect(opts, consumer, provider.serverPort());

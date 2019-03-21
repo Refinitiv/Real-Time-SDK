@@ -125,7 +125,7 @@ RmtesBufferImpl::RmtesBufferImpl( const RmtesBufferImpl& other ) :
 {
 	_rsslBuffer = other._rsslBuffer;
 	
-	if ( other._applyToCache )
+	if ( other._applyToCache && !other._rsslUTF8BufferSet)
 	{
 		_rsslCacheBuffer.allocatedLength = other._rsslCacheBuffer.allocatedLength;
 		_rsslCacheBuffer.length = other._rsslCacheBuffer.length;
@@ -439,7 +439,7 @@ void RmtesBufferImpl::apply( const RmtesBufferImpl& source )
   
 	_rsslBuffer = source._rsslBuffer;
 	
-	if ( source._applyToCache )
+	if ( source._applyToCache && !source._rsslUTF8BufferSet)
 	{
 		if ( _rsslCacheBuffer.allocatedLength <  source._rsslCacheBuffer.length ) 
 		{
@@ -607,4 +607,11 @@ void RmtesBufferImpl::reallocateRmtesCacheBuffer( const char* errorText )
 		throwMeeException( errorText );
 		return;
 	}
+}
+
+// Only for unit tests
+void RmtesBufferImpl::setData(const char* buf, UInt32 length)
+{
+	_rsslBuffer.data = (char*)buf;
+	_rsslBuffer.length = length;
 }

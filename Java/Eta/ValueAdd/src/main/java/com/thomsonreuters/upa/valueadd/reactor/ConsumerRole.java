@@ -30,6 +30,7 @@ public class ConsumerRole extends ReactorRole
     DictionaryClose _fieldDictionaryClose = null;
     DictionaryRequest _enumDictionaryRequest = null;
     DictionaryClose _enumDictionaryClose = null;
+    ReactorAuthTokenEventCallback _reactorAuthTokenEventCallback = null;
     RDMLoginMsgCallback _loginMsgCallback = null;
     RDMDirectoryMsgCallback _directoryMsgCallback = null;
     RDMDictionaryMsgCallback _dictionaryMsgCallback = null;
@@ -39,6 +40,7 @@ public class ConsumerRole extends ReactorRole
 	Buffer _enumTypeDictionaryName = CodecFactory.createBuffer();
 	boolean _receivedFieldDictionaryResp = false;
 	boolean _receivedEnumDictionaryResp = false;
+	Buffer _clientId = CodecFactory.createBuffer();
 
     static final int LOGIN_STREAM_ID = 1;
     static final int DIRECTORY_STREAM_ID = 2;
@@ -359,6 +361,35 @@ public class ConsumerRole extends ReactorRole
     }
 
     /**
+     * Specifies an unique ID defined for an application making a request to the EDP token service.
+     * The RDMLoginRequest.userName variable is used if this member is not set. Optional.
+     * 
+     * @param clientId the clientId
+     * 
+     * @return {@link ReactorReturnCodes#SUCCESS} on success, if data is null, 
+     *         or if position or length is outside of the data's capacity.
+     *         {@link ReactorReturnCodes#PARAMETER_INVALID}.
+     * 
+     */    
+    public int clientId(Buffer clientId)
+    {
+	return _clientId.data(clientId.data(), clientId.position(),
+		clientId.length());	
+    }
+    
+    /**
+     * Specifies an unique ID defined for an application making a request to the EDP token service.
+     * The RDMLoginRequest.userName variable is used if this member is not set. Optional.
+     * 
+     * @return clientId the clientId
+     * 
+     */    
+    public Buffer clientId()
+    {
+    	return _clientId;
+    }    
+    
+    /**
      * Specifies the {@link DictionaryDownloadModes}.
      * 
      * @param mode A specific DictionaryDownloadModes
@@ -422,8 +453,8 @@ public class ConsumerRole extends ReactorRole
     boolean receivedEnumDictionaryResp()
     {
     	return _receivedEnumDictionaryResp;
-    }
-
+    }  
+    
     /**
      *  A callback function for processing RDMLoginMsgEvents received. If not present,
      * the received message will be passed to the defaultMsgCallback.
@@ -509,7 +540,7 @@ public class ConsumerRole extends ReactorRole
      */
     void copy(ConsumerRole role)
     {
-        super.copy(role);
+        super.copy(role);  
         _loginMsgCallback = role.loginMsgCallback();
         _directoryMsgCallback = role.directoryMsgCallback();
         _dictionaryMsgCallback = role.dictionaryMsgCallback();

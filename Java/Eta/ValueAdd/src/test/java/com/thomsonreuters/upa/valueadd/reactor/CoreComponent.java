@@ -504,7 +504,7 @@ public class CoreComponent
         consumerRole.initDefaultRDMLoginRequest();
         consumerRole.initDefaultRDMDirectoryRequest();
         consumerRole.channelEventCallback(consumer);
-        consumerRole.loginMsgCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);      
         consumerRole.directoryMsgCallback(consumer);
         consumerRole.dictionaryMsgCallback(consumer);
         consumerRole.defaultMsgCallback(consumer);
