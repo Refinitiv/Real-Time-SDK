@@ -1,99 +1,50 @@
-# Elektron Transport API
-This is the **Elektron Transport API (ETA)**, the high performance, low latency, foundation of the Elektron SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Elektron Transport API.  
+# Elektron Transport API (ETA) C Edition
 
+This is the **Elektron Transport API (ETA)**, the high performance, low latency, foundation of the Elektron SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Elektron Transport API.  
 
 The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by the Thomson Reuters Enterprise Platform for Real Time and Elektron for the optimal distribution of OMM/RWF data.  All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
 
-
 ETA contains open source components. The transport, decoder and encoder components are open source. The reliable multicast transport and VA cache component are closed source.
-This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/thomsonreuters/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+
+This repository depends on the `Elektron-SDK-BinaryPack` (http://www.github.com/Refinitiv/Elektron-SDK-BinaryPack) repository and pulls the ETA libraries from that location.  That repository contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.The `Libs` location in this package contains fully functioning libraries for the closed source portions of the product, allowing users to build and link to have a fully functional product.
+
+This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Thomson Reuters transport implementations to connect to Enterprise Platform, Elektron, and the Data Feed Direct products.
+
+(C) Copyright 2018 - 2019 Thomson Reuters Limited. All rights reserved,
+Reuters Oak Brook, IL USA
+
+# ETA C-Edition Documentation
+
+- Installation Guide
+- DevGuide
+- ValueAddDevGuide
+- RDMUsageGuide
+- API_ConceptsGuide
+- TrainingToolGuide
+- PerfToolsGuide
+
+In addtion, HTML documentation is available in Cpp-C/Eta/Docs. For addtional documentation, please refer to top level README.MD files.
 
 
-####Supported Platforms
-Only a subset of platforms is supported, generally overlapping with platforms supported or qualified by the product.
+# ETA Features and Functionality
 
-At the current time, the following platform/compiler combinations are supported:
+The Elektron Transport API, formerly known as Ultra Performance API (UPA) is the foundation of the Elektron SDK, offering the highest throughput most tunability, and lowest latency of any API in the SDK.  
 
-- RedHat Advanced Server 6.X 64-bit (gcc4.4.4)
-- Oracle Linux Server 6.X 64-bit (gcc4.4.4)
-- Oracle Linux Server 7.X 64-bit (gcc4.8.2)
-- CentOS 7.X 64-bit (gcc4.8.2)
-- Windows 7 64-bit
-- Windows 8 64-bit
-- Windows 8.1 64-bit
-- Windows 10 64-bit
-- Windows Server 2008 64-bit
-- Windows Server 2012 64-bit
-- Windows Server 2016 64-bit
+The Elektron Transport API fully supports all OMM constructs and messages. 
 
-Compilers: Visual Studio 11 (2012), Visual Studio 12 (2013), Visual Studio 14 (2015), Visual Studio 15 (2017)
-
-
-Users are welcome to migrate open source code to the platforms they prefer, however support for the included ETA libraries are only provided on platforms captured in the README file.
-
-# Obtaining the Thomson Reuters Field Dictionaries
-
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Cpp-C/etc`.  
-In addition, the most current version can be downloaded from the Customer Zone from the following location.
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - General
-- **Products**: TREP Templates Service Pack
-
-# Documentation
-
-Elektron Transport API Documentation is available online at https://developers.thomsonreuters.com/elektron/elektron-sdk-cc/docs
-
-These are also available as part of the full Elektron SDK package that can be downloaded from the the following locations. 
-
-**Developer Community:**
-
-https://developers.thomsonreuters.com/
-
-Then select the following options:
-
-- **APIs by Product**: Elektron
-- **APIs in this Family**: Elektron SDK - C/C++ Edition
-- **Downloads**: ETA - C - LATEST VERSION
-
-**Customer Zone:**
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-
-- **Category**: MDS - API
-- **Products**: Elektron SDK
-
-
-
-# Developing 
-
-If you discover any issues with regards to this project, please feel free to create an Issue.
-
-If you have coding suggestions that you would like to provide for review, please create a Pull Request.
-
-We will review issues and pull requests to determine any appropriate changes.
-
-
-# Contributing
-In the event you would like to contribute to this repository, it is required that you read and sign the following:
-
-- [Individual Contributor License Agreement](Elektron API Individual Contributor License Agreement.pdf)
-- [Entity Contributor License Agreement](Elektron API Entity Contributor License Agreement.pdf)
-
-Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If you require that a signed agreement has to be physically mailed to us, please email sdkagreement@thomsonreuters.com to request the mailing address.
-
-
-# Transport API Features and Functionality
+####A List of Transport API Features
 
 - 64-bit, C-based API
 - Shared and static library deployments
 - Thread safe and thread aware    
+
 - Can consume and provide:
+
     - Any and all OMM primitives supported on Elektron, Enterprise Platform, and Direct Exchange Feeds.
     - All Domain Models, including those defined by Thomson Reuters as well as other user-defined models.
+
 - Consists of:
+
     - A transport-level API allowing for connectivity using TCP, HTTP, HTTPS,
          sockets, reliable and unreliable UDP multicast, and Shared Memory.  
     - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages.
@@ -103,9 +54,11 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
       and convert to several Unicode formats for interpretation. 
     
 - Open Source performance tools:
+
     - Allow users to measure the performance through their system.  Customers can modify the tools to suit their specific needs.  These are found in the Value Add portion of this package.
     
 - Open Source value added helpers:
+
     - Reactor is a connection management and event processing
         component that can significantly reduce the amount of code an 
         application must write to leverage OMM in their own applications
@@ -120,6 +73,7 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
         allowing domain specific callbacks to be presented with their
         respective domain representation for easier, more logical 
         access to content.
+
     - The Administration Domain Model Representations are RDM specific
         representations of the OMM administrative domain models.  This
         Value Added Component contains structures that represent the 
@@ -144,6 +98,7 @@ Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If y
 
 ####General Capabilities
 Transport API provides the following general capabilities independent of the type of application:
+
 - ETA can internally fragment and reassemble large messages.
 - ETA applications can pack multiple, small messages into the same network buffer.
 - ETA can internally perform data compression and decompression.
@@ -154,10 +109,11 @@ Transport API provides the following general capabilities independent of the typ
 - ETA applications can create and manage both standard and private data streams.
 - ETA Reactor applications can create and manage standard, private, and tunnel streams.
 
-#OMM Application Type Abilities
+#OMM Application Types and Capabilities
 
 ####Consumer Applications
 Users can use Transport API to write consumer-based applications capable of the following:
+
 - Make Streaming and Snapshot based subscription requests.
 - Perform Batch, Views, and Symbol List requests to capable provider applications, including ADS.
 - Pause and Resume active data streams open to the ADS.
@@ -165,8 +121,9 @@ Users can use Transport API to write consumer-based applications capable of the 
 (used for making Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 
-####Provider Applications: Interactive
+####Interactive Provider Applications
 Users can use Transport API to write interactive providers capable of the following:
+
 - Receive requests and respond to Streaming and Snapshot based Requests.
 - Receive and respond to requests for Batch, Views, and Symbol Lists.
 - Receive requests for Pause and Resume on active Data Streams.
@@ -175,17 +132,122 @@ Users can use Transport API to write interactive providers capable of the follow
 - Send and receive Generic Messages.
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
-####Provider Applications: Non-Interactive
+####Non-Interactive Provider Applications
 Users can use Transport APi to write non-interactive applications that start up and begin publishing data to ADH.
+
 - Connect to one or many ADH devices using TCP sockets or reliable UDP multicast, making only configuration changes. 
 
 ####Reactor Based Consumer and Provider Applications
+
 - Reactor applications can take advantage of an event-driven distribution model
 - Reactor will manage ping heartbeats and ensure that user written content is flushed out as effectively as possible.
 - Reactor applications can use the watchlist functionality for item recovery, like-request aggregation, fan out, and group status handling.
 - Reactor applications can leverage the tunnel streams capability, allowing for a private stream with end-to-end flow control, reliability, authentication, and (when communicating with a Queue Provider) persistent queue messaging.
 
+# ETA C-Edition Library and Version Information
+
+This distribution contains several sets of libraries, intended to allow for ease of integration into both production and development environments.  
+
+Both shared and static libraries are available for use. All functionality is available with either option. For information on using and deploying with the shared libraries, see below. 
+  
+Libraries in the Optimized subdirectory are built with optimizations. These libraries are production ready and will offer the highest level of performance.
+
+Libraries in the Debug subdirectory are built in Debug mode. These libraries contain additional safety checking. If a misuse is detected, an assertion containing additional information will be triggered. These libraries are intended for use during development phases where debug C-runtime libraries are required. A Shared subdirectory, containing the shared libraries, is available within the Optimized and Debug directories. 
+
+###Shared Libraries
+
+Shared libraries are available for use and contain the same functionality as the static libraries.
+
+####Windows
+
+Shared library use is similar to static library use, however there are several key differences.  The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the library search path (local directory, system path, etc.) being used by the application.  The library use can be confirmed by using a utility similar to Dependency Walker, available at www.dependencywalker.com.  This will show the shared library dependencies and where they are being resolved to.
+
+#####Static Library Manifest
+
+    Library Name              Package Version
+    ------------              ---------------
+    librssl.lib               eta3.3.0.L1
+    librsslVA.lib             eta3.3.0.L1
+    librsslVACache.lib        eta3.3.0.L1
+    libansi.lib               eta3.3.0.L1
+    libdacs.lib               eta3.3.0.L1
+
+#####Shared Library Manifest
+
+    Library Name              Package Version
+    -------------             ---------------
+    librssl.dll               eta3.3.0.L1
+    librssl.lib               eta3.3.0.L1
+    librssl.pdb               eta3.3.0.L1
+    librsslVA.dll             eta3.3.0.L1
+    librsslVA.lib             eta3.3.0.L1
+    librsslVA.pdb             eta3.3.0.L1
+    librsslVACache.dll        eta3.3.0.L1
+    librsslVACache.lib        eta3.3.0.L1
+    librsslVACache.pdb        eta3.3.0.L1
+    
+####Linux    
+Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
+
+In addition, several versions of a shared library can co-exist on the machine.  This allows for easy upgrade of functionality by deploying a newer shared library.  It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
+
+To help with this, Transport API provides several versioning mechanisms for its shared libraries.  Each library is provided with its package version appended to the end.  For example, librssl-eta3.0.1.L1.so.  Embedded in this library is a shared object name (soname) that conveys binary compatibility information. (For example, assuming that the embedded soname is librssl.so.1.  If binary compatibility were to change in UPA, this embedded soname would be updated to be librssl.so.2.) This naming convention is intended to help protect applications from using a non-compatible version of the shared library.   This applies to all shared libraries of UPA. 
+
+The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. This script is provided at the base level of the package, and can be run as follows: 
+
+	./LinuxSoLink
+    
+This will create all necessary soft links for UPA example makefiles to link.  It is suggested that any applications deployed using shared libraries follow a similar methodology to ensure proper versioning.  Please see the LinuxSoLink script and the example makefiles for a reference. 
+
+#####Static Library Manifest
+
+    Library Name                       Package Version
+    ------------                       ---------------
+    librssl.a                          eta3.3.0.L1
+    librsslVA.a                        eta3.3.0.L1
+    librsslVACache.a                   eta3.3.0.L1
+    libansi.lib                        eta3.3.0.L1
+    libdacs.lib                        eta3.3.0.L1
+
+#####Shared Library Manifest
+
+    Library Name                       Binary Version       Package Version
+    -------------                      --------------       ----------------
+    librssl.so.3.3.0.0                 librssl.so.9         eta3.3.0.L1
+    librsslVA.so.3.3.0.0               librsslVA.so.11      eta3.3.0.L1
+    librsslVACache.so.3.3.0.0          librsslVACache.so.3  eta3.3.0.L1
+
+
+# ETA C-Edition Issues and Workarounds
+
+- Non-Interactive Provider with Multicast to ADH Packet Loss Under heavy throughput situations, the ADH may drop packets due to its inbound queue filling up. For more information on diagnosing and troubleshooting this potential problem, see the ADH 2.4 or later release notes and documentation.   
+
+- The Reliable Multicast connection type makes use of SIGUSR1. If an application also handles or uses this signal, it may impact the functionality of this connection type.  
+
+- The Watchlist accepts batch requests, however batch requests are not made on the wire to the provider.  This will be addressed in a future release.  
+      
+- When using watchlist, if the application sets msgKey.serviceId in an RsslRequestMsg, any recovery for the stream will be made to services with the same Service ID. This may change in the future. Applications that connect to multiple different providers should consider using the pServiceName option when calling rsslReactorSubmitMsg to request items. 
+ 
+- When using watchlist, the encDataBody member of an RsslRequestMsg is only used for retrieving data related to batch requests, view requests, and symbol list behaviour requests. No other payload is stored or forwarded for standard streams. The extendedHeader of an RsslRequestMsg is not used. When requesting with private streams, the encDataBody member of the RsslRequestMsg is stored and transmitted with the request.
+            
+# Reference Information
+
+    I-COS Questionnaire: 6211
+    Reuters Item Number: N/A
+    Product Name: Elektron Transport API - C Edition
+    Release Number: 3.3.0
+    Load Number: 1
+    Windows Load ID: eta3.3.0.L1.win
+        Supersedes: eta3.2.2.L1.win.rrg
+    Linux Load ID: eta3.3.0.L1.linux
+        Supersedes: eta3.2.2.L1.linux.rrg
+    Release Status: RRG
+    Release Type: RRG
+    US ECCN: EAR99
+    EU ECCN: None
+    Export Code: NL
+    Security Compliance: Thomson Reuters Security Compliant
+    Template Version Supported: v4.20.35_TREP_19.21 for RWF and Marketfeed Record Templates
 
 # Notes:
-- This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the README.md files within each package for clarification.
-- Please make sure to review the LICENSE.md file.
+- This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.
