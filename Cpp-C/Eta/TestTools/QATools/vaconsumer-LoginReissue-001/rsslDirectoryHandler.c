@@ -133,10 +133,6 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 			if (pCommand->tunnelMessagingEnabled)
 				tunnelStreamHandlerProcessServiceUpdate(&pCommand->simpleTunnelMsgHandler.tunnelStreamHandler,
 					&tmpServiceNameBuffer, pService);
-
-			if (pCommand->queueMessagingEnabled)
-				tunnelStreamHandlerProcessServiceUpdate(&pCommand->queueMsgHandler.tunnelStreamHandler,
-					&tmpServiceNameBuffer, pService);
 		}
 
 		/* recover if service name entered by user cannot be found */
@@ -150,14 +146,6 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			if (!pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.isTunnelServiceFound)
 				printf("\nSource directory response does not contain service name for tunnel stream: %s\n", pCommand->tunnelStreamServiceName);
-			else if (!pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
-				printf("\nService in use for tunnel streams does not support them: %s\n", pCommand->tunnelStreamServiceName);
-		}
-
-		if (pCommand->queueMessagingEnabled)
-		{
-			if (!pCommand->queueMsgHandler.tunnelStreamHandler.isTunnelServiceFound)
-				printf("\nSource directory response does not contain service name for queue messaging: %s\n", pCommand->tunnelStreamServiceName);
 			else if (!pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
 				printf("\nService in use for tunnel streams does not support them: %s\n", pCommand->tunnelStreamServiceName);
 		}
@@ -189,6 +177,7 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 
 				if (pService->flags & RDM_SVCF_HAS_INFO)
 				{
+				    RsslUInt32 limit;
 					if (pService->info.qosCount)
 						pCommand->qos = pService->info.qosList[0];
 					else
@@ -210,7 +199,9 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 					 * application might use.
 					 */
 					pCommand->capabilitiesCount = 0;
-					for (c = 0; c < pService->info.capabilitiesCount; c++)
+					limit = (pService->info.capabilitiesCount < MAX_NUM_CAPABILITIES ?
+							 pService->info.capabilitiesCount : MAX_NUM_CAPABILITIES);
+					for (c = 0; c < limit; c++)
 					{
 						if (pService->info.capabilitiesList[c] <= RSSL_DMT_MAX_RESERVED)
 						{
@@ -268,11 +259,6 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 			if (pCommand->tunnelMessagingEnabled)
 				tunnelStreamHandlerProcessServiceUpdate(&pCommand->simpleTunnelMsgHandler.tunnelStreamHandler,
 					&tmpServiceNameBuffer, pService);
-
-			if (pCommand->queueMessagingEnabled)
-				tunnelStreamHandlerProcessServiceUpdate(&pCommand->queueMsgHandler.tunnelStreamHandler,
-					&tmpServiceNameBuffer, pService);
-			
 		}
 
 		if (!pCommand->serviceNameFound)
@@ -289,15 +275,6 @@ RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslReactorCh
 			else if (!pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
 				printf("\nService in use for tunnel streams does not support them: %s\n", pCommand->tunnelStreamServiceName);
 		}
-
-		if (pCommand->queueMessagingEnabled)
-		{
-			if (!pCommand->queueMsgHandler.tunnelStreamHandler.isTunnelServiceFound)
-				printf("\nSource directory response does not contain service name for queue messaging: %s\n", pCommand->tunnelStreamServiceName);
-			else if (!pCommand->queueMsgHandler.tunnelStreamHandler.tunnelServiceSupported)
-				printf("\nService in use for queue messaging does not support it: %s\n", pCommand->tunnelStreamServiceName);
-		}
-
 		//APIQA: Send a RESUME ALL
 		eventCounter++;
 		if (eventCounter == 1)
