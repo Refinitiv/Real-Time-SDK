@@ -104,7 +104,7 @@ static void uninitializeCache();
 void printUsageAndExit(char *appName)
 {
 
-	printf("Usage: %s [-tcp [<hostname>:<port> <service name>]] or [-segmentedMulticast [<sendAddress>:<sendPort>:<interfaceName> <recvAddress>:<recvPort> <unicastPort> <service name>]] [<domain>:<item name>,...] [-runtime <seconds>] [-cache]\n"
+	printf("Usage: %s [-tcp|-encrypted|-encryptedSocket|-encryptedHttp [<hostname>:<port> <service name>]] or [-segmentedMulticast [<sendAddress>:<sendPort>:<interfaceName> <recvAddress>:<recvPort> <unicastPort> <service name>]] [<domain>:<item name>,...] [-runtime <seconds>] [-cache]\n"
 			"\n -x              specifies that XML tracing should be enabled"
 			"\n -uname          specifies the user name"
 			"\n -at             Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN"
@@ -113,6 +113,8 @@ void printUsageAndExit(char *appName)
 			"\n     hostname:        Hostname of provider to connect to"
 			"\n     port:            Port of provider to connect to"
 			"\n     service:         Name of service to request items from on this connection\n"
+			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
+			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
 			"\n	-segmentedMulticast specifices a multicast connection to open:"
 			"\n		sendAddress:	Multicast address that the provider will be sending data to"
 			"\n		sendPort:		port on the send multicast address that the provider will be sending data to"
@@ -127,6 +129,9 @@ void printUsageAndExit(char *appName)
 			"\n -runtime adjusts the running time of the application.\n"
 			"\n -cache enables cache for the NI provider item payload data\n"
 			"\n -aid Specifies the Application ID\n"
+			" Options for establishing connection(s) and sending requests through a proxy server:\n"
+			"   [ -ph <proxy host> ] [ -pp <proxy port> ] [ -plogin <proxy username> ] [ -ppasswd <proxy password> ] [ -pdomain <proxy domain> ] \n"
+			"\n -castore specifies the filename or directory of the OpenSSL CA store\n"
 			, appName);
 	exit(-1);
 }
