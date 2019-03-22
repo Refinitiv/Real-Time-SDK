@@ -286,10 +286,10 @@ abstract class RestClient implements Runnable, RestCallback {
     	HashMap<String,String> map = new HashMap<>();    	
     	switch (_restConnectOptions.transport())
     	{
-    	case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP:
+    	case ReactorDiscoveryTransportProtocol.RD_TP_TCP:
     		map.put(EDP_RT_TRANSPORT, EDP_RT_TRANSPORT_PROTOCOL_TCP);
     		break;
-    	case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_WEBSOCKET:
+    	case ReactorDiscoveryTransportProtocol.RD_TP_WEBSOCKET:
     		map.put(EDP_RT_TRANSPORT, EDP_RT_TRANSPORT_PROTOCOL_WEBSOCKET);   		
     		break;
     		default:
@@ -298,10 +298,10 @@ abstract class RestClient implements Runnable, RestCallback {
 
     	switch(_restConnectOptions.dataFormat())
     	{
-    	case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_RWF:
+    	case ReactorDiscoveryDataFormatProtocol.RD_DP_RWF:
     		map.put(EDP_RT_DATAFORMAT, EDP_RT_DATAFORMAT_PROTOCOL_RWF);
     		break;
-    	case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_JSON2:
+    	case ReactorDiscoveryDataFormatProtocol.RD_DP_JSON2:
     		map.put(EDP_RT_DATAFORMAT, EDP_RT_DATAFORMAT_PROTOCOL_JSON2);
     		break;
     	default:

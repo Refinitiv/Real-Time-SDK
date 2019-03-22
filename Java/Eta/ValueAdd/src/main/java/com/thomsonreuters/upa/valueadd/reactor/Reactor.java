@@ -686,7 +686,6 @@ public class Reactor
             
             if (sendAuthTokenEvent)
             {
-            	System.out.println("In the Reactor: " +_restClient.reactorAuthTokenInfo());
 				sendAuthTokenEventCallback(reactorChannel, _restClient.reactorAuthTokenInfo(), errorInfo);
 				if (!sendAuthTokenWorkerEvent(reactorChannel, _restClient.reactorAuthTokenInfo()))
 				{
@@ -860,9 +859,9 @@ public class Reactor
 
     		switch (options.transport())
     		{
-    		case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_INIT:
-    		case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP:
-    		case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_WEBSOCKET:
+    		case ReactorDiscoveryTransportProtocol.RD_TP_INIT:
+    		case ReactorDiscoveryTransportProtocol.RD_TP_TCP:
+    		case ReactorDiscoveryTransportProtocol.RD_TP_WEBSOCKET:
     			break;
     		default:
 
@@ -873,9 +872,9 @@ public class Reactor
 
     		switch (options.dataFormat())
     		{
-    		case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_INIT:
-    		case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_JSON2:
-    		case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_RWF:
+    		case ReactorDiscoveryDataFormatProtocol.RD_DP_INIT:
+    		case ReactorDiscoveryDataFormatProtocol.RD_DP_JSON2:
+    		case ReactorDiscoveryDataFormatProtocol.RD_DP_RWF:
     			break;
     		default:
 
@@ -2687,6 +2686,11 @@ public class Reactor
                 }
                 else // watchlist enabled
                 {
+                	if (reactorChannel.watchlist()._loginHandler != null 
+                			&& reactorChannel.watchlist()._loginHandler._loginRequestForEDP != null)
+                	{
+                		reactorChannel.watchlist()._loginHandler._loginRequestForEDP.userName(loginRequest.userName());
+                	}
                 	reactorChannel.watchlist().channelUp(errorInfo);
                 }
             }

@@ -27,8 +27,8 @@ public class ReactorServiceDiscoveryOptions
 		_username = CodecFactory.createBuffer();
 		_password = CodecFactory.createBuffer();
 		_clientId = CodecFactory.createBuffer();
-		_transport = ReactorDiscoveryTransportProtocol.RSSL_RD_TP_INIT;
-		_dataFormat = ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_INIT;
+		_transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
+		_dataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
 		_reactorServiceEndpointEventCallback = null;		
 		_userSpecObject = null;
 		_proxyHostName = CodecFactory.createBuffer();
@@ -45,8 +45,8 @@ public class ReactorServiceDiscoveryOptions
 		_username.clear();
 		_password.clear();
 		_clientId.clear();
-		_transport = ReactorDiscoveryTransportProtocol.RSSL_RD_TP_INIT;
-		_dataFormat = ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_INIT;
+		_transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
+		_dataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
 		_reactorServiceEndpointEventCallback = null;		
 		_userSpecObject = null;
 		_proxyHostName.clear();

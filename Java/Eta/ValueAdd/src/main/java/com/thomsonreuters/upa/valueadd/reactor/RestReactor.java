@@ -211,7 +211,7 @@ class RestReactor
 
 		final String url = restConnectOptions.tokenServiceURL();
 
-		final RestHandler restHandler = new RestHandler(this, restConnectOptions.userSpecObject());
+		final RestHandler restHandler = new RestHandler(this, reactorChannel);
 		
 		if( (restConnectOptions.proxyHost() == null ||restConnectOptions.proxyHost().isEmpty() ) || (restConnectOptions.proxyPort() == -1) )
 		{

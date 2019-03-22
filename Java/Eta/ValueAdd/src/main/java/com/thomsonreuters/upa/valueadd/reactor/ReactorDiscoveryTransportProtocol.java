@@ -15,11 +15,11 @@ public class ReactorDiscoveryTransportProtocol
     }
     
 	/** Unknown transport protocol */
-	public static final int RSSL_RD_TP_INIT = 0;
+	public static final int RD_TP_INIT = 0;
 	/** TCP transport protocol */    	
-	public static final int RSSL_RD_TP_TCP = 1;
-		/** Websocket transport protocol */  
-	public static final int RSSL_RD_TP_WEBSOCKET = 2;  
+	public static final int RD_TP_TCP = 1;
+	/** Websocket transport protocol */  
+	public static final int RD_TP_WEBSOCKET = 2;  
 	
 	
 }

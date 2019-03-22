@@ -56,7 +56,7 @@ class RestConnectOptions {
 		_defaultRespCallback = null;
 		_location = null;
 		_userSpecObject = null;		
-		_transport = ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP;
+		_transport = ReactorDiscoveryTransportProtocol.RD_TP_TCP;
 		_proxyHost = null;
 		_proxyPort = -1;
 		_proxyUserName = null;
