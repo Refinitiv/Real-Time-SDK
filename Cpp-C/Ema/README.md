@@ -1,24 +1,44 @@
-
-
-# Elektron Message API
+# Elektron Message API (EMA) - C++ Edition
 
 
 The Elektron Message API: This is an easy-to-use, performant, open source message layer API. The Elektron Message API helps developers by allowing them to develop applications with significantly less code. It is new and will be enhanced by collaboration with customers (through GitHub) and Thomson Reuters based on customer feedback.
 
 EMA is written on top of the Elektron Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
+This release provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Thomson Reuters transport implementations to connect to Enterprise Platform, Elektron, and the Data Feed Direct products.
 
-(C) Copyright 2018 Thomson Reuters Limited. All rights reserved,
+(C) Copyright 2018 - 2019 Thomson Reuters Limited. All rights reserved,
 Reuters Oak Brook, IL USA
   
+# EMA C++ Documentation
 
+- ElektronMessageAPI Overview
+- Installation Guide
+- DevGuide
+- RDMUsageGuide
+- API_ConceptsGuide
+- ConfigGuide
+- EMACPP_Examples
 
-# Message API Features and Functionality
+In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional documentation, please refer to top level README.MD files.
 
+# EMA Features and Functionality
 
+##Common Features:
+
+- TCP/IP Connectivity
+
+- RMTES Decoder: EMA provides a built in RMTES decoder. IF desired, application may cache RmtesBuffer objects and apply all the received changes to them.
+
+- Data::toString(): All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format.
+
+- Data::getAsHex(): Applications may obtain binary representations of all OMM containers, primitives and messages.
+
+- File Config: Enables applications to specify EMA configuration in an EmaConfig.xml file
+
+- Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceXXX,MsgKeyInUpdates only can be configured
+  on Consumer/IProvider/NiProvider instance level.
 
 ##Consumer Features:
-
-- ADS Multicast: Applications can connect to the ADS Multicast component by specifying the connection type RSSL_RELIABLE_MCAST.  
 
 - RSSL Encrypted and HTTP Connectivity
 
@@ -41,7 +61,6 @@ Reuters Oak Brook, IL USA
 - Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
 
 
-
 ##Non-Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
@@ -59,139 +78,96 @@ Reuters Oak Brook, IL USA
 
 - Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
 
+# EMA C++ Library and Version Information
 
+This distribution contains several sets of libraries, intended to allow for ease of integration into both production and development environments.  
 
-##Common Features:
-
-- TCP/IP Connectivity
-
-- RMTES Decoder: EMA provides a built in RMTES decoder. IF desired, application may cache RmtesBuffer objects and apply all the received changes to them.
-
-- Data::toString(): All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format.
-
-- Data::getAsHex(): Applications may obtain binary representations of all OMM containers, primitives and messages.
-
-- File Config: Enables applications to specify EMA configuration in an EmaConfig.xml file
-
-- Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceXXX,MsgKeyInUpdates only can be configured
-  on Consumer/IProvider/NiProvider instance level.
+Both shared and static libraries are available for use.  All functionality is available with either option.  For information on using and deploying with the shared libraries, see below. 
   
-# Product Content
+Libraries in the Optimized subdirectory are built with optimizations.  These libraries are production ready and will offer the highest level of performance.
 
-- CMake files to build EMA library
-- EMA Examples
-- Documentation 
+Libraries in the Debug subdirectory are built with optimizations, but also contain additional built in safety checks.  If a misuse is detected, an assertion containing additional information will be triggered.  These libraries can be deployed into production, however due to additional performance overhead of the safety checking, they are mainly intended for use during development phases.  
 
+A Shared subdirectory, containing the shared libraries, is available within the Optimized and Debug directories. 
 
-# Documentation
+###Shared Libraries
 
-- EMA Developers Guide
-- EMA Configuration Guide
-- EMA Reference Manual
-- EMA RDM Usage Guide
-- EMA Examples Cross Reference
-- Readme (This File)
-- License File
-- Test Results
-- ESDK C/C++ Migration Guide
-- EMA Examples Supported Features Matrix (EMACPP_Examples.pdf)
+Shared libraries are available for use and contain the same functionality as the static libraries.  
 
-Elektron Message API Documentation is also available online at https://developers.thomsonreuters.com/elektron/elektron-sdk-cc/docs 
+####Windows
 
+Shared library use is similar to static library use, however there are several key differences.  The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the library search path (local directory, system path, etc.) being used by the application.  The library use can be confirmed by using a utility similar to Dependency Walker, available at www.dependencywalker.com.  This will show the shared library dependencies and where they are being resolved to.  
 
-# Hardware/OS Requirements
+#####Static Library Manifest
 
-      (Linux)
-      - HP Intel PC or AMD Opteron (64-bit)
-      - AMD Opteron (64-bit)
-      - Red Hat Enterprise Linux Advanced Server 6.0 64-bit 
-      - Oracle Linux Server 6.0 64-bit (Qualified on RHAS 6.0) **
-      - Oracle Linux Server 7.0 64-bit
-      - CentOS 7 64-bit (Qualified on OL7) **
+    Library Name              Package Version
+    ------------              ---------------
+    libema.lib                ema3.3.0.L1
 
-** EMA is qualified on Oracle Linux Server 6.0 64-bit and CentOS 7 64-bit. Qualification was established by building on Red Hat AS 6.0 64-bit and Oracle Linux 7.0 64-bit, and by running the output on OL6 and CentOS 7, respectively. If you want to build source code on OL6 or CentOS 7, refer to the information in ETA’s readme and replicate the OL6 or CentOS 7 build steps from the ETA Makefiles for the EMA components you want to build. 
+#####Shared Library Manifest
 
-      (Windows)
-      - Intel compatible PC and AMD Opteron for 64-bit
-      - CPUs must have high resolution timer frequencies greater than 1GHz.
-      - Microsoft Windows Server 2008 (SP1 or greater) 64-bit 
-      - Microsoft Windows Server 2012 64-bit 
-      - Microsoft Windows Server 2016 64-bit 
-      - Microsoft Windows 7 Professional 64-bit
-      - Microsoft Windows 8 Professional 64-bit
-      - Microsoft Windows 8.1 Professional 64-bit 
-      - Microsoft Windows 10 Professional 64-bit
+    Library Name              Package Version
+    -------------             ---------------
+    libema.lib                ema3.3.0.L1
+    libema.dll                ema3.3.0.L1
 
+####Linux
+    
+Shared library use is similar to static library use, however there are several key differences.  The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application.  The library use can be confirmed by using the ldd command on the application.  This will show the shared library dependencies and where they are being resolved to.  
 
+In addition, several versions of a shared library can co-exist on the machine.  This allows for easy upgrade of functionality by deploying a newer shared library.  It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
 
-# Software Requirements
+To help with this, the EMA API provides several versioning mechanisms for its shared libraries.  Each library is provided with its package version appended to the end.  For example, libema.so.3.1.  Embedded in this library is a shared object name (soname) that conveys binary compatibility information. (For example, assuming that the embedded soname is libema.so.1.  If binary compatibility were to change in EMA, this embedded soname would be updated to be libema.so.2.) This naming convention is intended to help protect applications from using a non-compatible version of the shared library.  
 
-      (Linux)
-      - GCC compiler suite version 4.4.4 or higher for RHAS 6.0 (64-bit)
-      - GCC compiler suite version 4.4.4 or higher for OLS 6.0 (64-bit)
-      - GCC compiler suite version 4.8.2 or higher for OLS 7.0 (64-bit)
-      - GCC compiler suite version 4.8.2 or higher for CentOS 7.0 (64-bit)
+The API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. This script is provided at the base level of the package, and can be run as follows: 
 
-      (Windows)
-      - Microsoft Visual C++ 11.0 64-bit (Visual Studio 2012)
-      - Microsoft Visual C++ 12.0 64-bit (Visual Studio 2013)
-      - Microsoft Visual C++ 14.0 64-bit (Visual Studio 2015)
-      - Microsoft Visual C++ 15.0 64-bit (Visual Studio 2017)
+	./LinuxSoLink
+    
+This will create all necessary soft links for example makefiles to link.  It is suggested that any applications deployed using shared libraries follow a similar methodology to ensure proper versioning.  Please see the LinuxSoLink script and the example makefiles for a reference. 
 
-      ---------------------------------------------------------
-      Enterprise Platform for Real-Time - RSSL/RWF connections
-      ---------------------------------------------------------
-      - ADS 2.5 or higher
-      - ADH 2.5 or higher
+#####Static Library Manifest
 
-       --------
-       Elektron
-       --------
-      - Elektron Deployed
-      - Elektron Hosted
-      
-# Installation and Use
+    Library Name                Package Version  
+    -------------               -------------- 
+    libema.a                    ema3.3.0.L1
+    
+#####Shared Library Manifest
 
-See the top level Elektron-SDK README.md for details.
+    Library Name                Binary Version       Package Version
+    -------------               --------------       ----------------
+    libema.so.3.3.0.0           libema.so.6          ema3.3.0.L1
+    
+  
+# EMA C++ Issues and Workarounds
 
+- ESDK-421 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA
 
-
-# Issues and Workarounds
-
-- ESDK-380 If CompressionType is set to "None", the CompressionThreshold range check still occurs
-- ESDK-421 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA 
-- ESDK-398 XMLTrace may not flush all information to trace file 
 - ESDK-385 ChannelSet with two multicast channels userQLimit set incorrectly 
+
 - ESDK-395 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
+
 - ESDK-374 Random exit issue with NiProvider, application does not exit.
- 
 
-# Obtaining the Thomson Reuters Field Dictionaries
-
-
-The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in the GitHub repo under `Cpp-C/etc`.
-
-In addition, the most current version can be downloaded from the Customer Zone from the following location.
-
-https://customers.reuters.com/a/technicalsupport/softwaredownloads.aspx
-
-- **Category**: MDS - General
-- **Products**: TREP Templates Service Pack
-
-# Contributing
-Please see the top level **README.md** file for details.
-
+- ESDK-361 When overriding admin messages using addAdminMessage and if the service is down at start-up, the dictionary will not be downloaded properly.
 
 # Reference Information
 
     I-COS Questionnaire: 6032
     Reuters Item Number: N/A
     Product Name: Elektron Message API - C++ Edition
+    Release Number: 3.3.0
+    Load Number: 1
+    Windows Load ID: ema3.3.0.L1.win
+        Supersedes: ema3.2.2.L1.win
+    Linux Load ID: ema3.3.0.L1.linux
+        Supersedes: ema3.2.2.L1.linux
+    Release Status: RRG
+    Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Thomson Reuters Security Compliant
+    Template Version Supported: v4.20.35_TREP_19.21 for RWF and Marketfeed Record Templates
 
-
-# Notes
-- Please make sure to review the **LICENSE.md** file.
+# Notes:
+- This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.
