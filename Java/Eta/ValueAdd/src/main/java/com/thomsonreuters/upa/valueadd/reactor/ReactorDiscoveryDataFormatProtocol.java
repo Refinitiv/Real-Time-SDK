@@ -15,9 +15,9 @@ public class ReactorDiscoveryDataFormatProtocol
     }	
 	
 	/** Unknown data format */    	
-	public static final int RSSL_RD_DP_INIT = 0;
+	public static final int RD_DP_INIT = 0;
 	/** Rwf data format protocol */    	
-	public static final int RSSL_RD_DP_RWF = 1;
+	public static final int RD_DP_RWF = 1;
 	/** tr_json2 data format protocol */    	
-	public static final int RSSL_RD_DP_JSON2 = 2;
+	public static final int RD_DP_JSON2 = 2;
 }

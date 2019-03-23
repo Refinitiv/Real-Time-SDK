@@ -1622,7 +1622,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         if (watchlistConsumerConfig.queryEndpoint())
         {
         	if (watchlistConsumerConfig.enableEncrypted())
-            	reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP);
+            	reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
         	else
         	{
         		System.out.println("Error: Invalid connection type for " + 

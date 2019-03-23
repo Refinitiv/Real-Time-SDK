@@ -160,10 +160,10 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 			case ServiceEndpointDiscoveryOption.TransportProtocol.UNKNOWN:
 				break;
 			case ServiceEndpointDiscoveryOption.TransportProtocol.TCP:
-				_reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP);
+				_reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 				break;
 			case ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET:
-				_reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RSSL_RD_TP_WEBSOCKET);
+				_reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_WEBSOCKET);
 				break;
 			default:
 				strBuilder().append("Invalid transport protocol ").append(serviceEndpointDiscoveryOptionImpl._transport)
@@ -177,10 +177,10 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 			case ServiceEndpointDiscoveryOption.DataformatProtocol.UNKNOWN:
 				break;
 			case ServiceEndpointDiscoveryOption.DataformatProtocol.RWF:
-				_reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_RWF);
+				_reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
 				break;
 			case ServiceEndpointDiscoveryOption.DataformatProtocol.JSON2:
-				_reactorServiceDiscoveryOptions.transport(ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_JSON2);
+				_reactorServiceDiscoveryOptions.transport(ReactorDiscoveryDataFormatProtocol.RD_DP_JSON2);
 				break;
 			default:
 				strBuilder().append("Invalid dataformat protocol ").append(serviceEndpointDiscoveryOptionImpl._dataFormat)
