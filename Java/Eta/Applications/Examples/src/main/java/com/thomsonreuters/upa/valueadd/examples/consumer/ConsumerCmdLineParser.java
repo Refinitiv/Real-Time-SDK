@@ -31,10 +31,10 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private boolean enableSessionMgnt;
 	private String proxyHostname;
 	private String proxyPort;
-	private String proxyUsername;
-	private String proxyPasswd;
-	private String proxyDomain;
-	private String krbFile;
+	private String proxyUsername = "";
+	private String proxyPasswd = "";
+	private String proxyDomain = "";
+	private String krbFile = "";
 	private String keystoreFile;
 	private String keystorePasswd;
 	private boolean cacheOption;
