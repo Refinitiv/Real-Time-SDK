@@ -1018,6 +1018,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     /* Read "HTTP OK" response to "POST HTTP" into ByteBuffer dst. */
     private int initChnlReadFromChannelHTTPok(ByteBuffer dst, Error error) throws IOException
     {
+        dst.clear();
         int bytesRead = read(dst);
         // System.out.println(Transport.toHexString(dst, 0, dst.position()));
 
