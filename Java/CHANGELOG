@@ -73,6 +73,7 @@ ETA Java 3.3.0.L1 Issues Resolved
 [ESDK-627] - Remove references to UPA in ETA C and ETA Java Developers Guide [Case Number: 05543578]
 [ESDK-1709] - Provides HTTP requests for blocking and non-blocking call for ETAJ
 [ESDK-1715] - Implements EDP service discovery and token management for ETAJ reactor
+[ESDK-2609] - Support JDK1.9
 [ESDK-2624] - DateTime is incorrectly implemented as local time rather than GMT [Case Number: 07232265]
 
 --------------------------------------------

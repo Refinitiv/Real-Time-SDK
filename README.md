@@ -86,4 +86,4 @@ Any source code, header files not specified above (even if included by header fi
 
 # Support SLA
 
-Issues raised via GitHub will be addressed in a best-effort manner. For broad questions regarding ESDK, please refer to documentation and Q&A forum on Developer Community for ESDK C/C++ and/or ESDK Java which supported by a existing active community of API users. Please contact Premium Support for any issues or questions that require prompt responses.
+Issues raised via GitHub will be addressed in a best-effort manner. For broad questions regarding ESDK, please refer to documentation and Q&A forum on Developer Community for [ESDK C/C++](https://developers.refinitiv.com/elektron/elektron-sdk-cc) and/or [ESDK Java](https://developers.refinitiv.com/elektron/elektron-sdk-java) which supported by a existing active community of API users. Please contact Premium Support for any issues or questions that require prompt responses.
