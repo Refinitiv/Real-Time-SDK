@@ -149,6 +149,16 @@ int rsslRestGetServByName(char *serv_name)
 	return(-1);
 }
 
+RsslUInt32 RsslRestCurlHandleSumFunction(void* curlHandle)
+{
+	return (RsslUInt32)curlHandle;
+}
+
+RsslBool RsslRestCurlHandleCompareFunction(void* key1, void* key2)
+{
+	return (key1 == key2);
+}
+
 void _rsslClearRestBufferImpl(RsslRestBufferImpl* rsslRestBufferImpl)
 {
 	memset(rsslRestBufferImpl, 0, sizeof(RsslRestBufferImpl));
@@ -986,8 +996,8 @@ RsslRestClient* rsslCreateRestClient(RsslCreateRestClientOptions *pRestClientOpt
 
 	rsslRestClientImpl->pCURLM = curlm;
 
-	if (rsslHashTableInit(&rsslRestClientImpl->restHandleImplTable, pRestClientOpts->requestCountHint, rsslHashU64Sum,
-		rsslHashU64Compare, RSSL_TRUE, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	if (rsslHashTableInit(&rsslRestClientImpl->restHandleImplTable, pRestClientOpts->requestCountHint, RsslRestCurlHandleSumFunction,
+                RsslRestCurlHandleCompareFunction, RSSL_TRUE, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{
 		free(rsslRestClientImpl);
 		(*(rssl_rest_CurlJITFuncs->curl_multi_cleanup))(curlm);
