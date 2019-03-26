@@ -125,9 +125,9 @@ if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND
 		#message("Setting CMake policy CMP0074 esdk/${_EPA_NAME}:[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] ")
 		cmake_policy(SET CMP0074 NEW)
 	endif()
-
-	set(Elektron-SDK-BinaryPack_ROOT "${elektron-sdk-binarypack_install}" CACHE "")
-	set(Elektron-SDK-BinaryPack_DIR "${Elektron-SDK-BinaryPack_ROOT}" CACHE "")
+	
+	set(Elektron-SDK-BinaryPack_ROOT "${elektron-sdk-binarypack_install}" CACHE PATH "")
+	set(Elektron-SDK-BinaryPack_DIR "${Elektron-SDK-BinaryPack_ROOT}" CACHE PATH "")
 	set(elektron-sdk-binarypack_find_options HINTS ${elektron-sdk-binarypack_install} CACHE INTERNAL "")
 
 	unset(_shared_arg)
