@@ -242,10 +242,11 @@ public class Consumer
 	public static void main(String[] args)
 	{
 		OmmConsumer consumer = null;
+		ServiceEndpointDiscovery serviceDiscovery = null;
 		try
 		{
 			AppClient appClient = new AppClient();
-			ServiceEndpointDiscovery serviceDiscovery = EmaFactory.createServiceEndpointDiscovery();
+			serviceDiscovery = EmaFactory.createServiceEndpointDiscovery();
 			OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
 			Map configDb = EmaFactory.createMap();
 			
@@ -289,6 +290,7 @@ public class Consumer
 		finally 
 		{
 			if (consumer != null) consumer.uninitialize();
+			if (serviceDiscovery != null) serviceDiscovery.uninitialize();
 		}
 	}
 }
