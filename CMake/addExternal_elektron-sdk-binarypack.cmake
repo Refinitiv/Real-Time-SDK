@@ -8,27 +8,21 @@
 include(rcdevExternalUtils)
 
 if(NOT elektron-sdk-binarypack_url)
-	set(elektron-sdk-binarypack_url "https://git.sami.int.thomsonreuters.com/EPD/Elektron-SDK-BinaryPack/repository/Elektron-SDK-BinaryPack.tar.xz")
-	#set(elektron-sdk-binarypack_url "https://git.sami.int.thomsonreuters.com/EPD/Elektron-SDK-BinaryPack/repository/Elektron-SDK-BinaryPack.tar.gz")
-	#set(elektron-sdk-binarypack_url "/local/geoff/gitdev/rcdevMaster/rcdev/build/external/dlcache/Elektron-SDK-BinaryPack.tar")
-	#set(elektron-sdk-binarypack_url "https://git.sami.int.thomsonreuters.com/EPD/Elektron-SDK-BinaryPack/repository/archive.tar.gz?ref=Elektron-SDK_1.2.2.0.L1")
+	set(elektron-sdk-binarypack_url "https://github.com/Refinitiv/Elektron-SDK/releases/download/1.3.0.L1/Elektron-SDK-BinaryPack-1.3.0.L1.tar.xz")
 endif()
 if(NOT elektron-sdk-binarypack_hash)
 	# .xz MD5 hash
-	#.orig
 	# .tar.xz 
-	set(elektron-sdk-binarypack_hash "MD5=2891965258fec4e2807967866a5aba0a")
-	# .tar.gz 
-	#set(elektron-sdk-binarypack_hash "MD5=1400ff24162e030d89ca516731446034")
+	set(elektron-sdk-binarypack_hash "MD5=f7c5895164ff3069bb4c5179a5f130f3")
 endif()
 if(NOT elektron-sdk-binarypack_version)
-	set(elektron-sdk-binarypack_version "1.2.2")
+	set(elektron-sdk-binarypack_version "1.3.0.0")
 endif()
 	
 # If the option for using the system installed 
 #  package is not defined
 if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND 
-	(NOT Elektron-SDK-BinaryPack_FOUND) )
+	(NOT TARGET Elektron-SDK-BinaryPack:rsslVACache) )
 	# An external project for Elektron-SDK-BinaryPack
 	set(_EPA_NAME "elektron-sdk-binarypack")
 
@@ -42,24 +36,19 @@ if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND
 	#        install/
 	rcdev_init_ep_add(${_EPA_NAME})
 
-	# The download step should be skipped for packages which already contain
-	# the Elektron-SDK-BinaryPack withon the origional bundle and not as a 
-	# pre-bundeled tarball
-	if (NOT RCDEV_GSG_PACKAGE)
-		# get the file name off the url to ensure it is
-		# downloaded with the same name
-		get_filename_component(_dl_filename "${elektron-sdk-binarypack_url}" NAME)
-		set(_DL_METHOD	 "URL           ${elektron-sdk-binarypack_url}")
+	# get the file name off the url to ensure it is
+	# downloaded with the same name
+	get_filename_component(_dl_filename "${elektron-sdk-binarypack_url}" NAME)
+	set(_DL_METHOD	 "URL           ${elektron-sdk-binarypack_url}")
 
-		if(elektron-sdk-binarypack_hash)
-			list(APPEND _DL_METHOD "URL_HASH      ${elektron-sdk-binarypack_hash}")
-		endif()
+	if(elektron-sdk-binarypack_hash)
+		list(APPEND _DL_METHOD "URL_HASH      ${elektron-sdk-binarypack_hash}")
+	endif()
 
-		list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${elektron-sdk-binarypack_download}")
+	list(APPEND _DL_METHOD "DOWNLOAD_DIR  ${elektron-sdk-binarypack_download}")
 
-		if (DEFINED _dl_filename)
-			list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
-		endif()
+	if (DEFINED _dl_filename)
+		list(APPEND _DL_METHOD "DOWNLOAD_NAME ${_dl_filename}" )
 	endif()
 
 	# Since the elektron-sdk-binarypack is a different external beast, the default
@@ -137,8 +126,9 @@ if( (NOT elektron-sdk-binarypack_USE_INSTALLED) AND
 		cmake_policy(SET CMP0074 NEW)
 	endif()
 
-	set(Elektron-SDK-BinaryPack_ROOT "${elektron-sdk-binarypack_install}" CACHE INTERNAL "")
-	set(Elektron-SDK-BinaryPack_DIR "${Elektron-SDK-BinaryPack_ROOT}" CACHE INTERNAL "")
+	set(Elektron-SDK-BinaryPack_ROOT "${elektron-sdk-binarypack_install}" CACHE "")
+	set(Elektron-SDK-BinaryPack_DIR "${Elektron-SDK-BinaryPack_ROOT}" CACHE "")
+	set(elektron-sdk-binarypack_find_options HINTS ${elektron-sdk-binarypack_install} CACHE INTERNAL "")
 
 	unset(_shared_arg)
 	unset(_log_args)
@@ -155,7 +145,7 @@ DEBUG_PRINT(Elektron-SDK-BinaryPack_CONFIG)
 endif()
 
 if(NOT Elektron-SDK-BinaryPack_FOUND)
-	find_package(Elektron-SDK-BinaryPack "${elektron-sdk-binarypack_version}" REQUIRED)
+	find_package(Elektron-SDK-BinaryPack REQUIRED  "${elektron-sdk-binarypack_find_options}")
 endif()
 
 DEBUG_PRINT(Elektron-SDK-BinaryPack_FOUND)
@@ -163,6 +153,6 @@ DEBUG_PRINT(Elektron-SDK-BinaryPack_INCLUDE_DIRS)
 DEBUG_PRINT(Elektron-SDK-BinaryPack_VERSION_STRING)
 DEBUG_PRINT(Elektron-SDK-BinaryPack::dacsLib)
 DEBUG_PRINT(Elektron-SDK-BinaryPack::ansiLib)
-DEBUG_PRINT(Elektron-SDK-BinaryPack::rsslVACache_static)
+DEBUG_PRINT(Elektron-SDK-BinaryPack::rsslVACache)
 
 
