@@ -88,6 +88,7 @@ This release has been tested with the following on supported platform/OS combina
 	Red Hat Advanced Server 6.4 64-bit with GCC 4.4.4 (RHEL6_64_GCC444) - prebuilt libraries
 	Red Hat Advanced Server 6.3 64-bit with GCC 4.4.6 (RHEL6_64_GCC446) - natively built libraries
 	Red Hat Advanced Server 6.9 64-bit with GCC 4.4.7 (RHEL6_64_GCC447) - natively built libraries
+	Red Hat Advanced Server 7.4 64-bit with GCC 4.8.5 (RHEL7_64_GCC485) - prebuilt libraries 
 	Oracle Linux Server 6.4 64-bit with GCC 4.4.4 (RHEL6_64_GCC444) - prebuilt libraries
 	Oracle Linux Server 7.0 64-bit with GCC 4.8.2 (OL7_64_GCC482) - prebuilt & natively built libraries 
 	Oracle Linux Server 7.1 64-bit with GCC 4.8.3 (OL7_64_GCC483) - prebuilt & natively built libraries
