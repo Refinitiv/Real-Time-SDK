@@ -23,27 +23,67 @@ The Elektron-SDK will support multiple languages across different combinations o
 
 - [C++](Cpp-C)
 - [Java](Java)
-- [C# (Preview Only)](https://github.com/thomsonreuters/Elektron-SDK/tree/Preview/Cs)
+- [C# (Preview Only)](https://github.com/Refinitiv/Elektron-SDK/tree/preview/CSharp)
+
+
+# Documentation
+Documentation is available in several sections:
+
+- [Elektron Message API - C++ Edition](Cpp-C/Ema/Docs)
+- [Elektron Transport API - C Edition](Cpp-C/Eta/Docs)
+- [Elektron Message API - Java Edition](Java/Ema/Docs)
+- [Elektron Transport API - Java Edition](Java/Eta/Docs)
+
+Additionally, documentation is available online from Refinitiv Developer Portal for both C++ and Java at 
+
+- [C++/C](https://developers.refinitiv.com/elektron/elektron-sdk-cc/docs)
+- [Java](https://developers.refinitiv.com/elektron/elektron-sdk-java/docs)
 
 
 # Developing 
-
 If you discover any issues with this project, please feel free to create an Issue.
-
 If you have coding suggestions that you would like to provide for review, please create a Pull Request.
-
 We will review issues and pull requests to determine any appropriate changes.
-
 
 # Contributing
 In the event you would like to contribute to this repository, it is required that you read and sign the following:
 
-- [Individual Contributor License Agreement](https://github.com/thomsonreuters/Elektron-SDK/blob/master/Elektron%20API%20Individual%20Contributor%20License%20Agreement.pdf)
-- [Entity Contributor License Agreement](https://github.com/thomsonreuters/Elektron-SDK/blob/master/Elektron%20API%20Entity%20Contributor%20License%20Agreement.pdf)
+- [Individual Contributor License Agreement](https://github.com/refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Individual%20Contributor%20License%20Agreement.pdf)
+- [Entity Contributor License Agreement](https://github.com/refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
 Please email a signed and scanned copy to `sdkagreement@thomsonreuters.com`.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
+# License Information
+
+####Open Source License Information
+
+License details can be found in the LICENSE.md file contained in this section. The included code is governed by the Apache License, Version 2.0. This applies only to the software provided in the following locations:
+
+- Cpp-C/Ema/Src
+- Cpp-C/Ema/Examples
+- Cpp-C/Ema/TestTools
+- Cpp-C/Eta/Impl
+- Cpp-C/Eta/Applications
+- Cpp-C/Eta/Include
+- Cpp-C/Eta/TestTools
+- Java/Ema/Core
+- Java/Ema/Examples
+- Java/Ema/PerfTools
+- Java/Ema/TestTools
+- Java/Eta/Core
+- Java/Eta/Applications
+- Java/Eta/TestTools
+- Java/Eta/ValueAdd
+- Java/Eta/ValueAddCache
+
+Any source code, header files not specified above (even if included by header files in the locations above), libraries, and underlying dependencies continue to be governed by the licensing and agreements per the Thomson Reuters Customer Zone and RDC Program.
+
+
 
 # Notes:
-- This package contains APIs that are subject to proprietary and open source licenses.  Please make sure to read the readme files within each package for clarification.
+- This section contains APIs that are subject to proprietary and open source licenses.  Please make sure to read the readme files within each API flavor directory for clarification.
 - Please make sure to review the LICENSE.md file.
+
+# Support SLA
+
+Issues raised via GitHub will be addressed in a best-effort manner. For broad questions regarding ESDK, please refer to documentation and Q&A forum on Developer Community for [ESDK C/C++](https://developers.refinitiv.com/elektron/elektron-sdk-cc) and/or [ESDK Java](https://developers.refinitiv.com/elektron/elektron-sdk-java) which supported by a existing active community of API users. Please contact Premium Support for any issues or questions that require prompt responses.

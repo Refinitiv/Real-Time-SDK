@@ -142,10 +142,7 @@ class Worker implements Runnable
                     			// request new refresh auth token
 	                        	event._restClient.requestRefreshAuthToken( reactorChannel , event.errorInfo() );                            
                     		}
-	                            
-	                            // Update the timer, do not remove it
-	                            reactorChannel.calculateNextAuthTokenRequestTime(0);           	
-	                        	event.timeout(reactorChannel.nextAuthTokenRequestTime());	                            
+
 	                        // Update the timer, do not remove it
 	                        reactorChannel.calculateNextAuthTokenRequestTime(0);           	
 	                        event.timeout(reactorChannel.nextAuthTokenRequestTime());                            

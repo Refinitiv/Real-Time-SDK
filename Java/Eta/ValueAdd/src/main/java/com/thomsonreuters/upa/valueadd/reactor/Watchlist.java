@@ -454,13 +454,6 @@ class Watchlist extends VaNode
         _itemHandler.channelUp(errorInfo);
     }
     
-    void authenticationTimer(String authToken, ReactorErrorInfo errorInfo)
-    {
-    	// update the auth token and send it 
-        _loginHandler.authenticationTimer(authToken, errorInfo);
-
-    }
-    
     /* Starts a watchlist timer. */
     int startWatchlistTimer(long expireTime, WlStream wlStream, ReactorErrorInfo errorInfo)
     {

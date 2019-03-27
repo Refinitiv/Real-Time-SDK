@@ -1,7 +1,7 @@
-This is the change log of the Elektron-SDK (ESDK) for C++/C. ESDK consists of both the 
+This is the change log of the Elektron-SDK (ESDK) for Java. ESDK consists of both the 
 Elektron Message API (EMA) and the Elektron Transport API (ETA). This file contains history 
 starting from ESDK 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) 
-of ESDK are fully open sourced. Note that ESDK version numbers start from 1.2.0 and 
+of ESDK were fully open sourced. Note that ESDK version numbers start from 1.2.0 and 
 EMA/ETA version numbers start from 3.2.0.
 
 There are three types of ESDK releases that append a letter directly followed by a 
@@ -15,38 +15,66 @@ number to the version number.
     Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.2.2.L1 aka EMA 3.2.2.L1 and ETA 3.2.2.L1
+CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.3.0.L1 aka EMA 3.3.0.L1 and ETA 3.3.0.L1
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-Provides the functionality for Non-interactive, Interactive, and Consumer 
-applications to get channel information from the EMA's callback methods via 
-OmmProviderEvent and OmmConsumerEvent classes
+This ESDK release provides support for EDP Session management (token renewal)
+and Service Discovery (discovering host/port information based on Cloud region
+and type of connection ). 
 
 Customer Issues Resolved
 ------------------
 
 EMA Java
 --------
-[Case Number: 06453247] - [ESDK-800] - EMA returns info of all services instead of the requested service
-[Case Number: 05958811] - [ESDK-1125] - EMA ConsPerf applications do not use specified username in Login Request 
-[Case Number: 06041830 and 06041830] - [ESDK-2555] - Include latest jdacsUpalib.jar in ESDK
-[Case Number: 06611113] - [ESDK-1601] - Provide channel information in EMA's callback methods 
-[GitHub #76] - [ESDK-1724] - Fixed a concurrent modification exception in ETAJ Reactor service handling after a disconnect. 
-[GitHub #89] - [ESDK-2528] - Fix headings syntax in readme
+[Case Number: 05257390] - [ESDK-484] - EMA Consumer application that requests a streaming source directory does not receive source directory updates. 
+[Case Number: 05533464, GitHub #74] - [ESDK-619] - RMTES Partial updates are not processed correctly if OmmRmtes.toString() is called before OmmRmtes.apply() is called 
+[Case Number: 06902288] - [ESDK-1766] - EMA returns messages to incorrect appClient when OmmConsumer is shared between multiple threads 
+[Case Number: 07023993] - [ESDK-2599] - Require a new utility or interface similar to asHexString that shows raw hex output
+[Case Number: 07244571] - [ESDK-2633] - EMA batch requests consume way more memory than the individual requests. 
 
 ETA Java
 --------
-[Case Number: 06041830 and 06041830] - [ESDK-2555] - Include latest jdacsUpalib.jar in ESDK
-[Case Number: 06705745] - [ESDK-1651] - UPAJConsPerf throws IllegalArgumentException while 
-    connecting when numerous threads attempt to initialize the channel at the same time 
-
+[Case Number: 05543578] - [ESDK-627] - Remove references to UPA in ETA C and ETA Java Developers Guide  
+[Case Number: 07232265] - [ESDK-2624] - DateTime is incorrectly implemented as local time rather than GMT
 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+ESDK Java Release 1.3.0.L1 (March 26, 2019)
+--------------------------------------------
+
+New Features Added
+------------------
+This ESDK release provides support for EDP Session management (token renewal)
+and Service Discovery (discovering host/port information based on Cloud region
+and type of connection ). 
+
+EMA Java 3.3.0.L1 Issues Resolved
+---------------------------------
+[ESDK-484] - EMA Consumer application that requests a streaming source directory does not receive source directory updates. [Case Number: 05257390]
+[ESDK-619] - RMTES Partial updates are not processed correctly if OmmRmtes.toString() is called before OmmRmtes.apply() is called [Case Number: 05533464] 
+[ESDK-1713] - Provides interface design and implementation for EMAJ to support session managment from the Reactor
+[ESDK-1766] - EMA returns messages to incorrect appClient when OmmConsumer is shared between multiple threads [Case Number: 06902288]
+[ESDK-2597] - EMA Consumer application running in User_Dispatch mode sometimes hangs when the upstream source disconnects 
+[ESDK-2599] - Require a new utility or interface similar to asHexString that shows raw hex output [Case Number: 07023993]
+[ESDK-2609] - Support JDK1.9
+[ESDK-2633] - EMA batch requests consume way more memory than the individual requests. [Case Number: 07244571]
+[ESDK-2652] - EMAJ Lack of item recovery if service was brought up after consumer was up
+[ESDK-2678] - Expose initializationTimeout configuration and make default to higher value for Encrypted
+
+ETA Java 3.3.0.L1 Issues Resolved
+---------------------------------
+[ESDK-627] - Remove references to UPA in ETA C and ETA Java Developers Guide [Case Number: 05543578]
+[ESDK-1709] - Provides HTTP requests for blocking and non-blocking call for ETAJ
+[ESDK-1715] - Implements EDP service discovery and token management for ETAJ reactor
+[ESDK-2609] - Support JDK1.9
+[ESDK-2624] - DateTime is incorrectly implemented as local time rather than GMT [Case Number: 07232265]
 
 --------------------------------------------
 ESDK Java Release 1.2.2.L1 (November 15, 2018)
@@ -67,17 +95,17 @@ EMA Java 3.2.2.L1 Issues Resolved
 [ESDK-1724] - Fixed a concurrent modification exception in ETAJ Reactor service handling after a disconnect. [GitHub #76] 
 [ESDK-1753] - Add support for WindowsServer2016 
 [ESDK-2528] - Fix headings syntax in readme [GitHub Pull Request #89]
-[ESDK-2555] - Include latest jdacsUpalib.jar in ESDK [Case Number:  06041830 and 06041830]
+[ESDK-2555] - Include latest jdacsUpalib.jar in ESDK [Case Number:  06042800 and 06041830]
 
 ETA Java 3.2.2.L1 Issues Resolved
 ---------------------------------
 [ESDK-647] - EMAJ or ETAJ consumer sends duplicate FIDs in a snapshot view request
 [ESDK-1651] - UPAJConsPerf throws IllegalArgumentException while connecting when numerous threads 
-	attempt to initialize the channel at the same time
+    attempt to initialize the channel at the same time
 [ESDK-1745] - File Descriptor leak - open a SocketChannel but never closed [GitHub #78]
 [ESDK-1753] - Add support for WindowsServer2016 
 [ESDK-2550] - ETA RDM Usage guide section 6.2.4 shows market price update instead of status
-[ESDK-2555] - Include latest jdacsUpalib.jar in ESDK [Case Number:  06041830 and 06041830]
+[ESDK-2555] - Include latest jdacsUpalib.jar in ESDK [Case Number:  06042800 and 06041830]
 
 --------------------------------------------
 ESDK Java Release 1.2.1.L1 (August 15, 2018)

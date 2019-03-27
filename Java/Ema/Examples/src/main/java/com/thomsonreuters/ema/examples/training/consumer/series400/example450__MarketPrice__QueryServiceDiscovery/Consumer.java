@@ -242,10 +242,11 @@ public class Consumer
 	public static void main(String[] args)
 	{
 		OmmConsumer consumer = null;
+		ServiceEndpointDiscovery serviceDiscovery = null;
 		try
 		{
 			AppClient appClient = new AppClient();
-			ServiceEndpointDiscovery serviceDiscovery = EmaFactory.createServiceEndpointDiscovery();
+			serviceDiscovery = EmaFactory.createServiceEndpointDiscovery();
 			OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
 			Map configDb = EmaFactory.createMap();
 			
@@ -264,11 +265,18 @@ public class Consumer
 			
 			createProgramaticConfig(configDb);
 			
-			consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
-					.clientId(clientId).config(configDb)
-					.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+			if ( (proxyHostName == null) && (proxyPort == "-1") )
+			{
+				consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
+					.clientId(clientId).config(configDb));
+			}
+			else
+			{
+				consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
+					.clientId(clientId).config(configDb).tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
 					.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
 					.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
+			}
 					
 			
 			consumer.registerClient(EmaFactory.createReqMsg().serviceName("ELEKTRON_DD").name("IBM.N"), appClient);
@@ -282,6 +290,7 @@ public class Consumer
 		finally 
 		{
 			if (consumer != null) consumer.uninitialize();
+			if (serviceDiscovery != null) serviceDiscovery.uninitialize();
 		}
 	}
 }

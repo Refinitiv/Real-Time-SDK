@@ -33,9 +33,7 @@ abstract class RestClient implements Runnable, RestCallback {
 	
 	private RestReactorOptions _restReactorOptions;
 	private RestConnectOptions _restConnectOptions;
-	private RestReactorSubmitOptions _restSubmitOptions;
 	private RestAuthOptions _restAuthRequest;
-	private ReactorChannel _reactorChannel;
 	private ReactorErrorInfo _errorInfo;
 	private String _location;
 	
@@ -44,14 +42,13 @@ abstract class RestClient implements Runnable, RestCallback {
 	private JSONArray _endpointConnections;
     
     RestClient ( RestReactorOptions restReactorOpt, RestConnectOptions restConnOpt, 
-    		RestReactorSubmitOptions restReactorSubOpt, RestAuthOptions restAuthOpt, 
+    		RestAuthOptions restAuthOpt, 
     		ReactorErrorInfo errorInfo )
     {
     	_failedAuthReRequest = false;
     	
     	_restReactorOptions = restReactorOpt;
     	_restConnectOptions = restConnOpt;
-    	_restSubmitOptions = restReactorSubOpt;
     	_restAuthRequest = restAuthOpt;    	
     	_errorInfo = errorInfo;
     	
@@ -71,15 +68,7 @@ abstract class RestClient implements Runnable, RestCallback {
     	
     	_reactorServiceEndpointInfoList = new ArrayList<ReactorServiceEndpointInfo>();
     	
-    	new Thread(this).start();    
-    	
-    	if (_restConnectOptions.connect())
-    	{
-    		if (_restConnectOptions.blocking())
-    			this.connectBlocking(null, errorInfo);
-    		else
-    			this.connect(errorInfo);
-    	}
+    	new Thread(this).start();
     }
     
     void connect(ReactorErrorInfo errorInfo)
@@ -94,12 +83,9 @@ abstract class RestClient implements Runnable, RestCallback {
 
     	if (_restConnectOptions.location() != null)
     		_location = _restConnectOptions.location();
-    	
-    	_restSubmitOptions.connectOptions(_restConnectOptions);
-    	_restSubmitOptions.userSpecObj(this);
         
     	// submit auth request
-    	_restReactor.submitAuthRequest(_restAuthRequest, _restSubmitOptions, errorInfo);
+    	_restReactor.submitAuthRequest((ReactorChannel)_restConnectOptions.userSpecObject(), _restAuthRequest, _restConnectOptions, errorInfo);
     	
     }
     
@@ -121,21 +107,18 @@ abstract class RestClient implements Runnable, RestCallback {
     		_restConnectOptions.dataFormat(options.dataFormat());
     		_restConnectOptions.transport(options.transport());
     	}
-    	
-    	_restSubmitOptions.connectOptions(_restConnectOptions);
-    	_restSubmitOptions.userSpecObj(this);
         
     	// submit blocking auth request
     	try {
     		    		
-			_restReactor.submitAuthRequestBlocking(_restAuthRequest, _restSubmitOptions, errorInfo);
+			_restReactor.submitAuthRequestBlocking(_restAuthRequest, _restConnectOptions, errorInfo);
 
 	    	if (errorInfo.code() == ReactorReturnCodes.SUCCESS)
 	    	{
 		    	// request list of services from EDP    	
 		    	RestRequest restRequest = createRestRequest();    	
 				
-				_restReactor.submitRequestBlocking(restRequest, _restSubmitOptions, errorInfo);
+				_restReactor.submitRequestBlocking(restRequest, _restConnectOptions, errorInfo);
 	    	}    	
     	} 
     	catch (IOException e) 
@@ -148,28 +131,22 @@ abstract class RestClient implements Runnable, RestCallback {
     	}
     }
     
-    private void requestNewAuthTokenWithUserNameAndPassword()
+    private void requestNewAuthTokenWithUserNameAndPassword(ReactorChannel reactorChannel)
     {
-    	_restSubmitOptions.connectOptions(_restConnectOptions);
-        
     	_restAuthRequest.grantType(RestReactor.AUTH_PASSWORD);
     	
-    	_restSubmitOptions.userSpecObj(this);
+    	_restConnectOptions.userSpecObject(reactorChannel);
     	
-    	_restReactor.submitAuthRequest(_restAuthRequest, _restSubmitOptions, _errorInfo);
+    	_restReactor.submitAuthRequest(reactorChannel, _restAuthRequest, _restConnectOptions, _errorInfo);
     }
     
     void requestRefreshAuthToken (ReactorChannel reactorChannel, ReactorErrorInfo errorInfo) 
     {	
-    	_reactorChannel = reactorChannel;
+    	_restAuthRequest.refreshToken(_authTokenInfo.refreshToken());
+
+    	_restConnectOptions.userSpecObject(reactorChannel);    	
     	
-    	_restSubmitOptions.connectOptions(_restConnectOptions);
-        
-    	_restAuthRequest.refreshToken(this._authTokenInfo.refreshToken());
-    	
-    	_restSubmitOptions.userSpecObj(this);
-    	
-    	_restReactor.submitAuthRequest(_restAuthRequest, _restSubmitOptions, errorInfo);      	
+    	_restReactor.submitAuthRequest(reactorChannel, _restAuthRequest, _restConnectOptions, errorInfo);      	
     }
     
     public abstract void onNewAuthToken(ReactorChannel reactorChannel, ReactorAuthTokenInfo authTokenInfo, ReactorErrorInfo errorInfo);
@@ -178,6 +155,7 @@ abstract class RestClient implements Runnable, RestCallback {
 	@Override
 	public int RestResponseCallback(RestResponse response, RestEvent event)
 	{
+		ReactorChannel reactorChannel = (ReactorChannel)event.userSpecObj();
 		switch (event.eventType())
 		{
 
@@ -187,17 +165,25 @@ abstract class RestClient implements Runnable, RestCallback {
 			{
 				_failedAuthReRequest = false;
 
+				event._reactorAuthTokenInfo.copy(_restConnectOptions.tokenInformation());
 				event._reactorAuthTokenInfo.copy(_authTokenInfo);
 
-				onNewAuthToken(_reactorChannel, event._reactorAuthTokenInfo, _errorInfo);
+				onNewAuthToken(reactorChannel, event._reactorAuthTokenInfo, _errorInfo);
 				
-				_restSubmitOptions.tokenInformation(_authTokenInfo);
-				
-				if (!_restConnectOptions.blocking() && _reactorChannel.state() == State.EDP_RT)
+				if (reactorChannel != null)
 				{
-					RestRequest restRequest = createRestRequest();
-					
-					_restReactor.submitRequest(restRequest, _restSubmitOptions, _errorInfo);
+					if (reactorChannel._reactorAuthTokenInfo == null)
+						reactorChannel._reactorAuthTokenInfo = new ReactorAuthTokenInfo();
+					event._reactorAuthTokenInfo.copy(reactorChannel._reactorAuthTokenInfo);
+				
+					// if reactor channel not null it means non blocking and if state set it means connection recovery
+					if (reactorChannel.state() == State.EDP_RT)
+					{
+						RestRequest restRequest = createRestRequest();
+						_restConnectOptions.userSpecObject(reactorChannel);
+
+						_restReactor.submitRequest(restRequest, reactorChannel, _errorInfo);
+					}
 				}
 				
 				return ReactorReturnCodes.SUCCESS;
@@ -238,29 +224,40 @@ abstract class RestClient implements Runnable, RestCallback {
 					_reactorServiceEndpointInfoList.add(serviceInfo);
 				}
 				
-				if (_reactorChannel != null && _reactorChannel.state() == State.EDP_RT)
+				if (reactorChannel != null && reactorChannel.state() == State.EDP_RT)
 				{
-					_reactorChannel.state(State.EDP_RT_DONE);
+					reactorChannel.state(State.EDP_RT_DONE);
 				}
 			}			
 		}
-
 		break;	
-
-		case RestEventTypes.FAILED:
+		case RestEventTypes.FAILED:	
 			if (!_failedAuthReRequest)
 			{
-				requestNewAuthTokenWithUserNameAndPassword();
+				if (reactorChannel != null)
+				{
+		            // send warning event to reactor channel
+					_errorInfo.error().text("Failed to request authentication token with refresh token for user: " + 
+							((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString() + 
+							". Will try again with user name and password.");
+		            reactorChannel.reactor().sendAndHandleChannelEventCallback("RestClient.RestResponseCallback",
+		                                              ReactorChannelEventTypes.WARNING,
+		                                              reactorChannel, _errorInfo);
+				}
+				
+				requestNewAuthTokenWithUserNameAndPassword(reactorChannel);
 				_failedAuthReRequest = true;
 			}
 			else
 			{
 				// re requesting second time, this time fail the request
-				if (_reactorChannel != null && _reactorChannel.state() == State.EDP_RT)
+				if (reactorChannel != null && reactorChannel.state() == State.EDP_RT)
 				{			
-					_reactorChannel.setEDPErrorInfo(event.errorInfo());				
-					_reactorChannel.state(State.EDP_RT_FAILED);
+					reactorChannel.setEDPErrorInfo(event.errorInfo());
+					reactorChannel.state(State.EDP_RT_FAILED);
 				}
+				
+				_failedAuthReRequest = false;
 				return ReactorReturnCodes.FAILURE;
 			}
 			break;
@@ -273,9 +270,11 @@ abstract class RestClient implements Runnable, RestCallback {
 	@Override
 	public int RestErrorCallback(RestEvent event)
 	{
-		onError( _reactorChannel, event.errorInfo() );
-		if (_reactorChannel != null && _reactorChannel.state() == State.EDP_RT)
-			_reactorChannel.state(State.EDP_RT_FAILED);
+		ReactorChannel reactorChannel = (ReactorChannel)event.userSpecObj();
+
+		onError( reactorChannel, event.errorInfo() );
+		if (reactorChannel != null && reactorChannel.state() == State.EDP_RT)
+			reactorChannel.state(State.EDP_RT_FAILED);
 		
 		return ReactorReturnCodes.SUCCESS;
 	}	
@@ -287,10 +286,10 @@ abstract class RestClient implements Runnable, RestCallback {
     	HashMap<String,String> map = new HashMap<>();    	
     	switch (_restConnectOptions.transport())
     	{
-    	case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP:
+    	case ReactorDiscoveryTransportProtocol.RD_TP_TCP:
     		map.put(EDP_RT_TRANSPORT, EDP_RT_TRANSPORT_PROTOCOL_TCP);
     		break;
-    	case ReactorDiscoveryTransportProtocol.RSSL_RD_TP_WEBSOCKET:
+    	case ReactorDiscoveryTransportProtocol.RD_TP_WEBSOCKET:
     		map.put(EDP_RT_TRANSPORT, EDP_RT_TRANSPORT_PROTOCOL_WEBSOCKET);   		
     		break;
     		default:
@@ -299,10 +298,10 @@ abstract class RestClient implements Runnable, RestCallback {
 
     	switch(_restConnectOptions.dataFormat())
     	{
-    	case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_RWF:
+    	case ReactorDiscoveryDataFormatProtocol.RD_DP_RWF:
     		map.put(EDP_RT_DATAFORMAT, EDP_RT_DATAFORMAT_PROTOCOL_RWF);
     		break;
-    	case ReactorDiscoveryDataFormatProtocol.RSSL_RD_DP_JSON2:
+    	case ReactorDiscoveryDataFormatProtocol.RD_DP_JSON2:
     		map.put(EDP_RT_DATAFORMAT, EDP_RT_DATAFORMAT_PROTOCOL_JSON2);
     		break;
     	default:
@@ -312,11 +311,6 @@ abstract class RestClient implements Runnable, RestCallback {
 		restRequest.queryParameter(map);
 		
 		return restRequest;
-	}
-	
-	void setReactor(RestReactor reactor)
-	{
-		this._restReactor = reactor;
 	}
 
 	@Override
@@ -330,6 +324,15 @@ abstract class RestClient implements Runnable, RestCallback {
     	{
     		_restReactor.shutdown(errorInfo);
     	}
+	}
+	
+	void shutdown()
+	{
+		ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();		
+		if (_restReactor != null || !_restReactor.isShutdown())
+		{
+			_restReactor.shutdown(errorInfo);
+		}
 	}
 	
 	public String endpoint()
@@ -360,8 +363,4 @@ abstract class RestClient implements Runnable, RestCallback {
 		return _authTokenInfo;
 	}
 	
-	void reactorChannel(ReactorChannel reactorChannel)
-	{
-		_reactorChannel = reactorChannel;
-	}
 }

@@ -69,8 +69,8 @@ class RestProxyAuthHandler
 		authSchemeFlag = 0;
 	}
 	
-	int execute(HttpRequestBase httpRequest, RestConnectOptions connOptions, RestReactorSubmitOptions submitOptions, 
-			ReactorErrorInfo errorInfo, RestHandler restHandler) 
+	int execute(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo, 
+			RestHandler restHandler) 
 			throws ClientProtocolException, IOException
 	{	
 		final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
@@ -87,19 +87,19 @@ class RestProxyAuthHandler
 					
 					if( (authSchemeFlag & NEGOTIATE) != 0 )
 					{
-						return sendKerborosRequest(httpRequest, connOptions, submitOptions, errorInfo, restHandler);
+						return sendKerborosRequest(httpRequest, connOptions, errorInfo, restHandler);
 					}
 					else if ( (authSchemeFlag & KERBEROS) != 0 )
 					{
-						return sendKerborosRequest(httpRequest, connOptions, submitOptions, errorInfo, restHandler);
+						return sendKerborosRequest(httpRequest, connOptions, errorInfo, restHandler);
 					}
 					else if ( (authSchemeFlag & NTLM) != 0 )
 					{
-						return sendNTLMRequest(httpRequest, connOptions, submitOptions, errorInfo, restHandler);
+						return sendNTLMRequest(httpRequest, connOptions, errorInfo, restHandler);
 					}
 					else if ( (authSchemeFlag & BASIC) != 0 )
 					{
-						return sendBasicAuthRequest(httpRequest, connOptions, submitOptions, errorInfo, restHandler);
+						return sendBasicAuthRequest(httpRequest, connOptions, errorInfo, restHandler);
 					}
 				}
 				else
@@ -122,7 +122,7 @@ class RestProxyAuthHandler
 			{
 				if (restHandler == null)
 				{
-					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, submitOptions._userSpecObj);
+					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, connOptions.userSpecObject());
 					RestResponse resp = new RestResponse();
 					
 					RestReactor.convertResponse(_restReactor, response, resp, event);
@@ -173,8 +173,8 @@ class RestProxyAuthHandler
 		}
 	}
 	
-	private int sendBasicAuthRequest(HttpRequestBase httpRequest, RestConnectOptions connOptions, RestReactorSubmitOptions submitOptions,
-			ReactorErrorInfo errorInfo, RestHandler restHandler) throws ClientProtocolException, IOException
+	private int sendBasicAuthRequest(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo,
+			RestHandler restHandler) throws ClientProtocolException, IOException
 	{
 		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
 		            .register(AuthSchemes.BASIC, new BasicSchemeFactory()).build();
@@ -222,7 +222,7 @@ class RestProxyAuthHandler
 			{
 				if( restHandler == null )
 				{
-					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, submitOptions._userSpecObj);
+					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, connOptions.userSpecObject());
 					RestResponse resp = new RestResponse();
 					
 					RestReactor.convertResponse(_restReactor, response, resp, event);
@@ -242,8 +242,8 @@ class RestProxyAuthHandler
 	    }
 	}
 	
-	private int sendNTLMRequest(HttpRequestBase httpRequest, RestConnectOptions connOptions, RestReactorSubmitOptions submitOptions, 
-			ReactorErrorInfo errorInfo, RestHandler restHandler) throws ClientProtocolException, IOException
+	private int sendNTLMRequest(HttpRequestBase httpRequest, RestConnectOptions connOptions, ReactorErrorInfo errorInfo, 
+			RestHandler restHandler) throws ClientProtocolException, IOException
 	{
 		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
 	            .register(AuthSchemes.NTLM, new NTLMSchemeFactory())
@@ -296,7 +296,7 @@ class RestProxyAuthHandler
 			{
 				if(restHandler == null)
 				{
-					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, submitOptions._userSpecObj);
+					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, connOptions.userSpecObject());
 					RestResponse resp = new RestResponse();
 					
 					RestReactor.convertResponse(_restReactor, response, resp, event);
@@ -316,8 +316,8 @@ class RestProxyAuthHandler
 	    }
 	}
 	
-	private int sendKerborosRequest(final HttpRequestBase httpRequest, RestConnectOptions connOptions, RestReactorSubmitOptions submitOptions, 
-			final ReactorErrorInfo errorInfo, final RestHandler restHandler) throws ClientProtocolException, IOException
+	private int sendKerborosRequest(final HttpRequestBase httpRequest, RestConnectOptions connOptions, final ReactorErrorInfo errorInfo, 
+			final RestHandler restHandler) throws ClientProtocolException, IOException
 	{
 		System.setProperty("java.security.krb5.conf", connOptions.proxyKRB5ConfigFile());
 		
@@ -433,7 +433,7 @@ class RestProxyAuthHandler
 			{
 				if(restHandler == null)
 				{
-					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, submitOptions._userSpecObj);
+					RestEvent event = new RestEvent(RestEventTypes.COMPLETED, connOptions.userSpecObject());
 					RestResponse resp = new RestResponse();
 					
 					RestReactor.convertResponse(_restReactor, response, resp, event);

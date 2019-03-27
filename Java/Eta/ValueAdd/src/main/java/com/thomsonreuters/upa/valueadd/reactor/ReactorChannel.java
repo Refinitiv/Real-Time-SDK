@@ -76,8 +76,6 @@ public class ReactorChannel extends VaNode
     // watchlist support
     private Watchlist _watchlist;
     
-    private ReactorErrorInfo _errorInfoEDP;
-    
     /** The ReactorChannel's state. */
     public enum State
     {
@@ -106,6 +104,13 @@ public class ReactorChannel extends VaNode
     
     /* Link for ReactorChannel queue */
     private ReactorChannel _reactorChannelNext, _reactorChannelPrev;
+	
+    private ReactorErrorInfo _errorInfoEDP;    
+    LoginRequest _loginRequestForEDP;
+    ReactorAuthTokenInfo _reactorAuthTokenInfo;
+    private String _clientId;
+    private RestConnectOptions _restConnectOptions;
+    
     static class ReactorChannelLink implements Link<ReactorChannel>
     {
         public ReactorChannel getPrev(ReactorChannel thisPrev) { return thisPrev._reactorChannelPrev; }
@@ -133,6 +138,28 @@ public class ReactorChannel extends VaNode
     void setEDPErrorInfo(ReactorErrorInfo errorInfo)
     {
     	_errorInfoEDP = errorInfo;
+    }
+    
+    RestConnectOptions restConnectOptions()
+    {
+    	if (_restConnectOptions == null)
+    		_restConnectOptions = new RestConnectOptions();
+    	
+    	_restConnectOptions.userSpecObject(this);
+    	
+    	ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
+    	_restConnectOptions.proxyHost(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyHostName());
+    	_restConnectOptions.proxyPort(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyPort());
+    	_restConnectOptions.proxyUserName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyUsername());
+    	_restConnectOptions.proxyPassword(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyPasswd());
+    	_restConnectOptions.proxyDomain(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyDomain());
+    	_restConnectOptions.proxyLocalHostName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyLocalHostname());
+    	_restConnectOptions.proxyKRB5ConfigFile(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyKRB5configFile());    	
+    	
+    	_restConnectOptions.tokenServiceURL(_reactor._reactorOptions.tokenServiceURL().toString());
+    	_restConnectOptions.serviceDiscoveryURL(_reactor._reactorOptions.serviceDiscoveryURL().toString());
+    	
+    	return _restConnectOptions;
     }
     
     /**
@@ -207,8 +234,28 @@ public class ReactorChannel extends VaNode
 		
 		_reactorConnectOptions = null;
 		_listIndex = 0;
+		
+	    _errorInfoEDP = null;    
+	    _loginRequestForEDP = null;
+	    _reactorAuthTokenInfo = null;
+	    _clientId = null;		
     }
 
+    String clientId()
+    {
+    	if (_clientId == null)
+    	{
+    		if (_role.type() == ReactorRoleTypes.CONSUMER)
+    		{
+    			if (((ConsumerRole)_role)._clientId.length() == 0)
+    				_clientId = _loginRequestForEDP.userName().toString();
+    			else
+    				_clientId = ((ConsumerRole)_role)._clientId.toString();
+    		}
+    	}
+    	return _clientId;
+    }
+    
     /* Check if the tunnel manager needs a dispatch, timer event, or channel flush. */
     int checkTunnelManagerEvents(ReactorErrorInfo errorInfo)
     {
@@ -1298,41 +1345,40 @@ public class ReactorChannel extends VaNode
     	{
     		if (_watchlist != null)
     		{
-    			if (verifyAndCopyServiceDiscoveryData(_watchlist.role().rdmLoginRequest(), errorInfo) != ReactorReturnCodes.SUCCESS)
+    			if (verifyAndCopyServiceDiscoveryData(_loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
     			{
     				error.text(errorInfo.error().text());
         			return null;
     			}
-    			// update the user name in watchlist login request
-    			if (_watchlist._loginHandler._loginRequest != null)
-    			{
-    				_watchlist._loginHandler._loginRequest.userName().data(_reactor._restClient.reactorAuthTokenInfo().accessToken());
-    			}
     		}
-    		else if (_watchlist == null && verifyAndCopyServiceDiscoveryData(((ConsumerRole)_role).rdmLoginRequest(), errorInfo) != ReactorReturnCodes.SUCCESS)
+    		else if (_watchlist == null && verifyAndCopyServiceDiscoveryData(_loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
     		{
     			error.text(errorInfo.error().text());
     			return null;	
     		}
 
     		// setup a timer
-			if (!_reactor.sendAuthTokenWorkerEvent(this, _reactor._restClient.reactorAuthTokenInfo()))
+			if (!_reactor.sendAuthTokenWorkerEvent(this, _reactorAuthTokenInfo))
 			{	
 				error.text("sendAuthTokenWorkerEvent() failed");
 				return null;
 			}
-
 			return reconnect(reactorConnectInfo, error);	
     	}
     	else if (_state == State.EDP_RT_FAILED)
     	{
-	        _reactor.sendAuthTokenEventCallback(this, _reactor._restClient.reactorAuthTokenInfo(), _errorInfoEDP);	        
+	        _reactor.sendAuthTokenEventCallback(this, _reactorAuthTokenInfo, _errorInfoEDP);	        
 	        
 			return reconnect(reactorConnectInfo, error);	
     	}	
 		
     	return null;
-    }	
+    }
+    
+    boolean enableSessionManagement()
+    {
+    	return _reactorConnectOptions.connectionList().get(_listIndex).enableSessionManagement();
+    }
 	
     /* Attempts to reconnect, using the next set of connection options in the channel's list. */
     Channel reconnect(Error error)
@@ -1348,7 +1394,7 @@ public class ReactorChannel extends VaNode
     	{
             ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
     		
-    		if (_reactor.sessionManagementConfigValidationAndStartup(reactorConnectInfo, _role, this, false, errorInfo) != ReactorReturnCodes.SUCCESS)
+    		if (_reactor.sessionManagementConfigValidationAndStartup(reactorConnectInfo, _role, this, errorInfo) != ReactorReturnCodes.SUCCESS)
     		{
     			error.text(errorInfo.error().text());
     			return null;
@@ -1403,7 +1449,7 @@ public class ReactorChannel extends VaNode
     int verifyAndCopyServiceDiscoveryData (LoginRequest rdmLoginRequest, ReactorErrorInfo errorInfo)
     {
      	rdmLoginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
-    	rdmLoginRequest.userName().data(_reactor._restClient.reactorAuthTokenInfo().accessToken());
+    	rdmLoginRequest.userName().data(_reactorAuthTokenInfo.accessToken());
     	// Do not send the password
     	rdmLoginRequest.flags(rdmLoginRequest.flags() & ~LoginRequestFlags.HAS_PASSWORD);        	
     	

@@ -32,8 +32,6 @@ class RestConnectOptions {
 	private String _proxyDomain;
 	private String _proxyLocalHostName;
 	private String _proxyKrb5ConfigFile;
-	private boolean _blocking;
-	private boolean _connect;
 
     public RestConnectOptions()
     {
@@ -58,7 +56,7 @@ class RestConnectOptions {
 		_defaultRespCallback = null;
 		_location = null;
 		_userSpecObject = null;		
-		_transport = ReactorDiscoveryTransportProtocol.RSSL_RD_TP_TCP;
+		_transport = ReactorDiscoveryTransportProtocol.RD_TP_TCP;
 		_proxyHost = null;
 		_proxyPort = -1;
 		_proxyUserName = null;
@@ -66,8 +64,6 @@ class RestConnectOptions {
 		_proxyDomain = null;
 		_proxyLocalHostName = "localhost";
 		_proxyKrb5ConfigFile = "krb5.conf";
-		_blocking = true;
-		_connect = true;
 	}
 	
 	public ReactorAuthTokenInfo tokenInformation()
@@ -144,26 +140,6 @@ class RestConnectOptions {
 		ByteBuffer byteBuffer = ByteBuffer.allocate(clientId.length());
 		clientId.copy(byteBuffer);
 		_clientId.data(byteBuffer);
-	}
-	
-	public void blocking(boolean blocking)
-	{
-		_blocking = blocking;
-	}
-	
-	public boolean blocking()
-	{
-		return _blocking;
-	}
-	
-	public void connect(boolean connect)
-	{
-		_connect = connect;
-	}
-	
-	public boolean connect()
-	{
-		return _connect;
 	}	
 	
 	public Buffer clientId ()
@@ -294,8 +270,6 @@ class RestConnectOptions {
         destOpts._scheme = _scheme;
         destOpts._host = _host;
         destOpts._port = _port;
-        destOpts._blocking = _blocking;
-
         destOpts._password = _password;        
         destOpts._userSpecObject = _userSpecObject;
         destOpts._fragmentSizeHint = _fragmentSizeHint;

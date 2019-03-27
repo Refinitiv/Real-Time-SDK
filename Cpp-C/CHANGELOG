@@ -1,7 +1,7 @@
 This is the change log of the Elektron-SDK (ESDK) for C++/C. ESDK consists of both the 
 Elektron Message API (EMA) and the Elektron Transport API (ETA). This file contains history 
 starting from ESDK 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) 
-of ESDK are fully open sourced. Note that ESDK version numbers start from 1.2.0 and 
+of ESDK were fully open sourced. Note that ESDK version numbers start from 1.2.0 and 
 EMA/ETA version numbers start from 3.2.0.
 
 There are three types of ESDK releases that append a letter directly followed by a 
@@ -15,34 +15,88 @@ number to the version number.
     Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.2.2.L1 aka EMA 3.2.2.L1 and ETA 3.2.2.L1
+CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.3.0.L1 aka EMA 3.3.0.L1 and ETA 3.3.0.L1
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-Provides the functionality for Non-interactive, Interactive, and Consumer 
-applications to get channel information from the EMA's callback methods via 
-OmmProviderEvent and OmmConsumerEvent classes
+This ESDK release provides support for EDP Session management (token renewal)
+and Service Discovery (discovering host/port information based on Cloud region
+and type of connection ). Also available is added support for encrypted
+transport using openSSL versions 1.0.X and 1.1.X on Windows and Linux for EMA
+C++ and ETA C. Also in this release, all external dependencies such as libxml2, zlib, 
+lz2 rely on associated external distribution locations and incorporated into build using cmake. 
+
 
 Customer Issues Resolved
 ------------------
 
 EMA C++
 -------
-[Case Number: 05541113] - [ESDK-632] - [OB] Elektron SDK EmaCppConsPerf - latencyFile doesn't create log file
-[Case Number: 05958811] - [ESDK-1125] - EMA ConsPerf applications do not use specified username in Login Request
-[Case Number: 06611113] - [ESDK-1601] - Provide channel information in EMA's callback methods 
-[GitHub #80] - [ESDK-1751] - Remove undefined increment operator behavior 
+[Case Number: 05257390] - [ESDK-484] -  EMA Consumer application that requests a streaming source directory does not receive source directory updates.
+[Case Number: 05533464, GitHub #74] - [ESDK-619] - RMTES Partial updates are not processed correctly if OmmRmtes.toString() is called before OmmRmtes.apply() is called 
+[Case Number: 06643952] - [ESDK-1622] - Elektron-SDK-BinaryPack should be optional, client can't download external resources via git
+[GitHub #81] - [ESDK-1760] - Fix uname program name in cmake setup 
+[Case Number: 07023993] - [ESDK-2599] - Require a new utility or interface similar to asHexString that shows raw hex output
 
 ETA C
 -------
-[Developer Community] - [ESDK-2550] ETA RDM Usage guide section 6.2.4 shows market price update instead of status
+[Case Number: 05543578] - [ESDK-627] - Remove references to UPA in ETA C and ETA Java Developers Guide 
 
 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+---------------------------------------------
+ESDK C++/C Release 1.3.0.L1 (March 26, 2019)
+---------------------------------------------
+
+New Features Added
+------------------
+This ESDK release provides support for EDP Session management (token renewal)
+and Service Discovery (discovering host/port information based on Cloud region
+and type of connection ). Also available is added support for encrypted
+transport using openSSL versions 1.0.X and 1.1.X on Windows and Linux for EMA
+C++ and ETA C. Also in this release, all external dependencies such as libxml2, zlib, 
+lz2 rely on associated external distribution locations and incorporated into build using cmake. 
+
+EMA C++ 3.3.0.L1 Issues Resolved
+--------------------------------
+[ESDK-484] - EMA Consumer application that requests a streaming source directory does not receive source directory updates. [ Case 05257390 ]
+[ESDK-619] - RMTES Partial updates are not processed correctly if OmmRmtes.toString() is called before OmmRmtes.apply() is called [Case Number: 05533464, GitHub #74]
+[ESDK-1245] - Qualify Linux GCC 4.8.5
+[ESDK-1480] - Default CMAKE option in GSG package to be cmake -DUSE_PREBUILT_ETA_EMA_LIBRARIES=ON
+[ESDK-1565] - Turn on OpenSSL support for Windows Client connections
+[ESDK-1611] - Client side encryption
+[ESDK-1622] - Elektron-SDK-BinaryPack should be optional, client can't download external resources via git [Case Number: 06643952]
+[ESDK-1626] - Update OpenSSL usage to support both 1.0.X and 1.1.X interfaces at run-time
+[ESDK-1687] - Use Cmake to obtain Zlib from GitHub
+[ESDK-1688] - Use Cmake to obtain Libxml2 from GitHub
+[ESDK-1714] - Provides interface design and implementation for EMACPP to support session managment from the Reactor
+[ESDK-1760] - Fix uname program name in cmake setup [GitHub #81]
+[ESDK-2599] - Require a new utility or interface similar to asHexString that shows raw hex output [Case Number: 07023993]
+[ESDK-2678] - Expose initializationTimeout configuration and make default to higher value for Encrypted
+
+ETA C 3.3.0.L1 Issues Resolved
+--------------------------------
+[ESDK-132] - ETAC WL consumer example with encrypted connection is crashing when channel initialization fails
+[ESDK-627] - Remove references to UPA in ETA C and ETA Java Developers Guide [Case Number: 05543578]
+[ESDK-212] - Incorrect syntax for command line argument example with upacTransportPerf example
+[ESDK-1245] - Qualify Linux GCC 4.8.5
+[ESDK-1565] - Turn on OpenSSL support for Windows Client connections
+[ESDK-1611] - Client side encryption
+[ESDK-1626] - Update OpenSSL usage to support both 1.0.X and 1.1.X interfaces at run-time
+[ESDK-1628] - ETAC: Extend OpenSSL usage to verify the certificate
+[ESDK-1687] - Use Cmake to obtain Zlib from GitHub
+[ESDK-1688] - Use Cmake to obtain Libxml2 from GitHub
+[ESDK-1710] - Provides HTTP requests for blocking and non-blocking call for ETAC
+[ESDK-1716] - Implements EDP service discovery and token management for ETAC reactor
+[ESDK-1746] - Update ETA examples to connection using HTTPS connection type with/without a proxy
+[ESDK-1747] - Fix Cpp-C ANSI and DACS Guide links in reference manual
+[ESDK-2603] - CMake changes for new add external project cmake modules
+[ESDK-2605] - Remove references to TS1 Parser
 
 ---------------------------------------------
 ESDK C++/C Release 1.2.2.L1 (November 15, 2018)

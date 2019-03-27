@@ -28,7 +28,6 @@ class RestHandler implements FutureCallback<HttpResponse> {
 		_event.eventType(RestEventTypes.COMPLETED);
 		_event.userSpecObj(_userSpecObj);
 		_response = new RestResponse();
-		
 		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 		{
 			try {

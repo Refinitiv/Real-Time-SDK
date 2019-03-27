@@ -138,6 +138,10 @@ void printUsageAndExit(char *appName)
 			"\n"
 			" Options for establishing connection(s) and sending requests through a proxy server:\n"
 			"   [ -ph <proxy host> ] [ -pp <proxy port> ] [ -plogin <proxy username> ] [ -ppasswd <proxy password> ] [ -pdomain <proxy domain> ] \n"
+			"\n -castore specifies the filename or directory of the OpenSSL CA store\n"
+			"\n -libcurlName specifies the name of the libcurl shared object"
+			"\n -libsslName specifies the name of libssl shared object"
+			"\n -libcryptName specifies the name of libcrypto shared object\n"
 			"\n -runtime adjusts the running time of the application.\n"
 			, appName, appName);
 

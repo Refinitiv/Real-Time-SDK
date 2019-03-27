@@ -177,7 +177,7 @@ class RestReactor
         return reactorReturnCode;
     }
     
-    public int submitAuthRequest(final RestAuthOptions options, final RestReactorSubmitOptions submitOptions, final ReactorErrorInfo errorInfo)
+    public int submitAuthRequest(ReactorChannel reactorChannel, final RestAuthOptions options, final RestConnectOptions restConnectOptions, final ReactorErrorInfo errorInfo)
    	{
     	if (!_reactorActive)
     	{
@@ -186,40 +186,44 @@ class RestReactor
                      "RestReactor.submitAuthRequest", "RestReactor is not active, aborting");
     	}
 		
-    	final HttpHost target = new HttpHost(submitOptions._connectOptions.host(), submitOptions._connectOptions.port(), submitOptions._connectOptions.scheme()); 
+    	final HttpHost target = new HttpHost(restConnectOptions.host(), restConnectOptions.port(), restConnectOptions.scheme()); 
 
 		final List<NameValuePair> params = new ArrayList<>(6);
-		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE,options.grantType()));
-		params.add(new BasicNameValuePair(AUTH_USER_NAME, options.username()));
+		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, options.grantType()));
+		params.add(new BasicNameValuePair(AUTH_USER_NAME, ((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString()));			
+		if  (((ConsumerRole)reactorChannel.role()).clientId().toString() == null )
+			params.add(new BasicNameValuePair(AUTH_CLIENT_ID, ((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString()));				
+		else
+			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  ((ConsumerRole)reactorChannel.role()).clientId().toString()));
 		
-		params.add(new BasicNameValuePair(AUTH_CLIENT_ID, options.clientId()));
 		params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, "true")); //must set true here
 		if (options.hasRefrehTokoen() && options.grantType().equals(AUTH_REFRESH_TOKEN)) //for new refresh token
-			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, options.refreshToken()));
-		//must set for the first access_token, otherwise receive status code: 403 forbidden.
-		//must not include scope if the scope for reissue is same, client will issue new token in the same scope.
+		{
+			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, reactorChannel._reactorAuthTokenInfo.refreshToken()));			
+			//must set for the first access_token, otherwise receive status code: 403 forbidden.
+			//must not include scope if the scope for reissue is same, client will issue new token in the same scope.
+		}
 		else 
 		{
 			params.add(new BasicNameValuePair(AUTH_SCOPE, options.tokenScope())); 
-			params.add(new BasicNameValuePair(AUTH_PASSWORD, options.password()));
+			params.add(new BasicNameValuePair(AUTH_PASSWORD, reactorChannel._loginRequestForEDP.password().toString()));
 		}
+
+		final String url = restConnectOptions.tokenServiceURL();
+
+		final RestHandler restHandler = new RestHandler(this, reactorChannel);
 		
-		final String url = submitOptions._connectOptions.tokenServiceURL();
-		
-		final RestHandler restHandler = new RestHandler(this, submitOptions._userSpecObj);
-		
-		if( (submitOptions._connectOptions.proxyHost() == null ||submitOptions._connectOptions.proxyHost().isEmpty() ) || (submitOptions._connectOptions.proxyPort() == -1) )
+		if( (restConnectOptions.proxyHost() == null ||restConnectOptions.proxyHost().isEmpty() ) || (restConnectOptions.proxyPort() == -1) )
 		{
 		    final BasicHttpEntityEnclosingRequest httpRequest = new BasicHttpEntityEnclosingRequest(AUTH_POST, url);
 		    
 		    httpRequest.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8));
-		    if ( options.hasHeaderAttribute() )
+		    if ( options.hasHeaderAttribute() )	
 		    {
 		    	Map<String,String> headerAttribs = options.headerAttribute();
 		    	for (Map.Entry<String,String> entry : headerAttribs.entrySet())
 		    		httpRequest.addHeader(entry.getKey(), entry.getValue());
 		    }
-		    
 			final HttpAsyncRequester requester = new HttpAsyncRequester(HttpProcessorBuilder.create()
 	                .add(new RequestContent())
 	                .add(new RequestTargetHost())
@@ -250,14 +254,14 @@ class RestReactor
 				    
 				    httppost.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8));
 				    
-				    HttpHost proxy = new HttpHost(submitOptions._connectOptions.proxyHost(), submitOptions._connectOptions.proxyPort(), "http");
+				    HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 		   			RequestConfig config = RequestConfig.custom()
 		                    .setProxy(proxy)
 		                    .build();
 		   			httppost.setConfig(config);
 		   			
 		   			try {
-						_restProxyAuthHandlerForNonBlocking.execute(httppost, submitOptions._connectOptions, submitOptions, errorInfo, restHandler);
+						_restProxyAuthHandlerForNonBlocking.execute(httppost, restConnectOptions, errorInfo, restHandler);
 					} catch (IOException e) {
 						restHandler.failed(e);
 					}
@@ -270,7 +274,7 @@ class RestReactor
         return ReactorReturnCodes.SUCCESS;
    	}
     
-    public int submitRequest(RestRequest request, final RestReactorSubmitOptions submitOptions, final ReactorErrorInfo errorInfo) 
+    public int submitRequest(RestRequest request, ReactorChannel reactorChannel, final ReactorErrorInfo errorInfo) 
     {
     	if (!_reactorActive)
     	{
@@ -279,12 +283,14 @@ class RestReactor
                      "RestReactor.submitRequest", "RestReactor is not active, aborting");
     	}
     	
-    	final HttpHost target = new HttpHost(submitOptions._connectOptions.host(), submitOptions._connectOptions.port(), submitOptions._connectOptions.scheme()); 
+    	final RestConnectOptions restConnectOptions = reactorChannel.restConnectOptions();
+    	
+    	final HttpHost target = new HttpHost(restConnectOptions.host(), restConnectOptions.port(), restConnectOptions.scheme()); 
     	 		
     	URIBuilder uriBuilder = null;
     	
     	try {
-    		uriBuilder = new URIBuilder(submitOptions.connectOptions().serviceDiscoveryURL() + "/");    		
+    		uriBuilder = new URIBuilder(restConnectOptions.serviceDiscoveryURL() + "/");    		
     	}
     	catch (Exception e)
     	{
@@ -320,15 +326,13 @@ class RestReactor
 				httpRequest.addHeader(entry.getKey(), entry.getValue());
 		}
 		
-		String token = submitOptions.connectOptions().tokenInformation().accessToken();
-		if (token == null)
-			token = _restReactorOptions.connectionOptions().tokenInformation().accessToken();
+		String token = reactorChannel._reactorAuthTokenInfo.accessToken();
 		
 		httpRequest.setHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + token);
 		
-		final RestHandler restHandler = new RestHandler(this, submitOptions._userSpecObj);
+		final RestHandler restHandler = new RestHandler(this, reactorChannel);
 		
-		if( (submitOptions._connectOptions.proxyHost() == null ||submitOptions._connectOptions.proxyHost().isEmpty() ) || (submitOptions._connectOptions.proxyPort() == -1) )
+		if( (restConnectOptions.proxyHost() == null ||restConnectOptions.proxyHost().isEmpty() ) || (restConnectOptions.proxyPort() == -1) )
 		{
 			final HttpAsyncRequester requester = new HttpAsyncRequester(HttpProcessorBuilder.create()
 	                .add(new RequestContent())
@@ -336,7 +340,6 @@ class RestReactor
 	                .add(new RequestConnControl())
 	                .add(new RequestUserAgent(AUTH_REQUEST_USER_AGENT))
 	                .add(new RequestExpectContinue(true)).build());
-	
 			requester.execute(
 	             new BasicAsyncRequestProducer(target, httpRequest),
 	             new BasicAsyncResponseConsumer(),
@@ -349,14 +352,14 @@ class RestReactor
 			new Thread() {
 				public void run() {
 				    
-				    HttpHost proxy = new HttpHost(submitOptions._connectOptions.proxyHost(), submitOptions._connectOptions.proxyPort(), "http");
+				    HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 		   			RequestConfig config = RequestConfig.custom()
 		                    .setProxy(proxy)
 		                    .build();
 		   			httpRequest.setConfig(config);
 		   			
 		   			try {
-						_restProxyAuthHandlerForNonBlocking.execute(httpRequest, submitOptions._connectOptions, submitOptions, errorInfo, restHandler);
+						_restProxyAuthHandlerForNonBlocking.execute(httpRequest, restConnectOptions, errorInfo, restHandler);
 					} catch (IOException e) {
 					
 						restHandler.failed(e);
@@ -430,7 +433,7 @@ class RestReactor
     }
     
     public int submitAuthRequestBlocking(RestAuthOptions options, 
-    		RestReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo) throws IOException
+    		RestConnectOptions restConnectOptions, ReactorErrorInfo errorInfo) throws IOException
    	{
     	if (!_reactorActive)
     	{
@@ -459,10 +462,6 @@ class RestReactor
 	
    		try
    		{
-   			RestConnectOptions connOptions = submitOptions.connectOptions();
-   			if (connOptions == null) 
-   				connOptions = _restReactorOptions.connectionOptions();
-   			
    			final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, Consts.UTF_8);
    			if (options.hasHeaderAttribute())
    			{
@@ -475,21 +474,21 @@ class RestReactor
    					entity.setContentType(headers.get(HttpHeaders.CONTENT_TYPE));
    			}
    			
-   			String url = connOptions.tokenServiceURL();
-   			
+   			String url = restConnectOptions.tokenServiceURL();
+
    			final HttpPost httppost = new HttpPost(url);
 
    			httppost.setEntity(entity);	
    			
-   			if( (connOptions.proxyHost() != null && !connOptions.proxyHost().isEmpty()) && (connOptions.proxyPort() != -1))
+   			if( (restConnectOptions.proxyHost() != null && !restConnectOptions.proxyHost().isEmpty()) && (restConnectOptions.proxyPort() != -1))
    			{
-   				HttpHost proxy = new HttpHost(connOptions.proxyHost(), connOptions.proxyPort(), "http");
+   				HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 	   			RequestConfig config = RequestConfig.custom()
 	                    	.setProxy(proxy)
 	                    	.build();
 	   			httppost.setConfig(config);
 	   			
-   				return _restProxyAuthHandler.execute(httppost, connOptions, submitOptions, errorInfo, null);
+   				return _restProxyAuthHandler.execute(httppost, restConnectOptions, errorInfo, null);
    			}
    			else
    			{
@@ -509,7 +508,7 @@ class RestReactor
 		   			}
 		   			else
 		   			{
-		   				RestEvent event = new RestEvent(RestEventTypes.COMPLETED, submitOptions._userSpecObj);
+		   				RestEvent event = new RestEvent(RestEventTypes.COMPLETED, restConnectOptions.userSpecObject());
 		   				RestResponse resp = new RestResponse();
 		   				
 		   				convertResponse(this, response, resp, event);
@@ -533,7 +532,7 @@ class RestReactor
    	}
     
     public int submitRequestBlocking(RestRequest request, 
-    		RestReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo) throws IOException
+    		RestConnectOptions restConnectOptions, ReactorErrorInfo errorInfo) throws IOException
    	{
     	if (!_reactorActive)
     	{
@@ -550,7 +549,7 @@ class RestReactor
     	URIBuilder uriBuilder = null;
     	
     	try {
-    		uriBuilder = new URIBuilder(submitOptions.connectOptions().serviceDiscoveryURL() + "/");    		
+    		uriBuilder = new URIBuilder(restConnectOptions.serviceDiscoveryURL() + "/");    		
     	}
     	catch (Exception e)
     	{
@@ -581,21 +580,19 @@ class RestReactor
    					httpget.addHeader(entry.getKey(), entry.getValue());
    			}
 
-			String token = submitOptions.connectOptions().tokenInformation().accessToken();
-			if (token == null)
-				token = _restReactorOptions.connectionOptions().tokenInformation().accessToken();
+			String token = restConnectOptions.tokenInformation().accessToken();
 			
 			httpget.setHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + token);
 		
-			if((submitOptions.connectOptions().proxyHost() != null && !submitOptions.connectOptions().proxyHost().isEmpty()) && (submitOptions.connectOptions().proxyPort() != -1))
+			if((restConnectOptions.proxyHost() != null && !restConnectOptions.proxyHost().isEmpty()) && (restConnectOptions.proxyPort() != -1))
    			{
-   				HttpHost proxy = new HttpHost(submitOptions.connectOptions().proxyHost(), submitOptions.connectOptions().proxyPort(), "http");
+   				HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 	   			RequestConfig config = RequestConfig.custom()
 	                    .setProxy(proxy)
 	                    .build();
 	   			httpget.setConfig(config);
 	   			
-   				return _restProxyAuthHandler.execute(httpget, submitOptions.connectOptions(), submitOptions, errorInfo, null);
+   				return _restProxyAuthHandler.execute(httpget, restConnectOptions, errorInfo, null);
    			}
    			else
    			{
@@ -603,7 +600,8 @@ class RestReactor
    				try
    				{
 	   				HttpResponse response = httpClient.execute(httpget);
-					if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
+
+	   				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 					{
 		   				populateErrorInfo(errorInfo,   				
 		                        ReactorReturnCodes.FAILURE,
@@ -615,7 +613,7 @@ class RestReactor
 					}
 					else
 					{
-						final RestEvent event = new RestEvent(RestEventTypes.COMPLETED, submitOptions._userSpecObj);
+						final RestEvent event = new RestEvent(RestEventTypes.COMPLETED, restConnectOptions.userSpecObject());
 		   				final RestResponse resp = new RestResponse();
 		   				
 		   				convertResponse(this, response, resp, event);
