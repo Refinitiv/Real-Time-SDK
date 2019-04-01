@@ -1,10 +1,10 @@
 !
 ! RWF.DAT file.
 !
-! Release 4.20.35
+! Release 4.20.36
 !
-! Produced by Ian Carter at 10:55:46 on 06/12/2018.
-! Using Master FID list software version 7.00 (03 Oct 18)
+! Produced by u6062221 at 13:36:33 on 20/03/19.
+! Using Master FID list software version 7.00 (03 Oct 2018)
 !
 ! Copyright Refinitiv 2018
 !
@@ -19,9 +19,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.35
-!tag Build     001
-!tag Date      06-Dec-2018
+!tag Version   4.20.36
+!tag Build     1
+!tag Date      20-Mar-2019
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -23693,7 +23693,10 @@ SIMC_CHN2  "SIMC CHAIN 2"        8335  NULL        ALPHANUMERIC       32  ASCII_
 !
 ! Second SIMC chain to show underlying contributors to an instrument
 !
-PRE_AN037  "PRED ALPH NM 037"    8336  NULL        ALPHANUMERIC       32  ASCII_STRING    32
+BEI_BMK    "BRKEN INFL BMK"      8336  NULL        ALPHANUMERIC       32  ASCII_STRING    32
+!
+! The benchmark instrument for breakeven inflation related analytics.
+!
 PRE_AN038  "PRED ALPH NM 038"    8337  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 PRE_AN039  "PRED ALPH NM 039"    8338  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 PRE_AN040  "PRED ALPH NM 040"    8339  NULL        ALPHANUMERIC       32  ASCII_STRING    32
@@ -29909,8 +29912,14 @@ D_AB_TNOVT "DAYS ABV TNOV THRE" 10644  NULL        PRICE              17  REAL64
 ! The number of days, in percentage, where the daily turnover is above the threshold 
 ! value within a period of time.
 !
-PRERL1654  "PRED REAL 1654"     10645  NULL        PRICE              17  REAL64           7
-PRERL1655  "PRED REAL 1655"     10646  NULL        PRICE              17  REAL64           7
+BASCCY_INT "BASE CCY INT"       10645  NULL        PRICE              17  REAL64           7
+!
+! Base Currency Interest Rate.
+!
+QTECCY_INT "QTE CCY INT"        10646  NULL        PRICE              17  REAL64           7
+!
+! Quote Currency Interest Rate.
+!
 PRERL1656  "PRED REAL 1656"     10647  NULL        PRICE              17  REAL64           7
 PRERL1657  "PRED REAL 1657"     10648  NULL        PRICE              17  REAL64           7
 PRERL1658  "PRED REAL 1658"     10649  NULL        PRICE              17  REAL64           7
@@ -31700,8 +31709,14 @@ SC_HMKT_CD "SEC HALT MKT CODE"  12003  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! Secondary field for trade halt market code.
 !
-PRE_24T077 "PRED 24 TXT 077"    12004  NULL        ALPHANUMERIC       24  RMTES_STRING    24
-PRE_24T078 "PRED 24 TXT 078"    12005  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+BASCCYI_TP "BASE CCY INT TYPE"  12004  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Base Currency Interest Rate Type.
+!
+QTECCYI_TP "QTE CCY INT TYPE"   12005  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Quote Currency Interest Rate Type. 
+!
 PRE_24T079 "PRED 24 TXT 079"    12006  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T080 "PRED 24 TXT 080"    12007  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T081 "PRED 24 TXT 081"    12008  NULL        ALPHANUMERIC       24  RMTES_STRING    24
@@ -34822,7 +34837,10 @@ LA_CANAL   "LADEN CANAL"        13602  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Laden Canal - The canal the vessel passes through from load port to discharge port.
 !
-PRE_2ET282 "PRED 2 ET 282"      13603  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+ORDER_EXID "ORDER EXCH ID"      13603  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! The Exchange ID of the order.
+!
 PRE_2ET283 "PRED 2 ET 283"      13604  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET284 "PRED 2 ET 284"      13605  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET285 "PRED 2 ET 285"      13606  NULL        ENUMERATED    5 ( 8 )  ENUM             2
