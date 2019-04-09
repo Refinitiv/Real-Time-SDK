@@ -32,7 +32,7 @@ The Elektron Transport API, formerly known as Ultra Performance API (UPA) is the
 
 The Elektron Transport API fully supports all OMM constructs and messages. 
 
-####A List of Transport API Features
+#### A List of Transport API Features
 
 - 64-bit, C-based API
 - Shared and static library deployments
@@ -96,7 +96,7 @@ The Elektron Transport API fully supports all OMM constructs and messages.
 - ANSI library for users to process ANSI Page based content
     
 
-####General Capabilities
+#### General Capabilities
 Transport API provides the following general capabilities independent of the type of application:
 
 - ETA can internally fragment and reassemble large messages.
@@ -109,9 +109,9 @@ Transport API provides the following general capabilities independent of the typ
 - ETA applications can create and manage both standard and private data streams.
 - ETA Reactor applications can create and manage standard, private, and tunnel streams.
 
-#OMM Application Types and Capabilities
+# OMM Application Types and Capabilities
 
-####Consumer Applications
+#### Consumer Applications
 Users can use Transport API to write consumer-based applications capable of the following:
 
 - Make Streaming and Snapshot based subscription requests.
@@ -121,7 +121,7 @@ Users can use Transport API to write consumer-based applications capable of the 
 (used for making Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 
-####Interactive Provider Applications
+#### Interactive Provider Applications
 Users can use Transport API to write interactive providers capable of the following:
 
 - Receive requests and respond to Streaming and Snapshot based Requests.
@@ -132,12 +132,12 @@ Users can use Transport API to write interactive providers capable of the follow
 - Send and receive Generic Messages.
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
-####Non-Interactive Provider Applications
+#### Non-Interactive Provider Applications
 Users can use Transport APi to write non-interactive applications that start up and begin publishing data to ADH.
 
 - Connect to one or many ADH devices using TCP sockets or reliable UDP multicast, making only configuration changes. 
 
-####Reactor Based Consumer and Provider Applications
+#### Reactor Based Consumer and Provider Applications
 
 - Reactor applications can take advantage of an event-driven distribution model
 - Reactor will manage ping heartbeats and ensure that user written content is flushed out as effectively as possible.
@@ -154,15 +154,15 @@ Libraries in the Optimized subdirectory are built with optimizations. These libr
 
 Libraries in the Debug subdirectory are built in Debug mode. These libraries contain additional safety checking. If a misuse is detected, an assertion containing additional information will be triggered. These libraries are intended for use during development phases where debug C-runtime libraries are required. A Shared subdirectory, containing the shared libraries, is available within the Optimized and Debug directories. 
 
-###Shared Libraries
+### Shared Libraries
 
 Shared libraries are available for use and contain the same functionality as the static libraries.
 
-####Windows
+#### Windows
 
 Shared library use is similar to static library use, however there are several key differences.  The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the library search path (local directory, system path, etc.) being used by the application.  The library use can be confirmed by using a utility similar to Dependency Walker, available at www.dependencywalker.com.  This will show the shared library dependencies and where they are being resolved to.
 
-#####Static Library Manifest
+##### Static Library Manifest
 
     Library Name              Package Version
     ------------              ---------------
@@ -172,7 +172,7 @@ Shared library use is similar to static library use, however there are several k
     libansi.lib               eta3.3.0.L1
     libdacs.lib               eta3.3.0.L1
 
-#####Shared Library Manifest
+##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
@@ -186,7 +186,7 @@ Shared library use is similar to static library use, however there are several k
     librsslVACache.lib        eta3.3.0.L1
     librsslVACache.pdb        eta3.3.0.L1
     
-####Linux    
+#### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
 
 In addition, several versions of a shared library can co-exist on the machine.  This allows for easy upgrade of functionality by deploying a newer shared library.  It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
@@ -199,7 +199,7 @@ The Transport API provides a helpful script that will create soft links for the 
     
 This will create all necessary soft links for UPA example makefiles to link.  It is suggested that any applications deployed using shared libraries follow a similar methodology to ensure proper versioning.  Please see the LinuxSoLink script and the example makefiles for a reference. 
 
-#####Static Library Manifest
+##### Static Library Manifest
 
     Library Name                       Package Version
     ------------                       ---------------
@@ -209,7 +209,7 @@ This will create all necessary soft links for UPA example makefiles to link.  It
     libansi.lib                        eta3.3.0.L1
     libdacs.lib                        eta3.3.0.L1
 
-#####Shared Library Manifest
+##### Shared Library Manifest
 
     Library Name                       Binary Version       Package Version
     -------------                      --------------       ----------------

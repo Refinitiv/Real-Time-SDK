@@ -55,7 +55,7 @@ Please email a signed and scanned copy to `sdkagreement@thomsonreuters.com`.  If
 
 # License Information
 
-####Open Source License Information
+#### Open Source License Information
 
 License details can be found in the LICENSE.md file contained in this section. The included code is governed by the Apache License, Version 2.0. This applies only to the software provided in the following locations:
 

@@ -14,12 +14,12 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 
 ### Supported Platforms, OSs, Compilers
 
-####Hardware/OS Requirements
+#### Hardware/OS Requirements
 
 - HP Intel PC or AMD Opteron (64-bit)
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
-####Supported Java Version 
+#### Supported Java Version 
 The Elektron-SDK supports JDK 1.7, 1.8 & 1.9. 
 
 Thomson Reuters fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
@@ -28,10 +28,10 @@ Thomson Reuters will extend support to other platforms based on the following cr
 - EMA Java is used with a J2SE 7,8 or 9 compliant JVM
 - All problems must be reproducible on one of the core platforms listed below. Thomson Reuters support teams will only be able to reproduce problems on the core platforms.
 
-####Supported Platforms
+#### Supported Platforms
 The Elektron-SDK provides support for multicast connections using JNI libraries. Also included are closed source libraries for reliable multicast support and value add cache. These libraries are available for the following platform and compiler combinations:
 
-#####Windows
+##### Windows
 
 Platforms:
 
@@ -50,7 +50,7 @@ Compilers (only on OSs supported by Microsoft):
 	Microsoft Visual Studio 14.0 (2015) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 15.0 (2017) 64-bit (JNI Libraries)
 
-#####Linux
+##### Linux
 
 Platforms:
 

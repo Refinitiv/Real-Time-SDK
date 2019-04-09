@@ -57,7 +57,7 @@ In addtion, HTML documentation is available in Java/Eta/Docs. For addtional docu
 - ANSI library for users to process ANSI Page based content
 
 
-####General Capabilities
+#### General Capabilities
 
 Transport API provides the following general capabilities independent of the type of application:
 
@@ -71,9 +71,9 @@ Transport API provides the following general capabilities independent of the typ
 - ETA applications can create and manage both standard and private data streams.
 - ETA Reactor applications can create and manage standard, private, and tunnel streams.
 
-#OMM Application Type Abilities
+# OMM Application Type Abilities
 
-####Consumer Applications
+#### Consumer Applications
 
 Users can use Transport API to write consumer-based applications capable of the following:
 
@@ -84,7 +84,7 @@ Users can use Transport API to write consumer-based applications capable of the 
 (used for making Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 
-####Provider Applications: Interactive
+#### Provider Applications: Interactive
 
 Users can use Transport API to write interactive providers capable of the following:
 
@@ -96,13 +96,13 @@ Users can use Transport API to write interactive providers capable of the follow
 - Send and receive Generic Messages.
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
-####Provider Applications: Non-Interactive
+#### Provider Applications: Non-Interactive
 
 Users can use Transport API to write non-interactive applications that start up and begin publishing data to ADH.
 
 - Connect to one or many ADH devices using TCP sockets or reliable UDP multicast, making only configuration changes.
 
-####Reactor Based Consumer and Provider Applications
+#### Reactor Based Consumer and Provider Applications
 
 - Reactor applications can take advantage of an event-driven distribution model
 - Reactor will manage ping heartbeats and ensure that user written content is flushed out as effectively as possible.
