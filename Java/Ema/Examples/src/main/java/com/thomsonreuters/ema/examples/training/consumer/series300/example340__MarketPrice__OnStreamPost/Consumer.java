@@ -32,6 +32,8 @@ import com.thomsonreuters.ema.access.PostMsg;
 
 class AppClient implements OmmConsumerClient
 {
+	private static int postId = 1;
+	
 	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{
 		System.out.println("Received Refresh. Item Handle: " + event.handle() + " Closure: " + event.closure());
@@ -55,7 +57,7 @@ class AppClient implements OmmConsumerClient
 			
 			nestedUpdateMsg.payload(nestedFieldList );
 				
-			((OmmConsumer)event.closure()).submit( postMsg.postId( 1 ).serviceId( 1701 )
+			((OmmConsumer)event.closure()).submit( postMsg.postId( postId++ ).serviceId( 1701 )
 														.name( "IBM.N" ).solicitAck( true ).complete(true)
 														.payload(nestedUpdateMsg), event.handle() );
 		}
