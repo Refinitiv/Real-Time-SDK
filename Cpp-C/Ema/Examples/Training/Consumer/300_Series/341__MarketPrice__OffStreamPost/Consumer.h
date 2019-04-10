@@ -56,6 +56,8 @@ protected :
 	void onAckMsg( const thomsonreuters::ema::access::AckMsg&, const thomsonreuters::ema::access::OmmConsumerEvent& );
 
 	thomsonreuters::ema::access::OmmConsumer* _pOmmConsumer;
+
+	UInt32 postId;
 };
 
 #endif // __ema_consumer_h_
