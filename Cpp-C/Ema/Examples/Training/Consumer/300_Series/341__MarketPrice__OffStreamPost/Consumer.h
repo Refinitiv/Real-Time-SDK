@@ -35,6 +35,8 @@ class AppClient : public thomsonreuters::ema::access::OmmConsumerClient
 {
 public :
 
+	AppClient();
+
 	void decode( const thomsonreuters::ema::access::Msg& );					// print content of passed in Msg to screen
 
 	void decode( const thomsonreuters::ema::access::AckMsg& );				// print content of passed in AckMsg to screen
@@ -57,7 +59,7 @@ protected :
 
 	thomsonreuters::ema::access::OmmConsumer* _pOmmConsumer;
 
-	UInt32 postId;
+	thomsonreuters::ema::access::UInt32 postId;
 };
 
 #endif // __ema_consumer_h_
