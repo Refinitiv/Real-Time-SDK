@@ -2024,8 +2024,8 @@ class WlItemHandler implements WlHandler
                 
         boolean isRefreshComplete = msg.checkRefreshComplete();
         
-        boolean fanoutViewPendingRefresh =( (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_VIEW_PENDING) &&
-        									(wlStream.aggregateView().elemCount() != wlStream._requestsWithViewCount) );
+        boolean fanoutViewPendingRefresh =( (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_VIEW_PENDING) && 
+        									(wlStream.aggregateView() != null && wlStream.aggregateView().elemCount() != wlStream._requestsWithViewCount) );
         boolean solicitedRefresh = (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_PENDING ||
         		wlStream.refreshState() == WlStream.RefreshStates.REFRESH_COMPLETE_PENDING); 
 
