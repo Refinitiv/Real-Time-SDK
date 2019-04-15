@@ -15,39 +15,28 @@ number to the version number.
     Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.3.0.L1 aka EMA 3.3.0.L1 and ETA 3.3.0.L1
+CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.3.0.G1 aka EMA 3.3.0.G1 and ETA 3.3.0.G1
 ----------------------------------------------------------------------------------------
-
-New Features Added
-------------------
-This ESDK release provides support for EDP Session management (token renewal)
-and Service Discovery (discovering host/port information based on Cloud region
-and type of connection ). Also available is added support for encrypted
-transport using openSSL versions 1.0.X and 1.1.X on Windows and Linux for EMA
-C++ and ETA C. Also in this release, all external dependencies such as libxml2, zlib, 
-lz2 rely on associated external distribution locations and incorporated into build using cmake. 
-
 
 Customer Issues Resolved
 ------------------
 
-EMA C++
+EMA C++ & ETA C
 -------
-[Case Number: 05257390] - [ESDK-484] -  EMA Consumer application that requests a streaming source directory does not receive source directory updates.
-[Case Number: 05533464, GitHub #74] - [ESDK-619] - RMTES Partial updates are not processed correctly if OmmRmtes.toString() is called before OmmRmtes.apply() is called 
-[Case Number: 06643952] - [ESDK-1622] - Elektron-SDK-BinaryPack should be optional, client can't download external resources via git
-[GitHub #81] - [ESDK-1760] - Fix uname program name in cmake setup 
-[Case Number: 07023993] - [ESDK-2599] - Require a new utility or interface similar to asHexString that shows raw hex output
-
-ETA C
--------
-[Case Number: 05543578] - [ESDK-627] - Remove references to UPA in ETA C and ETA Java Developers Guide 
-
-
+[GitHub #98] - [ESDK-3194] - Documentation improvements for EDP examples  
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+---------------------------------------------
+ESDK C++/C Release 1.3.0.G1 (April 16, 2019)
+---------------------------------------------
+
+EMA/ETA C/C++ 3.3.0.G1 Issues Resolved
+--------------------------------
+[ESDK-3194] - Documentation improvements for EDP examples [GitHub #98]
+[ESDK-3239] - CMake fix for build of cjson libraries
 
 ---------------------------------------------
 ESDK C++/C Release 1.3.0.L1 (March 26, 2019)
