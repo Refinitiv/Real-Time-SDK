@@ -50,17 +50,22 @@ public class Consumer {
 	static void printHelp()
 	{
 	    System.out.println("\nOptions:\n" + "  -?\tShows this usage\n"
-	    		+ "  -username user name to perform authentication with the token service.\n"
-	    		+ "  -password password to perform authorization with the token service.\n"
-	    		+ "  -clientId client ID to perform authorization with the token service. The user name is used if not specified.\n"
-	    		+ "  -keyfile keystore file for encryption.\n"
-	    		+ "  -keypasswd keystore password for encryption.\n"
-	    		+ "  -ph Proxy host name.\n"
-	    		+ "  -pp Proxy port number.\n"
-	    		+ "  -plogin User name on proxy server.\n"
-	    		+ "  -ppasswd Password on proxy server.\n" 
-	    		+ "  -pdomain Proxy Domain.\n"
-	    		+ "  -krbfile KRB File location and name. Needed for Negotiate/Kerberos and Kerberos authentications\n"
+	    		+ "  -username machine ID to perform authorization with the\r\n" 
+	    		+ "\ttoken service (mandatory).\n"
+	    		+ "  -password password to perform authorization with the token \r\n"
+	    		+ "\tservice (mandatory).\n"
+	    		+ "  -clientId client ID to perform authorization with the token \r\n" 
+	    		+ "\tservice. The user name is used if not specified (optional).\n"
+	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
+	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
+	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
+	    		+ "  -ph Proxy host name (optional).\n"
+	    		+ "  -pp Proxy port number (optional).\n"
+	    		+ "  -plogin User name on proxy server (optional).\n"
+	    		+ "  -ppasswd Password on proxy server (optional).\n" 
+	    		+ "  -pdomain Proxy Domain (optional).\n"
+	    		+ "  -krbfile KRB File location and name. Needed for Negotiate/Kerberos \r\n" 
+	    		+ "\tand Kerberos authentications (optional).\n"
 	    		+ "\n");
 	}
 	

@@ -85,6 +85,14 @@ This release supports encryption for TLS 1.0, TLS 1.1 and TLS 1.2.
 **Future Deprecation Notice:** 
 In the next major release of ESDK, support for TLS 1.0 will be dropped.
 
+##### Generating a keystore file
+The **keystore** file is used to contain your own private keys and public key certificates
+which is used for SSL/TLS handshake with server certificates to create an encrypted connection type. 
+The following is the steps to create a keystore file and import a intermediate certificate from DigiCert.
+- Download the DigiCert SHA2 Secure Server CA certificate at https://dl.cacerts.digicert.com/DigiCertSHA2SecureServerCA.crt
+- Use the Java **keytool** tool to import the certificate into an existing or a new Java keystore file below.
+  keytool -import -alias digicert -keystore <keystore filename> -storepass <keystore password> -file DigiCertSHA2SecureServerCA.crt
+
 ### Interoperability
 
 ESDK Java supports connectivity to the following platforms:
@@ -182,40 +190,40 @@ procedural instructions are not included here. Maven uses the following syntax t
 	<dependency>
 		<groupId>com.thomsonreuters.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.2.0.2</version>
+		<version>3.3.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa</groupId>
 		<artifactId>upa</artifactId>
-		<version>3.2.0.2</version>
+		<version>3.3.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd</groupId>
 		<artifactId>upaValueAdd</artifactId>
-		<version>3.2.0.2</version>
+		<version>3.3.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
 		<artifactId>upaValueAddCache</artifactId>
-		<version>3.2.0.2</version>
+		<version>3.3.0.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.2.0.2</version>
+		<version>3.3.0.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify ESDK dependencies:
 
-	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.2.0.2'
-	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.2.0.2'
-	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.2.0.2'
-	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.2.0.2'                    
-	compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.2.0.2'  
+	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.3.0.0'
+	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.3.0.0'
+	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.3.0.0'
+	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.3.0.0'                    
+	compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.3.0.0'  
 
 # Developing 
 

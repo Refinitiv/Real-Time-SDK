@@ -55,7 +55,7 @@ static void addItem(char *itemName, RsslUInt8 domainType, RsslBool symbolListDat
 void printUsageAndExit(int argc, char **argv)
 {
 	printf("Usage: %s"
-		" or %s [-c <Connection Type> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
+		" or %s [-c <Connection Type> ] [-ec <encrypted protocol> ] [-if <Interface Name>] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ] [ -sessionMgnt ] [ -l <Location name> ] [ -query ] [-s <ServiceName>] [ -mp <MarketPrice ItemName> ] [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] [ -sl <SymbolList ItemName> ] [ -view ] [-x] [ -runTime <TimeToRun> ]\n"
 			" -c           Specifies connection type. Valid arguments are socket, http, encrypted, and reliableMCast.\n"
 			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, and http.  Http is only supported on Windows Platforms.\n"
 			" -if          Specifies the address of a specific network interface to use.\n"

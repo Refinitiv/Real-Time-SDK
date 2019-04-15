@@ -5,8 +5,8 @@ Summary:
 --------
 
 The purpose of this application is to demonstrate consuming data from an 
-ADS device or OMM Provider application using ValueAdd components.  It is a 
-single-threaded client application.
+ADS device, OMM Provider application or Elektron Real Time in Cloud (ERT in cloud)
+using ValueAdd components.  It is a single-threaded client application.
 
 This application leverages the consumer watchlist feature provided by the
 RsslReactor to provide recovery and aggregation of items. Using the 
@@ -57,6 +57,9 @@ The RDMFieldDictionary and enumtype.def files located in the etc directory
 can be located in the directory of execution.  If the dictionary files
 cannot be found, they are requested from the provider.
 
+Both the shared version of libcurl and the openssl libraries are needed to run this example for 
+connecting and consuming data from the Elektron Real Time in Cloud (ERT in cloud).
+
 -------------------
 Command line usage:
 -------------------  
@@ -67,7 +70,15 @@ WatchlistConsumer
 
 or
 
-WatchlistConsumer or WatchlistConsumer [ -c <Connection Type> ] 
+WatchlistConsumer -c encrypted -ec socket -s <service name> -u <machine ID> -passwd <password> -sessionMgnt
+
+The above example command line is used to create an encrypted connection with the socket encrypted protocol type
+using the default "us-east" region and enable session management to login and subscribe data from
+ERT in cloud.
+
+or
+
+WatchlistConsumer or WatchlistConsumer [ -c <Connection Type> ] [ -ec <encrypted protocol> ]
   [ -if <Interface Name> ] [ -u <Login UserName> ] [ -passwd <Login password> ] [ -clientId <Client ID> ]
   [ -sessionMgnt ] [ -l <Location Name> ] [ -query ] [ -s <ServiceName>] [ -mp <MarketPrice ItemName> ]
   [ -mbo <MarketByOrder ItemName> ] [ -mbp <MarketByPrice ItemName> ] [ -yc <YieldCurve ItemName> ] 
@@ -91,6 +102,9 @@ The -c option specifies the connection type. Valid arguments are socket, http, e
 reliableMCast.  When using a socket, http, or encrypted connection, use the -h and -p options
 to configure the address and port for connecting. When using a reliableMcast connection,
 use the -sa, -ra, -sp, -rp, and -up options to configure the multicast network.
+
+The -ec option specifies the encrypted transport protocol. Valid arguments are socket, and http.  
+Http is only supported on Windows Platforms.\n"
 
 The -clientId option specifies an unique ID for authenticating with the EDP token service.
 The login username is used instead if this option is not specified. 
