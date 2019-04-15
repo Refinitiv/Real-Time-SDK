@@ -2,7 +2,11 @@
 
 if( CMAKE_HOST_UNIX )
 
-	set( SYSTEM_LIBRARIES rt dl pthread m stdc++ )
+	set( SYSTEM_LIBRARIES dl pthread m stdc++ )
+
+	if(NOT APPLE)
+		set(SYSTEM_LIBRARIES "rt ${SYSTEM_LIBRARIES}")
+	endif()
 
 else() #  if ( CMAKE_HOST_WIN32 )
 

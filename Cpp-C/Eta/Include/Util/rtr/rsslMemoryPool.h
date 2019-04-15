@@ -11,7 +11,11 @@
 #include "rtr/rsslQueue.h"
 #include "rtr/rsslErrorInfo.h"
 #include <assert.h>
+#ifndef __APPLE__
 #include <malloc.h>
+#else
+#include <stdlib.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

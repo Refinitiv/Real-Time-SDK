@@ -256,7 +256,12 @@ if((NOT libxml2_USE_INSTALLED) AND
 										   	"${_shared_arg} "
 										   	"--with-threads "
 									)
-			
+
+			# prevent linker errors on macOS
+			if(APPLE)
+				set(_EPA_CONFIGURE_COMMAND "${_EPA_CONFIGURE_COMMAND}" "--without-iconv ")
+			endif()
+
 			# set the make/gmake command for the build
 			set( _EPA_BUILD_COMMAND "BUILD_COMMAND"
 											"${CMAKE_MAKE_PROGRAM}"

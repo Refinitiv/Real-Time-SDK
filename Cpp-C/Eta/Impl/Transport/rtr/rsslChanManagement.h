@@ -18,6 +18,7 @@
 #include "rtr/rtrdefs.h"
 
 #ifndef WIN32
+#include <netinet/in.h>
 #include <netdb.h>
 #else
 #include <WS2tcpip.h>
@@ -464,7 +465,7 @@ RTR_C_ALWAYS_INLINE void _rsslCleanServer(rsslServerImpl *srvr)
 
 RTR_C_INLINE RsslInt32 rsslGetHostByName(char *hostName, RsslUInt32 *address)
 {
-#if defined (x86_Linux_4X) || (x86_Linux_3X) || (x86_Linux_2X)
+#if (defined (x86_Linux_4X) || defined (x86_Linux_3X) || defined (x86_Linux_2X)) && !defined (__APPLE__)
 	struct hostent	hostEntry;
 	RsslInt32				h_errnop;
 	char					*hostBuff = (char *)_rsslMalloc(IPC_MAX_HOST_NAME);
@@ -472,7 +473,7 @@ RTR_C_INLINE RsslInt32 rsslGetHostByName(char *hostName, RsslUInt32 *address)
 	RsslInt32				prevBufLen = buflen;
 	struct hostent			*hep = 0;
 #else
-	DWORD retResult;
+	int retResult;
 	struct addrinfo *result = 0;
 	struct addrinfo hints;
 #endif
@@ -480,13 +481,13 @@ RTR_C_INLINE RsslInt32 rsslGetHostByName(char *hostName, RsslUInt32 *address)
 	if ((hostName == 0) || (hostName[0] == '\0') || (strcmp(hostName, "localhost") == 0))
 	{
 		*address = host2netAddr(INADDR_LOOPBACK);
-#if defined (x86_Linux_4X) || (x86_Linux_3X) || (x86_Linux_2X)
+#if (defined (x86_Linux_4X) || defined (x86_Linux_3X) || defined (x86_Linux_2X)) && !defined (__APPLE__)
 		_rsslFree(hostBuff);
 #endif
 		return(0);
 	}
 
-#if defined (x86_Linux_4X) || (x86_Linux_3X) || (x86_Linux_2X)
+#if (defined (x86_Linux_4X) || defined (x86_Linux_3X) || defined (x86_Linux_2X)) && !defined (__APPLE__)
 
 	while(gethostbyname_r(hostName,&hostEntry,hostBuff,buflen,&hep,&h_errnop))
 	{
@@ -514,7 +515,11 @@ RTR_C_INLINE RsslInt32 rsslGetHostByName(char *hostName, RsslUInt32 *address)
 	}
 
 #else
+#ifdef WIN32
 	ZeroMemory(&hints, sizeof(hints));
+#else
+	memset(&hints, 0, sizeof(hints));
+#endif
 	hints.ai_family = AF_INET; // Query only (IPv4) address family
 	hints.ai_socktype = SOCK_STREAM;
 
@@ -523,7 +528,11 @@ RTR_C_INLINE RsslInt32 rsslGetHostByName(char *hostName, RsslUInt32 *address)
 	// Retrieve only the first address information of the list
 	if (retResult == 0 && result)
 	{
+#ifdef WIN32
 		*address = ((struct sockaddr_in *)result->ai_addr)->sin_addr.S_un.S_addr;
+#else
+		*address = ((struct sockaddr_in *)result->ai_addr)->sin_addr.s_addr;
+#endif
 
 		freeaddrinfo(result);
 		return (0);
@@ -564,7 +573,7 @@ RTR_C_INLINE RsslUInt16 rsslGetServByName(char *serv_name)
 			return htons(prt);
 		}
 
-#if defined (x86_Linux_4X) || (x86_Linux_3X) || (x86_Linux_2X)
+#if (defined (x86_Linux_4X) || defined (x86_Linux_3X) || defined (x86_Linux_2X)) && !defined (__APPLE__)
 		getservbyname_r(serv_name,"udp",&serv_result,tbuf,1024,&serv_port);
 #else
 		serv_port = getservbyname(serv_name,"udp");

@@ -11,7 +11,9 @@
 #include "rtr/rsslErrors.h"
 #include "rtr/custmem.h"
 #include <stdio.h>
+#ifndef __APPLE__
 #include <malloc.h>
+#endif
 #include <assert.h>
 
 

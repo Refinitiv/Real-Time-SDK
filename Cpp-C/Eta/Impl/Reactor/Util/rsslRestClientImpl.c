@@ -134,7 +134,7 @@ int rsslRestGetServByName(char *serv_name)
 			return host2net_u16(prt);
 		}
 
-#if defined (x86_Linux_4X) || defined (x86_Linux_3X) || defined (x86_Linux_2X)
+#if (defined (x86_Linux_4X) || defined (x86_Linux_3X) || defined (x86_Linux_2X)) && !defined (__APPLE__)
 		getservbyname_r(serv_name, "tcp", &serv_result, tbuf, 1024, &serv_port);
 #else
 		serv_port = getservbyname(serv_name, "tcp");

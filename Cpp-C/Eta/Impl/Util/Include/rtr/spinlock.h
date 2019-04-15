@@ -15,6 +15,9 @@
 #include <windows.h>
 
 typedef LONG rtrSpinLock;
+#elif defined (__APPLE__)
+#include <sched.h>
+typedef int rtrSpinLock;
 #else
 #include <pthread.h>
 typedef pthread_spinlock_t rtrSpinLock;
@@ -34,6 +37,22 @@ extern LONG  __cdecl _InterlockedCompareExchange(LONG volatile *Dest, LONG Excha
 
 #define ___RTR_SPIN_DELAY() ___rtr_spin_delay()
 
+
+#define RTR_SLOCK_ACQUIRE(lock) while (___RTR_TAS(lock)) { ___RTR_SPIN_DELAY(); }
+#define RTR_SLOCK_RELEASE(lock) (*((volatile rtrSpinLock *)(lock)) = 0)
+#define RTR_SLOCK_INIT(lock) RTR_SLOCK_RELEASE(lock)
+#define RTR_SLOCK_DESTROY(lock) (*(lock) == 0)
+
+#elif defined (__APPLE__)
+
+RTR_C_ALWAYS_INLINE void ___rtr_spin_delay()
+{
+	sched_yield();
+}
+
+#define ___RTR_TAS(lock) (__sync_bool_compare_and_swap(lock, 0, 1))
+
+#define ___RTR_SPIN_DELAY() ___rtr_spin_delay()
 
 #define RTR_SLOCK_ACQUIRE(lock) while (___RTR_TAS(lock)) { ___RTR_SPIN_DELAY(); }
 #define RTR_SLOCK_RELEASE(lock) (*((volatile rtrSpinLock *)(lock)) = 0)

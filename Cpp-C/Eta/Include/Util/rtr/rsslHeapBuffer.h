@@ -13,7 +13,9 @@ extern "C" {
 #endif
 
 #include "rtr/rsslTypes.h"
+#ifndef __APPLE__
 #include <malloc.h>
+#endif
 
 /* RsslBuffer
  * An RsslBuffer whose data is heap-allocated and growable. */

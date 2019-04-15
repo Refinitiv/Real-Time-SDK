@@ -28,7 +28,7 @@
 #include "rtr/rsslTransport.h"
 
 #if defined(WIN32)
-#elif defined(Linux)
+#elif defined(Linux) && !defined(__APPLE__)
 #include <sys/epoll.h>
 #define RSSL_NOTIFIER_EPOLL
 #else

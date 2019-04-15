@@ -23,6 +23,7 @@
 #else
 
 #include <sys/types.h>
+#include <netinet/in.h>
 
 /* Semaphores */
 #include <semaphore.h>

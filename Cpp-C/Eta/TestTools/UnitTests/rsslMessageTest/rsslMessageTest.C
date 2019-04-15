@@ -18,7 +18,9 @@
  */
 
 
+#ifndef __APPLE__
 #include <malloc.h>
+#endif
 #include <math.h>
 
 #include "rtr/rsslRDM.h"

@@ -9,7 +9,7 @@
 #ifndef __thomsonreuters_ema_access_OmmBaseImpl_h
 #define __thomsonreuters_ema_access_OmmBaseImpl_h
 
-#ifdef WIN32
+#if defined(WIN32) || defined(__APPLE__)
 #define USING_SELECT
 #else
 #define USING_POLL
