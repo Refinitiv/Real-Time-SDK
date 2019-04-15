@@ -38,8 +38,8 @@ subprojects {
 
 ext.YEAR = '2019'
 
-ext.BuildDate = 'Fri Apr 12 17:55:01 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.3.0.0'
+ext.BuildDate = 'Mon Apr 15 17:55:01 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.3.0.1'
 ext.SpecificationVersionShort = '3.3.0'
 
 // Comment out line below to publish offical release
@@ -68,7 +68,7 @@ task downloadBinaryPack(type: Download) {
     description 'This task downloads the Elektron-SDK-BinaryPack file from GitHub.'
 
 	def releaseToDownload = "Elektron-SDK-BinaryPack-" + BINARY_PACK_VERSION_TO_DOWNLOAD
-	def zipFileToDownload = releaseToDownload + ".rrg.zip"
+	def zipFileToDownload = releaseToDownload + ".zip"
 	src 'https://github.com/Refinitiv/Elektron-SDK/releases/download/Elektron-SDK-' + BINARY_PACK_VERSION_TO_DOWNLOAD + '/' + zipFileToDownload
 	dest new File('../.', 'Elektron-SDK-BinaryPack.zip')
 }
@@ -97,8 +97,7 @@ task getBinaryPack () {
 		if (!gsgDirNew.exists()) {
 		
 			// move the file
-			file('../temp/Elektron-SDK-BinaryPack-' + 
-				BINARY_PACK_VERSION_TO_DOWNLOAD + ".rrg").renameTo(file('../Elektron-SDK-BinaryPack'))
+			file('../temp/Elektron-SDK-BinaryPack').renameTo(file('../Elektron-SDK-BinaryPack'))
 			// delete temp directory and downloaded file
 			unzipBinaryPack.ext.temp.deleteDir()
 			downloadBinaryPack.dest.delete()
