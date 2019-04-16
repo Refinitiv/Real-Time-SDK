@@ -10,13 +10,13 @@ Distribution Server.
 example112__MarketPrice__TunnelingConnection illustrates the abilitily of the user
 to programmatically pass all http/https related configuration on OmmConsumerConfig
 instance when configuring a tunneling connection. When running this application,
-the user will need specify valid tunneling configurations through commandline arguments.
+the user will need specify valid tunneling configurations through command line arguments.
 
 Detailed Description
 ====================
 
 example112__MarketPrice__TunnelingConnection implements the following high-level steps:
-+ Passes tunneling related configuration through commandline arguments
++ Passes tunneling related configuration through command line arguments
 including:
 if the application will attempt to make an http or encrypted
        connection, ChannelType must be set to ChannelType::RSSL_HTTP

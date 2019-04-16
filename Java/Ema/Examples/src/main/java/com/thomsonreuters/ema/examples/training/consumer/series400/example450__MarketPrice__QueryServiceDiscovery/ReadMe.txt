@@ -9,11 +9,11 @@ and parsing OMM MarketPrice data from Elektron Real Time in Cloud (ERT in cloud)
 EDP-RT service discovery using the ServiceEndpointDiscovery class and use the 
 location from the command line to select an endpoint. The EMA's programmatic
 configuration is used to to enable session management with the retrieved endpoint
-for establishing a connection with ERT in cloud and consuming data. This application
-requires a username and a password for authorization with the token service in order
-to an access token for querying endpoints from the EDP service discovery and sending
-login requests to ERT in cloud. EMA automatically refreshes the token to keep session
-alive with the connecting provider
+for establishing a connection with the cloud service and consuming data. This 
+application requires a username (Machine ID) and a password for authorization with
+the token service in order to an access token for querying endpoints from the EDP 
+service discovery and sending login requests to the cloud service. EMA automatically 
+refreshes the token to keep session alive with the cloud service.
 
 
 Detailed Description
@@ -22,19 +22,33 @@ Detailed Description
 450__MarketPrice__QueryServiceDiscovery implements the following high-level steps:
 + Passes user credential through command line arguments
 including:
--username user name to perform authorization with the token service.
--password password to perform authorization with the token service.
--clientId client ID to perform authorization with the token service.
+-username machine ID to perform authorization with the token service (mandatory).
+-password password to perform authorization with the token service (mandatory). 
+-clientId client ID to perform authorization with the token service (optional). The user name
+is used if not specified. You can generate and manage client Ids at the following URL:
+https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
+to access this page).
 -location location to get an endpoint from EDP-RT service discovery. Now, it is either
- "us-east" by default or "eu-west".
--keyfile keystore file for encryption.
--keypasswd keystore password for encryption.
--ph Proxy host name.
--pp Proxy port number.
--plogin User name on proxy server.
--ppasswd Password on proxy server.
--pdomain Proxy Domain.
--krbfile KRB File location and name. Needed for Negotiate/Kerberos and Kerberos authentications.
+ "us-east" by default or "eu-west" (optional).
+-keyfile keystore file for creating an encrypted connection (mandatory).
+-keypasswd keystore password for creating an encrypted connection (mandatory).
+Note: please refer to README.md of ESDK Java for generating a keystore file.
+
+Optional proxy parameters. The proxy configuration is only required if your organization requires
+use of a proxy to get to the Internet.
+-ph Proxy host name (optional).
+-pp Proxy port number (optional).
+-plogin User name on proxy server (optional).
+-ppasswd Password on proxy server (optional).
+-pdomain Proxy Domain (optional).
+-krbfile KRB File location and name. Needed for Negotiate/Kerberos and Kerberos authentications (optional).
+
+Example command to run the example from the command line from Java folder:
+On Unix:
+./gradlew runConsumer450 -PcommandLineArgs='-username <username> -password <password> -keyfile <full path to the file> -keypasswd <keyfile password>'
+
+On Windows:
+gradlew.bat runConsumer450 -PcommandLineArgs='-username <username> -password <password> -keyfile <full path to the file> -keypasswd <keyfile password>'
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods
@@ -42,8 +56,9 @@ including:
 + Instantiates a Map (configMap object) and populates it with configuration info
 + Instantiates and modifies an OmmConsumerConfig object
   - Sets the user credential
-  - Sets the consumer name to "Consumer_3"
-  - sets Omm Consumer configuration with data from the programmatic configuration
+  - Sets the consumer name to "Consumer_1"
+  - The Consumer_1 uses the Channel_1 channel name for using the RSSL_ENCRYPTED channel type.
+  - sets OmmConsumer configuration with data from the programmatic configuration
 + Instantiates an OmmConsumer object which initializes the connection 
   and send login request to the endpoint of the specified location.
 + Opens a streaming item interest
