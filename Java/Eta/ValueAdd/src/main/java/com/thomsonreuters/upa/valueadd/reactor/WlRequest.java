@@ -31,6 +31,7 @@ class WlRequest extends VaNode
     int _viewAction;
     boolean _reissue_hasChange = false;
     boolean _reissue_hasViewChange = false;
+    boolean _fanoutSolicitedAfterView = false;
        
     Qos _matchedQos = CodecFactory.createQos();
     
@@ -44,6 +45,7 @@ class WlRequest extends VaNode
         _hasServiceId = false;
         _serviceId = 0;
         _reissue_hasChange = false;
+        _fanoutSolicitedAfterView = false;
     }
     
     /* The state of the watchlist request. */
@@ -72,6 +74,36 @@ class WlRequest extends VaNode
     void handler(WlHandler handler)
     {
         _handler = handler;
+    }
+    
+    /* Checks whether it requires a solicited refresh for the request with view */
+    boolean solicitedRefreshNeededForView(boolean solicitedRefresh)
+    {
+    	if(_fanoutSolicitedAfterView)
+    	{
+    		return false;
+    	}
+    	else
+    	{
+    		if(_viewElemCount > 0 && solicitedRefresh)
+    		{
+    			_fanoutSolicitedAfterView = true;
+    			return true;
+    		}
+    		else
+    		{
+    			return false;
+    		}
+    	}
+    }
+    
+    /* Handles the case that the full request is sent after the view has been changed to reset the flag */
+    void handlePendingViewFanout(boolean fanoutViewPendingRefresh)
+    {
+    	if(fanoutViewPendingRefresh)
+    	{
+    		_fanoutSolicitedAfterView = false;
+    	}
     }
 
     /* Stream associated with request. */
@@ -325,6 +357,7 @@ class WlRequest extends VaNode
         _tableKey = null;
         _viewElemCount = 0;
         _viewType = 0;
+        _fanoutSolicitedAfterView = false;
     }
     
     @Override

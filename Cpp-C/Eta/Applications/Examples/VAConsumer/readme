@@ -5,8 +5,9 @@ Summary:
 --------
 
 The purpose of this application is to demonstrate consuming data from
-an OMM Provider using ValueAdd components.  It is a single-threaded
-client application.
+an OMM Provider, ADS device, OMM Provider application or Elektron 
+Real Time in Cloud (ERT in cloud) using ValueAdd components.  It is a
+single-threaded client application.
 
 The consumer application implements callbacks that process information
 received by the provider.  It creates the RsslReactor, creates the
@@ -71,6 +72,9 @@ Setup Environment:
 The RDMFieldDictionary and enumtype.def files located in the etc directory
 can be located in the directory of execution.  If the dictionary files
 cannot be found, they are requested from the provider.
+
+Both the shared version of libcurl and the openssl libraries are needed to run this example for 
+connecting and consuming data from the Elektron Real Time in Cloud (ERT in cloud).
 
 -------------------
 Command line usage:
@@ -150,6 +154,13 @@ Specifying the -ax option configures the authentication extended information use
 
 Specifying the -aid option configures the Application Id.
 
+or 
+
+VAConsumer -encryptedSocket <service name> mp:TRI.N -uname <machine ID> -passwd <password> -sessionMgnt
+
+The above example command line is used to create an encrypted connection with the socket encrypted protocol type
+using the default "us-east" region and enable session management to login and subscribe TRI.N from
+ERT in cloud.
 
 - VAConsumer -? displays command line options.  
 

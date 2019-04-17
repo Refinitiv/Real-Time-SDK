@@ -14,7 +14,7 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 
 ### Supported Platforms, OSs, Compilers
 
-####Hardware/OS Requirements
+#### Hardware/OS Requirements
 
 - HP Intel PC or AMD Opteron (64-bit)
 - CPUs must have high resolution timer frequencies greater than 1GHz.
@@ -31,9 +31,9 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 
 Users are welcome to migrate open source code to the platforms they prefer, however support for the included libraries is only provided on platforms listed below.
 
-####Supported Platforms
+#### Supported Platforms
 
-#####Windows
+##### Windows
 
 Platforms:
 
@@ -54,7 +54,7 @@ Compilers (only on OSs supported by Microsoft):
 
 NOTE: User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
 
-#####Linux
+##### Linux
 
 Platforms & Compilers:
 
@@ -79,10 +79,10 @@ External modules used by this version of ESDK C/C++:
 	lz4				1.8.3
 	zlib			1.2.11
 
-#####Windows
+##### Windows
 This release has been tested with supported valid OS/compiler combinations.
 
-#####Linux
+##### Linux
 This release has been tested with the following on supported platform/OS combinations. Please note that the list of tested platforms and compiler combination below reflects test of two use cases: using pre-built libraries to build applications _and_ natively building source and using those libraries to build applications.
 
 	Red Hat Advanced Server 6.4 64-bit with GCC 4.4.4 (RHEL6_64_GCC444) - prebuilt libraries

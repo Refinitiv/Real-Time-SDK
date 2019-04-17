@@ -1,4 +1,0 @@
-# file,location
-WatchlistConsumerConfig.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
-WatchlistConsumer.java,Applications/Examples/src/main/java/com/thomsonreuters/upa/valueadd/examples/watchlistconsumer
-ReactorChannel.java,ValueAdd/src/main/java/com/thomsonreuters/upa/valueadd/reactor

@@ -270,7 +270,6 @@ class RestConnectOptions {
         destOpts._scheme = _scheme;
         destOpts._host = _host;
         destOpts._port = _port;
-
         destOpts._password = _password;        
         destOpts._userSpecObject = _userSpecObject;
         destOpts._fragmentSizeHint = _fragmentSizeHint;

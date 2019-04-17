@@ -352,7 +352,6 @@ public class ReactorWatchlistEDPJunit
 		rcOpts.reconnectMaxDelay(1000);
 		rcOpts.connectionList().get(0).connectOptions().pingTimeout(255);
 		rcOpts.connectionList().get(0).initTimeout(10);		
-
 		return rcOpts;
 	}	
 

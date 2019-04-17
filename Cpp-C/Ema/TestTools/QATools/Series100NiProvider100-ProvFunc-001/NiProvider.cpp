@@ -19,7 +19,7 @@ int main( int argc, char* argv[] )
 		for (int i = 0; i < 1000000; i++)
 		{
 			cout << "!!! createOmmProvider() " << i << " !!!" << endl;
-			OmmProvider* provider = new OmmProvider(OmmNiProviderConfig().host("oaklapi301.oblab.oakbrook.thomsonreuters.com:14003").username("user"));
+			OmmProvider* provider = new OmmProvider(OmmNiProviderConfig());
 			UInt64 itemHandle = 5;
 
 			provider->submit(RefreshMsg().serviceName("NI_PUB").name("IBM.N")

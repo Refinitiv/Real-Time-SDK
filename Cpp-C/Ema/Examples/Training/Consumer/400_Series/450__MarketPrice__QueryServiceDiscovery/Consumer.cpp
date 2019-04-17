@@ -100,16 +100,16 @@ void createProgramaticConfig( Map& configDb )
 void printHelp()
 {
 	cout << endl << "Options:\n" << " -?\tShows this usage" << endl
-		<< " -username user name to perform authorization with the token service." << endl
-		<< " -password password to perform authorization with the token service." << endl
-		<< " -location location to get an endpoint from EDP-RT service discovery. Defaults to \"us-east\"" << endl
-		<< " -clientId client ID to perform authorization with the token service. The user name is used if not specified." << endl
-		<< "\nOptional options for establishing a connection and sending requests through a proxy server:" << endl
-		<< " -ph Proxy host name." << endl
-		<< " -pp Proxy port number." << endl
-		<< " -plogin User name on proxy server." << endl
-		<< " -ppasswd Password on proxy server." << endl
-		<< " -pdomain Proxy Domain." << endl;
+		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
+		<< " -password password to perform authorization with the token service (mandatory)." << endl
+		<< " -location location to get an endpoint from EDP-RT service discovery (optional). Defaults to \"us-east\"" << endl
+		<< " -clientId client ID to perform authorization with the token service (optional). The user name is used if not specified." << endl
+		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
+		<< " -ph Proxy host name (optional)." << endl
+		<< " -pp Proxy port number (optional)." << endl
+		<< " -plogin User name on proxy server (optional)." << endl
+		<< " -ppasswd Password on proxy server (optional)." << endl
+		<< " -pdomain Proxy Domain (optional)." << endl;
 }
 
 int main( int argc, char* argv[] )

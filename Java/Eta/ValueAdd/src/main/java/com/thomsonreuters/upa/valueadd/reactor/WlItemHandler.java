@@ -2021,11 +2021,13 @@ class WlItemHandler implements WlHandler
         int ret = ReactorReturnCodes.SUCCESS;
         _snapshotViewClosed = false;
         int currentViewCount = 0;
-        
-        // have to flip the pendingViewRefresh after callback
-        boolean needtoSetPendingViewRefreshFlagOff = false;
-        
+                
         boolean isRefreshComplete = msg.checkRefreshComplete();
+        
+        boolean fanoutViewPendingRefresh =( (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_VIEW_PENDING) && 
+        									(wlStream.aggregateView() != null && wlStream.aggregateView().elemCount() != wlStream._requestsWithViewCount) );
+        boolean solicitedRefresh = (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_PENDING ||
+        		wlStream.refreshState() == WlStream.RefreshStates.REFRESH_COMPLETE_PENDING); 
 
         WlService wlService = wlStream.wlService();
         
@@ -2033,10 +2035,6 @@ class WlItemHandler implements WlHandler
         if (msg.checkSolicited())
         {
             wlStream.responseReceived();
-        }
-        if( wlStream._requestsWithViewCount  > 0 && (wlStream.refreshState() == WlStream.RefreshStates.REFRESH_VIEW_PENDING) )
-        {
-        	needtoSetPendingViewRefreshFlagOff = true;
         }
 
         if (msg.domainType() == DomainTypes.SYMBOL_LIST)
@@ -2066,20 +2064,21 @@ class WlItemHandler implements WlHandler
             if (numRequestsProcessed >= listSize) break;
             numRequestsProcessed++;
             WlRequest wlRequest = wlStream.userRequestList().get(i);
+            
+            wlRequest.handlePendingViewFanout(fanoutViewPendingRefresh);
 
             // only fanout if refresh is desired and refresh is unsolicited or to those whose state is awaiting refresh
             if (!wlRequest.requestMsg().checkNoRefresh() &&
                     (!msg.checkSolicited() ||
+                     wlRequest.solicitedRefreshNeededForView(solicitedRefresh) ||
                      wlRequest.state() == WlRequest.State.PENDING_REFRESH ||
                      wlRequest.state() == WlRequest.State.PENDING_COMPLETE_REFRESH) ||
-                     wlStream.refreshState() == WlStream.RefreshStates.REFRESH_VIEW_PENDING)
+                     fanoutViewPendingRefresh)
             {
                 // check refresh complete flag and change state of user request accordingly
                 if (isRefreshComplete)
                 {
-                    // Change the refresh state as WlStream receives the refresh complete flag except for the view pending
-                	if(wlStream.refreshState() != WlStream.RefreshStates.REFRESH_VIEW_PENDING)
-                		wlStream.refreshState(WlStream.RefreshStates.REFRESH_NOT_REQUIRED);
+                	wlStream.refreshState(WlStream.RefreshStates.REFRESH_NOT_REQUIRED);
 
                     // Remove item from existing group, if present.
                     removeStreamFromItemGroup(wlStream);
@@ -2202,9 +2201,6 @@ class WlItemHandler implements WlHandler
 
         if (_currentFanoutStream != null)
         {
-        	/* Change the state after fanning out for the view request */
-            if(needtoSetPendingViewRefreshFlagOff) wlStream.refreshState(WlStream.RefreshStates.REFRESH_NOT_REQUIRED);
-
             /* if no longer waiting for snapshot, send requests in waiting request list */
             if (wlStream.waitingRequestList().size() > 0 &&
                     (wlStream.refreshState() != WlStream.RefreshStates.REFRESH_COMPLETE_PENDING))

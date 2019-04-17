@@ -1,5 +1,3 @@
-import org.ajoberstar.grgit.*
-
 buildscript {
         repositories {
                 mavenCentral()
@@ -8,12 +6,12 @@ buildscript {
 
         dependencies {
                 classpath "net.saliman:gradle-cobertura-plugin:2.5.1"
-                classpath "org.ajoberstar:gradle-git:1.6.0"
         }
 }
 
 plugins {
         id 'net.saliman.cobertura' version '2.5.1'
+		id "de.undercouch.download" version "3.4.3"
 }
 
 apply plugin: 'net.saliman.cobertura'
@@ -31,41 +29,80 @@ subprojects {
 	}
 }
 
-ext.YEAR = '2018'
-// NOTE! please update the tag in the BinaryPack repo
-// for a new release below in the cloneBinaryPack task.
-ext.BuildDate = 'Fri Mar 15 17:55:01 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.3.0.0'
+//=========================================================================================
+//
+// RELEASE VERSION, RELEASE DATE AND BINARY PACK INFORMATION ARE 
+// CONTROLLED BY THE SECTION BELOW
+//
+//=========================================================================================
+
+ext.YEAR = '2019'
+
+ext.BuildDate = 'Mon Apr 15 17:55:01 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.3.0.1'
 ext.SpecificationVersionShort = '3.3.0'
+
 // Comment out line below to publish offical release
-//ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
-ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
-ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
+// ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
+
+// Update below to L1.all.rrg, G1.all.gload, or E1.all.eload when needed
+ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.G1.all.rrg'
+ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.G1.all.rrg'
+
+// NOTE! update with new asset version
+ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '1.3.0.L1'
+
+//=========================================================================================
+//
+// END OF SECTION CONTROLLING THE RELEASE INFORMATION
+//
+//=========================================================================================
+
+
 ext.vendor = 'Thomson Reuters'
 ext.javadoc_footer = '<a href="https://developers.thomsonreuters.com/" target=_top>Thomson Reuters</a>'
 ext.javadoc_header = '<a href="https://developers.thomsonreuters.com/" target=_top>Thomson Reuters</a>'
 ext.javadoc_bottom = '<i>Copyright @ ' + "$YEAR" + ' Thomson Reuters. All Rights Reserved.</i>'
 
-task cloneBinaryPack {
-    description 'This task clones the Elektron-SDK-BinaryPack from GitHub. The Binary Pack has JNIs that are needed for multicast connection'
-    doLast {
-        // check if we are in GSG package
-        File gsgDir = file('../Elektron-SDK-BinaryPack')
-        if (!gsgDir.exists()) {
-            // if not in GSG package try to clone BinaryPack
-            File dir = file('../Elektron-SDK-BinaryPack')
-            if (!dir.exists()) {
-                println "Cloning Elektron-SDK-BinaryPack from GitHub, please wait."
-                def grgit = Grgit.clone(dir: dir, uri: 'https://github.com/thomsonreuters/Elektron-SDK-BinaryPack.git')
-                grgit.checkout(branch: 'Elektron-SDK-1.3.0.L1', createBranch: false)
-                println "Done cloning Elektron-SDK-BinaryPack from GitHub."
-            }
-        }
-        else
-        {
-            println "Elektron-SDK-BinaryPack already exists, skip cloning."
-        }
-    }
+task downloadBinaryPack(type: Download) {
+    description 'This task downloads the Elektron-SDK-BinaryPack file from GitHub.'
+
+	def releaseToDownload = "Elektron-SDK-BinaryPack-" + BINARY_PACK_VERSION_TO_DOWNLOAD
+	def zipFileToDownload = releaseToDownload + ".zip"
+	src 'https://github.com/Refinitiv/Elektron-SDK/releases/download/Elektron-SDK-' + BINARY_PACK_VERSION_TO_DOWNLOAD + '/' + zipFileToDownload
+	dest new File('../.', 'Elektron-SDK-BinaryPack.zip')
+}
+
+task unzipBinaryPack(dependsOn: downloadBinaryPack, type: Copy) {
+	ext.temp = new File('../temp')
+	from zipTree(downloadBinaryPack.dest)
+	into ext.temp
+}
+
+task getBinaryPack () {
+
+    // check if we are in GSG package
+    File gsgDir = file('../Elektron-SDK-BinaryPack')
+    if (!gsgDir.exists()) {
+		dependsOn unzipBinaryPack
+    }	
+    else
+    {
+        println "Elektron-SDK-BinaryPack already exists, skip downloading."
+    }	
+		
+	doLast {
+		// check if Binary Pack exists
+		File gsgDirNew = file('../Elektron-SDK-BinaryPack')
+		if (!gsgDirNew.exists()) {
+		
+			// move the file
+			file('../temp/Elektron-SDK-BinaryPack').renameTo(file('../Elektron-SDK-BinaryPack'))
+			// delete temp directory and downloaded file
+			unzipBinaryPack.ext.temp.deleteDir()
+			downloadBinaryPack.dest.delete()
+		}		
+	}
 }
 
 allprojects {
@@ -93,7 +130,7 @@ allprojects {
 	}
 
         tasks.withType( JavaCompile ) {
-                dependsOn cloneBinaryPack
+				dependsOn getBinaryPack
                 options.fork = true
                 options.incremental = true
         }

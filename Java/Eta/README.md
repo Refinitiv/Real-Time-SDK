@@ -57,7 +57,7 @@ In addtion, HTML documentation is available in Java/Eta/Docs. For addtional docu
 - ANSI library for users to process ANSI Page based content
 
 
-####General Capabilities
+#### General Capabilities
 
 Transport API provides the following general capabilities independent of the type of application:
 
@@ -71,9 +71,9 @@ Transport API provides the following general capabilities independent of the typ
 - ETA applications can create and manage both standard and private data streams.
 - ETA Reactor applications can create and manage standard, private, and tunnel streams.
 
-#OMM Application Type Abilities
+# OMM Application Type Abilities
 
-####Consumer Applications
+#### Consumer Applications
 
 Users can use Transport API to write consumer-based applications capable of the following:
 
@@ -84,7 +84,7 @@ Users can use Transport API to write consumer-based applications capable of the 
 (used for making Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 
-####Provider Applications: Interactive
+#### Provider Applications: Interactive
 
 Users can use Transport API to write interactive providers capable of the following:
 
@@ -96,13 +96,13 @@ Users can use Transport API to write interactive providers capable of the follow
 - Send and receive Generic Messages.
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
-####Provider Applications: Non-Interactive
+#### Provider Applications: Non-Interactive
 
 Users can use Transport API to write non-interactive applications that start up and begin publishing data to ADH.
 
 - Connect to one or many ADH devices using TCP sockets or reliable UDP multicast, making only configuration changes.
 
-####Reactor Based Consumer and Provider Applications
+#### Reactor Based Consumer and Provider Applications
 
 - Reactor applications can take advantage of an event-driven distribution model
 - Reactor will manage ping heartbeats and ensure that user written content is flushed out as effectively as possible.
@@ -115,19 +115,19 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    upa-3.3.0.0.jar               eta3.3.0.L1       The ETA - Java Edition library.  Includes
+    upa-3.3.0.1.jar               eta3.3.0.G1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    upaValueAdd-3.3.0.0.jar       eta3.3.0.L1       The Value Add library for ETA Java Edition.
+    upaValueAdd-3.3.0.1.jar       eta3.3.0.G1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    upaValueAddCache-3.3.0.0.jar  eta3.3.0.L1       The Value Add payload cache library for ETA
+    upaValueAddCache-3.3.0.1.jar  eta3.3.0.G1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
     jDacsUpalib.jar               dacs7.2.0.L2      The ETA Java DACS library.
 
-    ansipage-3.3.0.0.jar          eta3.3.0.L1       The ANSI decoders and encoders.
+    ansipage-3.3.0.1.jar          eta3.3.0.G1       The ANSI decoders and encoders.
                   
 
     ETAC/UPA/RSSL JNI Libs        eta3.3.0.L1       The JNI libraries for Reliable Multicast
@@ -171,7 +171,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
     EU ECCN: None
     Export Code: NL
     Security Compliance: Thomson Reuters Security Compliant
-    Template Version Supported: v4.20.35_TREP_19.21 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.36_TREP_19.31 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the README.md files within each package for clarification.

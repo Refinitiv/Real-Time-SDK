@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.35
-!tag Build_RDMD  4.20.35
-!tag DT_Version  19.21
-!tag Date        19-Feb-2019
+!tag RT_Version  4.20.36
+!tag Build_RDMD  4.20.36
+!tag DT_Version  19.31
+!tag Date        25-Mar-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -661,6 +661,7 @@ MN_IIN_CCY 13596
    2041        "QAd"   Qatari Dirham
    2042        "SAh"   Saudi Halala
    2043        "AEf"   UAE Fils
+   2044        "ZZ9"   Cryptocurrency
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7065,6 +7066,7 @@ CRS_EXID   13551
 BLK_EXID   13552
 LEG3_EXCH  13572
 LEG4_EXCH  13574
+ORDER_EXID 13603
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -8630,6 +8632,9 @@ LEG4_EXCH  13574
    1559        "BCU"   Cboe APA (EU)
    1560        "TRU"   TradEcho APA (EU)
    1561        "IEI"   Informa Economics FNP
+   1562        "FAO"   THE FOOD & AGRICULTURE ORGANIZATION(FAO) OF THE UN
+   1563        "SLT"   SL tools: Short Selling transactions (Brazilian market)
+   1564        "PRD"   PORT OF ROTTERDAM
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11319,6 +11324,7 @@ RPT_UNITS   4033
     214   "Bale    "   480 Pound Bale (USDA)
     215   "Pound   "   Pound as a measure of weight as defined by the British Imperial Standards. 1 Pound = 0.4536 Kilograms
     216   "OZS     "   Troy Ounces
+    217   "USD/TON "   USD per Tonne (metric)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18928,6 +18934,12 @@ SETT_RUL   13438
       0      "     "   undefined
       1      "STD  "   Standard
       2      "NSTD "   Non-Standard
+      3      "T+0  "   Same Day; settlement date is transaction date plus 0
+      4      "T+1  "   Next Day; settlement date is transaction date plus 1
+      5      "T+2  "   Settlement date is transaction date plus 2
+      6      "T+3  "   Settlement date is transaction date plus 3
+      7      "T+4  "   Settlement date is transaction date plus 4
+      8      "T+5  "   Settlement date is transaction date plus 5
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18982,6 +18994,8 @@ TRDSHM_EL2 13569
      10   "SZHK_BS "   Eligible under SZ-HK connect scheme, both buy and sell allowed.
      11   "SZHK_NAS"   Ineligible under SZ-HK connect scheme, sell only.
      12   "SZHK_BSN"   Eligible under SZ-HK connect scheme, but neither buy nor sell allowed.
+     13   "SHHK_SFN"   Eligible under SH-HK connect scheme, both buy and sell allowed. Buy orders suspend due to aggregate foreign shareholdings restriction.
+     14   "SZHK_SFN"   Eligible under SZ-HK connect scheme, both buy and sell allowed, Buy orders suspend due to aggregate foreign shareholdings restriction.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21369,7 +21383,6 @@ LA_CANAL   13602
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET282 13603
 PRE_2ET283 13604
 PRE_2ET284 13605
 PRE_2ET285 13606

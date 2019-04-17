@@ -23,7 +23,7 @@ In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional do
 
 # EMA Features and Functionality
 
-##Common Features:
+## Common Features:
 
 - TCP/IP Connectivity
 
@@ -38,7 +38,7 @@ In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional do
 - Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceXXX,MsgKeyInUpdates only can be configured
   on Consumer/IProvider/NiProvider instance level.
 
-##Consumer Features:
+## Consumer Features:
 
 - RSSL Encrypted and HTTP Connectivity
 
@@ -61,7 +61,7 @@ In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional do
 - Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
 
 
-##Non-Interactive Provider Features:
+## Non-Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
  
@@ -70,7 +70,7 @@ In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional do
 - Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
 
 
-##Interactive Provider Features:
+## Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
  
@@ -90,28 +90,28 @@ Libraries in the Debug subdirectory are built with optimizations, but also conta
 
 A Shared subdirectory, containing the shared libraries, is available within the Optimized and Debug directories. 
 
-###Shared Libraries
+### Shared Libraries
 
 Shared libraries are available for use and contain the same functionality as the static libraries.  
 
-####Windows
+#### Windows
 
 Shared library use is similar to static library use, however there are several key differences.  The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the library search path (local directory, system path, etc.) being used by the application.  The library use can be confirmed by using a utility similar to Dependency Walker, available at www.dependencywalker.com.  This will show the shared library dependencies and where they are being resolved to.  
 
-#####Static Library Manifest
+##### Static Library Manifest
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.3.0.L1
+    libema.lib                ema3.3.0.G1
 
-#####Shared Library Manifest
+##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.3.0.L1
-    libema.dll                ema3.3.0.L1
+    libema.lib                ema3.3.0.G1
+    libema.dll                ema3.3.0.G1
 
-####Linux
+#### Linux
     
 Shared library use is similar to static library use, however there are several key differences.  The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application.  The library use can be confirmed by using the ldd command on the application.  This will show the shared library dependencies and where they are being resolved to.  
 
@@ -125,17 +125,17 @@ The API provides a helpful script that will create soft links for the appropriat
     
 This will create all necessary soft links for example makefiles to link.  It is suggested that any applications deployed using shared libraries follow a similar methodology to ensure proper versioning.  Please see the LinuxSoLink script and the example makefiles for a reference. 
 
-#####Static Library Manifest
+##### Static Library Manifest
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.3.0.L1
+    libema.a                    ema3.3.0.G1
     
-#####Shared Library Manifest
+##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.3.0.0           libema.so.6          ema3.3.0.L1
+    libema.so.3.3.0.1           libema.so.6          ema3.3.0.G1
     
   
 # EMA C++ Issues and Workarounds
@@ -167,7 +167,7 @@ This will create all necessary soft links for example makefiles to link.  It is 
     EU ECCN: None
     Export Code: NL
     Security Compliance: Thomson Reuters Security Compliant
-    Template Version Supported: v4.20.35_TREP_19.21 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.36_TREP_19.31 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

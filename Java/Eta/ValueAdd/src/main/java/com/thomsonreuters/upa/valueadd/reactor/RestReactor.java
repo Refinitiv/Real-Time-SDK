@@ -224,7 +224,6 @@ class RestReactor
 		    	for (Map.Entry<String,String> entry : headerAttribs.entrySet())
 		    		httpRequest.addHeader(entry.getKey(), entry.getValue());
 		    }
-
 			final HttpAsyncRequester requester = new HttpAsyncRequester(HttpProcessorBuilder.create()
 	                .add(new RequestContent())
 	                .add(new RequestTargetHost())
@@ -341,7 +340,6 @@ class RestReactor
 	                .add(new RequestConnControl())
 	                .add(new RequestUserAgent(AUTH_REQUEST_USER_AGENT))
 	                .add(new RequestExpectContinue(true)).build());
-
 			requester.execute(
 	             new BasicAsyncRequestProducer(target, httpRequest),
 	             new BasicAsyncResponseConsumer(),
@@ -464,7 +462,6 @@ class RestReactor
 	
    		try
    		{
-   			
    			final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, Consts.UTF_8);
    			if (options.hasHeaderAttribute())
    			{
@@ -499,7 +496,6 @@ class RestReactor
    				try
    				{
 		   			final HttpResponse response = httpClient.execute(httppost);
-
 		   			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 		   			{
 		   				populateErrorInfo(errorInfo,   				
