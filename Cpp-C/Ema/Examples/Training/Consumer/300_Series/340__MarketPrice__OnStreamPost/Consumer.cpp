@@ -24,7 +24,7 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 	if ( refreshMsg.getState().getStreamState() == OmmState::OpenEnum &&
 		refreshMsg.getState().getDataState() == OmmState::OkEnum )
 	{
-		_pOmmConsumer->submit( PostMsg().postId( 1 ).serviceId( 1701 ).name( "IBM.N" ).solicitAck( true ).complete().payload( 
+		_pOmmConsumer->submit( PostMsg().postId( postId++ ).serviceId( 1701 ).name( "IBM.N" ).solicitAck( true ).complete().payload( 
 		UpdateMsg().payload( FieldList().addReal( 25, 80, OmmReal::ExponentPos1Enum ).complete() ) ) , ommEvent.getHandle() );
 	}
 
@@ -205,6 +205,11 @@ void AppClient::decode( const FieldList& fl )
 				break;
 			}
 	}
+}
+
+AppClient::AppClient() :
+ postId( 1 )
+{
 }
 
 void AppClient::setOmmConsumer( OmmConsumer& consumer )

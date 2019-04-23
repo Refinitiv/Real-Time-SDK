@@ -34,6 +34,8 @@ import com.thomsonreuters.ema.access.PostMsg;
 
 class AppClient implements OmmConsumerClient
 {
+	private static int postId = 1;
+	
 	public void onRefreshMsg(RefreshMsg refreshMsg, OmmConsumerEvent event)
 	{
 		System.out.println("Received Refresh. Item Handle: " + event.handle() + " Closure: " + event.closure());
@@ -59,7 +61,7 @@ class AppClient implements OmmConsumerClient
 				
 				nestedRefreshMsg.payload(nestedFieldList ).complete(true);
 				
-				((OmmConsumer)event.closure()).submit( postMsg.postId( 1 ).serviceName( "DIRECT_FEED" )
+				((OmmConsumer)event.closure()).submit( postMsg.postId( postId++ ).serviceName( "DIRECT_FEED" )
 															.name( "TRI.N" ).solicitAck( true ).complete(true)
 															.payload(nestedRefreshMsg), event.handle() );
 			}
