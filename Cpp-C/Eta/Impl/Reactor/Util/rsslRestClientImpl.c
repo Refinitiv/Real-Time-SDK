@@ -151,7 +151,7 @@ int rsslRestGetServByName(char *serv_name)
 
 RsslUInt32 RsslRestCurlHandleSumFunction(void* curlHandle)
 {
-	return (RsslUInt32)curlHandle;
+	return (RsslUInt32)((RsslUInt64)curlHandle);
 }
 
 RsslBool RsslRestCurlHandleCompareFunction(void* key1, void* key2)
