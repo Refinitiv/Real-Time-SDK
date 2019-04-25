@@ -42,7 +42,6 @@ latencyLogFile( NULL ),
 desiredServiceHandle(0),
 isDesiredServiceUp(false),
 itemsRequestedCount(0),
-waitingForRefreshCount(0),
 refreshCompleteCount(0),
 updateLatList1(UPDATE_CAPACITY),
 updateLatList2(UPDATE_CAPACITY),
@@ -467,14 +466,10 @@ bool ConsumerThread::sendItemRequestBurst(UInt32 itemBurstCount)
 		requestMsg.name(itemRequestList[itemsRequestedCount]->itemName);
 		requestMsg.domainType( itemRequestList[itemsRequestedCount]->itemInfo.domain);
 		itemRequestList[itemsRequestedCount]->pEmaConsumer = pEmaOmmConsumer;
-		
-		itemRequestList[itemsRequestedCount]->itemInfo.handle = pEmaOmmConsumer->registerClient( requestMsg, *( itemRequestList[itemsRequestedCount]->itemInfo.pAppClient ), ( void * ) itemRequestList[itemsRequestedCount]);
-
-		itemRequestList[itemsRequestedCount]->requestState = ITEM_WAITING_FOR_REFRESH;
+		itemRequestList[itemsRequestedCount]->itemInfo.handle = pEmaOmmConsumer->registerClient(requestMsg, *(itemRequestList[itemsRequestedCount]->itemInfo.pAppClient), (void *)itemRequestList[itemsRequestedCount]);
 
 		stats.requestCount.countStatIncr();
 		++itemsRequestedCount;
-		++waitingForRefreshCount;
 	}
 	return true;
 }
@@ -653,7 +648,7 @@ void MarketPriceClient::onRefreshMsg( const thomsonreuters::ema::access::Refresh
 		return;
 	}
 
-	if(!pConsumerThread->stats.imageRetrievalEndTime && pConsumerThread->waitingForRefreshCount)
+	if(!pConsumerThread->stats.imageRetrievalEndTime)
 	{
 	
 		OmmState::StreamState	streamState = refresh.getState().getStreamState();
@@ -687,26 +682,23 @@ void MarketPriceClient::onRefreshMsg( const thomsonreuters::ema::access::Refresh
 		{
 			ItemRequest *pItemClosure = (ItemRequest*) msgEvent.getClosure();
 			// Received a complete refresh.
-			if ( pConsumerThread->itemRequestList[pItemClosure->position]->requestState == ITEM_WAITING_FOR_REFRESH)
-			{
-				pConsumerThread->itemRequestList[pItemClosure->position]->requestState = ITEM_HAS_REFRESH;
-				--(pConsumerThread->waitingForRefreshCount);
-				++(pConsumerThread->refreshCompleteCount);
-				if (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_STREAMING_REQ )
-				{ 					
-					if( (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_POST) &&
-						pConsumerThread->pConsPerfCfg->postsPerSec )
-					{
-						pConsumerThread->postItemList.push_back( pConsumerThread->itemRequestList[pItemClosure->position] );
-					}
-					if( (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_GEN_MSG) &&
-						pConsumerThread->pConsPerfCfg->genMsgsPerSec )
-					{
-						pConsumerThread->genMsgItemList.push_back( pConsumerThread->itemRequestList[pItemClosure->position] );
-					}
+			pConsumerThread->itemRequestList[pItemClosure->position]->requestState = ITEM_HAS_REFRESH;
+
+			++(pConsumerThread->refreshCompleteCount);
+			if (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_STREAMING_REQ )
+			{ 					
+				if( (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_POST) &&
+					pConsumerThread->pConsPerfCfg->postsPerSec )
+				{
+					pConsumerThread->postItemList.push_back( pConsumerThread->itemRequestList[pItemClosure->position] );
+				}
+				if( (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_GEN_MSG) &&
+					pConsumerThread->pConsPerfCfg->genMsgsPerSec )
+				{
+					pConsumerThread->genMsgItemList.push_back( pConsumerThread->itemRequestList[pItemClosure->position] );
 				}
 			}
-		
+
 			if( pConsumerThread->refreshCompleteCount == pConsumerThread->itemListCount )
 				pConsumerThread->stats.imageRetrievalEndTime = GetTime::getTimeNano();
 		}
@@ -923,7 +915,7 @@ void MarketByOrderClient::onRefreshMsg( const thomsonreuters::ema::access::Refre
 		return;
 	}
 
-	if(!pConsumerThread->stats.imageRetrievalEndTime && pConsumerThread->waitingForRefreshCount)
+	if(!pConsumerThread->stats.imageRetrievalEndTime)
 	{
 	
 		OmmState::StreamState	streamState = refresh.getState().getStreamState();
@@ -958,23 +950,19 @@ void MarketByOrderClient::onRefreshMsg( const thomsonreuters::ema::access::Refre
 		{
 			ItemRequest *pItemClosure = (ItemRequest*) msgEvent.getClosure();
 			// Received a complete refresh.
-			if ( pConsumerThread->itemRequestList[pItemClosure->position]->requestState == ITEM_WAITING_FOR_REFRESH)
-			{
-				pConsumerThread->itemRequestList[pItemClosure->position]->requestState = ITEM_HAS_REFRESH;
-				--(pConsumerThread->waitingForRefreshCount);
-				++(pConsumerThread->refreshCompleteCount);
-				if (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_STREAMING_REQ )
-				{ 					
-					if( (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_POST) &&
-						pConsumerThread->pConsPerfCfg->postsPerSec )
-					{
-						pConsumerThread->postItemList.push_back( pConsumerThread->itemRequestList[pItemClosure->position] );
-					}
-					if( (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_GEN_MSG) &&
-						pConsumerThread->pConsPerfCfg->genMsgsPerSec )
-					{
-						pConsumerThread->genMsgItemList.push_back( pConsumerThread->itemRequestList[pItemClosure->position] );
-					}
+			pConsumerThread->itemRequestList[pItemClosure->position]->requestState = ITEM_HAS_REFRESH;
+			++(pConsumerThread->refreshCompleteCount);
+			if (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_STREAMING_REQ )
+			{ 					
+				if( (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_POST) &&
+					pConsumerThread->pConsPerfCfg->postsPerSec )
+				{
+					pConsumerThread->postItemList.push_back( pConsumerThread->itemRequestList[pItemClosure->position] );
+				}
+				if( (pConsumerThread->itemRequestList[pItemClosure->position]->itemInfo.itemFlags & ITEM_IS_GEN_MSG) &&
+					pConsumerThread->pConsPerfCfg->genMsgsPerSec )
+				{
+					pConsumerThread->genMsgItemList.push_back( pConsumerThread->itemRequestList[pItemClosure->position] );
 				}
 			}
 		

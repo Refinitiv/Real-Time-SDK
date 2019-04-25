@@ -286,7 +286,6 @@ protected:
 
 	ReqMsg				requestMsg;
 	Int32				itemsRequestedCount;
-	UInt32				waitingForRefreshCount;
 	Int32				refreshCompleteCount;
 
 	perftool::common::Mutex	statsMutex;
