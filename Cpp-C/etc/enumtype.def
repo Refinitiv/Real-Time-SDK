@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.36
 !tag Build_RDMD  4.20.36
-!tag DT_Version  19.31
-!tag Date        25-Mar-2019
+!tag DT_Version  19.41
+!tag Date        29-Apr-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -244,7 +244,7 @@ RDN_EXCHID     4
     211        "MCP"   Interbolsa - Portuguese Continuous Market
     212        "OTB"   Osterreichische Termin und Optionenboerse (Austrian FOX)
     213        "SIC"   Singapore Commodity Exchange
-    214        "RCT"   SOURCE IS A THOMSON REUTERS CONTRIBUTOR
+    214        "RCT"   Source is a Refinitiv Contributor
     215        "IGF"   Italian Government Forwards
     216        "MWQ"   Consolidated issue, listed by Midwest SE
     217        "PSQ"   Consolidated issue, listed by Pacific SE
@@ -531,7 +531,7 @@ MN_IIN_CCY 13596
     795        "TMM"   Turkmenistan manat
     800        "UGX"   Uganda shilling
     804        "UAK"   Ukrainian karbovanet
-    807        "MKD"   Macedonian denar
+    807        "MKD"   North Macedonian Denar
     810        "RUB"   Russian ruble
     818        "EGP"   Egyptian pound
     826        "GBP"   UK pound sterling
@@ -7284,7 +7284,7 @@ ORDER_EXID 13603
     211        "MCP"   Interbolsa - Portuguese Continuous Market
     212        "OTB"   Osterreichische Termin und Optionenboerse (Austrian FOX)
     213        "SIC"   Singapore Commodity Exchange
-    214        "RCT"   SOURCE IS A THOMSON REUTERS CONTRIBUTOR
+    214        "RCT"   Source is a Refinitiv Contributor
     215        "IGF"   Italian Government Forwards
     216        "MWQ"   Consolidated issue, listed by Midwest SE
     217        "PSQ"   Consolidated issue, listed by Pacific SE
@@ -8635,6 +8635,9 @@ ORDER_EXID 13603
    1562        "FAO"   THE FOOD & AGRICULTURE ORGANIZATION(FAO) OF THE UN
    1563        "SLT"   SL tools: Short Selling transactions (Brazilian market)
    1564        "PRD"   PORT OF ROTTERDAM
+   1565        "NXE"   NOREXECO
+   1566        "RFV"   Refinitiv
+   1567        "WUX"   Wuxi Stainless Steel Electronic Trading Center Co., Ltd.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11380,6 +11383,7 @@ QUOTE_TYPE  4237
       1        "I  "   Indicative
       2        "E  "   Executable
       3        "C  "   Closed
+      4        "ALG"   Algorithmically Derived
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13086,6 +13090,8 @@ M_SHS_PROP  8947
       8   "SHSMF_MR"   Additional short selling and margin buying facility with margin buying restriction.
       9   "LG-SRD  "   Instrument eligible for the Loan and Lending Market and for deferred settlement service long only.
      10   "LLM     "   Instrument eligible for the Loan and Lending Market.
+     11   "LN_LR   "   Loanable stock with loan restriction
+     12   "LN_LRMR "   Loanable stock with both loan restriction and margin restriction
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15106,7 +15112,7 @@ L2_REPR     9050
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "MBP-D   "   Market By Price, derived by Thomson Reuters
+      1   "MBP-D   "   Market By Price, derived by Refinitiv
       2   "MBP-N   "   Market by Price, exchange sourced data (Native)
       3   "MBO     "   Market By Order
 !
@@ -15564,6 +15570,9 @@ SRC_MYLD5  13066
       0   "        "   Undefined
       1   "CTB     "   Data contributed by source
       2   "TRC     "   Data contributed by Thomson Reuters
+      3   "RFVC    "   Data contributed by Refinitiv
+      4   "ETP     "   Data contributed by Electronic Trading Platform
+      5   "PD      "   Data contributed by Primary Dealers
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16971,6 +16980,9 @@ VESSEL_TYP 12978
      20   "SZ DHull"   Suezmax Range Double Hull Tankers. A double hull is a ship hull design where the bottom and sides of the ship have two complete layers of watertight hull surface.
      21   "LR SHull"   Large Range Single Hull Tankers. A single hull is a ship hull design where the bottom and sides of the ship have only one layer of watertight hull surface.
      22   "LR DHull"   Large Range Double Hull Tankers. A double hull is a ship hull design where the bottom and sides of the ship have two complete layers of watertight hull surface.
+     23   "Handy   "   Handy are small-sized cargo ships with a size less than 40,000 DWT
+     24   "LargRng1"   Large Range 1 tankers are those which carries Clean Products with a dead weight tonnage (DWT) between 55,000 and 79,999
+     25   "LargRng2"   Large Range 2 tankers are those which carries Clean Products with a dead weight tonnage (DWT) between 80,000 and 1,20,000
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20546,6 +20558,36 @@ ORGN_PORT  13579
     463   "US SJM  "   Saint James
     464   "AR   ROS"   Rosario
     465   "BR   IAR"   Itacoatiara
+    466   "RU   VYS"   Vysotsk
+    467   "CN TNG  "   Tianjin Port
+    468   "CN LSN  "   Lanshan Port
+    469   "KR TSN  "   Daesan/Seosan
+    470   "TR LMA  "   Limas
+    471   "TR ADY  "   Yumurtalik
+    472   "TR GEM  "   Gemlik
+    473   "KW SAA  "   Shuaiba
+    474   "IT PMA  "   Marghera
+    475   "IT LIV  "   Livorno
+    476   "ES VIL  "   Villagarcía de Arosa
+    477   "US WTN  "   Wilmington
+    478   "US PAY  "   Perth Amboy
+    479   "ID MRK  "   Merak, Java
+    480   "ID GRE  "   Gresik, Java
+    481   "MY KET  "   Kertih
+    482   "TH BKK  "   Bangkok
+    483   "PH PIS  "   Philippines
+    484   "TW TTT  "   Taitung
+    485   "TW MLI  "   Mai-liao
+    486   "TW KEL  "   Keelung (Chilung)
+    487   "CN ZJG  "   Zhangjiagang
+    488   "CN TAZ  "   Taizhou Port
+    489   "CN NSA  "   Nansha Port
+    490   "CN XMG  "   Xiamen Port
+    491   "CN ZUH  "   Zhuhai Port
+    492   "CN TAC  "   Taicang Port
+    493   "CN QZJ  "   Quanzhou Port
+    494   "JP KIJ  "   Niigata
+    495   "JP KNE  "   Kinoe
 !
 ! ACRONYM    FID
 ! -------    ---

@@ -1,20 +1,30 @@
 !
-! RWF.DAT file.
-!
-! Release 4.20.36
-!
-! Produced by u6062221 at 13:36:33 on 20/03/19.
-! Using Master FID list software version 7.00 (03 Oct 2018)
-!
-! Copyright Refinitiv 2018
-!
-! This document contains information proprietary to Refinitiv,
-! designed to transport data within Refinitiv Networks.
-!
 ! This document may not be reproduced, disclosed or used in
 ! whole or part without the express written permission of
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
+!
+!   Version	 4.20.36_TREP_19.41		04/29/2019
+!	* Modified 04/29/2019 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.36.
+!
+!   RDM Field Dictionary
+!   --------------------
+!
+!   Version: 4.20.36_TREP
+!
+!   This file contains a complete list of acronyms used in Field Lists
+!   and, for each acronym, gives:
+!
+!     * DDE Acronym
+!     * associated FID
+!     * ripples to FID (by acronym)
+!     * Marketfeed field type
+!     * Marketfeed maximum field length
+!     * RWF field type (RWF_DT_)
+!     * RWF maximum field length (for caching)
+!
+! Copyright Refinitiv 2019
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
