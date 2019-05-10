@@ -141,9 +141,8 @@ Navigate to `Elektron-SDK/Java` and issue the appropriate Gradle command as foll
 
 To run an example, issue the appropriate command as follows:
 	  
-	Windows: gradlew.bat runExampleName [-PcommandLineArgs="arguments"]
-	Linux: ./gradlew runExampleName [-PcommandLineArgs="arguments"]
-	(where runExampleName is the name of the example to run and arguments are the example arguments, only ETA supports the use of arguments)
+	Windows: gradlew.bat runExampleName  --args='<arguments>'
+	Linux: ./gradlew runExampleName --args='<arguments>'
 	 
 Issue the following command to get a list of all example names.
 	  
@@ -154,8 +153,8 @@ Issue the following command to get a list of all example names.
 
 ETA example, the following command runs the VAConsumer example.
 		
-	Windows: gradlew.bat runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
-	Linux: ./gradlew runVaConsumer -PcommandLineArgs="-c localhost:14002 DIRECT_FEED mp:TRI"
+	Windows: gradlew.bat runVaConsumer --args='-c localhost:14002 DIRECT_FEED mp:TRI'
+	Linux: ./gradlew runVaConsumer --args='-c localhost:14002 DIRECT_FEED mp:TRI'
 
 EMA example, the following command runs the example270__SymbolList example.
 		
@@ -190,40 +189,40 @@ procedural instructions are not included here. Maven uses the following syntax t
 	<dependency>
 		<groupId>com.thomsonreuters.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.3.0.0</version>
+		<version>3.3.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa</groupId>
 		<artifactId>upa</artifactId>
-		<version>3.3.0.0</version>
+		<version>3.3.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd</groupId>
 		<artifactId>upaValueAdd</artifactId>
-		<version>3.3.0.0</version>
+		<version>3.3.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
 		<artifactId>upaValueAddCache</artifactId>
-		<version>3.3.0.0</version>
+		<version>3.3.0.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.3.0.0</version>
+		<version>3.3.0.1</version>
 	</dependency>
 
 Gradle uses the following syntax to specify ESDK dependencies:
 
-	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.3.0.0'
-	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.3.0.0'
-	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.3.0.0'
-	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.3.0.0'                    
-	compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.3.0.0'  
+	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.3.0.1'
+	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.3.0.1'
+	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.3.0.1'
+	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.3.0.1'                    
+	compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.3.0.1'  
 
 # Developing 
 
