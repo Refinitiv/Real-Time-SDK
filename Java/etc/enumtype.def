@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.36
-!tag Build_RDMD  4.20.36
-!tag DT_Version  19.41
-!tag Date        29-Apr-2019
+!tag RT_Version  4.20.37
+!tag Build_RDMD  4.20.37
+!tag DT_Version  19.51
+!tag Date        3-Jun-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -190,7 +190,7 @@ RDN_EXCHID     4
     157        "MAU"   Mauritius Stock Exchange
     158        "SET"   The Stock Exchange of Thailand
     159        "BAH"   BAHRAIN BOURSE
-    160        "CAI"   Cairo Stock Exchange
+    160        "CAI"   The Egyptian Exchange
     161        "AMM"   Amman Stock Exchange
     162        "KUW"   Boursa Kuwait
     163        "BUE"   Buenos Aires Stock Exchange
@@ -1068,6 +1068,12 @@ BLKTRDP_UT 12847
      24       "Dlr "   2 Decimal places, MPV = whole dollars
      25       "0.5c"   3 Decimal places, MPV = 0.5 cents (or 0.005)
      26       "8DP "   8 decimal places
+     27       "9DP "   9 decimal places
+     28       "10DP"   10 decimal places
+     29       "11DP"   11 decimal places
+     30       "12DP"   12 decimal places
+     31       "13DP"   13 decimal places
+     32       "14DP"   14 decimal places
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4090,6 +4096,7 @@ CAN_COND    6585
    2255        "DVP"   Regular + Derivativley Priced
    2275        "DAB"   Regular + Derivativley Priced +Average Price or bunched
    2365        "DAP"   Regular + Derivativley Priced +Average Price Trade
+  21330        "EBO"   EBBO European Best Bid Offer Trade
   21331        "CSC"   Cancellation of Scheduled Auction Trade
   21332        "SCH"   Scheduled Auction Trade
   21333        "INT"   Internal Cross
@@ -7230,7 +7237,7 @@ ORDER_EXID 13603
     157        "MAU"   Mauritius Stock Exchange
     158        "SET"   The Stock Exchange of Thailand
     159        "BAH"   BAHRAIN BOURSE
-    160        "CAI"   Cairo Stock Exchange
+    160        "CAI"   The Egyptian Exchange
     161        "AMM"   Amman Stock Exchange
     162        "KUW"   Boursa Kuwait
     163        "BUE"   Buenos Aires Stock Exchange
@@ -8596,7 +8603,7 @@ ORDER_EXID 13603
    1523        "MAS"   MONETARY AUTHORITY OF SINGAPORE
    1524        "MXQ"   CONSOLIDATED MEXICAN EXCHANGES
    1525        "NXX"   NEX Exchange
-   1526        "EMA"   Euronext Market Access
+   1526        "EMA"   Euronext Access Paris
    1527        "NCA"   NATIONAL CONFECTIONERS ASSOCIATION
    1528        "MAA"   Morgan Stanley MTF
    1529        "IFC"   INTL FCStone Inc
@@ -8638,6 +8645,9 @@ ORDER_EXID 13603
    1565        "NXE"   NOREXECO
    1566        "RFV"   Refinitiv
    1567        "WUX"   Wuxi Stainless Steel Electronic Trading Center Co., Ltd.
+   1568        "CMG"   COMMERG
+   1569        "SWZ"   StarWiz Co., Ltd
+   1570        "CHB"   CHS Inc.
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11425,6 +11435,7 @@ IMB_ACT_TP  4333
 ! -------    ---
 !
 IMB_SIDE    4340
+IMB_SIDE2  13083
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -16949,6 +16960,7 @@ ROUTE_INDX 12977
      91   "TC3_38  "   Caribbean to US Atlantic coast (CPP, UNL)
      92   "TC11    "   South Korea to Singapore
      93   "C11_03  "   Delivery China-Japan ; Trip Continent - Med
+     94   "TC15    "   Mediterranean to Japan
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17096,6 +17108,7 @@ OUT_PROD16 13008
 ! -------    ---
 !
 AVGPRC_TP1 13013
+AVGPRC_TP2 13082
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -17773,8 +17786,6 @@ FIXING_ST  13081
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET381 13082
-PRE_1ET382 13083
 PRE_1ET383 13084
 PRE_1ET384 13085
 PRE_1ET385 13086
@@ -18291,6 +18302,12 @@ MET_TYP20  13562
      65   "LV14D   "   Lending Volume for 14-Day Tenor
      66   "LV28D   "   Lending Volume for 28-Day Tenor
      67   "LV182D  "   Lending Volume for 182-Day Tenor
+     68   "MAAMCP  "   Monthly Average AM Close Price
+     69   "MAPMCP  "   Monthly Average PM Close Price
+     70   "YAAMCP  "   Yearly Average AM Close Price
+     71   "YAPMCP  "   Yearly Average PM Close Price
+     72   "MAAV    "   Monthly AM Daily Accumulated Volume
+     73   "MPAV    "   Monthly PM Daily Accumulated Volume
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20588,6 +20605,7 @@ ORGN_PORT  13579
     493   "CN QZJ  "   Quanzhou Port
     494   "JP KIJ  "   Niigata
     495   "JP KNE  "   Kinoe
+    496   "DZ ALG  "   Alger (Algiers)
 !
 ! ACRONYM    FID
 ! -------    ---
