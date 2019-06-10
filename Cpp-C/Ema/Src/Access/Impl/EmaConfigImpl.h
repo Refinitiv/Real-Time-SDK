@@ -25,6 +25,7 @@
 #include "EmaRdm.h"
 
 #include "rtr/rsslRDMLoginMsg.h"
+#include "rtr/rsslReactor.h"
 #include "libxml/parser.h"
 
 
@@ -167,6 +168,7 @@ public:
 		ConfigElementTypeAscii = 2,
 		ConfigElementTypeEnum = 3,
 		ConfigElementTypeBool = 4,
+		ConfigElementTypeDouble = 5
 	};
 
 	ConfigElement( const EmaString& name, XMLnode* parent ) : _name( name ), _parent( parent ) {}
@@ -1206,6 +1208,8 @@ public:
 	void instanceId( const EmaString& );
 
 	void clientId( const EmaString& );
+	void clientSecret(const EmaString& );
+	void tokenScope( const EmaString& );
 	void tokenServiceUrl( const EmaString& );
 	void serviceDiscoveryUrl( const EmaString& );
 
@@ -1311,11 +1315,6 @@ public:
 		return _sslCAStoreSetViaFunctionCall;
 	}
 
-	const EmaString& getUserSpecifiedClientId()
-	{
-		return _clientId;
-	}
-
 	const EmaString& getUserSpecifiedTokenServiceUrl()
 	{
 		return _tokenServiceUrl;
@@ -1325,6 +1324,8 @@ public:
 	{
 		return _serviceDiscoveryUrl;
 	}
+
+	virtual RsslReactorOAuthCredential* getReactorOAuthCredential() = 0;
 
 protected:
 
@@ -1363,6 +1364,8 @@ protected:
 	EmaString		_libSslName;
 	EmaString		_libCryptoName;
 	EmaString		_clientId;
+	EmaString		_clientSecret;
+	EmaString		_tokenScope;
 	EmaString		_tokenServiceUrl;
 	EmaString		_serviceDiscoveryUrl;
 	EmaString		_libcurlName;

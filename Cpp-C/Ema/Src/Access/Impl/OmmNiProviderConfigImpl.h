@@ -42,6 +42,8 @@ public:
 
 	OmmNiProviderConfig::AdminControl getAdminControlDirectory() const;
 
+	RsslReactorOAuthCredential* getReactorOAuthCredential();
+
 private:
 
 	OmmNiProviderConfig::OperationModel		_operationModel;

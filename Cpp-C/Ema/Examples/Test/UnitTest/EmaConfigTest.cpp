@@ -77,6 +77,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EmaString retrievedValue;
 	Int64 intValue;
 	UInt64 uintValue;
+	Double doubleValue;
 	RsslConnectionTypes channelType;
 	RsslCompTypes compType;
 	OmmLoggerClient::LoggerType loggerType;
@@ -164,6 +165,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting XmlTraceHex from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|MsgKeyInUpdates", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting MsgKeyInUpdates from EmaConfig.xml";
+	debugResult = config.get<Double>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|TokenReissueRatio", doubleValue);
+	EXPECT_TRUE(debugResult && doubleValue == 0.70) << "extracting TokenReissueRatio from EmaConfig.xml";
 
 	// Checks all values from Channel_1
 	debugResult = config.get<EmaString>( "ChannelGroup|ChannelList|Channel|Name", retrievedValue );
@@ -220,6 +223,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting TcpNodelay from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|InitializationTimeout", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 55) << "extracting InitializationTimeout from EmaConfig.xml";
+	debugResult = config.get<Int64>("ChannelGroup|ChannelList|Channel.Channel_2|ReissueTokenAttemptLimit", intValue);
+	EXPECT_TRUE(debugResult && intValue == 5) << "extracting ReissueTokenAttemptLimit from EmaConfig.xml";
 
 	// Checks all values from Logger_1
 	debugResult = config.get<EmaString>( "LoggerGroup|LoggerList|Logger|Name", retrievedValue );
@@ -470,7 +475,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 			.addInt("ReconnectAttemptLimit", 10)
 			.addInt("ReconnectMinDelay", 4444)
 			.addInt("ReconnectMaxDelay", 7777)
-			.addInt("PipePort", 13650).complete())
+			.addInt("PipePort", 13650)
+			.addDouble("TokenReissueRatio", 0.55).complete())
 			.addKeyAscii("Consumer_2", MapEntry::AddEnum, ElementList()
 				.addAscii("Channel", "Channel_2")
 				.addAscii("Dictionary", "Dictionary_1")
@@ -578,6 +584,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE(activeConfig.pipePort == 13650) << "pipePort , 13650";
+		EXPECT_TRUE(activeConfig.tokenReissueRatio == 0.55) << "tokenReissueRatio , 0.55";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->numInputBuffers == 7777) << "numInputBuffers , 7777";
@@ -614,7 +621,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 
 		innerMap.addKeyAscii("Consumer_1", MapEntry::AddEnum, ElementList()
 			.addAscii("Channel", "Channel_1")
-			.addAscii("Dictionary", "Dictionary_1").complete())
+			.addAscii("Dictionary", "Dictionary_1")
+			.addDouble("TokenReissueRatio", 0.20).complete())
 			.complete();
 
 		elementList.addMap("ConsumerList", innerMap);
@@ -631,6 +639,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 			.addAscii("Location", "eu-west")
 			.addUInt("EnableSessionManagement", 1)
 			.addEnum("EncryptedProtocolType", 0)
+			.addInt("ReissueTokenAttemptLimit", 10)
 			.complete())
 			.complete();
 
@@ -663,10 +672,12 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
 		bool found = ommConsumerImpl.getInstanceName().find("Consumer_1") >= 0 ? true : false;
 		EXPECT_TRUE(found) << "ommConsumerImpl.getConsumerName() , \"Consumer_1_1\"";
+		EXPECT_TRUE(activeConfig.tokenReissueRatio == 0.20) << "tokenReissueRatio, 0.20";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1") << "Connection name , \"Channel_1\"";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->location == "eu-west") << "EncryptedChannelConfig::location , \"eu-west\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->enableSessionMgnt == 1) << "EncryptedChannelConfig::enableSessionMgnt , 1";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->reissueTokenAttemptLimit == 10) << "EncryptedChannelConfig::reissueTokenAttemptLimit , 10";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == "./enumtype.def") << "enumtypeDefFileName , \"./enumtype.def\"";
@@ -799,7 +810,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addInt("ReconnectAttemptLimit", 70)
 			.addInt("ReconnectMinDelay", 7000)
 			.addInt("ReconnectMaxDelay", 7000)
-			.addInt("PipePort", 9696).complete()).complete();
+			.addInt("PipePort", 9696)
+			.addDouble("TokenReissueRatio", 0.90).complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap).complete();
 		innerMap.clear();
@@ -894,6 +906,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.xmlTracePing == 0) << "xmlTracePing , 0";
 		EXPECT_TRUE( activeConfig.xmlTraceHex == 0) << "xmlTraceHex , 0";
 		EXPECT_TRUE( activeConfig.msgKeyInUpdates == 0) << "msgKeyInUpdates , 0";
+		EXPECT_TRUE( activeConfig.tokenReissueRatio == 0.90) << "tokenReissueRatio , 0.90";
 
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->compressionType == 2) << "compressionType , 2";
@@ -908,6 +921,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 1) << "SocketChannelConfig::tcpNodelay , 1";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->initializationTimeout == 77) << "SocketChannelConfig::initializationTimeout , 77";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->reissueTokenAttemptLimit == -1) << "SocketChannelConfig::reissueTokenAttemptLimit , -1";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerFileName == "ConfigDB2_logFile" ) << "loggerFileName = \"ConfigDB2_logFile\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::NoLogMsgEnum) << "minLoggerSeverity = OmmLoggerClient::NoLogMsgEnum";

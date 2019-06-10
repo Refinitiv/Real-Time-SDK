@@ -445,6 +445,9 @@ void EmaConfigBaseImpl::createNameToValueHashTable()
 
 	for (int i = 0; i < sizeof UInt64Values / sizeof(EmaString); ++i)
 		nameToValueHashTable.insert(UInt64Values[i], ConfigElement::ConfigElementTypeUInt64);
+
+	for (int i = 0; i < sizeof DoubleValues / sizeof(EmaString); ++i)
+		nameToValueHashTable.insert(DoubleValues[i], ConfigElement::ConfigElementTypeDouble);
 }
 
 ConfigElement* EmaConfigBaseImpl::createConfigElement(const char* name, XMLnode* parent, const char* value, EmaString& errorMsg)
@@ -493,6 +496,21 @@ ConfigElement* EmaConfigBaseImpl::createConfigElement(const char* name, XMLnode*
 		e = new XMLConfigElement<UInt64>(name, parent, ConfigElement::ConfigElementTypeUInt64, converted);
 	}
 	break;
+	case ConfigElement::ConfigElementTypeDouble:
+	{
+		if (!validateConfigElement(value, ConfigElement::ConfigElementTypeDouble))
+		{
+			errorMsg.append("value [").append(value).append("] for config element [").append(name).append("] is not an double; element ignored");
+			break;
+		}
+		Double converted;
+		char* endStr;
+
+		converted = strtod(value, &endStr);
+
+		e = new XMLConfigElement<Double>(name, parent, ConfigElement::ConfigElementTypeDouble, converted);
+	}
+	break;
 	default:
 		errorMsg.append("config element [").append(name).append("] had unexpected elementType [").append(*elementType).append("; element ignored");
 		break;
@@ -502,11 +520,13 @@ ConfigElement* EmaConfigBaseImpl::createConfigElement(const char* name, XMLnode*
 
 bool EmaConfigBaseImpl::validateConfigElement(const char* value, ConfigElement::ConfigElementType valueType) const
 {
+	if (!strlen(value))
+		return false;
+
+	const char* p = value;
+
 	if (valueType == ConfigElement::ConfigElementTypeInt64 || valueType == ConfigElement::ConfigElementTypeUInt64)
 	{
-		if (!strlen(value))
-			return false;
-		const char* p = value;
 		if (valueType == ConfigElement::ConfigElementTypeInt64 && !isdigit(*p))
 		{
 			if (*p++ != '-')
@@ -516,6 +536,13 @@ bool EmaConfigBaseImpl::validateConfigElement(const char* value, ConfigElement::
 		}
 		for (; *p; ++p)
 			if (!isdigit(*p))
+				return false;
+		return true;
+	}
+	else if (valueType == ConfigElement::ConfigElementTypeDouble)
+	{
+		for (; *p; ++p)
+			if (!isdigit(*p) && *p != '.')
 				return false;
 		return true;
 	}
@@ -799,6 +826,11 @@ void EmaConfigImpl::clear()
 	_objectName.clear();
 	_libSslName.clear();
 	_libCryptoName.clear();
+	_clientId.clear();
+	_clientSecret.clear();
+	_tokenScope.clear();
+	_tokenServiceUrl.clear();
+	_serviceDiscoveryUrl.clear();
 }
 
 void EmaConfigImpl::username( const EmaString& username )
@@ -834,6 +866,16 @@ void EmaConfigImpl::instanceId( const EmaString& instanceId )
 void EmaConfigImpl::clientId( const EmaString& clientId )
 {
 	_clientId = clientId;
+}
+
+void EmaConfigImpl::clientSecret( const EmaString& clientSecret )
+{
+	_clientSecret = clientSecret;
+}
+
+void EmaConfigImpl::tokenScope( const EmaString& tokenScope)
+{
+	_tokenScope = tokenScope;
 }
 
 void EmaConfigImpl::tokenServiceUrl( const EmaString& tokenServiceUrl )
@@ -1642,6 +1684,15 @@ namespace thomsonreuters {
 namespace ema {
 
 namespace access {
+
+template<>
+void XMLConfigElement<Double>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %f", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %f", _values[i]);
+}
 
 template<>
 void XMLConfigElement<UInt64>::print() const

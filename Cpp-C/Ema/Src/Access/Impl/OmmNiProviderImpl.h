@@ -49,7 +49,7 @@ public :
 
 	void removeSocket( RsslSocket );
 
-	void setRsslReactorChannelRole( RsslReactorChannelRole& );
+	void setRsslReactorChannelRole( RsslReactorChannelRole&, RsslReactorOAuthCredential* );
 
 	void reissue(const ReqMsg&, UInt64);
 

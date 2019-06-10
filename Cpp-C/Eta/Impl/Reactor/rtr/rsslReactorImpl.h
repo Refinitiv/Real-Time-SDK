@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2018. All rights reserved.
+ * Copyright Thomson Reuters 2019. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_IMPL_H
@@ -68,12 +68,8 @@ typedef enum
 typedef struct
 {
 	RsslReactorConnectInfo base;
-	
-	/* This is original login request information */
-	RsslBuffer				userName;
-	RsslUInt32				flags;
-	RsslUInt8				userNameType;
-	RsslBuffer				clientId;
+
+	RsslInt32						reissueTokenAttemptLimit; /* Keeping track of token renewal attempt */
 
 	RsslReactorChannelInfoImplState	reactorChannelInfoImplState; /* Keeping track the state of this session */
 	RsslReactorTokenMgntEventType	reactorTokenMgntEventType; /* Specify an event type for sending to the Reactor */
@@ -141,7 +137,7 @@ typedef struct
 	RsslReactorConnectInfoImpl *connectionOptList;
 	TunnelManager *pTunnelManager;
 
-	/* Support session managemnt and EDP-RT service discovery. */
+	/* Support session management and EDP-RT service discovery. */
 	RsslBool supportSessionMgnt;
 	RsslReactorAuthTokenInfo	tokenInformation;
 	RsslBuffer				tokenInformationBuffer;
@@ -151,6 +147,12 @@ typedef struct
 	RsslBuffer				rsslAccessTokenRespBuffer;
 	RsslBuffer				rsslServiceDiscoveryRespBuffer;
 	RsslBuffer				rsslPostDataBodyBuf;
+	RsslUInt32				httpStausCode; /* the latest HTTP status code */
+
+	/* This is original login request information */
+	RsslBuffer				userName;
+	RsslUInt32				flags;
+	RsslUInt8				userNameType;
 
 } RsslReactorChannelImpl;
 
@@ -166,7 +168,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 															RsslBool *enableSessionMgnt)
 {
 	RsslConnectOptions *destOpts, *sourceOpts;
-	RsslUInt32 i, j;
+	RsslUInt32 i, j, k;
 
 	if(pOpts->connectionCount != 0)
 	{
@@ -186,7 +188,13 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 			pReactorChannel->connectionOptList[i].base.location.data = (char*)malloc((size_t)pReactorChannel->connectionOptList[i].base.location.length + (size_t)1);
 			if (pReactorChannel->connectionOptList[i].base.location.data == 0)
 			{
+				for (k = 0; k < i; k++)
+				{
+					free(pReactorChannel->connectionOptList[k].base.location.data);
+				}
+				
 				free(pReactorChannel->connectionOptList);
+				pReactorChannel->connectionOptList = NULL;
 				return RSSL_RET_FAILURE;
 			}
 
@@ -197,6 +205,9 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 			pReactorChannel->connectionOptList[i].base.initializationTimeout = pOpts->reactorConnectionList[i].initializationTimeout;
 			pReactorChannel->connectionOptList[i].base.enableSessionManagement = pOpts->reactorConnectionList[i].enableSessionManagement;
 			pReactorChannel->connectionOptList[i].base.pAuthTokenEventCallback = pOpts->reactorConnectionList[i].pAuthTokenEventCallback;
+			pReactorChannel->connectionOptList[i].base.reissueTokenAttemptLimit = 
+				pOpts->reactorConnectionList[i].reissueTokenAttemptLimit < -1  ? -1 : pOpts->reactorConnectionList[i].reissueTokenAttemptLimit;
+			pReactorChannel->connectionOptList[i].reissueTokenAttemptLimit = pReactorChannel->connectionOptList[i].base.reissueTokenAttemptLimit;
 
 			if (!(*enableSessionMgnt))
 				(*enableSessionMgnt) = pReactorChannel->connectionOptList[i].base.enableSessionManagement;
@@ -211,6 +222,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 					rsslFreeConnectOpts(&pReactorChannel->connectionOptList[j].base.rsslConnectOptions);
 				}
 				free(pReactorChannel->connectionOptList);
+				pReactorChannel->connectionOptList = NULL;
 				return RSSL_RET_FAILURE;
 			}
 		}
@@ -232,6 +244,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 			rsslFreeConnectOpts(&pReactorChannel->connectionOptList->base.rsslConnectOptions);
 
 			free(pReactorChannel->connectionOptList);
+			pReactorChannel->connectionOptList = NULL;
 			return RSSL_RET_FAILURE;
 		}
 
@@ -264,6 +277,12 @@ RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pRea
 		free(pReactorChannel->rsslServiceDiscoveryRespBuffer.data);
 		free(pReactorChannel->rsslAccessTokenRespBuffer.data);
 		free(pReactorChannel->tokenInformationBuffer.data);
+
+		if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER)
+		{
+			free(pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential);
+		}
+
 		free(pReactorChannel->connectionOptList);
 		pReactorChannel->connectionOptList = NULL;
 	}
@@ -415,6 +434,7 @@ struct _RsslReactorImpl
 	RsslNotifierEvent *pWorkerNotifierEvent; /* This is used for RsslRestClient to receive notification */
 	RsslBuffer			restServiceEndpointRespBuf; /* This is memory allocation for RsslRestServiceEndpointResp */
 	RsslRestServiceEndpointResp	restServiceEndpointResp; /* This is used for querying service discovery by users */
+	RsslDouble			tokenReissueRatio; /* User defined ration multiply with the expires_in field to retrieve and reissue the access token */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
@@ -425,7 +445,7 @@ RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
 void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);
 
 RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pClientID,
-	RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
+	RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
 
 RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
 																RsslReactorDiscoveryDataFormatProtocol dataFormat, RsslBuffer *pTokenType, RsslBuffer *pAccessToken,

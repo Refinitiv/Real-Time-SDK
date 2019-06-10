@@ -73,6 +73,12 @@ typedef unsigned long long UInt64;
 */
 typedef long long Int64;
 
+/**
+	\typedef Double
+	@brief represents 8-byte floating point value
+*/
+typedef double  Double;
+
 }
 
 }

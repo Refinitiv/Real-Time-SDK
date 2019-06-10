@@ -11,7 +11,7 @@
 
 /**
 	@class thomsonreuters::ema::access::OmmConsumerConfig OmmConsumerConfig.h "Access/Include/OmmConsumerConfig.h"
-	@brief OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.
+	@brief OmmConsumerConfig is used to modify configuration and behavior of OmmConsumer.
 
 	OmmConsumerConfig provides a default basic OmmConsumer configuration.
 
@@ -115,12 +115,24 @@ public :
 	*/
 	OmmConsumerConfig& applicationId( const EmaString& applicationId );
 
-	/** Specifies an unique identifier defined for making an athentication request to the token service
+	/** Specifies an unique identifier defined for making an authentication request to the token service
 		@param[in] clientId specifies an unique identifier.
 		@return reference to this object
 		\remark EMA uses the username as Client ID if not specified
 	*/
 	OmmConsumerConfig& clientId( const EmaString& clientId );
+
+	/** Specifies optionally a secret used by OAuth client to authenticate to the Authorization Server.
+		@param[in] clientSecret specifies a client secret.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& clientSecret( const EmaString& clientSecret );
+
+	/** Specifies optionally token scope to limit the scope of generated token from the token service.
+		@param[in] tokenScope specifies a token scope
+		@return reference to this object
+*/
+	OmmConsumerConfig& tokenScope( const EmaString& tokenScope = "trapi.streaming.pricing.read" );
 
 	/** Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
 		@param[in] tokenServiceUrl specifies an URL for token service.

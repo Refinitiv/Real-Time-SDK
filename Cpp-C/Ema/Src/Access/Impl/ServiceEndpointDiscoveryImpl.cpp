@@ -104,6 +104,18 @@ void ServiceEndpointDiscoveryImpl::registerClient(const ServiceEndpointDiscovery
 		_serviceDiscoveryOpts.clientId.length = params._clientId.length();
 	}
 
+	if (!params._clientSecret.empty())
+	{
+		_serviceDiscoveryOpts.clientSecret.data = const_cast<char*>(params._clientSecret.c_str());
+		_serviceDiscoveryOpts.clientSecret.length = params._clientSecret.length();
+	}
+
+	if (!params._tokenScope.empty() && params._tokenScope != _serviceDiscoveryOpts.tokenScope.data)
+	{
+		_serviceDiscoveryOpts.tokenScope.data = const_cast<char*>(params._tokenScope.c_str());
+		_serviceDiscoveryOpts.tokenScope.length = params._tokenScope.length();
+	}
+
 	_pClient = &client;
 	_serviceDiscoveryOpts.userSpecPtr = closure;
 	_serviceDiscoveryOpts.pServiceEndpointEventCallback = ServiceEndpointDiscoveryImpl::serviceEndpointEventCallback;

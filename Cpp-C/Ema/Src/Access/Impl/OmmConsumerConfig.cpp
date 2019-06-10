@@ -71,9 +71,21 @@ OmmConsumerConfig& OmmConsumerConfig::applicationId( const EmaString& applicatio
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::clientId(const EmaString& clientId)
+OmmConsumerConfig& OmmConsumerConfig::clientId( const EmaString& clientId )
 {
 	_pImpl->clientId( clientId );
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::clientSecret( const EmaString& clientSecret )
+{
+	_pImpl->clientSecret( clientSecret );
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::tokenScope( const EmaString& tokenScope )
+{
+	_pImpl->tokenScope( tokenScope );
 	return *this;
 }
 

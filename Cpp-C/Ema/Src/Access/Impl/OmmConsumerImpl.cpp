@@ -228,11 +228,12 @@ void OmmConsumerImpl::processChannelEvent( RsslReactorChannelEvent* )
 {
 }
 
-void OmmConsumerImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role )
+void OmmConsumerImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role, RsslReactorOAuthCredential* pReactorOAuthCredential )
 {
 	RsslReactorOMMConsumerRole& consumerRole = role.ommConsumerRole;
 	rsslClearOMMConsumerRole( &consumerRole );
 	consumerRole.pLoginRequest = getLoginCallbackClient().getLoginRequest();
+	consumerRole.pOAuthCredential = pReactorOAuthCredential;
 	consumerRole.pDirectoryRequest = getDirectoryCallbackClient().getDirectoryRequest();
 	consumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_NONE;
 

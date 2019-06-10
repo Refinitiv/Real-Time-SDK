@@ -49,6 +49,7 @@ RsslBuffer rssl_rest_grant_type_password_text = { 19, "grant_type=password" };
 RsslBuffer rssl_rest_username_text = { 10, "&username=" };
 RsslBuffer rssl_rest_password_text = { 10, "&password=" };
 RsslBuffer rssl_rest_client_id_text = { 11, "&client_id=" };
+RsslBuffer rssl_rest_client_secret_text = { 15, "&client_secret=" };
 RsslBuffer rssl_rest_refresh_token_text = { 15, "&refresh_token=" };
 RsslBuffer rssl_rest_scope_text = { 7, "&scope=" };
 RsslBuffer rssl_rest_take_exclusive_sign_on_false_text = { 33, "&takeExclusiveSignOnControl=false" };
@@ -214,6 +215,7 @@ void _rsslRestSetToRsslRestBufferImpl(RsslBuffer* memoryBuffer, RsslRestBufferIm
 	restBufferImpl->bufferLength = memoryBuffer->length;
 	restBufferImpl->pCurrentPos = memoryBuffer->data;
 	restBufferImpl->remainingLength = memoryBuffer->length;
+	memset(restBufferImpl->pStartPos, 0, restBufferImpl->bufferLength);
 }
 
 RsslRet _rsslRestGetBuffer(RsslBuffer* destBuffer, RsslUInt32 requiredSize, RsslRestBufferImpl* restBufferImpl)
@@ -738,7 +740,7 @@ size_t rssl_rest_write_header_callback_with_dynamic_size(char *ptr, size_t size,
 				rsslBuffer.length += RSSL_REST_PADDING_BUF_SIZE;
 			}
 			
-			rsslBuffer.data = (char*)malloc(sizeof(rsslBuffer.length));
+			rsslBuffer.data = (char*)malloc(rsslBuffer.length);
 
 			if (rsslBuffer.data == 0)
 			{
@@ -1634,13 +1636,6 @@ RsslRet rsslRestClientBlockingRequest(RsslRestClient* restClient, RsslRestReques
 	{
 		rsslRet = _rsslRestClientBlockingRequest(restRequestArgs, _rssl_rest_read_databody_callback,
 			rssl_rest_write_databody_callback, rssl_rest_write_header_callback, memorybuffer, error);
-	}
-
-	if (restHandleImpl.rsslRestResponseImpl.restBufferImpl.isOwnedByRestClient)
-	{
-		restResponse->isMemReallocated = RSSL_FALSE;
-		restResponse->reallocatedMem.data = restHandleImpl.rsslRestResponseImpl.restBufferImpl.pStartPos;
-		restResponse->reallocatedMem.length = restHandleImpl.rsslRestResponseImpl.restBufferImpl.bufferLength;
 	}
 
 	restHandleImpl.userPtr = userDefiendPtr;

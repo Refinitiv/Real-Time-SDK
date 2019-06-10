@@ -42,6 +42,7 @@ extern RsslBuffer rssl_rest_grant_type_password_text;
 extern RsslBuffer rssl_rest_username_text;
 extern RsslBuffer rssl_rest_password_text;
 extern RsslBuffer rssl_rest_client_id_text;
+extern RsslBuffer rssl_rest_client_secret_text;
 extern RsslBuffer rssl_rest_refresh_token_text;
 extern RsslBuffer rssl_rest_scope_text;
 extern RsslBuffer rssl_rest_take_exclusive_sign_on_false_text;
@@ -50,8 +51,8 @@ extern RsslBuffer rssl_rest_content_type_text;
 extern RsslBuffer rssl_rest_application_form_urlencoded_text;
 
 #define RSSL_REST_MAX_WRITE_BUF_SIZE 16384
-#define RSSL_REST_INIT_TOKEN_BUFFER_SIZE 7168
-#define RSSL_REST_INIT_SVC_DIS_BUF_SIZE 4096
+#define RSSL_REST_INIT_TOKEN_BUFFER_SIZE 8192
+#define RSSL_REST_INIT_SVC_DIS_BUF_SIZE 9216
 #define RSSL_REST_ADDITIONAL_REQ_AUTH_LENGTH 95 /* Support for both password and refresh_token grant types*/
 #define RSSL_REST_STORE_HOST_AND_PORT_BUF_SIZE 128 /* Enough size to store max domain name(63) and port(5)*/
     

@@ -64,7 +64,7 @@ public:
 
 	void loadDirectory();
 
-	void setRsslReactorChannelRole( RsslReactorChannelRole& );
+	void setRsslReactorChannelRole( RsslReactorChannelRole&, RsslReactorOAuthCredential* );
 
 	void createDictionaryCallbackClient( DictionaryCallbackClient*&, OmmBaseImpl& );
 

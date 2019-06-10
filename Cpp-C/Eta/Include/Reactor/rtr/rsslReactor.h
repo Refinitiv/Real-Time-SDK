@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2018. All rights reserved.
+ * Copyright Thomson Reuters 2019. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_H
@@ -125,6 +125,31 @@ typedef struct
 } RsslConsumerWatchlistOptions;
 
 /**
+ * @brief Structure representing the OAuth credential for authorization with the EDP token service.
+ * @see RsslReactorOMMConsumerRole
+ */
+typedef struct
+{
+	RsslBuffer						userName;				/*!< The user name required to authorize with the EDP token service. */
+	RsslBuffer						password;				/*!< The password for user name used to get access token. */
+	RsslBuffer						clientId;				/*!< A unique ID defined for an application marking the request. Optional 
+															 *   The userName variable is used if this member is not set. */
+	RsslBuffer						clientSecret;			/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
+	RsslBuffer						tokenScope;				/*!< A user can optionally limit the scope of generated token. Optional*/
+} RsslReactorOAuthCredential;
+
+/**
+ * @brief Clears an RsslReactorOAuthCredential object.
+ * @see RsslReactorOAuthCredential
+ */
+RTR_C_INLINE void rsslClearReactorOAuthCredential(RsslReactorOAuthCredential *pOAuthCredential)
+{
+	memset(pOAuthCredential, 0, sizeof(RsslReactorOAuthCredential));
+	pOAuthCredential->tokenScope.data = (char *)"trapi.streaming.pricing.read";
+	pOAuthCredential->tokenScope.length = 28;
+}
+
+/**
  * @brief Structure representing the role of an OMM Consumer.
  * @see RsslReactorChannelRole, RsslReactorChannelRoleBase
  */
@@ -132,8 +157,11 @@ typedef struct
 {
 	RsslReactorChannelRoleBase		base;					/*!< The Base Reactor Channel Role structure. */
 	RsslRDMLoginRequest				*pLoginRequest;			/*!< A Login Request to be sent during the setup of a Consumer-Provider session. Optional. */
-	RsslBuffer						clientId;				/*!< Specifies an unique ID defined for an application making a request to the EDP token service.
-															 * The RsslRDMLoginRequest.userName variable is used if this member is not set. Optional. */
+	RsslBuffer						clientId;				/*!< @deprecated This is used only for backward compatibility. All OAuth credentials should be specified in RsslReactorOAuthCredential. 
+															 * Specifies an unique ID defined for an application making a request to the EDP token service.
+															 * The RsslRDMLoginRequest.userName variable is used if this member is not set. Optional.*/
+	RsslReactorOAuthCredential		*pOAuthCredential;		/*!< A OAuth credential for authentication with the EDP token service. This member has higher precedence for
+																authorization than the user credential specified in pLoginRequest. Optional. */
 	RsslRDMLoginMsgCallback			*loginMsgCallback;		/*!< A callback function for processing RsslRDMLoginMsgs received. If not present, the received message will be passed to the defaultMsgCallback. */
 	RsslRDMDirectoryRequest			*pDirectoryRequest;		/*!< A Directory Request to be sent during the setup of a Consumer-Provider session. Optional. Requires pLoginRequest to be set.*/
 	RsslRDMDirectoryMsgCallback		*directoryMsgCallback;	/*!< A callback function for processing RsslRDMDirectoryMsgs received. If not present, the received message will be passed to the defaultMsgCallback. */
@@ -231,7 +259,7 @@ RTR_C_INLINE void rsslClearReactorChannelRole(RsslReactorChannelRole *pRole)
 
 
 /**
- * @brief Configuraion options for creating an RsslReactor.
+ * @brief Configuration options for creating an RsslReactor.
  * @see rsslCreateReactor
  */
 typedef struct {
@@ -241,6 +269,8 @@ typedef struct {
 												 * in the RsslReactorConnectInfo.rsslConnectOptions */
 	RsslBuffer	tokenServiceURL;				/*!< Specifies a URL of the token service to get an access token and a refresh token. This is used for querying EDP-RT service
 												 * discovery and subscribing data from EDP-RT. */
+	RsslDouble	tokenReissueRatio;				/*!< Specifies a ratio to multiply with access token validity time(seconds) for retrieving and reissuing the access token. 
+												 * The valid range is between 0.01 to 0.99. */
 	int			port;							/*!< @deprecated DEPRECATED: This parameter no longer has any effect. It was a port used for creating the eventFd descriptor on the RsslReactor. It was never used on Linux or Solaris platforms. */
 } RsslCreateReactorOptions;
 
@@ -257,6 +287,7 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	pReactorOpts->serviceDiscoveryURL.length = 46;
 	pReactorOpts->tokenServiceURL.data = (char *)"https://api.refinitiv.com/auth/oauth2/beta1/token";
 	pReactorOpts->tokenServiceURL.length = 49;
+	pReactorOpts->tokenReissueRatio = 0.8;
 }
 
 /**
@@ -301,15 +332,17 @@ typedef enum
 } RsslReactorDiscoveryDataFormatProtocol;
 
 /**
- * @brief Configuraion options for querying EDP-RT service discovery to get service endpoints.
+ * @brief Configuration options for querying EDP-RT service discovery to get service endpoints.
  * @see rsslReactorQueryServiceDiscovery
  */
 typedef struct
 {
 	RsslBuffer                              userName; /* !< Specifies a user name for authorization with the token service. */
 	RsslBuffer                              password; /* !< Specifies a password for authorization with the token service. */
-	RsslBuffer                              clientId; /*!< Specifies an unique ID defined for an application making a request to the token service.
+	RsslBuffer                              clientId; /* !< Specifies an unique ID defined for an application making a request to the token service. Optional
 														 * The userName variable is used if this member is not set. */
+	RsslBuffer                              clientSecret; /* !< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
+	RsslBuffer								tokenScope; /* !< A user can optionally limit the scope of generated token. Optional */
 	RsslReactorDiscoveryTransportProtocol   transport;  /*!< This is an optional parameter to specify the desired transport protocol to get
 														 * service endpoints from the service discovery. */
 	RsslReactorDiscoveryDataFormatProtocol  dataFormat; /*!< This is an optional parameter to specify the desired data format protocol to get
@@ -335,6 +368,8 @@ typedef struct
 RTR_C_INLINE void rsslClearReactorServiceDiscoveryOptions(RsslReactorServiceDiscoveryOptions *pOpts)
 {
 	memset(pOpts, 0, sizeof(RsslReactorServiceDiscoveryOptions));
+	pOpts->tokenScope.data = (char *)"trapi.streaming.pricing.read";
+	pOpts->tokenScope.length = 28;
 }
 
 /**
@@ -359,6 +394,7 @@ typedef struct
 	RsslReactorAuthTokenEventCallback *pAuthTokenEventCallback; /*!< Callback function that receives RsslReactorAuthTokenEvents. The token is requested 
 	                                                             * by the Reactor for Consumer(disabling watchlist) and NiProvider applications to send login request and
 																 * reissue with the token */
+	RsslInt32			reissueTokenAttemptLimit;	/*!< The maximum number of times the RsllReactor will attempt to reissue the token for a channel. If set to -1, there is no limit. */
 } RsslReactorConnectInfo;
 
 RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
@@ -369,6 +405,7 @@ RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
 	pInfo->location.data = (char *)"us-east";
 	pInfo->location.length = 7;
 	pInfo->pAuthTokenEventCallback = NULL;
+	pInfo->reissueTokenAttemptLimit = -1;
 }
 
 /**

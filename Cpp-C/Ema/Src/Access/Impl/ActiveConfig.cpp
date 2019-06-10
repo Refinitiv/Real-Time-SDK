@@ -162,7 +162,8 @@ BaseConfig::BaseConfig() :
 	parameterConfigGroup(1), // This variable is set for handling deprecation cases.
 	libSslName(),
 	libCryptoName(),
-	traceStr()
+	traceStr(),
+	tokenReissueRatio(DEFAULT_TOKEN_REISSUE_RATIO)
 {
 }
 
@@ -193,6 +194,7 @@ void BaseConfig::clear()
 	libSslName.clear();
 	libCryptoName.clear();
 	traceStr.clear();
+	tokenReissueRatio = DEFAULT_TOKEN_REISSUE_RATIO;
 }
 
 EmaString BaseConfig::configTrace()
@@ -216,7 +218,8 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t xmlTraceHex : ").append(xmlTraceHex)
 		.append("\n\t xmlTraceFileName : ").append(xmlTraceFileName)
 		.append("\n\t libSslName : ").append(libSslName)
-		.append("\n\t libCryptoName : ").append(libCryptoName);
+		.append("\n\t libCryptoName : ").append(libCryptoName)
+		.append("\n\t tokenReissueRatio : ").append(tokenReissueRatio);
 
 	return traceStr;
 }
@@ -682,7 +685,8 @@ SocketChannelConfig::SocketChannelConfig(const EmaString& defaultHostName, const
 	encryptedConnectionType(RSSL_CONN_TYPE_INIT),
 	securityProtocol(RSSL_ENC_TLSV1_2),
 	enableSessionMgnt(RSSL_FALSE),
-	location(DEFAULT_EDP_RT_LOCATION)
+	location(DEFAULT_EDP_RT_LOCATION),
+	reissueTokenAttemptLimit(DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT)
 {
 }
 
@@ -701,6 +705,7 @@ void SocketChannelConfig::clear()
 	securityProtocol = RSSL_ENC_TLSV1_2;
 	enableSessionMgnt = RSSL_FALSE;
 	location = DEFAULT_EDP_RT_LOCATION;
+	reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
 }
 
 ChannelConfig::ChannelType SocketChannelConfig::getType() const

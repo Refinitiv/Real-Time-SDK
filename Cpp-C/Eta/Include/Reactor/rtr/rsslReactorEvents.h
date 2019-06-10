@@ -188,6 +188,7 @@ typedef struct
 	RsslReactorChannel			*pReactorChannel;	/*!< The channel associated with this event. */
 	RsslReactorAuthTokenInfo	*pReactorAuthTokenInfo; /*!< The token information associated with this event. */
 	RsslErrorInfo				*pError; 			/*!< Contains information about the error that occurred with the token information. */
+	RsslUInt32					statusCode;			/*!< Represents HTTP response status code */
 } RsslReactorAuthTokenEvent;
 
 /**
@@ -234,6 +235,7 @@ typedef struct
 	void                           *userSpecPtr;        /*!< A user-specified pointer associated with this RsslReactorServiceEndpointEvent. */
 	RsslErrorInfo                  *pErrorInfo;             /*!< Contains information about the error that occurred with EDP token service and service discovery 
                                                              * which provides information about the error and its location in the source code. */
+	RsslUInt32                     statusCode;          /*!< Represents HTTP response status code */
 } RsslReactorServiceEndpointEvent;
 
 /**
