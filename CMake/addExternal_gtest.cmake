@@ -77,6 +77,9 @@ if( (NOT gtest_USE_INSTALLED) AND
 		list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d"
 									"-DCMAKE_CXX_FLAGS:STRING=/Zc:wchar_t- /DEBUG:NONE"
 									)
+	else()
+		list(APPEND _config_options "-DCMAKE_C_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
+									"-DCMAKE_CXX_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}")
 	endif()	
 
 	# Append the config and shared args to the CMake arguments to the template variable

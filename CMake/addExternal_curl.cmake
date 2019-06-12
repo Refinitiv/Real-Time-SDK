@@ -24,24 +24,7 @@ if((NOT curl_USE_INSTALLED) AND
 	(NOT TARGET CURL::libcurl) )
 	set(_EPA_NAME "curl")
 
-	if((openssl_USE_INSTALLED) AND
-		(NOT OPENSSL_FOUND) )
-		# In order for the CMake OpenSSL find module to succeed:
-		# CMake <=3.4.3
-		# Set OPENSSL_ROOT_DIR to the root directory of an OpenSSL installation. 
-		# Set OPENSSL_USE_STATIC_LIBS to TRUE to look for static libraries. 
-		# Set OPENSSL_MSVC_STATIC_RT set TRUE to choose the MT version of the lib
-		find_package(OpenSSL REQUIRED)
-		if( (DEFINED openssl_version) AND
-			(OPENSSL_VERSION VERSION_LESS "${openssl_version}") )
-			message(WARNING
-					"  OpenSSL ver:${OPENSSL_VERSION_STRING} found, is older than the supported ver:${openssl_version}\n"
-					"  This may cause unexpected behavior and/or build results"
-					)
-		endif()
-	endif()
-
-    # Initialize the directory variables for the external project
+	# Initialize the directory variables for the external project
 	# default:
 	#        external/
 	#                dlcache/
@@ -110,6 +93,23 @@ if((NOT curl_USE_INSTALLED) AND
 	else()
 		set(_config_options "${_config_options}" 
 							"-DCMAKE_USE_OPENSSL:BOOL=ON")
+
+		# Need to search for the correct OpenSsl version incase there are 64 and 32 bit 
+		# versions installed, since the curl build and install will not protect itself from 
+		# linking with the incorrect arch version
+		find_package(PkgConfig QUIET)
+		if (NOT CMAKE_PREFIX_PATH)
+			set(CMAKE_PREFIX_PATH "/usr" "/usr/local")
+		endif()
+		string(REPLACE ";" "|" CMAKE_PREFIX_PATH_TMP "${CMAKE_PREFIX_PATH}")
+		PKG_CHECK_MODULES(_OPENSSL QUIET openssl)
+
+		DEBUG_PRINT(::ALL _OPENSSL)
+
+		if (NOT ("x${_OPENSSL_LIBDIR}x" STREQUAL "xx"))
+			list(APPEND _config_options "-DOpenSSL_DIR:PATH=${_OPENSSL_LIBDIR}")
+		endif()
+
 		# Since our internal build types are Debug and Optimized, only Debug will translate
 		if (CMAKE_BUILD_TYPE MATCHES "Debug")
 			set(_cfg_type "${CMAKE_BUILD_TYPE}")
@@ -119,6 +119,19 @@ if((NOT curl_USE_INSTALLED) AND
 			set(_cfg_type "Release")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
 		endif()
+
+		set(_libdir "lib")
+		if (RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
+			set(_libdir "lib64")
+		endif()
+
+		list(APPEND _config_options "-DCMAKE_C_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
+									"-DCMAKE_CXX_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
+									"-DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH_TMP}"
+									"-DCMAKE_SIZEOF_VOID_P=${CMAKE_SIZEOF_VOID_P}"
+									"-DLIBDIR:STRING=${_libdir}"
+									)
+
 	endif()
 
 	if(curl_BUILD_STATIC_LIBS)
@@ -130,6 +143,7 @@ if((NOT curl_USE_INSTALLED) AND
 						"-DCMAKE_INSTALL_PREFIX:STRING=<INSTALL_DIR>"
 						"${_config_options}"
 						"${_shared_arg}"
+						"LIST_SEPARATOR |"
 						)
 
 	# Since this external project has a CMakeLists.txt, the default CONFIG_COMMAND will be
@@ -144,7 +158,7 @@ if((NOT curl_USE_INSTALLED) AND
 	# within the INSTALL_COMMAND step.  So, this is skipping the BUILD_COMMAND by 
 	# passing "" as the argument for the BUILD_COMMAND
 	if (WIN32)
-		set( _EPA_BUILD_COMMAND      
+		set( _EPA_BUILD_COMMAND 
 					"BUILD_COMMAND     \"${CMAKE_COMMAND}\"   --build .  --config Release "  
 					"COMMAND    \"${CMAKE_COMMAND}\"   --build .  --config Debug ")
 	else()
@@ -199,6 +213,7 @@ if((NOT curl_USE_INSTALLED) AND
 		set(CURL_ROOT "${curl_install}" CACHE INTERNAL "")
 	endif()
 
+	unset(_libdir)
 	unset(_shared_arg)
 	unset(_config_args)
 	unset(_log_args)
@@ -209,7 +224,7 @@ if((NOT curl_USE_INSTALLED) AND
 	# this template will be at risk being currupted with old values.
 	rcdev_reset_ep_add()
 	
-	set(curl_find_options HINTS ${curl_install} CACHE INTERNAL "")
+	set(curl_find_options PATHS ${curl_install} NO_DEFAULT_PATH)
 
 endif()
 
@@ -223,19 +238,17 @@ if ((NOT CURL_FOUND) OR
 	# field defiition within a <package>.pc file. Also, the option to search for the
 	# newly built version are passed as an argument, in case they have been defined, 
 	# in lieu of an installed version
-	find_package(CURL  REQUIRED ${curl_find_options})
+	find_package(CURL REQUIRED ${curl_find_options})
 
 	# This condition is here since the FindCURL CMake module for version < Cmake.12.0 does not 
 	#  crete an IMPORTED targte object (CURL::libcurl)
 	if(NOT TARGET CURL::libcurl)
-    	add_library(CURL::libcurl UNKNOWN IMPORTED)
-    	set_target_properties(CURL::libcurl PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CURL_INCLUDE_DIRS}")
-    	set_property(TARGET CURL::libcurl APPEND PROPERTY IMPORTED_LOCATION "${CURL_LIBRARY}")
+		add_library(CURL::libcurl UNKNOWN IMPORTED)
+		set_target_properties(CURL::libcurl PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CURL_INCLUDE_DIRS}")
+		set_property(TARGET CURL::libcurl APPEND PROPERTY IMPORTED_LOCATION "${CURL_LIBRARY}")
 	endif()
 
-	if(curl_BUILD_STATIC_LIBS)
-		rcdev_map_imported_ep_types(CURL::libcurl)
-	endif()
+	rcdev_map_imported_ep_types(CURL::libcurl)
 
 	if( (DEFINED CURL_VERSION_STRING) AND
 		(CURL_VERSION_STRING VERSION_LESS "${curl_version}") )
@@ -256,6 +269,8 @@ if ((NOT CURL_FOUND) OR
 		
 endif()
 
+DEBUG_PRINT(OpenSSL::SSL)
+DEBUG_PRINT(OpenSSL::Crypto)
 DEBUG_PRINT(CURL_FOUND)
 DEBUG_PRINT(CURL_LIBRARY)
 DEBUG_PRINT(CURL_VERSION_STRING)

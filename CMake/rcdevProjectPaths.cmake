@@ -12,7 +12,7 @@ if(RCDEV_POST_PREFIX_TYPE)
 	if (RCDEV_POST_PREFIX_TYPE STREQUAL "NEW" OR
 		RCDEV_POST_PREFIX_TYPE STREQUAL "CLASSIC" )
 		# Update the cache entry for ccmake or cmake-gui to see
-		set (RCDEV_POST_PREFIX_TYPE "${RCDEV_POST_PREFIX_TYPE}" CACHE STRINGS "The type of post prefix path used, \[NEW\|CLASSIC\]" FORCE)
+		set (RCDEV_POST_PREFIX_TYPE "${RCDEV_POST_PREFIX_TYPE}" CACHE STRING "The type of post prefix path used, \[NEW\|CLASSIC\]" FORCE)
 	else()
 		message(FATAL_ERROR 
 				"Invalid value for RCDEV_POST_PREFIX_TYPE:(${RCDEV_POST_PREFIX_TYPE})\n"

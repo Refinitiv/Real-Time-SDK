@@ -347,6 +347,7 @@ if( (NOT zlib_USE_INSTALLED) AND
 		set(zlib_CONFIG_OPTIONS "${_config_options}")
 	endif()
 
+	set(_libdir "lib")
 	unset(_cfg_type)
 	if (WIN32)
 		list(APPEND _config_options "-DCMAKE_DEBUG_POSTFIX:STRING=d"
@@ -360,10 +361,19 @@ if( (NOT zlib_USE_INSTALLED) AND
 			set(_cfg_type "Release")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
 		endif()
+
+		if (RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
+			set(_libdir "lib64")
+		endif()
+
+		list(APPEND _config_options "-DCMAKE_C_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
+									"-DCMAKE_CXX_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}")
+			
 	endif()	
 	# Append the shared args to the CMake arguments to the template variable
 	set( _EPA_CMAKE_ARGS "CMAKE_ARGS"
 						"-DCMAKE_INSTALL_PREFIX:STRING=<INSTALL_DIR>"
+						"-DINSTALL_LIB_DIR:STRING=<INSTALL_DIR>/${_libdir}"
 						"${_config_options}"
 						"${_shared_arg}"
 						)
@@ -432,7 +442,7 @@ if( (NOT zlib_USE_INSTALLED) AND
 	if(WIN32)
 		set(ZLIB_STATIC_NAME "${zlib_install}/lib/zlib")
 	else()
-		set(ZLIB_STATIC_NAME "${zlib_install}/lib/libz")
+		set(ZLIB_STATIC_NAME "${zlib_install}/${_libdir}/libz")
 	endif()
 
 	set(ZLIB_LIBRARY "${ZLIB_STATIC_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}" CACHE FILEPATH "")
@@ -456,6 +466,7 @@ if( (NOT zlib_USE_INSTALLED) AND
 		set(ZLIB_ROOT "${zlib_install}" CACHE INTERNAL "")
 	endif()
 
+	unset(_libdir)
 	unset(_shared_arg)
 	unset(_config_options)
 	unset(_log_args)
