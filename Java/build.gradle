@@ -162,13 +162,29 @@ task wrapper( type: Wrapper ) {
 }
 
 task uploadAll ( ) {
-	dependsOn ':Eta:AnsiPage:uploadArchives'
-	dependsOn ':Eta:Core:uploadArchives'
-	dependsOn ':Eta:ValueAdd:uploadArchives'
-	dependsOn ':Eta:ValueAddCache:uploadArchives'
-	dependsOn ':Ema:Core:uploadArchives'
-
-	description 'Uploads All artifacts to maven central'
+	group 'Upload'
+	description 'Uploads All artifacts to maven central, run with -Pmavencentral'
+	if (project.hasProperty("mavencentral"))
+	{
+		dependsOn ':Eta:AnsiPage:uploadArchives'
+		dependsOn ':Eta:Core:uploadArchives'
+		dependsOn ':Eta:ValueAdd:uploadArchives'
+		dependsOn ':Eta:ValueAddCache:uploadArchives'
+		dependsOn ':Ema:Core:uploadArchives'
+	}
+	else
+	{
+		doLast {
+		println "" 
+		println "/////////////////////////////////////////////////////////"
+		println "" 
+		println "This task needs to be run with -Pmavencentral option"
+		println "Exiting without publishing to Maven Central"
+		println "" 
+		println "/////////////////////////////////////////////////////////"
+		println "" 
+		}
+	}
 }
 
 // this method creates a list of arguments that are used in setting the jvmArgs and commandLineArgs
