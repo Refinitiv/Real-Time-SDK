@@ -68,8 +68,18 @@ dependencies {
         compile group: 'org.json', name: 'json', version: '20180130'
         compile group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.10'
 
-	// did not change it to compileTest because Eclipse complains about it
-	compile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+	// Since eclipse does not distinguish between the testCompile and compile 
+	// we need to have this check for publishing to maven central to list the mockito
+	// as only the compile test depenency. When publishing to maven central the task
+	// needs to be executed with the -Pmavencentral
+	if (project.hasProperty("mavencentral"))
+	{
+		testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+	}
+	else
+	{	
+		compile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+	}
 
 	compile project(':Eta:Core')
 
