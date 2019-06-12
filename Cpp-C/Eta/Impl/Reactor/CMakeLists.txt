@@ -141,22 +141,19 @@ else()
 												"${_rsslVA_tmp_dir}/lib"
 								)
 	endif()
+
     target_include_directories(librsslVA_tmp
-								PRIVATE
-									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Watchlist>
-									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Util>
-									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/TunnelStream>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
-									$<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
-								PUBLIC
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Reactor>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/RDM>
+										PRIVATE
+											Watchlist
+											Util
+											TunnelStream
+											../Codec
+											../Util/Include
+											../Transport
+											.
+										PUBLIC
+											${Eta_SOURCE_DIR}/Include/Reactor
+											$<TARGET_PROPERTY:librssl,INTERFACE_INCLUDE_DIRECTORIES>
                                 )
 
 	target_link_libraries( librsslVA_tmp LibXml2::LibXml2 CJSON::CJSON librssl)
@@ -167,10 +164,8 @@ DEBUG_PRINT(librsslVA_tmp)
     add_library(librsslVA STATIC ${_rsslVA_tmp_dir}/src/librsslVA_tmp.C)
 
     target_include_directories(librsslVA 
-								PUBLIC
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Reactor>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/RDM>
+										PUBLIC
+											$<TARGET_PROPERTY:librsslVA_tmp,INTERFACE_INCLUDE_DIRECTORIES>
 								)
 
 	set_target_properties(librsslVA PROPERTIES OUTPUT_NAME "librsslVA")
@@ -184,7 +179,10 @@ DEBUG_PRINT(librsslVA_tmp)
 														/LTCG "$<TARGET_FILE:librsslVA_tmp>"
 															  "$<TARGET_FILE:LibXml2::LibXml2>"
 															  "$<TARGET_FILE:CJSON::CJSON>"
-							DEPENDS	librsslVA_tmp
+							DEPENDS $<TARGET_FILE:librsslVA_tmp>
+									$<TARGET_FILE:LibXml2::LibXml2>
+									$<TARGET_FILE:CJSON::CJSON>
+							COMMENT "Linking objects for static librsslVA ..."
 							)
 	else()
 		set_target_properties( librssl PROPERTIES PREFIX "" )
@@ -196,7 +194,10 @@ DEBUG_PRINT(librsslVA_tmp)
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CJSON::CJSON>
 							COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
 							WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
-							DEPENDS librsslVA_tmp
+							DEPENDS $<TARGET_FILE:librsslVA_tmp>
+									$<TARGET_FILE:LibXml2::LibXml2>
+									$<TARGET_FILE:CJSON::CJSON>
+							COMMENT "Archiving objects for librsslVA ..."
 							)
 
 	endif()
@@ -210,21 +211,17 @@ DEBUG_PRINT(librsslVA_tmp)
 
 
     target_include_directories(librsslVA_shared
-                    PRIVATE
-                        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Watchlist>
-                        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Util>
-                        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/TunnelStream>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
-                        $<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
-                    PUBLIC
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Reactor>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
-                        $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/RDM>
+										PRIVATE
+											Watchlist
+											Util
+											TunnelStream
+											../Codec
+											../Util/Include
+											../Transport
+											.
+										PUBLIC
+											${Eta_SOURCE_DIR}/Include/Reactor
+											$<TARGET_PROPERTY:librssl_shared,INTERFACE_INCLUDE_DIRECTORIES>
                     )
 
     set_target_properties( librsslVA librsslVA_shared

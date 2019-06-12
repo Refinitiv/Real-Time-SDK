@@ -346,19 +346,18 @@ else()
 
     add_library( libema STATIC ${EmaSrcFiles})
     target_include_directories(libema
-                                PUBLIC
-                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>
-                                    $<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Domain/Login/Include>
-                                    $<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Rdm/Include>
-                                    $<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Include>
-                                    $<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src>
-								PRIVATE
-									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Impl>
-                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Rdm/Impl>
-									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Domain/Login/Impl>
-                                )
+									PRIVATE
+										Impl
+										../Rdm/Impl
+										../Domain/Login/Impl
+									PUBLIC
+										${CMAKE_CURRENT_BINARY_DIR}
+										${CMAKE_CURRENT_SOURCE_DIR}/Include
+										${Ema_SOURCE_DIR}/Src/Domain/Login/Include
+										${Ema_SOURCE_DIR}/Src/Rdm/Include
+										${Ema_SOURCE_DIR}/Src/Include
+										${Ema_SOURCE_DIR}/Src
+									)
     target_link_libraries( libema 
                                 librsslVA 
                                 LibXml2::LibXml2 
@@ -366,18 +365,17 @@ else()
 
     add_library( libema_shared SHARED ${EmaSrcFiles} ${EmaWinRcFiles} )
     target_include_directories(libema_shared
-                                PUBLIC
-                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>
-                                    $<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Domain/Login/Include>
-                                    $<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Rdm/Include>
-                                    $<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Include>
-                                    $<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src>
-								PRIVATE
-									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Impl>
-                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Rdm/Impl>
-									$<BUILD_INTERFACE:${Ema_SOURCE_DIR}/Src/Domain/Login/Impl>
+											PRIVATE
+												Impl
+												../Rdm/Impl
+												../Domain/Login/Impl
+											PUBLIC
+												${CMAKE_CURRENT_BINARY_DIR}
+												${CMAKE_CURRENT_SOURCE_DIR}/Include
+												${Ema_SOURCE_DIR}/Src/Domain/Login/Include
+												${Ema_SOURCE_DIR}/Src/Rdm/Include
+												${Ema_SOURCE_DIR}/Src/Include
+												${Ema_SOURCE_DIR}/Src
                                 )
     target_link_libraries( libema_shared librsslVA_shared LibXml2::LibXml2 )
 
