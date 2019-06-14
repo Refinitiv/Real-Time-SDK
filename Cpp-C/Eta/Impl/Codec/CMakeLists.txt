@@ -239,17 +239,17 @@ else()
 
     target_include_directories(librssl_tmp
 										PRIVATE
-											../Util/Include
 											../Transport
-											.
 
 										PUBLIC
+											../Util/Include
 											${Eta_SOURCE_DIR}/Include/RDM
 											${Eta_SOURCE_DIR}/Include/Codec
 											${Eta_SOURCE_DIR}/Include/Util
 											${Eta_SOURCE_DIR}/Include/Transport
 											${Eta_SOURCE_DIR}/Include
 											${Eta_BINARY_DIR}/Include
+											.
 								)
 
     if (CMAKE_HOST_WIN32)
@@ -309,17 +309,17 @@ else()
 
     target_include_directories(librssl_shared
 										PRIVATE
-											../Util/Include
 											../Transport
-											.
 
 										PUBLIC
+											../Util/Include
 											${Eta_SOURCE_DIR}/Include/RDM
 											${Eta_SOURCE_DIR}/Include/Codec
 											${Eta_SOURCE_DIR}/Include/Util
 											${Eta_SOURCE_DIR}/Include/Transport
 											${Eta_SOURCE_DIR}/Include
 											${Eta_BINARY_DIR}/Include
+											.
                                 )
 								
     if (CMAKE_HOST_WIN32)
