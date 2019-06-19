@@ -89,7 +89,7 @@ abstract class RestClient implements Runnable, RestCallback {
     	
     }
     
-    void connectBlocking(ReactorServiceDiscoveryOptions options, ReactorErrorInfo errorInfo)
+    void connectBlocking(ReactorServiceDiscoveryOptions options, boolean requestServices, ReactorErrorInfo errorInfo)
     {
     	// Request access token
     	_restAuthRequest.username(_restConnectOptions.userName().toString());
@@ -113,7 +113,7 @@ abstract class RestClient implements Runnable, RestCallback {
     		    		
 			_restReactor.submitAuthRequestBlocking(_restAuthRequest, _restConnectOptions, errorInfo);
 
-	    	if (errorInfo.code() == ReactorReturnCodes.SUCCESS)
+	    	if (errorInfo.code() == ReactorReturnCodes.SUCCESS && requestServices)
 	    	{
 		    	// request list of services from EDP    	
 		    	RestRequest restRequest = createRestRequest();    	

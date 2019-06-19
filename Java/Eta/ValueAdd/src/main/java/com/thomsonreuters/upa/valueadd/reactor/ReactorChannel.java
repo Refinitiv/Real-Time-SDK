@@ -1445,13 +1445,10 @@ public class ReactorChannel extends VaNode
 	ReactorAuthTokenEventCallback reactorAuthTokenEventCallback() {
 		return _reactorConnectOptions.connectionList().get(_listIndex).reactorAuthTokenEventCallback();
 	}
-
+	
     int verifyAndCopyServiceDiscoveryData (LoginRequest rdmLoginRequest, ReactorErrorInfo errorInfo)
     {
-     	rdmLoginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
-    	rdmLoginRequest.userName().data(_reactorAuthTokenInfo.accessToken());
-    	// Do not send the password
-    	rdmLoginRequest.flags(rdmLoginRequest.flags() & ~LoginRequestFlags.HAS_PASSWORD);        	
+    	copyTokenAndPassword(rdmLoginRequest);
     	
     	if (_reactor._restClient.endpoint() == null || _reactor._restClient.port() == null)
     	{
@@ -1460,17 +1457,8 @@ public class ReactorChannel extends VaNode
         			" for requesting EDP-RT service discovery.");                	
         	return ReactorReturnCodes.PARAMETER_INVALID;
     	}
-    	// only use the EDP-RT connection information if not specified by the user
-    	else if(_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().address() == null &&
-    			_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().serviceName() == null)
-    	{
-    		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().address(_reactor._restClient.endpoint());
-    		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().serviceName(_reactor._restClient.port());
-    	}
-    	else if(_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().address() != null && 
-    			_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().address().equals("") &&
-    			_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().serviceName() != null &&
-    			_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().serviceName().equals(""))
+    	// copy EDP-RT connection information
+    	else
     	{
     		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().address(_reactor._restClient.endpoint());
     		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().serviceName(_reactor._restClient.port());     
@@ -1479,4 +1467,13 @@ public class ReactorChannel extends VaNode
     	return ReactorReturnCodes.SUCCESS;
     }	
 	
+    int copyTokenAndPassword (LoginRequest rdmLoginRequest)
+    {
+     	rdmLoginRequest.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+    	rdmLoginRequest.userName().data(_reactorAuthTokenInfo.accessToken());
+    	// Do not send the password
+    	rdmLoginRequest.flags(rdmLoginRequest.flags() & ~LoginRequestFlags.HAS_PASSWORD);
+    	
+    	return ReactorReturnCodes.SUCCESS;
+    }    
 }

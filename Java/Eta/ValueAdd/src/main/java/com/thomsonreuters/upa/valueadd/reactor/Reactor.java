@@ -29,7 +29,6 @@ import com.thomsonreuters.upa.codec.StatusMsg;
 import com.thomsonreuters.upa.codec.StreamStates;
 import com.thomsonreuters.upa.rdm.ClassesOfService;
 import com.thomsonreuters.upa.rdm.DomainTypes;
-import com.thomsonreuters.upa.rdm.Login;
 import com.thomsonreuters.upa.transport.Channel;
 import com.thomsonreuters.upa.transport.ChannelState;
 import com.thomsonreuters.upa.transport.ConnectOptions;
@@ -69,7 +68,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRefresh;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequest;
-import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginRequestFlags;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.login.LoginStatus;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.queue.QueueMsg;
 import com.thomsonreuters.upa.valueadd.reactor.ReactorChannel.State;
@@ -628,7 +626,6 @@ public class Reactor
             reactorChannel.userSpecObj(reactorConnectOptions.connectionList().get(0).connectOptions().userSpecObject());
             reactorChannel.initializationTimeout(reactorConnectOptions.connectionList().get(0).initTimeout());
             reactorChannel.reactorConnectOptions(reactorConnectOptions);
-            
 
             if (reactorConnectOptions.connectionList().get(0).enableSessionManagement())
             {
@@ -650,11 +647,19 @@ public class Reactor
 
             	reactorChannel._reactorAuthTokenInfo = new ReactorAuthTokenInfo();
             	_restClient.reactorAuthTokenInfo().copy(reactorChannel._reactorAuthTokenInfo);
-		
-	            if (reactorChannel.verifyAndCopyServiceDiscoveryData(reactorChannel._loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
-	            {
-	            	return errorInfo.code();
-	            }
+
+            	if (requestServiceDiscovery(reactorConnectOptions.connectionList().get(0)))
+            	{
+		            if (reactorChannel.verifyAndCopyServiceDiscoveryData(reactorChannel._loginRequestForEDP, errorInfo) != ReactorReturnCodes.SUCCESS)
+		            {
+		            	return errorInfo.code();
+		            }
+            	}
+            	else
+            	{
+            		reactorChannel.copyTokenAndPassword(reactorChannel._loginRequestForEDP);
+            	}
+            		
             }
             reactorChannel.role(role);
 
@@ -798,13 +803,27 @@ public class Reactor
 
     	// if reactor channel is null, it means that this is the first time and we call blocking
     	if (reactorChannel == null)
-    		_restClient.connectBlocking(null, errorInfo);
+    		_restClient.connectBlocking(null, requestServiceDiscovery(reactorConnectInfo), errorInfo);
     	else
     		_restClient.connect(errorInfo);
     
         return errorInfo.error().errorId();
     }
-    
+
+	boolean requestServiceDiscovery(ReactorConnectInfo reactorConnectInfo)
+	{
+    	// only use the EDP-RT connection information if not specified by the user
+    	if((reactorConnectInfo.connectOptions().unifiedNetworkInfo().address() == null &&
+    			reactorConnectInfo.connectOptions().unifiedNetworkInfo().serviceName() == null) ||
+    		(	reactorConnectInfo.connectOptions().unifiedNetworkInfo().address() != null && 
+    			reactorConnectInfo.connectOptions().unifiedNetworkInfo().address().equals("") &&
+    			reactorConnectInfo.connectOptions().unifiedNetworkInfo().serviceName() != null &&
+   				reactorConnectInfo.connectOptions().unifiedNetworkInfo().serviceName().equals("")))
+    	{
+    		return true;
+    	}
+    	return false;
+	}    
 
     
     private int sendQueryServiceDiscoveryEvent(ReactorServiceEndpointEventCallback callback, ReactorErrorInfo errorInfo)
@@ -888,7 +907,7 @@ public class Reactor
     		if (_restClient == null)
     			initRestClient(options, errorInfo);
     		else
-    			_restClient.connectBlocking(options, errorInfo);
+    			_restClient.connectBlocking(options, true, errorInfo);
 
     		ReactorServiceEndpointEvent reactorServiceEndpointEvent = ReactorFactory.createReactorServiceEndpointEvent();
 
@@ -996,7 +1015,7 @@ public class Reactor
 	    	   	
 	    	createRestClient(errorInfo);
 	    	
-	    	_restClient.connectBlocking(options, errorInfo);
+	    	_restClient.connectBlocking(options, true, errorInfo);
         	
         	// check if connected 
         	if (errorInfo.code() != ReactorReturnCodes.SUCCESS)

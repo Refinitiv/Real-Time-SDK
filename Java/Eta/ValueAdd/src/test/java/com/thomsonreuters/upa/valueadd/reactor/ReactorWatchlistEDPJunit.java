@@ -875,10 +875,11 @@ public class ReactorWatchlistEDPJunit
 			rcOpts.connectionList().add(connectInfoSecond);
 
 			rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);				
-			//		consumerRole.watchlistOptions().requestTimeout(300);		
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
+			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);
+			
 			for (int j = 0; j < 5; j++)
 			{
 				try {
@@ -972,6 +973,8 @@ public class ReactorWatchlistEDPJunit
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
 
 			verifyAuthTokenRequestAndLoginReissue(consumerReactor, consumer, 2, sleep, runtime, true, false);
+			
+			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);			
 
 		}
 		finally
@@ -1048,6 +1051,8 @@ public class ReactorWatchlistEDPJunit
 			rcOpts.reconnectAttemptLimit(4);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+			
+			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);		
 
 			for (int j = 0; j < 15; j++)
 			{
@@ -1065,7 +1070,7 @@ public class ReactorWatchlistEDPJunit
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals("14002"));
 
 			assertTrue(rcOpts.connectionList().get(1).connectOptions().unifiedNetworkInfo().address() == null);
-			assertTrue(rcOpts.connectionList().get(1).connectOptions().unifiedNetworkInfo().serviceName() == null);
+			assertTrue(rcOpts.connectionList().get(1).connectOptions().unifiedNetworkInfo().serviceName() == null);		
 
 			// Consumer receives CHANNEL_OPENED event
 			event = consumerReactor.pollEvent();
@@ -1152,6 +1157,9 @@ public class ReactorWatchlistEDPJunit
 			event = consumerReactor.pollEvent();		
 			assertNull("No more event", event);	
 
+			// password was incorrect
+			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);			
+			
 		}
 		finally
 		{
@@ -1350,6 +1358,8 @@ public class ReactorWatchlistEDPJunit
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
+			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);
+			
 			for (int j = 0; j < 5; j++)
 			{
 				try {
@@ -1413,6 +1423,9 @@ public class ReactorWatchlistEDPJunit
 				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());				
 
 			}
+			
+			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);
+			
 
 		}
 		finally
@@ -1469,6 +1482,8 @@ public class ReactorWatchlistEDPJunit
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == null);
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName() == null);		
 
+			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);			
+			
 			// Consumer receives CHANNEL_OPENED event
 			event = consumerReactor.pollEvent();
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
@@ -1565,6 +1580,8 @@ public class ReactorWatchlistEDPJunit
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals(""));
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals(""));	
+			
+			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);				
 
 		}
 		finally
@@ -1608,13 +1625,15 @@ public class ReactorWatchlistEDPJunit
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("FAKE");
-			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName("FAKE");			
+			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName("FAKE");
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
 			// check if the connection info came from EDP
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals("FAKE"));
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName().equals("FAKE"));
+			
+			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);
 
 		}
 		finally
@@ -1659,11 +1678,13 @@ public class ReactorWatchlistEDPJunit
 			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
-			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);	
-
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+			
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address() == null);
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName() == null);	
+			
+			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);			
 
 			try {
 				Thread.sleep(2 * 1000);
@@ -1767,6 +1788,8 @@ public class ReactorWatchlistEDPJunit
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
+			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);			
+			
 			consumer.testReactor().dispatch(-1, 8000);			
 
 			// check that user specified connection info was not overwritten
@@ -1775,6 +1798,7 @@ public class ReactorWatchlistEDPJunit
 			assertTrue(rcOpts.connectionList().get(1).connectOptions().unifiedNetworkInfo().address() == null);
 			assertTrue(rcOpts.connectionList().get(1).connectOptions().unifiedNetworkInfo().serviceName() == null);
 
+			
 			// Consumer receives CHANNEL_DOWN_RECONNECTING event
 			event = consumerReactor.pollEvent();
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
@@ -1834,6 +1858,8 @@ public class ReactorWatchlistEDPJunit
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());
 
 			verifyAuthTokenRequestAndLoginReissue(consumerReactor, consumer, 2, sleep, runtime, false, false);
+			
+			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);
 
 		}
 		finally
@@ -1876,6 +1902,8 @@ public class ReactorWatchlistEDPJunit
 
 			// since no RDMLoginRequest there is no user name or password, authentication will fail
 			assertTrue(consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.INVALID_USAGE);
+			
+			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);			
 
 		}
 		finally
@@ -1957,6 +1985,71 @@ public class ReactorWatchlistEDPJunit
 			}
 		}
 	}
+	
+	@Test
+	public void EDPConnectUserSpecifiedClientIdExpectedServiceDiscoveryRequestTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPConnectUserSpecifiedClientIdTest <<<<<<<<<<\n");	
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		try {		
+
+
+			ReactorErrorInfo errorInfo = null;
+
+			/* Create reactor. */
+			consumerReactor = new TestReactor();
+			ReactorCallbackHandler callbackHandler = null;
+			Selector selector = null;
+
+			/* Create consumer. */
+			callbackHandler = new ReactorCallbackHandler(selector);
+			assertEquals(null, callbackHandler.lastChannelEvent());
+
+			Consumer consumer = new Consumer(consumerReactor);
+			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+
+			setupConsumer(consumer, true);
+
+			consumerRole.clientId().data(System.getProperty("edpUserName"));
+
+			errorInfo = ReactorFactory.createReactorErrorInfo();
+			assertNotNull(errorInfo);
+			
+			/*
+			 * create a Client Connection.
+			 */
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			
+			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("amer-3.pricing.streaming.edp.thomsonreuters.com");
+			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName("14002");			
+			
+			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
+
+			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
+			assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);
+			
+			
+			assertTrue("Expected no Service Discovery request going out: " + consumerReactor._reactor._restClient.endpoint(), consumerReactor._reactor._restClient.endpoint() == null);	
+
+			TestReactorEvent event = null;
+			ReactorChannelEvent chnlEvent;		
+			event = consumerReactor.pollEvent();
+			assertNotNull("Did not receive CHANNEL_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_OPENED, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_OPENED, chnlEvent.eventType());
+
+			verifyAuthTokenEvent(consumerReactor, 10, true);
+
+		}
+		finally
+		{
+			consumerReactor.close();
+		}	
+	}		
 
 	@Test
 	public void EDPConnectUserSpecifiedClientIdTest()
@@ -1998,6 +2091,9 @@ public class ReactorWatchlistEDPJunit
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 			assertTrue(consumerReactor._countAuthTokenEventCallbackCalls == 1);
+			
+			assertTrue("Expected Service Discovery request going out", consumerReactor._reactor._restClient.endpoint() != null);
+			
 
 			TestReactorEvent event = null;
 			ReactorChannelEvent chnlEvent;		
@@ -2810,7 +2906,9 @@ public class ReactorWatchlistEDPJunit
 				public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event) {
 					assertTrue(event.errorInfo().code() == ReactorReturnCodes.FAILURE );
 					// since password is incorrect we should see 400 code
-					assertTrue(event.errorInfo().toString().contains("{\"error\":\"access_denied\"  ,\"error_description\":\"Authentication Failed.\" }"));
+					String tmp = "{\"error\":\"invalid_client\"  ,\"error_description\":\"clientId field is invalid.\" }";
+					assertTrue("Message received: " + event.errorInfo().toString() + " Expected: " + tmp, event.errorInfo().toString().contains(tmp));
+					//assertTrue("Message received: " + event.errorInfo().toString() ,event.errorInfo().toString().contains("{\"error\":\"access_denied\"  ,\"error_description\":\"Authentication Failed.\" }"));
 					System.out.println(event.serviceEndpointInfo());
 					System.out.println(event.errorInfo());
 					_count++;
