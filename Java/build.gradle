@@ -19,8 +19,8 @@ apply plugin: 'net.saliman.cobertura'
 subprojects {
 	apply plugin: 'java'
 
-        sourceCompatibility = 1.7
-        targetCompatibility = 1.7
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
 
 	apply plugin: 'eclipse'
 
@@ -157,8 +157,8 @@ allprojects {
 	}
 }
 
-task wrapper( type: Wrapper ) {
-	gradleVersion = '4.10.3'
+wrapper {
+	gradleVersion = '5.4.1'
 }
 
 task uploadAll ( ) {

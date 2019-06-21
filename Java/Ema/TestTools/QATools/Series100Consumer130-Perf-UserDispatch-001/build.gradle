@@ -7,7 +7,7 @@ eclipse {
 }
 
 dependencies {
-	compile project(':Ema:PerfTools')
+        compile project(':Ema:PerfTools')	
 	compile project(':Ema:Core')
 }
 
@@ -80,7 +80,7 @@ fileTree('.') {
 
 		description 'This task runs the ' + TaskDescription
 
-		tasks.copyDictionary.execute()	
+		dependsOn copyDictionary
 
 		main = exampleMainLocation
 		classpath = sourceSets.main.runtimeClasspath

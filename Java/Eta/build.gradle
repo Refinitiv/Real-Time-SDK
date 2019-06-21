@@ -4,7 +4,7 @@ buildscript {
         }
 
         dependencies {
-                classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+                classpath 'com.github.jengelman.gradle.plugins:shadow:5.0.0'
         }
 }
 
@@ -25,6 +25,5 @@ shadowJar {
 }
 
 
-// disable creating empty Eta.jar file 
+// disable creating empty Eta.jar file
 jar.enabled = false
-

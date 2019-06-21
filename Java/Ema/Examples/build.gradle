@@ -79,7 +79,7 @@ fileTree('.') {
 
 		description 'This task runs the ' + TaskDescription
 
-		tasks.copyDictionary.execute()	
+		dependsOn copyDictionary
 
 		main = exampleMainLocation
 		classpath = sourceSets.main.runtimeClasspath
