@@ -1130,7 +1130,7 @@ RSSL_API const RsslBuffer* rsslGetExtendedHeader( const RsslMsg * pMsg )
 		break;
 		case RSSL_MC_CLOSE:
 			if (pMsg->closeMsg.flags & RSSL_CLMF_HAS_EXTENDED_HEADER)
-				return &pMsg->statusMsg.extendedHeader;
+				return &pMsg->closeMsg.extendedHeader;
 		break;
 		case RSSL_MC_ACK:
 			if (pMsg->ackMsg.flags & RSSL_AKMF_HAS_EXTENDED_HEADER)
