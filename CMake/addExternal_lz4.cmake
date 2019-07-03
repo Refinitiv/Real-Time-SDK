@@ -87,6 +87,10 @@ if((NOT lz4_USE_INSTALLED) AND
 			set(_cfg_type "Release")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
 		endif()
+            
+		list(APPEND _config_options "-DCMAKE_C_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
+                                    "-DCMAKE_CXX_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
+                                        )
 	endif()	
 
 	# Append the shared args to the CMake arguments to the template variable
@@ -186,7 +190,7 @@ if ((NOT LZ4_FOUND) OR
 	if (NOT LZ4_LIBRARIES)
 		find_library(LZ4_LIBRARY_RELEASE NAMES lz4 NAMES_PER_DIR
 								 PATHS ${LZ4_ROOT} NO_DEFAULT_PATH 
-								 PATH_SUFFIXES lib lib64 )
+								 PATH_SUFFIXES "lib${RCDEV_HOST_SYSTEM_BITS}" lib )
 		if (NOT (LZ4_LIBRARY_RELEASE MATCHES "NOTFOUND"))
 			list(APPEND LZ4_LIBRARIES Release "${LZ4_LIBRARY_RELEASE}")
 			set(LZ4_LIBRARY "${LZ4_LIBRARY_RELEASE}" CACHE FILEPATH "")
@@ -196,7 +200,7 @@ if ((NOT LZ4_FOUND) OR
 
 		find_library(LZ4_LIBRARY_DEBUG NAMES lz4d lz4 NAMES_PER_DIR
 								 PATHS ${LZ4_ROOT} NO_DEFAULT_PATH 
-								 PATH_SUFFIXES lib lib64 )
+								 PATH_SUFFIXES "lib${RCDEV_HOST_SYSTEM_BITS}" lib )
 
 		if (NOT (LZ4_LIBRARY_DEBUG MATCHES "NOTFOUND"))
 				list(APPEND LZ4_LIBRARIES Debug "${LZ4_LIBRARY_DEBUG}")
@@ -211,7 +215,7 @@ if ((NOT LZ4_FOUND) OR
 	if (NOT LZ4_LIBRARY)
 		find_library(LZ4_LIBRARY NAMES lz4 lz4d NAMES_PER_DIR
 								 PATHS ${LZ4_ROOT} NO_DEFAULT_PATH 
-								 PATH_SUFFIXES lib lib64 )
+								 PATH_SUFFIXES "lib${RCDEV_HOST_SYSTEM_BITS}" lib )
 	endif()
 
 	if ((NOT TARGET LZ4::LZ4) AND (DEFINED LZ4_LIBRARY))

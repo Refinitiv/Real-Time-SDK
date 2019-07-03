@@ -236,20 +236,21 @@ else()
 												"${_rssl_tmp_dir}/lib"
 								)
 	endif()
+
     target_include_directories(librssl_tmp
-                                PUBLIC
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Codec>
-									$<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
-                                PRIVATE
-									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
-									$<BUILD_INTERFACE:$<TARGET_PROPERTY:CURL::libcurl,INTERFACE_INCLUDE_DIRECTORIES>>
-                                )
+										PRIVATE
+											../Transport
+
+										PUBLIC
+											../Util/Include
+											${Eta_SOURCE_DIR}/Include/RDM
+											${Eta_SOURCE_DIR}/Include/Codec
+											${Eta_SOURCE_DIR}/Include/Util
+											${Eta_SOURCE_DIR}/Include/Transport
+											${Eta_SOURCE_DIR}/Include
+											${Eta_BINARY_DIR}/Include
+											.
+								)
 
     if (CMAKE_HOST_WIN32)
 		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib crypt32.lib cryptui.lib ZLIB::ZLIB LZ4::LZ4)
@@ -262,12 +263,8 @@ else()
     add_library(librssl STATIC ${_rssl_tmp_dir}/src/librssl_tmp.C)
 
     target_include_directories(librssl PUBLIC
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
-									$<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
-								)
+										$<TARGET_PROPERTY:librssl_tmp,INTERFACE_INCLUDE_DIRECTORIES>
+									)
 
 	set_target_properties(librssl PROPERTIES OUTPUT_NAME "librssl")
 
@@ -280,7 +277,10 @@ else()
 													/LTCG "$<TARGET_FILE:librssl_tmp>"
 														  "$<TARGET_FILE:ZLIB::ZLIB>"
 														  "$<TARGET_FILE:LZ4::LZ4>"
-							DEPENDS	librssl_tmp
+							DEPENDS $<TARGET_FILE:librssl_tmp> 
+									$<TARGET_FILE:ZLIB::ZLIB> 
+									$<TARGET_FILE:LZ4::LZ4>
+							COMMENT "Linking objects for static librssl ..."
 							)
 	else()
         set_target_properties( librssl PROPERTIES PREFIX "" )
@@ -292,7 +292,10 @@ else()
 							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LZ4::LZ4>
 							COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librssl> *.o
 							WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librssl_tmp.arch
-							DEPENDS librssl_tmp
+							DEPENDS $<TARGET_FILE:librssl_tmp> 
+									$<TARGET_FILE:ZLIB::ZLIB> 
+									$<TARGET_FILE:LZ4::LZ4>
+							COMMENT "Archiving objects for librssl ..."
 							)
 
 	endif()
@@ -305,18 +308,18 @@ else()
                         ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} )
 
     target_include_directories(librssl_shared
-                                PUBLIC
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Codec>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Util>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include/Transport>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
-									$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Codec>
-									$<BUILD_INTERFACE:${Eta_BINARY_DIR}/Include>
-                                PRIVATE
-									$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Transport>
-                                    $<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Include>
-									$<BUILD_INTERFACE:$<TARGET_PROPERTY:CURL::libcurl,INTERFACE_INCLUDE_DIRECTORIES>>
+										PRIVATE
+											../Transport
+
+										PUBLIC
+											../Util/Include
+											${Eta_SOURCE_DIR}/Include/RDM
+											${Eta_SOURCE_DIR}/Include/Codec
+											${Eta_SOURCE_DIR}/Include/Util
+											${Eta_SOURCE_DIR}/Include/Transport
+											${Eta_SOURCE_DIR}/Include
+											${Eta_BINARY_DIR}/Include
+											.
                                 )
 								
     if (CMAKE_HOST_WIN32)

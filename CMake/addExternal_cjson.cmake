@@ -97,6 +97,9 @@ if( (NOT cjson_USE_INSTALLED) AND
 			set(_cfg_type "Release")
 			list(APPEND _config_options "-DCMAKE_BUILD_TYPE:STRING=Release")
 		endif()
+
+		list(APPEND _config_options "-DCMAKE_C_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}"
+									"-DCMAKE_CXX_FLAGS:STRING=-m${RCDEV_HOST_SYSTEM_BITS}")
 	endif()	
 	# Append the shared args to the CMake arguments to the template variable
 	set( _EPA_CMAKE_ARGS "CMAKE_ARGS"
@@ -163,8 +166,6 @@ if( (NOT cjson_USE_INSTALLED) AND
 		set(CJSON_LIBRARY_DEBUG "${CJSON_STATIC_NAME}d${CMAKE_STATIC_LIBRARY_SUFFIX}" CACHE FILEPATH "")
 	endif()
 
-DEBUG_PRINT(::ALL CJSON)
-DEBUG_PRINT(CJSON::CJSON)
 	# this policy is needed to suppress a CMake warning about the new
 	# standard for using <project>_ROOT variable for find_package()
 	if( POLICY CMP0074 )
@@ -210,7 +211,7 @@ if ((NOT CJSON_FOUND) OR
 	if (NOT CJSON_LIBRARIES)
 		find_library(CJSON_LIBRARY_RELEASE NAMES cjson NAMES_PER_DIR
 								 PATHS ${CJSON_ROOT} NO_DEFAULT_PATH 
-								 PATH_SUFFIXES lib lib64 )
+								 PATH_SUFFIXES "lib${RCDEV_HOST_SYSTEM_BITS}" lib )
 		if (NOT (CJSON_LIBRARY_RELEASE MATCHES "NOTFOUND"))
 			list(APPEND CJSON_LIBRARIES Release "${CJSON_LIBRARY_RELEASE}")
 			set(CJSON_LIBRARY "${CJSON_LIBRARY_RELEASE}" CACHE FILEPATH "")
@@ -220,7 +221,7 @@ if ((NOT CJSON_FOUND) OR
 
 		find_library(CJSON_LIBRARY_DEBUG NAMES cjsond cjson NAMES_PER_DIR
 								PATHS ${CJSON_ROOT} NO_DEFAULT_PATH 
-								PATH_SUFFIXES lib lib64 )
+								PATH_SUFFIXES "lib${RCDEV_HOST_SYSTEM_BITS}" lib )
 
 		if (NOT (CJSON_LIBRARY_DEBUG MATCHES "NOTFOUND"))
 			list(APPEND CJSON_LIBRARIES Debug "${CJSON_LIBRARY_DEBUG}")
@@ -235,7 +236,7 @@ if ((NOT CJSON_FOUND) OR
 	if (NOT CJSON_LIBRARY)
 		find_library(CJSON_LIBRARY NAMES cjson cjsond NAMES_PER_DIR
 								PATHS ${CJSON_ROOT} NO_DEFAULT_PATH 
-								PATH_SUFFIXES lib lib64 )
+								PATH_SUFFIXES "lib${RCDEV_HOST_SYSTEM_BITS}" lib )
 	endif()
 
 	if ((NOT TARGET CJSON::CJSON) AND (DEFINED CJSON_LIBRARY))

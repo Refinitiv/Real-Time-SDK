@@ -1634,7 +1634,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         		System.out.println("Error: " + errorInfo.code());
         	}
         }
-        else if (!watchlistConsumerConfig.enableSessionManagement())
+        else
         {
         	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
         	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());

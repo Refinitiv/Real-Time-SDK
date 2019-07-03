@@ -1340,7 +1340,7 @@ typedef struct {
 	   RsslUInt32						 seqNum;		 /*!< specifies the sequence number of the message  */
 } RsslWriteInArgs;
 
-#define RSSL_INIT_WRITE_IN_ARGS {RSSL_WRITE_IN_NO_FLAGS, RSSL_HIGH_PRIORITY, 0, 0}
+#define RSSL_INIT_WRITE_IN_ARGS {RSSL_WRITE_IN_NO_FLAGS, RSSL_HIGH_PRIORITY, 0}
 
 /**
  * @brief RsslWriteFlags passed into the rsslWriteEx function call

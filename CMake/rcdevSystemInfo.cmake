@@ -6,7 +6,7 @@
 #]=============================================================================]
 
 if (_rcdevSystemInfoInclude)
-    return()
+	return()
 else()
 	set(_rcdevSystemInfoInclude TRUE)
 endif()
@@ -370,12 +370,32 @@ endif()
 # RCDEV_HOST_SYSTEM_PROCESSOR should be set by CMAKE_HOST_SYSTEM_PROCESSOR.
 # However, when this value is set for # an AMD(AMD64) processor, the x86 
 # prefix is still used ..... ???? Dont ask me, this should be investigated
-if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT BUILD_32_BIT_ETA )
-    set(RCDEV_HOST_SYSTEM_BITS  "64")
-    set(RCDEV_HOST_SYSTEM_PROCESSOR "x86_64")
+if ((CMAKE_SIZEOF_VOID_P EQUAL 8) AND
+	(NOT (BUILD_32_BIT_ETA OR RCDEV_BUILD_32_BIT)) )
+	set(RCDEV_HOST_SYSTEM_BITS  "64")
+	set(RCDEV_HOST_SYSTEM_PROCESSOR "x86_64")
+	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS TRUE)
+	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB32_PATHS FALSE)
 else()
-    set(RCDEV_HOST_SYSTEM_BITS  "32")
-    set(RCDEV_HOST_SYSTEM_PROCESSOR "x86")
+	# Per a bug in CMake "CMakePackageConfigHelpers"
+	# https://gitlab.kitware.com/cmake/cmake/issues/16184
+	# any libraries built and installed with CMake<=3.14 will
+	# incorrectly qualify an installed library to be incompatible
+	# if the library was built as 32-bit and the native architecture
+	# for the machine is 64-bit.  CMake addressed this issues with
+	# https://gitlab.kitware.com/cmake/cmake/merge_requests/2666
+	# So, the work around is to re-assign the value of CMAKE_SIZEOF_VOID_P
+	# when building a lesser size.  This should only apply on UNIX as the 
+	# value of CMAKE_SIZEOF_VOID_P for Windows builds, is always the same 
+	# as the desired build size.
+	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(CMAKE_SIZEOF_VOID_P 4)
+	endif()
+
+	set(RCDEV_HOST_SYSTEM_BITS  "32")
+	set(RCDEV_HOST_SYSTEM_PROCESSOR "x86")
+	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS FALSE)
+	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB32_PATHS TRUE)
 endif()
 
 unset(_compilerVer  )
@@ -383,37 +403,37 @@ unset(_compilerVer  )
 # CMAKE_HOST_UNIX = TRUE if Unix like system
 if (UNIX)
 
-    set(_relid )
-    set(_relnum)
+	set(_relid )
+	set(_relnum)
 
-    get_lsb_release_info(_relid _relnum)
+	get_lsb_release_info(_relid _relnum)
 
-    string(TOUPPER ${_relid} _relid_U)
-    if (${_relid_U} MATCHES "ORACLE")
-        set(RCDEV_HOST_SYSTEM_FLAVOR "OracleLinux")
-        set(RCDEV_HOST_SYSTEM_NAME_ABREV "OL")
-    elseif (${_relid_U} MATCHES "REDHAT")
-        set(RCDEV_HOST_SYSTEM_FLAVOR "RedHatLinux")
-        set(RCDEV_HOST_SYSTEM_NAME_ABREV "RHEL")
-    elseif (${_relid_U} MATCHES "CENTOS")
-        set(RCDEV_HOST_SYSTEM_FLAVOR "CentOSLinux")
-        set(RCDEV_HOST_SYSTEM_NAME_ABREV "CENTOS")
-    elseif (${_relid_U} MATCHES "SUSE")
-        set(RCDEV_HOST_SYSTEM_FLAVOR "SUSELinux")
-        set(RCDEV_HOST_SYSTEM_NAME_ABREV "SUSE")
-    else()
-        set(RCDEV_HOST_SYSTEM_FLAVOR "${_relid}")
-        string(SUBSTRING "${_relid_U}" 0 3 RCDEV_HOST_SYSTEM_NAME_ABREV)
-    endif()
+	string(TOUPPER ${_relid} _relid_U)
+	if (${_relid_U} MATCHES "ORACLE")
+		set(RCDEV_HOST_SYSTEM_FLAVOR "OracleLinux")
+		set(RCDEV_HOST_SYSTEM_NAME_ABREV "OL")
+	elseif (${_relid_U} MATCHES "REDHAT")
+		set(RCDEV_HOST_SYSTEM_FLAVOR "RedHatLinux")
+		set(RCDEV_HOST_SYSTEM_NAME_ABREV "RHEL")
+	elseif (${_relid_U} MATCHES "CENTOS")
+		set(RCDEV_HOST_SYSTEM_FLAVOR "CentOSLinux")
+		set(RCDEV_HOST_SYSTEM_NAME_ABREV "CENTOS")
+	elseif (${_relid_U} MATCHES "SUSE")
+		set(RCDEV_HOST_SYSTEM_FLAVOR "SUSELinux")
+		set(RCDEV_HOST_SYSTEM_NAME_ABREV "SUSE")
+	else()
+		set(RCDEV_HOST_SYSTEM_FLAVOR "${_relid}")
+		string(SUBSTRING "${_relid_U}" 0 3 RCDEV_HOST_SYSTEM_NAME_ABREV)
+	endif()
 
-    string(TOUPPER "${RCDEV_HOST_SYSTEM_FLAVOR}" RCDEV_HOST_SYSTEM_FLAVOR_U)
-    string(REGEX MATCH "^([0-9]+)[.]*" _matchout ${_relnum})
-    set(RCDEV_HOST_SYSTEM_FLAVOR_REL ${CMAKE_MATCH_1})
+	string(TOUPPER "${RCDEV_HOST_SYSTEM_FLAVOR}" RCDEV_HOST_SYSTEM_FLAVOR_U)
+	string(REGEX MATCH "^([0-9]+)[.]*" _matchout ${_relnum})
+	set(RCDEV_HOST_SYSTEM_FLAVOR_REL ${CMAKE_MATCH_1})
 
-    DEBUG_PRINT(RCDEV_HOST_SYSTEM_FLAVOR)
-    DEBUG_PRINT(RCDEV_HOST_SYSTEM_FLAVOR_U)
-    DEBUG_PRINT(RCDEV_HOST_SYSTEM_NAME_ABREV)
-    DEBUG_PRINT(RCDEV_HOST_SYSTEM_FLAVOR_REL)
+	DEBUG_PRINT(RCDEV_HOST_SYSTEM_FLAVOR)
+	DEBUG_PRINT(RCDEV_HOST_SYSTEM_FLAVOR_U)
+	DEBUG_PRINT(RCDEV_HOST_SYSTEM_NAME_ABREV)
+	DEBUG_PRINT(RCDEV_HOST_SYSTEM_FLAVOR_REL)
 
 	unset(_retval)
 	unset(_relnum)
@@ -427,30 +447,36 @@ if (UNIX)
 	set(RCDEV_HOST_BUILD_TYPE_STR_OptimizedDebug "-og-tp")
 
 	DEBUG_PRINT(CMAKE_HOST_SYSTEM_PROCESSOR)
-    string(REGEX MATCH
-    "([0-9]+).([0-9]+).([0-9]+)-([0-9]+).([A-Za-z]+)([0-9]+).(${CMAKE_HOST_SYSTEM_PROCESSOR})"
-    _matchout ${CMAKE_HOST_SYSTEM_VERSION})
-    # Need better id for compiler type and version
-    # For now this is just a patch to build the OUTPUT path
-    # Also, the version is hard coded and should consider using
-    # the actual version found in CMAKE_C_COMPILER_VERSION
-    set(RCDEV_HOST_COMPILER ${CMAKE_C_COMPILER_ID})
-    string(TOUPPER ${RCDEV_HOST_COMPILER} RCDEV_HOST_COMPILER_U)
-    set(RCDEV_HOST_COMPILER_U ${RCDEV_HOST_COMPILER_U})
+	string(REGEX MATCH
+		"([0-9]+).([0-9]+).([0-9]+)-([0-9]+).([A-Za-z]+)([0-9]+).(${CMAKE_HOST_SYSTEM_PROCESSOR})"
+	_matchout ${CMAKE_HOST_SYSTEM_VERSION})
+	# Need better id for compiler type and version
+	# For now this is just a patch to build the OUTPUT path
+	# Also, the version is hard coded and should consider using
+	# the actual version found in CMAKE_C_COMPILER_VERSION
+	set(RCDEV_HOST_COMPILER ${CMAKE_C_COMPILER_ID})
+	string(TOUPPER ${RCDEV_HOST_COMPILER} RCDEV_HOST_COMPILER_U)
+	set(RCDEV_HOST_COMPILER_U ${RCDEV_HOST_COMPILER_U})
 
-    string(TOLOWER ${RCDEV_HOST_COMPILER} RCDEV_HOST_COMPILER_L)
-    set(RCDEV_HOST_COMPILER_L ${RCDEV_HOST_COMPILER_L})
+	string(TOLOWER ${RCDEV_HOST_COMPILER} RCDEV_HOST_COMPILER_L)
+	set(RCDEV_HOST_COMPILER_L ${RCDEV_HOST_COMPILER_L})
 
+	# A bib mispelling error '_VERERSION', duhhhh! _VERSION
+	# need to handle if ever come across the bad spelling by
+	# assinging it to the initial value of the correctly spelled variable
 	if (NOT (DEFINED RCDEV_NORMALIZE_COMPILER_VERERSION))
 		set(RCDEV_NORMALIZE_COMPILER_VERERSION OFF CACHE INTERNAL "This will cause the compiler string value for the binary output locations to be limited to only what is supported by internal development")
+		set(RCDEV_NORMALIZE_COMPILER_VERSION OFF CACHE INTERNAL "This will cause the compiler string value for the binary output locations to be limited to only what is supported by internal development")
+	else()
+		set(RCDEV_NORMALIZE_COMPILER_VERSION ${RCDEV_NORMALIZE_COMPILER_VERERSION} CACHE INTERNAL "This will cause the compiler string value for the binary output locations to be limited to only what is supported by internal development")
 	endif()
 
-    # For Compiler versions, currently the output path is generalized
-    # with two internal linux release versions.  This will be revisited
-    # at a later date for better definition with opensource versus internal
-    # legacy output paths
+	# For Compiler versions, currently the output path is generalized
+	# with two internal linux release versions.  This will be revisited
+	# at a later date for better definition with opensource versus internal
+	# legacy output paths
 	unset(_compilerVer)
-	if (RCDEV_NORMALIZE_COMPILER_VERERSION)
+	if (RCDEV_NORMALIZE_COMPILER_VERSION)
 		if (   RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "ORACLE"
 			OR RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHAT"
 			OR RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "CENTOS")
@@ -464,103 +490,103 @@ if (UNIX)
 		endif()
 	endif()
 
-    if (NOT DEFINED _compilerVer)
-        # If there is a better way to identify other possible <LANGUAGE>_COMPILER_VERSION
-        # in CMAKE, then this will be improved
-        if (DEFINED CMAKE_CXX_COMPILER_VERSION)
-            set(_comp "${CMAKE_CXX_COMPILER_VERSION}")
-        else()
-            set(_comp "${CMAKE_C_COMPILER_VERSION}")
-        endif()
+	if (NOT DEFINED _compilerVer)
+		# If there is a better way to identify other possible <LANGUAGE>_COMPILER_VERSION
+		# in CMAKE, then this will be improved
+		if (DEFINED CMAKE_CXX_COMPILER_VERSION)
+			set(_comp "${CMAKE_CXX_COMPILER_VERSION}")
+		else()
+			set(_comp "${CMAKE_C_COMPILER_VERSION}")
+		endif()
 
-        string(REGEX MATCH "^([0-9]+).([0-9]+)[.]*([0-9]*).*" _matchout ${_comp})
-        set(_compilerVer "${CMAKE_MATCH_1}${CMAKE_MATCH_2}${CMAKE_MATCH_3}")
-        unset(_comp)
-    endif()
+		string(REGEX MATCH "^([0-9]+).([0-9]+)[.]*([0-9]*).*" _matchout ${_comp})
+		set(_compilerVer "${CMAKE_MATCH_1}${CMAKE_MATCH_2}${CMAKE_MATCH_3}")
+		unset(_comp)
+	endif()
 
-    set(RCDEV_HOST_COMPILER_VER ${_compilerVer})
-    unset(_matchout)
+	set(RCDEV_HOST_COMPILER_VER ${_compilerVer})
+	unset(_matchout)
 
 elseif (CMAKE_HOST_WIN32)
 
-    set(RCDEV_HOST_SYSTEM_FLAVOR "WindowsNT")
-    set(RCDEV_HOST_SYSTEM_FLAVOR_REL 5)
-    set(RCDEV_HOST_SYSTEM_NAME_ABREV "WIN")
-    if (CMAKE_CONFIGURATION_TYPES)
-        foreach (_type IN LISTS CMAKE_CONFIGURATION_TYPES)
-            string(TOUPPER ${_type} _type_U)
-            set(RCDEV_HOST_BUILD_${_type_U} ${_type})
-        endforeach()
-        unset(_type)
-        unset(_type_U)
-    else()
-        # for some reason the config types are not defined so just define the
-        # previous known standard config types
-        set(RCDEV_HOST_BUILD_DEBUG_MDD "Debug_MDd")
-        set(RCDEV_HOST_BUILD_RELEASE_MD "Release_MD")
-    endif()
-    set(RCDEV_HOST_COMPILER "VS")
-    set(RCDEV_HOST_COMPILER_U ${RCDEV_HOST_COMPILER})
-    string(TOLOWER ${RCDEV_HOST_COMPILER} RCDEV_HOST_COMPILER_L)
-    set(RCDEV_HOST_COMPILER_L ${RCDEV_HOST_COMPILER_L})
-    if (MSVC)
+	set(RCDEV_HOST_SYSTEM_FLAVOR "WindowsNT")
+	set(RCDEV_HOST_SYSTEM_FLAVOR_REL 5)
+	set(RCDEV_HOST_SYSTEM_NAME_ABREV "WIN")
+	if (CMAKE_CONFIGURATION_TYPES)
+		foreach (_type IN LISTS CMAKE_CONFIGURATION_TYPES)
+			string(TOUPPER ${_type} _type_U)
+			set(RCDEV_HOST_BUILD_${_type_U} ${_type})
+		endforeach()
+		unset(_type)
+		unset(_type_U)
+	else()
+		# for some reason the config types are not defined so just define the
+		# previous known standard config types
+		set(RCDEV_HOST_BUILD_DEBUG_MDD "Debug_MDd")
+		set(RCDEV_HOST_BUILD_RELEASE_MD "Release_MD")
+	endif()
+	set(RCDEV_HOST_COMPILER "VS")
+	set(RCDEV_HOST_COMPILER_U ${RCDEV_HOST_COMPILER})
+	string(TOLOWER ${RCDEV_HOST_COMPILER} RCDEV_HOST_COMPILER_L)
+	set(RCDEV_HOST_COMPILER_L ${RCDEV_HOST_COMPILER_L})
+	if (MSVC)
 		DEBUG_PRINT(MSVC_TOOLSET_VERSION)
-        if (MSVC_VERSION GREATER 1910 OR MSVC_VERSION EQUAL 1910)
-            set(_compilerVer "150")
-            set(_msvcVer "15")
-            set(_msvcYear "2017")
-        elseif (MSVC_VERSION EQUAL 1900)
-            set(_compilerVer "140")
-            set(_msvcVer "14")
-            set(_msvcYear "2015")
-        elseif (MSVC_VERSION EQUAL 1800)
-            set(_compilerVer "120")
-            set(_msvcVer "12")
-            set(_msvcYear "2013")
-        elseif (MSVC_VERSION EQUAL 1700)
-            set(_compilerVer "110")
-            set(_msvcVer "11")
-            set(_msvcYear "2012")
-        elseif (MSVC_VERSION EQUAL 1600)
-            set(_compilerVer "100")
-            set(_msvcVer "10")
-            set(_msvcYear "2010")
-        elseif (MSVC_VERSION EQUAL 1500)
-            set(_compilerVer "90")
-            set(_msvcVer "9")
-            set(_msvcYear "2008")
-        elseif (MSVC_VERSION EQUAL 1400)
-            set(_compilerVer "80")
-            set(_msvcVer "8")
-            set(_msvcYear "2005")
-        else ()
-            set(_compilerVer "00")
-        endif ()
-    else ()
-        if (MSVC14)
-            set (_compilerVer "140")
-        elseif (MSVC12)
-            set (_compilerVer "120")
-        elseif (MSVC11)
-            set (_compilerVer "110")
-        elseif (MSVC10)
-            set (_compilerVer "100")
-        elseif (MSVC90)
-            set (_compilerVer "90")
-        elseif (MSVC80)
-            set (_compilerVer "80")
-        else ()
-            set (_compilerVer "00")
-        endif ()
-    endif ()
+		if (MSVC_VERSION GREATER 1910 OR MSVC_VERSION EQUAL 1910)
+			set(_compilerVer "150")
+			set(_msvcVer "15")
+			set(_msvcYear "2017")
+		elseif (MSVC_VERSION EQUAL 1900)
+			set(_compilerVer "140")
+			set(_msvcVer "14")
+			set(_msvcYear "2015")
+		elseif (MSVC_VERSION EQUAL 1800)
+			set(_compilerVer "120")
+			set(_msvcVer "12")
+			set(_msvcYear "2013")
+		elseif (MSVC_VERSION EQUAL 1700)
+			set(_compilerVer "110")
+			set(_msvcVer "11")
+			set(_msvcYear "2012")
+		elseif (MSVC_VERSION EQUAL 1600)
+			set(_compilerVer "100")
+			set(_msvcVer "10")
+			set(_msvcYear "2010")
+		elseif (MSVC_VERSION EQUAL 1500)
+			set(_compilerVer "90")
+			set(_msvcVer "9")
+			set(_msvcYear "2008")
+		elseif (MSVC_VERSION EQUAL 1400)
+			set(_compilerVer "80")
+			set(_msvcVer "8")
+			set(_msvcYear "2005")
+		else ()
+			set(_compilerVer "00")
+		endif ()
+	else ()
+		if (MSVC14)
+			set (_compilerVer "140")
+		elseif (MSVC12)
+			set (_compilerVer "120")
+		elseif (MSVC11)
+			set (_compilerVer "110")
+		elseif (MSVC10)
+			set (_compilerVer "100")
+		elseif (MSVC90)
+			set (_compilerVer "90")
+		elseif (MSVC80)
+			set (_compilerVer "80")
+		else ()
+			set (_compilerVer "00")
+		endif ()
+	endif ()
 
-    if(RCDEV_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
+	if(RCDEV_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
 		set(RCDEV_MSVC_ARCH "amd64")
 	endif()
 
-    set(RCDEV_HOST_COMPILER_VER ${_compilerVer})
-    set(RCDEV_HOST_MSVC_VERSION ${_msvcVer})
-    set(RCDEV_HOST_MSVC_YEAR ${_msvcYear})
+	set(RCDEV_HOST_COMPILER_VER ${_compilerVer})
+	set(RCDEV_HOST_MSVC_VERSION ${_msvcVer})
+	set(RCDEV_HOST_MSVC_YEAR ${_msvcYear})
 
 DEBUG_PRINT(::OUTPATH 
 			"RCDEV_HOST_SYSTEM_FLAVOR                  : ${RCDEV_HOST_SYSTEM_FLAVOR}"

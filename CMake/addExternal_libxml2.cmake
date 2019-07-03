@@ -39,8 +39,13 @@ endmacro()
 
 macro(write_libxml2_config)
 
-	set(_xml2_config_dir "${libxml2_install}/lib/cmake/libxml2")
+	if (UNIX AND RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
+		set(_cfg_bits "64")
+	endif()
+
+	set(_xml2_config_dir "${libxml2_install}/lib${_cfg_bits}/cmake/libxml2")
 	string(REGEX MATCHALL "^([0-9]+)\.([0-9]+)\.([0-9]+)" _match "${libxml2_version}")
+
 
 	if (NOT (EXISTS ${_xml2_config_dir}))
 		file(MAKE_DIRECTORY  "${_xml2_config_dir}")
@@ -59,12 +64,13 @@ set(LIBXML2_VERSION_MICRO	${CMAKE_MATCH_3})
 set(LIBXML2_VERSION_STRING	\"${libxml2_version}\")
 set(LIBXML2_INSTALL_PREFIX	\${_rootdir})
 set(LIBXML2_INCLUDE_DIRS	\${_rootdir}/include \${_rootdir}/include/libxml2)
-set(LIBXML2_LIBRARY_DIR		\${_rootdir}/lib)
+set(LIBXML2_LIBRARY_DIR		\${_rootdir}/lib${_cfg_bits})
 set(LIBXML2_LIBRARY_NAME	\"${LIBXML2_STATIC_NAME}\")
 set(LIBXML2_LIBRARIES 		-L\${LIBXML2_LIBRARY_DIR})
 set(LIBXML2_LIBRARY 		\"\${LIBXML2_LIBRARY_DIR}/\${LIBXML2_LIBRARY_NAME}\")
 
 	")
+	unset(_cfg_bits)
 	unset(_xml2_config_dir)
 endmacro()
 
@@ -117,7 +123,11 @@ if((NOT libxml2_USE_INSTALLED) AND
 
 	# TODO: this should be changed to be defined by a global definition, but
 	# for now a non-cmake default value which is a standard location will work
-	set(libxml_libdir "${libxml2_install}/lib")
+	unset(_bits)
+	if (UNIX AND RCDEV_HOST_SYSTEM_BITS STREQUAL "64")
+		set(_bits "64")
+	endif()
+	set(libxml_libdir "${libxml2_install}/lib${_bits}")
 
 	# Because this config/install is not a cmake build, it needs to be cleared, extracted,
 	# configured and built multiple times for each build type, especially on WIN32.  So,
@@ -244,6 +254,7 @@ if((NOT libxml2_USE_INSTALLED) AND
 			else()
 				set(_shared_arg "--enable-static --with-pic --disable-shared")
 			endif()
+
 			# since this is not a cmake build the config is done with configure 
 			# or autogen if configure is not present. The build/install are a
 			# simple 'gmake' / 'gmale install'
@@ -253,8 +264,10 @@ if((NOT libxml2_USE_INSTALLED) AND
 										   	"--without-python "
 										   	"--without-lzma "
 										   	"--without-zlib "
+										   	"--libdir=${libxml_libdir}"
 										   	"${_shared_arg} "
 										   	"--with-threads "
+										   	"CFLAGS=-m${RCDEV_HOST_SYSTEM_BITS} "
 									)
 			
 			# set the make/gmake command for the build
@@ -323,7 +336,9 @@ if((NOT libxml2_USE_INSTALLED) AND
 
 	write_libxml2_config()
 
+	unset(_bits)
 	unset(_shared_arg)
+	unset(_cflags)
 	unset(_log_args)
 	unset(_dl_filename)
 	unset(libxml_libdir)

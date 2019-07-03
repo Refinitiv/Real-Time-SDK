@@ -67,7 +67,7 @@ endfunction()
 
 if (CMAKE_CONFIGURATION_TYPES)
 	message("Setting possible configuration types to Debug_MDd and Release_MD")
-	set(CMAKE_CONFIGURATION_TYPES "Debug_MDd;Release_MD" CACHE STRINGS "" FORCE)
+	set(CMAKE_CONFIGURATION_TYPES "Debug_MDd;Release_MD" CACHE STRING "" FORCE)
 else()
 	#message("CMAKE_BUILD_TYPE_INIT=${CMAKE_BUILD_TYPE_INIT}")
 	if ( NOT CMAKE_BUILD_TYPE )
