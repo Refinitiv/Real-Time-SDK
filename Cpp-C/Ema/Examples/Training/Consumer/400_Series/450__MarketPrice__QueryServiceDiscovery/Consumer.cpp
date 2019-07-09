@@ -174,7 +174,7 @@ int main( int argc, char* argv[] )
 
 		// Query endpoints from EDP-RT service discovery for the TCP protocol
 		serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
-			.clientId( clientId ).transprot( ServiceEndpointDiscoveryOption::TcpEnum )
+			.clientId( clientId ).transport( ServiceEndpointDiscoveryOption::TcpEnum )
 			.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
 			.proxyDomain( proxyDomain ), client );
 

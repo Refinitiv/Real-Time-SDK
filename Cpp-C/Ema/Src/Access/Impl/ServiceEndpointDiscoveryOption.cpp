@@ -68,6 +68,11 @@ ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::tokenScope(const
 
 ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::transprot(TransportProtocol transport)
 {
+	return this->transport(transport);
+}
+
+ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::transport(TransportProtocol transport)
+{
 	_transport = transport;
 	return *this;
 }
