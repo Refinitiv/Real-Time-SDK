@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|        Copyright Thomson Reuters 2015, 2019. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -123,10 +123,6 @@ private :
 
 	void setQosInt() const;
 
-	RsslMsg							_rsslMsg;
-
-	RsslMsg*						_pRsslMsg;
-
 	mutable EmaStringInt			_name;
 
 	mutable EmaStringInt			_serviceName;
@@ -149,11 +145,9 @@ private :
 
 	mutable bool					_qosSet;
 
-	UInt8							_rsslMajVer;
-
-	UInt8							_rsslMinVer;
-
 	OmmError::ErrorCode				_errorCode;
+
+	friend class RefreshMsg;
 };
 
 class RefreshMsgDecoderPool : public DecoderPool< RefreshMsgDecoder >

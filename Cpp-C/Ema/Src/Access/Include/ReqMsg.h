@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|        Copyright Thomson Reuters 2015, 2019. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -93,6 +93,12 @@ public :
 	/** Constructs ReqMsg.
 	 */
 	ReqMsg();
+
+	/** Copy constructor.
+		\remark this is used to copy and process ReqMsg outside of EMA's callback methods.
+		\remark this method does not support passing in just encoded ReqMsg in the application space.
+	*/
+	ReqMsg( const ReqMsg& other );
 	//@}
 
 	///@name Destructor
@@ -354,7 +360,6 @@ private :
 
 	Decoder& getDecoder();
 
-	ReqMsg( const ReqMsg& );
 	ReqMsg& operator=( const ReqMsg& );
 
 	mutable EmaString		_toString;

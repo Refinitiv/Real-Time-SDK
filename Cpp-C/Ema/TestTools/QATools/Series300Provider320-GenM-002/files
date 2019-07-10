@@ -1,0 +1,4 @@
+#file,location
+IProvider.cpp,Examples/Training/IProvider/300_Series/320__Custom__GenericMsg
+IProvider.h,Examples/Training/IProvider/300_Series/320__Custom__GenericMsg
+makefile.examples.common,Examples/Training

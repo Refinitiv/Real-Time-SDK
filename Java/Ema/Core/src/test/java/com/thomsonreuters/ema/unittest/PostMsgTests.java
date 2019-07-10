@@ -2,15 +2,18 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2015, 2019. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.unittest;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.JUnitTestConnect;
+import com.thomsonreuters.ema.access.OmmReal;
 import com.thomsonreuters.ema.access.PostMsg;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
 import com.thomsonreuters.upa.codec.Codec;
@@ -25,39 +28,6 @@ public class PostMsgTests extends TestCase
 	{
 		super(name);
 	}
-	
-	public void testPostMsg_ServiceName_and_ServiceId()
-	{
-		TestUtilities.printTestHead("testPostMsg_ServiceName_and_ServiceId", "setting both serviceName and serviceId");
-		
-		com.thomsonreuters.ema.access.PostMsg emaPostMsg = EmaFactory.createPostMsg();
-		
-		emaPostMsg.serviceName("TEST");
-		
-		try {
-			emaPostMsg.serviceId(5);
-			TestUtilities.checkResult( false, "PostMsg can't set serviceId when serviceName is set - exception expected" );				
-		}
-		catch(Exception e)
-		{
-			TestUtilities.checkResult( true, "PostMsg can't set serviceId when serviceName is set - exception expected" );
-		}		
-
-		TestUtilities.checkResult(emaPostMsg.hasServiceName(), "PostMsg.hasServiceName()");			
-		TestUtilities.checkResult(emaPostMsg.serviceName().equals("TEST"), "PostMsg.serviceName()");		
-		
-		int majorVersion = Codec.majorVersion();
-		int minorVersion = Codec.minorVersion();		
-		com.thomsonreuters.ema.access.PostMsg emaPostMsgDec = JUnitTestConnect.createPostMsg();
-		
-		JUnitTestConnect.setRsslData(emaPostMsgDec, emaPostMsg, majorVersion, minorVersion, TestUtilities.getDataDictionary(), null);
-		
-		// check that we can still get the toString on encoded/decoded msg.
-		TestUtilities.checkResult("PostMsg.toString() != toString() not supported", !(emaPostMsgDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
-
-		System.out.println("End EMA ServiceName and ServiceId");
-		System.out.println();
-	}		
 	
 	public void testPostMsg_Decode()
 	{
@@ -395,16 +365,7 @@ public class PostMsgTests extends TestCase
 		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
 		postMsg.serviceId(5);
-		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
-
-		try {
-			postMsg.serviceName("TEST");
-			TestUtilities.checkResult( false, "PostMsg can't set serviceName when serviceId is set - exception expected" );				
-		}
-		catch(Exception e)
-		{
-			TestUtilities.checkResult( true, "PostMsg can't set serviceName when serviceId is set - exception expected" );			
-		}			
+		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    			
 		
 		postMsg.filter( 12 );
 		TestUtilities.checkResult("PostMsg.toString() == toString() not supported", postMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
@@ -918,5 +879,308 @@ public class PostMsgTests extends TestCase
 	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyPostMsg.payload().refreshMsg(), com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 	     
 	     System.out.println("\ttestPostMsg_EncodeUPAPostMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherPostMsg_EMADecode passed");
+	}
+	
+	public void testPostMsg_clone()
+	{
+		TestUtilities.printTestHead("testPostMsg_clone", "cloning for ema post message");
+		
+		com.thomsonreuters.upa.codec.Buffer fieldListBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		fieldListBuf.data(ByteBuffer.allocate(1024));
+
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+
+		int retVal;
+		System.out.println("Begin UPA FieldList Encoding");
+		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error encoding field list.");
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
+					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ CodecReturnCodes.info(retVal));
+			return;
+		}
+		System.out.println("End UPA FieldList Encoding");
+		System.out.println();
+
+		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
+		
+	    System.out.println("Begin UPA PostMsg Set");
+		com.thomsonreuters.upa.codec.PostMsg postMsg = (com.thomsonreuters.upa.codec.PostMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+		postMsg.msgClass(com.thomsonreuters.upa.codec.MsgClasses.POST);
+		
+		postMsg.domainType( com.thomsonreuters.upa.rdm.DomainTypes.MARKET_PRICE );
+		
+		postMsg.streamId( 15 );
+		
+		postMsg.applyHasPartNum();
+		postMsg.partNum( 10 );
+		
+		postMsg.applyHasSeqNum();
+		postMsg.seqNum( 22 );
+
+		postMsg.applyHasPostId();
+		postMsg.postId(223);
+		
+		postMsg.applyHasPostUserRights();
+		postMsg.postUserRights(com.thomsonreuters.upa.codec.PostUserRights.CREATE);
+		
+		postMsg.applyAck();
+		
+		postMsg.applyHasMsgKey();
+
+		postMsg.msgKey().applyHasName();
+		postMsg.msgKey().name().data( "ABCDEF" );
+		
+		postMsg.msgKey().applyHasNameType();
+		postMsg.msgKey().nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+
+		postMsg.msgKey().applyHasServiceId();
+		postMsg.msgKey().serviceId(5);
+		
+		postMsg.msgKey().applyHasFilter();
+		postMsg.msgKey().filter( 12 );
+	
+		postMsg.msgKey().applyHasIdentifier();
+		postMsg.msgKey().identifier(21);
+		
+		postMsg.msgKey().applyHasAttrib();
+		postMsg.msgKey().attribContainerType( com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST );
+		postMsg.msgKey().encodedAttrib(fieldListBuf);
+	
+		postMsg.postUserInfo().userAddr(15);
+		postMsg.postUserInfo().userId(30);
+		
+		postMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
+		postMsg.encodedDataBody(fieldListBuf);
+
+		System.out.println("End UPA PostMsg Set");
+		System.out.println();
+
+		System.out.println("Begin UPA PostMsg Buffer Encoding");
+
+		com.thomsonreuters.upa.codec.Buffer msgBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		msgBuf.data(ByteBuffer.allocate(2048));
+		
+		com.thomsonreuters.upa.codec.EncodeIterator encIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator();
+		encIter.clear();
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();
+		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
+			return;
+		}
+		
+		postMsg.encode(encIter);
+
+	    System.out.println("End UPA PostMsg Buffer Encoding");
+		System.out.println();
+
+		System.out.println("Begin EMA PostMsg Clone");
+
+		com.thomsonreuters.upa.codec.PostMsg postMsgDecode = (com.thomsonreuters.upa.codec.PostMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+
+		com.thomsonreuters.upa.codec.DecodeIterator decIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
+		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		postMsgDecode.decode(decIter);
+
+		com.thomsonreuters.ema.access.PostMsg emaPostMsg = JUnitTestConnect.createPostMsg();
+				
+		JUnitTestConnect.setRsslData(emaPostMsg, postMsgDecode, majorVersion, minorVersion, dictionary, null);
+		
+		com.thomsonreuters.ema.access.PostMsg emaPostMsgClone = EmaFactory.createPostMsg(emaPostMsg);
+		
+		TestUtilities.checkResult(emaPostMsgClone.domainType() == emaPostMsg.domainType(), "Compare domainType");
+		TestUtilities.checkResult(emaPostMsgClone.streamId() == emaPostMsg.streamId(), "Compare streamId");
+		TestUtilities.checkResult(emaPostMsgClone.hasPartNum() == emaPostMsg.hasPartNum(), "Compare hasPartNum");
+		TestUtilities.checkResult(emaPostMsgClone.partNum() == emaPostMsg.partNum(), "Compare partNum");
+		TestUtilities.checkResult(emaPostMsgClone.hasSeqNum() == emaPostMsg.hasSeqNum(), "Compare hasSeqNum");
+		TestUtilities.checkResult(emaPostMsgClone.seqNum() == emaPostMsg.seqNum(), "Compare seqNum");
+		TestUtilities.checkResult(emaPostMsgClone.hasPostId() == emaPostMsg.hasPostId(), "Compare hasPostId");
+		TestUtilities.checkResult(emaPostMsgClone.postId() == emaPostMsg.postId(), "Compare postId");
+		TestUtilities.checkResult(emaPostMsgClone.hasPostUserRights() == emaPostMsg.hasPostUserRights(), "Compare hasPostUserRights");
+		TestUtilities.checkResult(emaPostMsgClone.postUserRights() == emaPostMsg.postUserRights(), "Compare postUserRights");
+		TestUtilities.checkResult(emaPostMsgClone.hasMsgKey() == emaPostMsg.hasMsgKey(), "Compare hasMsgKey");
+
+		String emaPostMsgString = emaPostMsg.toString();
+		String emaPostMsgCloneString = emaPostMsgClone.toString();
+		
+		System.out.println("Cloned EMA PostMsg:");
+		System.out.println(emaPostMsgClone);
+		
+		TestUtilities.checkResult(emaPostMsgString.equals(emaPostMsgCloneString), "emaPostMsgString.equals(emaPostMsgCloneString)");
+		
+		System.out.println("End EMA PostMsg Clone");
+		System.out.println();
+	}
+	
+	public void testPostMsg_cloneEdit()
+	{
+		TestUtilities.printTestHead("testPostMsg_cloneEdit", "clone and edit ema post message");
+		
+		com.thomsonreuters.upa.codec.Buffer fieldListBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		fieldListBuf.data(ByteBuffer.allocate(1024));
+
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+
+		int retVal;
+		System.out.println("Begin UPA FieldList Encoding");
+		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error encoding field list.");
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
+					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ CodecReturnCodes.info(retVal));
+			return;
+		}
+		System.out.println("End UPA FieldList Encoding");
+		System.out.println();
+
+		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
+		
+	    System.out.println("Begin UPA PostMsg Set");
+		com.thomsonreuters.upa.codec.PostMsg postMsg = (com.thomsonreuters.upa.codec.PostMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+		postMsg.msgClass(com.thomsonreuters.upa.codec.MsgClasses.POST);
+		
+		postMsg.domainType( com.thomsonreuters.upa.rdm.DomainTypes.MARKET_PRICE );
+		
+		postMsg.streamId( 15 );
+		
+		postMsg.applyHasPartNum();
+		postMsg.partNum( 10 );
+		
+		postMsg.applyHasSeqNum();
+		postMsg.seqNum( 22 );
+
+		postMsg.applyHasPostId();
+		postMsg.postId(223);
+		
+		postMsg.applyHasPostUserRights();
+		postMsg.postUserRights(com.thomsonreuters.upa.codec.PostUserRights.CREATE);
+		
+		postMsg.applyAck();
+		
+		postMsg.applyHasMsgKey();
+
+		postMsg.msgKey().applyHasName();
+		postMsg.msgKey().name().data( "ABCDEF" );
+		
+		postMsg.msgKey().applyHasNameType();
+		postMsg.msgKey().nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+
+		postMsg.msgKey().applyHasServiceId();
+		postMsg.msgKey().serviceId(5);
+		
+		postMsg.msgKey().applyHasFilter();
+		postMsg.msgKey().filter( 12 );
+	
+		postMsg.msgKey().applyHasIdentifier();
+		postMsg.msgKey().identifier(21);
+		
+		postMsg.msgKey().applyHasAttrib();
+		postMsg.msgKey().attribContainerType( com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST );
+		postMsg.msgKey().encodedAttrib(fieldListBuf);
+	
+		postMsg.postUserInfo().userAddr(15);
+		postMsg.postUserInfo().userId(30);
+		
+		postMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
+		postMsg.encodedDataBody(fieldListBuf);
+
+		System.out.println("End UPA PostMsg Set");
+		System.out.println();
+
+		System.out.println("Begin UPA PostMsg Buffer Encoding");
+
+		com.thomsonreuters.upa.codec.Buffer msgBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		msgBuf.data(ByteBuffer.allocate(2048));
+		
+		com.thomsonreuters.upa.codec.EncodeIterator encIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator();
+		encIter.clear();
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();
+		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
+			return;
+		}
+		
+		postMsg.encode(encIter);
+
+	    System.out.println("End UPA PostMsg Buffer Encoding");
+		System.out.println();
+
+		System.out.println("Begin EMA PostMsg Clone");
+
+		com.thomsonreuters.upa.codec.PostMsg postMsgDecode = (com.thomsonreuters.upa.codec.PostMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+
+		com.thomsonreuters.upa.codec.DecodeIterator decIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
+		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		postMsgDecode.decode(decIter);
+
+		com.thomsonreuters.ema.access.PostMsg emaPostMsg = JUnitTestConnect.createPostMsg();
+				
+		JUnitTestConnect.setRsslData(emaPostMsg, postMsgDecode, majorVersion, minorVersion, dictionary, null);
+		
+		com.thomsonreuters.ema.access.PostMsg emaPostMsgClone = EmaFactory.createPostMsg(emaPostMsg);
+		
+		TestUtilities.checkResult(emaPostMsgClone.domainType() == emaPostMsg.domainType(), "Compare domainType");
+		TestUtilities.checkResult(emaPostMsgClone.streamId() == emaPostMsg.streamId(), "Compare streamId");
+		TestUtilities.checkResult(emaPostMsgClone.hasPartNum() == emaPostMsg.hasPartNum(), "Compare hasPartNum");
+		TestUtilities.checkResult(emaPostMsgClone.partNum() == emaPostMsg.partNum(), "Compare partNum");
+		TestUtilities.checkResult(emaPostMsgClone.hasSeqNum() == emaPostMsg.hasSeqNum(), "Compare hasSeqNum");
+		TestUtilities.checkResult(emaPostMsgClone.seqNum() == emaPostMsg.seqNum(), "Compare seqNum");
+		TestUtilities.checkResult(emaPostMsgClone.hasPostId() == emaPostMsg.hasPostId(), "Compare hasPostId");
+		TestUtilities.checkResult(emaPostMsgClone.postId() == emaPostMsg.postId(), "Compare postId");
+		TestUtilities.checkResult(emaPostMsgClone.hasPostUserRights() == emaPostMsg.hasPostUserRights(), "Compare hasPostUserRights");
+		TestUtilities.checkResult(emaPostMsgClone.postUserRights() == emaPostMsg.postUserRights(), "Compare postUserRights");
+		TestUtilities.checkResult(emaPostMsgClone.hasMsgKey() == emaPostMsg.hasMsgKey(), "Compare hasMsgKey");
+
+		String emaPostMsgString = emaPostMsg.toString();
+		String emaPostMsgCloneString = emaPostMsgClone.toString();
+		
+		System.out.println("Cloned EMA PostMsg:");
+		System.out.println(emaPostMsgClone);
+		
+		TestUtilities.checkResult(emaPostMsgString.equals(emaPostMsgCloneString), "emaPostMsgString.equals(emaPostMsgCloneString)");
+		
+		emaPostMsgClone.streamId(10);
+		emaPostMsgClone.payload().fieldList().add(EmaFactory.createFieldEntry().real(21, 3900, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+
+		TestUtilities.checkResult(emaPostMsgClone.streamId() != emaPostMsg.streamId(), "Compare streamId");
+
+		// Check emaPostMsg for no FID 21
+		Iterator<FieldEntry> iter = emaPostMsg.payload().fieldList().iterator();
+		FieldEntry fieldEntry;
+		while (iter.hasNext())
+		{
+			fieldEntry = iter.next();
+			TestUtilities.checkResult(fieldEntry.fieldId() != 21, "Check emaPostMsg for no FID 21");
+		}
+		
+		boolean foundFid = false;
+		Iterator<FieldEntry> iterClone = emaPostMsgClone.payload().fieldList().iterator();
+		while (iterClone.hasNext())
+		{
+			fieldEntry = iterClone.next();
+			if(foundFid = fieldEntry.fieldId() == 21)
+				break;
+		}
+		
+		TestUtilities.checkResult(foundFid, "Check emaPostMsgClone for FID 21");
+		
+		emaPostMsgString = emaPostMsg.toString();
+		emaPostMsgCloneString = emaPostMsgClone.toString();
+		
+		TestUtilities.checkResult(!emaPostMsgString.equals(emaPostMsgCloneString), "Check that emaPostMsgString does not equal emaPostMsgCloneString");
+		
+		
+		System.out.println("End EMA PostMsg Clone");
+		System.out.println();
 	}
 }

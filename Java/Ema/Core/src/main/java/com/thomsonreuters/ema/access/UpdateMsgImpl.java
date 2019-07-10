@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018-2019. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -18,6 +18,73 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	UpdateMsgImpl()
 	{
 		super(DataTypes.UPDATE_MSG, null);
+	}
+	
+	UpdateMsgImpl(UpdateMsg other)
+	{
+		super(DataTypes.UPDATE_MSG, new EmaObjectManager());
+		
+		_objManager.initialize();
+		
+		MsgImpl.cloneBufferToMsg(this, (MsgImpl)other, "com.thomsonreuters.ema.access.UpdateMsgImpl.UpdateMsgImpl(UpdateMsg other)");
+		
+		// Set the decoded values from the clone buffer to the encoder
+		
+		if(!hasMsgKey() && other.hasMsgKey())
+			cloneMsgKey((MsgImpl)other, _rsslMsg.msgKey(), _rsslMsg.flags(), "com.thomsonreuters.ema.access.UpdateMsgImpl.UpdateMsgImpl(UpdateMsg other)");
+		
+		if (hasMsgKey() || other.hasMsgKey())
+		{
+			if (hasName())
+				name(name());
+
+			if (hasNameType())
+				nameType(nameType());
+
+			if (hasServiceId())
+				serviceId(serviceId());
+
+			if (hasId())
+				id(id());
+
+			if (hasFilter())
+				filter(filter());
+
+			if(attrib().dataType() != DataTypes.NO_DATA)
+				attrib(attrib().data());
+		}	
+
+		domainType(domainType());
+
+		if (hasExtendedHeader())
+			extendedHeader(extendedHeader());
+
+		if (other.hasServiceName())
+			serviceName(other.serviceName());
+
+		if (other.hasSeqNum())
+			seqNum(seqNum());
+
+		if (other.hasPermissionData())
+			permissionData(permissionData());
+
+		if (other.hasConflated())
+			conflated(conflatedCount(), conflatedTime());
+
+		if (other.hasPublisherId())
+			publisherId(publisherIdUserId(), publisherIdUserAddress());
+
+		updateTypeNum(updateTypeNum());
+
+		doNotCache(doNotCache());
+
+		doNotConflate(doNotConflate());
+
+		doNotRipple(doNotRipple());
+		
+		payload(other.payload().data());
+		
+		decodeCloneAttribPayload((MsgImpl)other);
 	}
 
 	UpdateMsgImpl(EmaObjectManager objManager)
@@ -173,9 +240,6 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	@Override
 	public UpdateMsg serviceId(int serviceId)
 	{
-		if (hasServiceName())
-			throw ommIUExcept().message("Attempt to set serviceId while service name is already set.");
-		
 		msgServiceId(serviceId);
 		return this;
 	}
@@ -301,7 +365,6 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 	{
 		if ( _objManager == null )
 			return "\nDecoding of just encoded object in the same application is not supported\n";
-		
 		_toString.setLength(0);
 		Utilities.addIndent(_toString, indent++).append("UpdateMsg");
 		Utilities.addIndent(_toString, indent, true).append("streamId=\"")
@@ -413,7 +476,7 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 		_rsslMsg = rsslMsg;
 
 		_rsslBuffer = _rsslMsg.encodedMsgBuffer();
-		
+				
 		_rsslDictionary = rsslDictionary;
 
 		_rsslMajVer = majVer;
@@ -423,6 +486,10 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 		_serviceNameSet = false;
 
 		decodeAttribPayload();
+	}
+	
+	public boolean rsslBuffer() {
+		return _rsslBuffer.length() != 0; 
 	}
 
 	@Override
@@ -474,4 +541,6 @@ class UpdateMsgImpl extends MsgImpl implements UpdateMsg
 				return;
 		}
 	}
+	
+	
 }

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018-2019. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -38,12 +38,32 @@ public class EmaFactory
 	}
 	
 	/**
+	 * Creates a clone of {@link com.thomsonreuters.ema.access.ReqMsg}.
+	 * @param other ReqMsg clone source
+	 * @return {@link com.thomsonreuters.ema.access.ReqMsg}
+	 */
+	public static ReqMsg createReqMsg(ReqMsg other)
+	{
+		return new ReqMsgImpl(other);
+	}
+	
+	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.RefreshMsg}.
 	 * @return {@link com.thomsonreuters.ema.access.RefreshMsg}
 	 */
 	public static RefreshMsg createRefreshMsg()
 	{
 		return new RefreshMsgImpl();
+	}
+	
+	/**
+	 * Creates a clone of {@link com.thomsonreuters.ema.access.RefreshMsg}.
+	 * @param other RefreshMsg clone source
+	 * @return {@link com.thomsonreuters.ema.access.RefreshMsg}
+	 */
+	public static RefreshMsg createRefreshMsg(RefreshMsg other)
+	{
+		return new RefreshMsgImpl(other);
 	}
 
 	/**
@@ -56,6 +76,16 @@ public class EmaFactory
 	}
 	
 	/**
+	 * Creates a clone of {@link com.thomsonreuters.ema.access.UpdateMsg}.
+	 * @param other UpdateMsg clone source
+	 * @return {@link com.thomsonreuters.ema.access.UpdateMsg}
+	 */
+	public static UpdateMsg createUpdateMsg(UpdateMsg other)
+	{
+		return new UpdateMsgImpl(other);
+	}
+	
+	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.StatusMsg}.
 	 * @return {@link com.thomsonreuters.ema.access.StatusMsg}
 	 */
@@ -65,12 +95,33 @@ public class EmaFactory
 	}
 	
 	/**
+	 * Creates a clone of {@link com.thomsonreuters.ema.access.StatusMsg}.
+	 * @param other StatusMsg clone source
+	 * @return {@link com.thomsonreuters.ema.access.StatusMsg}
+	 */
+	public static StatusMsg createStatusMsg(StatusMsg other)
+	{
+		return new StatusMsgImpl(other);
+	}
+	
+	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.PostMsg}.
 	 * @return {@link com.thomsonreuters.ema.access.PostMsg}
 	 */
 	public static PostMsg createPostMsg()
 	{
 		return new PostMsgImpl();
+	}
+	
+
+	/**
+	 * Creates a clone of {@link com.thomsonreuters.ema.access.PostMsg}.
+	 * @param other PostMsg clone source
+	 * @return {@link com.thomsonreuters.ema.access.PostMsg}
+	 */
+	public static PostMsg createPostMsg(PostMsg other)
+	{
+		return new PostMsgImpl(other);
 	}
 	
 	/**
@@ -83,12 +134,32 @@ public class EmaFactory
 	}
 	
 	/**
+	 * Creates a clone of {@link com.thomsonreuters.ema.access.AckMsg}.
+	 * @param other AckMsg clone source
+	 * @return {@link com.thomsonreuters.ema.access.AckMsg}
+	 */
+	public static AckMsg createAckMsg(AckMsg other)
+	{
+		return new AckMsgImpl(other);
+	}
+	
+	/**
 	 * Creates a {@link com.thomsonreuters.ema.access.GenericMsg}.
 	 * @return {@link com.thomsonreuters.ema.access.GenericMsg}
 	 */
 	public static GenericMsg createGenericMsg()
 	{
 		return new GenericMsgImpl();
+	}
+	
+	/**
+	 * Creates a clone of {@link com.thomsonreuters.ema.access.GenericMsg}.
+	 * @param other GenericMsg clone source
+	 * @return {@link com.thomsonreuters.ema.access.GenericMsg}
+	 */
+	public static GenericMsg createGenericMsg(GenericMsg other)
+	{
+		return new GenericMsgImpl(other);
 	}
 	
 	/**

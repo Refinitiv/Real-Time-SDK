@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+ *|        Copyright Thomson Reuters 2018-2019. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -543,7 +543,8 @@ TEST(AckMsgTests, testAckMsgHybrid)
 
 		EXPECT_TRUE( true ) << "AckMsg Hybrid Usage - exception not expected" ;
 
-		free( rsslBuf.data );
+		rsslBuf.length = 0;
+		free(rsslBuf.data);
 	}
 	catch ( const OmmException& )
 	{
@@ -624,3 +625,285 @@ TEST(AckMsgTests, testAckMsgError)
 
 }
 
+TEST(AckMsgTests, testAckMsgtoString)
+{
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	try
+	{
+		RsslAckMsg rsslAckMsg;
+		rsslClearAckMsg(&rsslAckMsg);
+
+		RsslMsgKey msgKey;
+		rsslClearMsgKey(&msgKey);
+
+		RsslBuffer nameBuffer;
+		nameBuffer.data = const_cast<char*>("ABCDEF");
+		nameBuffer.length = 6;
+
+		msgKey.name = nameBuffer;
+
+		rsslAckMsg.ackId = 1;
+		rsslAckMsgApplyHasMsgKey(&rsslAckMsg);
+
+		char buffer[100];
+		RsslBuffer rsslBuf;
+		rsslBuf.data = buffer;
+		rsslBuf.length = 100;
+
+		EmaString inText;
+		encodeFieldList(rsslBuf, inText);
+
+		rsslAckMsg.msgBase.encDataBody = rsslBuf;
+		rsslAckMsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+
+		AckMsg ackMsg;
+
+		StaticDecoder::setRsslData(&ackMsg, (RsslMsg*)&rsslAckMsg, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &dictionary);
+
+		EXPECT_TRUE(true) << "AckMsg toString Decode - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "AckMsg toString Decode - exception not expected";
+	}
+}
+
+TEST(AckMsgTests, testAckMsgClone)
+{
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	try
+	{
+		RsslAckMsg rsslAckMsg;
+		rsslClearAckMsg(&rsslAckMsg);
+
+		RsslMsgKey msgKey;
+		rsslClearMsgKey(&msgKey);
+
+		RsslBuffer nameBuffer;
+		nameBuffer.data = const_cast<char*>("ABCDEF");
+		nameBuffer.length = 6;
+
+		msgKey.name = nameBuffer;
+		rsslMsgKeyApplyHasName(&msgKey);
+
+		rsslAckMsg.ackId = 1;
+
+		RsslBuffer rsslBuf;
+		rsslBuf.length = 1000;
+		rsslBuf.data = (char*)malloc(sizeof(char) * 1000);
+
+		EmaString inText;
+		encodeFieldList(rsslBuf, inText);
+
+		rsslAckMsg.msgBase.encDataBody = rsslBuf;
+		rsslAckMsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+
+		msgKey.attribContainerType = RSSL_DT_FIELD_LIST;
+		msgKey.encAttrib = rsslBuf;
+		rsslMsgKeyApplyHasAttrib(&msgKey);
+
+		rsslAckMsg.msgBase.msgKey = msgKey;
+		rsslAckMsgApplyHasMsgKey(&rsslAckMsg);
+
+		RsslEncodeIterator encIter;
+
+		rsslClearEncodeIterator(&encIter);
+
+		/* set version information of the connection on the encode iterator so proper versioning can be performed */
+		rsslSetEncodeIteratorRWFVersion(&encIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+		int retval = 0;
+
+		RsslBuffer msgBuf;
+		msgBuf.length = 2048;
+		msgBuf.data = (char*)malloc(sizeof(char) * 2048);
+
+		/* set the buffer on an RsslEncodeIterator */
+		if ((retval = rsslSetEncodeIteratorBuffer(&encIter, &msgBuf)) < RSSL_RET_SUCCESS)
+		{
+			//rsslReleaseBuffer(msgBuf, &error);
+			EXPECT_FALSE(true) << "rsslSetEncodeIteratorBuffer() failed with return code: " << retval << endl;
+		}
+
+		retval = rsslEncodeMsg(&encIter, (RsslMsg*)&rsslAckMsg);
+
+		RsslMsg ackDecode;
+		RsslDecodeIterator decodeIter;
+
+		rsslClearDecodeIterator(&decodeIter);
+
+		// Set the RWF version to decode with this iterator 
+		rsslSetDecodeIteratorRWFVersion(&decodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+
+		// Associates the RsslDecodeIterator with the RsslBuffer from which to decode.
+		if ((retval = rsslSetDecodeIteratorBuffer(&decodeIter, &msgBuf)) != RSSL_RET_SUCCESS)
+		{
+			EXPECT_FALSE(true) << "rsslSetDecodeIteratorBuffer() failed with return code: " << retval << endl;
+		}
+
+		// decode contents into the RsslMsg structure
+		retval = rsslDecodeMsg(&decodeIter, (RsslMsg*)&ackDecode);
+		if (retval != RSSL_RET_SUCCESS)
+		{
+			EXPECT_FALSE(true) << "rsslDecodeMsg() failed with return code: " << retval << endl;
+		}
+
+		AckMsg ackMsg;
+
+		StaticDecoder::setRsslData(&ackMsg, (RsslMsg*)&ackDecode, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &dictionary);
+
+		// Clone message
+
+		AckMsg cloneAckMsg(ackMsg);
+
+		EXPECT_TRUE(cloneAckMsg.getDomainType() == ackMsg.getDomainType()) << "Compare domainType";
+		EXPECT_TRUE(cloneAckMsg.getStreamId() == ackMsg.getStreamId()) << "Compare streamId";
+		EXPECT_TRUE(cloneAckMsg.hasMsgKey() == ackMsg.hasMsgKey()) << "Compare hasMsgKey";
+
+		EXPECT_STREQ(cloneAckMsg.toString(), ackMsg.toString()) << "Check equal toString()";
+
+		EXPECT_TRUE(true) << "AckMsg Clone Success";
+
+		rsslBuf.length = 0;
+		free(rsslBuf.data);
+
+		msgBuf.length = 0;
+		free(msgBuf.data);
+
+		
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "AckMsg Clone - exception not expected";
+	}
+
+	rsslDeleteDataDictionary(&dictionary);
+}
+
+TEST(AckMsgTests, testAckMsgEditClone)
+{
+	// load dictionary for decoding of the field list
+	RsslDataDictionary dictionary;
+
+	ASSERT_TRUE(loadDictionaryFromFile(&dictionary)) << "Failed to load dictionary";
+
+	try
+	{
+		RsslAckMsg rsslAckMsg;
+		rsslClearAckMsg(&rsslAckMsg);
+
+		RsslMsgKey msgKey;
+		rsslClearMsgKey(&msgKey);
+
+		RsslBuffer nameBuffer;
+		nameBuffer.data = const_cast<char*>("ABCDEF");
+		nameBuffer.length = 6;
+
+		msgKey.name = nameBuffer;
+		rsslMsgKeyApplyHasName(&msgKey);
+
+		rsslAckMsg.ackId = 1;
+
+		RsslBuffer rsslBuf;
+		rsslBuf.length = 1000;
+		rsslBuf.data = (char*)malloc(sizeof(char) * 1000);
+		EmaString inText;
+
+		encodeFieldList(rsslBuf, inText);
+
+		rsslAckMsg.msgBase.encDataBody = rsslBuf;
+		rsslAckMsg.msgBase.containerType = RSSL_DT_FIELD_LIST;
+
+		msgKey.attribContainerType = RSSL_DT_FIELD_LIST;
+		msgKey.encAttrib = rsslBuf;
+		rsslMsgKeyApplyHasAttrib(&msgKey);
+
+		rsslAckMsg.msgBase.msgKey = msgKey;
+		rsslAckMsgApplyHasMsgKey(&rsslAckMsg);
+
+		RsslEncodeIterator encIter;
+
+		rsslClearEncodeIterator(&encIter);
+
+		/* set version information of the connection on the encode iterator so proper versioning can be performed */
+		rsslSetEncodeIteratorRWFVersion(&encIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+		int retval = 0;
+
+		RsslBuffer msgBuf;
+		msgBuf.length = 2048;
+		msgBuf.data = (char*)malloc(sizeof(char) * 2048);
+
+		/* set the buffer on an RsslEncodeIterator */
+		if ((retval = rsslSetEncodeIteratorBuffer(&encIter, &msgBuf)) < RSSL_RET_SUCCESS)
+		{
+			//rsslReleaseBuffer(msgBuf, &error);
+			EXPECT_FALSE(true) << "rsslSetEncodeIteratorBuffer() failed with return code: " << retval << endl;
+		}
+
+		retval = rsslEncodeMsg(&encIter, (RsslMsg*)&rsslAckMsg);
+
+		RsslMsg ackDecode;
+		RsslDecodeIterator decodeIter;
+
+		rsslClearDecodeIterator(&decodeIter);
+
+		// Set the RWF version to decode with this iterator 
+		rsslSetDecodeIteratorRWFVersion(&decodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+
+		// Associates the RsslDecodeIterator with the RsslBuffer from which to decode.
+		if ((retval = rsslSetDecodeIteratorBuffer(&decodeIter, &msgBuf)) != RSSL_RET_SUCCESS)
+		{
+			EXPECT_FALSE(true) << "rsslSetDecodeIteratorBuffer() failed with return code: " << retval << endl;
+		}
+
+		// decode contents into the RsslMsg structure
+		retval = rsslDecodeMsg(&decodeIter, (RsslMsg*)&ackDecode);
+		if (retval != RSSL_RET_SUCCESS)
+		{
+			EXPECT_FALSE(true) << "rsslDecodeMsg() failed with return code: " << retval << endl;
+		}
+
+		AckMsg ackMsg;
+
+		StaticDecoder::setRsslData(&ackMsg, (RsslMsg*)&ackDecode, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION, &dictionary);
+
+		// Clone message
+
+		AckMsg cloneAckMsg(ackMsg);
+
+		EXPECT_TRUE(cloneAckMsg.getDomainType() == ackMsg.getDomainType()) << "Compare domainType";
+		EXPECT_TRUE(cloneAckMsg.getStreamId() == ackMsg.getStreamId()) << "Compare streamId";
+		EXPECT_TRUE(cloneAckMsg.hasMsgKey() == ackMsg.hasMsgKey()) << "Compare hasMsgKey";
+
+		EXPECT_STREQ(cloneAckMsg.toString(), ackMsg.toString()) << "Check equal toString()";
+
+		// Edit message
+		cloneAckMsg.streamId(10);
+
+		StaticDecoder::setData(&cloneAckMsg, &dictionary);
+
+		EXPECT_FALSE(cloneAckMsg.getStreamId() == ackMsg.getStreamId()) << "Compare streamId";
+		EXPECT_STRNE(ackMsg.toString(), cloneAckMsg.toString()) << "Check not equal toString()";
+		EXPECT_TRUE(true) << "AckMsg Edit Clone Success";
+
+		rsslBuf.length = 0;
+		free(rsslBuf.data);
+
+		msgBuf.length = 0;
+		free(msgBuf.data);
+
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "AckMsg Edit Clone - exception not expected";
+	}
+
+	rsslDeleteDataDictionary(&dictionary);
+}

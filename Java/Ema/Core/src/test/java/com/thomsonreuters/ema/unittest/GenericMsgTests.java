@@ -2,15 +2,18 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2015, 2019. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.unittest;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.JUnitTestConnect;
+import com.thomsonreuters.ema.access.OmmReal;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
@@ -868,5 +871,292 @@ public class GenericMsgTests extends TestCase
 	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyGenericMsg.payload().refreshMsg(), com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 	     
 	     System.out.println("\ttestGenericMsg_EncodeUPAGenericMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherGenericMsg_EMADecode passed");
+	}
+	
+	public void testGenericMsg_clone()
+	{
+		TestUtilities.printTestHead("testGenericMsg_clone", "cloning for ema generic message");
+		
+		com.thomsonreuters.upa.codec.Buffer fieldListBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		fieldListBuf.data(ByteBuffer.allocate(1024));
+
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+
+		int retVal;
+		System.out.println("Begin UPA FieldList Encoding");
+		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error encoding field list.");
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
+					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ CodecReturnCodes.info(retVal));
+			return;
+		}
+		System.out.println("End UPA FieldList Encoding");
+		System.out.println();
+
+		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
+		
+	    System.out.println("Begin UPA GenericMsg Set");
+		com.thomsonreuters.upa.codec.GenericMsg genericMsg = (com.thomsonreuters.upa.codec.GenericMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+		genericMsg.msgClass(com.thomsonreuters.upa.codec.MsgClasses.GENERIC);
+		
+		genericMsg.domainType( com.thomsonreuters.upa.rdm.DomainTypes.MARKET_PRICE );
+		
+		genericMsg.streamId( 15 );
+		
+		genericMsg.applyHasPartNum();
+		genericMsg.partNum( 10 );
+		
+		genericMsg.applyHasSeqNum();
+		genericMsg.seqNum( 22 );
+
+		genericMsg.applyHasSecondarySeqNum();
+		genericMsg.secondarySeqNum(123);
+
+		genericMsg.applyMessageComplete();
+		
+		genericMsg.applyHasMsgKey();
+
+		genericMsg.msgKey().applyHasName();
+		genericMsg.msgKey().name().data( "ABCDEF" );
+		
+		genericMsg.msgKey().applyHasNameType();
+		genericMsg.msgKey().nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+
+		genericMsg.msgKey().applyHasServiceId();
+		genericMsg.msgKey().serviceId(5);
+		
+		genericMsg.msgKey().applyHasFilter();
+		genericMsg.msgKey().filter( 12 );
+	
+		genericMsg.msgKey().applyHasIdentifier();
+		genericMsg.msgKey().identifier(21);
+		
+		genericMsg.msgKey().applyHasAttrib();
+		genericMsg.msgKey().attribContainerType( com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST );
+		genericMsg.msgKey().encodedAttrib(fieldListBuf);
+	
+		genericMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
+		genericMsg.encodedDataBody(fieldListBuf);
+
+		System.out.println("End UPA GenericMsg Set");
+		System.out.println();
+
+		System.out.println("Begin UPA GenericMsg Buffer Encoding");
+
+		com.thomsonreuters.upa.codec.Buffer msgBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		msgBuf.data(ByteBuffer.allocate(2048));
+		
+		com.thomsonreuters.upa.codec.EncodeIterator encIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator();
+		encIter.clear();
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();
+		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
+			return;
+		}
+		
+		genericMsg.encode(encIter);
+
+	    System.out.println("End UPA GenericMsg Buffer Encoding");
+		System.out.println();
+
+		System.out.println("Begin EMA GenericMsg Clone");
+		com.thomsonreuters.upa.codec.GenericMsg genericMsgDecode = (com.thomsonreuters.upa.codec.GenericMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+
+		com.thomsonreuters.upa.codec.DecodeIterator decIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
+		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		genericMsgDecode.decode(decIter);
+
+		com.thomsonreuters.ema.access.GenericMsg emaGenericMsg = JUnitTestConnect.createGenericMsg();
+				
+		JUnitTestConnect.setRsslData(emaGenericMsg, genericMsgDecode, majorVersion, minorVersion, dictionary, null);
+		
+		com.thomsonreuters.ema.access.GenericMsg emaGenericMsgClone = EmaFactory.createGenericMsg(emaGenericMsg);
+		
+		TestUtilities.checkResult(emaGenericMsgClone.domainType() == emaGenericMsg.domainType(), "Compare domainType");
+		TestUtilities.checkResult(emaGenericMsgClone.streamId() == emaGenericMsg.streamId(), "Compare streamId");
+		TestUtilities.checkResult(emaGenericMsgClone.hasPartNum() == emaGenericMsg.hasPartNum(), "Compare hasPartNum");
+		TestUtilities.checkResult(emaGenericMsgClone.partNum() == emaGenericMsg.partNum(), "Compare partNum");
+		TestUtilities.checkResult(emaGenericMsgClone.hasSeqNum() == emaGenericMsg.hasSeqNum(), "Compare hasSeqNum");
+		TestUtilities.checkResult(emaGenericMsgClone.seqNum() == emaGenericMsg.seqNum(), "Compare seqNum");
+		TestUtilities.checkResult(emaGenericMsgClone.hasSecondarySeqNum() == emaGenericMsg.hasSecondarySeqNum(), "Compare hasSecondarySeqNum");
+		TestUtilities.checkResult(emaGenericMsgClone.secondarySeqNum() == emaGenericMsg.secondarySeqNum(), "Compare secondarySeqNum");
+		TestUtilities.checkResult(emaGenericMsgClone.complete() == emaGenericMsg.complete(), "Compare complete");
+		TestUtilities.checkResult(emaGenericMsgClone.hasMsgKey() == emaGenericMsg.hasMsgKey(), "Compare hasMsgKey");
+		
+		String emaGenericMsgString = emaGenericMsg.toString();
+		String emaGenericMsgCloneString = emaGenericMsgClone.toString();
+		
+		System.out.println("Cloned EMA GenericMsg:");
+		System.out.println(emaGenericMsgClone);
+		
+		TestUtilities.checkResult(emaGenericMsgString.equals(emaGenericMsgCloneString), "emaGenericMsgString.equals(emaGenericMsgCloneString)");
+		
+		System.out.println("End EMA GenericMsg Clone");
+		System.out.println();
+	}
+	
+	public void testGenericMsg_cloneEdit()
+	{
+		TestUtilities.printTestHead("testGenericMsg_cloneEdit", "clone and edit ema generic message");
+		
+		com.thomsonreuters.upa.codec.Buffer fieldListBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		fieldListBuf.data(ByteBuffer.allocate(1024));
+
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+
+		int retVal;
+		System.out.println("Begin UPA FieldList Encoding");
+		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error encoding field list.");
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
+					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ CodecReturnCodes.info(retVal));
+			return;
+		}
+		System.out.println("End UPA FieldList Encoding");
+		System.out.println();
+
+		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
+		
+	    System.out.println("Begin UPA GenericMsg Set");
+		com.thomsonreuters.upa.codec.GenericMsg genericMsg = (com.thomsonreuters.upa.codec.GenericMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+		genericMsg.msgClass(com.thomsonreuters.upa.codec.MsgClasses.GENERIC);
+		
+		genericMsg.domainType( com.thomsonreuters.upa.rdm.DomainTypes.MARKET_PRICE );
+		
+		genericMsg.streamId( 15 );
+		
+		genericMsg.applyHasPartNum();
+		genericMsg.partNum( 10 );
+		
+		genericMsg.applyHasSeqNum();
+		genericMsg.seqNum( 22 );
+
+		genericMsg.applyHasSecondarySeqNum();
+		genericMsg.secondarySeqNum(123);
+
+		genericMsg.applyMessageComplete();
+		
+		genericMsg.applyHasMsgKey();
+
+		genericMsg.msgKey().applyHasName();
+		genericMsg.msgKey().name().data( "ABCDEF" );
+		
+		genericMsg.msgKey().applyHasNameType();
+		genericMsg.msgKey().nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+
+		genericMsg.msgKey().applyHasServiceId();
+		genericMsg.msgKey().serviceId(5);
+		
+		genericMsg.msgKey().applyHasFilter();
+		genericMsg.msgKey().filter( 12 );
+	
+		genericMsg.msgKey().applyHasIdentifier();
+		genericMsg.msgKey().identifier(21);
+		
+		genericMsg.msgKey().applyHasAttrib();
+		genericMsg.msgKey().attribContainerType( com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST );
+		genericMsg.msgKey().encodedAttrib(fieldListBuf);
+	
+		genericMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
+		genericMsg.encodedDataBody(fieldListBuf);
+
+		System.out.println("End UPA GenericMsg Set");
+		System.out.println();
+
+		System.out.println("Begin UPA GenericMsg Buffer Encoding");
+
+		com.thomsonreuters.upa.codec.Buffer msgBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		msgBuf.data(ByteBuffer.allocate(2048));
+		
+		com.thomsonreuters.upa.codec.EncodeIterator encIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator();
+		encIter.clear();
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();
+		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
+			return;
+		}
+		
+		genericMsg.encode(encIter);
+
+	    System.out.println("End UPA GenericMsg Buffer Encoding");
+		System.out.println();
+
+		System.out.println("Begin EMA GenericMsg Clone");
+		com.thomsonreuters.upa.codec.GenericMsg genericMsgDecode = (com.thomsonreuters.upa.codec.GenericMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+
+		com.thomsonreuters.upa.codec.DecodeIterator decIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
+		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		genericMsgDecode.decode(decIter);
+
+		com.thomsonreuters.ema.access.GenericMsg emaGenericMsg = JUnitTestConnect.createGenericMsg();
+				
+		JUnitTestConnect.setRsslData(emaGenericMsg, genericMsgDecode, majorVersion, minorVersion, dictionary, null);
+		
+		com.thomsonreuters.ema.access.GenericMsg emaGenericMsgClone = EmaFactory.createGenericMsg(emaGenericMsg);
+		
+		TestUtilities.checkResult(emaGenericMsgClone.domainType() == emaGenericMsg.domainType(), "Compare domainType");
+		TestUtilities.checkResult(emaGenericMsgClone.streamId() == emaGenericMsg.streamId(), "Compare streamId");
+		TestUtilities.checkResult(emaGenericMsgClone.hasPartNum() == emaGenericMsg.hasPartNum(), "Compare hasPartNum");
+		TestUtilities.checkResult(emaGenericMsgClone.partNum() == emaGenericMsg.partNum(), "Compare partNum");
+		TestUtilities.checkResult(emaGenericMsgClone.hasSeqNum() == emaGenericMsg.hasSeqNum(), "Compare hasSeqNum");
+		TestUtilities.checkResult(emaGenericMsgClone.seqNum() == emaGenericMsg.seqNum(), "Compare seqNum");
+		TestUtilities.checkResult(emaGenericMsgClone.hasSecondarySeqNum() == emaGenericMsg.hasSecondarySeqNum(), "Compare hasSecondarySeqNum");
+		TestUtilities.checkResult(emaGenericMsgClone.secondarySeqNum() == emaGenericMsg.secondarySeqNum(), "Compare secondarySeqNum");
+		TestUtilities.checkResult(emaGenericMsgClone.complete() == emaGenericMsg.complete(), "Compare complete");
+		TestUtilities.checkResult(emaGenericMsgClone.hasMsgKey() == emaGenericMsg.hasMsgKey(), "Compare hasMsgKey");
+		
+		String emaGenericMsgString = emaGenericMsg.toString();
+		String emaGenericMsgCloneString = emaGenericMsgClone.toString();
+		
+		System.out.println("Cloned EMA GenericMsg:");
+		System.out.println(emaGenericMsgClone);
+		
+		TestUtilities.checkResult(emaGenericMsgString.equals(emaGenericMsgCloneString), "emaGenericMsgString.equals(emaGenericMsgCloneString)");
+		
+		emaGenericMsgClone.streamId(10);
+		emaGenericMsgClone.payload().fieldList().add(EmaFactory.createFieldEntry().real(21, 3900, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+
+		TestUtilities.checkResult(emaGenericMsgClone.streamId() != emaGenericMsg.streamId(), "Compare streamId");
+
+		// Check emaGenericMsg for no FID 21
+		Iterator<FieldEntry> iter = emaGenericMsg.payload().fieldList().iterator();
+		FieldEntry fieldEntry;
+		while (iter.hasNext())
+		{
+			fieldEntry = iter.next();
+			TestUtilities.checkResult(fieldEntry.fieldId() != 21, "Check emaGenericMsg for no FID 21");
+		}
+		
+		boolean foundFid = false;
+		Iterator<FieldEntry> iterClone = emaGenericMsgClone.payload().fieldList().iterator();
+		while (iterClone.hasNext())
+		{
+			fieldEntry = iterClone.next();
+			if(foundFid = fieldEntry.fieldId() == 21)
+				break;
+		}
+		
+		TestUtilities.checkResult(foundFid, "Check emaGenericMsgClone for FID 21");
+		
+		emaGenericMsgString = emaGenericMsg.toString();
+		emaGenericMsgCloneString = emaGenericMsgClone.toString();
+		
+		TestUtilities.checkResult(!emaGenericMsgString.equals(emaGenericMsgCloneString), "Check that emaGenericMsgString does not equal emaGenericMsgCloneString");
+		
+		
+		System.out.println("End EMA GenericMsg Clone");
+		System.out.println();
 	}
 }

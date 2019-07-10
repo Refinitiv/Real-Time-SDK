@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|        Copyright Thomson Reuters 2015, 2019. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -79,6 +79,12 @@ public :
 	/** Constructs PostMsg.
 	 */
 	PostMsg();
+
+	/** Copy constructor.
+		\remark this is used to copy and process PostMsg outside of EMA's callback methods.
+		\remark this method does not support passing in just encoded PostMsg in the application space.
+	*/
+	PostMsg( const PostMsg& other );
 	//@}
 
 	///@name Destructor
@@ -345,7 +351,6 @@ private :
 
 	Decoder& getDecoder();
 
-	PostMsg( const PostMsg& );
 	PostMsg& operator=( const PostMsg& );
 };
 

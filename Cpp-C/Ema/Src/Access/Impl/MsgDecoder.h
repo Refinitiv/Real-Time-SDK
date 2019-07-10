@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|        Copyright Thomson Reuters 2015, 2019. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -17,6 +17,8 @@ namespace thomsonreuters {
 namespace ema {
 
 namespace access {
+
+class Msg;
 
 class MsgDecoder : public Decoder
 {
@@ -62,7 +64,29 @@ public :
 
 	void setAtExit();
 
+	const RsslDataDictionary* getRsslDictionary();
+
+	UInt8 getMajorVersion();
+
+	UInt8 getMinorVersion();
+
+	RsslBuffer& getCopiedBuffer();
+
+	void static cloneBufferToMsg(Msg* destMsg, Msg* sourceMsg, const char* functionName);
+
+	void static deallocateCopiedBuffer(Msg* msg);
+
+	void cloneMsgKey(const Msg& other, RsslMsgKey* destMsgKey, RsslUInt16* destMsgKeyFlag, const char* functionName);
+
 protected :
+
+	enum AllocatedMemory
+	{
+		UnknownEnum = 0,
+		NameEnum = 0x01,
+		EncAttribEnum = 0x02,
+		EncMsgBufferEnum = 0x04
+	};
 
 	MsgDecoder();
 
@@ -70,9 +94,21 @@ protected :
 
 	const RsslDataDictionary*		_pRsslDictionary;
 
+	UInt8							_rsslMajVer;
+
+	UInt8							_rsslMinVer;
+
 	NoDataImpl						_attrib;
 
 	NoDataImpl						_payload;
+
+	RsslBuffer						_copiedBuffer;
+
+	RsslMsg							_rsslMsg;
+
+	RsslMsg*						_pRsslMsg;
+
+	int								_allocatedMemFlag;
 };
 
 }

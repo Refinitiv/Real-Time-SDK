@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018-2019. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -30,6 +30,81 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	RefreshMsgImpl(EmaObjectManager objManager)
 	{
 		super(DataTypes.REFRESH_MSG, objManager);
+	}
+	
+	RefreshMsgImpl(RefreshMsg other)
+	{
+		super(DataTypes.REFRESH_MSG, new EmaObjectManager());
+		
+		_objManager.initialize();
+		
+		MsgImpl.cloneBufferToMsg(this, (MsgImpl)other, "com.thomsonreuters.ema.access.RefreshMsgImpl.RefreshMsgImpl(RefreshMsg other)");
+		
+		// Set the decoded values from the clone buffer to the encoder
+		if(!hasMsgKey() && other.hasMsgKey())
+			cloneMsgKey((MsgImpl)other, _rsslMsg.msgKey(), _rsslMsg.flags(), "com.thomsonreuters.ema.access.RefreshMsgImpl.RefreshMsgImpl(UpdateMsg other)");
+
+		if(hasMsgKey() || other.hasMsgKey())
+		{
+			if (hasName())
+				name(name());
+
+			if (hasNameType())
+				nameType(nameType());
+
+			if (hasServiceId())
+				serviceId(serviceId());
+
+			if (hasId())
+				id(id());
+
+			if (hasFilter())
+				filter(filter());
+
+			if(attrib().dataType() != DataTypes.NO_DATA)
+				attrib(attrib().data());
+		}
+		
+		domainType(domainType());
+
+		if (hasExtendedHeader())
+			extendedHeader(extendedHeader());
+		
+		if (hasQos())
+			qos(qos().timeliness(), qos().rate());
+
+		if (other.hasServiceName())
+			serviceName(other.serviceName());
+
+		if (other.hasSeqNum())
+			seqNum(seqNum());
+
+		if (other.hasPermissionData())
+			permissionData(permissionData());
+		
+		if (hasPartNum())
+			partNum(partNum());
+
+		if (other.hasPublisherId())
+			publisherId(publisherIdUserId(), publisherIdUserAddress());
+		
+		state(other.state().streamState(), other.state().dataState(), other.state().statusCode(), other.state().statusText());
+
+		itemGroup(other.itemGroup());
+		
+		solicited(solicited());
+		
+		complete(complete());
+		
+		clearCache(clearCache());
+		
+		privateStream(privateStream());
+		
+		doNotCache(doNotCache());
+				
+		payload(other.payload().data());
+		
+		decodeCloneAttribPayload((MsgImpl)other);
 	}
 	
 	@Override
@@ -219,9 +294,6 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 	@Override
 	public RefreshMsg serviceId(int serviceId)
 	{
-		if (hasServiceName())
-			throw ommIUExcept().message("Attempt to set serviceId while service name is already set.");
-		
 		msgServiceId(serviceId);
 		return this;
 	}
@@ -424,7 +496,6 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 													 .append("\"");
 
 		Utilities.addIndent(_toString, indent, true).append("itemGroup=\"");
-		
 		Utilities.asHexString(_toString, itemGroup()).append("\"");
 
 		if (hasPermissionData())
@@ -437,10 +508,12 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 		if (hasMsgKey())
 		{
 			indent++;
+			
 			if (hasName())
 				Utilities.addIndent(_toString, indent, true).append("name=\"")
 															 .append(name())
 															 .append("\"");
+															 
 
 			if (hasNameType())
 				Utilities.addIndent(_toString, indent, true).append("nameType=\"")

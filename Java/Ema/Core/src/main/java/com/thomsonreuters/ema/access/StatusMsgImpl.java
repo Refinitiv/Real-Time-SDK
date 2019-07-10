@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2018-2019. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -26,6 +26,58 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	StatusMsgImpl(EmaObjectManager objManager)
 	{
 		super(DataTypes.STATUS_MSG, objManager);
+	}
+	
+	StatusMsgImpl(StatusMsg other)
+	{
+		super(DataTypes.STATUS_MSG, new EmaObjectManager());
+		
+		_objManager.initialize();
+		
+		MsgImpl.cloneBufferToMsg(this, (MsgImpl)other, "com.thomsonreuters.ema.access.StatusMsgImpl.StatusMsgImpl(StatusMsg other)");
+
+		// Set the decoded values from the clone buffer to the encoder
+		if(!hasMsgKey() && other.hasMsgKey())
+			cloneMsgKey((MsgImpl)other, _rsslMsg.msgKey(), _rsslMsg.flags(), "com.thomsonreuters.ema.access.StatusMsgImpl.StatusMsgImpl(StatusMsg other)");
+
+		if (hasMsgKey() || other.hasMsgKey())
+		{
+			if (hasName())
+				name(name());
+
+			if (hasNameType())
+				nameType(nameType());
+
+			if (hasServiceId())
+				serviceId(serviceId());
+
+			if (hasId())
+				id(id());
+
+			if (hasFilter())
+				filter(filter());
+
+			if(attrib().dataType() != DataTypes.NO_DATA)
+				attrib(attrib().data());
+		}
+		
+		domainType(domainType());
+
+		if (hasExtendedHeader())
+			extendedHeader(extendedHeader());
+
+		if (other.hasServiceName())
+			serviceName(other.serviceName());
+		
+		if (other.hasItemGroup())
+			itemGroup(other.itemGroup());
+		
+		if(other.hasState())
+			state(other.state().streamState(), other.state().dataState(), other.state().statusCode(), other.state().statusText());
+
+		payload(other.payload().data());
+		
+		decodeCloneAttribPayload((MsgImpl)other);
 	}
 	
 	@Override
@@ -161,9 +213,6 @@ class StatusMsgImpl extends MsgImpl implements StatusMsg
 	@Override
 	public StatusMsg serviceId(int serviceId)
 	{
-		if (hasServiceName())
-			throw ommIUExcept().message("Attempt to set serviceId while service name is already set.");
-		
 		msgServiceId(serviceId);
 		return this;
 	}

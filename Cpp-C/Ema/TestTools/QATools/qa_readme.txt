@@ -127,6 +127,12 @@ Series100Consumer112-PConfig-001
     Host,Port,ProxyHost,ProxyPort and ObjectName
 
 
+Module:  Series100Consumer140
+-----------------------------
+
+Series100Consumer140-ConsFunc-002
+     Alters consumer to clone and decode these messages: RefreshMsg and UpdateMsg containing MarketByOrder data 
+
 Module:  Series100Consumer170
 -----------------------------
 
@@ -225,6 +231,15 @@ Series300Consumer333-GenM-001
    Alters consumer send genericMsg with connection status on login stream to provider,
    also proccess genericMsg from provider. Need to run with Series300Provider320-GenM-001
    provider tool.
+
+Series300Consumer333-GenM-003
+   Alters Series300Consumer333-GenM-001 to clone and decode GenericMsg 
+
+Module:  Series300Consumer340
+-----------------------------
+
+Series300Consumer340-ConsFunc-001
+   Alters consumer to clone and decode these messages: RefreshMsg, AckMsg, UpdateMsg and StatusMsg 
 
 
 Module:  Series400Consumer410 
@@ -446,6 +461,9 @@ Series300Provider320-GenM-001
     Alters Interactive Provider which can process genericMsg on login stream and directory Stream,
     after receive genericMsg from consumer it send a genericMsg back to consumer.
     Need to run with Series300Consumer331-GenM-001 or Series300Consumer333-GenM-001.
+
+Series300Provider320-GenM-002
+     Alters Series300Provider320-GenM-001 to clone and decode these messages: RequestMsg and GenericMsg 
 
 Series300Provider320-ProvFunc-001
     Alters Interactive Provider to do two things after sending some item updates:

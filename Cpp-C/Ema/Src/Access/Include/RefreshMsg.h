@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|        Copyright Thomson Reuters 2015, 2019. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -84,6 +84,12 @@ public :
 	/** Constructs RefreshMsg.
 	 */
 	RefreshMsg();
+
+	/** Copy constructor.
+		\remark this is used to copy and process RefreshMsg outside of EMA's callback methods.
+		\remark this method does not support passing in just encoded RefreshMsg in the application space.
+	*/
+	RefreshMsg( const RefreshMsg& other );
 	//@}
 
 	///@name Constructor
@@ -396,7 +402,6 @@ private :
 
 	Decoder& getDecoder();
 
-	RefreshMsg( const RefreshMsg& );
 	RefreshMsg& operator=( const RefreshMsg& );
 
 	mutable EmaString		_toString;

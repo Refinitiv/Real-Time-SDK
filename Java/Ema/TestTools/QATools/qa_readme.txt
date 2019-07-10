@@ -150,6 +150,9 @@ Series100Consumer140-ConsFunc-001
     Alters consumer to decode mapEntry Key using EmaUtility.asAsciiString() 
       This altered code works in conjunction with Series100Provider140-ProvFunc-001.
 
+Series100Consumer140-ConsFunc-002
+     Alters consumer to clone and decode these messages: RefreshMsg and UpdateMsg containing MarketByOrder data 
+
 Module:  Series100Consumer170
 -----------------------------
 Series100Consumer170-ConsFunc-001
@@ -280,6 +283,15 @@ Series300Consumer333-GenM-002
    Alters the Consumer to send a GenericMsg on login stream with the name (in key) changed from the typical 
    "ConsumerConnectionStatus" to "GENERIC". Also added is the ability to process a GenericMsg from a provider.
    This altered code works in conjunction with Series300Provider320-GenM-001.   
+
+Series300Consumer333-GenM-003
+   Alters Series300Consumer333-GenM-001 to clone and decode GenericMsg 
+
+Module:  Series300Consumer340
+-----------------------------
+
+Series300Consumer340-ConsFunc-001
+   Alters consumer to clone and decode these messages: RefreshMsg, AckMsg, UpdateMsg and StatusMsg 
 
 Module:  Series300Consumer341
 ---------------------------
@@ -635,6 +647,10 @@ Series300Provider320-GenM-001
     Alters Interactive Provider which can process genericMsg on login stream and directory Stream,
     after receive genericMsg from consumer it send a genericMsg back to consumer. 
     Need to run with Series300Consumer331-GenM-001 or Series300Consumer333-GenM-001. 
+
+Series300Provider320-GenM-002
+    Alters Series300Provider320-GenM-001 to clone and decode these messages: RequestMsg and GenericMsg 
+
 
 
 Module:  Series400Provider421

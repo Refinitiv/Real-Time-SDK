@@ -2,19 +2,25 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2015, 2019. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.unittest;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.JUnitTestConnect;
 import com.thomsonreuters.ema.access.OmmQos;
+import com.thomsonreuters.ema.access.OmmReal;
+import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
+import com.thomsonreuters.upa.codec.QosRates;
+import com.thomsonreuters.upa.codec.QosTimeliness;
 
 import junit.framework.TestCase;
 
@@ -24,39 +30,6 @@ public class ReqMsgTests extends TestCase
 	{
 		super(name);
 	}
-	
-	public void testReqMsg_ServiceName_and_ServiceId()
-	{
-		TestUtilities.printTestHead("testReqMsg_ServiceName_and_ServiceId", "setting both serviceName and serviceId");
-		
-		com.thomsonreuters.ema.access.ReqMsg emaReqMsg = EmaFactory.createReqMsg();
-		
-		emaReqMsg.serviceName("TEST");
-		
-		try {
-			emaReqMsg.serviceId(5);
-			TestUtilities.checkResult( false, "ReqMsg can't set serviceId when serviceName is set - exception expected" );				
-		}
-		catch(Exception e)
-		{
-			TestUtilities.checkResult( true, "ReqMsg can't set serviceId when serviceName is set - exception expected" );
-		}		
-
-		TestUtilities.checkResult(emaReqMsg.hasServiceName(), "ReqMsg.hasServiceName()");			
-		TestUtilities.checkResult(emaReqMsg.serviceName().equals("TEST"), "ReqMsg.serviceName()");		
-		
-		int majorVersion = Codec.majorVersion();
-		int minorVersion = Codec.minorVersion();		
-		com.thomsonreuters.ema.access.ReqMsg emaReqMsgDec = JUnitTestConnect.createReqMsg();
-		
-		JUnitTestConnect.setRsslData(emaReqMsgDec, emaReqMsg, majorVersion, minorVersion, TestUtilities.getDataDictionary(), null);
-		
-		// check that we can still get the toString on encoded/decoded msg.
-		TestUtilities.checkResult("ReqMsg.toString() != toString() not supported", !(emaReqMsgDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
-
-		System.out.println("End EMA ServiceName and ServiceId");
-		System.out.println();
-	}		
 	
 	public void testReqMsg_EncodeDecode()
 	{
@@ -127,15 +100,6 @@ public class ReqMsgTests extends TestCase
 	    reqMsg.serviceId(5);
 		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 
-		try {
-			reqMsg.serviceName("TEST");
-			TestUtilities.checkResult( false, "ReqMsg can't set serviceName when serviceId is set - exception expected" );				
-		}
-		catch(Exception e)
-		{
-			TestUtilities.checkResult( true, "ReqMsg can't set serviceName when serviceId is set - exception expected" );			
-		}		
-		
 	    reqMsg.filter( 12 );
 		TestUtilities.checkResult("ReqMsg.toString() == toString() not supported", reqMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));	    
 	
@@ -653,6 +617,275 @@ public class ReqMsgTests extends TestCase
 	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyReqMsg.payload().refreshMsg(), com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 	     
 	     System.out.println("\ttestReqMsg_EncodeUPAReqMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherReqMsg_EMADecode passed");
+	}
+	
+	public void testRequestMsg_clone()
+	{
+		TestUtilities.printTestHead("testRequestMsg_clone", "cloning for ema request message");
+		
+		com.thomsonreuters.upa.codec.Buffer fieldListBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		fieldListBuf.data(ByteBuffer.allocate(1024));
+
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+
+		int retVal;
+		System.out.println("Begin UPA FieldList Encoding");
+		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error encoding field list.");
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
+					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ CodecReturnCodes.info(retVal));
+			return;
+		}
+		System.out.println("End UPA FieldList Encoding");
+		System.out.println();
+
+		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
+		
+	    System.out.println("Begin UPA RequestMsg Set");
+		com.thomsonreuters.upa.codec.RequestMsg requestMsg = (com.thomsonreuters.upa.codec.RequestMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+		requestMsg.msgClass(com.thomsonreuters.upa.codec.MsgClasses.REQUEST);
+		
+		requestMsg.domainType( com.thomsonreuters.upa.rdm.DomainTypes.MARKET_PRICE );
+		
+		requestMsg.streamId( 15 );
+
+		requestMsg.applyHasPriority();
+		requestMsg.priority().priorityClass(5);
+		requestMsg.priority().count(7);
+			
+		requestMsg.applyHasQos();
+		requestMsg.qos().timeliness(QosTimeliness.REALTIME);
+		requestMsg.qos().rate(QosRates.TICK_BY_TICK);
+
+		requestMsg.msgKey().applyHasServiceId();
+		requestMsg.msgKey().serviceId(5);
+		
+		requestMsg.msgKey().applyHasName();
+		requestMsg.msgKey().name().data("ABCDEF");
+		
+		requestMsg.msgKey().filter(12);
+		
+		requestMsg.msgKey().identifier(21);
+		
+		requestMsg.msgKey().applyHasAttrib();
+		requestMsg.msgKey().attribContainerType( com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST );
+		requestMsg.msgKey().encodedAttrib(fieldListBuf);
+		
+		requestMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
+		requestMsg.encodedDataBody(fieldListBuf);
+
+		System.out.println("End UPA RequestMsg Set");
+		System.out.println();
+
+		System.out.println("Begin UPA RequestMsg Buffer Encoding");
+
+		com.thomsonreuters.upa.codec.Buffer msgBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		msgBuf.data(ByteBuffer.allocate(2048));
+		
+		com.thomsonreuters.upa.codec.EncodeIterator encIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator();
+		encIter.clear();
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();
+		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
+			return;
+		}
+		
+		requestMsg.encode(encIter);
+		
+		System.out.println("End UPA RequestMsg Buffer Encoding");
+		System.out.println();
+		
+		System.out.println("Begin EMA RequestMsg Clone");
+		com.thomsonreuters.upa.codec.RequestMsg requestMsgDecode = (com.thomsonreuters.upa.codec.RequestMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+
+		com.thomsonreuters.upa.codec.DecodeIterator decIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
+		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		requestMsgDecode.decode(decIter);
+
+		com.thomsonreuters.ema.access.ReqMsg emaRequestMsg = JUnitTestConnect.createReqMsg();
+				
+		JUnitTestConnect.setRsslData(emaRequestMsg, requestMsgDecode, majorVersion, minorVersion, dictionary, null);
+		
+		com.thomsonreuters.ema.access.ReqMsg emaRequestMsgClone = EmaFactory.createReqMsg(emaRequestMsg);
+		
+		TestUtilities.checkResult(emaRequestMsgClone.domainType() == emaRequestMsg.domainType(), "Compare domainType");
+		TestUtilities.checkResult(emaRequestMsgClone.streamId() == emaRequestMsg.streamId(), "Compare streamId");
+		TestUtilities.checkResult(emaRequestMsgClone.hasPriority() == emaRequestMsg.hasMsgKey(), "Compare hasPriority");
+		TestUtilities.checkResult(emaRequestMsgClone.priorityClass() == emaRequestMsg.priorityClass(), "Compare priorityClass");
+		TestUtilities.checkResult(emaRequestMsgClone.priorityCount() == emaRequestMsg.priorityCount(), "Compare priorityCount");
+
+		TestUtilities.checkResult(emaRequestMsgClone.hasQos() == emaRequestMsg.hasQos(), "Compare hasQos");
+		TestUtilities.checkResult(emaRequestMsgClone.qosTimeliness() == emaRequestMsg.qosTimeliness(), "Compare qosTimeliness");
+		TestUtilities.checkResult(emaRequestMsgClone.qosRate() == emaRequestMsg.qosRate(), "Compare qosRate");
+		
+		TestUtilities.checkResult(emaRequestMsgClone.hasMsgKey() == emaRequestMsg.hasMsgKey(), "Compare hasMsgKey");
+		
+		String emaRequestMsgString = emaRequestMsg.toString();
+		String emaRequestMsgCloneString = emaRequestMsgClone.toString();
+		
+		System.out.println("Cloned EMA RequestMsg:");
+		System.out.println(emaRequestMsgClone);
+		
+		TestUtilities.checkResult(emaRequestMsgString.equals(emaRequestMsgCloneString), "emaRequestMsgString.equals(emaRequestMsgCloneString)");
+		
+		System.out.println("End EMA RequestMsg Clone");
+		System.out.println();
+	}
+	
+	public void testRequestMsg_cloneEdit()
+	{
+		TestUtilities.printTestHead("testRequestMsg_cloneEdit", "clone and edit ema request message");
+		
+		com.thomsonreuters.upa.codec.Buffer fieldListBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		fieldListBuf.data(ByteBuffer.allocate(1024));
+
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+
+		int retVal;
+		System.out.println("Begin UPA FieldList Encoding");
+		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error encoding field list.");
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
+					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ CodecReturnCodes.info(retVal));
+			return;
+		}
+		System.out.println("End UPA FieldList Encoding");
+		System.out.println();
+
+		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
+		
+	    System.out.println("Begin UPA RequestMsg Set");
+		com.thomsonreuters.upa.codec.RequestMsg requestMsg = (com.thomsonreuters.upa.codec.RequestMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+		requestMsg.msgClass(com.thomsonreuters.upa.codec.MsgClasses.REQUEST);
+		
+		requestMsg.domainType( com.thomsonreuters.upa.rdm.DomainTypes.MARKET_PRICE );
+		
+		requestMsg.streamId( 15 );
+
+		requestMsg.applyHasPriority();
+		requestMsg.priority().priorityClass(5);
+		requestMsg.priority().count(7);
+			
+		requestMsg.applyHasQos();
+		requestMsg.qos().timeliness(QosTimeliness.REALTIME);
+		requestMsg.qos().rate(QosRates.TICK_BY_TICK);
+
+		requestMsg.msgKey().applyHasServiceId();
+		requestMsg.msgKey().serviceId(5);
+		
+		requestMsg.msgKey().applyHasName();
+		requestMsg.msgKey().name().data("ABCDEF");
+		
+		requestMsg.msgKey().filter(12);
+		
+		requestMsg.msgKey().identifier(21);
+		
+		requestMsg.msgKey().applyHasAttrib();
+		requestMsg.msgKey().attribContainerType( com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST );
+		requestMsg.msgKey().encodedAttrib(fieldListBuf);
+		
+		requestMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
+		requestMsg.encodedDataBody(fieldListBuf);
+
+		System.out.println("End UPA RequestMsg Set");
+		System.out.println();
+
+		System.out.println("Begin UPA RequestMsg Buffer Encoding");
+
+		com.thomsonreuters.upa.codec.Buffer msgBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		msgBuf.data(ByteBuffer.allocate(2048));
+		
+		com.thomsonreuters.upa.codec.EncodeIterator encIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator();
+		encIter.clear();
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();
+		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
+			return;
+		}
+		
+		requestMsg.encode(encIter);
+		
+		System.out.println("End UPA RequestMsg Buffer Encoding");
+		System.out.println();
+		
+		System.out.println("Begin EMA RequestMsg Clone");
+		com.thomsonreuters.upa.codec.RequestMsg requestMsgDecode = (com.thomsonreuters.upa.codec.RequestMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+
+		com.thomsonreuters.upa.codec.DecodeIterator decIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
+		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		requestMsgDecode.decode(decIter);
+
+		com.thomsonreuters.ema.access.ReqMsg emaRequestMsg = JUnitTestConnect.createReqMsg();
+				
+		JUnitTestConnect.setRsslData(emaRequestMsg, requestMsgDecode, majorVersion, minorVersion, dictionary, null);
+		
+		com.thomsonreuters.ema.access.ReqMsg emaRequestMsgClone = EmaFactory.createReqMsg(emaRequestMsg);
+		
+		TestUtilities.checkResult(emaRequestMsgClone.domainType() == emaRequestMsg.domainType(), "Compare domainType");
+		TestUtilities.checkResult(emaRequestMsgClone.streamId() == emaRequestMsg.streamId(), "Compare streamId");
+		TestUtilities.checkResult(emaRequestMsgClone.hasPriority() == emaRequestMsg.hasMsgKey(), "Compare hasPriority");
+		TestUtilities.checkResult(emaRequestMsgClone.priorityClass() == emaRequestMsg.priorityClass(), "Compare priorityClass");
+		TestUtilities.checkResult(emaRequestMsgClone.priorityCount() == emaRequestMsg.priorityCount(), "Compare priorityCount");
+
+		TestUtilities.checkResult(emaRequestMsgClone.hasQos() == emaRequestMsg.hasQos(), "Compare hasQos");
+		TestUtilities.checkResult(emaRequestMsgClone.qosTimeliness() == emaRequestMsg.qosTimeliness(), "Compare qosTimeliness");
+		TestUtilities.checkResult(emaRequestMsgClone.qosRate() == emaRequestMsg.qosRate(), "Compare qosRate");
+		
+		TestUtilities.checkResult(emaRequestMsgClone.hasMsgKey() == emaRequestMsg.hasMsgKey(), "Compare hasMsgKey");
+		
+		String emaRequestMsgString = emaRequestMsg.toString();
+		String emaRequestMsgCloneString = emaRequestMsgClone.toString();
+		
+		System.out.println("Cloned EMA RequestMsg:");
+		System.out.println(emaRequestMsgClone);
+		
+		TestUtilities.checkResult(emaRequestMsgString.equals(emaRequestMsgCloneString), "emaRequestMsgString.equals(emaRequestMsgCloneString)");
+		
+		emaRequestMsgClone.streamId(10);
+		emaRequestMsgClone.payload().fieldList().add(EmaFactory.createFieldEntry().real(21, 3900, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+
+		TestUtilities.checkResult(emaRequestMsgClone.streamId() != emaRequestMsg.streamId(), "Compare streamId");
+
+		// Check emaRequestMsg for no FID 21
+		Iterator<FieldEntry> iter = emaRequestMsg.payload().fieldList().iterator();
+		FieldEntry fieldEntry;
+		while (iter.hasNext())
+		{
+			fieldEntry = iter.next();
+			TestUtilities.checkResult(fieldEntry.fieldId() != 21, "Check emaRequestMsg for no FID 21");
+		}
+		
+		boolean foundFid = false;
+		Iterator<FieldEntry> iterClone = emaRequestMsgClone.payload().fieldList().iterator();
+		while (iterClone.hasNext())
+		{
+			fieldEntry = iterClone.next();
+			if(foundFid = fieldEntry.fieldId() == 21)
+				break;
+		}
+		
+		TestUtilities.checkResult(foundFid, "Check emaRequestMsgClone for FID 21");
+		
+		emaRequestMsgString = emaRequestMsg.toString();
+		emaRequestMsgCloneString = emaRequestMsgClone.toString();
+		
+		TestUtilities.checkResult(!emaRequestMsgString.equals(emaRequestMsgCloneString), "Check that emaRequestMsgString does not equal emaRequestMsgCloneString");
+		
+		
+		System.out.println("End EMA RequestMsg Clone");
+		System.out.println();
 	}
 	
 }

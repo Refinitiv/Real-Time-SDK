@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|        Copyright Thomson Reuters 2015, 2019. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -63,6 +63,8 @@ void StaticDecoder::setRsslData( Data* pData, RsslMsg* pRsslMsg, UInt8 majVer, U
 	DataType::DataTypeEnum dType = msgDataType[ pRsslMsg->msgBase.msgClass ];
 
 	morph( pData, dType );
+
+	//pData->getDecoder().setRsslData(majVer, minVer, &pRsslMsg->msgBase.encMsgBuffer, dictionary, NULL);
 
 	if ( !pData->getDecoder().setRsslData( majVer, minVer, pRsslMsg, dictionary ) )
 		StaticDecoder::setRsslData( pData, pData->getDecoder().getErrorCode(),  majVer, minVer, &pRsslMsg->msgBase.encMsgBuffer );

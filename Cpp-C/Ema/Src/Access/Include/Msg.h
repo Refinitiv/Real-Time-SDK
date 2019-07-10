@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+ *|        Copyright Thomson Reuters 2015, 2019. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -171,6 +171,7 @@ protected :
 	friend class TunnelItem;
 	friend class TunnelStreamLoginReqMsgImpl;
 	friend class SubItem;
+	friend class MsgDecoder;
 
 	Msg();
 

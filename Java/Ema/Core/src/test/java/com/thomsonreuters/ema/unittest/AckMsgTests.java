@@ -2,15 +2,18 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|           Copyright Thomson Reuters 2015, 2019. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.unittest;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import com.thomsonreuters.ema.access.EmaFactory;
+import com.thomsonreuters.ema.access.FieldEntry;
 import com.thomsonreuters.ema.access.JUnitTestConnect;
+import com.thomsonreuters.ema.access.OmmReal;
 import com.thomsonreuters.ema.unittest.TestUtilities.EncodingTypeFlags;
 import com.thomsonreuters.upa.codec.Codec;
 import com.thomsonreuters.upa.codec.CodecFactory;
@@ -24,39 +27,6 @@ public class AckMsgTests extends TestCase
 	{
 		super(name);
 	}
-	
-	public void testAckMsg_ServiceName_and_ServiceId()
-	{
-		TestUtilities.printTestHead("testAckMsg_ServiceName_and_ServiceId", "setting both serviceName and serviceId");
-		
-		com.thomsonreuters.ema.access.AckMsg emaAckMsg = EmaFactory.createAckMsg();
-		
-		emaAckMsg.serviceName("TEST");
-		
-		try {
-			emaAckMsg.serviceId(5);
-			TestUtilities.checkResult( false, "AckMsg can't set serviceId when serviceName is set - exception expected" );				
-		}
-		catch(Exception e)
-		{
-			TestUtilities.checkResult( true, "AckMsg can't set serviceId when serviceName is set - exception expected" );
-		}		
-
-		TestUtilities.checkResult(emaAckMsg.hasServiceName(), "AckMsg.hasServiceName()");			
-		TestUtilities.checkResult(emaAckMsg.serviceName().equals("TEST"), "AckMsg.serviceName()");		
-		
-		int majorVersion = Codec.majorVersion();
-		int minorVersion = Codec.minorVersion();		
-		com.thomsonreuters.ema.access.AckMsg emaAckMsgDec = JUnitTestConnect.createAckMsg();
-		
-		JUnitTestConnect.setRsslData(emaAckMsgDec, emaAckMsg, majorVersion, minorVersion, TestUtilities.getDataDictionary(), null);
-		
-		// check that we can still get the toString on encoded/decoded msg.
-		TestUtilities.checkResult("AckMsg.toString() != toString() not supported", !(emaAckMsgDec.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));	 		
-
-		System.out.println("End EMA ServiceName and ServiceId");
-		System.out.println();
-	}	
 	
 	public void testAckMsg_Decode()
 	{
@@ -385,15 +355,6 @@ public class AckMsgTests extends TestCase
 		
 		ackMsg.serviceId(5);
 		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
-		
-		try {
-			ackMsg.serviceName("TEST");
-			TestUtilities.checkResult( false, "AckMsg can't set serviceName when serviceId is set - exception expected" );				
-		}
-		catch(Exception e)
-		{
-			TestUtilities.checkResult( true, "AckMsg can't set serviceName when serviceId is set - exception expected" );			
-		}
 		
 		ackMsg.filter( 12 );
 		TestUtilities.checkResult("AckMsg.toString() == toString() not supported", ackMsg.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
@@ -888,5 +849,294 @@ public class AckMsgTests extends TestCase
 	     TestUtilities.EmaDecode_UPARefreshMsgAll(decCopyAckMsg.payload().refreshMsg(), com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
 	     
 	     System.out.println("\ttestAckMsg_EncodeUPAAckMsgWithRefreshTypeAsAttrib_Payload_EncodeEMA_ToAnotherAckMsg_EMADecode passed");
+	}
+	
+	public void testAckMsg_clone()
+	{
+		TestUtilities.printTestHead("testAckMsg_clone", "cloning for ema ack message");
+		
+		com.thomsonreuters.upa.codec.Buffer fieldListBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		fieldListBuf.data(ByteBuffer.allocate(1024));
+
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+
+		int retVal;
+		System.out.println("Begin UPA FieldList Encoding");
+		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error encoding field list.");
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
+					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ CodecReturnCodes.info(retVal));
+			return;
+		}
+		System.out.println("End UPA FieldList Encoding");
+		System.out.println();
+
+		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
+		
+	    System.out.println("Begin UPA AckMsg Set");
+		com.thomsonreuters.upa.codec.AckMsg ackMsg = (com.thomsonreuters.upa.codec.AckMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+		ackMsg.msgClass(com.thomsonreuters.upa.codec.MsgClasses.ACK);
+		
+		ackMsg.domainType( com.thomsonreuters.upa.rdm.DomainTypes.MARKET_PRICE );
+		
+		ackMsg.streamId( 15 );
+		
+		ackMsg.ackId(321);
+
+		ackMsg.applyHasText();
+		ackMsg.text().data("denied by source");
+		
+		ackMsg.applyHasSeqNum();
+		ackMsg.seqNum( 22 );
+
+		ackMsg.applyHasNakCode();
+		ackMsg.nakCode(com.thomsonreuters.upa.codec.NakCodes.DENIED_BY_SRC);
+
+		ackMsg.applyHasNakCode();
+		ackMsg.nakCode(com.thomsonreuters.upa.codec.NakCodes.DENIED_BY_SRC);
+		
+		ackMsg.applyHasMsgKey();
+
+		ackMsg.msgKey().applyHasName();
+		ackMsg.msgKey().name().data( "ABCDEF" );
+		
+		ackMsg.msgKey().applyHasNameType();
+		ackMsg.msgKey().nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+
+		ackMsg.msgKey().applyHasServiceId();
+		ackMsg.msgKey().serviceId(5);
+		
+		ackMsg.msgKey().applyHasFilter();
+		ackMsg.msgKey().filter( 12 );
+	
+		ackMsg.msgKey().applyHasIdentifier();
+		ackMsg.msgKey().identifier(21);
+		
+		ackMsg.msgKey().applyHasAttrib();
+		ackMsg.msgKey().attribContainerType( com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST );
+		ackMsg.msgKey().encodedAttrib(fieldListBuf);
+	
+		ackMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
+		ackMsg.encodedDataBody(fieldListBuf);
+
+		System.out.println("End UPA AckMsg Set");
+		System.out.println();
+
+		System.out.println("Begin UPA AckMsg Buffer Encoding");
+
+		com.thomsonreuters.upa.codec.Buffer msgBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		msgBuf.data(ByteBuffer.allocate(2048));
+		
+		com.thomsonreuters.upa.codec.EncodeIterator encIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator();
+		encIter.clear();
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();
+		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
+			return;
+		}
+		
+		ackMsg.encode(encIter);
+
+	    System.out.println("End UPA AckMsg Buffer Encoding");
+		System.out.println();
+
+		System.out.println("Begin EMA AckMsg Clone");
+		
+		com.thomsonreuters.upa.codec.AckMsg ackMsgDecode = (com.thomsonreuters.upa.codec.AckMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+
+		com.thomsonreuters.upa.codec.DecodeIterator decIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
+		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		ackMsgDecode.decode(decIter);
+
+		com.thomsonreuters.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
+		
+		JUnitTestConnect.setRsslData(emaAckMsg, ackMsgDecode, majorVersion, minorVersion, dictionary, null);
+		
+		com.thomsonreuters.ema.access.AckMsg emaAckMsgClone = EmaFactory.createAckMsg(emaAckMsg);
+		
+		TestUtilities.checkResult(emaAckMsgClone.domainType() == emaAckMsg.domainType(), "Compare domainType");
+		TestUtilities.checkResult(emaAckMsgClone.streamId() == emaAckMsg.streamId(), "Compare streamId");
+		TestUtilities.checkResult(emaAckMsgClone.ackId() == emaAckMsg.ackId(), "Compare ackId");
+		TestUtilities.checkResult(emaAckMsgClone.hasSeqNum() == emaAckMsg.hasSeqNum(), "Compare hasSeqNum");
+		TestUtilities.checkResult(emaAckMsgClone.seqNum() == emaAckMsg.seqNum(), "Compare seqNum");
+		TestUtilities.checkResult(emaAckMsgClone.hasNackCode() == emaAckMsg.hasNackCode(), "Compare hasNackCode");
+		TestUtilities.checkResult(emaAckMsgClone.nackCode() == emaAckMsg.nackCode(), "Compare nackCode");
+		TestUtilities.checkResult(emaAckMsgClone.hasMsgKey() == emaAckMsg.hasMsgKey(), "Compare hasMsgKey");
+		
+		String emaAckMsgString = emaAckMsg.toString();
+		String emaAckMsgCloneString = emaAckMsgClone.toString();
+		
+		System.out.println("Cloned EMA AckMsg:");
+		System.out.println(emaAckMsgClone);
+		
+		TestUtilities.checkResult(emaAckMsgString.equals(emaAckMsgCloneString), "emaAckMsgString.equals(emaAckMsgCloneString)");
+		System.out.println("End EMA AckMsg Clone");
+		System.out.println();
+	}
+	
+	public void testAckMsg_cloneEdit()
+	{
+		TestUtilities.printTestHead("testAckMsg_cloneEdit", "clone and edit ema ack message");
+		
+		com.thomsonreuters.upa.codec.Buffer fieldListBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		fieldListBuf.data(ByteBuffer.allocate(1024));
+
+		com.thomsonreuters.upa.codec.DataDictionary dictionary = com.thomsonreuters.upa.codec.CodecFactory.createDataDictionary();
+		TestUtilities.upa_encodeDictionaryMsg(dictionary);
+
+		int retVal;
+		System.out.println("Begin UPA FieldList Encoding");
+		if ((retVal = TestUtilities.upa_EncodeFieldListAll(fieldListBuf, TestUtilities.EncodingTypeFlags.PRIMITIVE_TYPES)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error encoding field list.");
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" + retVal
+					+ ") encountered with TestUtilities.upa_EncodeFieldListAll.  " + "Error Text: "
+					+ CodecReturnCodes.info(retVal));
+			return;
+		}
+		System.out.println("End UPA FieldList Encoding");
+		System.out.println();
+
+		fieldListBuf.data(fieldListBuf.data(),  0,  fieldListBuf.length());
+		
+	    System.out.println("Begin UPA AckMsg Set");
+		com.thomsonreuters.upa.codec.AckMsg ackMsg = (com.thomsonreuters.upa.codec.AckMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+		ackMsg.msgClass(com.thomsonreuters.upa.codec.MsgClasses.ACK);
+		
+		ackMsg.domainType( com.thomsonreuters.upa.rdm.DomainTypes.MARKET_PRICE );
+		
+		ackMsg.streamId( 15 );
+		
+		ackMsg.ackId(321);
+
+		ackMsg.applyHasText();
+		ackMsg.text().data("denied by source");
+		
+		ackMsg.applyHasSeqNum();
+		ackMsg.seqNum( 22 );
+
+		ackMsg.applyHasNakCode();
+		ackMsg.nakCode(com.thomsonreuters.upa.codec.NakCodes.DENIED_BY_SRC);
+
+		ackMsg.applyHasNakCode();
+		ackMsg.nakCode(com.thomsonreuters.upa.codec.NakCodes.DENIED_BY_SRC);
+		
+		ackMsg.applyHasMsgKey();
+
+		ackMsg.msgKey().applyHasName();
+		ackMsg.msgKey().name().data( "ABCDEF" );
+		
+		ackMsg.msgKey().applyHasNameType();
+		ackMsg.msgKey().nameType( com.thomsonreuters.upa.rdm.InstrumentNameTypes.RIC );
+
+		ackMsg.msgKey().applyHasServiceId();
+		ackMsg.msgKey().serviceId(5);
+		
+		ackMsg.msgKey().applyHasFilter();
+		ackMsg.msgKey().filter( 12 );
+	
+		ackMsg.msgKey().applyHasIdentifier();
+		ackMsg.msgKey().identifier(21);
+		
+		ackMsg.msgKey().applyHasAttrib();
+		ackMsg.msgKey().attribContainerType( com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST );
+		ackMsg.msgKey().encodedAttrib(fieldListBuf);
+	
+		ackMsg.containerType(com.thomsonreuters.upa.codec.DataTypes.FIELD_LIST);
+		ackMsg.encodedDataBody(fieldListBuf);
+
+		System.out.println("End UPA AckMsg Set");
+		System.out.println();
+
+		System.out.println("Begin UPA AckMsg Buffer Encoding");
+
+		com.thomsonreuters.upa.codec.Buffer msgBuf = com.thomsonreuters.upa.codec.CodecFactory.createBuffer();
+		msgBuf.data(ByteBuffer.allocate(2048));
+		
+		com.thomsonreuters.upa.codec.EncodeIterator encIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator();
+		encIter.clear();
+		int majorVersion = Codec.majorVersion();
+		int minorVersion = Codec.minorVersion();
+		if ((retVal = encIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion)) < CodecReturnCodes.SUCCESS)
+		{
+			System.out.println("Error " + CodecReturnCodes.toString(retVal) + "(" +retVal + " encountered with setBufferAndRWFVersion. "
+							+ " Error Text: " + CodecReturnCodes.info(retVal)); 
+			return;
+		}
+		
+		ackMsg.encode(encIter);
+
+	    System.out.println("End UPA AckMsg Buffer Encoding");
+		System.out.println();
+
+		System.out.println("Begin EMA AckMsg Clone");
+		
+		com.thomsonreuters.upa.codec.AckMsg ackMsgDecode = (com.thomsonreuters.upa.codec.AckMsg)com.thomsonreuters.upa.codec.CodecFactory.createMsg();
+
+		com.thomsonreuters.upa.codec.DecodeIterator decIter = com.thomsonreuters.upa.codec.CodecFactory.createDecodeIterator();
+		decIter.setBufferAndRWFVersion(msgBuf, majorVersion, minorVersion);
+		ackMsgDecode.decode(decIter);
+
+		com.thomsonreuters.ema.access.AckMsg emaAckMsg = JUnitTestConnect.createAckMsg();
+		
+		JUnitTestConnect.setRsslData(emaAckMsg, ackMsgDecode, majorVersion, minorVersion, dictionary, null);
+		
+		com.thomsonreuters.ema.access.AckMsg emaAckMsgClone = EmaFactory.createAckMsg(emaAckMsg);
+		
+		TestUtilities.checkResult(emaAckMsgClone.domainType() == emaAckMsg.domainType(), "Compare domainType");
+		TestUtilities.checkResult(emaAckMsgClone.streamId() == emaAckMsg.streamId(), "Compare streamId");
+		TestUtilities.checkResult(emaAckMsgClone.ackId() == emaAckMsg.ackId(), "Compare ackId");
+		TestUtilities.checkResult(emaAckMsgClone.hasSeqNum() == emaAckMsg.hasSeqNum(), "Compare hasSeqNum");
+		TestUtilities.checkResult(emaAckMsgClone.seqNum() == emaAckMsg.seqNum(), "Compare seqNum");
+		TestUtilities.checkResult(emaAckMsgClone.hasNackCode() == emaAckMsg.hasNackCode(), "Compare hasNackCode");
+		TestUtilities.checkResult(emaAckMsgClone.nackCode() == emaAckMsg.nackCode(), "Compare nackCode");
+		TestUtilities.checkResult(emaAckMsgClone.hasMsgKey() == emaAckMsg.hasMsgKey(), "Compare hasMsgKey");
+		
+		String emaAckMsgString = emaAckMsg.toString();
+		String emaAckMsgCloneString = emaAckMsgClone.toString();
+		
+		System.out.println("Cloned EMA AckMsg:");
+		System.out.println(emaAckMsgClone);
+		
+		TestUtilities.checkResult(emaAckMsgString.equals(emaAckMsgCloneString), "emaAckMsgString.equals(emaAckMsgCloneString)");
+		
+		emaAckMsgClone.streamId(10);
+		emaAckMsgClone.payload().fieldList().add(EmaFactory.createFieldEntry().real(21, 3900, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+
+		TestUtilities.checkResult(emaAckMsgClone.streamId() != emaAckMsg.streamId(), "Compare streamId");
+
+		// Check emaAckMsg for no FID 21
+		Iterator<FieldEntry> iter = emaAckMsg.payload().fieldList().iterator();
+		FieldEntry fieldEntry;
+		while (iter.hasNext())
+		{
+			fieldEntry = iter.next();
+			TestUtilities.checkResult(fieldEntry.fieldId() != 21, "Check emaAckMsg for no FID 21");
+		}
+		
+		boolean foundFid = false;
+		Iterator<FieldEntry> iterClone = emaAckMsgClone.payload().fieldList().iterator();
+		while (iterClone.hasNext())
+		{
+			fieldEntry = iterClone.next();
+			if(foundFid = fieldEntry.fieldId() == 21)
+				break;
+		}
+		
+		TestUtilities.checkResult(foundFid, "Check emaAckMsgClone for FID 21");
+		
+		emaAckMsgString = emaAckMsg.toString();
+		emaAckMsgCloneString = emaAckMsgClone.toString();
+		
+		TestUtilities.checkResult(!emaAckMsgString.equals(emaAckMsgCloneString), "Check that emaAckMsgString does not equal emaAckMsgCloneString");
+		
+		System.out.println("End EMA AckMsg Clone");
+		System.out.println();
 	}
 }

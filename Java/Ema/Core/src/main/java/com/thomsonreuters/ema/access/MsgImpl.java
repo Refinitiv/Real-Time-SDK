@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright Thomson Reuters 2015. All rights reserved.            --
+// *|                Copyright Thomson Reuters 2015, 2019. All rights reserved                  --
 ///*|-----------------------------------------------------------------------------
 
 package com.thomsonreuters.ema.access;
@@ -19,7 +19,9 @@ import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.CodecFactory;
 import com.thomsonreuters.upa.codec.CodecReturnCodes;
 import com.thomsonreuters.upa.codec.GenericMsgFlags;
+import com.thomsonreuters.upa.codec.MsgClasses;
 import com.thomsonreuters.upa.codec.MsgKey;
+import com.thomsonreuters.upa.codec.MsgKeyFlags;
 import com.thomsonreuters.upa.codec.PostMsgFlags;
 import com.thomsonreuters.upa.codec.RefreshMsgFlags;
 import com.thomsonreuters.upa.codec.StatusMsgFlags;
@@ -47,11 +49,15 @@ class MsgImpl extends DataImpl implements Msg
 	protected int  _errorCode = ErrorCode.NO_ERROR;
 	protected StringBuilder _errorString;
 	protected boolean _domainTypeSet;
+	protected com.thomsonreuters.upa.codec.Buffer _copiedBuffer = CodecFactory.createBuffer();
+	protected com.thomsonreuters.upa.codec.Buffer _copiedEncodedDataBodyBuffer = CodecFactory.createBuffer();
+	protected int _allocatedMemory = AllocatedMemory.UNKNOWN;
 	private ByteBuffer _extendedHeader;
 	
 	MsgImpl(int dataType, EmaObjectManager objManager)
 	{
 		_dataType = dataType;
+		
 		if (objManager == null)
 		{
 			_rsslMsg = CodecFactory.createMsg(); 
@@ -63,8 +69,7 @@ class MsgImpl extends DataImpl implements Msg
 			_encodeComplete = false;
 			_rsslEncodeIter = com.thomsonreuters.upa.codec.CodecFactory.createEncodeIterator() ;
 			_rsslBuffer = CodecFactory.createBuffer();
-			_rsslBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
-		}
+			_rsslBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));		}
 		else
 		{
 			_objManager = objManager;
@@ -156,8 +161,9 @@ class MsgImpl extends DataImpl implements Msg
 			String temp = "Attempt to name() while it is NOT set." ;
 			throw ommIUExcept().message(temp);
 		}
-		
+
 		com.thomsonreuters.upa.codec.Buffer nameBuffer = _rsslMsg.msgKey().name();
+
 		if (nameBuffer.length() == 0)
 			return DataImpl.EMPTY_STRING;
 		else
@@ -252,7 +258,7 @@ class MsgImpl extends DataImpl implements Msg
 	{
 		if (_payloadDecoded == null)
 			_payloadDecoded = new NoDataImpl();
-		
+			
 		_payloadAttrib.data(_payloadDecoded);
 		return _payloadAttrib;
 	}
@@ -277,6 +283,49 @@ class MsgImpl extends DataImpl implements Msg
 		}
 		
 		return _serviceName;
+	}
+	
+	void decodeCloneAttribPayload(MsgImpl other)
+	{
+		if(hasMsgKey())
+		{
+			if (other.attrib().dataType() != DataTypes.NO_DATA)
+			{
+				com.thomsonreuters.upa.codec.Buffer rsslBuffer = other.attribData()._rsslBuffer;
+				
+				_rsslMsg.msgKey().encodedAttrib(rsslBuffer);
+				
+				_rsslMsg.msgKey().applyHasAttrib();
+				
+				if(other.attrib().dataType() < DataTypes.MSG)
+				{
+					_rsslMsg.msgKey().attribContainerType(DataTypes.MSG);
+				}
+				else 
+				{
+					_rsslMsg.msgKey().attribContainerType(other.attrib().dataType());
+				}
+				
+				attribData().decode(_rsslMsg.msgKey().encodedAttrib(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
+			}
+			else
+			{
+				attribData().decode(_rsslMsg.msgKey().encodedAttrib(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
+			}
+		}
+		
+		int dType = dataType(_rsslMsg.containerType(), _rsslMajVer, _rsslMinVer, _rsslMsg.encodedDataBody());
+		if (DataTypes.ERROR == dType)
+		{
+			_payloadDecoded = dataInstance(_payloadDecoded, DataTypes.ERROR);
+			_payloadDecoded.decode(_rsslMsg.encodedDataBody(),
+					_rsslMajVer, _rsslMinVer, null, ErrorCode.ITERATOR_SET_FAILURE);
+		}
+		else
+		{
+			_payloadDecoded = dataInstance(_payloadDecoded, dType);
+			_payloadDecoded.decode(_rsslMsg.encodedDataBody(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
+		}
 	}
 	
 	void decodeAttribPayload()
@@ -341,10 +390,7 @@ class MsgImpl extends DataImpl implements Msg
 	{
 		if (serviceName == null)
 			throw ommIUExcept().message("Passed in serviceName is null");
-		
-		if (hasServiceId())
-			throw ommIUExcept().message("Attempt to set serviceName while service id is already set.");
-				
+
 		switch (_dataType)
 		{
 		case DataTypes.REFRESH_MSG:
@@ -889,5 +935,105 @@ class MsgImpl extends DataImpl implements Msg
 		    }
 		 
 		return _rsslBuffer;
+	}
+	
+	static void cloneBufferToMsg(MsgImpl destMsg, MsgImpl other, String functionName)
+	{
+		if(other._rsslBuffer.length() > 0)
+		{
+			Utilities.copy(other._rsslBuffer, destMsg._copiedBuffer);
+			destMsg._allocatedMemory |= AllocatedMemory.ENC_MSG_BUFFER;
+			destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
+			destMsg._rsslMsg.streamId(other.streamId());
+		}
+		else
+		{
+			if(other._rsslMsg.msgClass() == MsgClasses.STATUS)
+			{
+				com.thomsonreuters.upa.codec.StatusMsg statusMsg = (com.thomsonreuters.upa.codec.StatusMsg)other._rsslMsg;
+				com.thomsonreuters.upa.codec.StatusMsg encodeStatusMsg = (com.thomsonreuters.upa.codec.StatusMsg)CodecFactory.createMsg();
+				com.thomsonreuters.upa.codec.EncodeIterator encIter = CodecFactory.createEncodeIterator();
+				
+		        encodeStatusMsg.msgClass(MsgClasses.STATUS);
+				encodeStatusMsg.domainType(statusMsg.domainType());
+				encodeStatusMsg.containerType(statusMsg.containerType());
+				encodeStatusMsg.flags(StatusMsgFlags.HAS_STATE | StatusMsgFlags.HAS_MSG_KEY);
+				encodeStatusMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
+				encodeStatusMsg.msgKey().name(statusMsg.msgKey().name());
+				encodeStatusMsg.state().code(statusMsg.state().code());
+				encodeStatusMsg.state().dataState(statusMsg.state().dataState());
+				encodeStatusMsg.state().streamState(statusMsg.state().streamState());
+				encodeStatusMsg.state().text(statusMsg.state().text());
+				
+				destMsg._copiedBuffer.data(ByteBuffer.allocate(CollectionDataImpl.ENCODE_RSSL_BUFFER_INIT_SIZE));
+				
+				encIter.setBufferAndRWFVersion(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer);
+				encodeStatusMsg.encode(encIter);
+				
+				destMsg.decode(destMsg._copiedBuffer, other._rsslMajVer, other._rsslMinVer, other._rsslDictionary, null);
+			
+				destMsg._rsslMsg.streamId(other.streamId());
+			}
+		}
+	}
+	
+	void cloneMsgKey(MsgImpl other, MsgKey destMsgKey, int destMsgKeyFlag, String functionName)
+	{
+		destMsgKey = CodecFactory.createMsgKey();
+				
+		if(other.hasName())
+		{
+			_allocatedMemory |= AllocatedMemory.NAME;	
+			destMsgKey.applyHasName();
+		}
+		
+		
+		if (other.hasNameType())
+		{
+			destMsgKey.nameType(other.nameType());
+			destMsgKey.applyHasNameType();
+		}
+
+		if (other.hasServiceId())
+		{
+			destMsgKey.serviceId(other.serviceId());
+			destMsgKey.applyHasServiceId();
+		}
+
+		if (other.hasId())
+		{
+			destMsgKey.identifier(other.id());
+			destMsgKey.applyHasIdentifier();
+		}
+
+		if (other.hasFilter())
+		{
+			destMsgKey.filter(other.filter());
+			destMsgKey.applyHasFilter();
+		}
+		
+		if (other.attrib().dataType() != DataTypes.NO_DATA)
+		{
+			com.thomsonreuters.upa.codec.Buffer rsslBuffer = other.attribData()._rsslBuffer;
+			
+			destMsgKey.encodedAttrib(rsslBuffer);
+			
+			destMsgKey.applyHasAttrib();
+			
+			if(other.attrib().dataType() < DataTypes.MSG)
+			{
+				destMsgKey.attribContainerType(DataTypes.MSG);
+			}
+			else 
+			{
+				destMsgKey.attribContainerType(other.attrib().dataType());
+			}
+			
+			attribData().decode(destMsgKey.encodedAttrib(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
+		}
+		else
+		{
+			attribData().decode(destMsgKey.encodedAttrib(), _rsslMajVer, _rsslMinVer, _rsslDictionary, null);
+		}
 	}
 }
