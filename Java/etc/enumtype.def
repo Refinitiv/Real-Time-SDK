@@ -13,8 +13,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.37
 !tag Build_RDMD  4.20.37
-!tag DT_Version  19.51
-!tag Date        3-Jun-2019
+!tag DT_Version  19.61
+!tag Date        8-Jul-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -8618,8 +8618,8 @@ ORDER_EXID 13603
    1538        "MTY"   MTS CYPRUS
    1539        "4AX"   4 AFRICA EXCHANGE
    1540        "TQE"   Turquoise (EU)
-   1541        "BSB"   Cboe Europe BXE (EU)
-   1542        "XCE"   Cboe Europe CXE (EU)
+   1541        "BSB"   Cboe Europe BXE (EU) (DO NOT USE)
+   1542        "XCE"   Cboe Europe CXE (EU) (DO NOT USE)
    1543        "AQE"   Aquis (EU)
    1544        "ECA"   EUROPEAN COCOA ASSOCIATION
    1545        "FOT"   Forte Securities (EU)
@@ -8648,6 +8648,10 @@ ORDER_EXID 13603
    1568        "CMG"   COMMERG
    1569        "SWZ"   StarWiz Co., Ltd
    1570        "CHB"   CHS Inc.
+   1571        "UBR"   Urner Barry
+   1572        "DXE"   Cboe Europe DXE (EU)
+   1573        "TWD"   Tradeweb Direct
+   1574        "IBE"   Independent Bulgarian Energy Exchange
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21283,6 +21287,7 @@ LMT_TYPE4  13600
       3   "Hard    "   Protection tunnel during auction
       4   "Auction "   Auction tunnel
       5   "Reject  "   Rejection tunnel
+      6   "IPO Auc "   IPO/Relisting auction price limits
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21405,6 +21410,21 @@ FIXING_TYP 13597
       4   "RPB_CNT "   Republication of rate determined using contingency methodology
       5   "PROV    "   Provisional rate
       6   "FINAL   "   Final rate
+      7   "1500 JPN"   3:00 PM Japan Fixing Time
+      8   "1530 BEI"   3:30 PM Beijing Fixing Time
+      9   "1600 HKG"   4:00 PM Hong Kong Fixing Time
+     10   "1700 HKG"   5:00 PM Hong Kong Fixing Time
+     11   "1000 LON"   10:00 AM London Fixing Time
+     12   "1200 LON"   12:00 PM London Fixing Time
+     13   "1235 LON"   12:35 PM London Fixing Time
+     14   "0800 NYC"   8:00 AM New York Fixing Time
+     15   "0900 CHI"   9:00 AM Chicago Fixing Time
+     16   "1500 LON"   3:00 PM London Fixing Time
+     17   "1630 LON"   4:30 PM London Fixing Time
+     18   "1100 CHI"   11:00 AM Chicago Fixing Time
+     19   "1400 CHI"   2:00 PM Chicago Fixing Time
+     20   "1600 NYC"   4:00 PM New York Fixing Time
+     21   "1500 CHI"   3:00 PM Chicago Fixing Time
 !
 ! ACRONYM    FID
 ! -------    ---
