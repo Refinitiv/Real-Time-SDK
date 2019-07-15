@@ -58,6 +58,8 @@ vaconsumer-TsFrag-002:  Alter VAConsumer to accept -msgSize as an input.  This i
   will then need to check for the same pattern in the fully assembled message and print "TEST PASSED".
 
 
+vaconsumer-DebugFunctions-001:  Alter VAConsumer to show how to use rsslSetDebugFunctions
+
 Module:  Watchlist Consumer
 ---------------------------
 

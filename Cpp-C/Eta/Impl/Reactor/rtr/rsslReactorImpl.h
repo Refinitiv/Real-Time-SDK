@@ -152,6 +152,8 @@ typedef struct
 	RsslBuffer				rsslServiceDiscoveryRespBuffer;
 	RsslBuffer				rsslPostDataBodyBuf;
 
+	RsslUInt32 connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks */
+
 } RsslReactorChannelImpl;
 
 RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pInfo)
@@ -299,6 +301,7 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->connectionListCount = 0;
 	pReactorChannel->connectionListIter = 0;
 	pReactorChannel->connectionOptList = NULL;
+	pReactorChannel->connectionDebugFlags = 0;
 	pReactorChannel->reactorChannel.socketId = (RsslSocket)REACTOR_INVALID_SOCKET;
 	pReactorChannel->reactorChannel.oldSocketId = (RsslSocket)REACTOR_INVALID_SOCKET;
 

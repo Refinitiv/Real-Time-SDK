@@ -1084,6 +1084,7 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 	pReactorChannel->reactorChannel.userSpecPtr = pOpts->rsslConnectOptions.userSpecPtr;
 	pReactorChannel->pWatchlist = pWatchlist;
 	pReactorChannel->readRet = 0;
+	pReactorChannel->connectionDebugFlags = pOpts->connectionDebugFlags;
 
 	/* Set reconnection info here, this should be zeroed out provider bound connections */
 	pReactorChannel->reconnectAttemptLimit = pOpts->reconnectAttemptLimit;
@@ -1242,6 +1243,14 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 			_reactorSendShutdownEvent(pReactorImpl, pError);
 			goto reactorConnectFail;
 		}
+		/* Set debug callback usage here. */
+
+		if (pReactorChannel->connectionDebugFlags != 0 && !RSSL_ERROR_INFO_CHECK((ret = rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &(pError->rsslError))) == RSSL_RET_SUCCESS, ret, pError))
+		{
+			_reactorShutdown(pReactorImpl, pError);
+			_reactorSendShutdownEvent(pReactorImpl, pError);
+			goto reactorConnectFail;
+		}
 	}
 
 	++pReactorImpl->channelCount;
@@ -1312,6 +1321,7 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 
 	if (_reactorChannelCopyRole(pReactorChannel, pRole, pError) != RSSL_RET_SUCCESS)
 	{
+		rsslCloseChannel(pChannel, &pError->rsslError);
 		_reactorMoveChannel(&pReactorImpl->channelPool, pReactorChannel);
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
@@ -1320,9 +1330,19 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 	pReactorChannel->reactorChannel.pRsslServer = pServer;
 	pReactorChannel->reactorChannel.userSpecPtr = pOpts->rsslAcceptOptions.userSpecPtr;
 	pReactorChannel->initializationTimeout = pOpts->initializationTimeout;
+	pReactorChannel->connectionDebugFlags = pOpts->connectionDebugFlags;
 
 	if ((pReactorChannel->pTunnelManager = tunnelManagerOpen(pReactor, (RsslReactorChannel*)pReactorChannel, pError)) == NULL)
+	{
+		rsslCloseChannel(pChannel, &pError->rsslError);
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
+
+	if (pReactorChannel->connectionDebugFlags != 0 && !RSSL_ERROR_INFO_CHECK((ret = rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &(pError->rsslError))) == RSSL_RET_SUCCESS, ret, pError))
+	{
+		rsslCloseChannel(pChannel, &pError->rsslError);
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
 
 	if (!RSSL_ERROR_INFO_CHECK((ret = _reactorAddChannel(pReactorImpl, pReactorChannel, pError)) == RSSL_RET_SUCCESS, ret, pError))
 	{

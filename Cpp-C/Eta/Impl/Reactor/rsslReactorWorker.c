@@ -1122,6 +1122,13 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
                     }
                     else
                     {
+						/* Set debug callback usage here. */
+						if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+						{
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+							continue;
+						}
                         pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
                         pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
                         if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerProcessNewChannel(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
@@ -1625,6 +1632,17 @@ static void rsslRestResponseCallback(RsslRestResponse* restresponse, RsslRestRes
 						RsslRet ret = RSSL_RET_SUCCESS;
 						pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
 						pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
+						/* Set debug callback usage here. */
+						if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+						{
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							{
+								_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
+								return;
+							}
+							return;
+						}
+						
 						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerProcessNewChannel(pReactorChannel->pParentReactor, pReactorChannel) == RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
 						{
 							_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
@@ -1711,6 +1729,16 @@ static void rsslRestResponseCallback(RsslRestResponse* restresponse, RsslRestRes
 				RsslRet ret = RSSL_RET_SUCCESS;
 				pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
 				pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
+				if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+				{
+					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					{
+						_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
+						return;
+					}
+					return;
+				}
+
 				if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerProcessNewChannel(pReactorChannel->pParentReactor, pReactorChannel) == RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
 				{
 					_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);

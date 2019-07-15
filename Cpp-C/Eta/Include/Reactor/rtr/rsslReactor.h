@@ -388,6 +388,8 @@ typedef struct
 	RsslReactorConnectInfo	*reactorConnectionList;	/*!< A list of connnections.  Each connection in the list will be tried with each reconnection attempt. */
 	RsslUInt32				connectionCount;		/*!< The number of connections in reactorConnectionList. */
 
+	RsslUInt32				connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks.  These callbacks should be set with rsslSetDebugFunctions.  If set to 0, the debug callbacks will not be used. */
+
 } RsslReactorConnectOptions;
 
 /**
@@ -404,6 +406,7 @@ RTR_C_INLINE void rsslClearReactorConnectOptions(RsslReactorConnectOptions *pOpt
 
 	pOpts->reactorConnectionList = NULL;
 	pOpts->connectionCount = 0;
+	pOpts->connectionDebugFlags = 0;
 }
 
 /**
@@ -425,6 +428,8 @@ typedef struct
 	RsslAcceptOptions	rsslAcceptOptions;		/*!< Options for accepting the connection. */
 	RsslUInt32			initializationTimeout;	/*!< Time(in seconds) to wait for successful initialization of a channel. 
 												 * If initialization does not complete in time, a RsslReactorChannelEvent will be sent indicating that the channel is down. */
+	RsslUInt32			connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks.  These callbacks should be set with rsslSetDebugFunctions.  If set to 0, the debug callbacks will not be used. */
+
 } RsslReactorAcceptOptions;
 
 /**
@@ -435,6 +440,7 @@ RTR_C_INLINE void rsslClearReactorAcceptOptions(RsslReactorAcceptOptions *pOpts)
 {
 	rsslClearAcceptOpts(&pOpts->rsslAcceptOptions);
 	pOpts->initializationTimeout = 60;
+	pOpts->connectionDebugFlags = 0;
 }
 
 /**
