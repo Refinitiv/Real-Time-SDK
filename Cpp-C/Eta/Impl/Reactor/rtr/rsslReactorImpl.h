@@ -245,6 +245,8 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 	return RSSL_RET_SUCCESS;
 }
 
+/* All RsslReactorChannelImpl's member variables must be reset properly in rsslResetReactorChannel
+   as the RsslReactorChannelImpl can be reused from the channel pool */
 RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pReactorChannel)
 {
 	int i;
@@ -304,6 +306,12 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->connectionDebugFlags = 0;
 	pReactorChannel->reactorChannel.socketId = (RsslSocket)REACTOR_INVALID_SOCKET;
 	pReactorChannel->reactorChannel.oldSocketId = (RsslSocket)REACTOR_INVALID_SOCKET;
+
+	/* Reset all buffers for the session management */
+	rsslClearBuffer(&pReactorChannel->rsslPostDataBodyBuf);
+	rsslClearBuffer(&pReactorChannel->rsslServiceDiscoveryRespBuffer);
+	rsslClearBuffer(&pReactorChannel->rsslAccessTokenRespBuffer);
+	rsslClearBuffer(&pReactorChannel->tokenInformationBuffer);
 
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 }

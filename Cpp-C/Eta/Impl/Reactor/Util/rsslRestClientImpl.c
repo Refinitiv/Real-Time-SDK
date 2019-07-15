@@ -738,7 +738,7 @@ size_t rssl_rest_write_header_callback_with_dynamic_size(char *ptr, size_t size,
 				rsslBuffer.length += RSSL_REST_PADDING_BUF_SIZE;
 			}
 			
-			rsslBuffer.data = (char*)malloc(sizeof(rsslBuffer.length));
+			rsslBuffer.data = (char*)malloc(rsslBuffer.length);
 
 			if (rsslBuffer.data == 0)
 			{

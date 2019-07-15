@@ -812,6 +812,41 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted)
 			pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
 }
 
+TEST_F(ReactorSessionMgntTest, MultipleOpenAndCloseConnections)
+{
+	RsslUInt32 numberOfConnections = 15; /* To ensure that this test reuse the ReactorChannel from the channel pool(size = 10)*/
+	RsslUInt32 index = 0;
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+#ifdef _WIN32 // Use OPENSSL for creating the encrypted connection instead of the legacy WinInet-based protocol
+	_reactorConnectInfo[0].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
+#endif
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
+
+	_reactorConnectionOpts.connectionCount = 1;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	_rdmLoginRequest.userName = g_userName;
+	_rdmLoginRequest.password = g_password;
+
+	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
+
+	for (; index < numberOfConnections; index++)
+	{
+		ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+		/* Checks for the Channel up event */
+		dispatchEvent(pConsMon, 800);
+		dispatchEvent(pConsMon, 800);
+		ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+		dispatchEvent(pConsMon, 800);
+		dispatchEvent(pConsMon, 800);
+		time_sleep(1000);
+	}
+}
+
 struct ReactorServiceDiscoveryEndpointResult
 {
 	RsslUInt32 NumServiceEndpointInfo;
