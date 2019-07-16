@@ -97,12 +97,20 @@ public:
 	*/
 	ServiceEndpointDiscoveryOption & tokenScope(const EmaString& tokenScope = "trapi.streaming.pricing.read");
 
-	/** Specifies a transport protocol to get endpoints according to the protocol.
+	/** \deprecated the transport() function should be used instead.
+		Specifies a transport protocol to get endpoints according to the protocol.
 		@param[in] transport specifies a transport protocol
 		@return reference to this object
 		\remark this is an optional option to limit number of endpoints
 	*/
 	ServiceEndpointDiscoveryOption& transprot(TransportProtocol transport);
+
+	/** Specifies a transport protocol to get endpoints according to the protocol.
+		@param[in] transport specifies a transport protocol
+		@return reference to this object
+		\remark this is an optional option to limit number of endpoints
+	*/
+	ServiceEndpointDiscoveryOption& transport(TransportProtocol transport);
 
 	/** Specifies a data format protocol to get endpoints according to the protocol.
 		@param[in] dataFormat specifies a data format protocol

@@ -34,7 +34,7 @@
 
 	// Query endpoints
 	consumer.registerClient( ServiceEndpointDiscoveryOption().username(userName).password(password)
-			.transprot(ServiceEndpointDiscoveryOption::TcpEnum) , client);
+			.transport(ServiceEndpointDiscoveryOption::TcpEnum) , client);
 
 	\endcode
 
