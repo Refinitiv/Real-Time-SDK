@@ -132,7 +132,7 @@ public :
 
 	RsslReactorCallbackRet processCallback( RsslReactor*, RsslReactorChannel*, RsslReactorChannelEvent* );
 
-	void initialize( RsslRDMLoginRequest*, RsslRDMDirectoryRequest*, const EmaString& );
+	void initialize( RsslRDMLoginRequest*, RsslRDMDirectoryRequest*, RsslReactorOAuthCredential* );
 
 	void removeChannel( RsslReactorChannel* );
 

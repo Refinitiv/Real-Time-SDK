@@ -134,7 +134,7 @@ public :
 
 	virtual void loadDirectory() = 0;
 
-	virtual void setRsslReactorChannelRole( RsslReactorChannelRole& ) = 0;
+	virtual void setRsslReactorChannelRole( RsslReactorChannelRole&, RsslReactorOAuthCredential* ) = 0;
 
 	virtual void createDictionaryCallbackClient( DictionaryCallbackClient*&, OmmBaseImpl& ) = 0;
 

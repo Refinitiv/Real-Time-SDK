@@ -160,3 +160,32 @@ OmmConsumerConfig::OperationModel OmmConsumerConfigImpl::operationModel() const
 {
 	return _operationModel;
 }
+
+RsslReactorOAuthCredential* OmmConsumerConfigImpl::getReactorOAuthCredential()
+{
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	RsslReactorOAuthCredential* pRsslReactorOAuthCredential = NULL;
+
+	if (!_clientId.empty())
+	{
+		_reactorOAuthCredential.clientId.length = _clientId.length();
+		_reactorOAuthCredential.clientId.data = const_cast<char*>(_clientId.c_str());
+		pRsslReactorOAuthCredential = &_reactorOAuthCredential;
+	}
+
+	if (!_clientSecret.empty())
+	{
+		_reactorOAuthCredential.clientSecret.length = _clientSecret.length();
+		_reactorOAuthCredential.clientSecret.data = const_cast<char*>(_clientSecret.c_str());
+		pRsslReactorOAuthCredential = &_reactorOAuthCredential;
+	}
+
+	if (!_tokenScope.empty() && _tokenScope != _reactorOAuthCredential.tokenScope.data)
+	{
+		_reactorOAuthCredential.tokenScope.length = _tokenScope.length();
+		_reactorOAuthCredential.tokenScope.data = const_cast<char*>(_tokenScope.c_str());
+		pRsslReactorOAuthCredential = &_reactorOAuthCredential;
+	}
+
+	return pRsslReactorOAuthCredential;
+}

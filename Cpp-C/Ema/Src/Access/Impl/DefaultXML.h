@@ -80,6 +80,7 @@ thomsonreuters::ema::access::EmaString Int64Values[] = {
 	"ReconnectAttemptLimit",
 	"ReconnectMaxDelay",
 	"ReconnectMinDelay",
+	"ReissueTokenAttemptLimit",
 	"XmlTraceMaxFileSize",
 };
 
@@ -150,6 +151,10 @@ thomsonreuters::ema::access::EmaString UInt64Values[] = {
 	"trreq",
 	"twait",
 	"userQLimit",
+};
+
+thomsonreuters::ema::access::EmaString DoubleValues[] = {
+	"TokenReissueRatio",
 };
 
 thomsonreuters::ema::access::EmaString NodesThatRequireName[] = {

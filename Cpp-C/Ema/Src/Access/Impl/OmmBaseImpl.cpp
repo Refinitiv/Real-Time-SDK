@@ -339,6 +339,8 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	pConfigImpl->get<Int64>(instanceNodeName + "DispatchTimeoutApiThread", _activeConfig.dispatchTimeoutApiThread);
 
+	pConfigImpl->get<Double>(instanceNodeName + "TokenReissueRatio", _activeConfig.tokenReissueRatio);
+
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "CatchUnhandledException", tmp))
 		_activeConfig.catchUnhandledException = static_cast<UInt32>(tmp > 0 ? true : false);
 
@@ -704,6 +706,12 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			socketChannelCfg->enableSessionMgnt = RSSL_FALSE;
 		else
 			socketChannelCfg->enableSessionMgnt = RSSL_TRUE;
+
+		Int64 tempInt = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
+		if( pConfigImpl->get<Int64>(channelNodeName + "ReissueTokenAttemptLimit", tempInt) )
+			socketChannelCfg->reissueTokenAttemptLimit = tempInt;
+		else
+			socketChannelCfg->reissueTokenAttemptLimit = tempInt;
 
 		// Fall through to HTTP for common configurations
 	}
@@ -1120,6 +1128,12 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
 		}
 
+/* Ensure that _readFds and _exceptFds are cleared properly before creating the pipe. */
+#ifdef USING_SELECT
+		FD_ZERO(&_readFds);
+		FD_ZERO(&_exceptFds);
+#endif
+
 		if ( !_pipe.create() )
 		{
 			EmaString temp( "Failed to create communication Pipe." );
@@ -1178,11 +1192,13 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		// Overrides the default token service URL if specified by user
-		if ( configImpl->getUserSpecifiedServiceDiscoveryUrl().length() > 0 )
+		if ( configImpl->getUserSpecifiedTokenServiceUrl().length() > 0 )
 		{
 			reactorOpts.tokenServiceURL.length = configImpl->getUserSpecifiedTokenServiceUrl().length();
 			reactorOpts.tokenServiceURL.data = (char*)configImpl->getUserSpecifiedTokenServiceUrl().c_str();
 		}
+
+		reactorOpts.tokenReissueRatio = _activeConfig.tokenReissueRatio;
 
 		reactorOpts.userSpecPtr = ( void* )this;
 
@@ -1208,9 +1224,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		_state = ReactorInitializedEnum;
 
 #ifdef USING_SELECT
-		FD_ZERO( &_readFds );
-		FD_ZERO( &_exceptFds );
-
 		FD_SET( _pipe.readFD(), &_readFds );
 		FD_SET( _pipe.readFD(), &_exceptFds );
 		FD_SET( _pRsslReactor->eventFd, &_readFds );
@@ -1250,7 +1263,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		_pChannelCallbackClient = ChannelCallbackClient::create( *this, _pRsslReactor );
-		_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest(), configImpl->getUserSpecifiedClientId() );
+		_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest(), configImpl->getReactorOAuthCredential() );
 
 		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * 1000;
 		_eventTimedOut = false;

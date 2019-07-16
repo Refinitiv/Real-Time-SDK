@@ -413,7 +413,10 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 		.append( "ObjectName " ).append( pTempChannelCfg->objectName ).append( CR )
 		.append( "ProxyHost " ).append( pTempChannelCfg->proxyHostName ).append( CR )
 		.append( "ProxyPort ").append( pTempChannelCfg->proxyPort ).append( CR )
-		.append( "SecurityProtocol ").append( pTempChannelCfg->securityProtocol ).append( CR );
+		.append( "SecurityProtocol ").append( pTempChannelCfg->securityProtocol ).append( CR )
+		.append( "EnableSessionManagement ").append( pTempChannelCfg->enableSessionMgnt ).append( CR )
+		.append( "Location " ).append( pTempChannelCfg->location ).append( CR )
+		.append( "ReissueTokenAttemptLimit " ).append( pTempChannelCfg->reissueTokenAttemptLimit ).append( CR );
 		break;
 	}
 	case RSSL_CONN_TYPE_RELIABLE_MCAST:
@@ -473,10 +476,10 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 	}
 }
 
-void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslRDMDirectoryRequest* dirRequest, const EmaString& clientId )
+void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslRDMDirectoryRequest* dirRequest, RsslReactorOAuthCredential* pOAuthCredential)
 {
 	RsslReactorChannelRole role;
-	_ommBaseImpl.setRsslReactorChannelRole( role );
+	_ommBaseImpl.setRsslReactorChannelRole( role, pOAuthCredential);
 
 	EmaString componentVersionInfo(COMPONENTNAME);
 	componentVersionInfo.append( EMA_COMPONENT_VER_PLATFORM );
@@ -563,7 +566,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				reactorConnectInfo[i].enableSessionManagement = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->enableSessionMgnt;
 				reactorConnectInfo[i].location.length = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.length();
 				reactorConnectInfo[i].location.data = (char*)static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.c_str();
-				
+				reactorConnectInfo[i].reissueTokenAttemptLimit = (RsslInt32)static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->reissueTokenAttemptLimit;
 				// Fall through to HTTP connection options
 			}
 			case RSSL_CONN_TYPE_SOCKET:
@@ -649,13 +652,6 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 
 		RsslErrorInfo rsslErrorInfo;
 		clearRsslErrorInfo( &rsslErrorInfo );
-
-		// Passes the client ID if specified by the user
-		if (clientId.length() > 0 && role.base.roleType == RSSL_RC_RT_OMM_CONSUMER)
-		{
-			role.ommConsumerRole.clientId.data = (char*)clientId.c_str();
-			role.ommConsumerRole.clientId.length = clientId.length();
-		}
 
 		if ( RSSL_RET_SUCCESS != rsslReactorConnect( _pRsslReactor, &connectOpt, ( RsslReactorChannelRole* )&role, &rsslErrorInfo ) )
 		{

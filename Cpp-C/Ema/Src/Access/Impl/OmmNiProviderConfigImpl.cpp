@@ -147,3 +147,8 @@ OmmNiProviderConfig::AdminControl OmmNiProviderConfigImpl::getAdminControlDirect
 {
 	return _adminControlDirectory;
 }
+
+RsslReactorOAuthCredential* OmmNiProviderConfigImpl::getReactorOAuthCredential()
+{
+	return NULL;
+}

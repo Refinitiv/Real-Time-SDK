@@ -1736,7 +1736,7 @@ void OmmNiProviderImpl::submit(const AckMsg&, UInt64)
 	handleIue("Non-interactive provider does not support submmiting AckMsg.");
 }
 
-void OmmNiProviderImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role )
+void OmmNiProviderImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role, RsslReactorOAuthCredential* pReactorOAuthCredential)
 {
 	RsslReactorOMMNIProviderRole& niProviderRole = role.ommNIProviderRole;
 	rsslClearOMMNIProviderRole( &niProviderRole );

@@ -37,6 +37,7 @@
 #define DEFAULT_DIRECTORY_REQUEST_TIMEOUT				45000
 #define DEFAULT_DISPATCH_TIMEOUT_API_THREAD				-1
 #define DEFAULT_EDP_RT_LOCATION							EmaString( "us-east" )
+#define DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT				-1
 #define DEFAULT_GUARANTEED_OUTPUT_BUFFERS				100
 #define DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS		5000
 #define DEFAULT_NUM_INPUT_BUFFERS					    10
@@ -82,6 +83,7 @@
 #define DEFAULT_PKT_POOLLIMIT_HIGH					  190000
 #define DEFAULT_PKT_POOLLIMIT_LOW					  180000
 #define DEFAULT_TDATA								  1
+#define DEFAULT_TOKEN_REISSUE_RATIO					  0.8
 #define DEFAULT_TRREQ								  4
 #define DEFAULT_TWAIT								  3
 #define DEFAULT_TBCHOLD								  3
@@ -263,6 +265,7 @@ public :
 	int						securityProtocol;
 	EmaString				location;
 	RsslBool				enableSessionMgnt;
+	RsslInt					reissueTokenAttemptLimit;
 
 private :
 
@@ -414,6 +417,7 @@ public:
 	EmaString				libcurlName;
 	UInt32					requestTimeout;
 	EmaString				traceStr;
+	Double					tokenReissueRatio;
 };
 
 class ActiveConfig : public BaseConfig

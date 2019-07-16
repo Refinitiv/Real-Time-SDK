@@ -46,9 +46,12 @@ public:
 
 	bool getDirectoryName( const EmaString& , EmaString& ) const;
 
+	RsslReactorOAuthCredential* getReactorOAuthCredential();
+
 private:
 
 	OmmConsumerConfig::OperationModel		_operationModel;
+	RsslReactorOAuthCredential				_reactorOAuthCredential;
 };
 
 }

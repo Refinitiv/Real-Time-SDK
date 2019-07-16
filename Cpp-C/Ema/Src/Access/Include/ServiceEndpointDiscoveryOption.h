@@ -86,6 +86,18 @@ public:
 	*/
 	ServiceEndpointDiscoveryOption& clientId(const EmaString& clientId);
 
+	/** Specifies optionally a secret used by OAuth client to authenticate to the Authorization Server.
+		@param[in] clientSecret specifies a client secret.
+		@return reference to this object
+	*/
+	ServiceEndpointDiscoveryOption & clientSecret(const EmaString& clientSecret);
+
+	/** Specifies optionally token scope to limit the scope of generated token from the token service.
+		@param[in] tokenScope specifies a token scope
+		@return reference to this object
+	*/
+	ServiceEndpointDiscoveryOption & tokenScope(const EmaString& tokenScope = "trapi.streaming.pricing.read");
+
 	/** Specifies a transport protocol to get endpoints according to the protocol.
 		@param[in] transport specifies a transport protocol
 		@return reference to this object
@@ -145,6 +157,8 @@ private:
 	EmaString			_username;
 	EmaString			_password;
 	EmaString			_clientId;
+	EmaString			_clientSecret;
+	EmaString			_tokenScope;
 	EmaString			_proxyHostName;
 	EmaString			_proxyPort;
 	EmaString			_proxyUserName;
