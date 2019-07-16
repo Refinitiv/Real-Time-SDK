@@ -112,7 +112,7 @@ void setAuthenticationExtended(char* authenticationExtended)
  */
 void setApplicationId(char* applicationId)
 {
-	snprintf(cmdLineApplicationId, 255, "%s", applicationId);
+	snprintf(cmdLineApplicationId, MAX_LOGIN_INFO_STRLEN, "%s", applicationId);
 }
 
 
