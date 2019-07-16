@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2018. All rights reserved.
+ * Copyright Thomson Reuters 2019. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_EVENTS_INT_H
@@ -23,7 +23,8 @@ typedef enum
 	RSSL_RCIMPL_ET_REACTOR = -1,	/* Reactor-related event */
 	RSSL_RCIMPL_ET_FLUSH = -2,		/* Flushing needs to start or has finished */
 	RSSL_RCIMPL_ET_TIMER = -3,		/* A timer event. */
-	RSSL_RCIMPL_ET_TOKEN_MGNT = -4	/* Token management event on Login stream */
+	RSSL_RCIMPL_ET_TOKEN_MGNT = -4,	/* Token management event on Login stream */
+	RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL = -5 /* OAuth credential renewal event */
 } RsslReactorEventImplType;
 
 typedef struct
@@ -82,7 +83,7 @@ typedef struct
 {
 	RsslReactorEventImplBase base;
 	RsslReactorChannelEvent channelEvent;
-	RsslBool isConnectFailure; /* Indicated by worker for for channel-down events. Indicates whether the failure occurred while
+	RsslBool isConnectFailure; /* Indicated by worker for channel-down events. Indicates whether the failure occurred while
 								* attempting to connect/initialize the channel. */
 } RsslReactorChannelEventImpl;
 
@@ -119,14 +120,16 @@ typedef enum
 	RSSL_RCIMPL_TKET_REISSUE_NO_REFRESH = -2,
 	RSSL_RCIMPL_TKET_RESP_FAILURE = -3,
 	RSSL_RCIMPL_TKET_SUBMIT_LOGIN_MSG = -4,
-	RSSL_RCIMPL_TKET_CHANNEL_WARNING = -5
+	RSSL_RCIMPL_TKET_CHANNEL_WARNING = -5,
+	RSSL_RCIMPL_TKET_RENEW_TOKEN = -6
 } RsslReactorTokenMgntEventType;
 
 typedef struct
 {
 	RsslReactorEventImplBase base;
-	RsslReactorTokenMgntEventType reactorTokenMgntEventType;	
+	RsslReactorTokenMgntEventType reactorTokenMgntEventType;
 	RsslReactorChannel *pReactorChannel;
+	RsslReactorOAuthCredentialRenewal *pOAuthCredentialRenewal;
 	RsslReactorAuthTokenEvent reactorAuthTokenEvent;
 	RsslReactorAuthTokenEventCallback *pAuthTokenEventCallback;
 	RsslErrorInfo errorInfo;
@@ -138,10 +141,37 @@ RTR_C_INLINE void rsslClearReactorTokenMgntEvent(RsslReactorTokenMgntEvent *pEve
 	pEvent->base.eventType = RSSL_RCIMPL_ET_TOKEN_MGNT; 
 }
 
+typedef enum
+{
+	RSSL_RCIMPL_CRET_MEM_ALLOC_FAILED = -1,
+	RSSL_RCIMPL_CRET_INIT = 0,
+	RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD = 0x01,
+	RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD_CHANGE = 0x02,
+	RSSL_RCIMPL_CRET_RENEWAL_CALLBACK = 0x04,
+	RSSL_RCIMPL_CRET_MEMORY_DEALLOCATION = 0x08
+} RsslReactorOAuthCredentialRenewalEventType;
+
+typedef struct
+{
+	RsslReactorEventImplBase base;
+	RsslReactorOAuthCredentialRenewal *pOAuthCredentialRenewal;
+	RsslReactorOAuthCredentialRenewalEventType	reactorCredentialRenewalEventType;
+	RsslReactorOAuthCredentialEvent reactorOAuthCredentialEvent;
+	RsslReactorOAuthCredentialEventCallback *pOAuthCredentialEventCallback;
+	RsslErrorInfo errorInfo;
+} RsslReactorCredentialRenewalEvent;
+
+RTR_C_INLINE void rsslClearReactorCredentialRenewalEvent(RsslReactorCredentialRenewalEvent *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorCredentialRenewalEvent));
+	pEvent->base.eventType = RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL;
+}
+
 typedef union 
 {
 	RsslReactorEventImplBase			base;
 	RsslReactorChannelEventImpl			channelEventImpl;
+	RsslReactorCredentialRenewalEvent   credentialRenewalEvent;
 	RsslReactorFlushEvent				flushEvent;
 	RsslReactorTokenMgntEvent			tokenMgntEvent;
 	RsslReactorStateEvent				reactorEvent;

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2018. All rights reserved.
+ * Copyright Thomson Reuters 2019. All rights reserved.
 */
 
 /*
@@ -1216,7 +1216,7 @@ RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactor
 
 	if (pAuthTokenEvent->pError)
 	{
-		printf("Retrieve an access token failed. Text: %s", pAuthTokenEvent->pError->rsslError.text);
+		printf("Retrieve an access token failed. Text: %s\n", pAuthTokenEvent->pError->rsslError.text);
 	}
 	else if (pCommand->canSendLoginReissue && pAuthTokenEvent->pReactorAuthTokenInfo)
 	{
@@ -1240,6 +1240,24 @@ RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactor
 			printf("Login reissue sent\n");
 		}
 	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslReactorOAuthCredentialEvent* pOAuthCredentialEvent)
+{
+	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
+	RsslReactorOAuthCredentialRenewal reactorOAuthCredentialRenewal;
+	RsslErrorInfo rsslError;
+
+	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOptions);
+	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
+
+	rsslClearReactorOAuthCredentialRenewal(&reactorOAuthCredentialRenewal);
+	reactorOAuthCredentialRenewal.password = password; /* Specified password as needed */
+
+	rsslReactorSubmitOAuthCredentialRenewal(pReactor, pOAuthCredentialEvent->pReactorChannel, &renewalOptions,
+		&reactorOAuthCredentialRenewal, &rsslError);
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -1470,9 +1488,11 @@ int main(int argc, char **argv)
 
 	RsslReactorOMMConsumerRole consumerRole;
 	RsslRDMLoginRequest loginRequest;
+	RsslReactorOAuthCredential oAuthCredential; /* This is used to specify additional OAuth credential's parameters */
 	RsslRDMDirectoryRequest dirRequest;
 	RsslReactorDispatchOptions dispatchOpts;
 	RsslInitializeExOpts initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	rsslClearReactorOAuthCredential(&oAuthCredential);
 
 	if ((ret = rsslPayloadCacheInitialize()) != RSSL_RET_SUCCESS)
 	{
@@ -1512,9 +1532,20 @@ int main(int argc, char **argv)
 	if (userName.length)
 		loginRequest.userName = userName;
 
-	/* If a password was specified, change password on login request. */
+	/* If a password was specified */
 	if (password.length)
-		loginRequest.password = password;
+	{
+		oAuthCredential.password = password;
+
+		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
+	}
+
+	/* If a client ID was specified */
+	if (clientId.length)
+	{
+		oAuthCredential.clientId = clientId;
+	}
 
 	/* If an authentication Token was specified, set it on the login request and set the user name type to RDM_LOGIN_USER_AUTHN_TOKEN */
 	if (authnToken.length)
@@ -1555,10 +1586,7 @@ int main(int argc, char **argv)
 	/* Set the messages to send when the channel is up */
 	consumerRole.pLoginRequest = &loginRequest;
 	consumerRole.pDirectoryRequest = &dirRequest;
-
-	/* If a client ID was specified */
-	if (clientId.length)
-		consumerRole.clientId = clientId;
+	consumerRole.pOAuthCredential = &oAuthCredential; /* This is used only when the session management is enabled */
 
 	printf("Connections:\n");
 

@@ -41,6 +41,7 @@ extern RsslBuffer rssl_rest_grant_type_refresh_token_text;
 extern RsslBuffer rssl_rest_grant_type_password_text;
 extern RsslBuffer rssl_rest_username_text;
 extern RsslBuffer rssl_rest_password_text;
+extern RsslBuffer rssl_rest_new_password_text;
 extern RsslBuffer rssl_rest_client_id_text;
 extern RsslBuffer rssl_rest_client_secret_text;
 extern RsslBuffer rssl_rest_refresh_token_text;

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2018. All rights reserved.
+ * Copyright Thomson Reuters 2019. All rights reserved.
 */
 
 #include "rtr/rsslReactorImpl.h"
@@ -66,6 +66,14 @@ static RsslRestRequestArgs* _reactorWorkerCreateRequestArgsForRefreshToken(RsslR
 static void rsslRestResponseCallback(RsslRestResponse* restresponse, RsslRestResponseEvent* event);
 
 static void rsslRestErrorCallback(RsslError* rsslError, RsslRestResponseEvent* event);
+
+static void notifySensitiveInfoReq(RsslReactorChannelImpl* pReactorChannel, RsslReactorWorker* pReactorWorker, RsslReactorConnectInfoImpl *pReactorConnectInfoImpl);
+
+static void rsslRestResponseWithoutChannelCallback(RsslRestResponse* restresponse, RsslRestResponseEvent* event);
+
+static void rsslRestErrorWithoutChannelCallback(RsslError* rsslError, RsslRestResponseEvent* event);
+
+static void _reactorWorkerFreeRsslReactorOAuthCredentialRenewal(RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl);
 
 RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, RsslErrorInfo *pError)
 {
@@ -619,6 +627,121 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 									}
 									break;
 								}
+							case RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL:
+								{
+									RsslReactorCredentialRenewalEvent *pReactorCredentialRenewalEvent = (RsslReactorCredentialRenewalEvent*)pEvent;
+									RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorCredentialRenewalEvent->reactorOAuthCredentialEvent.pReactorChannel;
+									RsslReactorOAuthCredentialRenewalImpl *pOAuthCredentialRenewalImpl = (RsslReactorOAuthCredentialRenewalImpl*)pReactorCredentialRenewalEvent->pOAuthCredentialRenewal;
+
+									switch (pReactorCredentialRenewalEvent->reactorCredentialRenewalEventType)
+									{
+										case RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD:
+										case RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD_CHANGE:
+										{
+											if (!pReactorChannelImpl || (pReactorChannelImpl->workerParentList == &pReactorWorker->activeChannels ||
+												pReactorChannelImpl->workerParentList == &pReactorWorker->reconnectingChannels ) )
+											{
+												RsslReactorConnectInfoImpl *pReactorConnectInfoImpl = NULL;
+												void* pUserSpec = NULL;
+												RsslRestRequestArgs * pRestRequestArgs;
+												RsslBuffer *pNewPasword = NULL;
+												
+												if (pReactorChannelImpl)
+												{
+													pUserSpec = (void*)pReactorChannelImpl;
+												}
+												else
+												{
+													pUserSpec = (void*)pOAuthCredentialRenewalImpl;
+												}
+
+												/* Handling error cases to get authentication token using the password */
+													pRestRequestArgs = _reactorCreateRequestArgsForPassword(
+													pReactorChannelImpl ? &pReactorChannelImpl->pParentReactor->tokenServiceURL : &pOAuthCredentialRenewalImpl->pRsslReactorImpl->tokenServiceURL,
+													pReactorChannelImpl ? (&pReactorChannelImpl->channelRole.ommConsumerRole.pOAuthCredential->userName) : (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.userName),
+													&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.password, // Specified by users as needed.
+													(pReactorCredentialRenewalEvent->reactorCredentialRenewalEventType == RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD_CHANGE) ? 
+													&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.newPassword : NULL,
+													pReactorChannelImpl ? (&pReactorChannelImpl->channelRole.ommConsumerRole.pOAuthCredential->clientId) : (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientId),
+													&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientSecret, // Specified by users as needed.
+													pReactorChannelImpl ? (&pReactorChannelImpl->channelRole.ommConsumerRole.pOAuthCredential->tokenScope) : (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.tokenScope),
+													pReactorChannelImpl ? &pReactorChannelImpl->rsslPostDataBodyBuf : &pOAuthCredentialRenewalImpl->rsslPostDataBodyBuf,
+													pUserSpec, &pReactorWorker->workerCerr);
+
+												if (pRestRequestArgs)
+												{
+													if (pReactorChannelImpl)
+													{
+														pReactorConnectInfoImpl = &pReactorChannelImpl->connectionOptList[pReactorChannelImpl->connectionListIter];
+														
+														/* Don't get the access token when this channel doesn't support session management */
+														if (pReactorConnectInfoImpl->base.enableSessionManagement == RSSL_FALSE)
+															break;
+
+														_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+													}
+													else
+													{
+														if (_reactorWorkerRegisterEventForRestClient(pReactorWorker, pReactorImpl) != RSSL_RET_SUCCESS)
+														{
+															return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+														}
+
+														pRestRequestArgs->networkArgs.proxyArgs.proxyDomain = pOAuthCredentialRenewalImpl->proxyDomain;
+														pRestRequestArgs->networkArgs.proxyArgs.proxyHostName = pOAuthCredentialRenewalImpl->proxyHostName;
+														pRestRequestArgs->networkArgs.proxyArgs.proxyPassword = pOAuthCredentialRenewalImpl->proxyPasswd;
+														pRestRequestArgs->networkArgs.proxyArgs.proxyPort = pOAuthCredentialRenewalImpl->proxyPort;
+														pRestRequestArgs->networkArgs.proxyArgs.proxyUserName = pOAuthCredentialRenewalImpl->proxyUserName;
+													}
+
+													if (rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs, 
+														pReactorChannelImpl ? rsslRestResponseCallback : rsslRestResponseWithoutChannelCallback,
+														pReactorChannelImpl ? rsslRestErrorCallback : rsslRestErrorWithoutChannelCallback,
+														pReactorChannelImpl ? &pReactorChannelImpl->rsslAccessTokenRespBuffer : &pOAuthCredentialRenewalImpl->rsslAccessTokenRespBuffer,
+														pReactorChannelImpl ? &pReactorChannelImpl->channelWorkerCerr.rsslError : &pReactorWorker->workerCerr.rsslError) != 0)
+													{
+														if (pReactorChannelImpl)
+														{
+															pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
+															pReactorConnectInfoImpl->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE_NO_REFRESH;
+														}
+
+														/* Clears sensitive information */
+														rsslClearReactorOAuthCredentialRenewal(&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal);
+													}
+													else
+													{
+														/* Clears sensitive information */
+														rsslClearReactorOAuthCredentialRenewal(&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal);
+
+														/* Free the RsslReactorOAuthCredentialRenewalImpl if it does not belong to a channel */
+														_reactorWorkerFreeRsslReactorOAuthCredentialRenewal(pOAuthCredentialRenewalImpl);
+
+														if (pReactorChannelImpl)
+														{
+															if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannelImpl, &pReactorChannelImpl->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+															{
+																free(pRestRequestArgs);
+																return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+															}
+														}
+													}
+
+													free(pRestRequestArgs);
+												}
+											}
+
+											break;
+										}
+										case RSSL_RCIMPL_CRET_MEMORY_DEALLOCATION:
+										{
+											_reactorWorkerFreeRsslReactorOAuthCredentialRenewal(pOAuthCredentialRenewalImpl);
+											break;
+										}
+									}
+
+									break;
+								}
 
 							default:
 								{
@@ -867,51 +990,49 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 					if (pReactorChannel->resendFromFailure)
 					{
-						/* Handling error cases to get authentication token using the password */
-						pRestRequestArgs = _reactorCreateRequestArgsForPassword(&pReactorChannel->pParentReactor->tokenServiceURL,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->userName,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->password,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->clientId,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->clientSecret,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->tokenScope, 
-							&pReactorChannel->rsslPostDataBodyBuf, pReactorChannel, &pReactorWorker->workerCerr);
+						// Reset the indication flag
+						pReactorChannel->resendFromFailure = 0;
 
-						if (pRestRequestArgs)
+						if (pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->pOAuthCredentialEventCallback == 0)
 						{
-							if (pReactorChannel->rsslAccessTokenRespBuffer.data == 0)
-							{
-								pReactorChannel->rsslAccessTokenRespBuffer.length = RSSL_REST_INIT_TOKEN_BUFFER_SIZE;
-								pReactorChannel->rsslAccessTokenRespBuffer.data =
-									(char*)malloc(pReactorChannel->rsslAccessTokenRespBuffer.length);
+							/* Handling error cases to get authentication token using the password */
+							pRestRequestArgs = _reactorCreateRequestArgsForPassword(&pReactorChannel->pParentReactor->tokenServiceURL,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->userName,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->password,
+								NULL,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->clientId,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->clientSecret,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->tokenScope,
+								&pReactorChannel->rsslPostDataBodyBuf, pReactorChannel, &pReactorWorker->workerCerr);
 
-								if (pReactorChannel->rsslAccessTokenRespBuffer.data == 0)
+							if (pRestRequestArgs)
+							{
+								_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+
+								if (rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
+									rsslRestResponseCallback, rsslRestErrorCallback,
+									&pReactorChannel->rsslAccessTokenRespBuffer, &pReactorChannel->channelWorkerCerr.rsslError) != 0)
 								{
-									pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_MEM_ALLOCATION_FAILURE;
-									continue;
+									pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
+									pReactorConnectInfoImpl->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE_NO_REFRESH;
 								}
-							}
+								else
+								{
+									if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+									{
+										free(pRestRequestArgs);
+										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									}
+								}
 
-							if (_reactorWorkerRegisterEventForRestClient(pReactorWorker, pReactorImpl) != RSSL_RET_SUCCESS)
-							{
-								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								free(pRestRequestArgs);
 							}
-
-							_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
-
-							if (rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
-								rsslRestResponseCallback, rsslRestErrorCallback,
-								&pReactorChannel->rsslAccessTokenRespBuffer, &pReactorChannel->channelWorkerCerr.rsslError) != 0)
-							{
-								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
-								pReactorConnectInfoImpl->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE_NO_REFRESH;
-							}
-							else
-							{
-								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-							}
-
-							free(pRestRequestArgs);
+						}
+						else
+						{
+							/* Notifies the application via the callback method to pass in sensitive information */
+							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_WAITING_TO_REQ_AUTH_TOKEN;
+							notifySensitiveInfoReq(pReactorChannel, pReactorWorker, pReactorConnectInfoImpl);
 						}
 					}
 					else
@@ -933,15 +1054,15 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							else
 							{
 								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								{
+									free(pRestRequestArgs);
 									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								}
 							}
 
 							free(pRestRequestArgs);
 						}
 					}
-
-					// Reset the indication flag
-					pReactorChannel->resendFromFailure = 0;
 				}
 			}
 		}
@@ -956,7 +1077,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 				RsslReactorConnectInfoImpl *pReactorConnectInfoImpl;
 				RsslBool submitOriginalCredential = RSSL_FALSE;
 
-				if ( (pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN) ||
+				if ((pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_WAITING_TO_REQ_AUTH_TOKEN) ||
+					(pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN) ||
 					(pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY))
 					continue; /* Still waiting for response from the token service or service discovery before switching to another RsslReactorConnectInfoImpl */
 
@@ -1013,6 +1135,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 								if (pReactorChannel->rsslAccessTokenRespBuffer.data == 0)
 								{
 									pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_MEM_ALLOCATION_FAILURE;
+									free(pRestRequestArgs);
 									continue;
 								}
 							}
@@ -1030,7 +1153,10 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							else
 							{
 								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								{
+									free(pRestRequestArgs);
 									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								}
 							}
 												
 							free(pRestRequestArgs);
@@ -1038,60 +1164,73 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 					}
 					else
 					{	
-						/* Handling error cases to get authentication token using the password */
-						pRestRequestArgs = _reactorCreateRequestArgsForPassword(&pReactorChannel->pParentReactor->tokenServiceURL,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->userName,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->password,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->clientId,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->clientSecret,
-							&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->tokenScope,
-							&pReactorChannel->rsslPostDataBodyBuf, pReactorChannel, &pReactorWorker->workerCerr);
-						
-						if ( pRestRequestArgs )
+						/* This is initial request or handling error cases to get authentication token using the password */
+						if (_reactorWorkerRegisterEventForRestClient(pReactorWorker, pReactorImpl) != RSSL_RET_SUCCESS)
 						{
-							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE;
+							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+						}
+
+						if (pReactorChannel->rsslAccessTokenRespBuffer.data == 0)
+						{
+							pReactorChannel->rsslAccessTokenRespBuffer.length = RSSL_REST_INIT_TOKEN_BUFFER_SIZE;
+							pReactorChannel->rsslAccessTokenRespBuffer.data =
+								(char*)malloc(pReactorChannel->rsslAccessTokenRespBuffer.length);
 
 							if (pReactorChannel->rsslAccessTokenRespBuffer.data == 0)
 							{
-								pReactorChannel->rsslAccessTokenRespBuffer.length = RSSL_REST_INIT_TOKEN_BUFFER_SIZE;
-								pReactorChannel->rsslAccessTokenRespBuffer.data =
-									(char*)malloc(pReactorChannel->rsslAccessTokenRespBuffer.length);
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_MEM_ALLOCATION_FAILURE;
+								continue;
+							}
+						}
 
-								if (pReactorChannel->rsslAccessTokenRespBuffer.data == 0)
+						if (pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->pOAuthCredentialEventCallback == 0)
+						{
+							pRestRequestArgs = _reactorCreateRequestArgsForPassword(&pReactorChannel->pParentReactor->tokenServiceURL,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->userName,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->password,
+								NULL,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->clientId,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->clientSecret,
+								&pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->tokenScope,
+								&pReactorChannel->rsslPostDataBodyBuf, pReactorChannel, &pReactorWorker->workerCerr);
+
+							if (pRestRequestArgs)
+							{
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE;
+
+								_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+
+								if (rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
+									rsslRestResponseCallback, rsslRestErrorCallback,
+									&pReactorChannel->rsslAccessTokenRespBuffer, &pReactorChannel->channelWorkerCerr.rsslError) != 0)
 								{
-									pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_MEM_ALLOCATION_FAILURE;
-									continue;
+									pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
+									pReactorConnectInfoImpl->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE;
 								}
-							}
+								else
+								{
+									if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+									{
+										free(pRestRequestArgs);
+										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									}
+								}
 
-							if (_reactorWorkerRegisterEventForRestClient(pReactorWorker, pReactorImpl) != RSSL_RET_SUCCESS)
-							{
-								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								free(pRestRequestArgs);
 							}
-
-							_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
-							
-							if ( rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
-											rsslRestResponseCallback, rsslRestErrorCallback,
-											&pReactorChannel->rsslAccessTokenRespBuffer, &pReactorChannel->channelWorkerCerr.rsslError) != 0 )
-							{
-								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
-								pReactorConnectInfoImpl->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_REISSUE;
-							}
-							else
-							{
-								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-							}
-
-							free(pRestRequestArgs);
+						}
+						else
+						{
+							/* Notifies the application via the callback method to pass in sensitive information */
+							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_WAITING_TO_REQ_AUTH_TOKEN;
+							notifySensitiveInfoReq(pReactorChannel, pReactorWorker, pReactorConnectInfoImpl);
 						}
 					}
 
 					if ((!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
 						(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName)))
 					{
-						/* Do not making a connection yet as the connection parameters is not avaliable. */
+						/* Do not making a connection yet as the connection parameters is not available. */
 						continue; 
 					}
 				}
@@ -1327,6 +1466,17 @@ static void _reactorWorkerFreeChannelRDMMsgs(RsslReactorChannelImpl *pReactorCha
 
 }
 
+static void _reactorWorkerFreeRsslReactorOAuthCredentialRenewal(RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl)
+{
+	if (pReactorOAuthCredentialRenewalImpl->pParentChannel == 0)
+	{
+		free(pReactorOAuthCredentialRenewalImpl->rsslAccessTokenRespBuffer.data);
+		free(pReactorOAuthCredentialRenewalImpl->rsslPostDataBodyBuf.data);
+		free(pReactorOAuthCredentialRenewalImpl->tokenInformationBuffer.data);
+		free(pReactorOAuthCredentialRenewalImpl);
+	}
+}
+
 static RsslRestRequestArgs* _reactorWorkerCreateRequestArgsForRefreshToken(RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo* pError)
 {
 	RsslRestHeader  *pRsslRestAcceptHeader;
@@ -1374,7 +1524,7 @@ static RsslRestRequestArgs* _reactorWorkerCreateRequestArgsForRefreshToken(RsslR
 				
 	neededSize = rssl_rest_grant_type_refresh_token_text.length + rssl_rest_username_text.length + pUserName->length +
 							rssl_rest_client_id_text.length + clientId.length + rssl_rest_refresh_token_text.length +
-							pReactorChannel->tokenInformation.refreshToken.length + rssl_rest_take_exclusive_sign_on_true_text.length + 1;
+							pReactorChannel->tokenInformation.refreshToken.length + rssl_rest_take_exclusive_sign_on_false_text.length + 1;
 
 	if (pReactorOAuthCredential->clientSecret.length && pReactorOAuthCredential->clientSecret.data)
 	{
@@ -1413,7 +1563,7 @@ static RsslRestRequestArgs* _reactorWorkerCreateRequestArgsForRefreshToken(RsslR
 	}
 	strncat(pRequestArgs->httpBody.data, rssl_rest_refresh_token_text.data, rssl_rest_refresh_token_text.length);
 	strncat(pRequestArgs->httpBody.data, pReactorChannel->tokenInformation.refreshToken.data, pReactorChannel->tokenInformation.refreshToken.length);
-	strncat(pRequestArgs->httpBody.data, rssl_rest_take_exclusive_sign_on_true_text.data, rssl_rest_take_exclusive_sign_on_true_text.length);
+	strncat(pRequestArgs->httpBody.data, rssl_rest_take_exclusive_sign_on_false_text.data, rssl_rest_take_exclusive_sign_on_false_text.length);
 	pRequestArgs->httpBody.length = (RsslUInt32)strlen(pRequestArgs->httpBody.data);
 		
 	pCurPos = (pRequestArgs->httpBody.data + pRequestArgs->httpBody.length + 1); // Adding 1 for null terminate string
@@ -1465,15 +1615,33 @@ memoryAllocationFailed:
 	return 0;
 }
 
+static void notifySensitiveInfoReq(RsslReactorChannelImpl* pReactorChannel, RsslReactorWorker* pReactorWorker, RsslReactorConnectInfoImpl *pReactorConnectInfoImpl)
+{
+	RsslReactorCredentialRenewalEvent *pEvent = (RsslReactorCredentialRenewalEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
+	rsslClearReactorCredentialRenewalEvent(pEvent);
+
+	pEvent->pOAuthCredentialEventCallback = pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential->pOAuthCredentialEventCallback;
+	pEvent->reactorCredentialRenewalEventType = RSSL_RCIMPL_CRET_RENEWAL_CALLBACK;
+	pEvent->reactorOAuthCredentialEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+
+	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+		== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+	{
+		_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
+		return;
+	}
+}
+
 static void handlingAuthRequestFailure(RsslReactorChannelImpl* pReactorChannel, RsslReactorWorker* pReactorWorker, RsslReactorConnectInfoImpl *pReactorConnectInfoImpl)
 {
-	RsslReactorTokenMgntEvent *pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
-
-	rsslClearReactorTokenMgntEvent(pEvent);
+	RsslReactorTokenMgntEvent *pEvent;
 
 	// Notifies users with pAuthTokenEventCallback if exists otherwise the RSSL_RC_CET_WARNING event when the channel is active
 	if (pReactorConnectInfoImpl->base.pAuthTokenEventCallback)
 	{
+		pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
+		rsslClearReactorTokenMgntEvent(pEvent);
+
 		pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_RESP_FAILURE;
 		pEvent->pReactorChannel = &pReactorChannel->reactorChannel;
 		pEvent->pAuthTokenEventCallback = pReactorConnectInfoImpl->base.pAuthTokenEventCallback;
@@ -1877,5 +2045,112 @@ static void rsslRestErrorCallback(RsslError* rsslError, RsslRestResponseEvent* e
 
 	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
 	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles,&event->handle->queueLink);
+}
+
+static void rsslRestResponseWithoutChannelCallback(RsslRestResponse* restresponse, RsslRestResponseEvent* event)
+{
+	RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl = (RsslReactorOAuthCredentialRenewalImpl*)event->closure;
+	RsslReactorWorker *pReactorWorker = &pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl->reactorWorker;
+	RsslError rsslError;
+
+	/* Releases the old memory and points the buffer to the new location. */
+	if (restresponse->isMemReallocated)
+	{
+		free(event->userMemory->data);
+		(*event->userMemory) = restresponse->reallocatedMem;
+	}
+
+	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
+	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
+
+	pReactorOAuthCredentialRenewalImpl->httpStatusCode = restresponse->statusCode;
+
+	RsslReactorTokenMgntEvent *pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl->reactorEventQueue);
+	rsslClearReactorTokenMgntEvent(pEvent);
+
+	pEvent->pOAuthCredentialRenewal = (RsslReactorOAuthCredentialRenewal*)pReactorOAuthCredentialRenewalImpl;
+	pEvent->pAuthTokenEventCallback = pReactorOAuthCredentialRenewalImpl->pAuthTokenEventCallback;
+
+	if (restresponse->statusCode == 200)
+	{
+		if (pReactorOAuthCredentialRenewalImpl->tokenInformationBuffer.data == 0)
+		{
+			pReactorOAuthCredentialRenewalImpl->tokenInformationBuffer.length = restresponse->dataBody.length;
+			pReactorOAuthCredentialRenewalImpl->tokenInformationBuffer.data = (char*)malloc(pReactorOAuthCredentialRenewalImpl->tokenInformationBuffer.length);
+
+			if (pReactorOAuthCredentialRenewalImpl->tokenInformationBuffer.data == 0)
+			{
+				rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"Failed to allocate memory for parsing the token information");
+				goto RequestFailed;
+			}
+		}
+
+		if (rsslRestParseAccessToken(&restresponse->dataBody, &pReactorOAuthCredentialRenewalImpl->tokenInformation.accessToken, &pReactorOAuthCredentialRenewalImpl->tokenInformation.refreshToken,
+			&pReactorOAuthCredentialRenewalImpl->tokenInformation.expiresIn, &pReactorOAuthCredentialRenewalImpl->tokenInformation.tokenType,
+			&pReactorOAuthCredentialRenewalImpl->tokenInformation.scope, &pReactorOAuthCredentialRenewalImpl->tokenInformationBuffer, &rsslError) != RSSL_RET_SUCCESS)
+		{
+			rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Failed to parse the token information. Text: %s", rsslError.text);
+			goto RequestFailed;
+		}
+
+		pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_RENEW_TOKEN;
+
+		if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+			== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+		{
+			_reactorWorkerShutdown(pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl, &pReactorWorker->workerCerr);
+			return;
+		}
+	}
+	else
+	{
+		rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+		goto RequestFailed;
+	}
+
+	return;
+
+RequestFailed:
+
+	pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_RESP_FAILURE;
+
+	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+		== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+	{
+		_reactorWorkerShutdown(pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl, &pReactorWorker->workerCerr);
+		return;
+	}
+}
+
+static void rsslRestErrorWithoutChannelCallback(RsslError* rsslError, RsslRestResponseEvent* event)
+{
+	RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl = (RsslReactorOAuthCredentialRenewalImpl*)event->closure;
+	RsslReactorWorker *pReactorWorker = &pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl->reactorWorker;
+
+	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
+	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
+
+	/* Reset the HTTP response status code as there is no response */
+	pReactorOAuthCredentialRenewalImpl->httpStatusCode = 0;
+
+	RsslReactorTokenMgntEvent *pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl->reactorEventQueue);
+	rsslClearReactorTokenMgntEvent(pEvent);
+
+	pEvent->pOAuthCredentialRenewal = (RsslReactorOAuthCredentialRenewal*)pReactorOAuthCredentialRenewalImpl;
+	pEvent->pAuthTokenEventCallback = pReactorOAuthCredentialRenewalImpl->pAuthTokenEventCallback;
+	pEvent->reactorTokenMgntEventType = RSSL_RCIMPL_TKET_RESP_FAILURE;
+
+	rsslSetErrorInfo(&pEvent->errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+		"Failed to send the REST request. Text: %s", rsslError->text);
+
+	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+		== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+	{
+		_reactorWorkerShutdown(pReactorOAuthCredentialRenewalImpl->pRsslReactorImpl, &pReactorWorker->workerCerr);
+		return;
+	}
 }
 

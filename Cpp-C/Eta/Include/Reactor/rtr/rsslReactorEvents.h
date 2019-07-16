@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2018. All rights reserved.
+ * Copyright Thomson Reuters 2019. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_EVENTS_H
@@ -245,6 +245,54 @@ typedef struct
 RTR_C_INLINE void rsslClearReactorServiceEndpointEvent(RsslReactorServiceEndpointEvent *pEvent)
 {
 	memset(pEvent, 0, sizeof(RsslReactorServiceEndpointEvent));
+}
+
+/**
+ * @brief Structure representing the OAuth credential for renewal authentication with sensitive information for password and client secret.
+ * @see RsslReactorOAuthCredentialEvent
+ */
+typedef struct
+{
+	RsslBuffer					userName;					/*!< The user name to authorize with the EDP token service. This is used to get sensitive information
+															 *   for the user name in the RsslReactorOAuthCredentialEventCallback. */
+	RsslBuffer					password;					/*!< The password for user name used to get an access token and a refresh token. */
+	RsslBuffer					newPassword;				/*!< The new password to change the password associated with this user name.
+															 *   Both current and new passwords will be required in order to authenticate and change password. Optional.*/
+	RsslBuffer					clientId;					/*!< A unique ID defined for an application marking the request. Optional */
+	RsslBuffer					clientSecret;				/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
+	RsslBuffer					tokenScope;					/*!< A user can optionally limit the scope of generated token. Optional. */
+} RsslReactorOAuthCredentialRenewal;
+
+/**
+ * @brief Clears an RsslReactorOAuthCredentialRenewal.
+ * @see RsslReactorOAuthCredentialRenewal
+ */
+RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewal(RsslReactorOAuthCredentialRenewal *pOAuthCredentialRenewal)
+{
+	memset(pOAuthCredentialRenewal, 0, sizeof(RsslReactorOAuthCredentialRenewal));
+	pOAuthCredentialRenewal->tokenScope.data = (char *)"trapi.streaming.pricing.read";
+	pOAuthCredentialRenewal->tokenScope.length = 28;
+}
+
+/**
+ * @brief An OAuth credential event that has occurred for users to specify OAuth credentials(password and/or client secret).
+ * This event is dispatched to application whenever the Reactor requires the sensitive information to renew the access and refresh token.
+ * @see RsslReactorChannel, RsslReactorOAuthCredentialRenewal
+ */
+
+typedef struct
+{
+	RsslReactorChannel					*pReactorChannel;						/*!< The channel associated with this event. */
+	RsslReactorOAuthCredentialRenewal	*pReactorOAuthCredentialRenewal;		/*!< The OAuth credential for renewal authentication with the EDP token service. */
+} RsslReactorOAuthCredentialEvent;
+
+/**
+ * @brief Clears an RsslReactorOAuthCredentialEvent.
+ * @see RsslReactorOAuthCredentialEvent
+ */
+RTR_C_INLINE void rsslClearReactorOAuthCredentialEvent(RsslReactorOAuthCredentialEvent *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorOAuthCredentialEvent));
 }
 
 /**

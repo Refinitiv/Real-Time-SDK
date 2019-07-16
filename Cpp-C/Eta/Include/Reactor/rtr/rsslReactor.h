@@ -79,6 +79,12 @@ typedef RsslReactorCallbackRet RsslReactorAuthTokenEventCallback(RsslReactor*, R
 typedef RsslReactorCallbackRet RsslReactorServiceEndpointEventCallback(RsslReactor*, RsslReactorServiceEndpointEvent*);
 
 /**
+ * @brief Signature of an OAuth Credential Event Callback function.
+ * @see RsslReactorOAuthCredentialEvent
+ */
+typedef RsslReactorCallbackRet RsslReactorOAuthCredentialEventCallback(RsslReactor*, RsslReactorOAuthCredentialEvent*);
+
+/**
  * @brief Enumerated types indicating the role of a connection.
  * @see RsslReactorChannelRoleBase, RsslReactorOMMConsumerRole, RsslReactorOMMProviderRole, RsslReactorOMMNIProviderRole
  */
@@ -130,12 +136,14 @@ typedef struct
  */
 typedef struct
 {
-	RsslBuffer						userName;				/*!< The user name required to authorize with the EDP token service. */
-	RsslBuffer						password;				/*!< The password for user name used to get access token. */
-	RsslBuffer						clientId;				/*!< A unique ID defined for an application marking the request. Optional 
-															 *   The userName variable is used if this member is not set. */
-	RsslBuffer						clientSecret;			/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
-	RsslBuffer						tokenScope;				/*!< A user can optionally limit the scope of generated token. Optional*/
+	RsslBuffer									userName;						/*!< The user name required to authorize with the EDP token service. */
+	RsslBuffer									password;						/*!< The password for user name used to get access token. */
+	RsslBuffer									clientId;						/*!< A unique ID defined for an application marking the request. Optional 
+																				 *	The userName variable is used if this member is not set. */
+	RsslBuffer									clientSecret;					/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
+	RsslBuffer									tokenScope;						/*!< A user can optionally limit the scope of generated token. Optional*/
+	RsslReactorOAuthCredentialEventCallback		*pOAuthCredentialEventCallback; /*!< Callback function that receives RsslReactorOAuthCredentialEvent to specify sensitive information. 
+																				 *   The Reactor will not copy password and client secret if the function pointer is specified.*/
 } RsslReactorOAuthCredential;
 
 /**
@@ -743,6 +751,56 @@ RTR_C_INLINE void rsslClearReactorRejectTunnelStreamOptions(RsslReactorRejectTun
  * @see RsslReactorRejectTunnelStreamOptions, RsslErrorInfo
  */
 RSSL_VA_API RsslRet rsslReactorRejectTunnelStream(RsslTunnelStreamRequestEvent *pEvent, RsslReactorRejectTunnelStreamOptions *pRsslReactorRejectTunnelStreamOptions, RsslErrorInfo *pError);
+
+/**
+ * @brief Enumerated types indicating OAuth credential renewal mode.
+ * @see RsslReactorOAuthCredentialRenewalOptions
+ */
+typedef enum
+{
+	RSSL_ROC_RT_INIT = 0x00,
+	RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD = 1,
+	RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD_CHANGE = 2
+} RsslReactorOAuthCredentialRenewalMode;
+
+/**
+ * @brief Configuration options for submitting OAuth credential renewal.
+ * The proxy configuration is used only when there is no RsslReactorChannel specified in rsslReactorSubmitOAuthCredentialRenewal()
+ * and your organization requires use of a proxy to get to the Internet.
+ * @see RsslReactorAuthTokenEventCallback
+ */
+typedef struct
+{
+	RsslReactorOAuthCredentialRenewalMode		renewalMode;				/*!< Specify a mode for submitting OAuth credential renewal */
+	RsslReactorAuthTokenEventCallback 			*pAuthTokenEventCallback;	/*!< Specify to get response from RsslReactorAuthTokenEventCallback when there is no RsslReactorChannel
+																			 * specified in the rsslReactorSubmitOAuthCredentialRenewal() */
+	RsslBuffer									proxyHostName;				/*!<  @brief Proxy host name. */
+	RsslBuffer									proxyPort;					/*!<  @brief Proxy port. */
+	RsslBuffer									proxyUserName;				/*!<  @brief User Name for authenticated proxies. */
+	RsslBuffer									proxyPasswd;				/*!<  @brief Password for authenticated proxies. */
+	RsslBuffer									proxyDomain;				/*!<  @brief Domain for authenticated proxies. */
+} RsslReactorOAuthCredentialRenewalOptions;
+
+/**
+ * @brief Clears an RsslReactorOAuthCredentialRenewalOptions object.
+ * @see RsslReactorOAuthCredentialRenewalOptions
+ */
+RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewalOptions(RsslReactorOAuthCredentialRenewalOptions *pOpts)
+{
+	memset(pOpts, 0, sizeof(RsslReactorOAuthCredentialRenewalOptions));
+}
+
+/**
+ * @brief Submit OAuth credential renewal with password or password change.
+ * @param pReactor The reactor handling the credential renewal.
+ * @param pChannel The channel to perform credential renewal. This option can be NULL to perform operation without a channel.
+ * @param pReactorOAuthCredentialRenewal Options for how to perform credential renewal.
+ * @param pError Error structure to be populated in the event of failure.
+ * @return failure codes, if specified invalid arguments or the RsslReactor was shut down due to a failure.
+ * @see RsslReactor, RsslReactorOAuthCredentialRenewalOptions, RsslReactorOAuthCredentialRenewal
+ */
+RSSL_VA_API RsslRet rsslReactorSubmitOAuthCredentialRenewal(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslReactorOAuthCredentialRenewalOptions *pOptions,
+						RsslReactorOAuthCredentialRenewal *pReactorOAuthCredentialRenewal, RsslErrorInfo *pError);
 
 /**
  *	@}

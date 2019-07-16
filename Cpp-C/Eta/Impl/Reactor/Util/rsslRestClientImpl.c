@@ -48,6 +48,7 @@ RsslBuffer rssl_rest_grant_type_refresh_token_text = { 24, "grant_type=refresh_t
 RsslBuffer rssl_rest_grant_type_password_text = { 19, "grant_type=password" };
 RsslBuffer rssl_rest_username_text = { 10, "&username=" };
 RsslBuffer rssl_rest_password_text = { 10, "&password=" };
+RsslBuffer rssl_rest_new_password_text = { 13, "&newPassword=" };
 RsslBuffer rssl_rest_client_id_text = { 11, "&client_id=" };
 RsslBuffer rssl_rest_client_secret_text = { 15, "&client_secret=" };
 RsslBuffer rssl_rest_refresh_token_text = { 15, "&refresh_token=" };

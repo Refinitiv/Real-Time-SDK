@@ -35,6 +35,7 @@ extern "C" {
 
 typedef struct _RsslReactorImpl RsslReactorImpl;
 
+typedef struct _RsslReactorOAuthCredentialRenewalImpl RsslReactorOAuthCredentialRenewalImpl;
 
 typedef enum
 {
@@ -57,10 +58,12 @@ typedef enum
 	RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE = -2,
 	RSSL_RC_CHINFO_IMPL_ST_BUFFER_TOO_SMALL = -1,
 	RSSL_RC_CHINFO_IMPL_ST_INIT = 0,
-	RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN = 1,
-	RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN = 2,
-	RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY = 3, 
-	RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT = 4, 
+	RSSL_RC_CHINFO_IMPL_ST_REQ_SENSITIVE_INFO = 1,
+	RSSL_RC_CHINFO_IMPL_ST_WAITING_TO_REQ_AUTH_TOKEN = 2,
+	RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN = 3,
+	RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN = 4,
+	RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY = 5, 
+	RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT = 6, 
 } RsslReactorChannelInfoImplState;
 
 /* RsslReactorConnectInfoImpl
@@ -154,6 +157,9 @@ typedef struct
 	RsslUInt32				flags;
 	RsslUInt8				userNameType;
 
+	/* This is used for OAuth credential renewal */
+	RsslReactorOAuthCredentialRenewalImpl *pOAuthCredentialRenewalImpl;
+
 	RsslUInt32 connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks */
 
 } RsslReactorChannelImpl;
@@ -164,6 +170,36 @@ RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, Rss
 	pInfo->pParentReactor = pReactorImpl;
 	pInfo->nextExpireTime = RCIMPL_TIMER_UNSET;
 	pInfo->lastRequestedExpireTime = RCIMPL_TIMER_UNSET;
+}
+
+/* RsslReactorOAuthCredentialRenewalImpl
+ * - Handles allocated memory length and the association with RsslReactorChannelImpl for RsslReactorOAuthCredentialRenewal */
+struct _RsslReactorOAuthCredentialRenewalImpl
+{
+	RsslReactorOAuthCredentialRenewal reactorOAuthCredentialRenewal;
+	RsslReactorChannelImpl			*pParentChannel; /* Specify the owner of this type if any */
+
+	/* Keeps track of memory allocation length */
+	size_t		memoryLength;
+
+	/* The following member variables is used only when submitting without a channel */
+	RsslBuffer					rsslAccessTokenRespBuffer;
+	RsslReactorImpl				*pRsslReactorImpl;
+	RsslReactorAuthTokenInfo	tokenInformation;
+	RsslBuffer					tokenInformationBuffer;
+	RsslBuffer					rsslPostDataBodyBuf;
+	RsslReactorAuthTokenEventCallback	*pAuthTokenEventCallback;
+	RsslUInt32					httpStatusCode;
+	RsslBuffer					proxyHostName;
+	RsslBuffer					proxyPort;
+	RsslBuffer					proxyUserName;
+	RsslBuffer					proxyPasswd;
+	RsslBuffer					proxyDomain;
+};
+
+RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewalImpl(RsslReactorOAuthCredentialRenewalImpl *pInfo)
+{
+	memset(pInfo, 0, sizeof(RsslReactorOAuthCredentialRenewalImpl));
 }
 
 RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pReactorChannel, RsslReactorConnectOptions *pOpts, 
@@ -281,6 +317,7 @@ RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pRea
 		free(pReactorChannel->rsslServiceDiscoveryRespBuffer.data);
 		free(pReactorChannel->rsslAccessTokenRespBuffer.data);
 		free(pReactorChannel->tokenInformationBuffer.data);
+		free(pReactorChannel->pOAuthCredentialRenewalImpl);
 
 		if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER)
 		{
@@ -331,6 +368,7 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	rsslClearBuffer(&pReactorChannel->rsslServiceDiscoveryRespBuffer);
 	rsslClearBuffer(&pReactorChannel->rsslAccessTokenRespBuffer);
 	rsslClearBuffer(&pReactorChannel->tokenInformationBuffer);
+	pReactorChannel->pOAuthCredentialRenewalImpl = NULL;
 
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 }
@@ -455,8 +493,8 @@ RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
 
 void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);
 
-RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pClientID,
-	RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
+RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pNewPassword,
+	RsslBuffer *pClientID, RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
 
 RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
 																RsslReactorDiscoveryDataFormatProtocol dataFormat, RsslBuffer *pTokenType, RsslBuffer *pAccessToken,
