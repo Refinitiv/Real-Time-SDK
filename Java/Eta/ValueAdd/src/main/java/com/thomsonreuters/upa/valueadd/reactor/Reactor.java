@@ -35,12 +35,14 @@ import com.thomsonreuters.upa.transport.ConnectOptions;
 import com.thomsonreuters.upa.transport.ConnectionTypes;
 import com.thomsonreuters.upa.transport.InitArgs;
 import com.thomsonreuters.upa.transport.ReadArgs;
+import com.thomsonreuters.upa.transport.ReadArgsImpl;
 import com.thomsonreuters.upa.transport.Server;
 import com.thomsonreuters.upa.transport.Transport;
 import com.thomsonreuters.upa.transport.TransportBuffer;
 import com.thomsonreuters.upa.transport.TransportFactory;
 import com.thomsonreuters.upa.transport.TransportReturnCodes;
 import com.thomsonreuters.upa.transport.WriteArgs;
+import com.thomsonreuters.upa.transport.WriteArgsImpl;
 import com.thomsonreuters.upa.valueadd.common.SelectableBiDirectionalQueue;
 import com.thomsonreuters.upa.valueadd.common.VaDoubleLinkList;
 import com.thomsonreuters.upa.valueadd.domainrep.rdm.MsgBase;
@@ -113,6 +115,8 @@ public class Reactor
     DecodeIterator _dIter = CodecFactory.createDecodeIterator();
     Msg _msg = CodecFactory.createMsg();
     WriteArgs _writeArgs = TransportFactory.createWriteArgs();
+    WriteArgs _writeArgsAggregator = TransportFactory.createWriteArgs();
+    ReadArgs _readArgsAggregator = TransportFactory.createReadArgs();
     InitArgs _initArgs = TransportFactory.createInitArgs();
     LoginMsg _loginMsg = LoginMsgFactory.createMsg();
     CloseMsg _closeMsg = (CloseMsg)CodecFactory.createMsg();
@@ -210,7 +214,8 @@ public class Reactor
             _reactorChannel.reactor(this);
             _reactorChannel.userSpecObj(this);
             _reactorChannel.selectableChannel(_workerQueue.readChannel());
-            
+            // Set ping handler aggregation
+            _reactorChannel.pingHandler().trackPings(_reactorOptions.pingStatSet());
             // create the worker thread.
             _worker = new Worker(_reactorChannel, _workerQueue.remote());
             _esWorker = Executors.newSingleThreadExecutor();
@@ -1991,7 +1996,8 @@ public class Reactor
         // update ping handler for message sent
         if (ret == ReactorReturnCodes.SUCCESS)
         {
-        	reactorChannel.pingHandler().sentMsg();
+        	if(_reactorOptions.pingStatSet())
+        		reactorChannel.pingHandler().sentMsg();
         }
         
         return ret;
@@ -2228,6 +2234,9 @@ public class Reactor
     private int performChannelRead(ReactorChannel reactorChannel, ReadArgs readArgs, ReactorErrorInfo errorInfo)
     {
         TransportBuffer msgBuf = reactorChannel.channel().read(readArgs, errorInfo.error());
+        
+        
+        
         if (msgBuf != null)
         {
             if (_reactorOptions.xmlTracing() == true)
@@ -2370,9 +2379,22 @@ public class Reactor
             }
             else if (readArgs.readRetVal() == TransportReturnCodes.READ_PING)
             {
-                // update ping handler
             	reactorChannel.pingHandler().receivedMsg();
             }
+        }
+        
+        if (readArgs.readRetVal() == TransportReturnCodes.READ_PING)
+        {
+            // update ping handler
+        	if(_reactorOptions.pingStatSet())
+               	reactorChannel.pingHandler().receivedPing();
+        }
+        
+        // Aggregate number of bytes read
+        if(_reactorOptions.readStatSet() == true)
+        {
+        	((ReadArgsImpl)_readArgsAggregator).bytesRead(overflowSafeAggregate(_readArgsAggregator.bytesRead(), readArgs.bytesRead()));
+            ((ReadArgsImpl)_readArgsAggregator).uncompressedBytesRead(overflowSafeAggregate(_readArgsAggregator.uncompressedBytesRead(), readArgs.uncompressedBytesRead()));	
         }
         
         if (readArgs.readRetVal() > 0)
@@ -2675,7 +2697,12 @@ public class Reactor
         // reconnect timer.
         if (reactorChannel.watchlist() == null)
             reactorChannel.resetReconnectTimers();
-
+        
+        // Reset aggregating statistics
+        _readArgsAggregator.clear();
+    	_writeArgsAggregator.clear();
+    	reactorChannel.pingHandler().resetAggregatedStats();
+    	
         // send channel_up to user app via reactorChannelEventCallback.
         if (sendAndHandleChannelEventCallback("Reactor.processChannelUp",
                                               ReactorChannelEventTypes.CHANNEL_UP, reactorChannel,
@@ -2825,6 +2852,14 @@ public class Reactor
 			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
+        
+        // Aggregate number of bytes written
+        if(_reactorOptions.writeStatSet() == true)
+        {
+        	((WriteArgsImpl)_writeArgsAggregator).bytesWritten(overflowSafeAggregate(_writeArgsAggregator.bytesWritten(),_writeArgs.bytesWritten()));
+            ((WriteArgsImpl)_writeArgsAggregator).uncompressedBytesWritten(overflowSafeAggregate(_writeArgsAggregator.uncompressedBytesWritten(),_writeArgs.uncompressedBytesWritten()));          
+        }
+  
         if (retval > TransportReturnCodes.SUCCESS)
         {
             sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteLoginRequest", errorInfo);
@@ -2914,6 +2949,14 @@ public class Reactor
 			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
+        
+        // Aggregate number of bytes written
+        if(_reactorOptions.writeStatSet() == true)
+        {
+        	((WriteArgsImpl)_writeArgsAggregator).bytesWritten(overflowSafeAggregate(_writeArgsAggregator.bytesWritten(), _writeArgs.uncompressedBytesWritten()));
+            ((WriteArgsImpl)_writeArgsAggregator).uncompressedBytesWritten(overflowSafeAggregate(_writeArgsAggregator.uncompressedBytesWritten(), _writeArgs.uncompressedBytesWritten()));	
+        }
+        
         if (retval > TransportReturnCodes.SUCCESS)
         {
             sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDirectoryRequest", errorInfo);
@@ -3003,6 +3046,14 @@ public class Reactor
 			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
+        
+        // Aggregate number of bytes written
+        if(_reactorOptions.writeStatSet() == true)
+        {
+        	((WriteArgsImpl)_writeArgsAggregator).bytesWritten(overflowSafeAggregate(_writeArgsAggregator.bytesWritten(), _writeArgs.bytesWritten()));
+            ((WriteArgsImpl)_writeArgsAggregator).uncompressedBytesWritten(overflowSafeAggregate(_writeArgsAggregator.uncompressedBytesWritten(), _writeArgs.uncompressedBytesWritten()));	
+        }
+        
         if (retval > TransportReturnCodes.SUCCESS)
         {
             sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDirectoryRefresh", errorInfo);
@@ -3092,6 +3143,13 @@ public class Reactor
 			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
+
+        // Aggregate number of bytes written
+        if(_reactorOptions.writeStatSet() == true)
+        {
+        	((WriteArgsImpl)_writeArgsAggregator).bytesWritten(overflowSafeAggregate(_writeArgsAggregator.bytesWritten(), _writeArgs.bytesWritten()));
+        	((WriteArgsImpl)_writeArgsAggregator).uncompressedBytesWritten(overflowSafeAggregate(_writeArgsAggregator.uncompressedBytesWritten(), _writeArgs.uncompressedBytesWritten()));
+        }
         if (retval > TransportReturnCodes.SUCCESS)
         {
             sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDictionaryRequest", errorInfo);
@@ -3184,6 +3242,14 @@ public class Reactor
 			System.out.println(_xmlString);
         }
         retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
+
+        // Aggregate number of bytes written
+        if(_reactorOptions.writeStatSet() == true)
+        {
+        	((WriteArgsImpl)_writeArgsAggregator).bytesWritten(overflowSafeAggregate(_writeArgsAggregator.bytesWritten(), _writeArgs.bytesWritten()));
+            ((WriteArgsImpl)_writeArgsAggregator).uncompressedBytesWritten(overflowSafeAggregate(_writeArgsAggregator.uncompressedBytesWritten(), _writeArgs.uncompressedBytesWritten()));	
+        }
+        
         if (retval > TransportReturnCodes.SUCCESS)
         {
             sendFlushRequest(reactorChannel, "Reactor.encodeAndWriteDictionaryClose", errorInfo);
@@ -4163,5 +4229,14 @@ public class Reactor
     {
         return reactorChannel.state() == ReactorChannel.State.UP ||
                reactorChannel.state() == ReactorChannel.State.READY;
+    }
+    
+    int overflowSafeAggregate(int a, int b)
+    {
+    	long sum = (long)a + (long)b;
+    	if (sum < Integer.MAX_VALUE)
+    		return (int)sum;
+    	else
+    		return Integer.MAX_VALUE;
     }
 }

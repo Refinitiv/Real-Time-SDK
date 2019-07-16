@@ -11,8 +11,11 @@ class PingHandler
     private volatile int _pingTimeoutLocal = 0;
     private volatile long _nextRemotePingTime = 0;
     private volatile long _nextLocalPingTime = 0;
+    private volatile long _pingsReceived = 0;
+    private volatile long _pingsSent = 0;
     private volatile boolean _receivedRemoteMsg = false;
     private volatile boolean _sentLocalMsg = false;
+    private static boolean _trackPings = true;
 
     /*
      * Indicate that we received a message from the remote connection
@@ -28,6 +31,24 @@ class PingHandler
     void sentMsg()
     {
         _sentLocalMsg = true;
+    }
+    
+    /*
+     * Indicate that we received a message from the remote connection
+     */
+    void receivedPing()
+    {
+    	if (_trackPings)
+    		_pingsReceived++;
+    }
+
+    /*
+     * Indicate that we sent a message to remote connection
+     */
+    void sentPing()
+    {
+    	if (_trackPings)
+    		_pingsSent++;
     }
 
     /*
@@ -78,6 +99,10 @@ class PingHandler
                 {
                     return ret;
                 }
+                else if (ret == TransportReturnCodes.SUCCESS)
+                {
+                	sentPing();
+                }
             }
 
             /* set time to send next local ping */
@@ -112,6 +137,27 @@ class PingHandler
 
         return TransportReturnCodes.SUCCESS;
     }
+    
+    /*
+     * access pings received
+     */
+    long getPingsReceived()
+    {
+    	return _pingsReceived;
+    }
+    
+    /*
+     * access pings sent
+     */
+    long getPingsSent()
+    {
+    	return _pingsSent;
+    }
+    
+    void trackPings(boolean trackPings)
+    {
+    	_trackPings = trackPings;
+    }
 
     /*
      * Re-initializes ping handler for possible reuse.
@@ -122,7 +168,18 @@ class PingHandler
         _pingTimeoutLocal = 0;
         _nextRemotePingTime = 0;
         _nextLocalPingTime = 0;
+        _pingsReceived = 0;
+        _pingsSent = 0;
         _receivedRemoteMsg = false;
         _sentLocalMsg = false;
+    }
+    
+    /*
+     * Resets aggregated metrics only
+     */
+    void resetAggregatedStats()
+    {
+    	_pingsReceived = 0;
+        _pingsSent = 0;
     }
 }

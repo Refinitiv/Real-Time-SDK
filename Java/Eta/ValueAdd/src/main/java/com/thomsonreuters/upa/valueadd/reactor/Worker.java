@@ -206,8 +206,6 @@ class Worker implements Runnable
 	                                            ReactorReturnCodes.FAILURE, "Worker.run()",
 	                                            "Ping error for channel: " + _error.text());
 	                    	}
-	                    	
-
 	                    }
                     }
                 }

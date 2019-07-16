@@ -836,5 +836,5 @@ public class ChannelSession
         copts.credentialsInfo().HTTPproxyLocalHostname(connectOptions.credentialsInfo().HTTPproxyLocalHostname());
         copts.credentialsInfo().HTTPproxyKRB5configFile(connectOptions.credentialsInfo().HTTPproxyKRB5configFile());
     }
-
+    
 }

@@ -11,10 +11,28 @@ import com.thomsonreuters.upa.codec.CodecFactory;
  */
 public class ReactorOptions
 {
+	/**
+     * Statistics flags for class of service.
+     */
+    public static class StatisticFlags
+    {
+        // StatisticFlags class cannot be instantiated
+        private StatisticFlags()
+        {
+            throw new AssertionError();
+        }
+
+        public static final int NONE =  0x00000000;
+        public static final int READ =  0x00000001;
+        public static final int WRITE = 0x00000002;
+        public static final int PING =  0x00000004;
+    }
+	
     private Buffer _serviceDiscoveryURL = CodecFactory.createBuffer();
     private Buffer _tokenServiceURL = CodecFactory.createBuffer();	
     Object _userSpecObj = null;
     boolean _xmlTracing = false;
+    int _statistics = StatisticFlags.NONE;
 
     ReactorOptions()
     {
@@ -103,6 +121,25 @@ public class ReactorOptions
     			tokenServiceURL.position(), tokenServiceURL.length());
     }
     
+    public void statistics(int statistics)
+    {
+    	_statistics = statistics;
+    }
+    
+    public boolean readStatSet()
+    {
+    	return (_statistics & StatisticFlags.READ) != 0;
+    }
+    
+    public boolean writeStatSet()
+    {
+    	return (_statistics & StatisticFlags.WRITE) != 0;
+    }
+    
+    public boolean pingStatSet()
+    {
+    	return (_statistics & StatisticFlags.PING) != 0;
+    }
     
     /**
      * a URL of the token service to get an access token and a refresh token. 
@@ -121,6 +158,11 @@ public class ReactorOptions
     {
         return _xmlTracing;
     }
+    
+    public int statistics()
+    {
+        return _statistics;
+    }
 
     /**
      * Clears this object for reuse.
@@ -129,6 +171,7 @@ public class ReactorOptions
     {
         _userSpecObj = null;
         _xmlTracing = false;
+        _statistics = StatisticFlags.NONE;
         _serviceDiscoveryURL.data("https://api.refinitiv.com/streaming/pricing/v1");
         _tokenServiceURL.data("https://api.refinitiv.com/auth/oauth2/beta1/token");        
     }
@@ -140,6 +183,7 @@ public class ReactorOptions
     {
         _userSpecObj = options._userSpecObj;
         _xmlTracing =  options._xmlTracing;
+        _statistics =  options._statistics;
         
         {
         	ByteBuffer byteBuffer = ByteBuffer.allocate(options._serviceDiscoveryURL.length());

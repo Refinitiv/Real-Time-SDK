@@ -149,7 +149,6 @@ import com.thomsonreuters.upa.valueadd.domainrep.rdm.directory.Service;
  * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
  * <li>-ax Specifies the Authentication Extended information.
  * <li>-aid Specifies the Application ID.
- * 
  * </ul>
  * 
  * @see DictionaryHandler
@@ -180,7 +179,7 @@ public class Consumer implements ResponseCallback
     private YieldCurveHandler yieldCurveHandler;
  
     private boolean shouldOffStreamPost = false;
-    private boolean shouldOnStreamPost = false;   
+    private boolean shouldOnStreamPost = false;  
     private Buffer postItemName;
     private StreamIdWatchList itemWatchList;
 
@@ -516,6 +515,7 @@ public class Consumer implements ResponseCallback
                 shouldOnStreamPost = false;
             }
         }
+                
         postHandler.enableOnstreamPost(shouldOnStreamPost);
 
         String value = CommandLine.value("publisherInfo");
@@ -830,6 +830,7 @@ public class Consumer implements ResponseCallback
                 System.out.println("Unhandled Domain Type: " + responseMsg.domainType());
                 break;
         }
+
     }
 
     private void processSymbolListResp(Msg responseMsg, DecodeIterator dIter)
@@ -1351,6 +1352,7 @@ public class Consumer implements ResponseCallback
         CommandLine.addOption("keypasswd", "", "Keystore password");        
         CommandLine.addOption("at", "", "Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.");
         CommandLine.addOption("ax", "", "Specifies the Authentication Extended information.");
+        CommandLine.addOption("aid", "", "Specifies the Application ID.");
         CommandLine.addOption("aid", "", "Specifies the Application ID.");
     }
 

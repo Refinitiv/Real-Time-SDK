@@ -40,6 +40,9 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private boolean cacheOption;
 	private int cacheInterval;
 	private int statisticInterval;
+	//APIQA
+	private String statisticFilter;
+	//END APIQA
 	private String authenticationToken;
 	private String authenticationExtended;
 	private String applicationId;
@@ -238,6 +241,13 @@ class ConsumerCmdLineParser implements CommandLineParser
     				statisticInterval = Integer.parseInt(args[++argsCount]);
     				++argsCount;
     			}
+    			//APIQA
+    			else if ("-statisticFilter".equals(args[argsCount]))
+    			{
+    				statisticFilter = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				++argsCount;				
+    			}
+    			//END APIQA
     			else if ("-at".equals(args[argsCount]))
     			{
     				authenticationToken = args[++argsCount];
@@ -413,12 +423,17 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return statisticInterval;
 	}
+	String statisticFilter()
+	{
+		return statisticFilter;
+	}
 	
+	//APIQA
 	String authenticationToken()
 	{
 		return authenticationToken;
 	}
-	
+	//END APIQA
 	String authenticationExtended()
 	{
 		return authenticationExtended;
@@ -475,7 +490,8 @@ class ConsumerCmdLineParser implements CommandLineParser
   				"\n -cache will store all open items in cache and periodically dump contents\n" +
   				"\n -cacheInterval number of seconds between displaying cache contents, must greater than 0\n" +
   				"\n -statisticInterval number of seconds between displaying reactor channel statistics, must greater than 0\n" +
-				"\n -runtime adjusts the running time of the application" +
+  				"\n -statisticFilter valid value are READ / WRITE / PING\n" +
+  				"\n -runtime adjusts the running time of the application" +
 				"\n -at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN" +
 				"\n -ax Specifies the Authentication Extended information" +
 				"\n -aid Specifies the Application ID");

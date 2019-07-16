@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
@@ -188,8 +190,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  *
  * <li>-cacheInterval number of seconds between displaying cache contents, must greater than 0
  *
- * <li>-statisticInterval number of seconds between displaying reactor channel statistics, must greater than 0
- *
  * <li>-proxy proxyFlag. if provided, the application will attempt
  * to make an http or encrypted connection through a proxy server (if
  * connectionType is set to http or encrypted).
@@ -265,6 +265,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	long cacheInterval;
     long statisticTime;
     long statisticInterval;
+    //APIQA
+    String statisticFilter;
+    //END APIQA
 	StringBuilder cacheDisplayStr;
 	Buffer cacheEntryBuffer;
 	
@@ -356,10 +359,27 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         statisticInterval = consumerCmdLineParser.statisticInterval();
         statisticTime = System.currentTimeMillis() + statisticInterval*1000;
         
+        //APIQA
+    	statisticFilter = consumerCmdLineParser.statisticFilter();
+    	//END APIQA
+        
         // Set reactor statistics to keep track of
         if(statisticInterval > 0)
         {
-        	reactorOptions.statistics(ReactorOptions.StatisticFlags.READ | ReactorOptions.StatisticFlags.WRITE | ReactorOptions.StatisticFlags.PING);
+        	switch(statisticFilter) {
+        	case "READ":
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.READ);
+        		break;
+        	case "WRITE":
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.WRITE);
+        		break;
+        	case "PING":
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.PING);
+        		break;
+        	default:
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.READ | ReactorOptions.StatisticFlags.WRITE | ReactorOptions.StatisticFlags.PING);
+        	}
+        	
         }
         
 		// create reactor
@@ -385,13 +405,49 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         
         /* create channel info, initialize channel info, and connect channels
          * for each connection specified */
-        
+        //API QA
+        int index = 0;
         for (ConnectionArg connectionArg : consumerCmdLineParser.connectionList())
         {
         	// create channel info
         	ChannelInfo chnlInfo = new ChannelInfo();
         	chnlInfo.connectionArg = connectionArg;
         	
+        	//APIQA
+        	chnlInfo.consumerRole.initDefaultRDMLoginRequest();
+        	if (index==0)
+        	{
+        		// use command line login user name if specified
+        		
+                if (consumerCmdLineParser.userName() != null && !consumerCmdLineParser.userName().equals(""))
+                {
+                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                    loginRequest.userName().data(consumerCmdLineParser.userName());
+                }
+                if (consumerCmdLineParser.passwd() != null)
+                {
+                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                    loginRequest.password().data(consumerCmdLineParser.passwd());
+                    loginRequest.applyHasPassword();
+                }
+        		index ++;
+        	}
+        	else
+        	{
+        		 
+        		 if (consumerCmdLineParser.userName2() != null && !consumerCmdLineParser.userName2().equals(""))
+                 {
+        			 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.userName().data(consumerCmdLineParser.userName2());
+                 }
+                 if (consumerCmdLineParser.passwd2() != null)
+                 {
+                	 LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
+                     loginRequest.password().data(consumerCmdLineParser.passwd2());
+                     loginRequest.applyHasPassword();                    
+                  }
+        	}
+        	//END APIQA
         	// initialize channel info
         	initChannelInfo(chnlInfo);   
 	
@@ -402,7 +458,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	        	System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
 	        	System.exit(ReactorReturnCodes.FAILURE);
 	        }
-	        
+	        //APIQA
+	        chnlInfo.consumerRole.watchlistOptions().enableWatchlist(true);
+	        //END APIQA
 	        // add to ChannelInfo list
 	        chnlInfoList.add(chnlInfo);
         }
@@ -447,11 +505,15 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	        {
 	        	statisticTime = System.currentTimeMillis() + statisticInterval*1000;
 	        	
-	        	ChannelInfo chnlInfo = chnlInfoList.get(0);
-	        	
-	        	if(reactorOptions.statistics() != 0 && chnlInfo.reactorChannel != null)
-        			displayReactorChannelStats(chnlInfo);
-	        	
+	        	//APIQA
+	        	for(int i = 0; i < chnlInfoList.size();i++)
+	        	{
+	        		ChannelInfo chnlInfo = chnlInfoList.get(i);
+	        		
+	        		if(reactorOptions.statistics() != 0 && chnlInfo.reactorChannel != null)
+	        			displayReactorChannelStats(chnlInfo);
+	        	}
+	        	//END APIQA
 	        	statisticTime = currentTime + statisticInterval*1000;
 	        }
 	        
@@ -1392,9 +1454,12 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         }
 
         // initialize consumer role to default
-        chnlInfo.consumerRole.initDefaultRDMLoginRequest();
+        //APIQA commented out
+        //chnlInfo.consumerRole.initDefaultRDMLoginRequest();
+        //END APIQA
         chnlInfo.consumerRole.initDefaultRDMDirectoryRequest();
-
+        
+        /*APIQA commented out
 		// use command line login user name if specified
         if (consumerCmdLineParser.userName() != null && !consumerCmdLineParser.userName().equals(""))
         {
@@ -1407,6 +1472,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
             loginRequest.password().data(consumerCmdLineParser.passwd());
             loginRequest.applyHasPassword();
         }
+        //END APIQA */
         if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().equals(""))
         {
         	chnlInfo.consumerRole.clientId().data(consumerCmdLineParser.clientId());
@@ -1797,7 +1863,13 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		reactorChannelStats.pingsReceived(overflowSafeAggregate(reactorChannelStats.pingsReceived(), stats.pingsReceived()));
 		reactorChannelStats.pingsSent(overflowSafeAggregate(reactorChannelStats.pingsSent(), stats.pingsSent()));
 		
-		System.out.println("Message Details:");
+		//System.out.println("Message Details:");
+                //APIQA
+		Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    	System.out.println("Statistic Time: "+ sdf.format(cal.getTime()));
+    	//END APIQA
+        System.out.println("Reactor channel statistic: Channel fd=" + chnlInfo.reactorChannel.channel().hashCode());
 		System.out.printf("Bytes read=%d\n", reactorChannelStats.bytesRead());
 		System.out.printf("Uncompressed bytes read=%d\n\n", reactorChannelStats.uncompressedBytesRead());
 		System.out.printf("Bytes written=%d\n", reactorChannelStats.bytesWritten());

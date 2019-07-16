@@ -906,8 +906,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
             else
                 itemState.copy(item.state());
         }
-
-    
+        
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 

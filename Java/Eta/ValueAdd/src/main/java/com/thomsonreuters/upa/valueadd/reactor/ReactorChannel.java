@@ -1476,4 +1476,37 @@ public class ReactorChannel extends VaNode
     	
     	return ReactorReturnCodes.SUCCESS;
     }    
+
+    /**
+     * Populates a {@link ReactorChannelStats} object with channel statistics aggregated
+     * since either the start of the channel or the last call to this method.
+     * 
+     * After populating the object, all external statistic aggregators are reset.
+     * 
+     * @param the {@link ReactorChannelStats} object to be populated
+     */
+    public void getReactorChannelStats(ReactorChannelStats stats)
+    {
+        _reactor._reactorLock.lock();
+
+        try {
+        	
+        	// Populate stats into ReactorChannelStats object
+        	stats.bytesRead(_reactor._readArgsAggregator.bytesRead());
+        	stats.bytesWritten(_reactor._writeArgsAggregator.bytesWritten());
+        	stats.uncompressedBytesRead(_reactor._readArgsAggregator.uncompressedBytesRead());
+        	stats.uncompressedBytesWritten(_reactor._writeArgsAggregator.uncompressedBytesWritten());
+        	stats.pingsReceived((int)pingHandler().getPingsReceived());
+        	stats.pingsSent((int)pingHandler().getPingsSent());
+        	
+        	// Reset aggregated stats
+        	pingHandler().resetAggregatedStats();
+        	_reactor._readArgsAggregator.clear();
+        	_reactor._writeArgsAggregator.clear();
+        }
+        finally
+        {
+            _reactor._reactorLock.unlock();
+        }
+    }
 }

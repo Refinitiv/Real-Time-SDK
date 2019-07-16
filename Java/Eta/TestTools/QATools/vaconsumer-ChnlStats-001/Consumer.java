@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import com.thomsonreuters.upa.codec.Buffer;
 import com.thomsonreuters.upa.codec.Codec;
@@ -188,8 +190,6 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  *
  * <li>-cacheInterval number of seconds between displaying cache contents, must greater than 0
  *
- * <li>-statisticInterval number of seconds between displaying reactor channel statistics, must greater than 0
- *
  * <li>-proxy proxyFlag. if provided, the application will attempt
  * to make an http or encrypted connection through a proxy server (if
  * connectionType is set to http or encrypted).
@@ -265,6 +265,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	long cacheInterval;
     long statisticTime;
     long statisticInterval;
+    //APIQA
+    String statisticFilter;
+    //END APIQA
 	StringBuilder cacheDisplayStr;
 	Buffer cacheEntryBuffer;
 	
@@ -356,10 +359,27 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         statisticInterval = consumerCmdLineParser.statisticInterval();
         statisticTime = System.currentTimeMillis() + statisticInterval*1000;
         
+        //APIQA
+    	statisticFilter = consumerCmdLineParser.statisticFilter();
+    	//END APIQA
+        
         // Set reactor statistics to keep track of
         if(statisticInterval > 0)
         {
-        	reactorOptions.statistics(ReactorOptions.StatisticFlags.READ | ReactorOptions.StatisticFlags.WRITE | ReactorOptions.StatisticFlags.PING);
+        	switch(statisticFilter) {
+        	case "READ":
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.READ);
+        		break;
+        	case "WRITE":
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.WRITE);
+        		break;
+        	case "PING":
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.PING);
+        		break;
+        	default:
+        		reactorOptions.statistics(ReactorOptions.StatisticFlags.READ | ReactorOptions.StatisticFlags.WRITE | ReactorOptions.StatisticFlags.PING);
+        	}
+        	
         }
         
 		// create reactor
@@ -448,9 +468,10 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 	        	statisticTime = System.currentTimeMillis() + statisticInterval*1000;
 	        	
 	        	ChannelInfo chnlInfo = chnlInfoList.get(0);
-	        	
+
 	        	if(reactorOptions.statistics() != 0 && chnlInfo.reactorChannel != null)
         			displayReactorChannelStats(chnlInfo);
+	        	
 	        	
 	        	statisticTime = currentTime + statisticInterval*1000;
 	        }
@@ -1797,7 +1818,13 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		reactorChannelStats.pingsReceived(overflowSafeAggregate(reactorChannelStats.pingsReceived(), stats.pingsReceived()));
 		reactorChannelStats.pingsSent(overflowSafeAggregate(reactorChannelStats.pingsSent(), stats.pingsSent()));
 		
-		System.out.println("Message Details:");
+		//System.out.println("Message Details:");
+                //APIQA
+		Calendar cal = Calendar.getInstance();
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    	        System.out.println("Statistic Time: "+ sdf.format(cal.getTime()));
+    	        //END APIQA
+                System.out.println("Reactor channel statistic: Channel fd=" + chnlInfo.reactorChannel.channel().hashCode());
 		System.out.printf("Bytes read=%d\n", reactorChannelStats.bytesRead());
 		System.out.printf("Uncompressed bytes read=%d\n\n", reactorChannelStats.uncompressedBytesRead());
 		System.out.printf("Bytes written=%d\n", reactorChannelStats.bytesWritten());

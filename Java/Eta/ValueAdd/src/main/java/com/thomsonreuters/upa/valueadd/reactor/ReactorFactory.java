@@ -89,6 +89,18 @@ public class ReactorFactory
     {
         return new ReactorOptions();
     }
+    
+    /**
+     * Create {@link ReactorChannelStats}.
+     * 
+     * @return {@link ReactorChannelStats} object
+     * 
+     * @see ReactorChannelStats
+     */
+    public static ReactorChannelStats createReactorChannelStats()
+    {
+        return new ReactorChannelStatsImpl();
+    }
 
     /**
      * Create {@link ReactorConnectOptions}.

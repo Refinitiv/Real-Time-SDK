@@ -55,6 +55,10 @@ vaconsumer-Tunneling-001:  Alters VAConsumer to set tcpNoDelay to true for http 
 This adds the following into Consumer.java:
 chnlInfo.connectOptions.connectionList().get(0).connectOptions().tcpOpts().tcpNoDelay(true)
 
+vaconsumer-ChnlStats-001: Alters VAConsumer to set statisticFilter for testing ReactorChannelStatistics base on Filer READ, WRITE or PING.
+
+vaconsumer-ChnlStats-002: Alters VAConsumer to create 2 connections with 1 reactor, each connection requests login using different uname and passwd, in order to test ReactorChannelStatistic and sessionMgnt for 2 connections.
+
 Module:  Watchlist Consumer 
 ---------------------------
 

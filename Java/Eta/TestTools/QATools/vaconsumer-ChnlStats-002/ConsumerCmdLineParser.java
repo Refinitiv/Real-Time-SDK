@@ -16,6 +16,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String backupPort;
 	private String userName;
 	private String passwd;
+	private String userName2;
+	private String passwd2;
 	private String clientId;
 	private boolean enableView;
 	private boolean enablePost;
@@ -40,6 +42,9 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private boolean cacheOption;
 	private int cacheInterval;
 	private int statisticInterval;
+	//APIQA
+	private String statisticFilter;
+	//END APIQA
 	private String authenticationToken;
 	private String authenticationExtended;
 	private String applicationId;
@@ -101,6 +106,16 @@ class ConsumerCmdLineParser implements CommandLineParser
     			else if ("-passwd".equals(args[argsCount]))
     			{
     				passwd = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-uname2".equals(args[argsCount]))
+    			{
+    				userName2 = args[++argsCount];
+    				++argsCount;
+    			}
+    			else if ("-passwd2".equals(args[argsCount]))
+    			{
+    				passwd2 = args[++argsCount];
     				++argsCount;
     			}
     			else if ("-sessionMgnt".equals(args[argsCount]))
@@ -238,6 +253,13 @@ class ConsumerCmdLineParser implements CommandLineParser
     				statisticInterval = Integer.parseInt(args[++argsCount]);
     				++argsCount;
     			}
+    			//APIQA
+    			else if ("-statisticFilter".equals(args[argsCount]))
+    			{
+    				statisticFilter = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				++argsCount;				
+    			}
+    			//END APIQA
     			else if ("-at".equals(args[argsCount]))
     			{
     				authenticationToken = args[++argsCount];
@@ -288,6 +310,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return userName;
 	}
+	
+	String userName2()
+	{
+		return userName2;
+	}
 
 	boolean enableView()
 	{
@@ -297,6 +324,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 	String passwd()
 	{
 		return passwd;
+	}
+	
+	String passwd2()
+	{
+		return passwd2;
 	}
 	
 	String clientId()
@@ -413,12 +445,17 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return statisticInterval;
 	}
+	String statisticFilter()
+	{
+		return statisticFilter;
+	}
 	
+	//APIQA
 	String authenticationToken()
 	{
 		return authenticationToken;
 	}
-	
+	//END APIQA
 	String authenticationExtended()
 	{
 		return authenticationExtended;
@@ -452,6 +489,10 @@ class ConsumerCmdLineParser implements CommandLineParser
 				"\n -bc specifies a backup connection that is attempted if the primary connection fails\n" +
 				"\n -uname changes the username used when logging into the provider\n" +
 				"\n -passwd changes the password used when logging into the provider\n" +
+				//APIQA
+				"\n -uname2 changes the username used when logging into the provider\n" +
+				"\n -passwd2 changes the password used when logging into the provider\n" +
+				//END APIQA
 		        "\n -clientId (optional) specifies an unique ID for application making the request to EDP token service.\n" +
 				"\n -sessionMgnt enables the session management in the Reactor\n" +
 				"\n -view specifies each request using a basic dynamic view\n" +
@@ -475,7 +516,8 @@ class ConsumerCmdLineParser implements CommandLineParser
   				"\n -cache will store all open items in cache and periodically dump contents\n" +
   				"\n -cacheInterval number of seconds between displaying cache contents, must greater than 0\n" +
   				"\n -statisticInterval number of seconds between displaying reactor channel statistics, must greater than 0\n" +
-				"\n -runtime adjusts the running time of the application" +
+  				"\n -statisticFilter valid value are READ / WRITE / PING\n" +
+  				"\n -runtime adjusts the running time of the application" +
 				"\n -at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN" +
 				"\n -ax Specifies the Authentication Extended information" +
 				"\n -aid Specifies the Application ID");
