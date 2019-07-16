@@ -348,11 +348,15 @@ protected:
 
 		_reactorOmmProviderRole.base.channelEventCallback = channelEventCallback;
 		_reactorOmmProviderRole.base.defaultMsgCallback = defaultMsgCallback;
+		cleanupReactor = RSSL_TRUE; // Cleaning up the reactor by default
 	}
 
 	void TearDown()
 	{
-		cleanupReactors(RSSL_TRUE);
+		if (cleanupReactor)
+		{
+			cleanupReactors(RSSL_TRUE);
+		}
 	}
 
 	RsslReactorAcceptOptions _reactorAcceptOpts;
@@ -364,6 +368,7 @@ protected:
 	RsslRDMLoginRequest _rdmLoginRequest;
 	RsslReactorOAuthCredential _reactorOAuthCredential;
 	RsslConsumerWatchlistOptions _watchlistOptions;
+	RsslBool cleanupReactor;
 };
 
 int ReactorSessionMgntTest::connectInfoCount = 3;
@@ -514,6 +519,16 @@ TEST_F(ReactorSessionMgntTest, UsingOmmNiProviderRoleForSessionMgnt)
 	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The session management supports only on the RSSL_RC_RT_OMM_CONSUMER role type.");
 }
 
+TEST_F(ReactorSessionMgntTest, EmptyAuthTokenServiceURL)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	mOpts.tokenServiceURL.data = const_cast<char*>("");
+	mOpts.tokenServiceURL.length = 0;
+	cleanupReactor = RSSL_FALSE;
+	ASSERT_TRUE(rsslCreateReactor(&mOpts, &rsslErrorInfo) == NULL);
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The token service URL is not available.");
+}
+
 TEST_F(ReactorSessionMgntTest, InvalidAuthTokenServiceURL)
 {
 	rsslClearCreateReactorOptions(&mOpts);
@@ -548,6 +563,16 @@ TEST_F(ReactorSessionMgntTest, InvalidAuthTokenServiceURL)
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
 	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Error: Failed to perform the request") != NULL);
+}
+
+TEST_F(ReactorSessionMgntTest, EmptyServiceDiscoveryURL)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	mOpts.serviceDiscoveryURL.data = const_cast<char*>("");
+	mOpts.serviceDiscoveryURL.length = 0;
+	cleanupReactor = RSSL_FALSE;
+	ASSERT_TRUE(rsslCreateReactor(&mOpts, &rsslErrorInfo) == NULL);
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The service discovery URL is not available.");
 }
 
 TEST_F(ReactorSessionMgntTest, InvalidServiceDiscoveryURL)

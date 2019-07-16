@@ -341,8 +341,8 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	{
 		if (!(pReactorImpl->tokenServiceURL.data = (char*)malloc(pReactorOpts->tokenServiceURL.length + 1)))
 		{
+			_reactorWorkerCleanupReactor(pReactorImpl);
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory for the token service URL.");
-			free(pReactorImpl);
 			return NULL;
 		}
 
@@ -352,8 +352,8 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	}
 	else
 	{
+		_reactorWorkerCleanupReactor(pReactorImpl);
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "The token service URL is not available.");
-		free(pReactorImpl);
 		return NULL;
 	}
 
@@ -361,9 +361,8 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	{
 		if (!(pReactorImpl->serviceDiscoveryURL.data = (char*)malloc(pReactorOpts->serviceDiscoveryURL.length + 1)))
 		{
+			_reactorWorkerCleanupReactor(pReactorImpl);
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory for the service discovery URL.");
-			free(pReactorImpl);
-			free(pReactorOpts->tokenServiceURL.data);
 			return NULL;
 		}
 
@@ -373,9 +372,8 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	}
 	else
 	{
+		_reactorWorkerCleanupReactor(pReactorImpl);
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "The service discovery URL is not available.");
-		free(pReactorImpl);
-		free(pReactorOpts->tokenServiceURL.data);
 		return NULL;
 	}
 
@@ -386,12 +384,14 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	/* Setup reactor */
 	if (rsslInitReactorEventQueue(&pReactorImpl->reactorEventQueue, 10, &pReactorImpl->activeEventQueueGroup) != RSSL_RET_SUCCESS)
 	{
+		_reactorWorkerCleanupReactor(pReactorImpl);
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to initialize event queue.");
 		return NULL;
 	}
 
 	if (rsslInitReactorEventQueueGroup(&pReactorImpl->activeEventQueueGroup) != RSSL_RET_SUCCESS)
 	{
+		_reactorWorkerCleanupReactor(pReactorImpl);
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to initialize event queue group.");
 		return NULL;
 	}
