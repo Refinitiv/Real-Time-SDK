@@ -1423,7 +1423,105 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 					if ((!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
 						(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName)))
 					{	/* Get host name and port for EDP-RT service discovery */
-						pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
+						RsslBuffer rsslBuffer = RSSL_INIT_BUFFER;
+						RsslQueueLink *pLink = NULL;
+						RsslError rsslError;
+						RsslReactorDiscoveryTransportProtocol transport = RSSL_RD_TP_INIT;
+						RsslRestRequestArgs* pRestRequestArgs;
+
+						switch (pReactorConnectInfoImpl->base.rsslConnectOptions.connectionType)
+						{
+						case RSSL_CONN_TYPE_ENCRYPTED:
+							transport = RSSL_RD_TP_TCP;
+							break;
+						default:
+							rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+								"Invalid connection type(%d) for requesting EDP-RT service discovery.",
+								transport);
+
+							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE;
+
+							/* Notify error back to the application via the channel event */
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							{
+								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+							}
+
+							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE;
+							continue;
+						}
+
+						rsslClearBuffer(&rsslBuffer);
+						if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(&pReactorChannel->pParentReactor->serviceDiscoveryURL,
+							transport, RSSL_RD_DP_INIT, &pTokenSessionImpl->tokenInformation.tokenType,
+							&pTokenSessionImpl->tokenInformation.accessToken,
+							&rsslBuffer, pReactorChannel, &pReactorChannel->channelWorkerCerr)) == 0)
+						{
+							/* Notify error back to the application via the channel event */
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							{
+								free(rsslBuffer.data);
+								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+							}
+
+							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_MEM_ALLOCATION_FAILURE;
+							free(rsslBuffer.data);
+							continue;
+						}
+
+						if (pTokenSessionImpl->rsslServiceDiscoveryRespBuffer.data == 0)
+						{
+							pTokenSessionImpl->rsslServiceDiscoveryRespBuffer.length = RSSL_REST_INIT_SVC_DIS_BUF_SIZE;
+							pTokenSessionImpl->rsslServiceDiscoveryRespBuffer.data = (char*)malloc(pTokenSessionImpl->rsslServiceDiscoveryRespBuffer.length);
+
+							if (pTokenSessionImpl->rsslServiceDiscoveryRespBuffer.data == 0)
+							{
+								rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+									"Failed to allocate memory for service discovery response buffer.");
+
+								/* Notify error back to the application via the channel event */
+								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								{
+									free(pRestRequestArgs);
+									free(rsslBuffer.data);
+									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								}
+
+								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_MEM_ALLOCATION_FAILURE;
+								free(pRestRequestArgs);
+								free(rsslBuffer.data);
+								continue;
+							}
+						}
+
+						_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+
+						if ((pReactorChannel->pRestHandle = rsslRestClientNonBlockingRequest(pReactorChannel->pParentReactor->pRestClient, pRestRequestArgs,
+							rsslRestServiceDiscoveryResponseCallback,
+							rsslRestErrorCallback,
+							&pTokenSessionImpl->rsslServiceDiscoveryRespBuffer, &rsslError)) == 0)
+						{
+							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE;
+						}
+
+						free(pRestRequestArgs);
+						free(rsslBuffer.data);
+
+						if (pReactorConnectInfoImpl->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE)
+						{
+							rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+								"Failed to send the REST request. Text: %s", rsslError.text);
+
+							/* Notify error back to the application via the channel event */
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							{
+								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+							}
+						}
+						else
+						{
+							pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
+						}
 					}
 					else
 					{
