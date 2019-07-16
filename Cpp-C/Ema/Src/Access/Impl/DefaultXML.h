@@ -81,6 +81,7 @@ thomsonreuters::ema::access::EmaString Int64Values[] = {
 	"ReconnectMaxDelay",
 	"ReconnectMinDelay",
 	"ReissueTokenAttemptLimit",
+	"ReissueTokenAttemptInterval",
 	"XmlTraceMaxFileSize",
 };
 

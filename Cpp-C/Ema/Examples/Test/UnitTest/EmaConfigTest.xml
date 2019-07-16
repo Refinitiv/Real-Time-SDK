@@ -53,6 +53,8 @@
 			<XmlTraceHex value="1"/>
 			<MsgKeyInUpdates value="1"/>
 			<TokenReissueRatio value="0.70"/>
+			<ReissueTokenAttemptLimit value="5"/>
+			<ReissueTokenAttemptInterval value="6000"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>
@@ -346,7 +348,6 @@
 			<Location value="eu-west"/>
 			<EnableSessionManagement value="1"/>
 			<InitializationTimeout value="55"/>
-			<ReissueTokenAttemptLimit value="5"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_3"/>

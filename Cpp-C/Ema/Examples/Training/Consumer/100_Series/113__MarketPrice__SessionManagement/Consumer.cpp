@@ -31,7 +31,7 @@ void printHelp()
 	cout << endl << "Options:\n" << " -?\tShows this usage" << endl
 		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
-		<< " -clientId client ID to perform authorization with the token service (optional). The user name is used if not specified." << endl
+		<< " -clientId client ID to perform authorization with the token service (mandatory)." << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
 		<< " -ph Proxy host name (optional)." << endl
 		<< " -pp Proxy port number (optional)." << endl
@@ -47,6 +47,7 @@ int main( int argc, char* argv[] )
 		OmmConsumerConfig config;
 		UInt8 userNameSet = 0;
 		UInt8 passwordSet = 0;
+		UInt8 clientIdSet = 0;
 
 		for ( int i = 1; i < argc; i++ )
 		{
@@ -73,7 +74,11 @@ int main( int argc, char* argv[] )
 			}
 			else if ( strcmp( argv[i], "-clientId" ) == 0 )
 			{
-				config.clientId( i < (argc - 1) ? argv[++i] : NULL );
+				if ( i < (argc - 1) )
+				{
+					clientIdSet = 1;
+					config.clientId( argv[++i] );
+				}
 			}
 			else if ( strcmp( argv[i], "-ph" ) == 0 )
 			{
@@ -97,9 +102,9 @@ int main( int argc, char* argv[] )
 			}
 		}
 
-		if ( !userNameSet || !passwordSet )
+		if ( !userNameSet || !passwordSet || !clientIdSet )
 		{
-			cout << "Both username and password must be specified on the command line. Exiting...";
+			cout << "User name, password and client Id must be specified on the command line. Exiting...";
 			printHelp();
 			return -1;
 		}

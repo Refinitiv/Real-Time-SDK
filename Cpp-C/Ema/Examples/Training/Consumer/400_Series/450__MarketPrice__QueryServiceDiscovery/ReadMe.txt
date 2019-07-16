@@ -24,10 +24,10 @@ Detailed Description
 including:
 -username machine ID to perform authorization with the token service (mandatory).
 -password password to perform authorization with the token service (mandatory).
--clientId client ID to perform authorization with the token service (optional). The user name is
-used if not specified. You can generate and manage client Ids at the following URL:
-https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
-to access this page).
+-clientId client ID to perform authorization with the token service (mandatory).
+ You can generate and manage client Ids at the following URL:
+ https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
+ to access this page).
 - location location to get an endpoint from EDP-RT service discovery. Now, it is either
 "us-east" by default or "eu-west" (optional).
 

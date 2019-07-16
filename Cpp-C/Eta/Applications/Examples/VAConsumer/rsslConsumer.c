@@ -123,8 +123,10 @@ void printUsageAndExit(char *appName)
 			"\n           (for SymbolList requests, a name can be optionally specified)\n"
 			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
 			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
-			"\n -uname changes the username used when logging into the provider. Specifies machine ID for ERT in cloud\n"
-			"\n -passwd changes the password used when logging into the provider.\n"
+			"\n -uname specifies the username used when logging into the provider. The machine ID for ERT in cloud (mandatory).\n"
+			"\n -passwd specifies the password used when logging into the provider. The password for ERT in cloud (mandatory).\n"
+			"\n -clientId specifies the Client ID for ERT in cloud (mandatory). You can generate and manage client Ids at the following URL:\n"
+			"\n  https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login to access this page)\n"
 			"\n -sessionMgnt Enables session management in the Reactor for ERT in cloud.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
 			"\n -ax Specifies the Authentication Extended information. \n"
@@ -1222,13 +1224,13 @@ void closeConnection(RsslReactor *pReactor, RsslReactorChannel *pChannel, Channe
 RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorAuthTokenEvent *pAuthTokenEvent)
 {
 	RsslRet ret;
-	ChannelCommand *pCommand = (ChannelCommand*)pReactorChannel->userSpecPtr;
+	ChannelCommand *pCommand = pReactorChannel ? (ChannelCommand*)pReactorChannel->userSpecPtr: NULL;
 
 	if (pAuthTokenEvent->pError)
 	{
 		printf("Retrieve an access token failed. Text: %s\n", pAuthTokenEvent->pError->rsslError.text);
 	}
-	else if (pCommand->canSendLoginReissue && pAuthTokenEvent->pReactorAuthTokenInfo)
+	else if (pCommand && pCommand->canSendLoginReissue && pAuthTokenEvent->pReactorAuthTokenInfo)
 	{
 		RsslReactorSubmitMsgOptions submitMsgOpts;
 		RsslErrorInfo rsslErrorInfo;
@@ -1266,8 +1268,7 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 	rsslClearReactorOAuthCredentialRenewal(&reactorOAuthCredentialRenewal);
 	reactorOAuthCredentialRenewal.password = password; /* Specified password as needed */
 
-	rsslReactorSubmitOAuthCredentialRenewal(pReactor, pOAuthCredentialEvent->pReactorChannel, &renewalOptions,
-		&reactorOAuthCredentialRenewal, &rsslError);
+	rsslReactorSubmitOAuthCredentialRenewal(pReactor, &renewalOptions, &reactorOAuthCredentialRenewal, &rsslError);
 
 	return RSSL_RC_CRET_SUCCESS;
 }

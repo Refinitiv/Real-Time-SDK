@@ -38,6 +38,7 @@
 #define DEFAULT_DISPATCH_TIMEOUT_API_THREAD				-1
 #define DEFAULT_EDP_RT_LOCATION							EmaString( "us-east" )
 #define DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT				-1
+#define DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL			5000
 #define DEFAULT_GUARANTEED_OUTPUT_BUFFERS				100
 #define DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS		5000
 #define DEFAULT_NUM_INPUT_BUFFERS					    10
@@ -265,7 +266,6 @@ public :
 	int						securityProtocol;
 	EmaString				location;
 	RsslBool				enableSessionMgnt;
-	RsslInt					reissueTokenAttemptLimit;
 
 private :
 
@@ -457,6 +457,8 @@ public:
 	Int32			reconnectMinDelay;
 	Int32			reconnectMaxDelay;
 	bool			msgKeyInUpdates;
+	Int64			reissueTokenAttemptLimit;
+	Int64			reissueTokenAttemptInterval;
 
 	DictionaryConfig		dictionaryConfig;
 

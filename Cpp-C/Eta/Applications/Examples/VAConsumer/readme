@@ -85,8 +85,7 @@ VAConsumer
 
 or
 
-VAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-passwd <LoginPassword>]  [-sessionMgnt] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain]
-
+VAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-passwd <LoginPassword>] [-clientId <Client ID>] [-sessionMgnt] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain]
 
 -tcp specifies creating a channel on the given host and port, a service to request items from, and the list of items to request.
 
@@ -159,7 +158,7 @@ Specifying the -aid option configures the Application Id.
 
 or 
 
-VAConsumer -encryptedSocket <service name> mp:TRI.N -uname <machine ID> -passwd <password> -sessionMgnt
+VAConsumer -encryptedSocket <service name> mp:TRI.N -uname <machine ID> -passwd <password> -clientId <Client ID> -sessionMgnt
 
 The above example command line is used to create an encrypted connection with the socket encrypted protocol type
 using the default "us-east" region and enable session management to login and subscribe TRI.N from

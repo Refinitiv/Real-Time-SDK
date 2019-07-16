@@ -22,6 +22,7 @@
 #include "rtr/tunnelManager.h"
 #include "rtr/rsslRestClientImpl.h"
 #include "rtr/rtratomic.h"
+#include "rtr/rsslReactorTokenMgntImpl.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -34,8 +35,6 @@ extern "C" {
 #endif
 
 typedef struct _RsslReactorImpl RsslReactorImpl;
-
-typedef struct _RsslReactorOAuthCredentialRenewalImpl RsslReactorOAuthCredentialRenewalImpl;
 
 typedef enum
 {
@@ -58,12 +57,10 @@ typedef enum
 	RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE = -2,
 	RSSL_RC_CHINFO_IMPL_ST_BUFFER_TOO_SMALL = -1,
 	RSSL_RC_CHINFO_IMPL_ST_INIT = 0,
-	RSSL_RC_CHINFO_IMPL_ST_REQ_SENSITIVE_INFO = 1,
-	RSSL_RC_CHINFO_IMPL_ST_WAITING_TO_REQ_AUTH_TOKEN = 2,
-	RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN = 3,
-	RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN = 4,
-	RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY = 5, 
-	RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT = 6, 
+	RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN = 1,
+	RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN = 2,
+	RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY = 3,
+	RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT = 4,
 } RsslReactorChannelInfoImplState;
 
 /* RsslReactorConnectInfoImpl
@@ -72,7 +69,7 @@ typedef struct
 {
 	RsslReactorConnectInfo base;
 
-	RsslInt32						reissueTokenAttemptLimit; /* Keeping track of token renewal attempt */
+	RsslInt		lastTokenUpdatedTime; /* Keeps track the last updated time in ms of token information from the token session */
 
 	RsslReactorChannelInfoImplState	reactorChannelInfoImplState; /* Keeping track the state of this session */
 	RsslReactorTokenMgntEventType	reactorTokenMgntEventType; /* Specify an event type for sending to the Reactor */
@@ -141,31 +138,24 @@ typedef struct
 	TunnelManager *pTunnelManager;
 
 	/* Support session management and EDP-RT service discovery. */
-	RsslBool supportSessionMgnt;
-	RsslReactorAuthTokenInfo	tokenInformation;
-	RsslBuffer				tokenInformationBuffer;
-	RsslInt					nextExpiresTime; /* the next expires time in millisecond */
-	RsslBool				resendFromFailure; /* Indicates to resend the request after a response failure */
-	rtr_atomic_val			sendTokenRequest;
-	RsslBuffer				rsslAccessTokenRespBuffer;
-	RsslBuffer				rsslServiceDiscoveryRespBuffer;
-	RsslBuffer				rsslPostDataBodyBuf;
+	RsslBool				supportSessionMgnt;
 	RsslUInt32				httpStausCode; /* the latest HTTP status code */
+	RsslRestHandle			*pRestHandle; /* This is used to request the endpoints from EDP-RT service discovery */
 
 	/* This is original login request information */
 	RsslBuffer				userName;
 	RsslUInt32				flags;
 	RsslUInt8				userNameType;
 
-	/* This is used for OAuth credential renewal */
-	RsslReactorOAuthCredentialRenewalImpl *pOAuthCredentialRenewalImpl;
-
-	RsslUInt32 connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks */
+	RsslUInt32 connectionDebugFlags; /*!< Set of RsslDebugFlags for calling the user-set debug callbacks */
 
 	/* Keeps aggregated values of connection statistics */
 	RsslReactorChannelStatistic		*pChannelStatistic;
 	RsslReactorChannelStatisticFlags statisticFlags;
 
+	/* This is used for token session management */
+	RsslQueueLink					tokenSessionLink; /* Keeps in the RsslQueue of RsslReactorTokenSessionImpl */
+	RsslReactorTokenSessionImpl		*pTokenSessionImpl; /* The RsslReactorTokenSessionImpl for this channel if token management is enable */
 } RsslReactorChannelImpl;
 
 RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pInfo)
@@ -174,36 +164,6 @@ RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, Rss
 	pInfo->pParentReactor = pReactorImpl;
 	pInfo->nextExpireTime = RCIMPL_TIMER_UNSET;
 	pInfo->lastRequestedExpireTime = RCIMPL_TIMER_UNSET;
-}
-
-/* RsslReactorOAuthCredentialRenewalImpl
- * - Handles allocated memory length and the association with RsslReactorChannelImpl for RsslReactorOAuthCredentialRenewal */
-struct _RsslReactorOAuthCredentialRenewalImpl
-{
-	RsslReactorOAuthCredentialRenewal reactorOAuthCredentialRenewal;
-	RsslReactorChannelImpl			*pParentChannel; /* Specify the owner of this type if any */
-
-	/* Keeps track of memory allocation length */
-	size_t		memoryLength;
-
-	/* The following member variables is used only when submitting without a channel */
-	RsslBuffer					rsslAccessTokenRespBuffer;
-	RsslReactorImpl				*pRsslReactorImpl;
-	RsslReactorAuthTokenInfo	tokenInformation;
-	RsslBuffer					tokenInformationBuffer;
-	RsslBuffer					rsslPostDataBodyBuf;
-	RsslReactorAuthTokenEventCallback	*pAuthTokenEventCallback;
-	RsslUInt32					httpStatusCode;
-	RsslBuffer					proxyHostName;
-	RsslBuffer					proxyPort;
-	RsslBuffer					proxyUserName;
-	RsslBuffer					proxyPasswd;
-	RsslBuffer					proxyDomain;
-};
-
-RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewalImpl(RsslReactorOAuthCredentialRenewalImpl *pInfo)
-{
-	memset(pInfo, 0, sizeof(RsslReactorOAuthCredentialRenewalImpl));
 }
 
 RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pReactorChannel, RsslReactorConnectOptions *pOpts, 
@@ -270,9 +230,6 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 			pReactorChannel->connectionOptList[i].base.initializationTimeout = pOpts->reactorConnectionList[i].initializationTimeout;
 			pReactorChannel->connectionOptList[i].base.enableSessionManagement = pOpts->reactorConnectionList[i].enableSessionManagement;
 			pReactorChannel->connectionOptList[i].base.pAuthTokenEventCallback = pOpts->reactorConnectionList[i].pAuthTokenEventCallback;
-			pReactorChannel->connectionOptList[i].base.reissueTokenAttemptLimit = 
-				pOpts->reactorConnectionList[i].reissueTokenAttemptLimit < -1  ? -1 : pOpts->reactorConnectionList[i].reissueTokenAttemptLimit;
-			pReactorChannel->connectionOptList[i].reissueTokenAttemptLimit = pReactorChannel->connectionOptList[i].base.reissueTokenAttemptLimit;
 
 			if (!(*enableSessionMgnt))
 				(*enableSessionMgnt) = pReactorChannel->connectionOptList[i].base.enableSessionManagement;
@@ -355,17 +312,15 @@ RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pRea
 			rsslFreeConnectOpts(&pReactorChannel->connectionOptList[i].base.rsslConnectOptions);
 		}
 
-		free(pReactorChannel->rsslPostDataBodyBuf.data);
-		free(pReactorChannel->rsslServiceDiscoveryRespBuffer.data);
-		free(pReactorChannel->rsslAccessTokenRespBuffer.data);
-		free(pReactorChannel->tokenInformationBuffer.data);
-		free(pReactorChannel->pOAuthCredentialRenewalImpl);
-		free(pReactorChannel->pChannelStatistic);
-
-		if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER)
+		if (pReactorChannel->supportSessionMgnt)
 		{
-			free(pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential);
+			if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER)
+			{
+				free(pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential);
+			}
 		}
+
+		free(pReactorChannel->pChannelStatistic);
 
 		free(pReactorChannel->connectionOptList);
 		pReactorChannel->connectionOptList = NULL;
@@ -407,15 +362,16 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->reactorChannel.oldSocketId = (RsslSocket)REACTOR_INVALID_SOCKET;
 
 	/* Reset all buffers for the session management */
-	rsslClearBuffer(&pReactorChannel->rsslPostDataBodyBuf);
-	rsslClearBuffer(&pReactorChannel->rsslServiceDiscoveryRespBuffer);
-	rsslClearBuffer(&pReactorChannel->rsslAccessTokenRespBuffer);
-	rsslClearBuffer(&pReactorChannel->tokenInformationBuffer);
-	pReactorChannel->pOAuthCredentialRenewalImpl = NULL;
+	pReactorChannel->supportSessionMgnt = RSSL_FALSE;
+	pReactorChannel->pRestHandle = NULL;
 
 	/* The channel statistics */
 	pReactorChannel->pChannelStatistic = NULL;
 	pReactorChannel->statisticFlags = RSSL_RC_ST_NONE;
+
+	/* The token session management */
+	rsslInitQueueLink(&pReactorChannel->tokenSessionLink);
+	pReactorChannel->pTokenSessionImpl = NULL;
 
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 }
@@ -463,6 +419,10 @@ typedef struct
 
 	RsslErrorInfo workerCerr;
 	RsslReactorEventQueueGroup activeEventQueueGroup;
+
+	/* For sharing access token for multiple reactor channel using the same OAuth credential */
+	RsslReactorTokenManagementImpl reactorTokenManagement;
+
 } RsslReactorWorker;
 
 typedef enum
@@ -531,6 +491,10 @@ struct _RsslReactorImpl
 	RsslBuffer			restServiceEndpointRespBuf; /* This is memory allocation for RsslRestServiceEndpointResp */
 	RsslRestServiceEndpointResp	restServiceEndpointResp; /* This is used for querying service discovery by users */
 	RsslDouble			tokenReissueRatio; /* User defined ration multiply with the expires_in field to retrieve and reissue the access token */
+	RsslInt32			reissueTokenAttemptLimit; /* User defined the number of attempt limit*/
+	RsslInt32			reissueTokenAttemptInterval; /* User defined the number of attempt interval in milliseconds */
+
+	RsslReactorTokenSessionImpl	*pTokenSessionForCredentialRenewalCallback; /* This is set before calling the callback to get user's credential */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)

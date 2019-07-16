@@ -136,10 +136,9 @@ typedef struct
  */
 typedef struct
 {
-	RsslBuffer									userName;						/*!< The user name required to authorize with the EDP token service. */
-	RsslBuffer									password;						/*!< The password for user name used to get access token. */
-	RsslBuffer									clientId;						/*!< A unique ID defined for an application marking the request. Optional 
-																				 *	The userName variable is used if this member is not set. */
+	RsslBuffer									userName;						/*!< The user name required to authorize with the EDP token service. Mandatory */
+	RsslBuffer									password;						/*!< The password for user name used to get access token. Mandatory */
+	RsslBuffer									clientId;						/*!< A unique ID defined for an application marking the request. Mandatory */
 	RsslBuffer									clientSecret;					/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
 	RsslBuffer									tokenScope;						/*!< A user can optionally limit the scope of generated token. Optional*/
 	RsslReactorOAuthCredentialEventCallback		*pOAuthCredentialEventCallback; /*!< Callback function that receives RsslReactorOAuthCredentialEvent to specify sensitive information. 
@@ -166,8 +165,7 @@ typedef struct
 	RsslReactorChannelRoleBase		base;					/*!< The Base Reactor Channel Role structure. */
 	RsslRDMLoginRequest				*pLoginRequest;			/*!< A Login Request to be sent during the setup of a Consumer-Provider session. Optional. */
 	RsslBuffer						clientId;				/*!< @deprecated This is used only for backward compatibility. All OAuth credentials should be specified in RsslReactorOAuthCredential. 
-															 * Specifies an unique ID defined for an application making a request to the EDP token service.
-															 * The RsslRDMLoginRequest.userName variable is used if this member is not set. Optional.*/
+															 * Specifies an unique ID defined for an application making a request to the EDP token service. */
 	RsslReactorOAuthCredential		*pOAuthCredential;		/*!< A OAuth credential for authentication with the EDP token service. This member has higher precedence for
 																authorization than the user credential specified in pLoginRequest. Optional. */
 	RsslRDMLoginMsgCallback			*loginMsgCallback;		/*!< A callback function for processing RsslRDMLoginMsgs received. If not present, the received message will be passed to the defaultMsgCallback. */
@@ -278,7 +276,9 @@ typedef struct {
 	RsslBuffer	tokenServiceURL;				/*!< Specifies a URL of the token service to get an access token and a refresh token. This is used for querying EDP-RT service
 												 * discovery and subscribing data from EDP-RT. */
 	RsslDouble	tokenReissueRatio;				/*!< Specifies a ratio to multiply with access token validity time(seconds) for retrieving and reissuing the access token. 
-												 * The valid range is between 0.01 to 0.99. */
+												 * The valid range is between 0.05 to 0.95. */
+	RsslInt32	reissueTokenAttemptLimit;		/*!< The maximum number of times the RsllReactor will attempt to reissue the token. If set to -1, there is no limit. */
+	RsslInt32	reissueTokenAttemptInterval;	/*!< The interval time for the RsslReactor will wait before attempting to reissue the token, in milliseconds. The minimum interval is 1000 milliseconds */
 	int			port;							/*!< @deprecated DEPRECATED: This parameter no longer has any effect. It was a port used for creating the eventFd descriptor on the RsslReactor. It was never used on Linux or Solaris platforms. */
 } RsslCreateReactorOptions;
 
@@ -296,6 +296,8 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	pReactorOpts->tokenServiceURL.data = (char *)"https://api.refinitiv.com/auth/oauth2/beta1/token";
 	pReactorOpts->tokenServiceURL.length = 49;
 	pReactorOpts->tokenReissueRatio = 0.8;
+	pReactorOpts->reissueTokenAttemptLimit = -1;
+	pReactorOpts->reissueTokenAttemptInterval = 5000;
 }
 
 /**
@@ -341,14 +343,14 @@ typedef enum
 
 /**
  * @brief Configuration options for querying EDP-RT service discovery to get service endpoints.
+ * The proxy configuration is used only when your organization requires use of a proxy to get to the Internet.
  * @see rsslReactorQueryServiceDiscovery
  */
 typedef struct
 {
-	RsslBuffer                              userName; /* !< Specifies a user name for authorization with the token service. */
-	RsslBuffer                              password; /* !< Specifies a password for authorization with the token service. */
-	RsslBuffer                              clientId; /* !< Specifies an unique ID defined for an application making a request to the token service. Optional
-														 * The userName variable is used if this member is not set. */
+	RsslBuffer                              userName; /* !< Specifies a user name for authorization with the token service. Mandatory */
+	RsslBuffer                              password; /* !< Specifies a password for authorization with the token service. Mandatory */
+	RsslBuffer                              clientId; /* !< Specifies an unique ID defined for an application making a request to the token service. Mandatory */
 	RsslBuffer                              clientSecret; /* !< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
 	RsslBuffer								tokenScope; /* !< A user can optionally limit the scope of generated token. Optional */
 	RsslReactorDiscoveryTransportProtocol   transport;  /*!< This is an optional parameter to specify the desired transport protocol to get
@@ -402,7 +404,6 @@ typedef struct
 	RsslReactorAuthTokenEventCallback *pAuthTokenEventCallback; /*!< Callback function that receives RsslReactorAuthTokenEvents. The token is requested 
 	                                                             * by the Reactor for Consumer(disabling watchlist) and NiProvider applications to send login request and
 																 * reissue with the token */
-	RsslInt32			reissueTokenAttemptLimit;	/*!< The maximum number of times the RsllReactor will attempt to reissue the token for a channel. If set to -1, there is no limit. */
 
 } RsslReactorConnectInfo;
 
@@ -414,7 +415,6 @@ RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
 	pInfo->location.data = (char *)"us-east";
 	pInfo->location.length = 7;
 	pInfo->pAuthTokenEventCallback = NULL;
-	pInfo->reissueTokenAttemptLimit = -1;
 }
 
 /**
@@ -808,13 +808,12 @@ RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewalOptions(RsslReactorOAuth
 /**
  * @brief Submit OAuth credential renewal with password or password change.
  * @param pReactor The reactor handling the credential renewal.
- * @param pChannel The channel to perform credential renewal. This option can be NULL to perform operation without a channel.
  * @param pReactorOAuthCredentialRenewal Options for how to perform credential renewal.
  * @param pError Error structure to be populated in the event of failure.
  * @return failure codes, if specified invalid arguments or the RsslReactor was shut down due to a failure.
  * @see RsslReactor, RsslReactorOAuthCredentialRenewalOptions, RsslReactorOAuthCredentialRenewal
  */
-RSSL_VA_API RsslRet rsslReactorSubmitOAuthCredentialRenewal(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslReactorOAuthCredentialRenewalOptions *pOptions,
+RSSL_VA_API RsslRet rsslReactorSubmitOAuthCredentialRenewal(RsslReactor *pReactor, RsslReactorOAuthCredentialRenewalOptions *pOptions,
 						RsslReactorOAuthCredentialRenewal *pReactorOAuthCredentialRenewal, RsslErrorInfo *pError);
 
 /**
@@ -841,7 +840,7 @@ RTR_C_INLINE void rsslClearReactorChannelStatistic(RsslReactorChannelStatistic *
 }
 
 /**
- * @brief Retrieves channel statistics for the specified RsslReactorChannel. The statistics of passed in RsslReactorChannel is cleared after this calls.
+ * @brief Retrieves channel statistics for the specified RsslReactorChannel. The statistics in passed in RsslReactorChannel is reset after this calls.
  * @param pReactor The reactor handling the RsslReactorChannel.
  * @param pReactorChannel The channel to retrieve channel statistics.
  * @param pRsslReactorChannelStatistic The passed in RsslReactorChannelStatistic to populate channel statistics.

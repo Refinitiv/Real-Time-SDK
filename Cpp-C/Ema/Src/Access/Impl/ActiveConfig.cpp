@@ -295,7 +295,9 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	pRsslEnumDefRequestMsg( 0 ),
 	pDirectoryRefreshMsg( 0 ),
 	_defaultServiceName( defaultServiceName ),
-	dictionaryConfig()
+	dictionaryConfig(),
+	reissueTokenAttemptLimit(DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT),
+	reissueTokenAttemptInterval(DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL)
 {
 }
 
@@ -317,7 +319,9 @@ EmaString ActiveConfig::configTrace()
 		.append("\n\t msgKeyInUpdates : ").append(msgKeyInUpdates)
 		.append("\n\t directoryRequestTimeOut : ").append(directoryRequestTimeOut)
 		.append("\n\t dictionaryRequestTimeOut : ").append(dictionaryRequestTimeOut)
-		.append("\n\t loginRequestTimeOut : ").append(loginRequestTimeOut);
+		.append("\n\t loginRequestTimeOut : ").append(loginRequestTimeOut)
+		.append("\n\t reissueTokenAttemptLimit : ").append(reissueTokenAttemptLimit)
+		.append("\n\t reissueTokenAttemptInterval : ").append(reissueTokenAttemptInterval);
 	return traceStr;
 }
 
@@ -355,6 +359,8 @@ void ActiveConfig::clear()
 	pRsslDirectoryRequestMsg = 0;
 	pRsslRdmFldRequestMsg = 0;
 	pRsslEnumDefRequestMsg = 0;
+	reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
+	reissueTokenAttemptInterval = DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL;
 
 	if ( pDirectoryRefreshMsg )
 		delete pDirectoryRefreshMsg;
@@ -685,8 +691,7 @@ SocketChannelConfig::SocketChannelConfig(const EmaString& defaultHostName, const
 	encryptedConnectionType(RSSL_CONN_TYPE_INIT),
 	securityProtocol(RSSL_ENC_TLSV1_2),
 	enableSessionMgnt(RSSL_FALSE),
-	location(DEFAULT_EDP_RT_LOCATION),
-	reissueTokenAttemptLimit(DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT)
+	location(DEFAULT_EDP_RT_LOCATION)
 {
 }
 
@@ -705,7 +710,6 @@ void SocketChannelConfig::clear()
 	securityProtocol = RSSL_ENC_TLSV1_2;
 	enableSessionMgnt = RSSL_FALSE;
 	location = DEFAULT_EDP_RT_LOCATION;
-	reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
 }
 
 ChannelConfig::ChannelType SocketChannelConfig::getType() const

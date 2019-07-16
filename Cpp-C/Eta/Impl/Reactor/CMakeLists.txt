@@ -52,6 +52,7 @@ else()
         rtr/rsslReactorEventQueue.h
         rtr/rsslReactorEventsImpl.h
         rtr/rsslReactorImpl.h
+	rtr/rsslReactorTokenMgntImpl.h
         TunnelStream/rtr/bigBufferPool.h
         TunnelStream/rtr/bufferPool.h
         TunnelStream/rtr/msgQueueEncDec.h

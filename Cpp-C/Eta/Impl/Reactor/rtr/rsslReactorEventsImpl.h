@@ -10,6 +10,7 @@
 
 #include "rtr/rsslReactorEvents.h"
 #include "rtr/rsslQueue.h"
+#include "rtr/rsslReactorTokenMgntImpl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +26,8 @@ typedef enum
 	RSSL_RCIMPL_ET_TIMER = -3,		/* A timer event. */
 	RSSL_RCIMPL_ET_TOKEN_MGNT = -4,	/* Token management event on Login stream */
 	RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL = -5, /* OAuth credential renewal event */
-	RSSL_RCIMPL_ET_PING = -6 /* Ping event for channel statistics */
+	RSSL_RCIMPL_ET_PING = -6, /* Ping event for channel statistics */
+	RSSL_RCIMPL_ET_TOKEN_SESSION_MGNT = -7	/* For handling token session */
 } RsslReactorEventImplType;
 
 typedef struct
@@ -133,6 +135,7 @@ typedef struct
 	RsslReactorOAuthCredentialRenewal *pOAuthCredentialRenewal;
 	RsslReactorAuthTokenEvent reactorAuthTokenEvent;
 	RsslReactorAuthTokenEventCallback *pAuthTokenEventCallback;
+	RsslReactorTokenSessionImpl *pTokenSessionImpl;
 	RsslErrorInfo errorInfo;
 } RsslReactorTokenMgntEvent;
 
@@ -159,6 +162,7 @@ typedef struct
 	RsslReactorOAuthCredentialRenewalEventType	reactorCredentialRenewalEventType;
 	RsslReactorOAuthCredentialEvent reactorOAuthCredentialEvent;
 	RsslReactorOAuthCredentialEventCallback *pOAuthCredentialEventCallback;
+	RsslReactorTokenSessionImpl *pTokenSessionImpl;
 	RsslErrorInfo errorInfo;
 } RsslReactorCredentialRenewalEvent;
 
@@ -181,6 +185,31 @@ RTR_C_INLINE void rsslClearReactorChannelPingEvent(RsslReactorChannelPingEvent *
 	pEvent->base.eventType = RSSL_RCIMPL_ET_PING;
 }
 
+typedef enum
+{
+	RSSL_RCIMPL_TSET_INIT = 0,
+	RSSL_RCIMPL_TSET_ADD_TOKEN_SESSION_TO_LIST = 0x01,
+	RSSL_RCIMPL_TSET_REGISTER_CHANNEL_TO_SESSION = 0x02,
+	RSSL_RCIMPL_TSET_UNREGISTER_CHANNEL_FROM_SESSION = 0x04,
+	RSSL_RCIMPL_TSET_REMOVE_TOKEN_SESSION_FROM_HT = 0x10,
+	RSSL_RCIMPL_TSET_RETURN_CHANNEL_TO_CHANNEL_POOL = 0x20
+} RsslReactorTokenSessionEventType;
+
+typedef struct
+{
+	RsslReactorEventImplBase base;
+	RsslReactorTokenSessionEventType reactorTokenSessionEventType;
+	RsslReactorChannel *pReactorChannel;
+	RsslReactorTokenSessionImpl *pTokenSessionImpl;
+	RsslErrorInfo errorInfo;
+} RsslReactorTokenSessionEvent;
+
+RTR_C_INLINE void rsslClearReactorTokenSessionEvent(RsslReactorTokenSessionEvent *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorTokenSessionEvent));
+	pEvent->base.eventType = RSSL_RCIMPL_ET_TOKEN_SESSION_MGNT;
+}
+
 typedef union 
 {
 	RsslReactorEventImplBase			base;
@@ -189,6 +218,7 @@ typedef union
 	RsslReactorFlushEvent				flushEvent;
 	RsslReactorChannelPingEvent			pingEvent;
 	RsslReactorTokenMgntEvent			tokenMgntEvent;
+	RsslReactorTokenSessionEvent		tokenSessionEvent;
 	RsslReactorStateEvent				reactorEvent;
 	RsslReactorTimerEvent				timerEvent;
 } RsslReactorEventImpl;

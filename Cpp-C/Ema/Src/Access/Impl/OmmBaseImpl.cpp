@@ -424,6 +424,18 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.msgKeyInUpdates = tmp > 0 ? true : false;
 	}
 
+	Int64 tempInt = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
+	if (pConfigImpl->get<Int64>(instanceNodeName + "ReissueTokenAttemptLimit", tempInt))
+		_activeConfig.reissueTokenAttemptLimit = tempInt;
+	else
+		_activeConfig.reissueTokenAttemptLimit = tempInt;
+
+	tempInt = DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL;
+	if (pConfigImpl->get<Int64>(instanceNodeName + "ReissueTokenAttemptInterval", tempInt))
+		_activeConfig.reissueTokenAttemptInterval = tempInt;
+	else
+		_activeConfig.reissueTokenAttemptInterval = tempInt;
+
 	pConfigImpl->get<Int64>( instanceNodeName + "PipePort", _activeConfig.pipePort );
 
 	pConfigImpl->getLoggerName( _activeConfig.configuredName, _activeConfig.loggerConfig.loggerName );
@@ -706,12 +718,6 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			socketChannelCfg->enableSessionMgnt = RSSL_FALSE;
 		else
 			socketChannelCfg->enableSessionMgnt = RSSL_TRUE;
-
-		Int64 tempInt = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
-		if( pConfigImpl->get<Int64>(channelNodeName + "ReissueTokenAttemptLimit", tempInt) )
-			socketChannelCfg->reissueTokenAttemptLimit = tempInt;
-		else
-			socketChannelCfg->reissueTokenAttemptLimit = tempInt;
 
 		// Fall through to HTTP for common configurations
 	}
@@ -1198,7 +1204,14 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			reactorOpts.tokenServiceURL.data = (char*)configImpl->getUserSpecifiedTokenServiceUrl().c_str();
 		}
 
-		reactorOpts.tokenReissueRatio = _activeConfig.tokenReissueRatio;
+		if( _activeConfig.tokenReissueRatio != DEFAULT_TOKEN_REISSUE_RATIO )
+			reactorOpts.tokenReissueRatio = _activeConfig.tokenReissueRatio;
+
+		if (_activeConfig.reissueTokenAttemptLimit != DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT)
+			reactorOpts.reissueTokenAttemptLimit = _activeConfig.reissueTokenAttemptLimit;
+
+		if (_activeConfig.reissueTokenAttemptInterval != DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL)
+			reactorOpts.reissueTokenAttemptInterval = _activeConfig.reissueTokenAttemptInterval;
 
 		reactorOpts.userSpecPtr = ( void* )this;
 

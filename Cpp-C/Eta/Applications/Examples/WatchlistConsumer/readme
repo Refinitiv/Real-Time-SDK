@@ -70,11 +70,10 @@ WatchlistConsumer
 
 or
 
-WatchlistConsumer -c encrypted -ec socket -s <service name> -u <machine ID> -passwd <password> -sessionMgnt
+WatchlistConsumer -c encrypted -ec socket -s <service name> -u <machine ID> -passwd <password> -clientId <client ID> -sessionMgnt
 
 The above example command line is used to create an encrypted connection with the socket encrypted protocol type
-using the default "us-east" region and enable session management to login and subscribe data from
-ERT in cloud.
+using the default "us-east" region and enable session management to login and subscribe data from ERT in cloud.
 
 or
 
@@ -106,8 +105,9 @@ use the -sa, -ra, -sp, -rp, and -up options to configure the multicast network.
 The -ec option specifies the encrypted transport protocol. Valid arguments are socket, and http.  
 Http is only supported on Windows Platforms.\n"
 
-The -clientId option specifies an unique ID for authenticating with the EDP token service.
-The login username is used instead if this option is not specified. 
+The -clientId option specifies an unique ID for authenticating with the EDP token service (mandatory).
+You can generate and manage client Ids at the following URL: https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator
+(you need an Eikon login to access this page)
 
 Specifying the -sessionMgnt option enables session management in the Reactor to perform
 authentication token management and query EDP-RT service discovery(if -query is not specified)

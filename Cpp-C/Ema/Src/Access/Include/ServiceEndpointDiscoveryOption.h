@@ -82,7 +82,6 @@ public:
 	/** Specifies the a unique identifier for an application making the request.
 		@param[in] clientId specifies the client ID
 		@return reference to this object
-		\remark EMA uses the username as Client ID by default.
 	*/
 	ServiceEndpointDiscoveryOption& clientId(const EmaString& clientId);
 

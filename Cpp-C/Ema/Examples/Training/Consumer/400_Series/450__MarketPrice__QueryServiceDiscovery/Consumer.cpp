@@ -102,8 +102,8 @@ void printHelp()
 	cout << endl << "Options:\n" << " -?\tShows this usage" << endl
 		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
+		<< " -clientId client ID to perform authorization with the token service (mandatory). " << endl
 		<< " -location location to get an endpoint from EDP-RT service discovery (optional). Defaults to \"us-east\"" << endl
-		<< " -clientId client ID to perform authorization with the token service (optional). The user name is used if not specified." << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
 		<< " -ph Proxy host name (optional)." << endl
 		<< " -pp Proxy port number (optional)." << endl
@@ -165,9 +165,9 @@ int main( int argc, char* argv[] )
 			}
 		}
 
-		if ( !userName.length() || !password.length() )
+		if ( !userName.length() || !password.length() || !clientId.length() )
 		{
-			cout << "Both username and password must be specified on the command line. Exiting...";
+			cout << "User name, password and client Id must be specified on the command line. Exiting...";
 			printHelp();
 			return -1;
 		}
@@ -180,7 +180,7 @@ int main( int argc, char* argv[] )
 
 		if ( !host.length() || !port.length() )
 		{
-			cout << "Both hostname and port are not avaiable for establishing a connection with ERT in cloud. Exiting..." << endl;
+			cout << "Both hostname and port are not available for establishing a connection with ERT in cloud. Exiting..." << endl;
 			return -1;
 		}
 

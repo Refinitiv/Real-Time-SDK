@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright Thomson Reuters 2018. All rights reserved.
+ * Copyright Thomson Reuters 2019. All rights reserved.
 */
 
 /*
@@ -59,7 +59,7 @@ void printUsageAndExit(int argc, char **argv)
 			" -c           Specifies connection type. Valid arguments are socket, http, encrypted, and reliableMCast.\n"
 			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, and http.  Http is only supported on Windows Platforms.\n"
 			" -if          Specifies the address of a specific network interface to use.\n"
-			" -clientId    Specifies an unique ID for application making the request to EDP token service.\n"
+			" -clientId    Specifies an unique ID for application making the request to EDP token service (mandatory).\n"
 			" -sessionMgnt Enables session management in the Reactor.\n"
 			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.\n"
 			" -query       Quries EDP service discovery to get an endpoint according the specified connection type and location.\n"

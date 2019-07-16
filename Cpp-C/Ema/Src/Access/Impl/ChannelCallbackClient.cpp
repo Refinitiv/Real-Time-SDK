@@ -406,17 +406,16 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 		/* TODO: Update for multiple encrypted types */
 		SocketChannelConfig* pTempChannelCfg = static_cast<SocketChannelConfig*>( pChannelCfg );
 		strConnectionType = "RSSL_CONN_TYPE_ENCRYPTED";
-		cfgParameters.append( "hostName " ).append( pTempChannelCfg->hostName ).append( CR )
-		.append( "port " ).append( pTempChannelCfg->serviceName ).append( CR )
-		.append( "CompressionType " ).append( compType ).append( CR )
-		.append( "tcpNodelay " ).append( ( pTempChannelCfg->tcpNodelay ? "true" : "false" ) ).append( CR )
-		.append( "ObjectName " ).append( pTempChannelCfg->objectName ).append( CR )
-		.append( "ProxyHost " ).append( pTempChannelCfg->proxyHostName ).append( CR )
-		.append( "ProxyPort ").append( pTempChannelCfg->proxyPort ).append( CR )
-		.append( "SecurityProtocol ").append( pTempChannelCfg->securityProtocol ).append( CR )
-		.append( "EnableSessionManagement ").append( pTempChannelCfg->enableSessionMgnt ).append( CR )
-		.append( "Location " ).append( pTempChannelCfg->location ).append( CR )
-		.append( "ReissueTokenAttemptLimit " ).append( pTempChannelCfg->reissueTokenAttemptLimit ).append( CR );
+		cfgParameters.append("hostName ").append(pTempChannelCfg->hostName).append(CR)
+			.append("port ").append(pTempChannelCfg->serviceName).append(CR)
+			.append("CompressionType ").append(compType).append(CR)
+			.append("tcpNodelay ").append((pTempChannelCfg->tcpNodelay ? "true" : "false")).append(CR)
+			.append("ObjectName ").append(pTempChannelCfg->objectName).append(CR)
+			.append("ProxyHost ").append(pTempChannelCfg->proxyHostName).append(CR)
+			.append("ProxyPort ").append(pTempChannelCfg->proxyPort).append(CR)
+			.append("SecurityProtocol ").append(pTempChannelCfg->securityProtocol).append(CR)
+			.append("EnableSessionManagement ").append(pTempChannelCfg->enableSessionMgnt).append(CR)
+			.append("Location ").append(pTempChannelCfg->location).append(CR);
 		break;
 	}
 	case RSSL_CONN_TYPE_RELIABLE_MCAST:
@@ -566,7 +565,6 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				reactorConnectInfo[i].enableSessionManagement = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->enableSessionMgnt;
 				reactorConnectInfo[i].location.length = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.length();
 				reactorConnectInfo[i].location.data = (char*)static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.c_str();
-				reactorConnectInfo[i].reissueTokenAttemptLimit = (RsslInt32)static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->reissueTokenAttemptLimit;
 				// Fall through to HTTP connection options
 			}
 			case RSSL_CONN_TYPE_SOCKET:

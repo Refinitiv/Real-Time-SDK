@@ -118,7 +118,6 @@ public :
 	/** Specifies an unique identifier defined for making an authentication request to the token service
 		@param[in] clientId specifies an unique identifier.
 		@return reference to this object
-		\remark EMA uses the username as Client ID if not specified
 	*/
 	OmmConsumerConfig& clientId( const EmaString& clientId );
 

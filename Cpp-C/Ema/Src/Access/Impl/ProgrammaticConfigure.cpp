@@ -1138,6 +1138,14 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.pipePort = eentry.getInt();
 												}
+												else if (eentry.getName() == "ReissueTokenAttemptLimit")
+												{
+													activeConfig.reissueTokenAttemptLimit = eentry.getInt();
+												}
+												else if (eentry.getName() == "ReissueTokenAttemptInterval")
+												{
+													activeConfig.reissueTokenAttemptInterval = eentry.getInt();
+												}
 												break;
 
 											case DataType::DoubleEnum:
@@ -1614,7 +1622,6 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 	UInt64 mcastFlags = 0;
 	UInt64 encryptionFlags = 0;
 	ReliableMcastChannelConfig tempRelMcastCfg;
-	Int64 reissueTokenAttemptLimit = -1;
 
 	while ( elementListChannel.forth() )
 	{
@@ -1771,14 +1778,6 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					emaConfigErrList.add(mce);
 					break;
 				}
-			}
-			break;
-
-		case DataType::IntEnum:
-			if (channelEntry.getName() == "ReissueTokenAttemptLimit")
-			{
-				reissueTokenAttemptLimit = channelEntry.getInt();
-				flags |= 0x10000000;
 			}
 			break;
 
@@ -2028,11 +2027,6 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 						socketChannelConfig->enableSessionMgnt = (RsslBool)enableSessionMgnt;
 					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 						socketChannelConfig->enableSessionMgnt = fileCfgSocket->enableSessionMgnt;
-
-					if (flags & 0x10000000)
-						socketChannelConfig->reissueTokenAttemptLimit = reissueTokenAttemptLimit;
-					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
-						socketChannelConfig->reissueTokenAttemptLimit = fileCfgSocket->reissueTokenAttemptLimit;
 
 					//need to copy other tunneling setting from function calls.
 					if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
