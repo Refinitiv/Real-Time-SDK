@@ -89,6 +89,7 @@ RsslBuffer authnToken = RSSL_INIT_BUFFER;
 RsslBuffer authnExtended = RSSL_INIT_BUFFER;
 RsslBuffer appId = RSSL_INIT_BUFFER;
 RsslReactorChannelStatistic channelStatistics;
+char statisticFilter[128];
 
 static char libsslName[255];
 static char libcryptoName[255];
@@ -110,7 +111,7 @@ static char _bufferArray[6144];
 void printUsageAndExit(char *appName)
 {
 	
-	printf("Usage: %s or\n%s  [-tcp|-encrypted|-encryptedSocket|-encryptedHttp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-passwd <LoginPassword>] [ -clientId <Client ID> ] [-sessionMgnt] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime]\n"
+	printf("Usage: %s or\n%s  [-tcp|-encrypted|-encryptedSocket|-encryptedHttp [<hostname>:<port> <service name>]] [<domain>:<item name>,...] ] [-uname <LoginUsername>] [-passwd <LoginPassword>] [ -clientId <Client ID> ] [-sessionMgnt] [-view] [-post] [-offpost] [-snapshot] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-statisticFilter <filter>] [-tunnel] [-tsDomain <number> ] [-tsAuth] [-tsServiceName] [-x] [-runtime]\n"
 			"\n -tcp specifies a socket connection while -encrypted specifies a encrypted connection to open and a list of items to request:\n"
 			"\n     hostname:        Hostname of provider to connect to"
 			"\n     port:            Port of provider to connect to"
@@ -136,6 +137,9 @@ void printUsageAndExit(char *appName)
 			"\n -cache will store all open items in cache and periodically dump contents.\n"
 			"\n -cacheInterval number of seconds between displaying cache contents; 0 = on exit only (default)\n"
 			"\n -statisticInterval number of seconds between displaying channel statistics.\n"
+		    /*APIQA*/
+		    "\n -statisticFilter valid values are READ / WRITE / PING.\n"
+			/*END APIQA*/
 			"\n -tunnel causes the consumer to open a tunnel stream that exchanges basic messages.\n"
 			"\n -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
 			"\n -tsServiceName specifies the name of the service to use for tunnel streams (if not specified, the service name specified in -c/-tcp is used)\n"
@@ -316,6 +320,11 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				statisticInterval = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-statisticFilter", argv[i]) == 0)
+			{
+				i += 2;
+				snprintf(statisticFilter, sizeof(statisticFilter), "%s", argv[i - 1]);
 			}
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || (strcmp("-encrypted", argv[i]) == 0) 
 				|| (strcmp("-encryptedHttp", argv[i]) == 0) || (strcmp("-encryptedSocket", argv[i]) == 0))
@@ -1329,7 +1338,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 				rsslClearTraceOptions(&traceOptions);
 				traceOptions.traceMsgFileName = traceOutputFile;
-				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_PING;
 				traceOptions.traceMsgMaxFileSize = 100000000;
 
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
@@ -1682,7 +1691,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Initialize connection options and try to load dictionaries. */
-	for(i = 0; i < channelCommandCount; ++i)
+	for (i = 0; i < channelCommandCount; ++i)
 	{
 		ChannelCommand *pCommand = &chanCommands[i];
 		RsslReactorConnectOptions *pOpts = &pCommand->cOpts;
@@ -1702,8 +1711,26 @@ int main(int argc, char **argv)
 		pOpts->reconnectMinDelay = 1000;
 
 		/* Specify interests to get channel statistics */
-		if(statisticInterval > 0)
-			pCommand->cOpts.statisticFlags = RSSL_RC_ST_READ | RSSL_RC_ST_WRITE | RSSL_RC_ST_PING;
+		if (statisticInterval > 0)
+
+			//APIQA
+			if (0 == strcmp(statisticFilter, "READ"))
+			{
+				pCommand->cOpts.statisticFlags = RSSL_RC_ST_READ;
+			}
+			else if (0 == strcmp(statisticFilter, "WRITE"))
+			{
+				pCommand->cOpts.statisticFlags = RSSL_RC_ST_WRITE;
+			}
+			else if (0 == strcmp(statisticFilter, "PING"))
+			{
+				pCommand->cOpts.statisticFlags = RSSL_RC_ST_PING;
+			}
+			else
+			{
+				pCommand->cOpts.statisticFlags = RSSL_RC_ST_READ | RSSL_RC_ST_WRITE | RSSL_RC_ST_PING;
+			}
+			//END APIQA
 	}
 
 	printf("\n");
@@ -1797,6 +1824,7 @@ int main(int argc, char **argv)
 				if (displayStatistic(&chanCommands[i], currentTime, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 				{
 					printf("Retrieve channel statistic failed:  %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
+					//APIQA check!!
 				}
 
 				if ((!chanCommands[i].cInfo.enableSessionManagement) && chanCommands[i].canSendLoginReissue == RSSL_TRUE &&
@@ -2282,7 +2310,17 @@ static RsslRet displayStatistic(ChannelCommand* pCommand, time_t currentTime, Rs
 		cumulativeValue(&pCommand->channelStatistic.uncompressedBytesWritten, statistics.uncompressedBytesWritten);
 		cumulativeValue(&pCommand->channelStatistic.pingReceived, statistics.pingReceived);
 		cumulativeValue(&pCommand->channelStatistic.pingSent, statistics.pingSent);
+		//APIQA
+		time_t currentTime;
+		struct tm * time_info;
+		char timeString[9];  // space for "HH:MM:SS\0"
+		time(&currentTime);
+		time_info = localtime(&currentTime);
 
+		printf("\nStatistic Time: ", strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info));
+		puts(timeString);
+
+		//END APIQA
 		printf("\nReactor channel statistic: Channel fd="SOCKET_PRINT_TYPE".\n", pCommand->reactorChannel->socketId);
 		printf("\tBytes read : %llu\n", pCommand->channelStatistic.bytesRead);
 		printf("\tUncompressed bytes read : %llu\n", pCommand->channelStatistic.uncompressedBytesRead);

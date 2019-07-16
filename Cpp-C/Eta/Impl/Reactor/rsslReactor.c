@@ -12,6 +12,7 @@
 #include "rtr/msgQueueEncDec.h"
 
 #include <assert.h>
+#include <stdint.h>
 #ifdef _WIN32
 #include <windows.h>
 #include <process.h>
@@ -1716,6 +1717,15 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 			pSubmitOptions->pUncompressedBytesWritten ? pSubmitOptions->pUncompressedBytesWritten : &dummyUncompBytesWritten,
 			&pError->rsslError);
 
+	/* Collects write statistics */
+	if ( (pReactorChannel->statisticFlags & RSSL_RC_ST_WRITE) && pReactorChannel->pChannelStatistic)
+	{
+		_cumulativeValue(&pReactorChannel->pChannelStatistic->bytesWritten, (pSubmitOptions->pBytesWritten) ? *pSubmitOptions->pBytesWritten : dummyBytesWritten);
+
+		_cumulativeValue(&pReactorChannel->pChannelStatistic->uncompressedBytesWritten, 
+			(pSubmitOptions->pUncompressedBytesWritten) ? *pSubmitOptions->pUncompressedBytesWritten : dummyUncompBytesWritten);
+	}
+
 	if ( ret < RSSL_RET_SUCCESS)
 	{
 		switch (ret)
@@ -2767,6 +2777,15 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 				}
 
 			}
+			case RSSL_RCIMPL_ET_PING:
+			{
+				RsslReactorChannelPingEvent *pReactorChannelPingEvent = (RsslReactorChannelPingEvent*)pEvent;
+				RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)pReactorChannelPingEvent->pReactorChannel;
+
+				_cumulativeValue(&pReactorChannel->pChannelStatistic->pingSent, (RsslUInt32)1);
+
+				return RSSL_RET_SUCCESS;
+			}
 			default:
 				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unknown event type: %d", pEvent->base.eventType);
 				return RSSL_RET_FAILURE;
@@ -3676,6 +3695,14 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 	rsslClearReadInArgs(&readInArgs);
 	rsslClearReadOutArgs(&readOutArgs);
 	pMsgBuf = rsslReadEx(pChannel, &readInArgs, &readOutArgs, &ret, &pError->rsslError);
+
+	/* Collects read statistics */
+	if ( (pReactorChannel->statisticFlags & RSSL_RC_ST_READ) && pReactorChannel->pChannelStatistic)
+	{
+		_cumulativeValue(&pReactorChannel->pChannelStatistic->bytesRead, readOutArgs.bytesRead);
+		_cumulativeValue(&pReactorChannel->pChannelStatistic->uncompressedBytesRead, readOutArgs.uncompressedBytesRead);
+	}
+
 	pReactorChannel->readRet = ret;
 
 	if (pMsgBuf)
@@ -3776,6 +3803,12 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 				/* Update ping time */
 				pReactorChannel->lastPingReadMs = pReactorImpl->lastRecordedTimeMs;
 				pReactorChannel->readRet = 0;
+
+				/* Collects ping statistics */
+				if ( (pReactorChannel->statisticFlags & RSSL_RC_ST_PING)  && pReactorChannel->pChannelStatistic)
+				{
+					_cumulativeValue(&pReactorChannel->pChannelStatistic->pingReceived, (RsslUInt32)1);
+				}
 
 				if (pReactorChannel->pWatchlist && readOutArgs.readOutFlags 
 						& RSSL_READ_OUT_FTGROUP_ID)
@@ -4268,6 +4301,61 @@ submitFailed:
 	if (pOAuthCredentialRenewal) free(pOAuthCredentialRenewal);
 
 	return (reactorUnlockInterface(pReactorImpl), pError->rsslError.rsslErrorId);
+}
+
+RSSL_VA_API RsslRet rsslReactorRetrieveChannelStatistic(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel,
+	RsslReactorChannelStatistic *pRsslReactorChannelStatistic, RsslErrorInfo *pError)
+{
+	RsslRet ret;
+	RsslReactorImpl *pReactorImpl = (RsslReactorImpl*)pReactor;
+	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorChannel;
+
+	if (!pError)
+		return RSSL_RET_INVALID_ARGUMENT;
+
+	if (!pReactor)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactor not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
+		return ret;
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+	}
+
+	if (!pReactorChannel)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorChannel not provided.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+	}
+
+	if (!pRsslReactorChannelStatistic)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorChannelStatistic not provided.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+	}
+
+	if ( (pReactorChannelImpl->statisticFlags & (RSSL_RC_ST_READ | RSSL_RC_ST_WRITE | RSSL_RC_ST_PING)) == 0 )
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorChannel not interested in channel statistics.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+	}
+
+	rsslClearReactorChannelStatistic(pRsslReactorChannelStatistic);
+	if (pReactorChannelImpl->pChannelStatistic)
+	{
+		*pRsslReactorChannelStatistic = *pReactorChannelImpl->pChannelStatistic;
+
+		/* Always reset the aggregated values after this function calls */
+		rsslClearReactorChannelStatistic(pReactorChannelImpl->pChannelStatistic);
+	}
+
+	return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
 }
 
 RsslRet reactorUnlockInterface(RsslReactorImpl *pReactorImpl)
@@ -5384,5 +5472,17 @@ void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRe
 	{
 		pRestRequestArgs->networkArgs.interfaceName.data = pConnOptions->connectionInfo.unified.interfaceName;
 		pRestRequestArgs->networkArgs.interfaceName.length = (RsslUInt32)strlen(pConnOptions->connectionInfo.unified.interfaceName);
+	}
+}
+
+void _cumulativeValue(RsslUInt* destination, RsslUInt32 value)
+{
+	if ( (*destination + value) > UINT64_MAX )
+	{
+		*destination = value;
+	}
+	else
+	{
+		*destination += value;
 	}
 }

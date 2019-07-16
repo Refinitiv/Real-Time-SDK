@@ -177,6 +177,10 @@ typedef struct
 	/* For TREP authentication login reissue */
 	RsslUInt loginReissueTime; // represented by epoch time in seconds
 	RsslBool canSendLoginReissue;
+
+	/* For retrieving the channel statistics */
+	time_t nextStatisticRetrivalTime;
+	RsslReactorChannelStatistic	channelStatistic;
 } ChannelCommand;
 
 /*
@@ -189,6 +193,7 @@ RTR_C_INLINE void initChannelCommand(ChannelCommand *pCommand)
 	rsslClearReactorConnectOptions(&pCommand->cOpts);
 	rsslClearReactorConnectInfo(&pCommand->cInfo);
 	rsslClearRDMLoginRefresh(&pCommand->loginRefresh);
+	rsslClearReactorChannelStatistic(&pCommand->channelStatistic);
 	pCommand->loginRefreshMemory.data = pCommand->loginRefreshMemoryArray;
 	pCommand->loginRefreshMemory.length = sizeof(pCommand->loginRefreshMemoryArray);
 

@@ -24,7 +24,8 @@ typedef enum
 	RSSL_RCIMPL_ET_FLUSH = -2,		/* Flushing needs to start or has finished */
 	RSSL_RCIMPL_ET_TIMER = -3,		/* A timer event. */
 	RSSL_RCIMPL_ET_TOKEN_MGNT = -4,	/* Token management event on Login stream */
-	RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL = -5 /* OAuth credential renewal event */
+	RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL = -5, /* OAuth credential renewal event */
+	RSSL_RCIMPL_ET_PING = -6 /* Ping event for channel statistics */
 } RsslReactorEventImplType;
 
 typedef struct
@@ -167,12 +168,26 @@ RTR_C_INLINE void rsslClearReactorCredentialRenewalEvent(RsslReactorCredentialRe
 	pEvent->base.eventType = RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL;
 }
 
+/* This is used to notify ping sent from the worker thread to the dispatching thread */
+typedef struct
+{
+	RsslReactorEventImplBase base;
+	RsslReactorChannel *pReactorChannel;
+} RsslReactorChannelPingEvent;
+
+RTR_C_INLINE void rsslClearReactorChannelPingEvent(RsslReactorChannelPingEvent *pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorChannelPingEvent));
+	pEvent->base.eventType = RSSL_RCIMPL_ET_PING;
+}
+
 typedef union 
 {
 	RsslReactorEventImplBase			base;
 	RsslReactorChannelEventImpl			channelEventImpl;
 	RsslReactorCredentialRenewalEvent   credentialRenewalEvent;
 	RsslReactorFlushEvent				flushEvent;
+	RsslReactorChannelPingEvent			pingEvent;
 	RsslReactorTokenMgntEvent			tokenMgntEvent;
 	RsslReactorStateEvent				reactorEvent;
 	RsslReactorTimerEvent				timerEvent;

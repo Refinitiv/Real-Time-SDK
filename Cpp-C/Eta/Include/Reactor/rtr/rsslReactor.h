@@ -113,7 +113,7 @@ typedef struct
  */
 typedef enum
 {
-	RSSL_RC_DICTIONARY_DOWNLOAD_NONE 			= 0,	/*!< (0) Do not automatically reequest dictionary messages. */
+	RSSL_RC_DICTIONARY_DOWNLOAD_NONE 			= 0,	/*!< (0) Do not automatically request dictionary messages. */
 	RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE = 1		/*!< (1) Reactor searches RsslRDMDirectoryMsgs for the RWFFld and RWFEnum dictionaries.
 														 * Once found, it will request the dictionaries and close their streams once all
 														 * necessary data is retrieved. This option is for use with an ADS. */
@@ -125,8 +125,8 @@ typedef struct
 	RsslReactorChannelEventCallback	*channelOpenCallback;	/*!< Callback function that is provided when a channel is first opened by rsslReactorConnect. This is only allowed when a watchlist is enabled and is optional. */
 	RsslUInt32						itemCountHint;			/*!< Set to the number of items the application expects to request. */
 	RsslBool						obeyOpenWindow;			/*!< Controls whether item requests obey the OpenWindow provided by a service. */
-	RsslUInt32						maxOutstandingPosts;	/*!< Sets the maximum number of post acknowledgements that may be oustanding for the channel. */
-	RsslUInt32						postAckTimeout;			/*!< Time a stream will wait for acknowledgement of a post message, in milliseconds. */
+	RsslUInt32						maxOutstandingPosts;	/*!< Sets the maximum number of post acknowledgments that may be outstanding for the channel. */
+	RsslUInt32						postAckTimeout;			/*!< Time a stream will wait for acknowledgment of a post message, in milliseconds. */
 	RsslUInt32						requestTimeout;			/*!< Time a requested stream will wait for a response from the provider, in milliseconds. */
 } RsslConsumerWatchlistOptions;
 
@@ -403,6 +403,7 @@ typedef struct
 	                                                             * by the Reactor for Consumer(disabling watchlist) and NiProvider applications to send login request and
 																 * reissue with the token */
 	RsslInt32			reissueTokenAttemptLimit;	/*!< The maximum number of times the RsllReactor will attempt to reissue the token for a channel. If set to -1, there is no limit. */
+
 } RsslReactorConnectInfo;
 
 RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
@@ -417,7 +418,19 @@ RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
 }
 
 /**
- * @brief Configuraion options for creating an RsslReactor client-side connection.
+ * @brief Enumerated types indicating interests for channel statistics
+ * @see RsslReactorConnectOptions
+ */
+typedef enum
+{
+	RSSL_RC_ST_NONE = 0x0000,	/*!< None */
+	RSSL_RC_ST_READ = 0x0001,	/*!< Indicates an interest for bytes read and uncompressed bytes read statistics  */
+	RSSL_RC_ST_WRITE = 0x0002,	/*!< Indicates an interest for bytes written and uncompressed bytes written statistics */
+	RSSL_RC_ST_PING = 0x0004,	/*!< Indicates an interest for ping received and ping sent statistics */
+} RsslReactorChannelStatisticFlags;
+
+/**
+ * @brief Configuration options for creating an RsslReactor client-side connection.
  * @see rsslReactorConnect
  */
 typedef struct
@@ -427,13 +440,15 @@ typedef struct
 													 * If initialization does not complete in time, a RsslReactorChannelEvent will be sent indicating that the channel is down. */
 
 	RsslInt32				reconnectAttemptLimit;	/*!< The maximum number of times the RsllReactor will attempt to reconnect a channel. If set to -1, there is no limit. */
-	RsslInt32				reconnectMinDelay;		/*!< The minumum time the RsslReactor will wait before attempting to reconnect, in milliseconds. */
+	RsslInt32				reconnectMinDelay;		/*!< The minimum time the RsslReactor will wait before attempting to reconnect, in milliseconds. */
 	RsslInt32				reconnectMaxDelay;		/*!< The maximum time the RsslReactor will wait before attempting to reconnect, in milliseconds. */
 
-	RsslReactorConnectInfo	*reactorConnectionList;	/*!< A list of connnections.  Each connection in the list will be tried with each reconnection attempt. */
+	RsslReactorConnectInfo	*reactorConnectionList;	/*!< A list of connections.  Each connection in the list will be tried with each reconnection attempt. */
 	RsslUInt32				connectionCount;		/*!< The number of connections in reactorConnectionList. */
 
 	RsslUInt32				connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks.  These callbacks should be set with rsslSetDebugFunctions.  If set to 0, the debug callbacks will not be used. */
+
+	RsslReactorChannelStatisticFlags	statisticFlags;		/* Specifies interests for the channel statistics */
 
 } RsslReactorConnectOptions;
 
@@ -448,10 +463,10 @@ RTR_C_INLINE void rsslClearReactorConnectOptions(RsslReactorConnectOptions *pOpt
 	pOpts->reconnectMinDelay = 0;
 	pOpts->reconnectMaxDelay = 0;
 	pOpts->reconnectAttemptLimit = 0;
-
 	pOpts->reactorConnectionList = NULL;
 	pOpts->connectionCount = 0;
 	pOpts->connectionDebugFlags = 0;
+	pOpts->statisticFlags = RSSL_RC_ST_NONE;
 }
 
 /**
@@ -465,7 +480,7 @@ RTR_C_INLINE void rsslClearReactorConnectOptions(RsslReactorConnectOptions *pOpt
 RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnectOptions *pOpts, RsslReactorChannelRole *pRole, RsslErrorInfo *pError );
 
 /**
- * @brief Configuraion options for creating an RsslReactor server-side connection.
+ * @brief Configuration options for creating an RsslReactor server-side connection.
  * @see rsslReactorAccept
  */
 typedef struct
@@ -535,7 +550,7 @@ RTR_C_INLINE void rsslClearReactorDispatchOptions(RsslReactorDispatchOptions *pO
  * @param pError Error structure to be populated in the event of failure.
  * @return Value greater than RSSL_RET_SUCCESS, if dispatching succeeded and there are more messages or events to process.
  * @return RSSL_RET_SUCCESS, if dispatching succeeded and there are no more messages or events to process.
- * @return failure codees, if the RsslReactor was shut down due to a failure.
+ * @return failure codes, if the RsslReactor was shut down due to a failure.
  * @see RsslReactor, RsslErrorInfo, RsslReactorDispatchOptions
  */
 RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispatchOptions *pDispatchOpts, RsslErrorInfo *pError);
@@ -801,6 +816,41 @@ RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewalOptions(RsslReactorOAuth
  */
 RSSL_VA_API RsslRet rsslReactorSubmitOAuthCredentialRenewal(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslReactorOAuthCredentialRenewalOptions *pOptions,
 						RsslReactorOAuthCredentialRenewal *pReactorOAuthCredentialRenewal, RsslErrorInfo *pError);
+
+/**
+ * @brief This structure is used to retrieve connection statistics from the rsslReactorChannelStatistic() method.
+ * @see RsslReactorChannelStatisticFlags
+ */
+typedef struct
+{
+	RsslUInt							bytesRead;					/*!< Returns the aggregated number of bytes read */
+	RsslUInt							uncompressedBytesRead;		/*!< Returns the aggregated number of uncompressed bytes read */
+	RsslUInt							pingReceived;				/*!< Returns the aggregated number of ping received */
+	RsslUInt							pingSent;					/*!< Returns the aggregated number of ping sent */
+	RsslUInt							bytesWritten;				/*!< Returns the aggregated number of bytes written */
+	RsslUInt							uncompressedBytesWritten;	/*!< Returns the aggregated number of uncompressed bytes written */
+} RsslReactorChannelStatistic;
+
+/**
+ * @brief Clears an RsslReactorChannelStatistic object.
+ * @see RsslReactorChannelStatistic
+ */
+RTR_C_INLINE void rsslClearReactorChannelStatistic(RsslReactorChannelStatistic *pStatistic)
+{
+	memset(pStatistic, 0, sizeof(RsslReactorChannelStatistic));
+}
+
+/**
+ * @brief Retrieves channel statistics for the specified RsslReactorChannel. The statistics of passed in RsslReactorChannel is cleared after this calls.
+ * @param pReactor The reactor handling the RsslReactorChannel.
+ * @param pReactorChannel The channel to retrieve channel statistics.
+ * @param pRsslReactorChannelStatistic The passed in RsslReactorChannelStatistic to populate channel statistics.
+ * @param pError Error structure to be populated in the event of failure.
+ * @return failure codes, if specified invalid arguments or the RsslReactor was shut down due to a failure.
+ * @see RsslReactor, RsslReactorChannelStatistic
+ */
+RSSL_VA_API RsslRet rsslReactorRetrieveChannelStatistic(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel,
+	RsslReactorChannelStatistic *pRsslReactorChannelStatistic, RsslErrorInfo *pError);
 
 /**
  *	@}

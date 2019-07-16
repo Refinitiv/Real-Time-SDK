@@ -57,6 +57,7 @@ vaconsumer-TsFrag-002:  Alter VAConsumer to accept -msgSize as an input.  This i
   buffer data body with "1, 2, 3....255" and repeats this pattern of data.  The provider (common code)
   will then need to check for the same pattern in the fully assembled message and print "TEST PASSED".
 
+vaconsumer-ChnlStats-001: Alter VAConsumer to accept -statisticFilter for testing ReactorChannelStatistic.
 
 vaconsumer-DebugFunctions-001:  Alter VAConsumer to show how to use rsslSetDebugFunctions
 

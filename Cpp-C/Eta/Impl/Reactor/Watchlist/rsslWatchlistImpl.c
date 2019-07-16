@@ -442,6 +442,13 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 						RSSL_HIGH_PRIORITY, 0, &bytes, &uncompBytes, &pErrorInfo->rsslError)) 
 				< RSSL_RET_SUCCESS)
 		{
+			/* Collects write statistic */
+			if ( (pReactorChannelImpl->statisticFlags & RSSL_RC_ST_WRITE) && pReactorChannelImpl->pChannelStatistic)
+			{
+				_cumulativeValue(&pReactorChannelImpl->pChannelStatistic->bytesWritten, bytes);
+				_cumulativeValue(&pReactorChannelImpl->pChannelStatistic->uncompressedBytesWritten, uncompBytes);
+			}
+
 			switch(ret)
 			{
 				case RSSL_RET_WRITE_CALL_AGAIN:
@@ -458,6 +465,13 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 		}
 		else
 		{
+			/* Collects write statistic */
+			if ( (pReactorChannelImpl->statisticFlags & RSSL_RC_ST_WRITE) && pReactorChannelImpl->pChannelStatistic )
+			{
+				_cumulativeValue(&pReactorChannelImpl->pChannelStatistic->bytesWritten, bytes);
+				_cumulativeValue(&pReactorChannelImpl->pChannelStatistic->uncompressedBytesWritten, uncompBytes);
+			}
+
 			pWatchlistImpl->base.pWriteCallAgainBuffer = NULL;
 			if (ret > 0)
 				pWatchlistImpl->base.watchlist.state |= RSSLWL_STF_NEED_FLUSH;
@@ -3629,10 +3643,18 @@ static RsslRet wlWriteBuffer(RsslWatchlistImpl *pWatchlistImpl, RsslBuffer *pWri
 {
 	RsslRet ret;
 	RsslUInt32 bytes, uncompBytes;
+	RsslReactorChannelImpl *pReactorChannelImpl = (RsslReactorChannelImpl*)pWatchlistImpl->base.watchlist.pUserSpec;
 
 	if ((ret = rsslWrite(pWatchlistImpl->base.pRsslChannel, pWriteBuffer, RSSL_HIGH_PRIORITY, 0, &bytes, &uncompBytes,
 					&pError->rsslError)) < RSSL_RET_SUCCESS)
 	{
+		/* Collect write statistics */
+		if ( (pReactorChannelImpl->statisticFlags & RSSL_RC_ST_WRITE) && pReactorChannelImpl->pChannelStatistic )
+		{
+			_cumulativeValue(&pReactorChannelImpl->pChannelStatistic->bytesWritten, bytes);
+			_cumulativeValue(&pReactorChannelImpl->pChannelStatistic->uncompressedBytesWritten, uncompBytes);
+		}
+
 		switch(ret)
 		{
 			case RSSL_RET_WRITE_FLUSH_FAILED:
@@ -3655,7 +3677,16 @@ static RsslRet wlWriteBuffer(RsslWatchlistImpl *pWatchlistImpl, RsslBuffer *pWri
 		}
 	}
 	else if (ret > RSSL_RET_SUCCESS)
+	{
+		/* Collect write statistics */
+		if ( (pReactorChannelImpl->statisticFlags & RSSL_RC_ST_WRITE) && pReactorChannelImpl->pChannelStatistic )
+		{
+			_cumulativeValue(&pReactorChannelImpl->pChannelStatistic->bytesWritten, bytes);
+			_cumulativeValue(&pReactorChannelImpl->pChannelStatistic->uncompressedBytesWritten, uncompBytes);
+		}
+
 		pWatchlistImpl->base.watchlist.state |= RSSLWL_STF_NEED_FLUSH;
+	}
 
 	return ret;
 

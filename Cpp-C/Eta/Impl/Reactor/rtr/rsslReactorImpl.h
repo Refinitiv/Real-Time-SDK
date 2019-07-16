@@ -162,6 +162,10 @@ typedef struct
 
 	RsslUInt32 connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks */
 
+	/* Keeps aggregated values of connection statistics */
+	RsslReactorChannelStatistic		*pChannelStatistic;
+	RsslReactorChannelStatisticFlags statisticFlags;
+
 } RsslReactorChannelImpl;
 
 RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pInfo)
@@ -208,12 +212,29 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 	RsslConnectOptions *destOpts, *sourceOpts;
 	RsslUInt32 i, j, k;
 
+	if (pOpts->statisticFlags & (RSSL_RC_ST_READ | RSSL_RC_ST_WRITE | RSSL_RC_ST_PING))
+	{
+		pReactorChannel->pChannelStatistic = (RsslReactorChannelStatistic*)malloc(sizeof(RsslReactorChannelStatistic));
+		if (pReactorChannel->pChannelStatistic == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+		pReactorChannel->statisticFlags = pOpts->statisticFlags;
+	}
+
 	if(pOpts->connectionCount != 0)
 	{
 		pReactorChannel->connectionOptList = (RsslReactorConnectInfoImpl*)malloc(pOpts->connectionCount*sizeof(RsslReactorConnectInfoImpl));
 
 		if(!pReactorChannel->connectionOptList)
 		{
+			if (pReactorChannel->pChannelStatistic)
+			{
+				free(pReactorChannel->pChannelStatistic);
+				pReactorChannel->pChannelStatistic = NULL;
+			}
 			return RSSL_RET_FAILURE;
 		}
 
@@ -233,6 +254,12 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 				
 				free(pReactorChannel->connectionOptList);
 				pReactorChannel->connectionOptList = NULL;
+				if (pReactorChannel->pChannelStatistic)
+				{
+					free(pReactorChannel->pChannelStatistic);
+					pReactorChannel->pChannelStatistic = NULL;
+				}
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -261,6 +288,11 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 				}
 				free(pReactorChannel->connectionOptList);
 				pReactorChannel->connectionOptList = NULL;
+				if (pReactorChannel->pChannelStatistic)
+				{
+					free(pReactorChannel->pChannelStatistic);
+					pReactorChannel->pChannelStatistic = NULL;
+				}
 				return RSSL_RET_FAILURE;
 			}
 		}
@@ -272,6 +304,11 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 
 		if(!pReactorChannel->connectionOptList)
 		{
+			if (pReactorChannel->pChannelStatistic)
+			{
+				free(pReactorChannel->pChannelStatistic);
+				pReactorChannel->pChannelStatistic = NULL;
+			}
 			return RSSL_RET_FAILURE;
 		}
 
@@ -283,6 +320,11 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 
 			free(pReactorChannel->connectionOptList);
 			pReactorChannel->connectionOptList = NULL;
+			if (pReactorChannel->pChannelStatistic)
+			{
+				free(pReactorChannel->pChannelStatistic);
+				pReactorChannel->pChannelStatistic = NULL;
+			}
 			return RSSL_RET_FAILURE;
 		}
 
@@ -318,6 +360,7 @@ RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pRea
 		free(pReactorChannel->rsslAccessTokenRespBuffer.data);
 		free(pReactorChannel->tokenInformationBuffer.data);
 		free(pReactorChannel->pOAuthCredentialRenewalImpl);
+		free(pReactorChannel->pChannelStatistic);
 
 		if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER)
 		{
@@ -369,6 +412,10 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	rsslClearBuffer(&pReactorChannel->rsslAccessTokenRespBuffer);
 	rsslClearBuffer(&pReactorChannel->tokenInformationBuffer);
 	pReactorChannel->pOAuthCredentialRenewalImpl = NULL;
+
+	/* The channel statistics */
+	pReactorChannel->pChannelStatistic = NULL;
+	pReactorChannel->statisticFlags = RSSL_RC_ST_NONE;
 
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 }
@@ -501,6 +548,8 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslBuffer *pS
 																RsslBuffer *pArgsAndHeaderBuf, void *pUserSpecPtr, RsslErrorInfo* pError);
 
 RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReactorChannelImpl, RsslBool *queryConnectInfo, RsslErrorInfo* pError);
+
+void _cumulativeValue(RsslUInt* destination, RsslUInt32 value);
 
 /* Setup and start the worker thread (Should be called from rsslCreateReactor) */
 RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, RsslErrorInfo *pError);

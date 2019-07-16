@@ -948,6 +948,20 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 				}
 				else
 				{
+					if ((pReactorChannel->statisticFlags & RSSL_RC_ST_PING) && pReactorChannel->pChannelStatistic)
+					{
+						RsslReactorChannelPingEvent *pEvent = (RsslReactorChannelPingEvent*)rsslReactorEventQueueGetFromPool(&pReactorChannel->pParentReactor->reactorEventQueue);
+						rsslClearReactorChannelPingEvent(pEvent);
+
+						pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+
+						if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->pParentReactor->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+							== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						{
+							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+						}
+					}
+
 					pReactorChannel->lastPingSentMs = pReactorWorker->lastRecordedTimeMs;
 					_reactorWorkerCalculateNextTimeout(pReactorImpl, (RsslUInt32)(pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000 * pingIntervalFactor));
 				}
@@ -1265,6 +1279,13 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 							continue;
 						}
+
+						/* Reset channel statistics as the new connection is established */
+						if (pReactorChannel->pChannelStatistic)
+						{
+							rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+						}
+
                         pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
                         pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
                         if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerProcessNewChannel(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
@@ -1848,6 +1869,13 @@ static void rsslRestResponseCallback(RsslRestResponse* restresponse, RsslRestRes
 					else
 					{
 						RsslRet ret = RSSL_RET_SUCCESS;
+
+						/* Reset channel statistics as the new connection is established */
+						if (pReactorChannel->pChannelStatistic)
+						{
+							rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+						}
+
 						pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
 						pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
 						/* Set debug callback usage here. */
@@ -1945,6 +1973,13 @@ static void rsslRestResponseCallback(RsslRestResponse* restresponse, RsslRestRes
 			else
 			{
 				RsslRet ret = RSSL_RET_SUCCESS;
+
+				/* Reset channel statistics as the new connection is established */
+				if (pReactorChannel->pChannelStatistic)
+				{
+					rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+				}
+
 				pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
 				pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
 				if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)

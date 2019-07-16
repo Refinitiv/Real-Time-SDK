@@ -85,7 +85,7 @@ VAConsumer
 
 or
 
-VAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-passwd <LoginPassword>]  [-sessionMgnt] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain]
+VAConsumer [-tcp [<hostname>:<port> <service>] [<domain>:<item name>,...] [-uname <LoginUsername>] [-passwd <LoginPassword>]  [-sessionMgnt] [-at <AuthenticationToken>] [-ax <AuthenticationExtended>] [-aid <ApplicationId>] [-view] [-post] [-offpost] [-snapshot] [-x] [-runtime <seconds>] [-cache] [-cacheInterval <seconds>] [-statisticInterval <seconds>] [-qSourceName <name>] [-qDestName <name>] [-tsServiceName <service>] [-tunnel] [-tsAuth] [-tsDomain]
 
 
 -tcp specifies creating a channel on the given host and port, a service to request items from, and the list of items to request.
@@ -128,6 +128,9 @@ a cache, instead of decoding to the console.
 Specifying the -cacheInterval will set the number of seconds between the display of the
 cache contents. The default value is 0: cache contents are not displayed at regular intervals,
 but only displayed on exit when runtime completes.
+
+Specifying the -statisticInterval will set the number of seconds between the display of the
+channel statistics.
 
 The -tunnel option opens a tunnel stream to the provider for exchanging simple messages.
 This option may be specified once per channel.
