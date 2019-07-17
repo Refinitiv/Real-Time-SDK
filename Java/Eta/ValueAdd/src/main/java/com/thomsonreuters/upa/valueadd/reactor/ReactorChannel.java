@@ -1483,7 +1483,7 @@ public class ReactorChannel extends VaNode
      * 
      * After populating the object, all external statistic aggregators are reset.
      * 
-     * @param the {@link ReactorChannelStats} object to be populated
+     * @param stats the {@link ReactorChannelStats} object to be populated
      */
     public void getReactorChannelStats(ReactorChannelStats stats)
     {
