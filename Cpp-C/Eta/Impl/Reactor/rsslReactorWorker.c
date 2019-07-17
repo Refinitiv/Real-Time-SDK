@@ -2711,6 +2711,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallback(RsslRestResponse* re
 	RsslReactorImpl *pRsslReactorImpl = (RsslReactorImpl*)pReactorOAuthCredentialRenewalImpl->pRsslReactor;
 	RsslReactorWorker *pReactorWorker = &pRsslReactorImpl->reactorWorker;
 	RsslError rsslError;
+	RsslReactorTokenMgntEvent *pEvent;
 
 	/* Releases the old memory and points the buffer to the new location. */
 	if (restresponse->isMemReallocated)
@@ -2724,7 +2725,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallback(RsslRestResponse* re
 
 	pReactorOAuthCredentialRenewalImpl->httpStatusCode = restresponse->statusCode;
 
-	RsslReactorTokenMgntEvent *pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pRsslReactorImpl->reactorEventQueue);
+	pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pRsslReactorImpl->reactorEventQueue);
 	rsslClearReactorTokenMgntEvent(pEvent);
 
 	pEvent->pOAuthCredentialRenewal = (RsslReactorOAuthCredentialRenewal*)pReactorOAuthCredentialRenewalImpl;
@@ -2799,6 +2800,7 @@ static void rsslRestErrorWithoutSessionCallback(RsslError* rsslError, RsslRestRe
 	RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl = (RsslReactorOAuthCredentialRenewalImpl*)event->closure;
 	RsslReactorImpl *pRsslReactorImpl = (RsslReactorImpl*)pReactorOAuthCredentialRenewalImpl->pRsslReactor;
 	RsslReactorWorker *pReactorWorker = &pRsslReactorImpl->reactorWorker;
+	RsslReactorTokenMgntEvent *pEvent;
 
 	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
 	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
@@ -2806,7 +2808,7 @@ static void rsslRestErrorWithoutSessionCallback(RsslError* rsslError, RsslRestRe
 	/* Reset the HTTP response status code as there is no response */
 	pReactorOAuthCredentialRenewalImpl->httpStatusCode = 0;
 
-	RsslReactorTokenMgntEvent *pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pRsslReactorImpl->reactorEventQueue);
+	pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pRsslReactorImpl->reactorEventQueue);
 	rsslClearReactorTokenMgntEvent(pEvent);
 
 	pEvent->pOAuthCredentialRenewal = (RsslReactorOAuthCredentialRenewal*)pReactorOAuthCredentialRenewalImpl;

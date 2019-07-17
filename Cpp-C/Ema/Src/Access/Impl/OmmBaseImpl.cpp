@@ -1208,10 +1208,10 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			reactorOpts.tokenReissueRatio = _activeConfig.tokenReissueRatio;
 
 		if (_activeConfig.reissueTokenAttemptLimit != DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT)
-			reactorOpts.reissueTokenAttemptLimit = _activeConfig.reissueTokenAttemptLimit;
+			reactorOpts.reissueTokenAttemptLimit = (Int32)_activeConfig.reissueTokenAttemptLimit;
 
 		if (_activeConfig.reissueTokenAttemptInterval != DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL)
-			reactorOpts.reissueTokenAttemptInterval = _activeConfig.reissueTokenAttemptInterval;
+			reactorOpts.reissueTokenAttemptInterval = (Int32)_activeConfig.reissueTokenAttemptInterval;
 
 		reactorOpts.userSpecPtr = ( void* )this;
 
