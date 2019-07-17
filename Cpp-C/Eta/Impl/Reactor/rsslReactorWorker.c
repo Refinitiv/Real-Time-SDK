@@ -74,7 +74,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallback(RsslRestResponse* re
 
 static void rsslRestAuthTokenErrorCallback(RsslError* rsslError, RsslRestResponseEvent* event);
 
-static void rsslRestErrorWithoutChannelCallback(RsslError* rsslError, RsslRestResponseEvent* event);
+static void rsslRestErrorWithoutSessionCallback(RsslError* rsslError, RsslRestResponseEvent* event);
 
 static void _reactorWorkerFreeRsslReactorOAuthCredentialRenewal(RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl);
 
@@ -264,18 +264,22 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 
 	RSSL_MUTEX_DESTROY(&pReactorImpl->interfaceLock);
 
-	while ((pLink = rsslQueueRemoveFirstLink(&pReactorWorker->reactorTokenManagement.tokenSessionList)))
+	/* Ensure that the worker thread is started before cleaning up its resources */
+	if (pReactorImpl->rsslWorkerStarted)
 	{
-		RsslReactorTokenSessionImpl *pTokenSession = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, sessionLink, pLink);
-		rsslFreeReactorTokenSessionImpl(pTokenSession);
+		while ((pLink = rsslQueueRemoveFirstLink(&pReactorWorker->reactorTokenManagement.tokenSessionList)))
+		{
+			RsslReactorTokenSessionImpl *pTokenSession = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, sessionLink, pLink);
+			rsslFreeReactorTokenSessionImpl(pTokenSession);
+		}
+
+		/* Cleaning up the HashTable for keeping track of token session */
+		RSSL_MUTEX_LOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
+		rsslHashTableCleanup(&pReactorWorker->reactorTokenManagement.sessionByNameAndClientIdHt);
+		RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
+
+		RSSL_MUTEX_DESTROY(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 	}
-
-	/* Cleaning up the HashTable for keeping track of token session */
-	RSSL_MUTEX_LOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
-	rsslHashTableCleanup(&pReactorWorker->reactorTokenManagement.sessionByNameAndClientIdHt);
-	RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
-
-	RSSL_MUTEX_DESTROY(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 
 	if (pReactorImpl->pRestClient)
 	{
@@ -616,7 +620,11 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												{
 													RsslReactorTokenSessionImpl *pTokenSessionImpl = pReactorChannel->pTokenSessionImpl;
 
-													rsslQueueRemoveLink(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->tokenSessionLink);
+													RSSL_MUTEX_LOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
+
+													if(pReactorChannel->tokenSessionLink.next != NULL && pReactorChannel->tokenSessionLink.prev != NULL)
+														rsslQueueRemoveLink(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->tokenSessionLink);
+
 													pReactorChannel->pTokenSessionImpl = NULL;
 
 													if (pTokenSessionImpl->reactorChannelList.count == 0)
@@ -630,6 +638,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 															pTokenSessionImpl->pRestHandle = NULL;
 															if (rsslRestCloseHandle(pRestHandle, &pReactorWorker->workerCerr.rsslError) != RSSL_RET_SUCCESS)
 															{
+																RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 																return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 															}
 														}
@@ -637,19 +646,11 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														if(pTokenSessionImpl->sessionLink.next != NULL && pTokenSessionImpl->sessionLink.prev != NULL)
 															rsslQueueRemoveLink(&pReactorWorker->reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
 														
-														/* Signal the reactor to remove the token session from the hash table and free it. */
-														pEvent = (RsslReactorTokenSessionEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
-														rsslClearReactorTokenSessionEvent(pEvent);
-
-														pEvent->reactorTokenSessionEventType = RSSL_RCIMPL_TSET_REMOVE_TOKEN_SESSION_FROM_HT;
-														pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
-														pEvent->pTokenSessionImpl = pTokenSessionImpl;
-
-														if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
-														{
-															return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
-														}
+														rsslHashTableRemoveLink(&pReactorWorker->reactorTokenManagement.sessionByNameAndClientIdHt, &pTokenSessionImpl->hashLinkNameAndClientId);
+														rsslFreeReactorTokenSessionImpl(pTokenSessionImpl);
 													}
+
+													RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 												}
 
 												/* Close the existing the REST request if any */
@@ -819,7 +820,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 												if ( (pRsslRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 													pTokenSessionImpl ? rsslRestAuthTokenResponseCallback : rsslRestAuthTokenResponseWithoutSessionCallback,
-													pTokenSessionImpl ? rsslRestAuthTokenErrorCallback : rsslRestErrorWithoutChannelCallback,
+													pTokenSessionImpl ? rsslRestAuthTokenErrorCallback : rsslRestErrorWithoutSessionCallback,
 													pTokenSessionImpl ? &pTokenSessionImpl->rsslAccessTokenRespBuffer : &pOAuthCredentialRenewalImpl->rsslAccessTokenRespBuffer,
 													pTokenSessionImpl ? &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError : &pReactorWorker->workerCerr.rsslError)) != 0)
 												{
@@ -2357,6 +2358,10 @@ static void rsslRestErrorCallback(RsslError* rsslError, RsslRestResponseEvent* e
 	/* Reset the HTTP response status code as there is no response */
 	pReactorChannel->httpStausCode = 0;
 
+	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
+	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
+	pReactorChannel->pRestHandle = NULL;
+
 	if (rsslError->rsslErrorId == RSSL_RET_BUFFER_TOO_SMALL)
 	{
 		/* Notify error back to the application via the channel event */
@@ -2380,9 +2385,6 @@ static void rsslRestErrorCallback(RsslError* rsslError, RsslRestResponseEvent* e
 			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQUEST_FAILURE;
 		}
 	}
-
-	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
-	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles,&event->handle->queueLink);
 }
 
 static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, RsslRestResponseEvent* event)
@@ -2674,6 +2676,10 @@ static void rsslRestAuthTokenErrorCallback(RsslError* rsslError, RsslRestRespons
 	/* Reset the HTTP response status code as there is no response */
 	pReactorTokenSession->httpStausCode = 0;
 
+	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
+	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
+	pReactorTokenSession->pRestHandle = NULL;
+
 	RSSL_MUTEX_UNLOCK(&pReactorTokenSession->accessTokenMutex);
 
 	if (rsslError->rsslErrorId == RSSL_RET_BUFFER_TOO_SMALL)
@@ -2697,9 +2703,6 @@ static void rsslRestAuthTokenErrorCallback(RsslError* rsslError, RsslRestRespons
 		pReactorTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_REQUEST_FAILURE;
 		handlingAuthRequestFailure(pReactorTokenSession, pReactorWorker);
 	}
-
-	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
-	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
 }
 
 static void rsslRestAuthTokenResponseWithoutSessionCallback(RsslRestResponse* restresponse, RsslRestResponseEvent* event)
@@ -2791,7 +2794,7 @@ RequestFailed:
 	}
 }
 
-static void rsslRestErrorWithoutChannelCallback(RsslError* rsslError, RsslRestResponseEvent* event)
+static void rsslRestErrorWithoutSessionCallback(RsslError* rsslError, RsslRestResponseEvent* event)
 {
 	RsslReactorOAuthCredentialRenewalImpl *pReactorOAuthCredentialRenewalImpl = (RsslReactorOAuthCredentialRenewalImpl*)event->closure;
 	RsslReactorImpl *pRsslReactorImpl = (RsslReactorImpl*)pReactorOAuthCredentialRenewalImpl->pRsslReactor;

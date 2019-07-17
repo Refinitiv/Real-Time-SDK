@@ -495,6 +495,7 @@ struct _RsslReactorImpl
 	RsslInt32			reissueTokenAttemptInterval; /* User defined the number of attempt interval in milliseconds */
 
 	RsslReactorTokenSessionImpl	*pTokenSessionForCredentialRenewalCallback; /* This is set before calling the callback to get user's credential */
+	RsslBool			rsslWorkerStarted;
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
