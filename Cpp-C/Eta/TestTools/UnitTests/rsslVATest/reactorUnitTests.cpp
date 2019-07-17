@@ -668,7 +668,7 @@ TEST_F(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocat
 
 	/* Checks for the Channel up event */
 	ASSERT_TRUE(dispatchEvent(pConsMon,500) >= RSSL_RET_SUCCESS); 
-	ASSERT_TRUE(dispatchEvent(pConsMon,500) >= RSSL_RET_SUCCESS); 
+	ASSERT_TRUE(dispatchEvent(pConsMon,800) >= RSSL_RET_SUCCESS); 
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && (pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY ||
 		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP));
 
@@ -699,8 +699,8 @@ TEST_F(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_usingDefaultLocat
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
 	/* Checks for the Channel up event */
-	ASSERT_TRUE(dispatchEvent(pConsMon, 500) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 500) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(dispatchEvent(pConsMon, 800) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(dispatchEvent(pConsMon, 800) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && (pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY ||
 		pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP));
 
@@ -774,7 +774,7 @@ TEST_F(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_SpecifiedLocation
 
 	/* Checks for the Channel up event */
 	ASSERT_TRUE(dispatchEvent(pConsMon, 400) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 900) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(dispatchEvent(pConsMon, 1000) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
 	ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
@@ -810,8 +810,8 @@ TEST_F(ReactorSessionMgntTest, ConnectSuccessWithOneConnection_AuthTokenEventCal
 
 	/* Checks for the Channel up event */
 	ASSERT_TRUE(dispatchEvent(pConsMon, 500) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 500) >= RSSL_RET_SUCCESS);
-	ASSERT_TRUE(dispatchEvent(pConsMon, 500) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(dispatchEvent(pConsMon, 700) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(dispatchEvent(pConsMon, 700) >= RSSL_RET_SUCCESS);
 
 	ASSERT_TRUE((pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP || pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY));
 	ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
@@ -1112,7 +1112,10 @@ TEST_F(ReactorSessionMgntTest, MultipleOpenAndCloseConnections)
 
 	_rdmLoginRequest.userName = g_userName;
 	_rdmLoginRequest.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
 
+	_reactorOmmConsumerRole.pLoginRequest = &_rdmLoginRequest;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
 	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
 
 	for (; index < numberOfConnections; index++)
