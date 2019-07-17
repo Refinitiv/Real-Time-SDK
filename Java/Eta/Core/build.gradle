@@ -65,9 +65,9 @@ eclipse {
 }
 
 dependencies {
-		compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
-		compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5'
-		compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5'
+		compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+		compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.3'
+		compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.3'
 
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
 
