@@ -29,7 +29,7 @@ public class NiProvider {
 				OmmNiProviderConfig config = EmaFactory.createOmmNiProviderConfig();
 				
 				System.out.println("!!! createOmmProvider() " + i + " !!!");
-				provider = EmaFactory.createOmmProvider(config.host("oaklapi401.oblab.oakbrook.thomsonreuters.com:14003").username("user"));
+				provider = EmaFactory.createOmmProvider(config.host("localhost:14003").username("user"));
 				
 				long itemHandle = 5;
 				
