@@ -345,7 +345,22 @@ RTR_C_INLINE void rsslFreeConnectOpts(RsslConnectOptions *connOpts)
 	{
 		free(connOpts->proxyOpts.proxyPort);
 	}
-	
+
+	if (connOpts->proxyOpts.proxyUserName != 0)
+	{
+		free(connOpts->proxyOpts.proxyUserName);
+	}
+
+	if (connOpts->proxyOpts.proxyPasswd != 0)
+	{
+		free(connOpts->proxyOpts.proxyPasswd);
+	}
+
+	if (connOpts->proxyOpts.proxyDomain != 0)
+	{
+		free(connOpts->proxyOpts.proxyDomain);
+	}
+
 	if(connOpts->multicastOpts.hsmInterface != 0)
 	{
 		free(connOpts->multicastOpts.hsmInterface);
