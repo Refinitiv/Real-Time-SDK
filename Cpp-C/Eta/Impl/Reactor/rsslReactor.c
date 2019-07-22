@@ -4920,6 +4920,10 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 					RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 				}
 			}
+			else
+			{
+				pConsRole->pOAuthCredential = NULL; /* Unset the RsslReactorOAuthCredential as the session management is disable. */
+			}
 
 			if (pConsRole->pLoginRequest
 					&& (pConsRole->pLoginRequest =

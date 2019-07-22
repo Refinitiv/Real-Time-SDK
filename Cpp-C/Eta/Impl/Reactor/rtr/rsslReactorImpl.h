@@ -312,14 +312,6 @@ RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pRea
 			rsslFreeConnectOpts(&pReactorChannel->connectionOptList[i].base.rsslConnectOptions);
 		}
 
-		if (pReactorChannel->supportSessionMgnt)
-		{
-			if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER)
-			{
-				free(pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential);
-			}
-		}
-
 		free(pReactorChannel->pChannelStatistic);
 
 		free(pReactorChannel->connectionOptList);
