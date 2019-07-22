@@ -1915,12 +1915,6 @@ static void _reactorWorkerFreeChannelRDMMsgs(RsslReactorChannelImpl *pReactorCha
 				pConsRole->pLoginRequest = NULL;
 			}
 
-			if (pConsRole->pOAuthCredential)
-			{
-				free(pConsRole->pOAuthCredential);
-				pConsRole->pOAuthCredential = NULL;
-			}
-
 			if (pConsRole->pDirectoryRequest)
 			{
 				free(pConsRole->pDirectoryRequest);

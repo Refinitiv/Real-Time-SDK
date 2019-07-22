@@ -4729,6 +4729,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 				{
 					/* Set the pointers to NULL to avoid freeing the user's memory */
 					pConsRole->pLoginRequest = NULL;
+					pConsRole->pDirectoryRequest = NULL;
 
 					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Failed to copy OAuth credential for enabling the session management; OAuth user name does not exist.");
 					return RSSL_RET_INVALID_ARGUMENT;
@@ -4738,6 +4739,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 				{
 					/* Set the pointers to NULL to avoid freeing the user's memory */
 					pConsRole->pLoginRequest = NULL;
+					pConsRole->pDirectoryRequest = NULL;
 
 					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Failed to copy OAuth credential for enabling the session management; OAuth Client ID does not exist.");
 					return RSSL_RET_INVALID_ARGUMENT;
@@ -4758,6 +4760,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 					{
 						/* Set the pointers to NULL to avoid freeing the user's memory */
 						pConsRole->pLoginRequest = NULL;
+						pConsRole->pDirectoryRequest = NULL;
 						RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 						return RSSL_RET_FAILURE;
 					}
@@ -4772,6 +4775,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 
 						/* Set the pointers to NULL to avoid freeing the user's memory */
 						pConsRole->pLoginRequest = NULL;
+						pConsRole->pDirectoryRequest = NULL;
 
 						RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 						return RSSL_RET_FAILURE;
@@ -4791,6 +4795,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 
 						/* Set the pointers to NULL to avoid freeing the user's memory */
 						pConsRole->pLoginRequest = NULL;
+						pConsRole->pDirectoryRequest = NULL;
 
 						RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 						return RSSL_RET_FAILURE;
@@ -4812,6 +4817,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 
 						/* Set the pointers to NULL to avoid freeing the user's memory */
 						pConsRole->pLoginRequest = NULL;
+						pConsRole->pDirectoryRequest = NULL;
 
 						RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 						return RSSL_RET_FAILURE;
@@ -4838,6 +4844,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 
 							/* Set the pointers to NULL to avoid freeing the user's memory */
 							pConsRole->pLoginRequest = NULL;
+							pConsRole->pDirectoryRequest = NULL;
 
 							RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 							return RSSL_RET_FAILURE;
@@ -4861,6 +4868,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 
 							/* Set the pointers to NULL to avoid freeing the user's memory */
 							pConsRole->pLoginRequest = NULL;
+							pConsRole->pDirectoryRequest = NULL;
 
 							RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 							return RSSL_RET_FAILURE;
@@ -4885,6 +4893,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 
 							/* Set the pointers to NULL to avoid freeing the user's memory */
 							pConsRole->pLoginRequest = NULL;
+							pConsRole->pDirectoryRequest = NULL;
 
 							RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 							return RSSL_RET_FAILURE;
@@ -4908,6 +4917,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 
 						/* Set the pointer to passed in RsslRDMLoginRequest to NULL to avoid freeing the user's memory */
 						pConsRole->pLoginRequest = NULL;
+						pConsRole->pDirectoryRequest = NULL;
 
 						RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 						return ret;
@@ -4919,6 +4929,10 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 				{
 					RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 				}
+			}
+			else
+			{
+				pConsRole->pOAuthCredential = NULL; /* Unset the RsslReactorOAuthCredential as the session management is disable. */
 			}
 
 			if (pConsRole->pLoginRequest

@@ -97,6 +97,8 @@ RTR_C_INLINE void rsslFreeReactorTokenSessionImpl(RsslReactorTokenSessionImpl *p
 	rsslFreeConnectOpts(&pTokenSessionImpl->proxyConnectOpts);
 
 	memset(pTokenSessionImpl, 0, sizeof(RsslReactorTokenSessionImpl));
+
+	free(pTokenSessionImpl);
 }
 
 /* RsslReactorOAuthCredentialRenewalImpl
