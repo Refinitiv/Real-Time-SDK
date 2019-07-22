@@ -8,7 +8,7 @@ and parsing OMM MarketPrice data from Elektron Real Time in Cloud (ERT in cloud)
 example113__MarketPrice__SessionManagement illustrates how to use the EMA's configuration file
 to enable session management and specify a location to get an endpoint for establishing
 a connection with the cloud service and consuming data. This application requires a user name 
-(Machine ID) and a password for authorization with the token service in order to an 
+(Machine ID), password, and client ID for authorization with the token service in order to an 
 access token for querying endpoints from the EDP service discovery and sending 
 login requests to the cloud service. EMA automatically refreshes the token to keep 
 session alive with the cloud service.
@@ -22,8 +22,9 @@ example113__MarketPrice__SessionManagement implements the following high-level s
 including:
 -username machine ID to perform authorization with the token service (mandatory).
 -password password to perform authorization with the token service (mandatory). 
--clientId client ID to perform authorization with the token service (optional). The user name
-is used if not specified. You can generate and manage client Ids at the following URL:
+-clientId client ID for application making the request to EDP token service, 
+also known as AppKey generated using an AppGenerator (mandatory). You can 
+generate and manage client IDs at the following URL:
 https://emea1.apps.cp.thomsonreuters.com/apps/AppkeyGenerator (you need an Eikon login
 to access this page).
 -keyfile keystore file for creating an encrypted connection (mandatory).
@@ -41,10 +42,10 @@ use of a proxy to get to the Internet.
 
 Example command to run the example from the command line from Java folder:
 On Unix:
-./gradlew runConsumer113 -PcommandLineArgs='-username <username> -password <password> -keyfile <full path to the file> -keypasswd <keyfile password>'
+./gradlew runConsumer113 -PcommandLineArgs='-username <username> -password <password> -clientId <client id> -keyfile <full path to the file> -keypasswd <keyfile password>'
 
 On Windows:
-gradlew.bat runConsumer113 -PcommandLineArgs='-username <username> -password <password> -keyfile <full path to the file> -keypasswd <keyfile password>'
+gradlew.bat runConsumer113 -PcommandLineArgs='-username <username> -password <password> -clientId <client id> -keyfile <full path to the file> -keypasswd <keyfile password>'
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods

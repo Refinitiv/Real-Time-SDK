@@ -247,9 +247,7 @@ public class ReactorChannel extends VaNode
     	{
     		if (_role.type() == ReactorRoleTypes.CONSUMER)
     		{
-    			if (((ConsumerRole)_role)._clientId.length() == 0)
-    				_clientId = _loginRequestForEDP.userName().toString();
-    			else
+    			if(((ConsumerRole)_role)._clientId != null)
     				_clientId = ((ConsumerRole)_role)._clientId.toString();
     		}
     	}
@@ -1393,7 +1391,7 @@ public class ReactorChannel extends VaNode
     	if (reactorConnectInfo.enableSessionManagement())
     	{
             ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
-    		
+            
     		if (_reactor.sessionManagementConfigValidationAndStartup(reactorConnectInfo, _role, this, errorInfo) != ReactorReturnCodes.SUCCESS)
     		{
     			error.text(errorInfo.error().text());

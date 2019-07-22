@@ -76,8 +76,15 @@ abstract class RestClient implements Runnable, RestCallback {
     	// Request access token
     	_restAuthRequest.username(_restConnectOptions.userName().toString());
     	_restAuthRequest.password(_restConnectOptions.password().toString());
-    	if (_restConnectOptions.clientId().toString() == null)
-    		_restAuthRequest.clientId(_restConnectOptions.userName().toString());
+
+    	if (_restConnectOptions.clientId() == null || _restConnectOptions.clientId().length() == 0)
+    	{
+    		RestReactor.populateErrorInfo(errorInfo,   				
+    				ReactorReturnCodes.PARAMETER_INVALID,
+    				"RestClient.connect", 
+    				"Required parameter clientId is not set");
+    		return;
+    	}
     	else
     		_restAuthRequest.clientId(_restConnectOptions.clientId().toString());    		
 
@@ -94,10 +101,17 @@ abstract class RestClient implements Runnable, RestCallback {
     	// Request access token
     	_restAuthRequest.username(_restConnectOptions.userName().toString());
     	_restAuthRequest.password(_restConnectOptions.password().toString());
-    	if (_restConnectOptions.clientId().toString() == null)
-    		_restAuthRequest.clientId(_restConnectOptions.userName().toString());
+    	
+    	if(_restConnectOptions.clientId() == null || _restConnectOptions.clientId().length() == 0)
+    	{
+    		RestReactor.populateErrorInfo(errorInfo,
+	                    ReactorReturnCodes.PARAMETER_INVALID,
+	                    "RestClient.connectBlocking",
+	                    "Required parameter clientId is not set");
+    		return;
+    	}
     	else
-    		_restAuthRequest.clientId(_restConnectOptions.clientId().toString());    		
+        	_restAuthRequest.clientId(_restConnectOptions.clientId().toString());
 
     	if (_restConnectOptions.location() != null)
     		_location = _restConnectOptions.location();    	

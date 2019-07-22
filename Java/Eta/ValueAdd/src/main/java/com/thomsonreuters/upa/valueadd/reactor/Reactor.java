@@ -213,6 +213,8 @@ public class Reactor
             _reactorChannel = ReactorFactory.createReactorChannel();
             _reactorChannel.reactor(this);
             _reactorChannel.userSpecObj(this);
+            
+            
             _reactorChannel.selectableChannel(_workerQueue.readChannel());
             // Set ping handler aggregation
             _reactorChannel.pingHandler().trackPings(_reactorOptions.pingStatSet());
@@ -913,6 +915,9 @@ public class Reactor
     			initRestClient(options, errorInfo);
     		else
     			_restClient.connectBlocking(options, true, errorInfo);
+    		
+    		if (errorInfo.code() == ReactorReturnCodes.PARAMETER_INVALID)
+    			return errorInfo.code();
 
     		ReactorServiceEndpointEvent reactorServiceEndpointEvent = ReactorFactory.createReactorServiceEndpointEvent();
 
@@ -982,8 +987,13 @@ public class Reactor
         	_restConnectOptions.dataFormat(options.dataFormat());
         	_restConnectOptions.transport(options.transport());
         		
-        	if (options.clientId().length() == 0)
-        		_restConnectOptions.clientId(options.userName());
+        	if (options.clientId() == null || options.clientId().length() == 0)
+        	{
+        		return populateErrorInfo(errorInfo,
+   	                    ReactorReturnCodes.PARAMETER_INVALID,
+   	                    "Reactor.initRestClient",
+   	                    "Required parameter clientId is not set");
+        	}
         	else
         		_restConnectOptions.clientId(options.clientId());
         	
@@ -1046,11 +1056,7 @@ public class Reactor
     	{
     		_restConnectOptions.userName(loginRequest.userName());
     		_restConnectOptions.password(loginRequest.password());
-    		
-    		if (((ConsumerRole)role)._clientId.length() == 0)
-    			_restConnectOptions.clientId(loginRequest.userName());
-    		else
-    			_restConnectOptions.clientId(((ConsumerRole)role)._clientId);
+    		_restConnectOptions.clientId().data((((ConsumerRole)role).clientId().toString()));
     	}
     	else if(role.type() == ReactorRoleTypes.NIPROVIDER)
     	{

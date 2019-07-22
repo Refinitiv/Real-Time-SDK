@@ -82,9 +82,7 @@ public interface ServiceEndpointDiscoveryOption
 	ServiceEndpointDiscoveryOption password(String password);
 
 	/**
-	 * Specifies the a unique identifier for an application making the request.
-	 * 
-	 * <p>EMA uses the username as Client ID by default.</p>
+	 * Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
 	 * 
 	 * @param clientId specifies the client ID
 	 * @return reference to this object

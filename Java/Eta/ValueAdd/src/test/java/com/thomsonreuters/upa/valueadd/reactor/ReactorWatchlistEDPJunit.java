@@ -346,7 +346,7 @@ public class ReactorWatchlistEDPJunit
 
 		connectInfo.enableSessionManagement(true);
 		rcOpts.connectionList().add(connectInfo);
-
+		
 		rcOpts.reconnectAttemptLimit(5);
 		rcOpts.reconnectMinDelay(1000);
 		rcOpts.reconnectMaxDelay(1000);
@@ -615,7 +615,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data(System.getProperty("edpPassword"));
 				reactorServiceDiscoveryOptions.password(buf);
-			}  	
+			}  	  	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 
@@ -721,7 +726,8 @@ public class ReactorWatchlistEDPJunit
 		consumerRole.watchlistOptions().enableWatchlist(true);
 		consumerRole.watchlistOptions().channelOpenCallback(consumer);
 		consumerRole.watchlistOptions().requestTimeout(3000);
-
+		consumerRole.clientId().data(System.getProperty("edpUserName"));
+		
 		if (defaultRDMLogin)
 		{
 			consumerRole.rdmLoginRequest().userName().data(System.getProperty("edpUserName"));
@@ -1220,10 +1226,9 @@ public class ReactorWatchlistEDPJunit
 
 			rcOpts.connectionList().add(connectInfo);
 			rcOpts.connectionList().add(connectInfoSecond);
-
 			rcOpts.connectionList().get(1).reactorAuthTokenEventCallback(consumer);					
 			consumerRole.rdmLoginRequest().password().data("FAKE");
-
+			
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 
 			for (int j = 0; j < 5; j++)
@@ -1325,8 +1330,9 @@ public class ReactorWatchlistEDPJunit
 
 			setupConsumer(consumer, true);
 
-			consumerRole.rdmLoginRequest().password().data("FAKE");			
-
+			
+			consumerRole.rdmLoginRequest().password().data("FAKE");
+			
 			errorInfo = ReactorFactory.createReactorErrorInfo();
 			assertNotNull(errorInfo);     
 
@@ -2213,7 +2219,7 @@ public class ReactorWatchlistEDPJunit
 
 			consumerRole.rdmLoginRequest().userName().data("FAKE");
 			consumerRole.rdmLoginRequest().password().data("FAKE");
-
+			consumerRole.clientId().data("FAKE");
 			errorInfo = ReactorFactory.createReactorErrorInfo();
 			assertNotNull(errorInfo);
 
@@ -2231,7 +2237,7 @@ public class ReactorWatchlistEDPJunit
 			// run it again with correct credentials.
 			consumerRole.rdmLoginRequest().userName().data(System.getProperty("edpUserName"));
 			consumerRole.rdmLoginRequest().password().data(System.getProperty("edpPassword"));
-
+			consumerRole.clientId().data(System.getProperty("edpUserName"));
 			errorInfo = ReactorFactory.createReactorErrorInfo();
 			assertNotNull(errorInfo);			
 
@@ -2388,9 +2394,8 @@ public class ReactorWatchlistEDPJunit
 
 			Consumer consumer = new Consumer(consumerReactor);
 			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
-
 			setupConsumer(consumer, true);
-
+			
 			errorInfo = ReactorFactory.createReactorErrorInfo();
 			assertNotNull(errorInfo);
 
@@ -2483,7 +2488,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data(System.getProperty("edpPassword"));
 				reactorServiceDiscoveryOptions.password(buf);
-			}  	
+			}  	  	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
 
 			reactorServiceDiscoveryOptions.transport(11111);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
@@ -2651,6 +2661,64 @@ public class ReactorWatchlistEDPJunit
 			consumerReactor.close();
 		}
 	}
+	
+	@Test
+	public void EDPQueryServiceDiscoveryMissingClientIdTest()
+	{
+		System.out.println("\n>>>>>>>>> Running EDPQueryServiceDiscoveryMissingClientIdTest <<<<<<<<<<\n");	
+		assumeTrue(checkCredentials());
+		unlockAccount();
+		
+		TestReactor consumerReactor = null;
+		try {
+			ReactorErrorInfo errorInfo = null;		 
+			ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.userName(buf);
+			}
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpPassword"));
+				reactorServiceDiscoveryOptions.password(buf);
+			}
+
+			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
+			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
+
+			ReactorServiceEndpointEventCallbackTest callback = new ReactorServiceEndpointEventCallbackTest()
+			{
+				@Override
+				public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event) {
+					return 0;
+				}     				
+			};
+
+			reactorServiceDiscoveryOptions.reactorServiceEndpointEventCallback(callback);		
+
+			/* Create reactor. */
+			consumerReactor = new TestReactor();
+
+			/* Create consumer. */
+			Consumer consumer = new Consumer(consumerReactor);
+
+			setupConsumer(consumer, true);
+
+			errorInfo = ReactorFactory.createReactorErrorInfo();   
+			
+			System.out.println("Client ID: " + reactorServiceDiscoveryOptions.clientId());
+			
+			int ret = consumerReactor._reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo);
+			
+			assertTrue("Expecting ReactorReturnCodes.PARAMETER_INVALID (-5), instead received: " + ret, ret == ReactorReturnCodes.PARAMETER_INVALID);	
+			assertTrue(errorInfo.toString().contains("Required parameter clientId is not set"));
+		}
+		finally
+		{
+			consumerReactor.close();
+		}	
+	}
 
 	@Test
 	public void EDPQueryServiceDiscoveryErrorMismatchOfTypesTest()
@@ -2673,7 +2741,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data(System.getProperty("edpPassword"));
 				reactorServiceDiscoveryOptions.password(buf);
-			}  	
+			}    	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}	
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_JSON2);
@@ -2746,7 +2819,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data(System.getProperty("edpPassword"));
 				reactorServiceDiscoveryOptions.password(buf);
-			}  	
+			}  	  	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_WEBSOCKET);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_JSON2);
@@ -2823,7 +2901,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data("WRONG_PASSWORD");
 				reactorServiceDiscoveryOptions.password(buf);
-			}  	
+			}
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data("WRONG_CLIENT_ID");
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}  
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
@@ -2895,7 +2978,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data("WRONG PASSWORD");
 				reactorServiceDiscoveryOptions.password(buf);
-			}  	
+			}
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data("WRONG CLIENT ID");
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}  
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
@@ -2986,7 +3074,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data("WRONG PASSWORD");
 				reactorServiceDiscoveryOptions.password(buf);
-			}  	
+			}
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
@@ -3069,11 +3162,6 @@ public class ReactorWatchlistEDPJunit
 			ReactorServiceDiscoveryOptions reactorServiceDiscoveryOptions = ReactorFactory.createReactorServiceDiscoveryOptions();
 			{
 				Buffer buf = CodecFactory.createBuffer();
-				buf.data("INVALID_CLIENT_ID");
-				reactorServiceDiscoveryOptions.clientId(buf);
-			}
-			{
-				Buffer buf = CodecFactory.createBuffer();
 				buf.data(System.getProperty("edpUserName"));
 				reactorServiceDiscoveryOptions.userName(buf);
 			}
@@ -3081,7 +3169,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data(System.getProperty("edpPassword"));
 				reactorServiceDiscoveryOptions.password(buf);
-			}		
+			}	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data("INVALID_CLIENT_ID");
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
@@ -3170,7 +3263,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data(System.getProperty("edpPassword"));
 				reactorServiceDiscoveryOptions.password(buf);
-			}  	
+			}   	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			} 	
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 
@@ -3246,6 +3344,11 @@ public class ReactorWatchlistEDPJunit
 				buf.data(System.getProperty("edpPassword"));
 				reactorServiceDiscoveryOptions.password(buf);
 			}  	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
 
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
 
@@ -3315,6 +3418,11 @@ public class ReactorWatchlistEDPJunit
 				buf.data(System.getProperty("edpPassword"));
 				reactorServiceDiscoveryOptions.password(buf);
 			}  	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);
@@ -3385,7 +3493,12 @@ public class ReactorWatchlistEDPJunit
 				Buffer buf = CodecFactory.createBuffer();
 				buf.data(System.getProperty("edpPassword"));
 				reactorServiceDiscoveryOptions.password(buf);
-			}  	
+			}  	  	
+			{
+				Buffer buf = CodecFactory.createBuffer();
+				buf.data(System.getProperty("edpUserName"));
+				reactorServiceDiscoveryOptions.clientId(buf);
+			}
 
 			reactorServiceDiscoveryOptions.transport(ReactorDiscoveryTransportProtocol.RD_TP_TCP);
 			reactorServiceDiscoveryOptions.dataFormat(ReactorDiscoveryDataFormatProtocol.RD_DP_RWF);

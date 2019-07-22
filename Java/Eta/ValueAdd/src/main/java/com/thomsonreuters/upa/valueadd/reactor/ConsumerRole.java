@@ -361,8 +361,7 @@ public class ConsumerRole extends ReactorRole
     }
 
     /**
-     * Specifies an unique ID defined for an application making a request to the EDP token service.
-     * The RDMLoginRequest.userName variable is used if this member is not set. Optional.
+     * Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
      * 
      * @param clientId the clientId
      * 
@@ -379,7 +378,6 @@ public class ConsumerRole extends ReactorRole
     
     /**
      * Specifies an unique ID defined for an application making a request to the EDP token service.
-     * The RDMLoginRequest.userName variable is used if this member is not set. Optional.
      * 
      * @return clientId the clientId
      * 
@@ -546,6 +544,8 @@ public class ConsumerRole extends ReactorRole
         _dictionaryMsgCallback = role.dictionaryMsgCallback();
         _dictionaryDownloadMode = role.dictionaryDownloadMode();
         _consumerWatchlistOptions.copy(role.watchlistOptions());
+        if(role.clientId() != null)
+        	_clientId.data(role.clientId().toString());
         copyLoginRequest(role.rdmLoginRequest());
         copyDirectoryRequest(role.rdmDirectoryRequest());
     }

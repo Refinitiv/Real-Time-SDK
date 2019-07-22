@@ -190,11 +190,16 @@ class RestReactor
 
 		final List<NameValuePair> params = new ArrayList<>(6);
 		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, options.grantType()));
-		params.add(new BasicNameValuePair(AUTH_USER_NAME, ((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString()));			
-		if  (((ConsumerRole)reactorChannel.role()).clientId().toString() == null )
-			params.add(new BasicNameValuePair(AUTH_CLIENT_ID, ((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString()));				
+		params.add(new BasicNameValuePair(AUTH_USER_NAME, ((ConsumerRole)reactorChannel.role()).rdmLoginRequest().userName().toString()));		
+		
+		if  (options.clientId() == null || options.clientId().length() == 0)
+		{	  
+			return populateErrorInfo(errorInfo,
+                    ReactorReturnCodes.PARAMETER_INVALID,
+                    "RestReactor.submitAuthRequest", "Required parameter clientId is not set");
+		}
 		else
-			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  ((ConsumerRole)reactorChannel.role()).clientId().toString()));
+			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  options.clientId().toString()));
 		
 		params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, "true")); //must set true here
 		if (options.hasRefrehTokoen() && options.grantType().equals(AUTH_REFRESH_TOKEN)) //for new refresh token

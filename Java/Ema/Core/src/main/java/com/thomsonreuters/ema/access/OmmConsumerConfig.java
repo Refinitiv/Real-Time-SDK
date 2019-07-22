@@ -94,8 +94,8 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig applicationId(String applicationId);
 	
 	/**
-	 * Specifies an unique identifier defined for making an authentication request to the token service.
-	 * <p>EMA uses the user name as Client ID if not specified.</p>
+	 * Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
+	 * 
 	 * @param clientId specifies an unique identifier.
 	 * @return reference to this object
 	 */

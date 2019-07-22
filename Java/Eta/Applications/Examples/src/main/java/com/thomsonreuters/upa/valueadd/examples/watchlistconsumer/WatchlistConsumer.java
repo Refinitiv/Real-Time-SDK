@@ -196,6 +196,10 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorServiceEndpointInfo;
  * <li>-at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN.
  * <li>-ax Specifies the Authentication Extended information.
  * <li>-aid Specifies the Application ID.
+ * <li>-sessionMgnt (optional) Enable Session Management in the reactor.
+ * <li>-l (optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.
+ * <li>-query (optional) Queries EDP service discovery to get an endpoint according to a specified connection type and location.
+ * <li>-clientId Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
  * </ul>
  */ 
 public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpointEventCallback

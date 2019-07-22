@@ -46,6 +46,7 @@ public class Consumer {
 	
 	static String userName;
 	static String password;
+	static String clientId;
 	
 	static void printHelp()
 	{
@@ -54,8 +55,8 @@ public class Consumer {
 	    		+ "\ttoken service (mandatory).\n"
 	    		+ "  -password password to perform authorization with the token \r\n"
 	    		+ "\tservice (mandatory).\n"
-	    		+ "  -clientId client ID to perform authorization with the token \r\n" 
-	    		+ "\tservice. The user name is used if not specified (optional).\n"
+	    		+ "  -clientId client ID for application making the request to \r\n" 
+	    		+ "\tEDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
 	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
@@ -94,7 +95,8 @@ public class Consumer {
     			}
 	            else if ("-clientId".equals(args[argsCount]))
     			{
-	            	config.clientId(argsCount < (args.length-1) ? args[++argsCount] : null);
+	            	clientId = argsCount < (args.length-1) ? args[++argsCount] : null;
+	            	config.clientId(clientId);
     				++argsCount;				
     			}
     			else if ("-keyfile".equals(args[argsCount]))
@@ -145,9 +147,9 @@ public class Consumer {
     			}			
     		}
 	        
-	        if ( userName == null || password == null )
+	        if ( userName == null || password == null || clientId == null)
 			{
-				System.out.println("Both username and password must be specified on the command line. Exiting...");
+				System.out.println("Username, password, and clientId all must be specified on the command line. Exiting...");
 				printHelp();
 				return false;
 			}

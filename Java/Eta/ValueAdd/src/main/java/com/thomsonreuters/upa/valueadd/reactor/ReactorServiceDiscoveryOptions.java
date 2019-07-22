@@ -133,7 +133,6 @@ public class ReactorServiceDiscoveryOptions
 	
     /**
      * Specifies the unique ID defined for an application making a request to the token service.
-	 * The userName variable is used if this member is not set.
      * 
      * @param clientId the client Id
      */			
@@ -144,8 +143,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Specifies the unique ID defined for an application making a request to the token service.
-	 * The userName variable is used if this member is not set.
+     * Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.
      * 
      * @return clientId.
      */		

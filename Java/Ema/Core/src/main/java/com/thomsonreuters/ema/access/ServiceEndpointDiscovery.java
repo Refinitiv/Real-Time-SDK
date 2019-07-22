@@ -41,7 +41,7 @@ package com.thomsonreuters.ema.access;
  *
  *				// Query endpoints from EDP-RT service discovery
  *				serviceEndpointDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOpion().username(userName)
- *							.password(password).transport(ServiceEndpointDiscoveryOption::TCP), appClient);
+ *							.password(password).transport(ServiceEndpointDiscoveryOption::TCP).clientId(clientId), appClient);
  *			}
  *			catch (OmmException excp)
  *       	{

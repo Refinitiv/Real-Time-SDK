@@ -102,8 +102,8 @@ public class Consumer
 	    		+ "\tservice (mandatory).\n"
 	    		+ "  -location location to get an endpoint from EDP-RT service \r\n"
 	    		+ "\tdiscovery. Defaults to \"us-east\" (optional).\n"
-	    		+ "  -clientId client ID to perform authorization with the token \r\n" 
-	    		+ "\tservice. The user name is used if not specified (optional).\n"
+	    		+ "  -clientId client ID for application making the request to \r\n" 
+	    		+ "\tEDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -keyfile keystore file for encryption (mandatory).\n"
 	    		+ "  -keypasswd keystore password for encryption (mandatory).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
@@ -198,9 +198,9 @@ public class Consumer
     			}			
     		}
 	        
-	        if ( userName == null || password == null )
+	        if ( userName == null || password == null || clientId == null)
 			{
-				System.out.println("Both username and password must be specified on the command line. Exiting...");
+				System.out.println("Username, password, and clientId must be specified on the command line. Exiting...");
 				printHelp();
 				return false;
 			}
