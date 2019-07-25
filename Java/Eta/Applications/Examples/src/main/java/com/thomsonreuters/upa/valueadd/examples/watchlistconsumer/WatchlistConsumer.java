@@ -1639,8 +1639,16 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
         }
         else
         {
-        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
-        	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
+        	if(chnlInfo.connectionArg.port() != null)
+        	{
+        		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(chnlInfo.connectionArg.port());
+        	}
+        	
+        	if(chnlInfo.connectionArg.hostname() != null)
+        	{
+        		chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(chnlInfo.connectionArg.hostname());
+        	}
+        		
         	chnlInfo.connectOptions.connectionList().get(0).connectOptions().unifiedNetworkInfo().interfaceName(chnlInfo.connectionArg.interfaceName());
         }
         

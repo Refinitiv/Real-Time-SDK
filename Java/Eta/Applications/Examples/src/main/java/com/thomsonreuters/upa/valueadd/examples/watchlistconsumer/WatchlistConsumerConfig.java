@@ -273,9 +273,32 @@ public class WatchlistConsumerConfig
     	    	enableHttp = true;
     	    }
     		connectionArg.service(serviceName());
-        				   
-    		connectionArg.hostname(CommandLine.value("h"));
-    		connectionArg.port(CommandLine.value("p"));
+        	
+    	
+			if(CommandLine.value("h") == null)
+			{
+				if(enableSessionManagement() == false)
+	    		{
+					connectionArg.hostname(defaultSrvrHostname);
+	    		}
+			}
+			else
+			{
+				connectionArg.hostname(CommandLine.value("h"));
+			}
+			
+			if(CommandLine.value("p") == null)
+			{
+				if(enableSessionManagement() == false)
+	    		{
+					connectionArg.port(defaultSrvrPortNo);
+	    		}
+			}
+			else
+			{
+				connectionArg.port(CommandLine.value("p"));
+			}
+    		
             connectionArg.interfaceName(CommandLine.value("if"));
 
     		if (CommandLine.hasArg("tsServiceName"))
@@ -577,8 +600,8 @@ public class WatchlistConsumerConfig
         CommandLine.addOption("snapshot", "Specifies each request using non-streaming. Default is false(i.e. streaming requests.)");
         CommandLine.addOption("sl", "Requests symbol list using Symbol List domain. (symbol list name optional). Default is no symbol list requests.");
         CommandLine.addOption("sld", "Requests item on the Symbol List domain and data streams for items on that list.  Default is no symbol list requests.");
-        CommandLine.addOption("h", defaultSrvrHostname, "Server host name");
-        CommandLine.addOption("p", defaultSrvrPortNo, "Server port number");
+        CommandLine.addOption("h", "Server host name");
+        CommandLine.addOption("p", "Server port number");
         CommandLine.addOption("if", (String)null, "Interface name");
         CommandLine.addOption("s", defaultServiceName, "Service name");
         CommandLine.addOption("u", "Login user name. Default is system user name.");
