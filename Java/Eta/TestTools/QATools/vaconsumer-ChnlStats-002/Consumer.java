@@ -168,7 +168,7 @@ import com.thomsonreuters.upa.valueadd.reactor.ReactorSubmitOptions;
  *
  * <li>-passwd changes the password used when logging into the provider
  * 
- * <li>-clientId (optional) specifies an unique ID for application making the request to EDP token service
+ * <li>-clientId specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator
  * 
  * <li>-sessionMgnt enables the session management in the Reactor
  *
