@@ -1128,6 +1128,9 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 	pConnOptions = &pReactorChannel->connectionOptList[0].base.rsslConnectOptions;
 	pReactorChannel->connectionListIter = 0;
 	pReactorChannel->initializationTimeout = pReactorChannel->connectionOptList[0].base.initializationTimeout;
+	pReactorChannel->reactorChannel.pRsslChannel = NULL;
+	pReactorChannel->reactorChannel.pRsslServer = NULL;
+	pReactorChannel->reactorChannel.userSpecPtr = pOpts->rsslConnectOptions.userSpecPtr;
 
 	if (pRole->base.roleType == RSSL_RC_RT_OMM_CONSUMER
 		   && pRole->ommConsumerRole.watchlistOptions.enableWatchlist)
@@ -1197,9 +1200,6 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 	if ((pReactorChannel->pTunnelManager = tunnelManagerOpen(pReactor, (RsslReactorChannel*)pReactorChannel, pError)) == NULL)
 		goto reactorConnectFail;
 
-	pReactorChannel->reactorChannel.pRsslChannel = NULL;
-	pReactorChannel->reactorChannel.pRsslServer = NULL;
-	pReactorChannel->reactorChannel.userSpecPtr = pOpts->rsslConnectOptions.userSpecPtr;
 	pReactorChannel->pWatchlist = pWatchlist;
 	pReactorChannel->readRet = 0;
 	pReactorChannel->connectionDebugFlags = pOpts->connectionDebugFlags;
