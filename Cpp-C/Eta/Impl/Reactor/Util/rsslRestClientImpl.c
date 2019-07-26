@@ -60,6 +60,7 @@ RsslBuffer rssl_rest_application_form_urlencoded_text = { 33, "application/x-www
 RsslBuffer rssl_rest_content_length_text = { 14, "Content-Length" };
 RsslBuffer rssl_rest_content_encoding_text = { 16, "Content-Encoding" };
 RsslBuffer rssl_rest_accept_encoding_text = { 15, "Accept-Encoding" };
+RsslBuffer rssl_rest_location_header_text = { 8, "Location" };
 
 static const char * const tokenkeys[] =
 {
@@ -632,7 +633,7 @@ RsslRet parseRsslRestHeaders(RsslRestHandleImpl* handleImpl, RsslRestResponse* r
 				strncpy(rsslRestHeader->key.data, value, rsslRestHeader->key.length);
 
 				/* Extract header value */
-				rsslRestHeader->value.length = (RsslUInt32)(size - pos + 1);
+				rsslRestHeader->value.length = (RsslUInt32)(size - (pos + 1));
 				if (_rsslRestGetBuffer(&rsslRestHeader->value, rsslRestHeader->value.length + 1, restBufferImpl) == RSSL_RET_BUFFER_TOO_SMALL)
 				{
 					return RSSL_RET_FAILURE;

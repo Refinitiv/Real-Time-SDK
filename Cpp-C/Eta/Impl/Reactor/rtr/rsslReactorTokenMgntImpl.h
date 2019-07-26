@@ -25,6 +25,7 @@ typedef struct _RsslReactorOAuthCredentialRenewalImpl RsslReactorOAuthCredential
 * - Represents states for token management and requesting service discovery */
 typedef enum
 {
+	RSSL_RC_TOKEN_SESSION_IMPL_STOP_REQUESTING = -5,
 	RSSL_RC_TOKEN_SESSION_IMPL_MEM_ALLOCATION_FAILURE = -4,
 	RSSL_RC_TOKEN_SESSION_IMPL_PARSE_RESP_FAILURE = -3,
 	RSSL_RC_TOKEN_SESSION_IMPL_REQUEST_FAILURE = -2,
@@ -75,6 +76,11 @@ typedef struct
 
 	RsslInt32					reissueTokenAttemptLimit; /* Keeping track of token renewal attempt */
 
+	rtr_atomic_val				numberOfWaitingChannels; /* Keeps the number of RsslReactorChannelImpl waiting to register to the RsslReactorTokenSessionImpl*/
+
+	RsslBuffer					temporaryURL; /* Used the memory location from the temporaryURLBuffer */
+	RsslBuffer					temporaryURLBuffer;
+
 } RsslReactorTokenSessionImpl;
 
 RTR_C_INLINE void rsslClearReactorTokenSessionImpl(RsslReactorTokenSessionImpl *pTokenSessionImpl)
@@ -95,6 +101,7 @@ RTR_C_INLINE void rsslFreeReactorTokenSessionImpl(RsslReactorTokenSessionImpl *p
 	RSSL_MUTEX_DESTROY(&pTokenSessionImpl->accessTokenMutex);
 
 	rsslFreeConnectOpts(&pTokenSessionImpl->proxyConnectOpts);
+	free(pTokenSessionImpl->temporaryURLBuffer.data);
 
 	memset(pTokenSessionImpl, 0, sizeof(RsslReactorTokenSessionImpl));
 

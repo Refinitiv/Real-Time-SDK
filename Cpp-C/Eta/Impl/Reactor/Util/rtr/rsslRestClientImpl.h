@@ -50,6 +50,7 @@ extern RsslBuffer rssl_rest_take_exclusive_sign_on_false_text;
 extern RsslBuffer rssl_rest_take_exclusive_sign_on_true_text;
 extern RsslBuffer rssl_rest_content_type_text;
 extern RsslBuffer rssl_rest_application_form_urlencoded_text;
+extern RsslBuffer rssl_rest_location_header_text;
 
 #define RSSL_REST_MAX_WRITE_BUF_SIZE 16384
 #define RSSL_REST_INIT_TOKEN_BUFFER_SIZE 8192

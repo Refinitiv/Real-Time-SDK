@@ -67,7 +67,7 @@ public:
 		\remark This affects exceptions thrown from ServiceEndpointDiscovery methods
 	 */
 	ServiceEndpointDiscovery(const EmaString& tokenServiceURL = "https://api.refinitiv.com/auth/oauth2/beta1/token",
-							 const EmaString& serviceDiscoveryURL = "https://api.refinitiv.com/streaming/pricing/v1");
+							 const EmaString& serviceDiscoveryURL = "https://api.refinitiv.com/streaming/pricing/v1/");
 	//@}
 
 	///@name Destructor

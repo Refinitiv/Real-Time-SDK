@@ -143,7 +143,7 @@ public :
 		@param[in] serviceDiscoveryUrl specifies an URL for EDP service discovery.
 		@return reference to this object
 	*/
-	OmmConsumerConfig& serviceDiscoveryUrl( const EmaString& serviceDiscoveryUrl = "https://api.refinitiv.com/streaming/pricing/v1" );
+	OmmConsumerConfig& serviceDiscoveryUrl( const EmaString& serviceDiscoveryUrl = "https://api.refinitiv.com/streaming/pricing/v1/" );
 
 	/** Specifies a hostname and port.  Overrides prior value.
 		\remark Implies usage of TCP IP channel or RSSL_CONN_TYPE_SOCKET.

@@ -30,6 +30,8 @@
 #include <sys/time.h>
 #endif
 
+#define RSSL_REACTOR_DEFAULT_URL_LENGHT 2084;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,6 +53,7 @@ typedef enum
 * - Represents states for token management and requesting service discovery */
 typedef enum
 {
+	RSSL_RC_CHINFO_IMPL_ST_STOP_REQUESTING = -6,
 	RSSL_RC_CHINFO_IMPL_ST_INVALID_CONNECTION_TYPE = -5,
 	RSSL_RC_CHINFO_IMPL_ST_MEM_ALLOCATION_FAILURE = -4,
 	RSSL_RC_CHINFO_IMPL_ST_PARSE_RESP_FAILURE = -3,
@@ -73,6 +76,8 @@ typedef struct
 
 	RsslReactorChannelInfoImplState	reactorChannelInfoImplState; /* Keeping track the state of this session */
 	RsslReactorTokenMgntEventType	reactorTokenMgntEventType; /* Specify an event type for sending to the Reactor */
+
+	RsslReactorDiscoveryTransportProtocol transportProtocol; /* This is used to keep the transport protocol for requesting service discovery */
 
 } RsslReactorConnectInfoImpl;
 
@@ -156,6 +161,12 @@ typedef struct
 	/* This is used for token session management */
 	RsslQueueLink					tokenSessionLink; /* Keeps in the RsslQueue of RsslReactorTokenSessionImpl */
 	RsslReactorTokenSessionImpl		*pTokenSessionImpl; /* The RsslReactorTokenSessionImpl for this channel if token management is enable */
+	rtr_atomic_val					addedToTokenSessionList; /* This is used to check whether RsslReactorChannelImpl has been added to the 
+															 RsslQueue of RsslReactorTokenSessionImpl*/
+
+	RsslBuffer						temporaryURL; /* Temporary URL for redirect */
+	RsslUInt32						temporaryURLBufLength;
+
 } RsslReactorChannelImpl;
 
 RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pInfo)
@@ -313,6 +324,7 @@ RTR_C_INLINE RsslRet _rsslChannelFreeConnectionList(RsslReactorChannelImpl *pRea
 		}
 
 		free(pReactorChannel->pChannelStatistic);
+		free(pReactorChannel->temporaryURL.data);
 
 		free(pReactorChannel->connectionOptList);
 		pReactorChannel->connectionOptList = NULL;
@@ -356,6 +368,7 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	/* Reset all buffers for the session management */
 	pReactorChannel->supportSessionMgnt = RSSL_FALSE;
 	pReactorChannel->pRestHandle = NULL;
+	pReactorChannel->addedToTokenSessionList = RSSL_FALSE;
 
 	/* The channel statistics */
 	pReactorChannel->pChannelStatistic = NULL;
@@ -364,6 +377,8 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	/* The token session management */
 	rsslInitQueueLink(&pReactorChannel->tokenSessionLink);
 	pReactorChannel->pTokenSessionImpl = NULL;
+	rsslClearBuffer(&pReactorChannel->temporaryURL);
+	pReactorChannel->temporaryURLBufLength = 0;
 
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 }
@@ -471,8 +486,10 @@ struct _RsslReactorImpl
 	RsslInt64 ticksPerMsec;
 
 	/* For EDP token management and service discovery */
-	RsslBuffer			serviceDiscoveryURL;
-	RsslBuffer			tokenServiceURL;
+	RsslBuffer			serviceDiscoveryURL; /* Used the memory location from the serviceDiscoveryURLBuffer */
+	RsslBuffer			serviceDiscoveryURLBuffer;
+	RsslBuffer			tokenServiceURL; /* Used the memory location from the tokenServiceURLBuffer */
+	RsslBuffer			tokenServiceURLBuffer;
 	RsslBuffer			accessTokenRespBuffer;
 	RsslBuffer			tokenInformationBuffer;
 	RsslBuffer			serviceDiscoveryRespBuffer;
@@ -505,6 +522,8 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslBuffer *pS
 																RsslBuffer *pArgsAndHeaderBuf, void *pUserSpecPtr, RsslErrorInfo* pError);
 
 RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReactorChannelImpl, RsslBool *queryConnectInfo, RsslErrorInfo* pError);
+
+RsslBuffer* getHeaderValue(RsslQueue *pHeaders, RsslBuffer* pHeaderName);
 
 void _cumulativeValue(RsslUInt* destination, RsslUInt32 value);
 

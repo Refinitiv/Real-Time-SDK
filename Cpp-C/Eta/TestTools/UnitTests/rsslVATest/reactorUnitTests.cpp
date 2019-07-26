@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright Thomson Reuters 2018. All rights reserved.            --
+ *|           Copyright Thomson Reuters 2019. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -397,14 +397,14 @@ TEST_F(ReactorSessionMgntTest, UnauthorizedUser)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to request authentication token information. Text: {\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" } ");
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to request authentication token information with HTTP error 400. Text: {\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" } ");
  
 	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to request authentication token information. Text: {\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" } ");
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to request authentication token information with HTTP error 400. Text: {\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" } ");
 }
 
 TEST_F(ReactorSessionMgntTest, NoOAuthCredentialForEnablingSessionMgnt)
@@ -1096,7 +1096,7 @@ TEST_F(ReactorSessionMgntTest, ConnectionRecoveryFromSocketToEncrypted_for_RsslR
 
 TEST_F(ReactorSessionMgntTest, MultipleOpenAndCloseConnections)
 {
-	RsslUInt32 numberOfConnections = 15; /* To ensure that this test reuse the ReactorChannel from the channel pool(size = 10)*/
+	RsslUInt32 numberOfConnections = 25; /* To ensure that this test reuse the ReactorChannel from the channel pool(size = 10)*/
 	RsslUInt32 index = 0;
 	rsslClearCreateReactorOptions(&mOpts);
 	initReactors(&mOpts, RSSL_TRUE);
@@ -1128,7 +1128,6 @@ TEST_F(ReactorSessionMgntTest, MultipleOpenAndCloseConnections)
 		ASSERT_TRUE(rsslReactorCloseChannel(pConsMon->pReactor, pConsMon->mutMsg.pReactorChannel, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 		dispatchEvent(pConsMon, 800);
 		dispatchEvent(pConsMon, 800);
-		time_sleep(1000);
 	}
 }
 
@@ -1252,6 +1251,51 @@ protected:
 	RsslReactorServiceDiscoveryOptions _reactorServiceDiscoveryOpts;
 };
 
+TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_UserName_NotSpecified)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
+	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
+	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ("RsslReactorServiceDiscoveryOptions.userName not provided.", rsslErrorInfo.rsslError.text);
+}
+
+TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Password_NotSpecified)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
+
+	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
+	_reactorServiceDiscoveryOpts.userName = g_userName;
+	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ("RsslReactorServiceDiscoveryOptions.password not provided.", rsslErrorInfo.rsslError.text);
+}
+
+TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_ClientId_NotSpecified)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
+
+	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
+	_reactorServiceDiscoveryOpts.userName = g_userName;
+	_reactorServiceDiscoveryOpts.password = g_password;
+	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ("RsslReactorServiceDiscoveryOptions.clientId not provided.", rsslErrorInfo.rsslError.text);
+}
+
+TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Callback_NotSpecified)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
+
+	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
+	_reactorServiceDiscoveryOpts.userName = g_userName;
+	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ("RsslReactorServiceDiscoveryOptions.pServiceEndpointEventCallback not provided.", rsslErrorInfo.rsslError.text);
+}
+
 TEST_F(ReactorQueryServiceDiscoveryTest, GetAllServiceEndpoints)
 {
 	ReactorServiceDiscoveryEndpointResult expectedResult;
@@ -1311,6 +1355,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_TcpTransport)
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
 
 	// Checking the service discovery response in the serviceEndpointEventCallback
@@ -1343,6 +1388,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_RwfDataformat)
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_RWF;
 
 	// Checking the service discovery response in the serviceEndpointEventCallback
@@ -1375,6 +1421,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_WebsocketTranspo
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
 
 	// Checking the service discovery response in the serviceEndpointEventCallback
@@ -1407,6 +1454,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_Tr_json2Dataform
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_JSON2;
 
 	// Checking the service discovery response in the serviceEndpointEventCallback
@@ -1499,6 +1547,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombinat
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_JSON2;
 
@@ -1521,6 +1570,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombinat
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_RWF;
 
@@ -1542,6 +1592,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidTranspor
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 	_reactorServiceDiscoveryOpts.transport = (RsslReactorDiscoveryTransportProtocol)99;
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
@@ -1563,6 +1614,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidDataform
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 	_reactorServiceDiscoveryOpts.dataFormat = (RsslReactorDiscoveryDataFormatProtocol)88;
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
@@ -1604,6 +1656,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidTokenSer
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
@@ -1621,6 +1674,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidServiceD
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.clientId = g_userName;
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
