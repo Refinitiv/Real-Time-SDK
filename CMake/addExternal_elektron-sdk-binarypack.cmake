@@ -13,7 +13,7 @@ endif()
 if(NOT elektron-sdk-binarypack_hash)
 	# .xz MD5 hash
 	# .tar.xz 
-	set(elektron-sdk-binarypack_hash "MD5=f7c5895164ff3069bb4c5179a5f130f3")
+	set(elektron-sdk-binarypack_hash "MD5=6a11db03214b5b541a709ff913727698")
 endif()
 if(NOT elektron-sdk-binarypack_version)
 	set(elektron-sdk-binarypack_version "1.3.1.0")
