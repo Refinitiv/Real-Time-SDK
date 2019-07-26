@@ -15,8 +15,8 @@ set(esdk_INTERNAL_RELEASE_TWEAK L1)
 set(esdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 9 )
-set( librsslVA_SO_VERSION 11 )
-set( libema_SO_VERSION 6 )
+set( librsslVA_SO_VERSION 12 )
+set( libema_SO_VERSION 7 )
 
 # This file is included by other development repos
 # and the set to cache is not neccessary
