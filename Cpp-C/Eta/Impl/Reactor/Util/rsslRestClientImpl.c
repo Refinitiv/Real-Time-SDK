@@ -1149,6 +1149,7 @@ CURLcode commonCurlOptions(CURL* curl, RsslRestRequestArgs* requestArgs)
 	RsslBuffer* userNameEncodedUrl;
 	RsslBuffer* passwordEncodedUrl;
 	size_t addtionalSize = 2;
+	long timeout = (long)requestArgs->requestTimeOut;
 
 	if (requestArgs->networkArgs.proxyArgs.proxyUserName.length && requestArgs->networkArgs.proxyArgs.proxyPassword.length)
 	{
@@ -1270,6 +1271,9 @@ CURLcode commonCurlOptions(CURL* curl, RsslRestRequestArgs* requestArgs)
 	if ((curlCode = (*(rssl_rest_CurlJITFuncs->curl_easy_setopt))(curl, CURLOPT_VERBOSE, 1L)) != CURLE_OK)
 		return curlCode;
 #endif
+
+	if ((curlCode = (*(rssl_rest_CurlJITFuncs->curl_easy_setopt))(curl, CURLOPT_TIMEOUT, timeout)) != CURLE_OK)
+		return curlCode;
 
 	return CURLE_OK;
 }

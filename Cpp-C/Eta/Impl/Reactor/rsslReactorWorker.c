@@ -778,7 +778,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 											}
 
 											/* Handling error cases to get authentication token using the password */
-												pRestRequestArgs = _reactorCreateRequestArgsForPassword(
+												pRestRequestArgs = _reactorCreateRequestArgsForPassword(pReactorImpl,
 												(pTokenSessionImpl && (pTokenSessionImpl->temporaryURL.data == 0)) ? &pReactorImpl->tokenServiceURL : &pTokenSessionImpl->temporaryURL,
 												pTokenSessionImpl ? (&pTokenSessionImpl->pOAuthCredential->userName) : (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.userName),
 												&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.password, // Specified by users as needed.
@@ -975,7 +975,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 											if (pTokenSessionImpl->sendTokenRequest == 0)
 											{
+												RsslInt tokenExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (pTokenSessionImpl->tokenInformation.expiresIn * 1000);
 												pTokenSessionImpl->nextExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (RsslInt)(((double)pTokenSessionImpl->tokenInformation.expiresIn  * pReactorImpl->tokenReissueRatio) * 1000);
+												RTR_ATOMIC_SET64(pTokenSessionImpl->tokenExpiresTime, tokenExpiresTime);
 												RTR_ATOMIC_SET(pTokenSessionImpl->sendTokenRequest, 1);
 											}
 
@@ -1388,7 +1390,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						if (pTokenSessionImpl->pOAuthCredential->pOAuthCredentialEventCallback == 0)
 						{
 							/* Handling error cases to get authentication token using the password */
-							pRestRequestArgs = _reactorCreateRequestArgsForPassword(&pReactorImpl->tokenServiceURL,
+							pRestRequestArgs = _reactorCreateRequestArgsForPassword(pReactorImpl, &pReactorImpl->tokenServiceURL,
 								&pTokenSessionImpl->pOAuthCredential->userName,
 								&pTokenSessionImpl->pOAuthCredential->password,
 								NULL, /* For specifying a new password */
@@ -1458,6 +1460,12 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 					{
 						RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 
+						/* Checks to ensure that the access token is still valid before establishing the connection */
+						if (pTokenSessionImpl->lastTokenUpdatedTime == 0)
+						{
+							continue;
+						}
+
 						/* Add the channel to the token session */
 						rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->tokenSessionLink);
 						RTR_ATOMIC_SET(pReactorChannel->addedToTokenSessionList, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
@@ -1498,7 +1506,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						pReactorConnectInfoImpl->transportProtocol = transport;
 
 						rsslClearBuffer(&rsslBuffer);
-						if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(&pReactorChannel->pParentReactor->serviceDiscoveryURL,
+						if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorImpl, &pReactorChannel->pParentReactor->serviceDiscoveryURL,
 							pReactorConnectInfoImpl->transportProtocol, RSSL_RD_DP_INIT, &pTokenSessionImpl->tokenInformation.tokenType,
 							&pTokenSessionImpl->tokenInformation.accessToken,
 							&rsslBuffer, pReactorChannel, &pReactorChannel->channelWorkerCerr)) == 0)
@@ -1626,7 +1634,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 					}
 
-					if ( !(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect(&(pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
+					if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect(&(pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
 					{
 						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
@@ -1667,6 +1675,13 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 			{
 				RsslReactorTokenSessionImpl *pTokenSession = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, sessionLink, pLink);
 
+				/* Checks whether the token is still valid */
+				if  ( (pTokenSession->tokenExpiresTime != 0 ) && ((pReactorWorker->lastRecordedTimeMs - pTokenSession->tokenExpiresTime) > 0) )
+				{
+					RTR_ATOMIC_SET64(pTokenSession->tokenExpiresTime, 0);
+					pTokenSession->lastTokenUpdatedTime = 0;
+				}
+
 				if (pTokenSession->sendTokenRequest && ((pReactorWorker->lastRecordedTimeMs - pTokenSession->nextExpiresTime) > 0))
 				{
 					RsslRestRequestArgs *pRestRequestArgs;
@@ -1696,7 +1711,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						if (pTokenSession->pOAuthCredential->pOAuthCredentialEventCallback == 0)
 						{
 							/* Handling error cases to get authentication token using the password */
-							pRestRequestArgs = _reactorCreateRequestArgsForPassword(&pReactorImpl->tokenServiceURL,
+							pRestRequestArgs = _reactorCreateRequestArgsForPassword(pReactorImpl, &pReactorImpl->tokenServiceURL,
 								&pTokenSession->pOAuthCredential->userName,
 								&pTokenSession->pOAuthCredential->password,
 								NULL, /* For specifying a new password */
@@ -2028,6 +2043,7 @@ static RsslRestRequestArgs* _reactorWorkerCreateRequestArgsForRefreshToken(RsslR
 	RsslBool	hasClientSecret = RSSL_FALSE;
 	char* pCurPos = 0;
 	RsslBuffer clientId = RSSL_INIT_BUFFER;
+	RsslReactorImpl *pReactorImpl = (RsslReactorImpl*)pReactorTokenSession->pReactor;
 
 	pRsslUserNameEncodedUrl = rsslRestEncodeUrlData(pUserName, &pError->rsslError);
 
@@ -2133,6 +2149,9 @@ static RsslRestRequestArgs* _reactorWorkerCreateRequestArgsForRefreshToken(RsslR
 	}
 
 	pRequestArgs->pUserSpecPtr = pReactorTokenSession;
+
+	/* Assigned the request timeout in seconds */
+	pRequestArgs->requestTimeOut = pReactorImpl->restRequestTimeout;
 
 	return pRequestArgs;
 
@@ -2425,7 +2444,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 				RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 
 				rsslClearBuffer(&rsslBuffer);
-				if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(&pReactorChannel->pParentReactor->serviceDiscoveryURL,
+				if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorChannel->pParentReactor, &pReactorChannel->pParentReactor->serviceDiscoveryURL,
 					pReactorConnectInfoImpl->transportProtocol, RSSL_RD_DP_INIT, &pTokenSessionImpl->tokenInformation.tokenType,
 					&pTokenSessionImpl->tokenInformation.accessToken,
 					&rsslBuffer, pReactorChannel, &pReactorChannel->channelWorkerCerr)) == 0)
@@ -2499,7 +2518,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 				memcpy(pReactorChannel->temporaryURL.data, tempUri->data + 1, pReactorChannel->temporaryURL.length);
 
 				rsslClearBuffer(&rsslBuffer);
-				if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(&pReactorChannel->temporaryURL,
+				if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorChannel->pParentReactor, &pReactorChannel->temporaryURL,
 					pReactorConnectInfoImpl->transportProtocol, RSSL_RD_DP_INIT, &pTokenSessionImpl->tokenInformation.tokenType,
 					&pTokenSessionImpl->tokenInformation.accessToken,
 					&rsslBuffer, pReactorChannel, &pReactorChannel->channelWorkerCerr)) == 0)
@@ -2700,7 +2719,9 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 
 				if (pReactorTokenSession->sendTokenRequest == 0)
 				{
+					RsslInt tokenExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (pReactorTokenSession->tokenInformation.expiresIn * 1000);
 					pReactorTokenSession->nextExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (RsslInt)(((double)pReactorTokenSession->tokenInformation.expiresIn  * pReactorImpl->tokenReissueRatio) * 1000);
+					RTR_ATOMIC_SET64(pReactorTokenSession->tokenExpiresTime, tokenExpiresTime);
 					RTR_ATOMIC_SET(pReactorTokenSession->sendTokenRequest, 1);
 				}
 			}
@@ -2768,7 +2789,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 						pReactorConnectInfoImpl->transportProtocol = transport;
 
 						rsslClearBuffer(&rsslBuffer);
-						if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(&pReactorChannel->pParentReactor->serviceDiscoveryURL,
+						if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorChannel->pParentReactor, &pReactorChannel->pParentReactor->serviceDiscoveryURL,
 							pReactorConnectInfoImpl->transportProtocol, RSSL_RD_DP_INIT, &pReactorTokenSession->tokenInformation.tokenType,
 							&pReactorTokenSession->tokenInformation.accessToken,
 							&rsslBuffer, pReactorChannel, &pReactorChannel->channelWorkerCerr)) == 0)
@@ -2932,7 +2953,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 				RSSL_MUTEX_LOCK(&pReactorTokenSession->accessTokenMutex);
 				if (pReactorTokenSession->pOAuthCredential->pOAuthCredentialEventCallback == 0)
 				{
-					pRestRequestArgs = _reactorCreateRequestArgsForPassword(&pReactorImpl->tokenServiceURL,
+					pRestRequestArgs = _reactorCreateRequestArgsForPassword(pReactorImpl, &pReactorImpl->tokenServiceURL,
 						&pReactorTokenSession->pOAuthCredential->userName,
 						&pReactorTokenSession->pOAuthCredential->password,
 						NULL, /* For specifying a new password */
@@ -3029,7 +3050,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					requestURL.data = (tempUri->data + 1);
 					requestURL.length = tempUri->length - 1;
 
-					pRestRequestArgs = _reactorCreateRequestArgsForPassword(&requestURL,
+					pRestRequestArgs = _reactorCreateRequestArgsForPassword(pReactorImpl, &requestURL,
 						&pReactorTokenSession->pOAuthCredential->userName,
 						&pReactorTokenSession->pOAuthCredential->password,
 						NULL, /* For specifying a new password */

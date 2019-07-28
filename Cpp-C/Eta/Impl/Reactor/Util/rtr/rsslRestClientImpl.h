@@ -168,6 +168,7 @@ typedef struct {
 	RsslBuffer				httpBody;			/*!<specifies the body buffer. */
 	void*					pUserSpecPtr;		/*!<a user specified pointer, possibly a closure. */
 	RsslRestNetworkArgs		networkArgs;		/*!<specifies network arguments if any. */
+	RsslUInt32				requestTimeOut;		/*!<specifies maximum time the request is allowed to take, in seconds. */
 } RsslRestRequestArgs;
 
 /**
@@ -182,6 +183,7 @@ RTR_C_INLINE void rsslClearRestRequestArgs(RsslRestRequestArgs *rsslRestRequestA
 	rsslClearBuffer(&rsslRestRequestArgs->httpBody);
 	rsslRestRequestArgs->pUserSpecPtr = 0;
 	rsslClearRestNetworkArgs(&rsslRestRequestArgs->networkArgs);
+	rsslRestRequestArgs->requestTimeOut = 0; /* Never timeout during transfer and waiting for a response */
 }
 
 /**

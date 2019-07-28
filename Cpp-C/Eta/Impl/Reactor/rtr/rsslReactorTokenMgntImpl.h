@@ -55,6 +55,7 @@ typedef struct
 
 	/* Handling token refresh */
 	RsslInt							nextExpiresTime; /* the next expires time in millisecond */
+	rtr_atomic_val64				tokenExpiresTime; /* the next expires time in millisecond */
 	RsslBool						resendFromFailure; /* Indicates to resend the request after a response failure */
 	rtr_atomic_val					sendTokenRequest;
 	RsslErrorInfo					tokenSessionWorkerCerr;

@@ -336,6 +336,7 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	pReactorImpl->tokenReissueRatio = pReactorOpts->tokenReissueRatio;
 	pReactorImpl->reissueTokenAttemptLimit = pReactorOpts->reissueTokenAttemptLimit;
 	pReactorImpl->reissueTokenAttemptInterval = pReactorOpts->reissueTokenAttemptInterval;
+	pReactorImpl->restRequestTimeout = pReactorOpts->restRequestTimeOut;
 
 	if (pReactorOpts->tokenServiceURL.data && pReactorOpts->tokenServiceURL.length)
 	{
@@ -863,7 +864,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 		return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
 	}
 
-	pRestRequestArgs = _reactorCreateRequestArgsForPassword(&pRsslReactorImpl->tokenServiceURL,
+	pRestRequestArgs = _reactorCreateRequestArgsForPassword(pRsslReactorImpl, &pRsslReactorImpl->tokenServiceURL,
 		&pOpts->userName, &pOpts->password, NULL, &pOpts->clientId, &pOpts->clientSecret, &pOpts->tokenScope, &pRsslReactorImpl->argumentsAndHeaders, NULL, pError);
 
 	if (pRestRequestArgs)
@@ -941,7 +942,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 		return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
 	}
 
-	pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(&pRsslReactorImpl->serviceDiscoveryURL,
+	pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pRsslReactorImpl, &pRsslReactorImpl->serviceDiscoveryURL,
 		pOpts->transport, pOpts->dataFormat, &tokenInformation.tokenType,
 		&tokenInformation.accessToken, &pRsslReactorImpl->argumentsAndHeaders, NULL, pError);
 
@@ -2704,7 +2705,9 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 						if (pTokenSession->sendTokenRequest == 0)
 						{
+							RsslInt tokenExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (pTokenSession->tokenInformation.expiresIn * 1000);
 							pTokenSession->nextExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (RsslInt)(((double)pTokenSession->tokenInformation.expiresIn  * pReactorImpl->tokenReissueRatio) * 1000);
+							RTR_ATOMIC_SET64(pTokenSession->tokenExpiresTime, tokenExpiresTime);
 							RTR_ATOMIC_SET(pTokenSession->sendTokenRequest, 1);
 						}
 
@@ -2734,7 +2737,8 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 					}
 					case RSSL_RCIMPL_TKET_CHANNEL_WARNING:
 					{
-						if (pReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
+						RsslChannel* pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
+						if (pRsslChannel&& pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
 						{
 							RsslReactorEventImpl rsslEvent;
 
@@ -4807,19 +4811,22 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 					}
 
 					/* Check whether the token session has enough time to reissue the token for this channel */
-					remainingTimeForReissueMs = pTokenSessionImpl->nextExpiresTime - currentTime;
-
-					if (remainingTimeForReissueMs < (RsslInt)(pReactorChannel->pParentReactor->tokenReissueRatio * 1000) )
+					if (pTokenSessionImpl->nextExpiresTime != 0)
 					{
-						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-							"Couldn't add the channel to the token session as the token reissue interval(%lld ms) is too small.", remainingTimeForReissueMs);
+						remainingTimeForReissueMs = pTokenSessionImpl->nextExpiresTime - currentTime;
 
-						/* Set the pointers to NULL to avoid freeing the user's memory */
-						pConsRole->pLoginRequest = NULL;
-						pConsRole->pDirectoryRequest = NULL;
+						if (remainingTimeForReissueMs < (RsslInt)(pReactorChannel->pParentReactor->tokenReissueRatio * 1000))
+						{
+							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+								"Couldn't add the channel to the token session as the token reissue interval(%lld ms) is too small.", remainingTimeForReissueMs);
 
-						RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
-						return RSSL_RET_FAILURE;
+							/* Set the pointers to NULL to avoid freeing the user's memory */
+							pConsRole->pLoginRequest = NULL;
+							pConsRole->pDirectoryRequest = NULL;
+
+							RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
+							return RSSL_RET_FAILURE;
+						}
 					}
 
 					pReactorChannel->pTokenSessionImpl = pTokenSessionImpl;
@@ -5076,7 +5083,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 	return RSSL_RET_SUCCESS;
 }
 
-RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *pPassword, RsslBuffer* pNewPassword, RsslBuffer *pClientId, 
+RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslReactorImpl *pRsslReactorImpl, RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *pPassword, RsslBuffer* pNewPassword, RsslBuffer *pClientId, 
 								RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBuffer *pHeaderAndDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError)
 {
 	/* Get authentication token using the password */
@@ -5303,6 +5310,9 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslBuffer *pTokenServ
 
 	pRequestArgs->pUserSpecPtr = pUserSpecPtr;
 
+	/* Assigned the request timeout in seconds */
+	pRequestArgs->requestTimeOut = pRsslReactorImpl->restRequestTimeout;
+
 	return pRequestArgs;
 
 memoryAllocationFailed:
@@ -5333,9 +5343,9 @@ memoryAllocationFailed:
 	return 0;
 }
 
-RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
-														RsslReactorDiscoveryDataFormatProtocol dataFormat, RsslBuffer *pTokenType, RsslBuffer *pAccessToken,
-														RsslBuffer *pArgsAndHeaderBuf, void *pUserSpecPtr, RsslErrorInfo* pError)
+RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImpl *pReactorImpl, RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
+	RsslReactorDiscoveryDataFormatProtocol dataFormat, RsslBuffer *pTokenType, RsslBuffer *pAccessToken,
+	RsslBuffer *pArgsAndHeaderBuf, void *pUserSpecPtr, RsslErrorInfo* pError)
 {
 	RsslBuffer serviceDiscoveryURLBuffer;
 	RsslRestHeader *pAuthHeader = 0;
@@ -5358,6 +5368,13 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslBuffer *pS
 								pServiceDiscoveryURL->length + 1;
 
 	memset(pParameterBuf, 0, 128);
+
+	/* Provides backward compatibility for the service discovery URL without having '/' at the end */
+	if (pServiceDiscoveryURL->data[pServiceDiscoveryURL->length - 1] != '/')
+	{
+		strncat(pParameterBuf, "/", 1);
+	}
+
 	if ((transport != RSSL_RD_TP_INIT) || (dataFormat != RSSL_RD_DP_INIT))
 	{
 		switch (transport)
@@ -5478,6 +5495,9 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslBuffer *pS
 
 	pRsslRestRequestArgs->pUserSpecPtr = pUserSpecPtr;
 
+	/* Assigned the request timeout in seconds */
+	pRsslRestRequestArgs->requestTimeOut = pReactorImpl->restRequestTimeout;
+
 	return pRsslRestRequestArgs;
 		
 memoryAllocationFailed:
@@ -5561,7 +5581,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 			pTokenSessionImpl->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_REQ_INIT_AUTH_TOKEN;
 			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
 
-			pRestRequestArgs = _reactorCreateRequestArgsForPassword(&tokenServiceURL,
+			pRestRequestArgs = _reactorCreateRequestArgsForPassword(pReactorChannelImpl->pParentReactor, &tokenServiceURL,
 				&pReactorOAuthCredential->userName, &pReactorOAuthCredential->password, NULL, &pReactorOAuthCredential->clientId,
 				&pReactorOAuthCredential->clientSecret, &pReactorOAuthCredential->tokenScope, &pTokenSessionImpl->rsslPostDataBodyBuf,
 				pTokenSessionImpl, pError);
@@ -5750,8 +5770,10 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 		/* Signal worker to add the token session and register the channel to the session management */
 		if (pTokenSessionImpl->sessionLink.next == NULL && pTokenSessionImpl->sessionLink.prev == 0)
 		{
+			RsslInt tokenExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (pTokenSessionImpl->tokenInformation.expiresIn * 1000);
 			tokenSessionEventType = (RSSL_RCIMPL_TSET_ADD_TOKEN_SESSION_TO_LIST | RSSL_RCIMPL_TSET_REGISTER_CHANNEL_TO_SESSION);
 			pTokenSessionImpl->nextExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (RsslInt)(((double)pTokenSessionImpl->tokenInformation.expiresIn  * pReactorImpl->tokenReissueRatio) * 1000);
+			RTR_ATOMIC_SET64(pTokenSessionImpl->tokenExpiresTime, tokenExpiresTime);
 			RTR_ATOMIC_SET(pTokenSessionImpl->sendTokenRequest, 1);
 		}
 		else
@@ -5788,7 +5810,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 		while (retryCount <= 1) /* Retry the request using the redirect URL only one time. */
 		{
 			/* Get host name and port for EDP-RT service discovery */
-			if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(&serviceDiscoveryURL,
+			if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorChannelImpl->pParentReactor, &serviceDiscoveryURL,
 				transport, RSSL_RD_DP_INIT, &pTokenSessionImpl->tokenInformation.tokenType,
 				&pTokenSessionImpl->tokenInformation.accessToken, &argumentsAndHeaders,
 				pReactorChannelImpl, pError)) == 0)

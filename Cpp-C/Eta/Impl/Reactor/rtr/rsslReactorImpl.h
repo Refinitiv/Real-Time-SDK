@@ -505,6 +505,7 @@ struct _RsslReactorImpl
 
 	RsslReactorTokenSessionImpl	*pTokenSessionForCredentialRenewalCallback; /* This is set before calling the callback to get user's credential */
 	RsslBool			rsslWorkerStarted;
+	RsslUInt32			restRequestTimeout; /* Keeps the request timeout */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
@@ -514,10 +515,10 @@ RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
 
 void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);
 
-RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pNewPassword,
+RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslReactorImpl *pReactorImpl, RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pNewPassword,
 	RsslBuffer *pClientID, RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
 
-RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
+RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImpl *pReactorImpl, RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
 																RsslReactorDiscoveryDataFormatProtocol dataFormat, RsslBuffer *pTokenType, RsslBuffer *pAccessToken,
 																RsslBuffer *pArgsAndHeaderBuf, void *pUserSpecPtr, RsslErrorInfo* pError);
 
