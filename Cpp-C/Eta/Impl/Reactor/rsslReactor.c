@@ -71,7 +71,7 @@ static void _reactorShutdown(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pErro
 static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredentialRenewal(RsslReactorImpl *pReactorImpl, RsslReactorTokenSessionImpl *pReactorTokenSessionImpl, RsslReactorOAuthCredentialRenewalOptions *pOptions,
 	RsslReactorOAuthCredentialRenewal* pOAuthCredentialRenewal, RsslErrorInfo *pError);
 
-RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAuthCredential, RsslReactorOAuthCredential* other, RsslRDMLoginRequest* otherLoginReq, RsslErrorInfo* pErrorInfo);
+RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAuthCredential, RsslBuffer *pClientID, RsslBuffer *pPassword, RsslReactorOMMConsumerRole *pConsumerRole, RsslErrorInfo* pErrorInfo);
  
 /* Options for _reactorProcessMsg. */
 typedef struct
@@ -4765,6 +4765,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 				RsslHashLink *pHashLink = NULL;
 				RsslReactorTokenManagementImpl *pTokenManagementImpl = &pReactorChannel->pParentReactor->reactorWorker.reactorTokenManagement;
 				RsslBuffer userName = (pConsRole->pOAuthCredential && pConsRole->pOAuthCredential->userName.data) ? pConsRole->pOAuthCredential->userName : pConsRole->pLoginRequest->userName;
+				RsslBuffer password = (pConsRole->pOAuthCredential && pConsRole->pOAuthCredential->password.data) ? pConsRole->pOAuthCredential->password : pConsRole->pLoginRequest->password;
 				RsslBuffer clientId = (pConsRole->pOAuthCredential && pConsRole->pOAuthCredential->clientId.data) ? pConsRole->pOAuthCredential->clientId : pConsRole->clientId;
 				RsslReactorOAuthCredential *pOAuthCredential = pConsRole->pOAuthCredential;
 
@@ -4790,6 +4791,16 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 					return RSSL_RET_INVALID_ARGUMENT;
 				}
 
+				if (!password.data || !password.length)
+				{
+					/* Set the pointers to NULL to avoid freeing the user's memory */
+					pConsRole->pLoginRequest = NULL;
+					pConsRole->pDirectoryRequest = NULL;
+
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Failed to copy OAuth credential for enabling the session management; OAuth Password does not exist.");
+					return RSSL_RET_INVALID_ARGUMENT;
+				}
+
 				RSSL_MUTEX_LOCK(&pTokenManagementImpl->tokenSessionMutex);
 
 				pHashLink = rsslHashTableFind(&pTokenManagementImpl->sessionByNameAndClientIdHt, &userName, NULL);
@@ -4801,7 +4812,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 
 					pTokenSessionImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, hashLinkNameAndClientId, pHashLink);
 
-					if (compareOAuthCredentialForTokenSession(pTokenSessionImpl->pOAuthCredential, pOAuthCredential, pConsRole->pLoginRequest, pError) == RSSL_FALSE)
+					if (compareOAuthCredentialForTokenSession(pTokenSessionImpl->pOAuthCredential, &clientId, &password, pConsRole, pError) == RSSL_FALSE)
 					{
 						/* Set the pointers to NULL to avoid freeing the user's memory */
 						pConsRole->pLoginRequest = NULL;
@@ -6124,30 +6135,46 @@ void _populateRsslReactorAuthTokenInfo(RsslBuffer* pDestBuffer, RsslReactorAuthT
 	pDestTokeninfo->expiresIn = pSrcTokeninfo->expiresIn;
 }
 
-RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAuthCredential, RsslReactorOAuthCredential* other, RsslRDMLoginRequest* otherLoginRequest, RsslErrorInfo* pErrorInfo)
+RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAuthCredential, RsslBuffer *pClientID, RsslBuffer *pPassword, RsslReactorOMMConsumerRole* pOmmConsRole, RsslErrorInfo* pErrorInfo)
 {
-	if (pOAuthCredential->pOAuthCredentialEventCallback != other->pOAuthCredentialEventCallback)
+	RsslReactorOAuthCredential* pOAuthOther = pOmmConsRole->pOAuthCredential;
+	RsslBuffer otherTokenScope = RSSL_INIT_BUFFER;
+
+	if (pOAuthOther && pOAuthOther->tokenScope.data)
 	{
-		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-			"The RsslReactorOAuthCredentialEventCallback of RsslReactorOAuthCredential not equal for the same token session.");
-		return RSSL_FALSE;
+		otherTokenScope = pOAuthOther->tokenScope;
+	}
+
+	if (pOAuthCredential->pOAuthCredentialEventCallback)
+	{
+		if ((pOAuthOther == 0) || (pOAuthCredential->pOAuthCredentialEventCallback != pOAuthOther->pOAuthCredentialEventCallback))
+		{
+			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"The RsslReactorOAuthCredentialEventCallback of RsslReactorOAuthCredential not equal for the same token session.");
+			return RSSL_FALSE;
+		}
 	}
 
 	/* Compares the sensitive information when the callback is not specified */
 	if (pOAuthCredential->pOAuthCredentialEventCallback == 0)
 	{
-		RsslBuffer otherPassword = (other->password.data && other->password.length) ? other->password : otherLoginRequest->password;
+		RsslBuffer otherClientSecret = RSSL_INIT_BUFFER;
 
-		if ((pOAuthCredential->clientSecret.length != other->clientSecret.length) ||
-			(memcmp(pOAuthCredential->clientSecret.data, other->clientSecret.data, pOAuthCredential->clientSecret.length) != 0))
+		if (pOAuthOther && pOAuthOther->clientSecret.data)
+		{
+			otherClientSecret = pOAuthOther->clientSecret;
+		}
+
+		if ((pOAuthCredential->clientSecret.length != otherClientSecret.length) ||
+			(memcmp(pOAuthCredential->clientSecret.data, otherClientSecret.data, pOAuthCredential->clientSecret.length) != 0))
 		{
 			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 				"The client secret of RsslReactorOAuthCredential is not equal for the same token session.");
 			return RSSL_FALSE;
 		}
 
-		if ((pOAuthCredential->password.length != otherPassword.length) ||
-			(memcmp(pOAuthCredential->password.data, otherPassword.data, pOAuthCredential->password.length) != 0))
+		if ((pOAuthCredential->password.length != pPassword->length) ||
+			(memcmp(pOAuthCredential->password.data, pPassword->data, pOAuthCredential->password.length) != 0))
 		{
 			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 				"The password of RsslReactorOAuthCredential is not equal for the same token session.");
@@ -6155,8 +6182,16 @@ RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAut
 		}
 	}
 
-	if ((pOAuthCredential->tokenScope.length != other->tokenScope.length) ||
-		(memcmp(pOAuthCredential->tokenScope.data, other->tokenScope.data, pOAuthCredential->tokenScope.length) != 0))
+	if ((pOAuthCredential->clientId.length != pClientID->length) ||
+		(memcmp(pOAuthCredential->clientId.data, pClientID->data, pOAuthCredential->clientId.length) != 0))
+	{
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"The Client ID of RsslReactorOAuthCredential not equal for the same token session.");
+		return RSSL_FALSE;
+	}
+
+	if ((pOAuthCredential->tokenScope.length != otherTokenScope.length) ||
+		(memcmp(pOAuthCredential->tokenScope.data, otherTokenScope.data, pOAuthCredential->tokenScope.length) != 0))
 	{
 		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 			"The token scope of RsslReactorOAuthCredential not equal for the same token session.");
