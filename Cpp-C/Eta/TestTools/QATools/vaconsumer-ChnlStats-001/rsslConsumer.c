@@ -89,7 +89,9 @@ RsslBuffer authnToken = RSSL_INIT_BUFFER;
 RsslBuffer authnExtended = RSSL_INIT_BUFFER;
 RsslBuffer appId = RSSL_INIT_BUFFER;
 RsslReactorChannelStatistic channelStatistics;
+//APIQA
 char statisticFilter[128];
+//END APIQA
 
 static char libsslName[255];
 static char libcryptoName[255];
@@ -139,7 +141,7 @@ void printUsageAndExit(char *appName)
 			"\n -cache will store all open items in cache and periodically dump contents.\n"
 			"\n -cacheInterval number of seconds between displaying cache contents; 0 = on exit only (default)\n"
 			"\n -statisticInterval number of seconds between displaying channel statistics.\n"
-		    /*APIQA*/
+			/*APIQA*/
 		    "\n -statisticFilter valid values are READ / WRITE / PING.\n"
 			/*END APIQA*/
 			"\n -tunnel causes the consumer to open a tunnel stream that exchanges basic messages.\n"
@@ -323,11 +325,13 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				statisticInterval = atoi(argv[i - 1]);
 			}
+			//APIQA
 			else if (strcmp("-statisticFilter", argv[i]) == 0)
 			{
 				i += 2;
 				snprintf(statisticFilter, sizeof(statisticFilter), "%s", argv[i - 1]);
 			}
+			//END APIQA
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || (strcmp("-encrypted", argv[i]) == 0) 
 				|| (strcmp("-encryptedHttp", argv[i]) == 0) || (strcmp("-encryptedSocket", argv[i]) == 0))
 			{
@@ -1233,13 +1237,13 @@ void closeConnection(RsslReactor *pReactor, RsslReactorChannel *pChannel, Channe
 RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorAuthTokenEvent *pAuthTokenEvent)
 {
 	RsslRet ret;
-	ChannelCommand *pCommand = (ChannelCommand*)pReactorChannel->userSpecPtr;
+	ChannelCommand *pCommand = pReactorChannel ? (ChannelCommand*)pReactorChannel->userSpecPtr: NULL;
 
 	if (pAuthTokenEvent->pError)
 	{
 		printf("Retrieve an access token failed. Text: %s\n", pAuthTokenEvent->pError->rsslError.text);
 	}
-	else if (pCommand->canSendLoginReissue && pAuthTokenEvent->pReactorAuthTokenInfo)
+	else if (pCommand && pCommand->canSendLoginReissue && pAuthTokenEvent->pReactorAuthTokenInfo)
 	{
 		RsslReactorSubmitMsgOptions submitMsgOpts;
 		RsslErrorInfo rsslErrorInfo;
@@ -1277,8 +1281,7 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 	rsslClearReactorOAuthCredentialRenewal(&reactorOAuthCredentialRenewal);
 	reactorOAuthCredentialRenewal.password = password; /* Specified password as needed */
 
-	rsslReactorSubmitOAuthCredentialRenewal(pReactor, pOAuthCredentialEvent->pReactorChannel, &renewalOptions,
-		&reactorOAuthCredentialRenewal, &rsslError);
+	rsslReactorSubmitOAuthCredentialRenewal(pReactor, &renewalOptions, &reactorOAuthCredentialRenewal, &rsslError);
 
 	return RSSL_RC_CRET_SUCCESS;
 }
@@ -1340,7 +1343,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 				rsslClearTraceOptions(&traceOptions);
 				traceOptions.traceMsgFileName = traceOutputFile;
-				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_PING;
+				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
 				traceOptions.traceMsgMaxFileSize = 100000000;
 
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
@@ -1693,7 +1696,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Initialize connection options and try to load dictionaries. */
-	for (i = 0; i < channelCommandCount; ++i)
+	for(i = 0; i < channelCommandCount; ++i)
 	{
 		ChannelCommand *pCommand = &chanCommands[i];
 		RsslReactorConnectOptions *pOpts = &pCommand->cOpts;
@@ -1711,10 +1714,9 @@ int main(int argc, char **argv)
 		pOpts->reconnectAttemptLimit = -1;
 		pOpts->reconnectMaxDelay = 5000;
 		pOpts->reconnectMinDelay = 1000;
-
-		/* Specify interests to get channel statistics */
+	/* Specify interests to get channel statistics */
 		if (statisticInterval > 0)
-
+		{
 			//APIQA
 			if (0 == strcmp(statisticFilter, "READ"))
 			{
@@ -1732,8 +1734,13 @@ int main(int argc, char **argv)
 			{
 				pCommand->cOpts.statisticFlags = RSSL_RC_ST_READ | RSSL_RC_ST_WRITE | RSSL_RC_ST_PING;
 			}
-			//END APIQA
+		}
+			//END APIQA		
 	}
+		/* Specify interests to get channel statistics */
+		//if(statisticInterval > 0)
+			//pCommand->cOpts.statisticFlags = RSSL_RC_ST_READ | RSSL_RC_ST_WRITE | RSSL_RC_ST_PING;
+	//}
 
 	printf("\n");
 
@@ -1826,7 +1833,6 @@ int main(int argc, char **argv)
 				if (displayStatistic(&chanCommands[i], currentTime, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 				{
 					printf("Retrieve channel statistic failed:  %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
-					//APIQA check!!
 				}
 
 				if ((!chanCommands[i].cInfo.enableSessionManagement) && chanCommands[i].canSendLoginReissue == RSSL_TRUE &&
@@ -2312,6 +2318,7 @@ static RsslRet displayStatistic(ChannelCommand* pCommand, time_t currentTime, Rs
 		cumulativeValue(&pCommand->channelStatistic.uncompressedBytesWritten, statistics.uncompressedBytesWritten);
 		cumulativeValue(&pCommand->channelStatistic.pingReceived, statistics.pingReceived);
 		cumulativeValue(&pCommand->channelStatistic.pingSent, statistics.pingSent);
+		
 		//APIQA
 		time_t currentTime;
 		struct tm * time_info;
