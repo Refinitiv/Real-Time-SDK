@@ -4737,10 +4737,13 @@ RsslReactorOAuthCredential* rsslCreateOAuthCredentialCopy(RsslReactorOAuthCreden
 		pCurPos += pOAuthCredentialOut->clientSecret.length;
 	}
 
-	pOAuthCredentialOut->tokenScope.length = tokenScope.length;
-	pOAuthCredentialOut->tokenScope.data = pCurPos;
-	memcpy(pOAuthCredentialOut->tokenScope.data, tokenScope.data, pOAuthCredentialOut->tokenScope.length);
-	pCurPos += pOAuthCredentialOut->tokenScope.length;
+	if (tokenScope.length && tokenScope.data)
+	{
+		pOAuthCredentialOut->tokenScope.length = tokenScope.length;
+		pOAuthCredentialOut->tokenScope.data = pCurPos;
+		memcpy(pOAuthCredentialOut->tokenScope.data, tokenScope.data, pOAuthCredentialOut->tokenScope.length);
+		pCurPos += pOAuthCredentialOut->tokenScope.length;
+	}
 
 	*ret = RSSL_RET_SUCCESS;
 	return pOAuthCredentialOut;
