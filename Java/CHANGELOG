@@ -18,16 +18,61 @@ number to the version number.
 CURRENT RELEASE HIGHLIGHTS - ESDK Java 1.3.0.G1 aka EMA 3.3.0.G1 and ETA 3.3.0.G1
 ----------------------------------------------------------------------------------------
 
+New Features Added
+------------------
+This release adds ability in EMA to clone and copy messages in order to decode 
+payload outside of message callbacks. Please note that client_id is now a manadatory 
+input for Cloud connectivity. ESDK Java now supports JDK 1.11 and OpenJDK 1.8
+with an upgrade in gradle version to 5.X. ESDK Java no longer supports JDK1.7.
+
 Customer Issues Resolved
 ------------------
 
 EMA Java
 --------
-[GitHub #98] - [ESDK-3194] - Documentation improvements for EDP examples  
+[Case Number: 06854285, 5201994]  - [ESDK-1750] - Clone/copy facility for message payload to decode it outside of onUpdateMsg()
+
+ETA Java
+--------
+[GitHub #94] - [ESDK-2625] - Remove Mockito compile dependency from ETAJ
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+ESDK Java Release 1.3.1.L1 (July 31, 2019)
+--------------------------------------------
+
+New Features Added
+------------------
+This release adds ability in EMA to clone and copy messages in order to decode 
+payload outside of message callbacks. Please note that client_id is now a manadatory 
+input for Cloud connectivity. ESDK Java now supports JDK 1.11 and OpenJDK 1.8
+with an upgrade in gradle version to 5.X. ESDK Java no longer supports JDK1.7.
+
+EMA Java 3.3.1.L1 Issues Resolved
+---------------------------------
+[ESDK-1750] - Clone/copy facility for message payload to decode it outside of onUpdateMsg() [Case Number: 06854285, 5201994]
+
+ETA Java 3.3.1.L1 Issues Resolved
+---------------------------------
+[ESDK-509] - Add InitializationTimeout to EMA Config at Channel Level
+[ESDK-900] - Change documentation to reflect user-defined Config filename
+[ESDK-1332] - Update Consumer340 to increment postId
+[ESDK-2625] - Remove Mockito compile dependency from ETAJ [GitHub #94]
+[ESDK-3182] - Documentation, ETAJ Dev Guide: Fix "UPA" in Figure 36 to "Transport API Consumer App"
+[ESDK-3183] - ETAJ EDP should not perform service discovery lookup when address and port is set by user
+[ESDK-3202] - ESDK Documentation: Remove links to "Transport API Value Added Components" in html and refer to VARefman
+[ESDK-3268] - Expose ping stats and rsslReadEx in reactor
+[ESDK-3338] - Require clientId parameter in ETAJ Reactor
+
+Both ETA Java and EMA Java 3.3.1.L1 Issues Resolved
+---------------------------------------------------
+[ESDK-2631] - Support JDK 1.11 & Upgrade to Gradle version 5.4.1
+[ESDK-2651] - Support OpenJDK 1.8
+[ESDK-3248] - With new gradle version, 5.4.1, update documentation to include the -PcommandLineArgs with --args
+[ESDK-3321] - Update httpclient and other ESDK jars from 4.X.X to recent version
 
 --------------------------------------------
 ESDK Java Release 1.3.0.G1 (April 16, 2019)
@@ -39,8 +84,7 @@ EMA Java 3.3.0.G1 Issues Resolved
 
 ETA Java 3.3.0.L1 Issues Resolved
 ---------------------------------
-[ESDK-3198] - Unsolicited Refresh is not fanned out to first stream when two
-    streams are aggregated by Reactor Watchlist when second stream is a full view. 
+[ESDK-3198] - Unsolicited Refresh is not fanned out to first stream when two streams are aggregated by Reactor Watchlist when second stream is a full view. 
 [ESDK-3196] - Fix to Watchlist consumer for -tunnel 
 
 --------------------------------------------

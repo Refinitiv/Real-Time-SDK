@@ -60,8 +60,10 @@ Platforms & Compilers:
 
 	GCC compiler suite version 4.4.4 or higher for RHAS 6.X, 64-bit, Native build
 	GCC compiler suite version 4.8.2 or higher for Oracle Linux 7.X, 64-bit, Native build
-	GCC compiler suite version 4.4.4 or higher for Oracle Linux 6.0, 64-bit, qualification of RH6 library build
-	GCC compiler suite version 4.8.2 or higher for CentOS 7.0, 64-bit, qualification of OL7 library build
+	GCC compiler suite version 4.4.4 or higher for Oracle Linux 6.0, 64-bit, qualification with RH6 library build
+	GCC compiler suite version 4.8.2 or higher for CentOS 7.0, 64-bit, qualification with OL7 library build
+
+* Eta VACache library built 
 
 NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Oracle Linux 7 and Red Hat 6 are available in release packages available on Refinitiv Developer Portal. 
 
@@ -76,7 +78,7 @@ External modules used by this version of ESDK C/C++:
 	curl			7.63.0
 	googletest		release-1.8.1
 	libxml2			2.9.9
-	lz4				1.8.3
+	lz4			1.8.3
 	zlib			1.2.11
 
 ##### Windows
@@ -94,6 +96,9 @@ This release has been tested with the following on supported platform/OS combina
 	Oracle Linux Server 7.1 64-bit with GCC 4.8.3 (OL7_64_GCC483) - prebuilt & natively built libraries
 	Oracle Linux Server 7.5 64-bit with GCC 4.8.5 (OL7_64_GCC485) - prebuilt & natively built libraries
 	CentOS 7.0 64-bit with GCC 4.8.2 (OL7_64_GCC482) - prebuilt libraries
+	Oracle Linux Server 7.6 64-bit with GCC 7.4.0 (OL7_64_GCC740) - natively built libraries
+	Red Hat Linux Server 7.6 64-bit with GCC 7.4.0 (RHEL7_64_GCC740) - natively built libraries
+	Red Hat Linux Server 6.10 64-bit with GCC 7.4.0 (RHEL6_64_GCC740) - natively built libraries
 
 #### Proxy Authentication Support
 
@@ -126,8 +131,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.3.0
-- ADH 3.3.0
+- ADS 3.3.2
+- ADH 3.3.2
 - DACS 7.2
 
 # Documentation
@@ -202,6 +207,8 @@ Linux: Add "-DBUILD\_32\_BIT\_ETA=ON" to the cmake build
 
 Windows: Do not add "Win64" to the "VisualStudioVersion".  Example, When specifying, "Visual Studio 14 2015", for a 64-bit build it would be "Visual Studio 14 2015 Win64". For a 32-bit build, it would be "Visual Studio 14 2015" 
 
+Starting with ESDK1.3.1, DACS and ANSI libraries are available for 32-bits in the BinaryPack.
+
 # Obtaining the Thomson Reuters Field Dictionaries
 
 The Thomson Reuters `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from the Customer Zone from the following location.
@@ -226,7 +233,7 @@ In the event you would like to contribute to this repository, it is required tha
 - [Individual Contributor License Agreement](https://github.com/Refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Individual%20Contributor%20License%20Agreement.pdf)
 - [Entity Contributor License Agreement](https://github.com/Refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
-Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to sdkagreement@refinitiv.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 
 # Notes:

@@ -115,22 +115,22 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    upa-3.3.0.1.jar               eta3.3.0.G1       The ETA - Java Edition library.  Includes
+    upa-3.3.1.0.jar               eta3.3.1.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    upaValueAdd-3.3.0.1.jar       eta3.3.0.G1       The Value Add library for ETA Java Edition.
+    upaValueAdd-3.3.1.0.jar       eta3.3.1.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    upaValueAddCache-3.3.0.1.jar  eta3.3.0.G1       The Value Add payload cache library for ETA
+    upaValueAddCache-3.3.1.0.jar  eta3.3.1.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
     jDacsUpalib.jar               dacs7.2.0.L2      The ETA Java DACS library.
 
-    ansipage-3.3.0.1.jar          eta3.3.0.G1       The ANSI decoders and encoders.
+    ansipage-3.3.1.0.jar          eta3.3.1.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/UPA/RSSL JNI Libs        eta3.3.0.L1       The JNI libraries for Reliable Multicast
+    ETAC/UPA/RSSL JNI Libs        eta3.3.1.L1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -138,7 +138,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
                                                     platform. Shared object files must be present
                                                     in the LD_LIBRARY_PATH for the Linux platform.
 
-    Apache                        4.1.2             The Apache libraries in the ApacheClient
+    Apache                        4.5.3             The Apache libraries in the ApacheClient
                                                     directory. These are used for proxy
                                                     authentication.
 
@@ -147,8 +147,6 @@ The distribution contains several JAR files and other non-Java libraries, intend
 - Although the examples use float and double for simplicity, these data types should never be used for precise values like currency. Use java.math.BigDecimal instead. Refer to the float and double section in: http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html
 
 - ETA Java uses the Oracle JDK OperatingSystemMXBean for Performance Tool CPU and Memory usage statistics. The Oracle JDK OperatingSystemMXBean is incompatible with the some alternate JDK implementations.
-
-- The ETA Java Reactor watchlist functionality is not available for Reliable Multicast connection types.  This will be added to the Reactor watchlist in a future release.
 
 - ESDK-307 When using DirectoryMsg.decode(), Source Directory FilterActions of Update may be overwritten with Set
 
@@ -161,17 +159,17 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6314
     Reuters Item Number: N/A
     Product Name: Elektron Transport API - Java Edition
-    Release Number: 3.3.0
+    Release Number: 3.3.1
     Load Number: 1
-    Load ID: etaj3.3.0.L1.all
-        Supersedes: etaj3.2.2.L1.all.rrg
+    Load ID: etaj3.3.1.L1.all
+        Supersedes: etaj3.3.0.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Thomson Reuters Security Compliant
-    Template Version Supported: v4.20.36_TREP_19.31 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.37_TREP_19.61 for RWF and Marketfeed Record Templates
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the README.md files within each package for clarification.

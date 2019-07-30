@@ -20,12 +20,12 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Elektron-SDK supports JDK 1.7, 1.8 & 1.9. 
+The Elektron-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8.
 
 Thomson Reuters fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
 Thomson Reuters will extend support to other platforms based on the following criteria:
-- EMA Java is used with a J2SE 7,8 or 9 compliant JVM
+- EMA Java is used with a J2SE 8 compliant JVM
 - All problems must be reproducible on one of the core platforms listed below. Thomson Reuters support teams will only be able to reproduce problems on the core platforms.
 
 #### Supported Platforms
@@ -61,9 +61,9 @@ Platforms:
 
 This release has been tested with the following:
 
-	Oracle Java SE 7 (JDK1.7)
 	Oracle Java SE 8 (JDK1.8)
-	Oracle Java SE 9 (JDK1.9)
+	Oracle Java SE 11 (JDK1.11)
+	Open JDK (1.8)
 
 #### Proxy Authentication Support
 
@@ -104,8 +104,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.3.0
-- ADH 3.3.0
+- ADS 3.3.2
+- ADH 3.3.2
 - DACS 7.2
 
 # Documentation
@@ -127,6 +127,7 @@ Firstly, obtain the source from this repository. It will contain all of the requ
 
 Gradle is now used to build ESDK.
 Gradle can be downloaded from https://gradle.org
+NOTE: Starting release ESDK 1.3.1, please use Gradle version 5.X which supports JDK1.11 and no longer supports JDK1.7.
 
 Refer to the ESDK Java Installation Guide for more detailed Gradle build instructions than what is described below.
 
@@ -189,40 +190,39 @@ procedural instructions are not included here. Maven uses the following syntax t
 	<dependency>
 		<groupId>com.thomsonreuters.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.3.0.1</version>
+		<version>3.3.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa</groupId>
 		<artifactId>upa</artifactId>
-		<version>3.3.0.1</version>
+		<version>3.3.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd</groupId>
 		<artifactId>upaValueAdd</artifactId>
-		<version>3.3.0.1</version>
+		<version>3.3.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.valueadd.cache</groupId>
 		<artifactId>upaValueAddCache</artifactId>
-		<version>3.3.0.1</version>
+		<version>3.3.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.thomsonreuters.upa.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.3.0.1</version>
+		<version>3.3.1.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify ESDK dependencies:
 
-	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.3.0.1'
-	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.3.0.1'
-	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.3.0.1'
-	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.3.0.1'                    
-	compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.3.0.1'  
+	compile group: 'com.thomsonreuters.ema', name: 'ema', version: '3.3.1.0'
+	compile group: 'com.thomsonreuters.upa', name: 'upa', version: '3.3.1.0'
+	compile group: 'com.thomsonreuters.upa.valueadd', name: 'upaValueAdd', version: '3.3.1.0'
+	compile group: 'com.thomsonreuters.upa.valueadd.cache', name: 'upaValueAddCache', version: '3.3.1.0'                         compile group: 'com.thomsonreuters.upa.ansi', name: 'ansipage', version: '3.3.1.0'  
 
 # Developing 
 
@@ -240,7 +240,7 @@ In the event you would like to contribute to this repository, it is required tha
 - [Entity Contributor License Agreement](https://github.com/Refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
 
-Please email a signed and scanned copy to sdkagreement@thomsonreuters.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to sdkagreement@refinitiv.com.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 
 # Notes:

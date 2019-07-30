@@ -15,19 +15,81 @@ number to the version number.
     Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.3.0.G1 aka EMA 3.3.0.G1 and ETA 3.3.0.G1
+CURRENT RELEASE HIGHLIGHTS - ESDK C/CPP 1.3.1.L1 aka EMA 3.3.1.L1 and ETA 3.3.1.L1
 ----------------------------------------------------------------------------------------
+
+New Features Added
+------------------
+This release adds ability in EMA to clone and copy messages in order to decode 
+payload outside of message callbacks. This release enables Realtime Cloud 
+users to centralized session management per OAuth user shared between 
+multiple connections. Please note that client_id is now a mandatory input for 
+Cloud connectivity. ESDK C/C++ now supports GCC 7.4.0. 
 
 Customer Issues Resolved
 ------------------
 
-EMA C++ & ETA C
+EMA C++
 -------
-[GitHub #98] - [ESDK-3194] - Documentation improvements for EDP examples  
+[Case Number: 05594510] - [ESDK-633] - EmaCppConsPerf does not reach steady state occasionally
+[Case Number: 06854285,5201994]- [ESDK-1750] - Clone/copy facility for message payload to decode it outside of onUpdateMsg()
+[GitHub #105] - [ESDK-3252] - Please restore version headers, eg EmaVersion.h (GitHub #105)
+
+ETA C
+-------
+[GitHub #100] - [ESDK-3243] - Fix application ID length in Eta Examples
+
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+---------------------------------------------
+ESDK C++/C Release 1.3.1.L1 (July 31, 2019)
+---------------------------------------------
+
+New Features Added
+------------------
+This release adds ability in EMA to clone and copy messages in order to decode 
+payload outside of message callbacks. This release enables Realtime Cloud 
+users to centralized session management per OAuth user shared between 
+multiple connections. Please note that client_id is now a mandatory input for 
+Cloud connectivity. ESDK C/C++ now supports GCC 7.4.0. 
+
+EMA C++ 3.3.1.L1 Issues Resolved
+--------------------------------
+[ESDK-509] - Add InitializationTimeout to EMA Config at Channel Level
+[ESDK-633] - EmaCppConsPerf does not reach steady state occasionally [Case Number: 05594510]
+[ESDK-900] - Change documentation to reflect user-defined Config filename
+[ESDK-1750] - Clone/copy facility for message payload to decode it outside of onUpdateMsg() [Case Number: 06854285,5201994]
+[ESDK-3238] - Incorrect spelling in interface name in EmaCpp
+[ESDK-3251] - Fix extendedHeader typo where Status is returned instead of Close
+[ESDK-3252] - Please restore version headers, eg EmaVersion.h [GitHub #105]
+
+ETA C 3.3.1.L1 Issues Resolved
+--------------------------------
+[ESDK-3176] - Windows build warning
+[ESDK-3182] - Documentation, ETAJ Dev Guide: Fix "UPA" in Figure 36 to "Transport API Consumer App"
+[ESDK-3184] - Warning when building rsslTransportUnitTest on RH6
+[ESDK-3185] - Warning rsslRestClientImpl.c about RsslRestCurlHandleSumFunction
+[ESDK-3202] - ESDK Documentation: Remove links to "Transport API Value Added Components" in html and refer to VARefman
+[ESDK-3243] - Fix application ID length in Eta Examples [GitHub #100]
+[ESDK-3253] - Compile Error: rsslTransport.h:1343:82: error: too many initializers for ‘RsslWriteInArgs’
+[ESDK-3255] - Enhance the Reactor to specify OAuth token credentials in rsslReactorOmmConsumerRole
+[ESDK-3258] - The rsslCreateReactor() method crashes when the RsslCreateReactorOptions.serviceDiscoveryURL is empty
+[ESDK-3267] - Expose ping stats and rsslReadEx in reactor
+[ESDK-3269] - Enhance the Reactor for applications to specify the password for OAuth via the callback method
+[ESDK-3278] - Enhance the Reactor error handling wrt to session mgmt POST
+[ESDK-3285] - Add ability to turn on debugging for encrypted connections to diagnose TLS issues on incoming packets
+[ESDK-3295] - Crash in reactor when multiple reactor channels are used with session management
+[ESDK-3296] - Provides centralized location to keep the OAuth tokens to share between multiple connections using the same OAuth credential
+
+Both ETA C and EMA C++
+-------------------------
+[ESDK-3249] - Support 32-bit builds with ESDK 
+[ESDK-3260] - EMA log files exist in ESDK AMI
+[ESDK-3266] - Add 32-bit DACS libraries into BinaryPack and open source ANSI
+[ESDK-3272] - Qualify ESDK with GCC Version 7.4.0
 
 ---------------------------------------------
 ESDK C++/C Release 1.3.0.G1 (April 16, 2019)
