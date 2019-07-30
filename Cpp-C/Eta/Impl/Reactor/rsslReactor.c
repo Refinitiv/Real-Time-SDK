@@ -71,7 +71,7 @@ static void _reactorShutdown(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pErro
 static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredentialRenewal(RsslReactorImpl *pReactorImpl, RsslReactorTokenSessionImpl *pReactorTokenSessionImpl, RsslReactorOAuthCredentialRenewalOptions *pOptions,
 	RsslReactorOAuthCredentialRenewal* pOAuthCredentialRenewal, RsslErrorInfo *pError);
 
-RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAuthCredential, RsslBuffer *pClientID, RsslBuffer *pPassword, RsslReactorOMMConsumerRole *pConsumerRole, RsslErrorInfo* pErrorInfo);
+RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAuthCredential, RsslBuffer *pClientID, RsslBuffer *pPassword, RsslReactorOAuthCredential *pOAuthOther , RsslErrorInfo* pErrorInfo);
  
 /* Options for _reactorProcessMsg. */
 typedef struct
@@ -4764,8 +4764,8 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 				RsslReactorTokenSessionImpl *pTokenSessionImpl = NULL;
 				RsslHashLink *pHashLink = NULL;
 				RsslReactorTokenManagementImpl *pTokenManagementImpl = &pReactorChannel->pParentReactor->reactorWorker.reactorTokenManagement;
-				RsslBuffer userName = (pConsRole->pOAuthCredential && pConsRole->pOAuthCredential->userName.data) ? pConsRole->pOAuthCredential->userName : pConsRole->pLoginRequest->userName;
-				RsslBuffer password = (pConsRole->pOAuthCredential && pConsRole->pOAuthCredential->password.data) ? pConsRole->pOAuthCredential->password : pConsRole->pLoginRequest->password;
+				RsslBuffer userName = (pConsRole->pOAuthCredential && pConsRole->pOAuthCredential->userName.data) ? pConsRole->pOAuthCredential->userName : pConsRole->pLoginRequest ? pConsRole->pLoginRequest->userName : sessionKey;
+				RsslBuffer password = (pConsRole->pOAuthCredential && pConsRole->pOAuthCredential->password.data) ? pConsRole->pOAuthCredential->password : pConsRole->pLoginRequest ? pConsRole->pLoginRequest->password : sessionKey;
 				RsslBuffer clientId = (pConsRole->pOAuthCredential && pConsRole->pOAuthCredential->clientId.data) ? pConsRole->pOAuthCredential->clientId : pConsRole->clientId;
 				RsslReactorOAuthCredential *pOAuthCredential = pConsRole->pOAuthCredential;
 
@@ -4812,7 +4812,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 
 					pTokenSessionImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, hashLinkNameAndClientId, pHashLink);
 
-					if (compareOAuthCredentialForTokenSession(pTokenSessionImpl->pOAuthCredential, &clientId, &password, pConsRole, pError) == RSSL_FALSE)
+					if (compareOAuthCredentialForTokenSession(pTokenSessionImpl->pOAuthCredential, &clientId, &password, pOAuthCredential, pError) == RSSL_FALSE)
 					{
 						/* Set the pointers to NULL to avoid freeing the user's memory */
 						pConsRole->pLoginRequest = NULL;
@@ -6135,9 +6135,8 @@ void _populateRsslReactorAuthTokenInfo(RsslBuffer* pDestBuffer, RsslReactorAuthT
 	pDestTokeninfo->expiresIn = pSrcTokeninfo->expiresIn;
 }
 
-RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAuthCredential, RsslBuffer *pClientID, RsslBuffer *pPassword, RsslReactorOMMConsumerRole* pOmmConsRole, RsslErrorInfo* pErrorInfo)
+RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAuthCredential, RsslBuffer *pClientID, RsslBuffer *pPassword, RsslReactorOAuthCredential* pOAuthOther, RsslErrorInfo* pErrorInfo)
 {
-	RsslReactorOAuthCredential* pOAuthOther = pOmmConsRole->pOAuthCredential;
 	RsslBuffer otherTokenScope = RSSL_INIT_BUFFER;
 
 	if (pOAuthOther && pOAuthOther->tokenScope.data)
