@@ -450,7 +450,7 @@ typedef struct
 
 	RsslUInt32				connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks.  These callbacks should be set with rsslSetDebugFunctions.  If set to 0, the debug callbacks will not be used. */
 
-	RsslReactorChannelStatisticFlags	statisticFlags;		/* Specifies interests for the channel statistics */
+	RsslUInt32				statisticFlags;			/* Specifies interests for the channel statistics defined in RsslReactorChannelStatisticFlags */
 
 } RsslReactorConnectOptions;
 

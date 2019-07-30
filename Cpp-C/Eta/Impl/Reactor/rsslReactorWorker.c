@@ -1349,7 +1349,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 					if (_reactorWorkerRegisterEventForRestClient(pReactorWorker, pReactorImpl) != RSSL_RET_SUCCESS)
 					{
-						RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 						return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 					}
 
