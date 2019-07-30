@@ -767,6 +767,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 											RsslRestRequestArgs * pRestRequestArgs;
 											RsslBuffer *pNewPasword = NULL;
 											RsslReactorImpl *pReactorImpl = (RsslReactorImpl*)(pTokenSessionImpl ? pTokenSessionImpl->pReactor : pOAuthCredentialRenewalImpl->pRsslReactor);
+											RsslBuffer tokenServiceURL = (pTokenSessionImpl == 0) ? pReactorImpl->tokenServiceURL : (pTokenSessionImpl->temporaryURL.data == 0) ? pReactorImpl->tokenServiceURL : pTokenSessionImpl->temporaryURL;
 												
 											if (pTokenSessionImpl)
 											{
@@ -779,7 +780,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 											/* Handling error cases to get authentication token using the password */
 												pRestRequestArgs = _reactorCreateRequestArgsForPassword(pReactorImpl,
-												(pTokenSessionImpl && (pTokenSessionImpl->temporaryURL.data == 0)) ? &pReactorImpl->tokenServiceURL : &pTokenSessionImpl->temporaryURL,
+												&tokenServiceURL,
 												pTokenSessionImpl ? (&pTokenSessionImpl->pOAuthCredential->userName) : (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.userName),
 												&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.password, // Specified by users as needed.
 												(pReactorCredentialRenewalEvent->reactorCredentialRenewalEventType == RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD_CHANGE) ? 
