@@ -51,7 +51,7 @@ In the event you would like to contribute to this repository, it is required tha
 - [Individual Contributor License Agreement](https://github.com/refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Individual%20Contributor%20License%20Agreement.pdf)
 - [Entity Contributor License Agreement](https://github.com/refinitiv/Elektron-SDK/blob/master/Elektron%20API%20Entity%20Contributor%20License%20Agreement.pdf)
 
-Please email a signed and scanned copy to `sdkagreement@thomsonreuters.com`.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
+Please email a signed and scanned copy to `sdkagreement@refinitiv.com`.  If you require that a signed agreement has to be physically mailed to us, please email the request for a mailing address and we will get back to you on where you can send the signed documents.
 
 # License Information
 

@@ -18,6 +18,11 @@ set( librssl_SO_VERSION 9 )
 set( librsslVA_SO_VERSION 12 )
 set( libema_SO_VERSION 7 )
 
+set(Ansi_VERSION_MAJOR 1)
+set(Ansi_VERSION_MINOR 0)
+set(Ansi_VERSION_PATCH 0)
+set(Ansi_VERSION_TWEAK 44)
+
 # This file is included by other development repos
 # and the set to cache is not neccessary
 if (DEFINED esdk_VERSION)

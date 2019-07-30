@@ -7,3 +7,5 @@ add_subdirectory( Reactor )
 
 add_subdirectory( EtaJni )
 
+add_subdirectory( Ansi )
+

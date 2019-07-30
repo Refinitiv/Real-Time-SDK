@@ -27,18 +27,17 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
 - RMTES Decoder	EMA provides a built in RMTES decoder. If desired, application may cache RmtesBuffer objects and apply all the received changes to them.
 
-- Data::toString()	All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format. 
+- Data::toString() All OMM containers, primitives and messages may simply be printed out to screen in a standardized output format. 
 
 - Data::asHex()	Applications may obtain binary representations of all OMM containers, primitives and messages.
 
-- File Config:	Enables applications to specify EMA configuration in an      EmaConfig.xml file
+- File Config:	Enables applications to specify EMA configuration in an EmaConfig.xml file
 
 - Direct Write setting on socket channel
 
 - High Water Mark setting on socket channel
 		
-- Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceEnable,MsgKeyInUpdates only can be configured
-  on Consumer/IProvider/NiProvider instance level.
+- Removing one deprecation. Now reconnectAttemptLimit,reconnectMinDelay,reconnectMaxDelay,xmlTraceEnable,MsgKeyInUpdates only can be configured on Consumer/IProvider/NiProvider instance level.
 	
 ## Consumer Features:
 - Default Admin Domain Requests: EMA uses default login, directory and dictionary request while connecting to server. This provides minimum configuration for applications to get up and running.   
@@ -77,7 +76,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.3.0.1.jar         ema3.3.0.G1
+    ema-3.3.1.0.jar         ema3.3.1.L1
 
 # EMA Java Issues and Workarounds
  
@@ -92,17 +91,17 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     I-COS Questionnaire: 6313
     Reuters Item Number: N/A
     Product Name: Elektron Message API - Java Edition
-    Release Number: 3.3.0
+    Release Number: 3.3.1
     Load Number: 1
-    Load ID: ema3.3.0.L1.java
-        Supersedes: ema3.2.2.L1.java
+    Load ID: ema3.3.1.L1.java
+        Supersedes: ema3.3.0.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Thomson Reuters Security Compliant
-    Template Version Supported: v4.20.36_TREP_19.31 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.37_TREP_19.61 for RWF and Marketfeed Record Templates
 
 # Notes
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

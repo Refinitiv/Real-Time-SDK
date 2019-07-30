@@ -1,0 +1,43 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for dansiils.                  --
+ *|           Copyright Thomson Reuters 2015,2016,2018. All rights reserved.            --
+ *|-----------------------------------------------------------------------------
+ */
+#ifndef __ANSI_VERSION_H
+#define __ANSI_VERSION_H
+
+#define STR_EXPAND(str) #str
+#define MKSTR(str) STR_EXPAND(str)
+
+#ifdef NDEBUG
+#define BLDTYPE " Release"
+#else
+#define BLDTYPE " Debug"
+#endif
+
+#define ANSI_Release_Major     @Ansi_VERSION_MAJOR@		// Release major version number
+#define ANSI_Release_Minor     @Ansi_VERSION_MINOR@		// Release minor version number
+#define ANSI_Product_Major     @Ansi_VERSION_PATCH@ 	// Release patch number
+#define ANSI_Product_Minor     @Ansi_VERSION_TWEAK@   	// Release tweak number
+
+#define ANSI_Year				"@esdk_year@"
+#define ANSI_CompanyName		" Thomson Reuters, Oak Brook, IL"
+#define ANSI_Version			ANSI_Release_Major,ANSI_Release_Minor,ANSI_Product_Major,ANSI_Product_Minor
+#define ANSI_VersionString		MKSTR(ANSI_Release_Major) "." MKSTR(ANSI_Release_Minor) "." MKSTR(ANSI_Product_Major) "." MKSTR(ANSI_Product_Minor) " (" BLDTYPE ")"
+#define ANSI_LegalCopyRight		"(C) Copyright " ANSI_Year ANSI_CompanyName ", All Rights Reserved. "
+#define ANSI_ExternalName		"ansi@Ansi_VERSION_MAJOR@.@Ansi_VERSION_MINOR@.@Ansi_VERSION_PATCH@.@ansi_INTERNAL_RELEASE_TWEAK@"
+#define ANSI_InternalName		"ansi@Ansi_VERSION_MAJOR@.@Ansi_VERSION_MINOR@.@Ansi_VERSION_PATCH@.@Ansi_VERSION_TWEAK@"
+#define ANSI_ReleaseType		"@esdk_RELEASE_TYPE@"
+#define ANSI_ProdName			"ANSI Library C Edition"
+#define ANSI_Package			" PACKAGE " ANSI_ExternalName " " ANSI_ReleaseType
+
+static char ansiOrigin[]    = ANSI_LegalCopyRight;
+static char ansiVersion[]   = " VERSION " ANSI_InternalName;
+static char ansiWhat[]      = "@(#)ansiVersion.h" ANSI_InternalName;
+static char ansiWhere[]     = "s.ansiVersion.h";
+static char ansiPackage[]   = ANSI_Package;
+static char ansiDeltaDate[] = " @esdk_timestamp@ " ANSI_Year;
+
+#endif
