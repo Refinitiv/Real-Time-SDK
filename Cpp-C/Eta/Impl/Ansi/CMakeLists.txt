@@ -32,6 +32,8 @@ else()
     )
 
     add_library( libansi STATIC ${AnsiSrcFiles})
+	set_target_properties(libansi PROPERTIES OUTPUT_NAME "libansi")
+
     target_include_directories(libansi
 									PUBLIC
 										${CMAKE_CURRENT_BINARY_DIR}
@@ -46,7 +48,10 @@ else()
 									PRIVATE
 									    ${RCDEV_DEBUG_TYPE_FLAGS_STATIC}
                                 )
+	else()
+	    set_target_properties( libansi PROPERTIES PREFIX "" )
 	endif()
+
 	
 	rcdev_add_target(esdk libansi)
 
