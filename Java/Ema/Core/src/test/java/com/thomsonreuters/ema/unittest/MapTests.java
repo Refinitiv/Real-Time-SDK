@@ -348,7 +348,7 @@ public class MapTests extends TestCase
 			ByteBuffer keyBuffer3 = ByteBuffer.allocate(10);
 			keyBuffer3.put("KeyBuffer3".getBytes()).flip();
 			ByteBuffer keyBuffer4 = ByteBuffer.allocate(20);
-			keyBuffer4.put("ËÃÄÅÇÈÉÊÒÓ".getBytes(Charset.forName("ISO-8859-1"))).flip();			
+			keyBuffer4.put("\u00cb\u00c3\u00c4\u00c5\u00c7\u00c8\u00c9\u00ca\u00d2\u00d3".getBytes(Charset.forName("ISO-8859-1"))).flip();			
 
 			mapEnc.add(EmaFactory.createMapEntry().keyBuffer(keyBuffer1, MapEntry.MapAction.ADD));
 			mapEnc.add(EmaFactory.createMapEntry().keyBuffer(keyBuffer2, MapEntry.MapAction.UPDATE, permissionData));
@@ -389,8 +389,8 @@ public class MapTests extends TestCase
 			TestUtilities.checkResult( mapEntryD.load().dataType() == DataTypes.NO_DATA, "Get load and check data type of the second map entry");
 			TestUtilities.checkResult( mapEntryD.hasPermissionData() == false, "Check wheter the third map entry has permission data");			
 			
-			TestUtilities.checkResult( EmaUtility.asAsciiString(mapEntryD.key().buffer()).equals("ËÃÄÅÇÈÉÊÒÓ") == false, "Check if EmaUtility.asAsciiString converts the string correctly with ISO-8859-1 charset" );			
-			TestUtilities.checkResult( EmaUtility.asString(mapEntryD.key().buffer(), Charset.forName("ISO-8859-1")).equals(new String("ËÃÄÅÇÈÉÊÒÓ".getBytes(Charset.forName("ISO-8859-1")), Charset.forName("ISO-8859-1"))) == true, "Check if EmaUtility.asAsciiString converts the string correctly with ISO-8859-1 charset" );
+			TestUtilities.checkResult( EmaUtility.asAsciiString(mapEntryD.key().buffer()).equals("\u00cb\u00c3\u00c4\u00c5\u00c7\u00c8\u00c9\u00ca\u00d2\u00d3") == false, "Check if EmaUtility.asAsciiString converts the string correctly with ISO-8859-1 charset" );			
+			TestUtilities.checkResult( EmaUtility.asString(mapEntryD.key().buffer(), Charset.forName("ISO-8859-1")).equals(new String("\u00cb\u00c3\u00c4\u00c5\u00c7\u00c8\u00c9\u00ca\u00d2\u00d3".getBytes(Charset.forName("ISO-8859-1")), Charset.forName("ISO-8859-1"))) == true, "Check if EmaUtility.asAsciiString converts the string correctly with ISO-8859-1 charset" );
 			
 			TestUtilities.checkResult( mapIt.hasNext() == false , "Check the end of Map");
 		}
