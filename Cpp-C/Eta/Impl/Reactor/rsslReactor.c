@@ -2738,7 +2738,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 					case RSSL_RCIMPL_TKET_CHANNEL_WARNING:
 					{
 						RsslChannel* pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
-						if (pRsslChannel&& pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
+						if (pRsslChannel && pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
 						{
 							RsslReactorEventImpl rsslEvent;
 
@@ -4637,6 +4637,7 @@ RsslReactorOAuthCredential* rsslCreateOAuthCredentialCopy(RsslReactorOAuthCreden
 {
 	RsslReactorOAuthCredential *pOAuthCredentialOut;
 	RsslReactorOAuthCredentialEventCallback *pOAuthCredentialEventCallback = pOAuthCredential ? pOAuthCredential->pOAuthCredentialEventCallback : 0;
+	RsslReactorOAuthCredential defaultOAuthCredential;
 	RsslBuffer dataBuffer;
 	char *pData;
 	char *pCurPos;
@@ -4644,7 +4645,10 @@ RsslReactorOAuthCredential* rsslCreateOAuthCredentialCopy(RsslReactorOAuthCreden
 	size_t userNameLength = (pOAuthCredential && pOAuthCredential->userName.length) ? pOAuthCredential->userName.length : (pRDMLoginRequest ? pRDMLoginRequest->userName.length : 0);
 	size_t passwordLength = (pOAuthCredential && pOAuthCredential->password.length) ? pOAuthCredential->password.length : (pRDMLoginRequest ? pRDMLoginRequest->password.length : 0);
 	size_t dataLength = pOAuthCredential ? pOAuthCredential->clientSecret.length : 0;
-	dataLength += pOAuthCredential ? pOAuthCredential->tokenScope.length : 0;
+	RsslBuffer tokenScope;
+	rsslClearReactorOAuthCredential(&defaultOAuthCredential);
+	tokenScope = pOAuthCredential ? pOAuthCredential->tokenScope : defaultOAuthCredential.tokenScope;
+	dataLength += tokenScope.length;
 	dataLength += userNameLength;
 	dataLength += passwordLength;
 	dataLength += (pOAuthCredential && pOAuthCredential->clientId.length) ? pOAuthCredential->clientId.length : (pConsRole && pConsRole->clientId.length ? pConsRole->clientId.length : 0);
@@ -4733,13 +4737,10 @@ RsslReactorOAuthCredential* rsslCreateOAuthCredentialCopy(RsslReactorOAuthCreden
 		pCurPos += pOAuthCredentialOut->clientSecret.length;
 	}
 
-	if (pOAuthCredential  && pOAuthCredential->tokenScope.length && pOAuthCredential->tokenScope.data)
-	{
-		pOAuthCredentialOut->tokenScope.length = pOAuthCredential->tokenScope.length;
-		pOAuthCredentialOut->tokenScope.data = pCurPos;
-		memcpy(pOAuthCredentialOut->tokenScope.data, pOAuthCredential->tokenScope.data, pOAuthCredentialOut->tokenScope.length);
-		pCurPos += pOAuthCredentialOut->tokenScope.length;
-	}
+	pOAuthCredentialOut->tokenScope.length = tokenScope.length;
+	pOAuthCredentialOut->tokenScope.data = pCurPos;
+	memcpy(pOAuthCredentialOut->tokenScope.data, tokenScope.data, pOAuthCredentialOut->tokenScope.length);
+	pCurPos += pOAuthCredentialOut->tokenScope.length;
 
 	*ret = RSSL_RET_SUCCESS;
 	return pOAuthCredentialOut;
@@ -4818,7 +4819,7 @@ static RsslRet _reactorChannelCopyRole(RsslReactorChannelImpl *pReactorChannel, 
 						pConsRole->pLoginRequest = NULL;
 						pConsRole->pDirectoryRequest = NULL;
 						RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
-						return RSSL_RET_FAILURE;
+						return RSSL_RET_INVALID_ARGUMENT;
 					}
 
 					/* Check whether the token session has enough time to reissue the token for this channel */
@@ -6137,7 +6138,11 @@ void _populateRsslReactorAuthTokenInfo(RsslBuffer* pDestBuffer, RsslReactorAuthT
 
 RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAuthCredential, RsslBuffer *pClientID, RsslBuffer *pPassword, RsslReactorOAuthCredential* pOAuthOther, RsslErrorInfo* pErrorInfo)
 {
+	RsslReactorOAuthCredential rsslReactorOAuthCredential;
 	RsslBuffer otherTokenScope = RSSL_INIT_BUFFER;
+
+	rsslClearReactorOAuthCredential(&rsslReactorOAuthCredential);
+	otherTokenScope = rsslReactorOAuthCredential.tokenScope;
 
 	if (pOAuthOther && pOAuthOther->tokenScope.data)
 	{
@@ -6148,8 +6153,17 @@ RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAut
 	{
 		if ((pOAuthOther == 0) || (pOAuthCredential->pOAuthCredentialEventCallback != pOAuthOther->pOAuthCredentialEventCallback))
 		{
-			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"The RsslReactorOAuthCredentialEventCallback of RsslReactorOAuthCredential not equal for the same token session.");
+			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+				"The RsslReactorOAuthCredentialEventCallback of RsslReactorOAuthCredential is not equal for the same token session.");
+			return RSSL_FALSE;
+		}
+	}
+	else
+	{
+		if (pOAuthOther && pOAuthOther->pOAuthCredentialEventCallback)
+		{
+			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+				"The RsslReactorOAuthCredentialEventCallback of RsslReactorOAuthCredential is not equal for the same token session.");
 			return RSSL_FALSE;
 		}
 	}
@@ -6167,15 +6181,15 @@ RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAut
 		if ((pOAuthCredential->clientSecret.length != otherClientSecret.length) ||
 			(memcmp(pOAuthCredential->clientSecret.data, otherClientSecret.data, pOAuthCredential->clientSecret.length) != 0))
 		{
-			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"The client secret of RsslReactorOAuthCredential is not equal for the same token session.");
+			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+				"The Client secret of RsslReactorOAuthCredential is not equal for the same token session.");
 			return RSSL_FALSE;
 		}
 
 		if ((pOAuthCredential->password.length != pPassword->length) ||
 			(memcmp(pOAuthCredential->password.data, pPassword->data, pOAuthCredential->password.length) != 0))
 		{
-			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 				"The password of RsslReactorOAuthCredential is not equal for the same token session.");
 			return RSSL_FALSE;
 		}
@@ -6184,16 +6198,16 @@ RsslBool compareOAuthCredentialForTokenSession(RsslReactorOAuthCredential* pOAut
 	if ((pOAuthCredential->clientId.length != pClientID->length) ||
 		(memcmp(pOAuthCredential->clientId.data, pClientID->data, pOAuthCredential->clientId.length) != 0))
 	{
-		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-			"The Client ID of RsslReactorOAuthCredential not equal for the same token session.");
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+			"The Client ID of RsslReactorOAuthCredential is not equal for the same token session.");
 		return RSSL_FALSE;
 	}
 
 	if ((pOAuthCredential->tokenScope.length != otherTokenScope.length) ||
 		(memcmp(pOAuthCredential->tokenScope.data, otherTokenScope.data, pOAuthCredential->tokenScope.length) != 0))
 	{
-		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-			"The token scope of RsslReactorOAuthCredential not equal for the same token session.");
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
+			"The token scope of RsslReactorOAuthCredential is not equal for the same token session.");
 		return RSSL_FALSE;
 	}
 

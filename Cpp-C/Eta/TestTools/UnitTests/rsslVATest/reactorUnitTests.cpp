@@ -472,6 +472,244 @@ TEST_F(ReactorSessionMgntTest, NoClientIdForEnablingSessionMgnt)
 	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to copy OAuth credential for enabling the session management; OAuth Client ID does not exist.");
 }
 
+RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslReactorOAuthCredentialEvent* pOAuthCredentialEvent)
+{
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslReactorCallbackRet oAuthCredentialEventCallback2(RsslReactor *pReactor, RsslReactorOAuthCredentialEvent* pOAuthCredentialEvent)
+{
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+TEST_F(ReactorSessionMgntTest, MultipleOpenConnections_SameUser_Diff_Callback)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
+
+	_reactorConnectionOpts.connectionCount = 1;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	_reactorOmmConsumerRole.pLoginRequest = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	_reactorOmmConsumerRole.pOAuthCredential = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback2;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The RsslReactorOAuthCredentialEventCallback of RsslReactorOAuthCredential is not equal for the same token session.");
+
+	_reactorOmmConsumerRole.pOAuthCredential = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOAuthCredential.pOAuthCredentialEventCallback = NULL;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The RsslReactorOAuthCredentialEventCallback of RsslReactorOAuthCredential is not equal for the same token session.");
+}
+
+TEST_F(ReactorSessionMgntTest, MultipleOpenConnections_SameUser_Diff_NULL_Callback)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
+
+	_reactorConnectionOpts.connectionCount = 1;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	_reactorOmmConsumerRole.pLoginRequest = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOAuthCredential.pOAuthCredentialEventCallback = NULL;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	_reactorOmmConsumerRole.pOAuthCredential = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The RsslReactorOAuthCredentialEventCallback of RsslReactorOAuthCredential is not equal for the same token session.");
+}
+
+TEST_F(ReactorSessionMgntTest, MultipleOpenConnections_SameUser_Diff_ClientSecret)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
+
+	_reactorConnectionOpts.connectionCount = 1;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	_reactorOmmConsumerRole.pLoginRequest = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOAuthCredential.clientSecret = g_userName;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	_reactorOmmConsumerRole.pOAuthCredential = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOAuthCredential.clientSecret = g_password;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The Client secret of RsslReactorOAuthCredential is not equal for the same token session.");
+}
+
+TEST_F(ReactorSessionMgntTest, MultipleOpenConnections_SameUser_Diff_ClientID)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
+
+	_reactorConnectionOpts.connectionCount = 1;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	rsslClearRDMLoginRequest(&_rdmLoginRequest);
+	_rdmLoginRequest.userName = g_userName;
+	_rdmLoginRequest.password = g_password;
+	_reactorOmmConsumerRole.clientId = g_userName;
+	_reactorOmmConsumerRole.pLoginRequest = &_rdmLoginRequest;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	_reactorOmmConsumerRole.pLoginRequest = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	_reactorOmmConsumerRole.pOAuthCredential = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_password;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The Client ID of RsslReactorOAuthCredential is not equal for the same token session.");
+}
+
+TEST_F(ReactorSessionMgntTest, MultipleOpenConnections_SameUser_Diff_Password)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
+
+	_reactorConnectionOpts.connectionCount = 1;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	rsslClearRDMLoginRequest(&_rdmLoginRequest);
+	_rdmLoginRequest.userName = g_userName;
+	_rdmLoginRequest.password = g_password;
+	_reactorOmmConsumerRole.clientId = g_userName;
+	_reactorOmmConsumerRole.pLoginRequest = &_rdmLoginRequest;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	_reactorOmmConsumerRole.pLoginRequest = NULL;
+	rsslClearRDMLoginRequest(&_rdmLoginRequest);
+	_rdmLoginRequest.userName = g_userName;
+	_rdmLoginRequest.password = g_password;
+	_reactorOmmConsumerRole.clientId = g_userName;
+	_reactorOmmConsumerRole.pLoginRequest = &_rdmLoginRequest;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	_reactorOmmConsumerRole.pLoginRequest = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_userName;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The password of RsslReactorOAuthCredential is not equal for the same token session.");
+}
+
+TEST_F(ReactorSessionMgntTest, MultipleOpenConnections_SameUser_Diff_TokenScope)
+{
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	_reactorConnectInfo[0].rsslConnectOptions.connectionType = RSSL_CONN_TYPE_ENCRYPTED;
+	_reactorConnectInfo[0].enableSessionManagement = RSSL_TRUE;
+
+	_reactorConnectionOpts.connectionCount = 1;
+	_reactorConnectionOpts.reactorConnectionList = &_reactorConnectInfo[0];
+
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	_reactorOmmConsumerRole.pOAuthCredential = NULL;
+	rsslClearRDMLoginRequest(&_rdmLoginRequest);
+	_rdmLoginRequest.userName = g_userName;
+	_rdmLoginRequest.password = g_password;
+	_reactorOmmConsumerRole.clientId = g_userName;
+	_reactorOmmConsumerRole.pLoginRequest = &_rdmLoginRequest;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	_reactorOmmConsumerRole.pLoginRequest = NULL;
+	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
+	_reactorOAuthCredential.userName = g_userName;
+	_reactorOAuthCredential.password = g_password;
+	_reactorOAuthCredential.clientId = g_userName;
+	_reactorOAuthCredential.tokenScope = g_userName;
+	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
+
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The token scope of RsslReactorOAuthCredential is not equal for the same token session.");
+}
+
 TEST_F(ReactorSessionMgntTest, NoPasswordForEnablingSessionMgnt)
 {
 	rsslClearCreateReactorOptions(&mOpts);
