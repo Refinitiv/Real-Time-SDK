@@ -39,6 +39,7 @@ Additionally, documentation is available online from Refinitiv Developer Portal 
 - [C++/C](https://developers.refinitiv.com/elektron/elektron-sdk-cc/docs)
 - [Java](https://developers.refinitiv.com/elektron/elektron-sdk-java/docs)
 
+Please note that HTML documentation is also available within each package that is available for download in Developer Portal. However, we recommend using these docs from above mentioned Developer Portal links. If viewing docs in a package locally, please use Internet Explorer or modify security settings with Chrome, Firefox, etc. to do so.
 
 # Developing 
 If you discover any issues with this project, please feel free to create an Issue.
