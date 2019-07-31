@@ -5384,12 +5384,6 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 
 	memset(pParameterBuf, 0, 128);
 
-	/* Provides backward compatibility for the service discovery URL without having '/' at the end */
-	if (pServiceDiscoveryURL->data[pServiceDiscoveryURL->length - 1] != '/')
-	{
-		strncat(pParameterBuf, "/", 1);
-	}
-
 	if ((transport != RSSL_RD_TP_INIT) || (dataFormat != RSSL_RD_DP_INIT))
 	{
 		switch (transport)

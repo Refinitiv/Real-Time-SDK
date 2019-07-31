@@ -2380,7 +2380,7 @@ public class ReactorWatchlistEDPJunit
 			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
 
 			Buffer url = CodecFactory.createBuffer();
-			url.data("https://api.refinitiv.com/streaming/pricing/v1");
+			url.data("https://api.refinitiv.com/streaming/pricing/v1/");
 			reactorOptions.serviceDiscoveryURL(url);
 
 			/* Create reactor. */

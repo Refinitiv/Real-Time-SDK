@@ -670,7 +670,7 @@ public class EmaFactory
 	 * Creates a {@link com.thomsonreuters.ema.access.ServiceEndpointDiscovery} using the default URLs.
 	 * 
 	 * <p>The token service URL defaults to https://api.refinitiv.com/auth/oauth2/beta1/token<br>
-	 * The EDP-RT service discovery URL defaults to https://api.refinitiv.com/streaming/pricing/v1</p>
+	 * The EDP-RT service discovery URL defaults to https://api.refinitiv.com/streaming/pricing/v1/</p>
 	 * 
 	 * @return {@link com.thomsonreuters.ema.access.ServiceEndpointDiscovery}
 	 */

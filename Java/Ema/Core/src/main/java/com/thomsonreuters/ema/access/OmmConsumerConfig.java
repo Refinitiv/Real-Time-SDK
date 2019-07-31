@@ -111,7 +111,7 @@ public interface OmmConsumerConfig
 	
 	/**
 	 * Specifies an URL to override the default for the EDP service discovery to get global endpoints.
-	 * <p>Defaults to "https://api.refinitiv.com/streaming/pricing/v1".</p>
+	 * <p>Defaults to "https://api.refinitiv.com/streaming/pricing/v1/".</p>
 	 * @param serviceDiscoveryUrl specifies an URL for EDP service discovery.
 	 * @return reference to this object
 	 */

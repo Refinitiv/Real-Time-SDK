@@ -223,12 +223,15 @@ abstract class RestClient implements Runnable, RestCallback {
 					{
 						serviceInfo._locationList.add (arr.getJSONObject(i).getJSONArray(EDP_RT_SD_LOCATION).get(l).toString());
 					}
-
-					for (int l = 0; l < arr.getJSONObject(i).getJSONArray(EDP_RT_SD_DATAFORMAT).length(); l++)
+					
+					if (arr.getJSONObject(i).has(EDP_RT_SD_DATAFORMAT))
 					{
-						serviceInfo._dataFormatList.add (arr.getJSONObject(i).getJSONArray(EDP_RT_SD_DATAFORMAT).get(l).toString());
-					}				
-
+						for (int l = 0; l < arr.getJSONObject(i).getJSONArray(EDP_RT_SD_DATAFORMAT).length(); l++)
+						{
+							serviceInfo._dataFormatList.add (arr.getJSONObject(i).getJSONArray(EDP_RT_SD_DATAFORMAT).get(l).toString());
+						}
+					}
+					
 					if (arr.getJSONObject(i).getJSONArray(EDP_RT_SD_LOCATION).length() > 1 && 
 							arr.getJSONObject(i).getJSONArray(EDP_RT_SD_LOCATION).get(0).toString().startsWith(_location))
 					{

@@ -73,6 +73,7 @@ Both ETA Java and EMA Java 3.3.1.L1 Issues Resolved
 [ESDK-2651] - Support OpenJDK 1.8
 [ESDK-3248] - With new gradle version, 5.4.1, update documentation to include the -PcommandLineArgs with --args
 [ESDK-3321] - Update httpclient and other ESDK jars from 4.X.X to recent version
+[ESDK-3410] - Removed extra "/" to service discovery URL to get an Elektron cloud endpoint
 
 --------------------------------------------
 ESDK Java Release 1.3.0.G1 (April 16, 2019)

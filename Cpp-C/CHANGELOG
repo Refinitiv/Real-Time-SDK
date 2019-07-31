@@ -90,6 +90,7 @@ Both ETA C and EMA C++
 [ESDK-3260] - EMA log files exist in ESDK AMI
 [ESDK-3266] - Add 32-bit DACS libraries into BinaryPack and open source ANSI
 [ESDK-3272] - Qualify ESDK with GCC Version 7.4.0
+[ESDK-3410] - Removed extra "/" to service discovery URL to get an Elektron cloud endpoint
 
 ---------------------------------------------
 ESDK C++/C Release 1.3.0.G1 (April 16, 2019)

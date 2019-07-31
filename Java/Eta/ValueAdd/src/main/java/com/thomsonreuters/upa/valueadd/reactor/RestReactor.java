@@ -554,7 +554,7 @@ class RestReactor
     	URIBuilder uriBuilder = null;
     	
     	try {
-    		uriBuilder = new URIBuilder(restConnectOptions.serviceDiscoveryURL() + "/");    		
+    		uriBuilder = new URIBuilder(restConnectOptions.serviceDiscoveryURL());    		
     	}
     	catch (Exception e)
     	{

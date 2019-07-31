@@ -172,7 +172,7 @@ public class ReactorOptions
         _userSpecObj = null;
         _xmlTracing = false;
         _statistics = StatisticFlags.NONE;
-        _serviceDiscoveryURL.data("https://api.refinitiv.com/streaming/pricing/v1");
+        _serviceDiscoveryURL.data("https://api.refinitiv.com/streaming/pricing/v1/");
         _tokenServiceURL.data("https://api.refinitiv.com/auth/oauth2/beta1/token");        
     }
     
