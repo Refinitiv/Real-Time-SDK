@@ -11,10 +11,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.37
-!tag Build_RDMD  4.20.37
-!tag DT_Version  19.61
-!tag Date        8-Jul-2019
+!tag RT_Version  4.20.38
+!tag Build_RDMD  4.20.38
+!tag DT_Version  19.71
+!tag Date        12-Aug-2019
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -4110,6 +4110,7 @@ CAN_COND    6585
   21343        "BMR"   Benchmark Trade. Out of Sequence Retransmission. (OPRA).
   21345        "TTE"   Trade Trough Exempt. Out of Sequence. Not LAST (OPRA).
   21346        "TTR"   Trade Through Exempt. Out of sequence Retransmission. (OPRA).
+  32671        "IQS"   Indicative Quote System Originated Trades
   32672        "TAC"   Trading at Closing Price
   32673        "ERT"   Exercise Related Transaction
   32674        "LCT"   Linked Component Transaction
@@ -6932,6 +6933,7 @@ CLR_CTRY   13580
     566        "NGA"   Nigeria
     570        "NIU"   NIUE
     574        "NFK"   NORFOLK ISLAND
+    576        "PRK"   North Korea
     578        "NOR"   Norway
     580        "MNP"   NORTHERN MARIANA ISLANDS
     581        "UMI"   UNITED STATES MINOR OUTLYING ISLANDS
@@ -8068,7 +8070,7 @@ ORDER_EXID 13603
     988        "TRZ"   Thomson Reuters Indices (TR indices)
     989        "CIF"   CONSOLIDATED INDIAN INTEREST RATE FUTURES
     990        "XI2"   XETRA INTERNATIONAL MARKET LEVEL 2
-    991        "NZE"   NEW ZEALAND STOCK EXCHANGE
+    991        "NZE"   NEW ZEALAND STOCK EXCHANGE (DO NOT USE)
     992        "GPI"   Global Ports
     993        "CGH"   CEGH GAS EXCHANGE AT WIENERBOERSE
     994        "CCP"   Consolidated Quote/Trade - Level 1 - Premium Service
@@ -8354,7 +8356,7 @@ ORDER_EXID 13603
    1274        "ISD"   ICAP Securities and Derivatives Exchange
    1275        "CX2"   CHI-X CANADA - CX2 - 2ND LIT MARKET
    1276        "CXX"   CHI-X CANADA - 2ND LIT MARKET - L1
-   1277        "NZX"   New Zealand Stock Exchange
+   1277        "NZX"   New Zealand Stock Exchange (DO NOT USE)
    1278        "ODE"   Osaka Dojima Commodities Exchange
    1279        "CS1"   CHI-X CANADA - TSX VENTURE L1
    1280        "CS2"   CHI-X CANADA ATS TSX VENTURE L1 AND L2
@@ -8652,6 +8654,9 @@ ORDER_EXID 13603
    1572        "DXE"   Cboe Europe DXE (EU)
    1573        "TWD"   Tradeweb Direct
    1574        "IBE"   Independent Bulgarian Energy Exchange
+   1575        "NGI"   Natural Gas Intelligence
+   1576        "SOB"   STEEL ORBIS
+   1577        "FBL"   Financial Benchmarks India Private Limited
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15118,6 +15123,7 @@ OFFBK_COND  9049
      33   "DNT     "   Delta Neutral Trade - Underlying Future Leg
      34   "RFCT    "   Request for Cross Trade
      35   "SRFCT   "   Request for Cross Strategy Leg Trade
+     36   "IQS     "   Indicative Quote System Originated Trades
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16965,6 +16971,8 @@ ROUTE_INDX 12977
      92   "TC11    "   South Korea to Singapore
      93   "C11_03  "   Delivery China-Japan ; Trip Continent - Med
      94   "TC15    "   Mediterranean to Japan
+     95   "TD22    "   US Gulf to China
+     96   "TD25    "   US Gulf to Mediterranean
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20610,6 +20618,11 @@ ORGN_PORT  13579
     494   "JP KIJ  "   Niigata
     495   "JP KNE  "   Kinoe
     496   "DZ ALG  "   Alger (Algiers)
+    497   "MX CAT  "   Cayo Arcas
+    498   "RU LED  "   Saint Petersburg
+    499   "RU TAM  "   Taman
+    500   "RU KZP  "   Kavkaz
+    501   "RU SAB  "   Sabetta
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21417,14 +21430,14 @@ FIXING_TYP 13597
      11   "1000 LON"   10:00 AM London Fixing Time
      12   "1200 LON"   12:00 PM London Fixing Time
      13   "1235 LON"   12:35 PM London Fixing Time
-     14   "0800 NYC"   8:00 AM New York Fixing Time
-     15   "0900 CHI"   9:00 AM Chicago Fixing Time
+     14   "0800 NYC"   8:00 AM New York Fixing Time (ET)
+     15   "0900 CHI"   9:00 AM Chicago Fixing Time (CT)
      16   "1500 LON"   3:00 PM London Fixing Time
      17   "1630 LON"   4:30 PM London Fixing Time
-     18   "1100 CHI"   11:00 AM Chicago Fixing Time
-     19   "1400 CHI"   2:00 PM Chicago Fixing Time
-     20   "1600 NYC"   4:00 PM New York Fixing Time
-     21   "1500 CHI"   3:00 PM Chicago Fixing Time
+     18   "1100 CHI"   11:00 AM Chicago Fixing Time (CT)
+     19   "1400 CHI"   2:00 PM Chicago Fixing Time (CT)
+     20   "1600 NYC"   4:00 PM New York Fixing Time (ET)
+     21   "1500 CHI"   3:00 PM Chicago Fixing Time (CT)
 !
 ! ACRONYM    FID
 ! -------    ---

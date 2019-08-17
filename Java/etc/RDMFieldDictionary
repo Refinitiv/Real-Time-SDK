@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.37_TREP_19.61		07/08/2019
-!	* Modified 07/08/2019 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.37.
+!   Version	 4.20.38_TREP_19.71		08/14/2019
+!	* Modified 08/14/2019 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.38.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.37_TREP
+!   Version: 4.20.38_TREP
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.37
-!tag Build     002
-!tag Date      09-May-2019
+!tag Version   4.20.38
+!tag Build     2
+!tag Date      16-Jul-2019
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -27504,11 +27504,13 @@ ACVOL_DEC  "ACVOL DEC"           9940  NULL        PRICE              17  REAL64
 !
 ASKSZ_DEC  "ASK SIZE DEC"        9941  NULL        PRICE              17  REAL64           7
 !
-! The number of shares, lots, or contracts willing to sell at the Ask price in decimal
+! The number of shares, lots, or contracts willing to sell at the Ask price in decimal 
+! format.
 !
 BIDSZ_DEC  "BID SIZE DEC"        9942  NULL        PRICE              17  REAL64           7
 !
-! The number of shares, lots, or contracts willing to sell at the Bid price in decimal
+! The number of shares, lots, or contracts willing to buy at the Bid price in decimal 
+! format.
 !
 ORD_SZ_DEC "ORDER SIZE DEC"      9943  NULL        PRICE              17  REAL64           7
 !
@@ -30083,13 +30085,35 @@ YLDWST_B   "BID YIELD TO WORST" 10678  NULL        PRICE              17  REAL64
 !
 ! Bid Yield to Worst.
 !
-PRERL1688  "PRED REAL 1688"     10679  NULL        PRICE              17  REAL64           7
-PRERL1689  "PRED REAL 1689"     10680  NULL        PRICE              17  REAL64           7
-PRERL1690  "PRED REAL 1690"     10681  NULL        PRICE              17  REAL64           7
-PRERL1691  "PRED REAL 1691"     10682  NULL        PRICE              17  REAL64           7
-PRERL1692  "PRED REAL 1692"     10683  NULL        PRICE              17  REAL64           7
-PRERL1693  "PRED REAL 1693"     10684  NULL        PRICE              17  REAL64           7
-PRERL1694  "PRED REAL 1694"     10685  NULL        PRICE              17  REAL64           7
+REPO_RPPRC "REPO PRICE"         10679  NULL        PRICE              17  REAL64           7
+!
+! Repurchased/buyback price at maturity.   Could also be referred to as far leg/close 
+! leg price.
+!
+3MT_B_HIGH "3MTH BID HIGH"      10680  NULL        PRICE              17  REAL64           7
+!
+! 3 Month Highest BID
+!
+3MT_B_LOW  "3MTH BID LOW"       10681  NULL        PRICE              17  REAL64           7
+!
+! 3 Month Lowest BID
+!
+LF_B_HIGH  "LIFE BID HIGH"      10682  NULL        PRICE              17  REAL64           7
+!
+! Life Bid High.
+!
+LF_B_LOW   "LIFE BID LOW"       10683  NULL        PRICE              17  REAL64           7
+!
+! Life BID Low.
+!
+MT_BID_LOW "MTHLY BID LOW"      10684  NULL        PRICE              17  REAL64           7
+!
+! Monthly Lowest BID
+!
+WK_BID_LOW "WEEKLY BID LOW"     10685  NULL        PRICE              17  REAL64           7
+!
+! Weekly Lowest BID
+!
 PRERL1695  "PRED REAL 1695"     10686  NULL        PRICE              17  REAL64           7
 PRERL1696  "PRED REAL 1696"     10687  NULL        PRICE              17  REAL64           7
 PRERL1697  "PRED REAL 1697"     10688  NULL        PRICE              17  REAL64           7
