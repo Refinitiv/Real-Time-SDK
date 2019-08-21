@@ -1,3 +1,2 @@
 #file,location
 Consumer.cpp,Examples/Training/Consumer/200_Series/200__MarketPrice__Streaming
-makefile.examples.common,Examples/Training

@@ -1,4 +1,3 @@
 #file,location
 NiProvider.cpp,Examples/Training/NiProvider/400_Series/430__MarketPrice__TrepAuthentication
 NiProvider.h,Examples/Training/NiProvider/400_Series/430__MarketPrice__TrepAuthentication
-makefile.examples.common,Examples/Training

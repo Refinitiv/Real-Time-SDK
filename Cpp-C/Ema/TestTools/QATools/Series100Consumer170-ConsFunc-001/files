@@ -1,4 +1,3 @@
 #file,location
 Consumer.cpp,Examples/Training/Consumer/100_Series/170__MarketPrice__ChannelInfo
 Consumer.h,Examples/Training/Consumer/100_Series/170__MarketPrice__ChannelInfo
-makefile.examples.common,Examples/Training
