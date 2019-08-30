@@ -58,35 +58,6 @@ TEST_F(WatchlistMiscUnitTest, AdminRsslMsgs)
 	watchlistMiscTest_AdminRsslMsgs();
 }
 
-#ifdef COMPILE_64BITS
-class WatchlistMiscUnitTest_Multicast : public ::testing::Test {
-public:
-
-	static void SetUpTestCase()
-	{
-		WtfInitOpts initOpts;
-		wtfClearInitOpts(&initOpts);
-		initOpts.connectionType = RSSL_CONN_TYPE_RELIABLE_MCAST;
-		wtfInit(&initOpts);
-	}
-
-	static void TearDownTestCase()
-	{
-		wtfCleanup();
-	}
-};
-
-TEST_F(WatchlistMiscUnitTest_Multicast, MsgKeyInUpdates)
-{
-	watchlistMiscTest_MsgKeyInUpdates();
-}
-
-TEST_F(WatchlistMiscUnitTest_Multicast, AdminRsslMsgs)
-{
-	watchlistMiscTest_AdminRsslMsgs();
-}
-#endif
-
 void watchlistMiscTest_BigGenericMsg()
 {
 	RsslReactorSubmitMsgOptions opts;

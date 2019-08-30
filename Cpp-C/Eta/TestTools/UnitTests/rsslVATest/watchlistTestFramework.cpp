@@ -455,13 +455,11 @@ void wtfInit(WtfInitOpts *pOpts)
 	wtf.config.useRawProvider = pOpts->useRawProvider;
 	wtf.config.connType = pOpts->connectionType;
 
-	if (pOpts->connectionType != RSSL_CONN_TYPE_RELIABLE_MCAST)
-	{
-		/* Bind Provider. */
-	  rsslClearBindOpts(&bindOpts); bindOpts.serviceName = const_cast<char*>("14011");
-		wtf.pServer = rsslBind(&bindOpts, &rsslErrorInfo.rsslError);
-		bindOpts.pingTimeout = bindOpts.minPingTimeout = 30;
-	}
+	/* Bind Provider. */
+	rsslClearBindOpts(&bindOpts); bindOpts.serviceName = const_cast<char*>("14011");
+	wtf.pServer = rsslBind(&bindOpts, &rsslErrorInfo.rsslError);
+	bindOpts.pingTimeout = bindOpts.minPingTimeout = 30;
+
 
 	rsslClearCreateReactorOptions(&reactorOpts);
 	reactorOpts.userSpecPtr = (void*)WTF_TC_PROVIDER;
@@ -518,28 +516,11 @@ void wtfConnect(WtfSetupConnectionOpts *pOpts)
 	connectOpts.reconnectMinDelay = pOpts->reconnectMinDelay;
 	connectOpts.reconnectMaxDelay = pOpts->reconnectMaxDelay;
 
-	if (wtf.config.connType != RSSL_CONN_TYPE_RELIABLE_MCAST)
-	{
-	  connectOpts.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
-	  connectOpts.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14011");
-	}
-	else
-	{
-		char tmpBuf[12];
-		snprintf(tmpBuf, 12, "%u", unicastConsPort++);
 
-		connectOpts.rsslConnectOptions.connectionInfo.segmented.recvAddress = const_cast<char*>("235.1.1.1");
-		connectOpts.rsslConnectOptions.connectionInfo.segmented.recvServiceName = const_cast<char*>("15011");
-		connectOpts.rsslConnectOptions.connectionInfo.segmented.sendAddress = const_cast<char*>("235.1.1.1");
-		connectOpts.rsslConnectOptions.connectionInfo.segmented.sendServiceName = const_cast<char*>("15011");
-		connectOpts.rsslConnectOptions.connectionInfo.segmented.unicastServiceName = tmpBuf;
-		connectOpts.rsslConnectOptions.connectionInfo.segmented.interfaceName = const_cast<char*>("localhost");
-		connectOpts.rsslConnectOptions.sysSendBufSize = 64;
-		connectOpts.rsslConnectOptions.sysRecvBufSize = 64;
-		connectOpts.rsslConnectOptions.multicastOpts.pktPoolLimitHigh = 4000;
-		connectOpts.rsslConnectOptions.multicastOpts.pktPoolLimitLow = 3000;
-		connectOpts.rsslConnectOptions.multicastOpts.userQLimit = 1000;
-	}
+	connectOpts.rsslConnectOptions.connectionInfo.unified.address = const_cast<char*>("localhost");
+	connectOpts.rsslConnectOptions.connectionInfo.unified.serviceName = const_cast<char*>("14011");
+
+
 	if ((ret = rsslReactorConnect(wtf.pConsReactor, &connectOpts, 
 					(RsslReactorChannelRole*)&wtf.ommConsumerRole, &rsslErrorInfo) != RSSL_RET_SUCCESS))
 	{
@@ -558,144 +539,85 @@ void wtfAccept()
 
 void wtfAcceptWithTime(time_t timeoutMsec)
 {
+	/* Wait for server descriptor trigger before accepting. 
+	* If using a Reactor for the provider, also checks reactor descriptor. */
 
-	if (wtf.config.connType != RSSL_CONN_TYPE_RELIABLE_MCAST)
+	time_t currentTimeUsec, stopTimeUsec;
+
+	ASSERT_TRUE(wtf.pServer != NULL);
+
+	currentTimeUsec = getTimeMicro();
+
+	stopTimeUsec =  (time_t)(timeoutMsec / wtfGlobalConfig.speed);
+	stopTimeUsec *= 1000;
+	stopTimeUsec += currentTimeUsec;
+
+	do
 	{
-		/* Wait for server descriptor trigger before accepting. 
-		* If using a Reactor for the provider, also checks reactor descriptor. */
+		int selectRet;
+		struct timeval selectTime;
+		fd_set readFds;
+		time_t timeoutUsec;
 
-		time_t currentTimeUsec, stopTimeUsec;
+		FD_ZERO(&readFds);
 
-		ASSERT_TRUE(wtf.pServer != NULL);
+		if (!wtf.config.useRawProvider)
+			FD_SET(wtf.pProvReactor->eventFd, &readFds);
 
+		FD_SET(wtf.pServer->socketId, &readFds);
+
+		timeoutUsec = (currentTimeUsec < stopTimeUsec) ? 
+			(stopTimeUsec - currentTimeUsec) : (time_t)0;
+
+		selectTime.tv_sec = (long)timeoutUsec/1000000;
+		selectTime.tv_usec = (long)(timeoutUsec - selectTime.tv_sec * 1000000);
+		selectRet = select(FD_SETSIZE, &readFds, NULL, NULL, &selectTime);
+
+		ASSERT_TRUE(selectRet > 0);
+
+		if (!wtf.config.useRawProvider && FD_ISSET(wtf.pProvReactor->eventFd, &readFds))
+		{
+			/* Reactor descriptor triggered. Make sure we didn't get anything. */
+			wtfDispatch(WTF_TC_PROVIDER, 100);
+			ASSERT_TRUE(!wtfGetEvent());
+		}
+		else if (FD_ISSET(wtf.pServer->socketId, &readFds))
+		{
+			/* Server descriptor triggered, ready to accept. */
+			break;
+		}
 		currentTimeUsec = getTimeMicro();
 
-		stopTimeUsec =  (time_t)(timeoutMsec / wtfGlobalConfig.speed);
-		stopTimeUsec *= 1000;
-		stopTimeUsec += currentTimeUsec;
+	} while(currentTimeUsec <= stopTimeUsec);
 
-		do
-		{
-			int selectRet;
-			struct timeval selectTime;
-			fd_set readFds;
-			time_t timeoutUsec;
-
-			FD_ZERO(&readFds);
-
-			if (!wtf.config.useRawProvider)
-				FD_SET(wtf.pProvReactor->eventFd, &readFds);
-
-			FD_SET(wtf.pServer->socketId, &readFds);
-
-			timeoutUsec = (currentTimeUsec < stopTimeUsec) ? 
-				(stopTimeUsec - currentTimeUsec) : (time_t)0;
-
-			selectTime.tv_sec = (long)timeoutUsec/1000000;
-			selectTime.tv_usec = (long)(timeoutUsec - selectTime.tv_sec * 1000000);
-			selectRet = select(FD_SETSIZE, &readFds, NULL, NULL, &selectTime);
-
-			ASSERT_TRUE(selectRet > 0);
-
-			if (!wtf.config.useRawProvider && FD_ISSET(wtf.pProvReactor->eventFd, &readFds))
-			{
-				/* Reactor descriptor triggered. Make sure we didn't get anything. */
-				wtfDispatch(WTF_TC_PROVIDER, 100);
-				ASSERT_TRUE(!wtfGetEvent());
-			}
-			else if (FD_ISSET(wtf.pServer->socketId, &readFds))
-			{
-				/* Server descriptor triggered, ready to accept. */
-				break;
-			}
-			currentTimeUsec = getTimeMicro();
-
-		} while(currentTimeUsec <= stopTimeUsec);
-
-		if (currentTimeUsec > stopTimeUsec)
-		{
-			printf("wtfAccept: No accept notification.\n" );
-			ASSERT_TRUE(0);
-		}
+	if (currentTimeUsec > stopTimeUsec)
+	{
+		printf("wtfAccept: No accept notification.\n" );
+		ASSERT_TRUE(0);
 	}
 
 	if (!wtf.config.useRawProvider)
 	{
 		RsslReactorAcceptOptions	acceptOpts;
-		RsslReactorConnectOptions connectOpts;
 		RsslErrorInfo rsslErrorInfo;
-		RsslRet ret;
 
-		if (wtf.config.connType != RSSL_CONN_TYPE_RELIABLE_MCAST)
-		{
-			rsslClearReactorAcceptOptions(&acceptOpts);
+		rsslClearReactorAcceptOptions(&acceptOpts);
 
-			ASSERT_TRUE(!wtf.pProvReactorChannel);
-			ASSERT_TRUE(rsslReactorAccept(wtf.pProvReactor, wtf.pServer, &acceptOpts, 
-						(RsslReactorChannelRole*)&wtf.ommProviderRole, &rsslErrorInfo) == 
-					RSSL_RET_SUCCESS);
-		}
-		else
-		{
-			char tmpBuf[12];
-            snprintf(tmpBuf, 12, "%u", unicastProvPort++);
-
-            rsslClearReactorConnectOptions(&connectOpts);
-            connectOpts.rsslConnectOptions.connectionInfo.segmented.recvAddress = const_cast<char*>("235.1.1.1");
-            connectOpts.rsslConnectOptions.connectionInfo.segmented.recvServiceName = const_cast<char*>("15011");
-            connectOpts.rsslConnectOptions.connectionInfo.segmented.sendAddress = const_cast<char*>("235.1.1.1");
-            connectOpts.rsslConnectOptions.connectionInfo.segmented.sendServiceName = const_cast<char*>("15011");
-            connectOpts.rsslConnectOptions.connectionInfo.segmented.unicastServiceName = tmpBuf;
-            connectOpts.rsslConnectOptions.connectionInfo.segmented.interfaceName = const_cast<char*>("localhost");
-            connectOpts.rsslConnectOptions.connectionType = RSSL_CONN_TYPE_RELIABLE_MCAST;
-			connectOpts.rsslConnectOptions.multicastOpts.flags = MCAST_FT_GROUP | RSSL_MCAST_FILTERING_ON;
-            connectOpts.rsslConnectOptions.multicastOpts.reserved = 4;
-
-            connectOpts.rsslConnectOptions.sysSendBufSize = 64;
-            connectOpts.rsslConnectOptions.sysRecvBufSize = 64;
-            connectOpts.rsslConnectOptions.multicastOpts.pktPoolLimitHigh = 4000;
-            connectOpts.rsslConnectOptions.multicastOpts.pktPoolLimitLow = 3000;
-            connectOpts.rsslConnectOptions.multicastOpts.userQLimit = 1000;
-            ASSERT_TRUE((ret = rsslReactorConnect(wtf.pProvReactor, &connectOpts,
-                            (RsslReactorChannelRole*)&wtf.ommProviderRole, &rsslErrorInfo)) == RSSL_RET_SUCCESS) <<
-                printf("wtfAccept: rsslReactorConnect() failed: %d(%s -- %s)\n",
-                        ret,
-                        rsslErrorInfo.errorLocation,
-                        rsslErrorInfo.rsslError.text);
-		}
+		ASSERT_TRUE(!wtf.pProvReactorChannel);
+		ASSERT_TRUE(rsslReactorAccept(wtf.pProvReactor, wtf.pServer, &acceptOpts, 
+					(RsslReactorChannelRole*)&wtf.ommProviderRole, &rsslErrorInfo) == 
+				RSSL_RET_SUCCESS);
 	}
 	else
 	{
 		/* Raw provider; connect directly. */
-		if (wtf.config.connType != RSSL_CONN_TYPE_RELIABLE_MCAST)
-		{
-			RsslAcceptOptions acceptOpts;
-			RsslError rsslError;
+		RsslAcceptOptions acceptOpts;
+		RsslError rsslError;
 
-			rsslClearAcceptOpts(&acceptOpts);
+		rsslClearAcceptOpts(&acceptOpts);
 
-			assert(!wtf.pRawProvChannel);
-			ASSERT_TRUE((wtf.pRawProvChannel = rsslAccept(wtf.pServer, &acceptOpts, &rsslError)));
-		}
-		else
-		{
-			RsslConnectOptions rsslConnectOptions;
-            RsslError rsslError;
-
-            rsslClearConnectOpts(&rsslConnectOptions);
-            rsslConnectOptions.connectionInfo.segmented.recvAddress = const_cast<char*>("235.1.1.1");
-            rsslConnectOptions.connectionInfo.segmented.recvServiceName = const_cast<char*>("15011");
-            rsslConnectOptions.connectionInfo.segmented.sendAddress = const_cast<char*>("235.1.1.1");
-            rsslConnectOptions.connectionInfo.segmented.sendServiceName = const_cast<char*>("15011");
-            rsslConnectOptions.connectionInfo.segmented.unicastServiceName = const_cast<char*>("16011");
-            rsslConnectOptions.connectionInfo.segmented.interfaceName = const_cast<char*>("localhost");
-            rsslConnectOptions.connectionType = RSSL_CONN_TYPE_RELIABLE_MCAST;
-			rsslConnectOptions.multicastOpts.flags = MCAST_SEQNUM | MCAST_FT_GROUP | RSSL_MCAST_FILTERING_ON;
-            rsslConnectOptions.multicastOpts.reserved = 4;
-            ASSERT_TRUE ((wtf.pRawProvChannel = rsslConnect(&rsslConnectOptions, &rsslError)) != NULL) <<
-                printf("wtfAccept: rsslConnect() failed: %d(%s)\n",
-                        rsslError.rsslErrorId, rsslError.text);
-		}
+		assert(!wtf.pRawProvChannel);
+		ASSERT_TRUE((wtf.pRawProvChannel = rsslAccept(wtf.pServer, &acceptOpts, &rsslError)));
 	}
 }
 
@@ -1169,21 +1091,6 @@ void wtfSetupConnection(WtfSetupConnectionOpts *pOpts)
 
 	/* Provider sends login response. */
 	wtfInitDefaultLoginRefresh(&loginRefresh);
-
-	if (wtf.config.connType == RSSL_CONN_TYPE_RELIABLE_MCAST)
-	{
-		loginRefresh.flags |= RDM_LG_RFF_HAS_SEQ_RETRY_INTERVAL;
-		loginRefresh.sequenceRetryInterval = 1;
-
-		loginRefresh.flags |= RDM_LG_RFF_HAS_UPDATE_BUF_LIMIT;
-		loginRefresh.updateBufferLimit = WTF_MCAST_UPDATE_BUFFER_LIMIT;
-
-		if (!pOpts->multicastGapRecovery)
-		{
-			loginRefresh.flags |= RDM_LG_RFF_HAS_SEQ_NUM_RECOVERY;
-			loginRefresh.sequenceNumberRecovery = 0;
-		}
-	}
 
 	rsslClearReactorSubmitMsgOptions(&submitOpts);
 	submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRefresh;

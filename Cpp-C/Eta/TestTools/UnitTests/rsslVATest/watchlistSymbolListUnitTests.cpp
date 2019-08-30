@@ -51,45 +51,6 @@ TEST_F(WatchlistSymbolListTest, DataStreamMsgKey)
 	watchlistSymbolListTest_DataStreamMsgKey();
 }
 
-#ifdef COMPILE_64BITS
-class WatchlistSymbolListTest_Multicast : public ::testing::Test {
-public:
-
-	static void SetUpTestCase()
-	{
-		WtfInitOpts initOpts;
-		wtfClearInitOpts(&initOpts);
-		initOpts.connectionType = RSSL_CONN_TYPE_RELIABLE_MCAST;
-		wtfInit(&initOpts);
-	}
-
-	static void TearDownTestCase()
-	{
-		wtfCleanup();
-	}
-};
-
-TEST_F(WatchlistSymbolListTest_Multicast, TwoSymbols_FlagsFromMsgBuffer)
-{
-	watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer();
-}
-
-TEST_F(WatchlistSymbolListTest_Multicast, TwoSymbols_NonStreaming)
-{
-	watchlistSymbolListTest_TwoSymbols_NonStreaming();
-}
-
-TEST_F(WatchlistSymbolListTest_Multicast, BigList)
-{
-	watchlistSymbolListTest_BigList();
-}
-
-TEST_F(WatchlistSymbolListTest_Multicast, DataStreamMsgKey)
-{
-	watchlistSymbolListTest_DataStreamMsgKey();
-}
-#endif
-
 void watchlistSymbolListTest_TwoSymbols_FlagsFromMsgBuffer()
 {
 	RsslReactorSubmitMsgOptions opts;

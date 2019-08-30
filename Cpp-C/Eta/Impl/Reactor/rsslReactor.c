@@ -1669,41 +1669,54 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 
 			}
 
-			channelsToCheck = 1;
-			/* A channel has something to read if either:
+
+			/* A channel has something to read if:
+			 * - The channel is in the active state(it was not closed above)
 			 * - The last return from rsslRead() was greater than zero, indicating there were still bytes in RSSL's queue
 			 * - The file descriptor is set because there is data from the socket */
-			if (pReactorChannel->readRet > 0 || rsslNotifierEventIsReadable(pReactorChannel->pNotifierEvent))
+			if (pReactorChannel->reactorParentQueue == &pReactorImpl->activeChannels)
 			{
-				while (maxMsgs > 0 && channelsToCheck > 0)
+				if (pReactorChannel->readRet > 0 || rsslNotifierEventIsReadable(pReactorChannel->pNotifierEvent))
 				{
-					if ((ret = _reactorDispatchFromChannel(pReactorImpl, pReactorChannel, pError)) < RSSL_RET_SUCCESS)
+					channelsToCheck = 1;
+					while (maxMsgs > 0 && channelsToCheck > 0)
 					{
-						/* _reactorDispatchFromChannel from channel will disconnect the channel if it needs to. If if fails,
-						 * then it had a problem doing that and there's nothing more we can do to handle it. */
+						if ((ret = _reactorDispatchFromChannel(pReactorImpl, pReactorChannel, pError)) < RSSL_RET_SUCCESS)
+						{
+							/* _reactorDispatchFromChannel from channel will disconnect the channel if it needs to. If if fails,
+							 * then it had a problem doing that and there's nothing more we can do to handle it. */
+							_reactorShutdown(pReactorImpl, pError);
+							_reactorSendShutdownEvent(pReactorImpl, pError);
+							return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
+						}
+						else if (pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
+						{
+							/* Channel is no longer active, so break out of the loop and don't dispatch anything more */
+							channelsToCheck = 0;
+							break;
+						}
+						else if (pReactorChannel->readRet <= 0)
+						{
+							channelsToCheck = 0;
+							break;
+						}
+						if (maxMsgs > 0) --maxMsgs;
+					}
+				}
+				/* If not triggered to read, check if this channel has passed its ping timeout without sending either a ping or some data. */
+				else if ((pReactorImpl->lastRecordedTimeMs - pReactorChannel->lastPingReadMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000)
+				{
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Channel ping timeout expired.");
+					if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+					{
 						_reactorShutdown(pReactorImpl, pError);
 						_reactorSendShutdownEvent(pReactorImpl, pError);
-						return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
+						return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 					}
-					else if (pReactorChannel->readRet <= 0)
-					{
-						channelsToCheck = 0;
-						break;
-					}
-					if (maxMsgs > 0) --maxMsgs;
+					channelsToCheck = 0;
 				}
-			}
-			/* If not triggered to read, check if this channel has passed its ping timeout without sending either a ping or some data. */
-			else if ((pReactorImpl->lastRecordedTimeMs - pReactorChannel->lastPingReadMs) > pReactorChannel->reactorChannel.pRsslChannel->pingTimeout * 1000)
-			{
-				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Channel ping timeout expired.");
-				if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
-				{
-					_reactorShutdown(pReactorImpl, pError);
-					_reactorSendShutdownEvent(pReactorImpl, pError);
-					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
-				}
-				channelsToCheck = 0;
+				else
+					channelsToCheck = 0;
 			}
 			else
 				channelsToCheck = 0;
