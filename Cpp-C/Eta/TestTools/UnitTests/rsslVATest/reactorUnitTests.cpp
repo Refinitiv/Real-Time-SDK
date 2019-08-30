@@ -64,6 +64,9 @@ typedef struct
 
 	RsslReactorChannel *pReactorChannel;
 
+	/* Count for number of times the callback has been invoked */
+	int msgCount;
+
 } MutMsg;
 
 void clearMutMsg(MutMsg *pMutMsg)
@@ -147,7 +150,9 @@ static RsslRDMDirectoryRequest directoryRequest;
 static RsslRDMDirectoryRefresh directoryRefresh;
 static RsslBuffer fieldDictionaryName = { 6, const_cast<char*>("RWFFld") };
 static RsslBuffer enumDictionaryName = { 7, const_cast<char*>("RWFEnum") };
-static RsslBuffer dictionariesProvidedList[] = {{ 6, const_cast<char*>("RWFFld") }, { 7, const_cast<char*>("RWFEnum") }}; RsslUInt32 dictionariesProvidedCount = 2;
+static RsslBuffer dictionariesProvidedList[] = {{ 6, const_cast<char*>("RWFFld") }, { 7, const_cast<char*>("RWFEnum") }}; 
+RsslUInt32 dictionariesProvidedCount = 2;
+static RsslBuffer itemName = { 5, const_cast<char*>("IBM.N") };
 static RsslRDMService directoryService;
 
 static char enumDictionaryText[] =
@@ -2041,11 +2046,64 @@ static RsslRet dispatchEvents(MyReactor *pMyReactor, RsslUInt32 timeoutMsec, Rss
 	return RSSL_RET_READ_WOULD_BLOCK; 
 }
 
+/* Wait for notification, then call rsslReactorDispatch on the specific channel to get events.
+* Call rsslReactorDispatch with the specified maxMessages
+* Returns RSSL_RET_READ_WOULD_BLOCK if rsslReactorDispatch was never called.
+* NOTE: This test framework only stores the last received event into MyReactor::mutMsg.
+* The channel must be from the given MyReactor's RsslReactor.
+* If multiple events are received from the call to rsslReactorDispatch, all events
+* before for the last one will be overwritten. */
+static RsslRet dispatchChannelEvents(MyReactor *pMyReactor, RsslReactorChannel *pChannel, RsslUInt32 timeoutMsec, RsslUInt32 maxMessages)
+{
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactorDispatchOptions dispatchOpts;
+	int ret;
+
+	if (pMyReactor->pNotifier != NULL)
+	{
+		/* Use RsslNotifer for notification */
+		ret = rsslNotifierWait(pMyReactor->pNotifier, timeoutMsec * 1000);
+	}
+	else
+	{
+		/* Use select() for notification */
+		struct timeval selectTime;
+		fd_set useReadFds = pMyReactor->readFds, useExceptFds = pMyReactor->exceptFds;
+
+		selectTime.tv_sec = timeoutMsec / 1000;
+		selectTime.tv_usec = (timeoutMsec - selectTime.tv_sec * 1000) * 1000;
+		ret = select(FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime);
+	}
+
+	clearMutMsg(&pMyReactor->mutMsg);
+	if (ret > 0 || pMyReactor->previousDispatchRet > 0)
+	{
+		rsslClearReactorDispatchOptions(&dispatchOpts);
+		dispatchOpts.maxMessages = maxMessages;
+		dispatchOpts.pReactorChannel = pChannel;
+		pMyReactor->previousDispatchRet = rsslReactorDispatch(pMyReactor->pReactor, &dispatchOpts, &rsslErrorInfo);
+		return pMyReactor->previousDispatchRet;
+	}
+
+	/* rsslReactorDispatch won't return this, so we can use it to signify that we didn't dispatch */
+	pMyReactor->previousDispatchRet = RSSL_RET_READ_WOULD_BLOCK; /* Store it so we can easily see that this happened while debugging. */
+	return RSSL_RET_READ_WOULD_BLOCK;
+}
+
 /* Wait for notification, then call rsslReactorDispatch to get an event.
  * Returns RSSL_RET_READ_WOULD_BLOCK if rsslReactorDispatch was never called. */
 static RsslRet dispatchEvent(MyReactor *pMyReactor, RsslUInt32 timeoutMsec)
 {
 	return dispatchEvents(pMyReactor, timeoutMsec, 1);
+
+}
+
+/* Wait for notification, then call rsslReactorDispatch to get an event.
+* Returns RSSL_RET_READ_WOULD_BLOCK if rsslReactorDispatch was never called. */
+static RsslRet dispatchChannelEvent(MyReactor *pMyReactor, RsslReactorChannel *pChannel, RsslUInt32 timeoutMsec)
+{
+	return dispatchChannelEvents(pMyReactor, pChannel, timeoutMsec, 100);
+
 }
 
 static void removeConnection(MyReactor *pMyReactor, RsslReactorChannel *pReactorChannel)
@@ -2284,6 +2342,10 @@ static RsslReactorCallbackRet defaultMsgCallbackDisconnect(RsslReactor* pReactor
 	EXPECT_TRUE(pInfo->pRsslMsg);
 	EXPECT_TRUE(pInfo->pRsslMsgBuffer);
 	EXPECT_TRUE(!pInfo->pErrorInfo);
+
+	EXPECT_TRUE(pMutMsg->msgCount < 1);
+
+	pMutMsg->msgCount++;
 
 	copyMutRsslMsg(pMutMsg, pInfo->pRsslMsg, pReactorChannel);
 	removeConnection(pMyReactor, pReactorChannel);
@@ -3416,15 +3478,21 @@ void reactorUnitTests_ShortPingInterval()
 	ASSERT_TRUE(rsslCloseServer(pRsslServer, &rsslErrorInfo.rsslError) == RSSL_RET_SUCCESS); 
 }
 
-static void reactorUnitTests_DisconnectFromCallbacksInt_Cons()
+static void reactorUnitTests_DisconnectFromCallbacksInt_Cons(bool channelDispatch)
 {
 	RsslReactorChannel *pProvCh;
+	RsslReactorChannel *pConsCh;
+	int i;
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts, (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-	ASSERT_TRUE(waitForConnection(pServer, 100));
+	ASSERT_TRUE(waitForConnection(pServer, 1000));
 	ASSERT_TRUE(rsslReactorAccept(pProvMon->pReactor, pServer, &acceptOpts, (RsslReactorChannelRole*)&ommProviderRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	
+	pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
+	/* For some reason, after several iterations, the connection runs very slow */
+	while(pProvMon->mutMsg.mutMsgType != MUT_MSG_CONN)
+		ASSERT_TRUE(dispatchEvent(pProvMon, 1000) >= RSSL_RET_SUCCESS);
 
-	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
 	pProvCh = pProvMon->mutMsg.pReactorChannel;
 
@@ -3433,6 +3501,7 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons()
 
 	ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+	pConsCh = pConsMon->mutMsg.pReactorChannel;
 
 	/* If loginMsgCallback provided, exchange login messages */
 	if (ommConsumerRole.loginMsgCallback)
@@ -3441,7 +3510,11 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons()
 		ASSERT_TRUE(ommConsumerRole.base.channelEventCallback == channelEventCallback); /* Should be using standard callbacks elsewhere */
 
 		/* Cons: (flush login request) */
-		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+		if(channelDispatch)
+			ASSERT_TRUE(dispatchChannelEvent(pConsMon, pConsCh, 100) >= RSSL_RET_SUCCESS);
+		else
+			ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
 		/* Prov: Receive login request */
@@ -3454,7 +3527,11 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons()
 		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
 		/* Cons: Receive login refresh */
-		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+		if (channelDispatch)
+			ASSERT_TRUE(dispatchChannelEvent(pConsMon, pConsCh, 100) >= RSSL_RET_SUCCESS);
+		else
+			ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_RDM && pConsMon->mutMsg.rdmMsg.rdmMsgBase.domainType == RSSL_DMT_LOGIN && pConsMon->mutMsg.rdmMsg.rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH );
 	}
 
@@ -3468,7 +3545,11 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons()
 		ASSERT_TRUE(ommConsumerRole.base.channelEventCallback == channelEventCallback); 
 
 		/* Cons: (flush directoryRequest) */
-		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+		if (channelDispatch)
+			ASSERT_TRUE(dispatchChannelEvent(pConsMon, pConsCh, 100) >= RSSL_RET_SUCCESS);
+		else
+			ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
 		/* Prov: Receive directory request */
@@ -3481,7 +3562,11 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons()
 		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
 		/* Cons: Receive directory refresh */
-		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+		if (channelDispatch)
+			ASSERT_TRUE(dispatchChannelEvent(pConsMon, pConsCh, 100) >= RSSL_RET_SUCCESS);
+		else
+			ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_RDM && pConsMon->mutMsg.rdmMsg.rdmMsgBase.domainType == RSSL_DMT_SOURCE && pConsMon->mutMsg.rdmMsg.rdmMsgBase.rdmMsgType == RDM_DR_MT_REFRESH);
 	}
 
@@ -3495,9 +3580,17 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons()
 		ASSERT_TRUE(ommConsumerRole.directoryMsgCallback == directoryMsgCallback);
 
 		/* Cons: (flush dictionaryRequests -- we will get 2 since we sent out more than one message) */
-		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+		if (channelDispatch)
+			ASSERT_TRUE(dispatchChannelEvent(pConsMon, pConsCh, 100) >= RSSL_RET_SUCCESS);
+		else
+			ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
-		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+		if (channelDispatch)
+			ASSERT_TRUE(dispatchChannelEvent(pConsMon, pConsCh, 100) >= RSSL_RET_SUCCESS);
+		else
+			ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
 		/* Prov: Receive dictionary requests */
@@ -3521,18 +3614,96 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Cons()
 		ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
 		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
-		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+		if (channelDispatch)
+			ASSERT_TRUE(dispatchChannelEvent(pConsMon, pConsCh, 100) >= RSSL_RET_SUCCESS);
+		else
+			ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
+
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_RDM && pConsMon->mutMsg.rdmMsg.rdmMsgBase.domainType == RSSL_DMT_DICTIONARY && pConsMon->mutMsg.rdmMsg.rdmMsgBase.rdmMsgType == RDM_DC_MT_REFRESH);
 	}
 
+	
+	/* Send 50 messages from the provider to the consumer, only if the default message callback has been set. */
+	if (ommConsumerRole.base.defaultMsgCallback == defaultMsgCallbackDisconnect)
+	{
+		pConsMon->mutMsg.msgCount = 0;
+		for (i = 0; i < 50; ++i)
+		{
+			RsslBuffer *pMsgBuf = rsslReactorGetBuffer(pProvCh, 500, RSSL_FALSE, &rsslErrorInfo);
+			RsslEncodeIterator eIter;
+			RsslRefreshMsg refreshMsg;
+			RsslMsgBase *msgBase;
+			char stateText[50];
+			RsslMsg *msg;
+			RsslReactorSubmitOptions submitOpts;
 
-	/* Cons: (ack close) */
+			rsslClearReactorSubmitOptions(&submitOpts);
+
+
+			EXPECT_TRUE(pMsgBuf);
+
+			/* set-up message */
+			rsslClearEncodeIterator(&eIter);
+			rsslSetEncodeIteratorRWFVersion(&eIter, pProvCh->majorVersion, pProvCh->minorVersion);
+			ASSERT_TRUE(rsslSetEncodeIteratorBuffer(&eIter, pMsgBuf) == RSSL_RET_SUCCESS);
+
+			rsslClearRefreshMsg(&refreshMsg);
+			msgBase = &refreshMsg.msgBase;
+			refreshMsg.state.streamState = RSSL_STREAM_OPEN;
+			refreshMsg.state.dataState = RSSL_DATA_OK;
+			refreshMsg.state.code = RSSL_SC_NONE;
+			refreshMsg.flags = RSSL_RFMF_HAS_MSG_KEY | RSSL_RFMF_REFRESH_COMPLETE | RSSL_RFMF_HAS_QOS;
+
+			sprintf(stateText, "Item Refresh Completed");
+			refreshMsg.state.text.data = stateText;
+			refreshMsg.state.text.length = (RsslUInt32)strlen(stateText);
+			msgBase->msgKey.flags = RSSL_MKF_HAS_SERVICE_ID | RSSL_MKF_HAS_NAME | RSSL_MKF_HAS_NAME_TYPE;
+			/* ServiceId */
+			msgBase->msgKey.serviceId = 5;
+			/* Itemname */
+			msgBase->msgKey.name.data = itemName.data;
+			msgBase->msgKey.name.length = itemName.length;
+			msgBase->msgKey.nameType = RDM_INSTRUMENT_NAME_TYPE_RIC;
+			/* Qos */
+			refreshMsg.qos.dynamic = RSSL_FALSE;
+			refreshMsg.qos.rate = RSSL_QOS_RATE_TICK_BY_TICK;
+			refreshMsg.qos.timeliness = RSSL_QOS_TIME_REALTIME;
+			msg = (RsslMsg *)&refreshMsg;
+
+			msgBase->domainType = RSSL_DMT_MARKET_PRICE;
+			msgBase->containerType = RSSL_DT_NO_DATA;
+
+			/* StreamId */
+			msgBase->streamId = 10;
+
+			/* encode message */
+			ASSERT_TRUE(rsslEncodeMsg(&eIter, msg) == RSSL_RET_SUCCESS);
+			pMsgBuf->length = rsslGetEncodedBufferLength(&eIter);
+
+			ASSERT_TRUE(rsslReactorSubmit(pProvMon->pReactor, pProvCh, pMsgBuf, &submitOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+		}
+
+		if (channelDispatch)
+			ASSERT_TRUE(dispatchChannelEvents(pConsMon, pConsCh, 100, 50) >= RSSL_RET_SUCCESS);
+		else
+		{
+			ASSERT_TRUE(dispatchEvents(pConsMon, 100, 50) >= RSSL_RET_SUCCESS);
+		}
+		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_RSSL);
+	}
+
+	/* Cons: Ack close */
 	ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
-	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
+	/* Prov channel down */
+	pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
+	while (pProvMon->mutMsg.mutMsgType != MUT_MSG_CONN)
+	{
+		ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
+	}
 	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN);
-
+	
 	/* Prov: Close(+ ack) */
 	removeConnection(pProvMon, pProvCh);
 	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
@@ -3551,21 +3722,26 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Prov()
 	ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
 	ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_CONN && pConsMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
 	pConsCh = pConsMon->mutMsg.pReactorChannel;
-
+	pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
+	/* Make sure connection is up */
+	while(pProvMon->mutMsg.mutMsgType != MUT_MSG_CONN)
+		ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
+	ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
+	pProvCh = pProvMon->mutMsg.pReactorChannel;
 	/* If loginMsgCallback provided, exchange login messages */
 	if (ommProviderRole.loginMsgCallback)
 	{
 		ASSERT_TRUE(ommConsumerRole.pLoginRequest); /* Consumer should have provided a loginRequest to test this */
 		ASSERT_TRUE(ommProviderRole.base.channelEventCallback == channelEventCallback); /* Should be using standard callbacks elsewhere */
 
-		/* Prov: Connection up & ready (+cons flush login request) */
-		ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
-		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_UP);
-		pProvCh = pProvMon->mutMsg.pReactorChannel;
-		ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
-		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_CONN && pProvMon->mutMsg.channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_READY);
+		/* cons flush login request) */
 		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+		
+		/* Make sure the provider receives the login msg */
+		pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
+		while (pProvMon->mutMsg.mutMsgType != MUT_MSG_RDM)
+			ASSERT_TRUE(dispatchEvent(pProvMon, 1000) >= RSSL_RET_SUCCESS);
 	}
 	else
 	{
@@ -3582,8 +3758,7 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Prov()
 		ASSERT_TRUE(ommProviderRole.loginMsgCallback == loginMsgCallback); 
 		ASSERT_TRUE(ommProviderRole.base.channelEventCallback == channelEventCallback); 
 
-		/* Prov: Receive login request */
-		ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
+		/* Prov: Received the login request above */
 		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_RDM && pProvMon->mutMsg.rdmMsg.rdmMsgBase.domainType == RSSL_DMT_LOGIN && pProvMon->mutMsg.rdmMsg.rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
 
 		/* Prov: Send login refresh (+ flush) */
@@ -3597,12 +3772,16 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Prov()
 		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
 
+		/* Make sure the provider receives the directoryRequest msg */
+		pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
+		while (pProvMon->mutMsg.mutMsgType != MUT_MSG_RDM)
+			ASSERT_TRUE(dispatchEvent(pProvMon, 1000) >= RSSL_RET_SUCCESS);
+
 	}
 
 	if (ommConsumerRole.dictionaryDownloadMode == RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE)
 	{
-		/* Prov: Receive directory request */
-		ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
+		/* Prov: Received directory request above */
 		ASSERT_TRUE(pProvMon->mutMsg.mutMsgType == MUT_MSG_RDM && pProvMon->mutMsg.rdmMsg.rdmMsgBase.domainType == RSSL_DMT_SOURCE && pProvMon->mutMsg.rdmMsg.rdmMsgBase.rdmMsgType == RDM_DR_MT_REQUEST);
 
 		/* Prov: Send directory refresh (+ flush) */
@@ -3624,10 +3803,14 @@ static void reactorUnitTests_DisconnectFromCallbacksInt_Prov()
 		/* (Since more than one message is written we should get a second flush) */
 		ASSERT_TRUE(dispatchEvent(pConsMon, 100) >= RSSL_RET_SUCCESS);
 		ASSERT_TRUE(pConsMon->mutMsg.mutMsgType == MUT_MSG_NONE);
+
+		/* Make sure the  msg */
+		pProvMon->mutMsg.mutMsgType = MUT_MSG_NONE;
+		while (pProvMon->mutMsg.mutMsgType != MUT_MSG_RDM)
+			ASSERT_TRUE(dispatchEvent(pProvMon, 1000) >= RSSL_RET_SUCCESS);
 	}
 
-	/* At this point, whatever callback is being tested will disconnect */
-	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
+
 
 	/* Prov: (ack close) */
 	ASSERT_TRUE(dispatchEvent(pProvMon, 100) >= RSSL_RET_SUCCESS);
@@ -3702,13 +3885,20 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	/* Disconnect from connection callback */
 	clearObjects();
 	ommConsumerRole.base.channelEventCallback = channelEventCallbackDisconnect;
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons();
+	printf("Running Cons Connection callback disconnect with dispatch all\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	printf("Running Cons Connection callback disconnect with dispatch channel\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
+
 
 	/* Disconnect from login callback */
 	clearObjects();
 	ommConsumerRole.pLoginRequest = &loginRequest;
 	ommConsumerRole.loginMsgCallback = loginMsgCallbackDisconnect;
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons();
+	printf("Running Cons login callback disconnect with dispatch all\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	printf("Running Cons login callback disconnect with dispatch channel\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
 
 	/* Disconnect from directory callback */
 	clearObjects();
@@ -3716,7 +3906,10 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommConsumerRole.loginMsgCallback = loginMsgCallback;
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
 	ommConsumerRole.directoryMsgCallback = directoryMsgCallbackDisconnect;
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons();
+	printf("Running Cons directory callback disconnect with dispatch all\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	printf("Running Cons directory callback disconnect with dispatch channel\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
 
 	/* Disconnect from dictionary callback */
 	clearObjects();
@@ -3726,13 +3919,32 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommConsumerRole.directoryMsgCallback = directoryMsgCallback;
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
 	ommConsumerRole.dictionaryMsgCallback = dictionaryMsgCallbackDisconnect;
-	reactorUnitTests_DisconnectFromCallbacksInt_Cons();
+	printf("Running Cons dictionary callback disconnect with dispatch all\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	printf("Running Cons dictionary callback disconnect with dispatch channel\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
+
+	/* Disconnect from standard msg callback */
+	clearObjects();
+	ommConsumerRole.pLoginRequest = &loginRequest;
+	ommConsumerRole.loginMsgCallback = loginMsgCallback;
+	ommConsumerRole.pDirectoryRequest = &directoryRequest;
+	ommConsumerRole.directoryMsgCallback = directoryMsgCallback;
+	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
+	ommConsumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
+	ommConsumerRole.base.defaultMsgCallback = defaultMsgCallbackDisconnect;
+	printf("Running Cons default msg callback disconnect with dispatch all\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(false);
+	printf("Running Cons default msg callback disconnect with dispatch channel\n");
+	reactorUnitTests_DisconnectFromCallbacksInt_Cons(true);
+
 
 	/*** Prov tests ***/
 
 	/* Disconnect from connection callback */
 	clearObjects();
 	ommProviderRole.base.channelEventCallback = channelEventCallbackDisconnect;
+	printf("Running Prov channel event callback disconnect with dispatch all\n");
 	reactorUnitTests_DisconnectFromCallbacksInt_Prov();
 
 	/* Disconnect from login callback */
@@ -3740,6 +3952,7 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommProviderRole.base.channelEventCallback = channelEventCallback;
 	ommProviderRole.loginMsgCallback = loginMsgCallbackDisconnect;
 	ommConsumerRole.pLoginRequest = &loginRequest;
+	printf("Running Prov login callback disconnect with dispatch all\n");
 	reactorUnitTests_DisconnectFromCallbacksInt_Prov();
 
 	/* Disconnect from directory callback */
@@ -3749,6 +3962,7 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommProviderRole.directoryMsgCallback = directoryMsgCallbackDisconnect;
 	ommConsumerRole.pLoginRequest = &loginRequest;
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
+	printf("Running Prov directory callback disconnect with dispatch all\n");
 	reactorUnitTests_DisconnectFromCallbacksInt_Prov();
 
 	/* Disconnect from dictionary callback */
@@ -3760,18 +3974,21 @@ static void reactorUnitTests_DisconnectFromCallbacks()
 	ommConsumerRole.pLoginRequest = &loginRequest;
 	ommConsumerRole.pDirectoryRequest = &directoryRequest;
 	ommConsumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_FIRST_AVAILABLE;
+	printf("Running Prov dictionary callback disconnect with dispatch all\n");
 	reactorUnitTests_DisconnectFromCallbacksInt_Prov();
 
 	/*** NIProv tests ***/
 
 	clearObjects();
 	ommNIProviderRole.base.channelEventCallback = channelEventCallbackDisconnect;
+	printf("Running NIProv channel event callback disconnect with dispatch all\n");
 	reactorUnitTests_DisconnectFromCallbacksInt_NiProv();
 
 	/* Disconnect from login callback */
 	clearObjects();
 	ommNIProviderRole.pLoginRequest = &loginRequest;
 	ommNIProviderRole.loginMsgCallback = loginMsgCallbackDisconnect;
+	printf("Running NIProv login callback disconnect with dispatch all\n");
 	reactorUnitTests_DisconnectFromCallbacksInt_NiProv();
 }
 
