@@ -1176,7 +1176,7 @@ void OmmIProviderImpl::handleItemGroup(ItemInfo* itemInfo, RsslBuffer& groupId, 
 Int64 OmmIProviderImpl::dispatch(Int64 timeOut)
 {
 	if (_ommIProviderActiveConfig.operationModel == OmmIProviderConfig::UserDispatchEnum && !_atExit)
-		return rsslReactorDispatchLoop(timeOut, _ommIProviderActiveConfig.maxDispatchCountUserThread, _bMsgDispatched);
+		return rsslReactorDispatchLoop(timeOut, _ommIProviderActiveConfig.maxDispatchCountUserThread, _bEventReceived);
 
 	return OmmProvider::TimeoutEnum;
 }

@@ -32,6 +32,7 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 {
 	ClientSession* clientSession = (ClientSession*)pRsslReactorChannel->userSpecPtr;
 	OmmServerBaseImpl* ommServerBase = (OmmServerBaseImpl*)pRsslReactor->userSpecPtr;
+	ommServerBase->eventReceived();
 
 	switch (pRsslReactorChannelEvent->channelEventType)
 	{

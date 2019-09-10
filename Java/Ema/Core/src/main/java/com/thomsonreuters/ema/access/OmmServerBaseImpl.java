@@ -948,36 +948,6 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 
 		try
 		{
-				do
-				{
-					_userLock.lock();
-					try{
-					ret = _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo);
-					}
-					finally{
-						_userLock.unlock();
-					}
-				}
-				while ( ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < DISPATCH_LOOP_COUNT );
-				
-				if (ret < ReactorReturnCodes.SUCCESS)
-				{
-					if (_loggerClient.isErrorEnabled())
-					{
-						_dispatchStrBuilder.setLength(0);
-						_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. Internal sysError='")
-									.append(_rsslErrorInfo.error().sysError()).append("' Error text='")
-									.append(_rsslErrorInfo.error().text()).append("'. ");
-	
-						_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
-					}
-	
-					return false;
-				}
-				
-				if ( _eventReceived)
-					return true;
-				
 				endTime = System.nanoTime();
 	
 				if ( timeOut > 0 )
@@ -987,12 +957,11 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 					{
 						if (userTimeoutExist)
 							TimeoutEvent.execute(_timeoutEventQueue);
-		
-						return _eventReceived ? true : false;
 					}
-					else if ( timeOut < MIN_TIME_FOR_SELECT  )
-							timeOut = MIN_TIME_FOR_SELECT;
 				}
+				
+				if ( timeOut < MIN_TIME_FOR_SELECT  )
+					timeOut = MIN_TIME_FOR_SELECT;
 
 			while (_state != OmmImplState.NOT_INITIALIZED)
 			{

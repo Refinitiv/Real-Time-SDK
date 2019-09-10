@@ -457,6 +457,10 @@ Series100Provider100-ProvFunc-007
 Series100Provider100-ProvFunc-008
     Alters Interactive Provider to to repeat multiple iterations of the following: initialize provider, publish item, sleep 1 sec, uninitializing provider
 
+Series100Provider130-ProvFunc-001
+    Alters Interactive Provider UserDispatch to accept multiple clients.
+
+
 Module:  Series300Provider320
 ---------------------------
 Series300Provider320-GenM-001
