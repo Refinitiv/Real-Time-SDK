@@ -1329,6 +1329,7 @@ class WlLoginHandler implements WlHandler
 		// watchlist to null
 		_stream = null;
 		_loginRequest = null;
+		_loginRequestForEDP = null;
 		_tempLoginRequest.clear();
 		_tempLoginRequest.rdmMsgType(LoginMsgType.REQUEST);
 		_errorInfo.clear();
